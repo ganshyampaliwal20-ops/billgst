@@ -216,37 +216,37 @@ export default function DashboardPage() {
 
             {/* Recent Invoices */}
             <div className="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-slate-800">Recent Invoices</h2>
-                    <Link href="/dashboard/invoices" className="text-sm text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">View All</Link>
+                <div className="p-4 md:p-6 border-b border-slate-100 flex items-center justify-between">
+                    <h2 className="text-base md:text-lg font-bold text-slate-800">Recent Invoices</h2>
+                    <Link href="/dashboard/invoices" className="text-xs md:text-sm text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">View All</Link>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full min-w-[640px]">
                         <thead className="bg-slate-50">
                             <tr>
-                                <th className="text-left py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice</th>
-                                <th className="text-left py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Customer</th>
-                                <th className="text-left py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                                <th className="text-right py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
-                                <th className="text-center py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                <th className="text-left py-3 md:py-4 px-4 md:px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice</th>
+                                <th className="text-left py-3 md:py-4 px-4 md:px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Customer</th>
+                                <th className="text-left py-3 md:py-4 px-4 md:px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
+                                <th className="text-right py-3 md:py-4 px-4 md:px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
+                                <th className="text-center py-3 md:py-4 px-4 md:px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {(invoices || []).length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-12 text-center text-slate-500 font-medium">
+                                    <td colSpan={5} className="py-8 md:py-12 text-center text-slate-500 font-medium text-sm">
                                         No invoices yet. Create your first invoice!
                                     </td>
                                 </tr>
                             ) : (
                                 invoices.slice(0, 5).map((invoice: any, index: number) => (
                                     <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-4 px-6 text-sm font-semibold text-indigo-600">#{invoice.invoice_number}</td>
-                                        <td className="py-4 px-6 text-sm text-slate-700 font-medium">{invoice.customer.name}</td>
-                                        <td className="py-4 px-6 text-sm text-slate-500">{new Date(invoice.invoice_date).toLocaleDateString()}</td>
-                                        <td className="py-4 px-6 text-sm text-slate-900 font-bold text-right">₹{invoice.total_amount}</td>
-                                        <td className="py-4 px-6 text-center">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                                        <td className="py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm font-semibold text-indigo-600">#{invoice.invoice_number}</td>
+                                        <td className="py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-slate-700 font-medium">{invoice.customer.name}</td>
+                                        <td className="py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-slate-500">{new Date(invoice.invoice_date).toLocaleDateString()}</td>
+                                        <td className="py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm text-slate-900 font-bold text-right">₹{invoice.total_amount}</td>
+                                        <td className="py-3 md:py-4 px-4 md:px-6 text-center">
+                                            <span className="inline-flex items-center px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
                                                 Paid
                                             </span>
                                         </td>

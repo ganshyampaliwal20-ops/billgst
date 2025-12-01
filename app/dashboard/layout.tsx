@@ -11,7 +11,6 @@ import {
 import { useStore } from '@/lib/store';
 
 const menuItems = [
-    { icon: FaHome, label: 'Dashboard', href: '/dashboard', labelHi: 'डैशबोर्ड' },
     { icon: FaFileInvoice, label: 'Invoices', href: '/dashboard/invoices', labelHi: 'बिल' },
     { icon: FaUsers, label: 'Customers', href: '/dashboard/customers', labelHi: 'ग्राहक' },
     { icon: FaBox, label: 'Inventory', href: '/dashboard/inventory', labelHi: 'स्टॉक' },
@@ -41,8 +40,8 @@ export default function DashboardLayout({
                 <div className="h-full flex flex-col">
                     {/* Logo Section */}
                     <div className="p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100">
+                        <Link href="/dashboard" className="flex items-center gap-3 group" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
                                 <Image
                                     src="/logo.png"
                                     alt="Logo"
@@ -54,10 +53,10 @@ export default function DashboardLayout({
                                 />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">BillGST</h2>
+                                <h2 className="text-xl font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">BillGST</h2>
                                 <p className="text-xs text-slate-500 font-medium">Professional Billing</p>
                             </div>
-                        </div>
+                        </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
                             className="md:hidden text-slate-400 hover:text-slate-600 transition-colors"
@@ -132,26 +131,49 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header */}
                 <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
-                    <div className="px-6 py-4 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
-                            >
-                                <FaBars size={20} />
-                            </button>
-                            <h1 className="text-xl font-bold text-slate-800 hidden md:block">
-                                {lang === 'hi' ? 'डैशबोर्ड' : 'Dashboard'}
-                            </h1>
+                    <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+                        {/* Left Side: Logo + Business Name (Mobile & Desktop) */}
+                        <div className="flex items-center gap-3">
+                            <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
+                                <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
+                                    <Image
+                                        src="/logo.png"
+                                        alt="Logo"
+                                        fill
+                                        className="object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
+                                        }}
+                                    />
+                                </div>
+                                <div className="hidden md:block">
+                                    <h2 className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">BillGST</h2>
+                                    <p className="text-xs text-slate-500 font-medium -mt-0.5">Professional Billing</p>
+                                </div>
+                                <div className="md:hidden">
+                                    <h2 className="text-base font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
+                                        {businessProfile.name || 'BillGST'}
+                                    </h2>
+                                </div>
+                            </Link>
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        {/* Right Side: Date + Menu Button */}
+                        <div className="flex items-center gap-2 md:gap-4">
                             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-semibold border border-indigo-100">
                                 <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
                                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                             </div>
-                            <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Logout">
+                            <button className="hidden md:block p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Logout">
                                 <FaSignOutAlt />
+                            </button>
+                            {/* Mobile Menu Button - Larger and on Right */}
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="md:hidden p-3 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors border border-slate-200 shadow-sm active:scale-95"
+                                aria-label="Open Menu"
+                            >
+                                <FaBars size={22} />
                             </button>
                         </div>
                     </div>
