@@ -19,9 +19,10 @@ export default function DashboardPage() {
 
     // Get Analytics Data
     const { totalSales, totalProfit, invoiceCount } = getAnalytics(period);
-    const topProducts = getTopProducts();
-    const activeCustomers = customers.length;
-    const lowStockItems = products.filter(p => p.stock_quantity < (p.low_stock_alert || 10)).length;
+    const topProducts = getTopProducts() || [];
+    const activeCustomers = (customers || []).length;
+    // Fix: Add explicit type check and safety check
+    const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
 
     // Calculate Profit Margin
     const profitMargin = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : 0;
@@ -193,7 +194,7 @@ export default function DashboardPage() {
                                 <p className="text-xs text-slate-400 mt-1">Start selling to see products here.</p>
                             </div>
                         ) : (
-                            topProducts.map((product, index) => (
+                            topProducts.map((product: any, index: number) => (
                                 <div key={index} className="group">
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-sm font-semibold text-slate-700">{product.name}</span>
@@ -231,14 +232,14 @@ export default function DashboardPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {invoices.length === 0 ? (
+                            {(invoices || []).length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="py-12 text-center text-slate-500 font-medium">
                                         No invoices yet. Create your first invoice!
                                     </td>
                                 </tr>
                             ) : (
-                                invoices.slice(0, 5).map((invoice, index) => (
+                                invoices.slice(0, 5).map((invoice: any, index: number) => (
                                     <tr key={index} className="hover:bg-slate-50 transition-colors">
                                         <td className="py-4 px-6 text-sm font-semibold text-indigo-600">#{invoice.invoice_number}</td>
                                         <td className="py-4 px-6 text-sm text-slate-700 font-medium">{invoice.customer.name}</td>
