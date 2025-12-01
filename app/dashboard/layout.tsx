@@ -66,7 +66,7 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-4 space-y-1 overflow-y-auto py-4">
+                    <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
                         {menuItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -75,7 +75,7 @@ export default function DashboardLayout({
                                     key={item.href}
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group ${isActive
                                         ? 'bg-indigo-50 text-indigo-600 font-semibold shadow-sm'
                                         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
                                         }`}
@@ -130,28 +130,28 @@ export default function DashboardLayout({
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header */}
-                <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
-                    <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+                <header className="sticky top-0 z-40 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg">
+                    <div className="px-6 md:px-6 py-4 md:py-4 flex items-center justify-between">
                         {/* Left Side: Logo + Business Name (Mobile & Desktop) */}
                         <div className="flex items-center gap-3">
-                            <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
-                                <div className="relative w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
+                            <Link href="/dashboard" className="flex items-center gap-2.5 md:gap-3 group">
+                                <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all">
                                     <Image
                                         src="/logo.png"
                                         alt="Logo"
                                         fill
                                         className="object-cover"
                                         onError={(e) => {
-                                            e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
+                                            e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
                                         }}
                                     />
                                 </div>
                                 <div className="hidden md:block">
-                                    <h2 className="text-lg font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">BillGST</h2>
-                                    <p className="text-xs text-slate-500 font-medium -mt-0.5">Professional Billing</p>
+                                    <h2 className="text-lg font-bold text-white tracking-tight group-hover:text-indigo-100 transition-colors drop-shadow-sm">BillGST</h2>
+                                    <p className="text-xs text-indigo-100 font-medium -mt-0.5">Professional Billing</p>
                                 </div>
-                                <div className="md:hidden">
-                                    <h2 className="text-base font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
+                                <div className="md:hidden flex flex-col">
+                                    <h2 className="text-base font-bold text-white tracking-tight group-hover:text-indigo-100 transition-colors drop-shadow-sm">
                                         {businessProfile.name || 'BillGST'}
                                     </h2>
                                 </div>
@@ -159,21 +159,21 @@ export default function DashboardLayout({
                         </div>
 
                         {/* Right Side: Date + Menu Button */}
-                        <div className="flex items-center gap-2 md:gap-4">
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-semibold border border-indigo-100">
-                                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <div className="flex items-center gap-3 md:gap-4">
+                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/20 text-white rounded-full text-xs font-semibold border border-white/30 backdrop-blur-sm">
+                                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                             </div>
-                            <button className="hidden md:block p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Logout">
+                            <button className="hidden md:block p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all" title="Logout">
                                 <FaSignOutAlt />
                             </button>
                             {/* Mobile Menu Button - Larger and on Right */}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden p-3 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors border border-slate-200 shadow-sm active:scale-95"
+                                className="md:hidden p-3 text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-md active:scale-95 backdrop-blur-sm"
                                 aria-label="Open Menu"
                             >
-                                <FaBars size={22} />
+                                <FaBars size={20} />
                             </button>
                         </div>
                     </div>

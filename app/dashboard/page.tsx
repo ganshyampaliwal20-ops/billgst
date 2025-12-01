@@ -5,11 +5,13 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { FaTimes } from 'react-icons/fa';
 
 export default function DashboardPage() {
     const { invoices, customers, products, businessProfile, getAnalytics, getTopProducts } = useStore();
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('monthly'); // daily, weekly, monthly, yearly
+    const [showSetupBanner, setShowSetupBanner] = useState(true);
 
     useEffect(() => {
         setIsClient(true);
@@ -115,7 +117,7 @@ export default function DashboardPage() {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-1">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
@@ -140,6 +142,33 @@ export default function DashboardPage() {
                     );
                 })}
             </div>
+
+            {/* Setup Business Prompt - Dismissible */}
+            {!businessProfile.gstin && showSetupBanner && (
+                <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-6 md:p-8 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative">
+                    <button
+                        onClick={() => setShowSetupBanner(false)}
+                        className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-lg transition-colors"
+                        aria-label="Close banner"
+                    >
+                        <FaTimes size={18} />
+                    </button>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 md:gap-6">
+                            <div className="p-3 md:p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                                <FaStore className="text-2xl md:text-3xl" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl md:text-2xl font-bold">Setup Your Business</h2>
+                                <p className="text-indigo-100 mt-1 text-sm md:text-base">Add your GSTIN and business details to start invoicing professionally.</p>
+                            </div>
+                        </div>
+                        <Link href="/dashboard/settings" className="px-6 md:px-8 py-2.5 md:py-3 bg-white text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition shadow-lg whitespace-nowrap text-sm md:text-base">
+                            Setup Now
+                        </Link>
+                    </div>
+                </div>
+            )}
 
             {/* Charts & Top Products */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
