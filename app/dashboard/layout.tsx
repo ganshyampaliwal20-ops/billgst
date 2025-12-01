@@ -77,8 +77,8 @@ export default function DashboardLayout({
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                                            ? 'bg-indigo-50 text-indigo-600 font-semibold shadow-sm'
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                                        ? 'bg-indigo-50 text-indigo-600 font-semibold shadow-sm'
+                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
                                         }`}
                                 >
                                     <Icon className={`text-lg transition-transform group-hover:scale-110 ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
