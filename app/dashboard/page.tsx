@@ -194,51 +194,73 @@ export default function DashboardPage() {
             </div>
 
             {/* Period Filter - Premium Card Box */}
-            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-slate-200">
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-4 md:p-6 shadow-xl">
                 <div className="flex flex-col gap-4">
                     <div>
-                        <h2 className="text-base md:text-xl font-bold text-slate-800">Analytics Overview</h2>
-                        <p className="text-[10px] md:text-sm text-slate-500 font-medium">Track your business performance</p>
+                        <h2 className="text-base md:text-xl font-bold text-white">Analytics Overview</h2>
+                        <p className="text-[10px] md:text-sm text-white/70 font-medium">Track your business performance</p>
                     </div>
-                    <div className="flex bg-slate-100 p-2 rounded-xl gap-2 flex-wrap">
-                        {['daily', 'weekly', 'monthly', 'yearly'].map((p) => (
+                    <div className="flex gap-2 md:gap-3 flex-wrap">
+                        {[
+                            { key: 'daily', label: 'Daily', color: 'from-blue-500 to-cyan-500', activeColor: 'from-blue-600 to-cyan-600' },
+                            { key: 'weekly', label: 'Weekly', color: 'from-purple-500 to-pink-500', activeColor: 'from-purple-600 to-pink-600' },
+                            { key: 'monthly', label: 'Monthly', color: 'from-indigo-500 to-violet-500', activeColor: 'from-indigo-600 to-violet-600' },
+                            { key: 'yearly', label: 'Yearly', color: 'from-emerald-500 to-teal-500', activeColor: 'from-emerald-600 to-teal-600' }
+                        ].map((item) => (
                             <button
-                                key={p}
-                                onClick={() => setPeriod(p)}
-                                className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-lg text-[10px] md:text-sm font-bold transition-all ${period === p
-                                    ? 'bg-indigo-600 text-white shadow-lg'
-                                    : 'bg-white text-slate-600 hover:text-slate-900 shadow-sm'
+                                key={item.key}
+                                onClick={() => setPeriod(item.key)}
+                                className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-xl text-[11px] md:text-sm font-bold transition-all duration-300 ${period === item.key
+                                    ? `bg-gradient-to-r ${item.activeColor} text-white shadow-lg scale-105 ring-2 ring-white/50`
+                                    : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border border-white/20'
                                     }`}
                             >
-                                {p.charAt(0).toUpperCase() + p.slice(1)}
+                                {item.label}
                             </button>
                         ))}
                     </div>
                 </div>
             </div>
 
-            {/* Stats Grid - Mobile Optimized */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-                {stats.map((stat, index) => {
-                    const Icon = stat.icon;
-                    return (
-                        <div
-                            key={index}
-                            className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-slate-100 hover:shadow-xl transition-all duration-300 group cursor-default"
-                        >
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className={`p-2 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
-                                    <Icon className="text-sm md:text-lg" />
+            {/* Stats Cards - Premium Container */}
+            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-3 md:p-6 shadow-lg border border-slate-200">
+                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-4 px-1">Business Overview</h1>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+                    {stats.map((stat, index) => {
+                        const Icon = stat.icon;
+                        return (
+                            <div
+                                key={index}
+                                className="bg-white rounded-2xl p-3 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group overflow-hidden"
+                            >
+                                {/* Icon & Trend Row */}
+                                <div className="flex items-start justify-between gap-2 mb-3">
+                                    <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex-shrink-0`}>
+                                        <Icon className="text-base md:text-xl" />
+                                    </div>
+                                    <span className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full flex-shrink-0 ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                        {stat.trend}
+                                    </span>
                                 </div>
-                                <p className="text-slate-600 text-[10px] md:text-xs font-bold uppercase tracking-wide">{stat.label}</p>
+
+                                {/* Label */}
+                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase tracking-wide mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">
+                                    {stat.label}
+                                </p>
+
+                                {/* Value */}
+                                <p className="text-lg md:text-2xl font-bold text-slate-800 mb-1">
+                                    {stat.formattedValue}
+                                </p>
+
+                                {/* Subtext */}
+                                <p className="text-[10px] md:text-xs text-slate-400 font-medium">
+                                    {stat.subtext}
+                                </p>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-xl md:text-3xl font-bold text-slate-800 tracking-tight" title={stat.value.toLocaleString()}>{stat.formattedValue}</p>
-                                <p className="text-[10px] md:text-xs text-slate-400 font-medium">{stat.subtext}</p>
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Setup Business Prompt - Dismissible */}

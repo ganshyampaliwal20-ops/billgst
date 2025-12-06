@@ -129,8 +129,8 @@ export default function DashboardLayout({
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
-                {/* Header - Fixed on top always */}
-                <header className="fixed top-0 left-0 right-0 md:left-72 z-50 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg">
+                {/* Header - Sticky on top */}
+                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg">
                     <div className="px-6 md:px-6 py-4 md:py-4 flex items-center justify-between">
                         {/* Left Side: Logo + Business Name (Mobile & Desktop) */}
                         <div className="flex items-center gap-3">
@@ -179,8 +179,8 @@ export default function DashboardLayout({
                     </div>
                 </header>
 
-                {/* Page Content - with top padding for fixed header */}
-                <main className="flex-1 p-3 md:p-8 mt-16 md:mt-[72px] scroll-smooth overflow-auto">
+                {/* Page Content */}
+                <main className="flex-1 p-4 md:p-8 scroll-smooth overflow-auto">
                     <div className="max-w-7xl mx-auto animate-fadeIn">
                         {children}
                     </div>
