@@ -217,28 +217,28 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Stats Grid - Mobile Optimized with Better Alignment */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+            {/* Stats Grid - Mobile Optimized with Better Padding */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 px-1">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
                         <div
                             key={index}
-                            className="bg-white rounded-2xl p-4 md:p-6 shadow-soft border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-default"
+                            className="bg-white rounded-2xl p-3 md:p-6 shadow-soft border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-default"
                         >
-                            <div className="flex items-center justify-between mb-3">
-                                <div className={`p-2 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
-                                    <Icon className="text-sm md:text-lg" />
+                            <div className="flex items-center justify-between mb-2 md:mb-3">
+                                <div className={`p-1.5 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
+                                    <Icon className="text-xs md:text-lg" />
                                 </div>
-                                <div className={`flex items-center gap-0.5 text-[9px] md:text-xs font-bold ${stat.trendUp ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'} px-1.5 py-0.5 md:px-2 md:py-1 rounded-full`}>
-                                    {stat.trendUp ? <FaArrowUp className="text-[7px] md:text-[10px]" /> : <FaArrowDown className="text-[7px] md:text-[10px]" />}
-                                    <span>{stat.trend}</span>
+                                <div className={`flex items-center gap-0.5 text-[8px] md:text-xs font-bold ${stat.trendUp ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'} px-1 py-0.5 md:px-2 md:py-1 rounded-full`}>
+                                    {stat.trendUp ? <FaArrowUp className="text-[6px] md:text-[10px]" /> : <FaArrowDown className="text-[6px] md:text-[10px]" />}
+                                    <span className="whitespace-nowrap">{stat.trend}</span>
                                 </div>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-slate-500 text-[9px] md:text-xs font-semibold uppercase tracking-wide truncate">{stat.label}</p>
-                                <p className="text-lg md:text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight" title={stat.value.toLocaleString()}>{stat.formattedValue}</p>
-                                <p className="text-[9px] md:text-xs text-slate-400 font-medium truncate">{stat.subtext}</p>
+                            <div className="space-y-0.5 md:space-y-1">
+                                <p className="text-slate-500 text-[8px] md:text-xs font-semibold uppercase tracking-wide leading-tight">{stat.label}</p>
+                                <p className="text-base md:text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight" title={stat.value.toLocaleString()}>{stat.formattedValue}</p>
+                                <p className="text-[8px] md:text-xs text-slate-400 font-medium leading-tight">{stat.subtext}</p>
                             </div>
                         </div>
                     );
