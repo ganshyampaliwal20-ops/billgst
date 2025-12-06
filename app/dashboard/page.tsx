@@ -174,69 +174,71 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {/* Quick Actions - Bigger Buttons */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
                 {quickActions.map((action, index) => {
                     const Icon = action.icon;
                     return (
                         <Link
                             key={index}
                             href={action.href}
-                            className={`${action.color} text-white rounded-xl p-3 md:p-4 flex items-center gap-2 md:gap-3 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95`}
+                            className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px]`}
                         >
-                            <div className="p-2 bg-white/20 rounded-lg">
-                                <Icon className="text-sm md:text-lg" />
+                            <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
+                                <Icon className="text-xl md:text-2xl" />
                             </div>
-                            <span className="text-xs md:text-sm font-semibold truncate">{action.label}</span>
+                            <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
                         </Link>
                     );
                 })}
             </div>
 
-            {/* Period Filter */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                    <h2 className="text-lg md:text-xl font-bold text-slate-800">Analytics Overview</h2>
-                    <p className="text-xs md:text-sm text-slate-500 font-medium">Track your business performance</p>
-                </div>
-                <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-                    {['daily', 'weekly', 'monthly', 'yearly'].map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPeriod(p)}
-                            className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-semibold transition-all whitespace-nowrap ${period === p
-                                ? 'bg-indigo-600 text-white shadow-md'
-                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                }`}
-                        >
-                            {p.charAt(0).toUpperCase() + p.slice(1)}
-                        </button>
-                    ))}
+            {/* Period Filter - Premium Box */}
+            <div className="bg-white rounded-2xl p-4 md:p-5 shadow-soft border border-slate-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-lg md:text-xl font-bold text-slate-800">Analytics Overview</h2>
+                        <p className="text-xs md:text-sm text-slate-500 font-medium">Track your business performance</p>
+                    </div>
+                    <div className="flex bg-slate-100 p-1.5 rounded-xl gap-2 overflow-x-auto">
+                        {['daily', 'weekly', 'monthly', 'yearly'].map((p) => (
+                            <button
+                                key={p}
+                                onClick={() => setPeriod(p)}
+                                className={`px-4 md:px-5 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-bold transition-all whitespace-nowrap ${period === p
+                                    ? 'bg-indigo-600 text-white shadow-lg'
+                                    : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'
+                                    }`}
+                            >
+                                {p.charAt(0).toUpperCase() + p.slice(1)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            {/* Stats Grid - Mobile Optimized */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+            {/* Stats Grid - Mobile Optimized with Better Alignment */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
                         <div
                             key={index}
-                            className="bg-white rounded-xl md:rounded-2xl p-4 md:p-5 shadow-soft border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-default"
+                            className="bg-white rounded-2xl p-4 md:p-6 shadow-soft border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-default"
                         >
-                            <div className="flex items-start justify-between mb-3 md:mb-4">
-                                <div className={`p-2.5 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
-                                    <Icon className="text-base md:text-lg" />
+                            <div className="flex items-center justify-between mb-3">
+                                <div className={`p-2 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
+                                    <Icon className="text-sm md:text-lg" />
                                 </div>
-                                <div className={`flex items-center gap-1 text-[10px] md:text-xs font-bold ${stat.trendUp ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'} px-1.5 md:px-2 py-0.5 md:py-1 rounded-full`}>
-                                    {stat.trendUp ? <FaArrowUp className="text-[8px] md:text-[10px]" /> : <FaArrowDown className="text-[8px] md:text-[10px]" />}
+                                <div className={`flex items-center gap-0.5 text-[9px] md:text-xs font-bold ${stat.trendUp ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'} px-1.5 py-0.5 md:px-2 md:py-1 rounded-full`}>
+                                    {stat.trendUp ? <FaArrowUp className="text-[7px] md:text-[10px]" /> : <FaArrowDown className="text-[7px] md:text-[10px]" />}
                                     <span>{stat.trend}</span>
                                 </div>
                             </div>
-                            <div>
-                                <h3 className="text-slate-500 text-[10px] md:text-xs font-semibold mb-0.5 md:mb-1 uppercase tracking-wide">{stat.label}</h3>
-                                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight truncate" title={stat.value.toLocaleString()}>{stat.formattedValue}</h2>
-                                <p className="text-[10px] md:text-xs text-slate-400 mt-1 md:mt-2 font-medium">{stat.subtext}</p>
+                            <div className="space-y-1">
+                                <p className="text-slate-500 text-[9px] md:text-xs font-semibold uppercase tracking-wide truncate">{stat.label}</p>
+                                <p className="text-lg md:text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight" title={stat.value.toLocaleString()}>{stat.formattedValue}</p>
+                                <p className="text-[9px] md:text-xs text-slate-400 font-medium truncate">{stat.subtext}</p>
                             </div>
                         </div>
                     );
@@ -273,20 +275,20 @@ export default function DashboardPage() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 {/* Revenue Analytics - Area Chart */}
-                <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
+                <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2">
                         <div>
                             <h2 className="text-sm md:text-lg font-bold text-slate-800">Revenue Analytics</h2>
-                            <p className="text-xs text-slate-500 font-medium">Income vs Profit trends</p>
+                            <p className="text-[10px] md:text-xs text-slate-500 font-medium">Income vs Profit trends</p>
                         </div>
-                        <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs">
+                        <div className="flex items-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg">
                             <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-indigo-500"></span>
-                                <span className="text-slate-500">Sales</span>
+                                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                <span className="text-slate-600 font-medium">Sales</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-emerald-500"></span>
-                                <span className="text-slate-500">Profit</span>
+                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span className="text-slate-600 font-medium">Profit</span>
                             </div>
                         </div>
                     </div>
