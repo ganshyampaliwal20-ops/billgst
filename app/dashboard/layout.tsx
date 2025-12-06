@@ -66,7 +66,7 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
+                    <nav className="flex-1 px-4 space-y-3 overflow-y-auto py-4">
                         {menuItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -75,15 +75,17 @@ export default function DashboardLayout({
                                     key={item.href}
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group ${isActive
-                                        ? 'bg-indigo-50 text-indigo-600 font-semibold shadow-sm'
-                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                                    className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 group border ${isActive
+                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold shadow-lg border-indigo-400'
+                                        : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold border-slate-200 hover:border-slate-300 shadow-sm'
                                         }`}
                                 >
-                                    <Icon className={`text-lg transition-transform group-hover:scale-110 ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                                    <span>{lang === 'hi' ? item.labelHi : item.label}</span>
+                                    <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-slate-100 group-hover:bg-indigo-100'}`}>
+                                        <Icon className={`text-lg ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-indigo-600'}`} />
+                                    </div>
+                                    <span className="text-sm">{lang === 'hi' ? item.labelHi : item.label}</span>
                                     {isActive && (
-                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                                        <div className="ml-auto w-2 h-2 rounded-full bg-white shadow-sm" />
                                     )}
                                 </Link>
                             );
@@ -131,7 +133,7 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg">
-                    <div className="px-6 md:px-6 py-4 md:py-4 flex items-center justify-between">
+                    <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
                         {/* Left Side: Logo + Business Name (Mobile & Desktop) */}
                         <div className="flex items-center gap-3">
                             <Link href="/dashboard" className="flex items-center gap-2.5 md:gap-3 group">

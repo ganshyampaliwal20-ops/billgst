@@ -129,7 +129,7 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="space-y-6 md:space-y-8">
+        <div className="space-y-10 md:space-y-12">
             {/* Welcome Hero Section */}
             <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-2xl md:rounded-3xl p-5 md:p-8 text-white shadow-2xl">
                 {/* Background Pattern */}
@@ -140,33 +140,33 @@ export default function DashboardPage() {
 
                 <div className="relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                                <FaClock className="text-white/70 text-sm" />
-                                <span className="text-xs md:text-sm text-white/80 font-medium">
+                        <div className="flex-1 pl-1">
+                            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                                <FaClock className="text-white text-sm" />
+                                <span className="text-xs md:text-sm text-white font-bold">
                                     {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
                                 </span>
                             </div>
-                            <h1 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">
+                            <h1 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-center md:text-left">
                                 {getGreeting()}, <span className="text-yellow-300">{businessProfile.name || 'Owner'}</span>! 👋
                             </h1>
-                            <p className="text-white/80 text-sm md:text-base">
+                            <p className="text-white font-semibold text-sm md:text-base text-center md:text-left">
                                 Here's what's happening with your business today.
                             </p>
                         </div>
 
                         {/* Quick Summary - Mobile Friendly */}
                         <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 md:pb-0">
-                            <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 min-w-[100px] md:min-w-[120px]">
-                                <p className="text-xs text-white/70 font-medium">Today's Sales</p>
+                            <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl p-4 md:p-5 min-w-[110px] md:min-w-[130px] text-center">
+                                <p className="text-xs text-white font-bold mb-1">Today's Sales</p>
                                 <p className="text-lg md:text-2xl font-bold">₹{(totalSales * 0.1).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
                             </div>
-                            <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 min-w-[100px] md:min-w-[120px]">
-                                <p className="text-xs text-white/70 font-medium">Customers</p>
+                            <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl p-4 md:p-5 min-w-[110px] md:min-w-[130px] text-center">
+                                <p className="text-xs text-white font-bold mb-1">Customers</p>
                                 <p className="text-lg md:text-2xl font-bold">{activeCustomers}</p>
                             </div>
-                            <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl p-3 md:p-4 min-w-[100px] md:min-w-[120px]">
-                                <p className="text-xs text-white/70 font-medium">Products</p>
+                            <div className="flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl p-4 md:p-5 min-w-[110px] md:min-w-[130px] text-center">
+                                <p className="text-xs text-white font-bold mb-1">Products</p>
                                 <p className="text-lg md:text-2xl font-bold">{totalProducts}</p>
                             </div>
                         </div>
@@ -174,51 +174,54 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Quick Actions - Bigger Buttons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                {quickActions.map((action, index) => {
-                    const Icon = action.icon;
-                    return (
-                        <Link
-                            key={index}
-                            href={action.href}
-                            className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px]`}
-                        >
-                            <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-                                <Icon className="text-xl md:text-2xl" />
-                            </div>
-                            <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
-                        </Link>
-                    );
-                })}
+            {/* Quick Actions - With White Border Container */}
+            <div className="bg-white rounded-2xl p-8 md:p-10 shadow-lg border border-slate-200">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                    {quickActions.map((action, index) => {
+                        const Icon = action.icon;
+                        return (
+                            <Link
+                                key={index}
+                                href={action.href}
+                                className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30`}
+                            >
+                                <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
+                                    <Icon className="text-xl md:text-2xl" />
+                                </div>
+                                <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
             </div>
 
-            {/* Period Filter - Premium Card Box */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-4 md:p-6 shadow-xl">
-                <div className="flex flex-col gap-4">
-                    <div>
-                        <h2 className="text-base md:text-xl font-bold text-white">Analytics Overview</h2>
-                        <p className="text-[10px] md:text-sm text-white/70 font-medium">Track your business performance</p>
-                    </div>
-                    <div className="flex gap-2 md:gap-3 flex-wrap">
-                        {[
-                            { key: 'daily', label: 'Daily', color: 'from-blue-500 to-cyan-500', activeColor: 'from-blue-600 to-cyan-600' },
-                            { key: 'weekly', label: 'Weekly', color: 'from-purple-500 to-pink-500', activeColor: 'from-purple-600 to-pink-600' },
-                            { key: 'monthly', label: 'Monthly', color: 'from-indigo-500 to-violet-500', activeColor: 'from-indigo-600 to-violet-600' },
-                            { key: 'yearly', label: 'Yearly', color: 'from-emerald-500 to-teal-500', activeColor: 'from-emerald-600 to-teal-600' }
-                        ].map((item) => (
-                            <button
-                                key={item.key}
-                                onClick={() => setPeriod(item.key)}
-                                className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-xl text-[11px] md:text-sm font-bold transition-all duration-300 ${period === item.key
-                                    ? `bg-gradient-to-r ${item.activeColor} text-white shadow-lg scale-105 ring-2 ring-white/50`
-                                    : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border border-white/20'
-                                    }`}
-                            >
-                                {item.label}
-                            </button>
-                        ))}
-                    </div>
+            {/* Analytics Overview Header */}
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-5 md:p-6 shadow-xl">
+                <h2 className="text-lg md:text-2xl font-bold text-white">Analytics Overview</h2>
+                <p className="text-sm md:text-base text-white font-bold mt-1 pl-0.5">Track your business performance</p>
+            </div>
+
+            {/* Period Filter Buttons - Separate Box */}
+            <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
+                <p className="text-xs md:text-sm font-semibold text-slate-600 mb-3">Select Time Period:</p>
+                <div className="flex gap-2 md:gap-3 flex-wrap">
+                    {[
+                        { key: 'daily', label: 'Daily', activeColor: 'from-blue-500 to-cyan-500' },
+                        { key: 'weekly', label: 'Weekly', activeColor: 'from-purple-500 to-pink-500' },
+                        { key: 'monthly', label: 'Monthly', activeColor: 'from-indigo-500 to-violet-500' },
+                        { key: 'yearly', label: 'Yearly', activeColor: 'from-emerald-500 to-teal-500' }
+                    ].map((item) => (
+                        <button
+                            key={item.key}
+                            onClick={() => setPeriod(item.key)}
+                            className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-xl text-[11px] md:text-sm font-bold transition-all duration-300 ${period === item.key
+                                ? `bg-gradient-to-r ${item.activeColor} text-white shadow-lg scale-105`
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+                                }`}
+                        >
+                            {item.label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
