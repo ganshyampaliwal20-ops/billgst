@@ -193,21 +193,21 @@ export default function DashboardPage() {
                 })}
             </div>
 
-            {/* Period Filter - Premium Box */}
-            <div className="bg-white rounded-2xl p-4 md:p-5 shadow-soft border border-slate-200">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Period Filter - Premium Card Box */}
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-slate-200">
+                <div className="flex flex-col gap-4">
                     <div>
-                        <h2 className="text-lg md:text-xl font-bold text-slate-800">Analytics Overview</h2>
-                        <p className="text-xs md:text-sm text-slate-500 font-medium">Track your business performance</p>
+                        <h2 className="text-base md:text-xl font-bold text-slate-800">Analytics Overview</h2>
+                        <p className="text-[10px] md:text-sm text-slate-500 font-medium">Track your business performance</p>
                     </div>
-                    <div className="flex bg-slate-100 p-1.5 rounded-xl gap-2 overflow-x-auto">
+                    <div className="flex bg-slate-100 p-2 rounded-xl gap-2 flex-wrap">
                         {['daily', 'weekly', 'monthly', 'yearly'].map((p) => (
                             <button
                                 key={p}
                                 onClick={() => setPeriod(p)}
-                                className={`px-4 md:px-5 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-bold transition-all whitespace-nowrap ${period === p
+                                className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-lg text-[10px] md:text-sm font-bold transition-all ${period === p
                                     ? 'bg-indigo-600 text-white shadow-lg'
-                                    : 'text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm'
+                                    : 'bg-white text-slate-600 hover:text-slate-900 shadow-sm'
                                     }`}
                             >
                                 {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -217,28 +217,24 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Stats Grid - Mobile Optimized with Better Padding */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 px-1">
+            {/* Stats Grid - Mobile Optimized */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
                         <div
                             key={index}
-                            className="bg-white rounded-2xl p-3 md:p-6 shadow-soft border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-default"
+                            className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-slate-100 hover:shadow-xl transition-all duration-300 group cursor-default"
                         >
-                            <div className="flex items-center justify-between mb-2 md:mb-3">
-                                <div className={`p-1.5 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
-                                    <Icon className="text-xs md:text-lg" />
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className={`p-2 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} ${stat.shadow} text-white transform group-hover:scale-110 transition-transform duration-300`}>
+                                    <Icon className="text-sm md:text-lg" />
                                 </div>
-                                <div className={`flex items-center gap-0.5 text-[8px] md:text-xs font-bold ${stat.trendUp ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'} px-1 py-0.5 md:px-2 md:py-1 rounded-full`}>
-                                    {stat.trendUp ? <FaArrowUp className="text-[6px] md:text-[10px]" /> : <FaArrowDown className="text-[6px] md:text-[10px]" />}
-                                    <span className="whitespace-nowrap">{stat.trend}</span>
-                                </div>
+                                <p className="text-slate-600 text-[10px] md:text-xs font-bold uppercase tracking-wide">{stat.label}</p>
                             </div>
-                            <div className="space-y-0.5 md:space-y-1">
-                                <p className="text-slate-500 text-[8px] md:text-xs font-semibold uppercase tracking-wide leading-tight">{stat.label}</p>
-                                <p className="text-base md:text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight" title={stat.value.toLocaleString()}>{stat.formattedValue}</p>
-                                <p className="text-[8px] md:text-xs text-slate-400 font-medium leading-tight">{stat.subtext}</p>
+                            <div className="space-y-1">
+                                <p className="text-xl md:text-3xl font-bold text-slate-800 tracking-tight" title={stat.value.toLocaleString()}>{stat.formattedValue}</p>
+                                <p className="text-[10px] md:text-xs text-slate-400 font-medium">{stat.subtext}</p>
                             </div>
                         </div>
                     );
