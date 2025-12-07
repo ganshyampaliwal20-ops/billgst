@@ -8,13 +8,21 @@ import { useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
 export default function DashboardPage() {
-    const { invoices, customers, products, businessProfile, getAnalytics, getTopProducts } = useStore();
+    const {
+        invoices, customers, products, businessProfile,
+        getAnalytics, getTopProducts,
+        fetchCustomers, fetchProducts, fetchInvoices
+    } = useStore();
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('monthly');
     const [showSetupBanner, setShowSetupBanner] = useState(true);
 
     useEffect(() => {
         setIsClient(true);
+        // Load Data from DB
+        fetchCustomers();
+        fetchProducts();
+        fetchInvoices();
     }, []);
 
     if (!isClient) return null;
