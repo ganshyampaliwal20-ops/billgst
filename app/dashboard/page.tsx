@@ -129,9 +129,10 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="space-y-10 md:space-y-12">
+        <div className="space-y-10 md:space-y-12 px-4 md:px-0">
             {/* Welcome Hero Section */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-2xl md:rounded-3xl p-5 md:p-8 text-white shadow-2xl">
+            {/* Welcome Hero Section */}
+            <div className="relative overflow-hidden bg-blue-600 rounded-2xl md:rounded-3xl p-5 md:p-8 text-white shadow-xl shadow-blue-200">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full transform translate-x-1/2 -translate-y-1/2"></div>
