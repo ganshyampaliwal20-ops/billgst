@@ -145,14 +145,11 @@ export default function NewInvoicePage() {
                     <Link href="/dashboard/invoices" className="p-2 hover:bg-gray-100 rounded-full transition">
                         <FaArrowLeft className="text-gray-600" />
                     </Link>
-                    <h1 className="text-2xl font-bold text-gray-800">New Invoice</h1>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-800">New Invoice</h1>
+                        <p className="text-sm text-gray-500">Create a professional invoice for your customer</p>
+                    </div>
                 </div>
-                <button
-                    onClick={handleSubmit}
-                    className="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2"
-                >
-                    <FaSave /> Save Invoice
-                </button>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-8 space-y-8">

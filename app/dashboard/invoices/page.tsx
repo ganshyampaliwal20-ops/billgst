@@ -25,16 +25,18 @@ interface Invoice {
 }
 
 export default function InvoicesPage() {
-    const { invoices, deleteInvoice, businessProfile } = useStore() as {
+    const { invoices, deleteInvoice, businessProfile, fetchInvoices } = useStore() as {
         invoices: Invoice[],
         deleteInvoice: (id: string) => void,
-        businessProfile: any
+        businessProfile: any,
+        fetchInvoices: () => void
     };
     const [searchTerm, setSearchTerm] = useState('');
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
+        fetchInvoices();
     }, []);
 
     if (!isClient) return null;

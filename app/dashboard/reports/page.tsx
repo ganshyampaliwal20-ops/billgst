@@ -6,12 +6,13 @@ import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers } from 'react-icons/fa
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 export default function ReportsPage() {
-    const { getAnalytics } = useStore();
+    const { getAnalytics, fetchInvoices } = useStore();
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('monthly');
 
     useEffect(() => {
         setIsClient(true);
+        fetchInvoices();
     }, []);
 
     if (!isClient) return null;
