@@ -116,12 +116,12 @@ export async function POST(request: Request) {
         RETURNING id
     `, [
             data.invoice_number,
-            parseInt(data.customer.id), // Ensure INT. If UUID, this will be NaN and throw.
+            data.customer.id, // Now using UUID
             data.invoice_date,
             data.due_date,
             data.subtotal,
             data.total_amount,
-            data.total_tax, // Mapping to igst_amount for simplicity or need conditional logic for cgst/sgst
+            data.total_tax,
             data.status,
             data.notes
         ]);
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       `, [
                 invoiceId,
-                parseInt(item.product_id), // Ensure INT
+                item.product_id, // Now using UUID
                 item.product_name,
                 item.quantity,
                 item.unit_price,

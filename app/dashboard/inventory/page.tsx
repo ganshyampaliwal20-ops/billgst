@@ -218,16 +218,23 @@ export default function InventoryPage() {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                                    <select
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                    <input
+                                        list="units"
+                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
                                         value={formData.unit}
-                                        onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                                    >
-                                        <option value="PCS">PCS</option>
-                                        <option value="KG">KG</option>
-                                        <option value="LTR">LTR</option>
-                                        <option value="BOX">BOX</option>
-                                    </select>
+                                        onChange={e => setFormData({ ...formData, unit: e.target.value.toUpperCase() })}
+                                        placeholder="PCS, KG, GM..."
+                                    />
+                                    <datalist id="units">
+                                        <option value="PCS" />
+                                        <option value="KG" />
+                                        <option value="GM" />
+                                        <option value="LTR" />
+                                        <option value="ML" />
+                                        <option value="BOX" />
+                                        <option value="DOZEN" />
+                                        <option value="PACK" />
+                                    </datalist>
                                 </div>
                             </div>
                             <div>

@@ -47,7 +47,8 @@ export default function NewInvoicePage() {
                     product_name: product.name,
                     unit_price: product.price,
                     gst_rate: product.gst_rate || 18,
-                    hsn_code: product.hsn_code
+                    hsn_code: product.hsn_code,
+                    unit: product.unit || 'PCS'
                 };
             }
         } else {
@@ -234,13 +235,16 @@ export default function NewInvoicePage() {
                                             </select>
                                         </td>
                                         <td className="p-3">
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                value={item.quantity}
-                                                onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                                                className="w-full p-3 border border-gray-200 rounded-xl text-sm text-center outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-bold"
-                                            />
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    value={item.quantity}
+                                                    onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
+                                                    className="w-full p-3 border border-gray-200 rounded-xl text-sm text-center outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-bold"
+                                                />
+                                                <span className="text-xs font-bold text-gray-500 w-8">{item.unit || 'PCS'}</span>
+                                            </div>
                                         </td>
                                         <td className="p-3">
                                             <div className="relative">

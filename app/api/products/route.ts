@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
         // Ensure numeric values are valid
         const price = parseFloat(data.price) || 0;
-        const stock = parseInt(data.stock_quantity) || 0;
+        const stock = data.stock_quantity || 0;
         const gst = parseFloat(data.gst_rate) || 0;
 
         const result = await client.query(
