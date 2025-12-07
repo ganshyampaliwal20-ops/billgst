@@ -16,13 +16,23 @@ export default function DashboardPage() {
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('monthly');
     const [showSetupBanner, setShowSetupBanner] = useState(true);
+    const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
         setIsClient(true);
+        // Setup Banner State
+        const bannerDismissed = localStorage.getItem('setupBannerDismissed');
+        if (bannerDismissed) setShowSetupBanner(false);
+
+        // Live Clock
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
         // Load Data from DB
         fetchCustomers();
         fetchProducts();
         fetchInvoices();
+
+        return () => clearInterval(timer);
     }, []);
 
     if (!isClient) return null;
@@ -142,9 +152,11 @@ export default function DashboardPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <FaClock className="text-gray-400 text-sm" />
-                        <span className="text-xs md:text-sm text-gray-500 font-bold">
-                            {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
+                        <FaClock className="text-amber-500 text-sm" />
+                        <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
+                            {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </span>
                     </div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
@@ -253,7 +265,10 @@ export default function DashboardPage() {
                 !businessProfile.gstin && showSetupBanner && (
                     <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative">
                         <button
-                            onClick={() => setShowSetupBanner(false)}
+                            onClick={() => {
+                                setShowSetupBanner(false);
+                                localStorage.setItem('setupBannerDismissed', 'true');
+                            }}
                             className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition-colors"
                             aria-label="Close banner"
                         >

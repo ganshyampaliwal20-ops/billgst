@@ -17,6 +17,7 @@ interface Invoice {
     id: string;
     invoice_number: string;
     invoice_date: string | Date;
+    created_at?: string;
     customer: {
         name: string;
     };
@@ -147,7 +148,10 @@ Powered by BillGST.in`;
                                             {invoice.invoice_number}
                                         </td>
                                         <td className="py-4 px-6 text-sm text-gray-500">
-                                            {new Date(invoice.invoice_date).toLocaleDateString()}
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-gray-700">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
+                                                <span className="text-xs text-gray-400">{new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
                                         </td>
                                         <td className="py-4 px-6 text-sm text-gray-800 font-medium">
                                             {invoice.customer.name}

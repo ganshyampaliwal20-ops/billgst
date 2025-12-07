@@ -154,9 +154,9 @@ export default function NewInvoicePage() {
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-8 space-y-8">
                 {/* Customer & Dates */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-600 flex justify-between">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-700 flex justify-between uppercase tracking-wider text-xs">
                             Customer
                             <button
                                 onClick={() => setShowCustomerModal(true)}
@@ -169,34 +169,34 @@ export default function NewInvoicePage() {
                             <select
                                 value={customerId}
                                 onChange={(e) => setCustomerId(e.target.value)}
-                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
+                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-gray-700 transition-all hover:bg-white hover:border-gray-300"
                             >
                                 <option value="">Select Customer</option>
                                 {customers.map((c: any) => (
                                     <option key={c.id} value={c.id}>{c.name}</option>
                                 ))}
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                             </div>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-600">Invoice Date</label>
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider text-xs">Invoice Date</label>
                         <input
                             type="date"
                             value={invoiceDate}
                             onChange={(e) => setInvoiceDate(e.target.value)}
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 transition-all hover:bg-white hover:border-gray-300"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-600">Due Date</label>
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider text-xs">Due Date</label>
                         <input
                             type="date"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 transition-all hover:bg-white hover:border-gray-300"
                         />
                     </div>
                 </div>
@@ -220,12 +220,12 @@ export default function NewInvoicePage() {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {selectedItems.map((item, index) => (
-                                    <tr key={index}>
-                                        <td className="p-2">
+                                    <tr key={index} className="hover:bg-gray-50 transition-colors group">
+                                        <td className="p-3">
                                             <select
                                                 value={item.product_id}
                                                 onChange={(e) => updateItem(index, 'product_id', e.target.value)}
-                                                className="w-full p-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500"
+                                                className="w-full p-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-medium"
                                             >
                                                 <option value="">Select Product</option>
                                                 {products.map((p: any) => (
@@ -233,30 +233,30 @@ export default function NewInvoicePage() {
                                                 ))}
                                             </select>
                                         </td>
-                                        <td className="p-2">
+                                        <td className="p-3">
                                             <input
                                                 type="number"
                                                 min="1"
                                                 value={item.quantity}
                                                 onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                                                className="w-full p-2 border border-gray-200 rounded-lg text-sm text-center outline-none focus:border-blue-500"
+                                                className="w-full p-3 border border-gray-200 rounded-xl text-sm text-center outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-bold"
                                             />
                                         </td>
-                                        <td className="p-2">
+                                        <td className="p-3">
                                             <div className="relative">
-                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">₹</span>
                                                 <input
                                                     type="number"
                                                     value={item.unit_price}
                                                     onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value))}
-                                                    className="w-full pl-5 p-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500"
+                                                    className="w-full pl-6 p-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-medium"
                                                 />
                                             </div>
                                         </td>
-                                        <td className="p-2 text-sm font-bold text-gray-700">
+                                        <td className="p-3 text-sm font-bold text-gray-700">
                                             ₹{(item.quantity * item.unit_price).toFixed(2)}
                                         </td>
-                                        <td className="p-2 text-center">
+                                        <td className="p-3 text-center">
                                             <button
                                                 onClick={() => removeItem(index)}
                                                 className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
@@ -301,13 +301,32 @@ export default function NewInvoicePage() {
 
                 {/* Notes */}
                 <div>
-                    <label className="text-sm font-semibold text-gray-600">Notes (Optional)</label>
+                    <label className="text-sm font-bold text-gray-700 block mb-2">Notes (Optional)</label>
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Payment terms, notes to customer..."
-                        className="w-full mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none"
+                        placeholder="Payment terms, bank details, or thank you notes..."
+                        className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none transition-all"
                     ></textarea>
+                </div>
+
+                {/* Bottom Action Bar */}
+                <div className="flex items-center justify-end pt-6 border-t border-gray-100 mt-8">
+                    <div className="flex gap-4 w-full md:w-auto">
+                        <button
+                            type="button"
+                            onClick={() => router.back()}
+                            className="flex-1 md:flex-none px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            className="flex-1 md:flex-none px-10 py-3 bg-blue-600 text-white text-lg font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 flex items-center justify-center gap-2 transform active:scale-95"
+                        >
+                            <FaSave /> Save Invoice
+                        </button>
+                    </div>
                 </div>
             </div>
 
