@@ -26,6 +26,11 @@ export async function POST(request: Request) {
     try {
         const data = await request.json();
 
+        // Ensure ID exists
+        if (!data.id) {
+            data.id = crypto.randomUUID();
+        }
+
         // Start Transaction
         await client.query('BEGIN');
 

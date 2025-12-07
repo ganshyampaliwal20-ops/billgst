@@ -17,6 +17,11 @@ export async function POST(request: Request) {
         const data = await request.json();
         const client = await pool.connect();
 
+        // Ensure ID exists
+        if (!data.id) {
+            data.id = crypto.randomUUID();
+        }
+
         // Ensure numeric values are valid
         const price = parseFloat(data.price) || 0;
         const stock = data.stock_quantity || 0;

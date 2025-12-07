@@ -161,6 +161,8 @@ export default function DashboardPage() {
                         <FaClock className="text-amber-500 text-sm" />
                         <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
                             {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            <span className="w-1 h-1 bg-gray-300 rounded-full mx-1"></span>
+                            {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                     </div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
