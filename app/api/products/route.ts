@@ -16,11 +16,16 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const data = await request.json();
+        console.log('API: Creating product. Received:', data);
+
         const client = await pool.connect();
 
         // Ensure ID exists
         if (!data.id) {
             data.id = uuidv4();
+            console.log('API: Generated new UUID:', data.id);
+        } else {
+            console.log('API: Using provided ID:', data.id);
         }
 
         // Ensure numeric values are valid
