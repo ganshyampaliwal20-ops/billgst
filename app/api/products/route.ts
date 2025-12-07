@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
     try {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
 
         // Ensure ID exists
         if (!data.id) {
-            data.id = crypto.randomUUID();
+            data.id = uuidv4();
         }
 
         // Ensure numeric values are valid
