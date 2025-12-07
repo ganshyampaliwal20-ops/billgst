@@ -91,27 +91,33 @@ export default function DashboardPage() {
         { name: 'Expense', value: totalSales - totalProfit, color: '#f59e0b' },
     ];
 
+    // Calculate Today's Sales
+    const today = new Date().toDateString();
+    const todaySales = invoices
+        .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
+        .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
+
     const stats = [
         {
             icon: FaRupeeSign,
-            label: 'Total Revenue',
-            value: totalSales,
-            formattedValue: `₹${totalSales >= 100000 ? (totalSales / 100000).toFixed(1) + 'L' : totalSales.toLocaleString('en-IN')}`,
-            subtext: `${period.charAt(0).toUpperCase() + period.slice(1)} Sales`,
-            color: 'from-indigo-500 to-blue-600',
-            shadow: 'shadow-indigo-500/20',
-            trend: '+12%',
+            label: 'Today\'s Sales',
+            value: todaySales,
+            formattedValue: `₹${todaySales >= 100000 ? (todaySales / 100000).toFixed(1) + 'L' : todaySales.toLocaleString('en-IN')}`,
+            subtext: 'vs Yesterday',
+            color: 'from-blue-500 to-indigo-600',
+            shadow: 'shadow-blue-500/20',
+            trend: 'Now',
             trendUp: true
         },
         {
             icon: FaChartLine,
-            label: 'Net Profit',
-            value: totalProfit,
-            formattedValue: `₹${totalProfit >= 100000 ? (totalProfit / 100000).toFixed(1) + 'L' : totalProfit.toLocaleString('en-IN')}`,
-            subtext: `${profitMargin}% Margin`,
-            color: 'from-emerald-500 to-teal-600',
-            shadow: 'shadow-emerald-500/20',
-            trend: '+8%',
+            label: 'Total Revenue',
+            value: totalSales,
+            formattedValue: `₹${totalSales >= 100000 ? (totalSales / 100000).toFixed(1) + 'L' : totalSales.toLocaleString('en-IN')}`,
+            subtext: `${period.charAt(0).toUpperCase() + period.slice(1)} Sales`,
+            color: 'from-violet-500 to-purple-600',
+            shadow: 'shadow-violet-500/20',
+            trend: '+12%',
             trendUp: true
         },
         {
@@ -120,8 +126,8 @@ export default function DashboardPage() {
             value: invoiceCount,
             formattedValue: invoiceCount.toString(),
             subtext: 'Generated',
-            color: 'from-violet-500 to-purple-600',
-            shadow: 'shadow-violet-500/20',
+            color: 'from-emerald-500 to-teal-600',
+            shadow: 'shadow-emerald-500/20',
             trend: '+5',
             trendUp: true
         },
@@ -147,7 +153,7 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="space-y-10 md:space-y-12 px-4 md:px-0">
+        <div className="space-y-8 md:space-y-10 px-4 md:px-0">
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
                 <div>
@@ -155,109 +161,59 @@ export default function DashboardPage() {
                         <FaClock className="text-amber-500 text-sm" />
                         <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
                             {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                            {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </span>
                     </div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
                         {getGreeting()}, <span className="text-amber-500">{businessProfile.name || 'Owner'}</span>! 👋
                     </h1>
-                    <p className="text-gray-500 font-medium text-sm md:text-base mt-1">
-                        Here's what's happening with your business today.
-                    </p>
                 </div>
             </div>
 
-            {/* Quick Actions - With White Border Container */}
-            <div className="bg-white rounded-2xl p-8 md:p-10 shadow-lg border border-slate-200">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-                    {quickActions.map((action, index) => {
-                        const Icon = action.icon;
-                        return (
-                            <Link
-                                key={index}
-                                href={action.href}
-                                className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30`}
-                            >
-                                <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <Icon className="text-xl md:text-2xl" />
-                                </div>
-                                <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
-                            </Link>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Analytics Overview Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-5 md:p-6 shadow-xl">
-                <h2 className="text-lg md:text-2xl font-bold text-white">Analytics Overview</h2>
-                <p className="text-sm md:text-base text-white font-bold mt-1 pl-0.5">Track your business performance</p>
-            </div>
-
-            {/* Period Filter Buttons - Separate Box */}
-            <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
-                <p className="text-xs md:text-sm font-semibold text-slate-600 mb-3">Select Time Period:</p>
-                <div className="flex gap-2 md:gap-3 flex-wrap">
-                    {[
-                        { key: 'daily', label: 'Daily', activeColor: 'from-blue-500 to-cyan-500' },
-                        { key: 'weekly', label: 'Weekly', activeColor: 'from-purple-500 to-pink-500' },
-                        { key: 'monthly', label: 'Monthly', activeColor: 'from-indigo-500 to-violet-500' },
-                        { key: 'yearly', label: 'Yearly', activeColor: 'from-emerald-500 to-teal-500' }
-                    ].map((item) => (
-                        <button
-                            key={item.key}
-                            onClick={() => setPeriod(item.key)}
-                            className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-xl text-[11px] md:text-sm font-bold transition-all duration-300 ${period === item.key
-                                ? `bg-gradient-to-r ${item.activeColor} text-white shadow-lg scale-105`
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                                }`}
+            {/* Stats Cards - MOVED TO TOP */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+                {stats.map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                        <div
+                            key={index}
+                            className="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 group overflow-hidden relative"
                         >
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Stats Cards - Premium Container */}
-            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-3 md:p-6 shadow-lg border border-slate-200">
-                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-4 px-1">Business Overview</h1>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-                    {stats.map((stat, index) => {
-                        const Icon = stat.icon;
-                        return (
-                            <div
-                                key={index}
-                                className="bg-white rounded-2xl p-3 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group overflow-hidden"
-                            >
-                                {/* Icon & Trend Row */}
-                                <div className="flex items-start justify-between gap-2 mb-3">
-                                    <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex-shrink-0`}>
-                                        <Icon className="text-base md:text-xl" />
-                                    </div>
-                                    <span className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full flex-shrink-0 ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                            <div className="flex justify-between items-start mb-2">
+                                <div className={`p-2 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-sm`}>
+                                    <Icon className="text-lg" />
+                                </div>
+                                {stat.trendUp && (
+                                    <span className="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded-full font-bold">
                                         {stat.trend}
                                     </span>
-                                </div>
-
-                                {/* Label */}
-                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase tracking-wide mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {stat.label}
-                                </p>
-
-                                {/* Value */}
-                                <p className="text-lg md:text-2xl font-bold text-slate-800 mb-1">
-                                    {stat.formattedValue}
-                                </p>
-
-                                {/* Subtext */}
-                                <p className="text-[10px] md:text-xs text-slate-400 font-medium">
-                                    {stat.subtext}
-                                </p>
+                                )}
                             </div>
-                        );
-                    })}
-                </div>
+                            <div>
+                                <h3 className="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">{stat.label}</h3>
+                                <p className="text-2xl font-bold text-slate-800">{stat.formattedValue}</p>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Quick Actions - Moved Below Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {quickActions.map((action, index) => {
+                    const Icon = action.icon;
+                    return (
+                        <Link
+                            key={index}
+                            href={action.href}
+                            className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group"
+                        >
+                            <div className={`p-2.5 rounded-lg ${action.color} text-white group-hover:scale-110 transition-transform`}>
+                                <Icon />
+                            </div>
+                            <span className="font-bold text-slate-700 text-sm">{action.label}</span>
+                        </Link>
+                    );
+                })}
             </div>
 
             {/* Setup Business Prompt - Dismissible */}
