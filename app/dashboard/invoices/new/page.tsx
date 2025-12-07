@@ -211,14 +211,14 @@ export default function NewInvoicePage() {
                     <h2 className="text-lg font-bold text-gray-800">Items</h2>
 
                     <div className="overflow-x-auto pb-4 -mx-5 px-5 md:mx-0 md:px-0">
-                        <table className="w-full min-w-[650px]">
+                        <table className="w-full min-w-[800px]">
                             <thead className="bg-gray-50 text-left">
                                 <tr>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 rounded-l-lg w-[35%]">Product</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[15%]">Qty</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[20%]">Price</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[20%]">Total</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 rounded-r-lg w-[10%] text-center">Action</th>
+                                    <th className="p-3 text-xs font-semibold text-gray-500 rounded-l-lg w-[30%] whitespace-nowrap">Product</th>
+                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[15%] whitespace-nowrap text-center">Qty</th>
+                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[20%] whitespace-nowrap">Price</th>
+                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[25%] whitespace-nowrap">Total</th>
+                                    <th className="p-3 text-xs font-semibold text-gray-500 rounded-r-lg w-[10%] text-center"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
