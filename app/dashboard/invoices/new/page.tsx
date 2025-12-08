@@ -140,9 +140,14 @@ export default function NewInvoicePage() {
             created_at: new Date().toISOString()
         };
 
-        addInvoice(newInvoice);
-        toast.success('Invoice created successfully!');
-        router.push('/dashboard/invoices');
+        // Properly await the async call
+        const result = await addInvoice(newInvoice);
+
+        // addInvoice already shows toast and navigates on success
+        // Only navigate if result is successful
+        if (result?.success || result?.id) {
+            router.push('/dashboard/invoices');
+        }
     };
 
     return (
