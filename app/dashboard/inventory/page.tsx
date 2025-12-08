@@ -104,14 +104,14 @@ export default function InventoryPage() {
 
             {/* Search */}
             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
-                <FaSearch className="absolute left-7 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                     type="text"
                     placeholder="Search products by name or HSN..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg outline-none focus:border-indigo-500"
+                    className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
                 />
+                <FaSearch className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
 
             {/* List */}
