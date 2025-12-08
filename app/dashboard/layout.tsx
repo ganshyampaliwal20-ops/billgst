@@ -34,7 +34,7 @@ export default function DashboardLayout({
         <div className="min-h-screen bg-[#f1f5f9] flex">
             {/* Sidebar */}
             <aside
-                className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed inset-y-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 shadow-2xl md:shadow-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 <div className="h-full flex flex-col">
@@ -169,10 +169,10 @@ export default function DashboardLayout({
                             <button className="hidden md:block p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all" title="Logout">
                                 <FaSignOutAlt />
                             </button>
-                            {/* Mobile Menu Button - Better positioned */}
+                            {/* Mobile Menu Button - User requested p-10 */}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden p-2.5 text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-md active:scale-95 backdrop-blur-sm"
+                                className="md:hidden p-[10px] text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-md active:scale-95 backdrop-blur-sm"
                                 aria-label="Open Menu"
                             >
                                 <FaBars size={18} />
@@ -192,7 +192,7 @@ export default function DashboardLayout({
             {/* Mobile Overlay */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
+                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 md:hidden transition-opacity duration-300"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
