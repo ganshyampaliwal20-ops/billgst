@@ -18,6 +18,12 @@ export default function DashboardPage() {
     const [showSetupBanner, setShowSetupBanner] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
 
+    // Modal States for Clickable Stats
+    const [showTodaySalesModal, setShowTodaySalesModal] = useState(false);
+    const [showRevenueModal, setShowRevenueModal] = useState(false);
+    const [showInvoicesModal, setShowInvoicesModal] = useState(false);
+    const [showLowStockModal, setShowLowStockModal] = useState(false);
+
     useEffect(() => {
         setIsClient(true);
         // Setup Banner State
@@ -221,49 +227,6 @@ export default function DashboardPage() {
                     ))}
                 </div>
             </div>
-
-            {/* Stats Cards - Premium Container (Reverted Position) */}
-            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-3 md:p-6 shadow-lg border border-slate-200">
-                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-4 px-1">Business Overview</h1>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-                    {stats.map((stat, index) => {
-                        const Icon = stat.icon;
-                        return (
-                            <div
-                                key={index}
-                                className="bg-white rounded-2xl p-3 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group overflow-hidden"
-                            >
-                                {/* Icon & Trend Row */}
-                                <div className="flex items-start justify-between gap-2 mb-3">
-                                    <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex-shrink-0`}>
-                                        <Icon className="text-base md:text-xl" />
-                                    </div>
-                                    <span className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full flex-shrink-0 ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                        {stat.trend}
-                                    </span>
-                                </div>
-
-                                {/* Label */}
-                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase tracking-wide mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {stat.label}
-                                </p>
-
-                                {/* Value */}
-                                <p className="text-lg md:text-2xl font-bold text-slate-800 mb-1">
-                                    {stat.formattedValue}
-                                </p>
-
-                                {/* Subtext */}
-                                <p className="text-[10px] md:text-xs text-slate-400 font-medium">
-                                    {stat.subtext}
-                                </p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Setup Business Prompt - Dismissible */}
             {
                 !businessProfile.gstin && showSetupBanner && (
                     <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative">
