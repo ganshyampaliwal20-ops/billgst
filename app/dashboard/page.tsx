@@ -108,6 +108,7 @@ export default function DashboardPage() {
             shadow: 'shadow-blue-500/20',
             trend: 'Now',
             trendUp: true
+
         },
         {
             icon: FaChartLine,
@@ -223,38 +224,38 @@ export default function DashboardPage() {
             </div>
 
             {/* Stats Cards - Premium Container (Reverted Position) */}
-            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-3 md:p-6 shadow-lg border border-slate-200">
-                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-4 px-1">Business Overview</h1>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
+                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-1">Business Overview</h1>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {stats.map((stat, index) => {
                         const Icon = stat.icon;
                         return (
                             <div
                                 key={index}
-                                className="bg-white rounded-2xl p-3 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group overflow-hidden"
+                                className="bg-white rounded-2xl p-4 md:p-6 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[140px] md:min-h-[160px] flex flex-col"
                             >
                                 {/* Icon & Trend Row */}
-                                <div className="flex items-start justify-between gap-2 mb-3">
+                                <div className="flex items-start justify-between gap-2 mb-3 md:mb-4">
                                     <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex-shrink-0`}>
-                                        <Icon className="text-base md:text-xl" />
+                                        <Icon className="text-lg md:text-xl" />
                                     </div>
-                                    <span className={`text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full flex-shrink-0 ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                    <span className={`text-[10px] md:text-xs font-bold px-2 md:px-2.5 py-1 rounded-full flex-shrink-0 ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                                         {stat.trend}
                                     </span>
                                 </div>
 
                                 {/* Label */}
-                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase tracking-wide mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis">
+                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase tracking-wide mb-2 leading-tight">
                                     {stat.label}
                                 </p>
 
                                 {/* Value */}
-                                <p className="text-lg md:text-2xl font-bold text-slate-800 mb-1">
+                                <p className="text-xl md:text-2xl font-bold text-slate-800 mb-1.5 leading-tight">
                                     {stat.formattedValue}
                                 </p>
 
                                 {/* Subtext */}
-                                <p className="text-[10px] md:text-xs text-slate-400 font-medium">
+                                <p className="text-[10px] md:text-xs text-slate-400 font-medium mt-auto">
                                     {stat.subtext}
                                 </p>
                             </div>
