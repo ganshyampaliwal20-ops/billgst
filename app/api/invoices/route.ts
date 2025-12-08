@@ -26,11 +26,22 @@ export async function POST(request: Request) {
     const client = await pool.connect();
     try {
         const data = await request.json();
+        console.log('Invoice API: Received data:', JSON.stringify(data, null, 2));
 
         // Ensure ID exists
         if (!data.id) {
             data.id = uuidv4();
         }
+
+        // Extract customer ID - handle both object and string formats
+        const customerId = typeof data.customer === 'object' ? data.customer.id : data.customer;
+
+        if (!customerId) {
+            console.error('Invoice API Error: No customer ID provided');
+            throw new Error('Customer ID is required');
+        }
+
+        console.log('Invoice API: Extracted customer ID:', customerId);
 
         // Start Transaction
         await client.query('BEGIN');
@@ -44,7 +55,7 @@ export async function POST(request: Request) {
     `, [
             data.id,
             data.invoice_number,
-            data.customer.id,
+            customerId,  // Use extracted customer ID
             data.invoice_date,
             data.due_date,
             data.subtotal,
@@ -55,10 +66,13 @@ export async function POST(request: Request) {
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
+        console.log('Invoice API: Invoice created with ID:', invoiceId);
 
         // 2. Insert Items
         if (data.items && Array.isArray(data.items)) {
+            console.log(`Invoice API: Inserting ${data.items.length} items`);
             for (const item of data.items) {
+                console.log('Invoice API: Inserting item:', item);
                 await client.query(`
                 INSERT INTO invoice_items (
                 invoice_id, product_id, product_name, quantity, unit_price, gst_rate, total_amount
@@ -73,16 +87,18 @@ export async function POST(request: Request) {
                     (item.quantity * item.unit_price) // Item total
                 ]);
             }
+            console.log('Invoice API: All items inserted successfully');
         }
 
         await client.query('COMMIT');
         client.release();
+        console.log('Invoice API: Transaction committed successfully');
         return NextResponse.json({ success: true, id: invoiceId });
 
     } catch (error) {
         await client.query('ROLLBACK');
         client.release();
-        console.error('Transaction Error:', error);
-        return NextResponse.json({ error: 'Failed to save invoice' }, { status: 500 });
+        console.error('Invoice API Transaction Error:', error);
+        return NextResponse.json({ error: 'Failed to save invoice', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
