@@ -139,7 +139,8 @@ export default function InventoryPage() {
                                 </div>
                                 <button
                                     onClick={() => handleEdit(product)}
-                                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 rounded-lg opacity-0 group-hover:opacity-100 transition"
+                                    className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all shadow-sm hover:shadow-md"
+                                    title="Edit Product"
                                 >
                                     <FaEdit />
                                 </button>
