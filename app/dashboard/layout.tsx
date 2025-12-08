@@ -66,7 +66,7 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-4 space-y-3 overflow-y-auto py-4">
+                    <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
                         {menuItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -75,17 +75,17 @@ export default function DashboardLayout({
                                     key={item.href}
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 group border ${isActive
+                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group border ${isActive
                                         ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold shadow-lg border-indigo-400'
                                         : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold border-slate-200 hover:border-slate-300 shadow-sm'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-slate-100 group-hover:bg-indigo-100'}`}>
-                                        <Icon className={`text-lg ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-indigo-600'}`} />
+                                        <Icon className={`text-base ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-indigo-600'}`} />
                                     </div>
-                                    <span className="text-sm">{lang === 'hi' ? item.labelHi : item.label}</span>
+                                    <span className="text-sm flex-1">{lang === 'hi' ? item.labelHi : item.label}</span>
                                     {isActive && (
-                                        <div className="ml-auto w-2 h-2 rounded-full bg-white shadow-sm" />
+                                        <div className="w-2 h-2 rounded-full bg-white shadow-sm" />
                                     )}
                                 </Link>
                             );
@@ -133,11 +133,11 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg">
-                    <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+                    <div className="px-3 md:px-6 py-4 md:py-4 flex items-center justify-between gap-2">
                         {/* Left Side: Logo + Business Name (Mobile & Desktop) */}
-                        <div className="flex items-center gap-3">
-                            <Link href="/dashboard" className="flex items-center gap-2.5 md:gap-3 group">
-                                <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all">
+                        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                            <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group min-w-0">
+                                <div className="relative w-9 h-9 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0">
                                     <Image
                                         src="/logo.png"
                                         alt="Logo"
@@ -161,7 +161,7 @@ export default function DashboardLayout({
                         </div>
 
                         {/* Right Side: Date + Menu Button */}
-                        <div className="flex items-center gap-3 md:gap-4">
+                        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
                             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/20 text-white rounded-full text-xs font-semibold border border-white/30 backdrop-blur-sm">
                                 <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -169,13 +169,13 @@ export default function DashboardLayout({
                             <button className="hidden md:block p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all" title="Logout">
                                 <FaSignOutAlt />
                             </button>
-                            {/* Mobile Menu Button - Larger and on Right */}
+                            {/* Mobile Menu Button - Better positioned */}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden p-3 text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-md active:scale-95 backdrop-blur-sm"
+                                className="md:hidden p-2.5 text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-md active:scale-95 backdrop-blur-sm"
                                 aria-label="Open Menu"
                             >
-                                <FaBars size={20} />
+                                <FaBars size={18} />
                             </button>
                         </div>
                     </div>

@@ -111,6 +111,13 @@ export default function NewInvoicePage() {
             return;
         }
 
+        // Validate all items have products selected
+        const hasEmptyProducts = selectedItems.some(item => !item.product_id);
+        if (hasEmptyProducts) {
+            toast.error('Please select a product for all items');
+            return;
+        }
+
         const customer = customers.find((c: any) => c.id === customerId);
 
         const newInvoice = {
@@ -139,21 +146,21 @@ export default function NewInvoicePage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 pb-20 px-4 md:px-0">
+        <div className="max-w-5xl mx-auto space-y-6 pb-20 px-2 sm:px-4 md:px-0">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard/invoices" className="p-2 hover:bg-gray-100 rounded-full transition">
-                        <FaArrowLeft className="text-gray-600" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <Link href="/dashboard/invoices" className="p-2.5 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-200">
+                        <FaArrowLeft className="text-indigo-600" size={18} />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">New Invoice</h1>
-                        <p className="text-sm text-gray-500">Create a professional invoice for your customer</p>
+                        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">New Invoice</h1>
+                        <p className="text-xs sm:text-sm text-slate-600 mt-0.5">Create a professional invoice for your customer</p>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-8 space-y-8">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8">
                 {/* Customer & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="space-y-4">
@@ -206,81 +213,101 @@ export default function NewInvoicePage() {
 
                 {/* Items Section */}
                 <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-gray-800">Items</h2>
-
-                    <div className="overflow-x-auto pb-4 -mx-5 px-5 md:mx-0 md:px-0">
-                        <table className="w-full min-w-[800px]">
-                            <thead className="bg-gray-50 text-left">
-                                <tr>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 rounded-l-lg w-[30%] whitespace-nowrap">Product</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[15%] whitespace-nowrap text-center">Qty</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[20%] whitespace-nowrap">Price</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 w-[25%] whitespace-nowrap">Total</th>
-                                    <th className="p-3 text-xs font-semibold text-gray-500 rounded-r-lg w-[10%] text-center"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {selectedItems.map((item, index) => (
-                                    <tr key={index} className="hover:bg-gray-50 transition-colors group">
-                                        <td className="p-3">
-                                            <select
-                                                value={item.product_id}
-                                                onChange={(e) => updateItem(index, 'product_id', e.target.value)}
-                                                className="w-full p-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-medium"
-                                            >
-                                                <option value="">Select Product</option>
-                                                {products.map((p: any) => (
-                                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                        <td className="p-3">
-                                            <div className="flex items-center gap-2">
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={item.quantity}
-                                                    onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                                                    className="w-full p-3 border border-gray-200 rounded-xl text-sm text-center outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-bold"
-                                                />
-                                                <span className="text-xs font-bold text-gray-500 w-8">{item.unit || 'PCS'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-3">
-                                            <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">₹</span>
-                                                <input
-                                                    type="number"
-                                                    value={item.unit_price}
-                                                    onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value))}
-                                                    className="w-full pl-6 p-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all font-medium"
-                                                />
-                                            </div>
-                                        </td>
-                                        <td className="p-3 text-sm font-bold text-gray-700">
-                                            ₹{(item.quantity * item.unit_price).toFixed(2)}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                            <button
-                                                onClick={() => removeItem(index)}
-                                                className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
-                                            >
-                                                <FaTrash />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-slate-800">Invoice Items</h2>
+                        <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-semibold">{selectedItems.length} {selectedItems.length === 1 ? 'Item' : 'Items'}</span>
                     </div>
 
-                    <div className="flex justify-center pt-2">
+                    <div className="overflow-x-auto -mx-4 sm:-mx-6 md:mx-0">
+                        <div className="inline-block min-w-full align-middle">
+                            <div className="overflow-hidden border border-slate-200 rounded-xl">
+                                <table className="min-w-full divide-y divide-slate-200">
+                                    <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
+                                        <tr>
+                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Product</th>
+                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">Quantity</th>
+                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Price</th>
+                                            <th className="px-4 py-3.5 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Total</th>
+                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-slate-100">
+                                        {selectedItems.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} className="px-4 py-12 text-center">
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                                                            <FaPlus className="text-slate-400 text-2xl" />
+                                                        </div>
+                                                        <p className="text-slate-500 font-medium">No items added yet</p>
+                                                        <p className="text-xs text-slate-400">Click "Add Item" below to get started</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : selectedItems.map((item, index) => (
+                                            <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
+                                                <td className="px-4 py-3">
+                                                    <select
+                                                        value={item.product_id}
+                                                        onChange={(e) => updateItem(index, 'product_id', e.target.value)}
+                                                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
+                                                    >
+                                                        <option value="">Select Product</option>
+                                                        {products.map((p: any) => (
+                                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            value={item.quantity}
+                                                            onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
+                                                            className="w-20 px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-center outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-semibold text-slate-700"
+                                                        />
+                                                        <span className="text-xs font-semibold text-slate-500 uppercase">{item.unit || 'PCS'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="relative">
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">₹</span>
+                                                        <input
+                                                            type="number"
+                                                            value={item.unit_price}
+                                                            onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value))}
+                                                            className="w-full pl-8 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-right text-sm font-bold text-slate-800">
+                                                    ₹{(item.quantity * item.unit_price).toFixed(2)}
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        onClick={() => removeItem(index)}
+                                                        className="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-white hover:bg-red-500 rounded-lg transition-all"
+                                                        title="Delete Item"
+                                                    >
+                                                        <FaTrash size={14} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center pt-3">
                         <button
                             type="button"
                             onClick={addItem}
-                            className="px-4 py-2 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition flex items-center gap-2 text-sm"
+                            className="px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
                         >
-                            <FaPlus /> Add New Item
+                            <FaPlus /> Add Item
                         </button>
                     </div>
                 </div>
@@ -315,18 +342,18 @@ export default function NewInvoicePage() {
                 </div>
 
                 {/* Bottom Action Bar */}
-                <div className="flex items-center justify-end pt-6 border-t border-gray-100 mt-8">
-                    <div className="flex gap-4 w-full md:w-auto">
+                <div className="flex items-center justify-end pt-6 border-t border-slate-200 mt-8 sticky bottom-0 bg-white py-4 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 shadow-lg md:shadow-none md:static md:border-0 md:pt-6">
+                    <div className="flex gap-3 w-full sm:w-auto">
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            className="flex-1 md:flex-none px-6 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition"
+                            className="flex-1 sm:flex-none px-6 py-3 border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSubmit}
-                            className="flex-1 md:flex-none px-10 py-3 bg-blue-600 text-white text-lg font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 flex items-center justify-center gap-2 transform active:scale-95"
+                            className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform active:scale-95"
                         >
                             <FaSave /> Save Invoice
                         </button>
