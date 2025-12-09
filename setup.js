@@ -15,6 +15,15 @@ async function setup() {
     // Initialize database tables
     await initDB();
 
+    // Migration: Add missing columns if they don't exist
+    console.log('Running migrations...');
+    await pool.query(`
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cgst_amount DECIMAL(10,2) DEFAULT 0;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sgst_amount DECIMAL(10,2) DEFAULT 0;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS igst_amount DECIMAL(10,2) DEFAULT 0;
+    `);
+    console.log('Migrations completed.');
+
     // Create demo admin user
     const hashedPassword = await bcrypt.hash('admin123', 10);
 
