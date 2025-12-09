@@ -107,8 +107,8 @@ export default function DashboardPage() {
             color: 'from-blue-500 to-indigo-600',
             shadow: 'shadow-blue-500/20',
             trend: 'Now',
-            trendUp: true
-
+            trendUp: true,
+            href: '/dashboard/reports?period=daily'
         },
         {
             icon: FaChartLine,
@@ -119,7 +119,8 @@ export default function DashboardPage() {
             color: 'from-violet-500 to-purple-600',
             shadow: 'shadow-violet-500/20',
             trend: '+12%',
-            trendUp: true
+            trendUp: true,
+            href: '/dashboard/reports'
         },
         {
             icon: FaFileInvoice,
@@ -130,7 +131,8 @@ export default function DashboardPage() {
             color: 'from-emerald-500 to-teal-600',
             shadow: 'shadow-emerald-500/20',
             trend: '+5',
-            trendUp: true
+            trendUp: true,
+            href: '/dashboard/invoices'
         },
         {
             icon: FaBox,
@@ -141,7 +143,8 @@ export default function DashboardPage() {
             color: lowStockItems > 0 ? 'from-red-500 to-rose-600' : 'from-amber-500 to-orange-600',
             shadow: lowStockItems > 0 ? 'shadow-red-500/20' : 'shadow-amber-500/20',
             trend: lowStockItems > 0 ? '⚠️' : '✓',
-            trendUp: lowStockItems === 0
+            trendUp: lowStockItems === 0,
+            href: '/dashboard/inventory'
         },
     ];
 
@@ -194,9 +197,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Analytics Overview Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-5 md:p-6 shadow-xl">
-                <h2 className="text-lg md:text-2xl font-bold text-white">Analytics Overview</h2>
-                <p className="text-sm md:text-base text-white font-bold mt-1 pl-0.5">Track your business performance</p>
+            {/* Analytics Overview Header */}
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-2 md:mx-0">
+                <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">Analytics Overview</h2>
+                <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
             </div>
 
             {/* Period Filter Buttons - Separate Box */}
@@ -230,35 +234,36 @@ export default function DashboardPage() {
                     {stats.map((stat, index) => {
                         const Icon = stat.icon;
                         return (
-                            <div
+                            <Link
                                 key={index}
-                                className="bg-white rounded-2xl p-4 md:p-6 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[140px] md:min-h-[160px] flex flex-col"
+                                href={stat.href}
+                                className="bg-white rounded-2xl p-4 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[120px] flex flex-col items-center justify-center text-center hover:scale-[1.02]"
                             >
-                                {/* Icon & Trend Row */}
-                                <div className="flex items-start justify-between gap-2 mb-3 md:mb-4">
-                                    <div className={`p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex-shrink-0`}>
-                                        <Icon className="text-lg md:text-xl" />
-                                    </div>
-                                    <span className={`text-[10px] md:text-xs font-bold px-2 md:px-2.5 py-1 rounded-full flex-shrink-0 ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                        {stat.trend}
-                                    </span>
+                                {/* Icon */}
+                                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
+                                    <Icon className="text-xl" />
                                 </div>
 
                                 {/* Label */}
-                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase mb-2 leading-tight">
+                                <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">
                                     {stat.label}
                                 </p>
 
                                 {/* Value */}
-                                <p className="text-xl md:text-2xl font-bold text-slate-800 mb-1.5 leading-tight">
+                                <p className="text-xl md:text-2xl font-extrabold text-slate-800 mb-1">
                                     {stat.formattedValue}
                                 </p>
 
-                                {/* Subtext */}
-                                <p className="text-[10px] md:text-xs text-slate-400 font-medium mt-auto">
-                                    {stat.subtext}
-                                </p>
-                            </div>
+                                {/* Subtext with Trend */}
+                                <div className="flex items-center gap-1.5 mt-auto">
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                        {stat.trend}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 font-medium">
+                                        {stat.subtext}
+                                    </span>
+                                </div>
+                            </Link>
                         );
                     })}
                 </div>

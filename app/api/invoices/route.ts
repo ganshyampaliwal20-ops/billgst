@@ -73,6 +73,7 @@ export async function POST(request: Request) {
             console.log(`Invoice API: Inserting ${data.items.length} items`);
             for (const item of data.items) {
                 console.log('Invoice API: Inserting item:', item);
+                // Insert item
                 await client.query(`
                 INSERT INTO invoice_items (
                 invoice_id, product_id, product_name, quantity, unit_price, gst_rate, total_amount
@@ -86,6 +87,14 @@ export async function POST(request: Request) {
                     item.gst_rate,
                     (item.quantity * item.unit_price) // Item total
                 ]);
+
+                // Update product stock
+                console.log(`Invoice API: Decrementing stock for product ${item.product_name} by ${item.quantity}`);
+                await client.query(`
+                    UPDATE products 
+                    SET stock = stock - $1 
+                    WHERE id = $2
+                `, [item.quantity, item.product_id]);
             }
             console.log('Invoice API: All items inserted successfully');
         }

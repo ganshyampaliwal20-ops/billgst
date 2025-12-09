@@ -66,7 +66,7 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
+                    <nav className="flex-1 px-4 space-y-3 md:space-y-4 overflow-y-auto py-6">
                         {menuItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -75,7 +75,7 @@ export default function DashboardLayout({
                                     key={item.href}
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group border ${isActive
+                                    className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 group border ${isActive
                                         ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold shadow-lg border-indigo-400'
                                         : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold border-slate-200 hover:border-slate-300 shadow-sm'
                                         }`}
@@ -134,7 +134,7 @@ export default function DashboardLayout({
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-16 md:h-20">
+                        <div className="flex items-center justify-between h-14 md:h-16">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
                                 <Link href="/dashboard" className="flex items-center gap-3 group">

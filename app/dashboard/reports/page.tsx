@@ -1,23 +1,35 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers } from 'react-icons/fa';
+import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 export default function ReportsPage() {
+    const searchParams = useSearchParams();
     const { getAnalytics, fetchInvoices } = useStore();
     const [isClient, setIsClient] = useState(false);
+
+    // Initialize period from URL or default to 'monthly'
     const [period, setPeriod] = useState('monthly');
+    const [customRange, setCustomRange] = useState({
+        start: new Date().toISOString().split('T')[0],
+        end: new Date().toISOString().split('T')[0]
+    });
 
     useEffect(() => {
         setIsClient(true);
         fetchInvoices();
-    }, []);
+
+        // Set period from URL if available
+        const p = searchParams.get('period');
+        if (p) setPeriod(p);
+    }, [searchParams]);
 
     if (!isClient) return null;
 
-    const { totalSales, totalProfit, invoiceCount } = getAnalytics(period);
+    const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
 
     // Dummy data for charts (in a real app, this would come from historical data)
     const chartData = [
@@ -60,17 +72,40 @@ export default function ReportsPage() {
 
     return (
         <div className="space-y-6 px-4 md:px-0">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h1 className="text-2xl font-bold text-gray-800">Business Reports</h1>
-                <select
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    className="p-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                    <option value="weekly">This Week</option>
-                    <option value="monthly">This Month</option>
-                    <option value="yearly">This Year</option>
-                </select>
+
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    {period === 'custom' && (
+                        <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                            <input
+                                type="date"
+                                value={customRange.start}
+                                onChange={(e) => setCustomRange({ ...customRange, start: e.target.value })}
+                                className="p-1.5 text-sm outline-none bg-transparent text-slate-600 font-medium"
+                            />
+                            <span className="text-slate-400">-</span>
+                            <input
+                                type="date"
+                                value={customRange.end}
+                                onChange={(e) => setCustomRange({ ...customRange, end: e.target.value })}
+                                className="p-1.5 text-sm outline-none bg-transparent text-slate-600 font-medium"
+                            />
+                        </div>
+                    )}
+
+                    <select
+                        value={period}
+                        onChange={(e) => setPeriod(e.target.value)}
+                        className="p-2.5 bg-white border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700 shadow-sm min-w-[140px]"
+                    >
+                        <option value="daily">Today</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly">This Month</option>
+                        <option value="yearly">This Year</option>
+                        <option value="custom">Custom Date</option>
+                    </select>
+                </div>
             </div>
 
             {/* Stats Grid */}
