@@ -97,10 +97,9 @@ export async function POST(request: Request) {
                 ]);
 
                 // Update product stock safely
-                console.log(`Invoice API: Decrementing stock for product ${item.product_name} by ${quantity}`);
                 await client.query(`
                         UPDATE products 
-                        SET stock = COALESCE(stock, 0) - $1 
+                        SET stock_quantity = COALESCE(stock_quantity, 0) - $1 
                         WHERE id = $2
                     `, [quantity, item.product_id]);
             }
@@ -175,7 +174,7 @@ export async function POST(request: Request) {
                         // Update product stock safely
                         await client.query(`
                                 UPDATE products 
-                                SET stock = COALESCE(stock, 0) - $1 
+                                SET stock_quantity = COALESCE(stock_quantity, 0) - $1 
                                 WHERE id = $2
                             `, [quantity, item.product_id]);
                     }

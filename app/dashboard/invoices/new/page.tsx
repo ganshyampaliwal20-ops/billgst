@@ -165,6 +165,10 @@ export default function NewInvoicePage() {
         // Only navigate if result is successful
         if (result?.success || result?.id) {
             router.push('/dashboard/invoices');
+        } else if (result?.error) {
+            toast.error(`Failed: ${result.error}`);
+        } else {
+            toast.error('Failed to save invoice. Please try again.');
         }
     };
 
