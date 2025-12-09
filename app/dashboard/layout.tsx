@@ -132,51 +132,52 @@ export default function DashboardLayout({
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
-                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg">
-                    <div className="px-3 md:px-6 py-4 md:py-4 flex items-center justify-between gap-2">
-                        {/* Left Side: Logo + Business Name (Mobile & Desktop) */}
-                        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                            <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group min-w-0">
-                                <div className="relative w-9 h-9 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0">
-                                    <Image
-                                        src="/logo.png"
-                                        alt="Logo"
-                                        fill
-                                        className="object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
-                                        }}
-                                    />
-                                </div>
-                                <div className="hidden md:block">
-                                    <h2 className="text-lg font-bold text-white tracking-tight group-hover:text-indigo-100 transition-colors drop-shadow-sm">BillGST</h2>
-                                    <p className="text-xs text-indigo-100 font-medium -mt-0.5">Professional Billing</p>
-                                </div>
-                                <div className="md:hidden flex flex-col">
-                                    <h2 className="text-base font-bold text-white tracking-tight group-hover:text-indigo-100 transition-colors drop-shadow-sm">
-                                        {businessProfile.name || 'BillGST'}
-                                    </h2>
-                                </div>
-                            </Link>
-                        </div>
-
-                        {/* Right Side: Date + Menu Button */}
-                        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/20 text-white rounded-full text-xs font-semibold border border-white/30 backdrop-blur-sm">
-                                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                                {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16 md:h-20">
+                            {/* Left Side: Logo + Business Name */}
+                            <div className="flex items-center gap-3">
+                                <Link href="/dashboard" className="flex items-center gap-3 group">
+                                    <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
+                                        <Image
+                                            src="/logo.png"
+                                            alt="Logo"
+                                            fill
+                                            className="object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <h2 className="text-lg md:text-xl font-bold text-white tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm">
+                                            {businessProfile.name || 'BillGST'}
+                                        </h2>
+                                        <p className="text-xs text-indigo-100/90 font-medium hidden md:block mt-1">Professional Billing</p>
+                                    </div>
+                                </Link>
                             </div>
-                            <button className="hidden md:block p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all" title="Logout">
-                                <FaSignOutAlt />
-                            </button>
-                            {/* Mobile Menu Button - User requested p-10 */}
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden p-[10px] text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-md active:scale-95 backdrop-blur-sm"
-                                aria-label="Open Menu"
-                            >
-                                <FaBars size={18} />
-                            </button>
+
+                            {/* Right Side: Date + Menu */}
+                            <div className="flex items-center gap-3 md:gap-4">
+                                <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white rounded-full text-xs font-semibold border border-white/20 backdrop-blur-md shadow-sm">
+                                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-green-400/50 shadow-lg"></span>
+                                    {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+                                </div>
+
+                                <button className="hidden md:flex items-center justify-center w-10 h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all" title="Logout">
+                                    <FaSignOutAlt />
+                                </button>
+
+                                {/* Mobile Menu Button */}
+                                <button
+                                    onClick={() => setIsSidebarOpen(true)}
+                                    className="md:hidden flex items-center justify-center w-10 h-10 text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md"
+                                    aria-label="Open Menu"
+                                >
+                                    <FaBars size={20} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </header>
