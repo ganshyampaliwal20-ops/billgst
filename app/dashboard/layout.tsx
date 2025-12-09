@@ -42,15 +42,18 @@ export default function DashboardLayout({
                     <div className="p-6 flex items-center justify-between">
                         <Link href="/dashboard" className="flex items-center gap-3 group" onClick={() => setIsSidebarOpen(false)}>
                             <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
-                                <Image
-                                    src="/logo.png"
-                                    alt="Logo"
-                                    fill
-                                    className="object-cover"
-                                    onError={(e) => {
-                                        e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
-                                    }}
-                                />
+                                {businessProfile.logo ? (
+                                    <Image
+                                        src={businessProfile.logo}
+                                        alt="Logo"
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                                        <FaStore className="text-white" size={20} />
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">BillGST</h2>
@@ -95,8 +98,18 @@ export default function DashboardLayout({
                     {/* User Profile / Business Info */}
                     <div className="p-4 border-t border-slate-100 bg-slate-50/50">
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200 shadow-sm">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
-                                <FaStore />
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
+                                {businessProfile.logo ? (
+                                    <Image
+                                        src={businessProfile.logo}
+                                        alt="Business Logo"
+                                        width={40}
+                                        height={40}
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <FaStore />
+                                )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-slate-800 truncate">
@@ -133,27 +146,30 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-14 md:h-16">
+                    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-12 md:h-16">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
-                                <Link href="/dashboard" className="flex items-center gap-3 group">
-                                    <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
-                                        <Image
-                                            src="/logo.png"
-                                            alt="Logo"
-                                            fill
-                                            className="object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
-                                            }}
-                                        />
+                                <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
+                                    <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
+                                        {businessProfile.logo ? (
+                                            <Image
+                                                src={businessProfile.logo}
+                                                alt="Logo"
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-white/20 flex items-center justify-center">
+                                                <FaStore className="text-white" size={16} />
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
-                                        <h2 className="text-lg md:text-xl font-bold text-white tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm">
+                                        <h2 className="text-sm md:text-lg font-bold text-white tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm">
                                             {businessProfile.name || 'BillGST'}
                                         </h2>
-                                        <p className="text-xs text-indigo-100/90 font-medium hidden md:block mt-1">Professional Billing</p>
+                                        <p className="text-xs text-indigo-100/90 font-medium hidden md:block">Professional Billing</p>
                                     </div>
                                 </Link>
                             </div>
@@ -172,10 +188,10 @@ export default function DashboardLayout({
                                 {/* Mobile Menu Button */}
                                 <button
                                     onClick={() => setIsSidebarOpen(true)}
-                                    className="md:hidden flex items-center justify-center w-10 h-10 text-white hover:bg-white/20 rounded-xl transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md"
+                                    className="md:hidden flex items-center justify-center w-9 h-9 text-white hover:bg-white/20 rounded-lg transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md"
                                     aria-label="Open Menu"
                                 >
-                                    <FaBars size={20} />
+                                    <FaBars size={18} />
                                 </button>
                             </div>
                         </div>
