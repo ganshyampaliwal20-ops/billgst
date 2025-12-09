@@ -83,7 +83,7 @@ Powered by BillGST.in`;
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 px-4 md:px-0">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -144,22 +144,22 @@ Powered by BillGST.in`;
                             ) : (
                                 filteredInvoices.map((invoice) => (
                                     <tr key={invoice.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="py-4 px-6 text-sm font-medium text-blue-600">
+                                        <td className="py-4 px-3 md:px-6 text-sm font-medium text-blue-600">
                                             {invoice.invoice_number}
                                         </td>
-                                        <td className="py-4 px-6 text-sm text-gray-500">
+                                        <td className="py-4 px-3 md:px-6 text-sm text-gray-500">
                                             <div className="flex flex-col">
                                                 <span className="font-medium text-gray-700">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
                                                 <span className="text-xs text-gray-400">{new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-6 text-sm text-gray-800 font-medium">
+                                        <td className="py-4 px-3 md:px-6 text-sm text-gray-800 font-medium">
                                             {invoice.customer.name}
                                         </td>
-                                        <td className="py-4 px-6 text-sm text-gray-900 font-bold text-right">
+                                        <td className="py-4 px-3 md:px-6 text-sm text-gray-900 font-bold text-right">
                                             ₹{invoice.total_amount.toLocaleString()}
                                         </td>
-                                        <td className="py-4 px-6">
+                                        <td className="py-4 px-3 md:px-6">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleDownload(invoice)}

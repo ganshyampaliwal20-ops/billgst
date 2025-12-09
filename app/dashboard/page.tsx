@@ -173,8 +173,8 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions - With White Border Container (Reverted Position) */}
-            <div className="bg-white rounded-2xl p-8 md:p-10 shadow-lg border border-slate-200">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     {quickActions.map((action, index) => {
                         const Icon = action.icon;
                         return (
@@ -245,7 +245,7 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Label */}
-                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase tracking-wide mb-2 leading-tight">
+                                <p className="text-slate-500 text-[11px] md:text-xs font-semibold uppercase mb-2 leading-tight">
                                     {stat.label}
                                 </p>
 

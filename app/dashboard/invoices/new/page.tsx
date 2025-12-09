@@ -120,6 +120,20 @@ export default function NewInvoicePage() {
 
         const customer = customers.find((c: any) => c.id === customerId);
 
+        // Add total_amount to each item for PDF generation
+        const itemsWithTotals = selectedItems.map(item => {
+            const itemSubtotal = item.quantity * item.unit_price;
+            const itemGST = (itemSubtotal * item.gst_rate) / 100;
+            return {
+                ...item,
+                total_amount: itemSubtotal + itemGST
+            };
+        });
+
+        // Calculate GST breakdown using utility function
+        const { calculateInvoiceTotal } = await import('@/lib/gst-calculator');
+        const gstBreakdown = calculateInvoiceTotal(selectedItems, false); // false = intra-state (CGST+SGST)
+
         const newInvoice = {
             id: crypto.randomUUID(),
             invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -127,14 +141,18 @@ export default function NewInvoicePage() {
                 id: customerId,
                 name: customer?.name || 'Unknown',
                 email: customer?.email,
-                address: customer?.address
+                address: customer?.address,
+                gstin: customer?.gstin
             },
             invoice_date: invoiceDate,
             due_date: dueDate,
-            items: selectedItems,
-            subtotal: totals.subtotal,
-            total_amount: totals.total,
-            total_tax: totals.gst,
+            items: itemsWithTotals,
+            subtotal: gstBreakdown.subtotal,
+            cgst_amount: gstBreakdown.cgst_amount,
+            sgst_amount: gstBreakdown.sgst_amount,
+            igst_amount: gstBreakdown.igst_amount,
+            total_amount: gstBreakdown.total_amount,
+            total_tax: gstBreakdown.cgst_amount + gstBreakdown.sgst_amount + gstBreakdown.igst_amount,
             status: 'UNPAID',
             notes: notes,
             created_at: new Date().toISOString()

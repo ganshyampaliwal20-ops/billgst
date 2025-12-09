@@ -38,12 +38,12 @@ export default function SettingsPage() {
     if (!isClient) return null;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6 px-4 md:px-0">
             <h1 className="text-2xl font-bold text-gray-800">Business Settings</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Tax Settings (Non-GST Mode) */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-green-100 text-green-600 rounded-lg">
                             <FaFileInvoiceDollar className="text-xl" />
@@ -69,7 +69,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Business Profile Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                             <FaStore className="text-xl" />
@@ -140,7 +140,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Branding Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
                             <FaImage className="text-xl" />
@@ -170,7 +170,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Preferences Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-green-100 text-green-600 rounded-lg">
                             <FaLanguage className="text-xl" />

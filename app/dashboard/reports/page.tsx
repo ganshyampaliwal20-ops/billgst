@@ -59,7 +59,7 @@ export default function ReportsPage() {
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 px-4 md:px-0">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold text-gray-800">Business Reports</h1>
                 <select
@@ -78,7 +78,7 @@ export default function ReportsPage() {
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={index} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
+                        <div key={index} className="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
                             <div>
                                 <p className="text-gray-500 text-sm font-medium mb-1">{stat.label}</p>
                                 <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
@@ -93,7 +93,7 @@ export default function ReportsPage() {
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
                     <h2 className="text-lg font-bold text-gray-800 mb-6">Revenue Trend</h2>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
