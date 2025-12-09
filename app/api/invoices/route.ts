@@ -71,33 +71,36 @@ export async function POST(request: Request) {
         // 2. Insert Items
         if (data.items && Array.isArray(data.items)) {
             console.log(`Invoice API: Inserting ${data.items.length} items`);
+
             for (const item of data.items) {
-                console.log('Invoice API: Inserting item:', item);
-                // Insert item
+                const quantity = Number(item.quantity);
+                const unitPrice = Number(item.unit_price);
+                const gstRate = Number(item.gst_rate);
+
                 await client.query(`
-                INSERT INTO invoice_items (
-                invoice_id, product_id, product_name, quantity, unit_price, gst_rate, total_amount
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-            `, [
+                    INSERT INTO invoice_items (
+                    invoice_id, product_id, product_name, quantity, unit_price, gst_rate, total_amount
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+                `, [
                     invoiceId,
                     item.product_id,
                     item.product_name,
-                    item.quantity,
-                    item.unit_price,
-                    item.gst_rate,
-                    (item.quantity * item.unit_price) // Item total
+                    quantity,
+                    unitPrice,
+                    gstRate,
+                    (quantity * unitPrice) // Item total
                 ]);
 
-                // Update product stock
-                console.log(`Invoice API: Decrementing stock for product ${item.product_name} by ${item.quantity}`);
+                // Update product stock safely
+                console.log(`Invoice API: Decrementing stock for product ${item.product_name} by ${quantity}`);
                 await client.query(`
-                    UPDATE products 
-                    SET stock = stock - $1 
-                    WHERE id = $2
-                `, [item.quantity, item.product_id]);
+                        UPDATE products 
+                        SET stock = COALESCE(stock, 0) - $1 
+                        WHERE id = $2
+                    `, [quantity, item.product_id]);
             }
-            console.log('Invoice API: All items inserted successfully');
         }
+        console.log('Invoice API: All items inserted successfully');
 
         await client.query('COMMIT');
         client.release();
