@@ -49,8 +49,8 @@ export async function POST(request: Request) {
         const invoiceResult = await client.query(`
         INSERT INTO invoices (
             id, invoice_number, customer_id, invoice_date, due_date, 
-            subtotal, total_amount, igst_amount, status, notes, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
+            subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
         RETURNING id
     `, [
             data.id,
@@ -60,7 +60,9 @@ export async function POST(request: Request) {
             data.due_date,
             data.subtotal,
             data.total_amount,
-            data.total_tax || 0, // Handle missing tax field mapping
+            data.igst_amount || 0,
+            data.cgst_amount || 0,
+            data.sgst_amount || 0,
             data.status,
             data.notes
         ]);
