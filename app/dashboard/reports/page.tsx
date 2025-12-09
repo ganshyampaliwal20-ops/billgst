@@ -1,12 +1,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useStore } from '@/lib/store';
-import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers, FaCalendarAlt } from 'react-icons/fa';
+import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-export default function ReportsPage() {
+function ReportsContent() {
     const searchParams = useSearchParams();
     const { getAnalytics, fetchInvoices } = useStore();
     const [isClient, setIsClient] = useState(false);
@@ -170,5 +170,13 @@ export default function ReportsPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ReportsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ReportsContent />
+        </Suspense>
     );
 }
