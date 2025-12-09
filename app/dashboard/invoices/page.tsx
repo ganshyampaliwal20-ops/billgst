@@ -58,7 +58,12 @@ export default function InvoicesPage() {
     };
 
     const handleShare = (invoice: Invoice) => {
-        const text = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*
+        try {
+            // Generate PDF first
+            generateInvoicePDF(invoice, businessProfile);
+
+            // Then show WhatsApp message with instructions
+            const text = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*
     
 Invoice No: ${invoice.invoice_number}
 Date: ${new Date(invoice.invoice_date).toLocaleDateString()}
@@ -71,8 +76,16 @@ ${invoice.items.map(item => `- ${item.product_name}: ${item.quantity} x ₹${ite
 
 Powered by BillGST.in`;
 
-        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+            toast.success('PDF downloaded! Now opening WhatsApp...');
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 500);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to generate PDF');
+        }
     };
 
     const handleDelete = (id: string) => {
