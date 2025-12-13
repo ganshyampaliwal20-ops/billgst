@@ -12,10 +12,10 @@ export const metadata: Metadata = {
   applicationName: "BillGST",
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png', sizes: '512x512' }
+      { url: '/logo.png', sizes: 'any' },
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' }
     ],
-    apple: '/apple-icon.png',
+    apple: '/logo.png',
   },
   openGraph: {
     title: "BillGST - Free Billing Software",
