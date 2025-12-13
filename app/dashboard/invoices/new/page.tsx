@@ -18,6 +18,7 @@ export default function NewInvoicePage() {
     const [paidAmount, setPaidAmount] = useState('');
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [notes, setNotes] = useState('');
+    const [showPaymentInput, setShowPaymentInput] = useState(false);
 
     // Modal State
     const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -226,61 +227,91 @@ export default function NewInvoicePage() {
 
             <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8">
                 {/* Customer & Dates */}
+                {/* Customer & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Customer Selection */}
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-700 flex justify-between uppercase tracking-wider text-xs">
-                            Customer
+                        <div className="flex justify-between items-center">
+                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Customer</label>
                             <button
                                 onClick={() => setShowCustomerModal(true)}
-                                className="text-blue-600 text-xs font-bold hover:underline flex items-center gap-1"
+                                className="group flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all border border-indigo-200"
                             >
-                                <FaPlus size={10} /> Quick Add
+                                <FaPlus className="text-[10px] group-hover:rotate-90 transition-transform" />
+                                NEW CLIENT
                             </button>
-                        </label>
-                        <div className="relative">
+                        </div>
+                        <div className="relative group">
                             <select
                                 value={customerId}
                                 onChange={(e) => setCustomerId(e.target.value)}
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-medium text-gray-700 transition-all hover:bg-white hover:border-gray-300"
+                                className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300"
                             >
-                                <option value="">Select Customer</option>
+                                <option value="">Select a Client...</option>
                                 {customers.map((c: any) => (
                                     <option key={c.id} value={c.id}>{c.name}</option>
                                 ))}
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 group-hover:text-indigo-500 transition-colors">
+                                <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                             </div>
                         </div>
                     </div>
+
+                    {/* Date */}
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider text-xs">Invoice Date</label>
+                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Invoice Date</label>
                         <input
                             type="date"
                             value={invoiceDate}
                             onChange={(e) => setInvoiceDate(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 transition-all hover:bg-white hover:border-gray-300"
+                            className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none font-bold text-slate-700 transition-all shadow-sm"
                         />
                     </div>
+
+                    {/* Payment Status (Toggle) */}
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider text-xs">Paid Amount (₹)</label>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={paidAmount}
-                            onChange={(e) => setPaidAmount(e.target.value)}
-                            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-gray-700 transition-all hover:bg-white hover:border-gray-300"
-                        />
-                        <div className="text-xs font-semibold text-right">
-                            {paidAmount ? (
-                                <span className={totals.total - parseFloat(paidAmount) > 0 ? 'text-red-500' : 'text-green-600'}>
-                                    Due Amount: ₹{Math.max(0, totals.total - parseFloat(paidAmount)).toFixed(2)}
-                                </span>
-                            ) : (
-                                <span className="text-slate-400">Enter amount if partial payment received</span>
-                            )}
-                        </div>
+                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">Payment Details</label>
+
+                        {!showPaymentInput ? (
+                            <button
+                                onClick={() => setShowPaymentInput(true)}
+                                className="w-full p-4 border-2 border-dashed border-emerald-300 bg-emerald-50 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100 hover:border-emerald-400 transition-all flex items-center justify-center gap-2"
+                            >
+                                <FaPlus /> Add Payment / Advance
+                            </button>
+                        ) : (
+                            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 font-bold">₹</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={paidAmount}
+                                        onChange={(e) => setPaidAmount(e.target.value)}
+                                        placeholder="0.00"
+                                        autoFocus
+                                        className="w-full p-4 pl-8 bg-white border-2 border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-emerald-700 transition-all shadow-sm"
+                                    />
+                                    <button
+                                        onClick={() => { setShowPaymentInput(false); setPaidAmount(''); }}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 p-1"
+                                    >
+                                        <FaTrash size={12} />
+                                    </button>
+                                </div>
+                                <div className="text-xs font-bold text-right mt-1">
+                                    {paidAmount ? (
+                                        <span className={totals.total - parseFloat(paidAmount) > 0.1 ? 'text-red-500' : 'text-emerald-600'}>
+                                            Due: ₹{Math.max(0, totals.total - parseFloat(paidAmount)).toFixed(2)}
+                                        </span>
+                                    ) : (
+                                        <span className="text-slate-400">Enter amount received</span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -380,9 +411,10 @@ export default function NewInvoicePage() {
                         <button
                             type="button"
                             onClick={addItem}
-                            className="px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 flex items-center gap-2.5 text-sm transform hover:scale-105 active:scale-95"
+                            className="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-indigo-600 font-lg rounded-full hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600"
                         >
-                            <FaPlus className="text-base" /> Add Item
+                            <FaPlus className="mr-2 text-sm group-hover:rotate-90 transition-transform" />
+                            ADD NEW ITEM
                         </button>
                     </div>
                 </div>
@@ -400,39 +432,38 @@ export default function NewInvoicePage() {
                         </div>
                         <div className="flex justify-between font-bold text-xl text-gray-800 pt-2 border-t border-gray-100">
                             <span>Total Amount</span>
-                            <span>₹{totals.total.toFixed(2)}</span>
+                            <span className="text-indigo-600">₹{totals.total.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Notes */}
                 <div>
-                    <label className="text-sm font-bold text-gray-700 block mb-2">Notes (Optional)</label>
+                    <label className="text-sm font-bold text-gray-700 block mb-2 uppercase tracking-wide text-xs">Terms / Notes</label>
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Payment terms, bank details, or thank you notes..."
-                        className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none transition-all"
+                        placeholder="Thank you for your business..."
+                        className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none transition-all placeholder:text-slate-400"
                     ></textarea>
                 </div>
 
                 {/* Bottom Action Bar */}
-                <div className="flex items-center justify-end pt-6 border-t border-slate-200 mt-8 sticky bottom-0 bg-white py-4 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 shadow-lg md:shadow-none md:static md:border-0 md:pt-6">
-                    <div className="flex gap-3 w-full sm:w-auto">
-                        <button
-                            type="button"
-                            onClick={() => router.back()}
-                            className="flex-1 sm:flex-none px-6 py-3 border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSubmit}
-                            className="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 transform active:scale-95"
-                        >
-                            <FaSave /> Save Invoice
-                        </button>
-                    </div>
+                <div className="flex items-center justify-end gap-4 pt-6 mt-8 border-t border-slate-100">
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="px-6 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-black/25 flex items-center gap-2 transform active:scale-95"
+                    >
+                        <FaSave className="text-lg" />
+                        SAVE INVOICE
+                    </button>
                 </div>
             </div>
 
