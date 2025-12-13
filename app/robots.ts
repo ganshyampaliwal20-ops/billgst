@@ -8,11 +8,18 @@ export default function robots(): MetadataRoute.Robots {
             : 'https://billgst.in';
 
     return {
-        rules: {
-            userAgent: '*',
-            allow: '/',
-            disallow: ['/api/', '/dashboard/private/'],
-        },
+        rules: [
+            {
+                userAgent: 'Googlebot',
+                allow: ['/', '/blog'],
+                disallow: ['/api/', '/dashboard/private/'],
+            },
+            {
+                userAgent: '*',
+                allow: '/',
+                disallow: ['/api/', '/dashboard/private/'],
+            }
+        ],
         sitemap: `${baseUrl}/sitemap.xml`,
     };
 }
