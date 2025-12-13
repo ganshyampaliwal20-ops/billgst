@@ -52,22 +52,24 @@ export async function POST(request: Request) {
         const invoiceResult = await client.query(`
         INSERT INTO invoices (
             id, invoice_number, customer_id, invoice_date, due_date, 
-            subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+            subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
+            paid_amount, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
         RETURNING id
     `, [
             data.id,
             data.invoice_number,
             customerId,  // Use extracted customer ID
             data.invoice_date,
-            data.due_date,
+            data.due_date || null, // Handle optional due date
             data.subtotal,
             data.total_amount,
             data.igst_amount || 0,
             data.cgst_amount || 0,
             data.sgst_amount || 0,
             data.status,
-            data.notes
+            data.notes,
+            data.paid_amount || 0
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
@@ -130,22 +132,24 @@ export async function POST(request: Request) {
                 const invoiceResult = await client.query(`
                     INSERT INTO invoices (
                         id, invoice_number, customer_id, invoice_date, due_date, 
-                        subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+                        subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
+                        paid_amount, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
                     RETURNING id
                 `, [
                     data.id,
                     data.invoice_number,
                     customerId,
                     data.invoice_date,
-                    data.due_date,
+                    data.due_date || null,
                     data.subtotal,
                     data.total_amount,
                     data.igst_amount || 0,
                     data.cgst_amount || 0,
                     data.sgst_amount || 0,
                     data.status,
-                    data.notes
+                    data.notes,
+                    data.paid_amount || 0
                 ]);
 
                 const invoiceId = invoiceResult.rows[0].id;

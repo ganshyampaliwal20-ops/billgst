@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 export default function InventoryPage() {
-    const { products, addProduct, updateProduct } = useStore();
+    const { products, addProduct, updateProduct, deleteProduct } = useStore();
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -86,6 +86,12 @@ export default function InventoryPage() {
         setShowModal(false);
     };
 
+    const handleDelete = async (id: string) => {
+        if (confirm('Are you sure you want to delete this product?')) {
+            await deleteProduct(id);
+        }
+    };
+
     return (
         <div className="space-y-6 px-4 md:px-0">
             {/* Header */}
@@ -137,13 +143,22 @@ export default function InventoryPage() {
                                 <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600 font-bold text-lg w-10 h-10 flex items-center justify-center">
                                     {product.name.charAt(0).toUpperCase()}
                                 </div>
-                                <button
-                                    onClick={() => handleEdit(product)}
-                                    className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all shadow-sm hover:shadow-md"
-                                    title="Edit Product"
-                                >
-                                    <FaEdit />
-                                </button>
+                                <div>
+                                    <button
+                                        onClick={() => handleEdit(product)}
+                                        className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all shadow-sm hover:shadow-md"
+                                        title="Edit Product"
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(product.id)}
+                                        className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all shadow-sm hover:shadow-md ml-2"
+                                        title="Delete Product"
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
                             </div>
 
                             <h3 className="font-bold text-gray-800 text-lg mb-1 truncate">{product.name}</h3>
