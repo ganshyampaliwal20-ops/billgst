@@ -131,50 +131,52 @@ export default function InventoryPage() {
                     </div>
                 ) : (
                     filteredProducts.map((product: any) => (
-                        <div key={product.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden">
+                        <div key={product.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col">
                             {/* Low Stock Indicator */}
                             {product.stock_quantity < 10 && (
-                                <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-3 py-1 rounded-bl-xl text-xs font-bold flex items-center gap-1">
+                                <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-3 py-1 rounded-bl-xl text-xs font-bold flex items-center gap-1 z-10">
                                     <FaExclamationTriangle /> Low Stock
                                 </div>
                             )}
 
-                            <div className="flex justify-between items-start mb-3">
-                                <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600 font-bold text-lg w-10 h-10 flex items-center justify-center">
-                                    {product.name.charAt(0).toUpperCase()}
+                            <div className="p-5 flex-1">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
+                                        {product.name.charAt(0).toUpperCase()}
+                                    </div>
                                 </div>
-                                <div>
-                                    <button
-                                        onClick={() => handleEdit(product)}
-                                        className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all shadow-sm hover:shadow-md"
-                                        title="Edit Product"
-                                    >
-                                        <FaEdit />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(product.id)}
-                                        className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all shadow-sm hover:shadow-md ml-2"
-                                        title="Delete Product"
-                                    >
-                                        <FaTrash />
-                                    </button>
+
+                                <h3 className="font-bold text-gray-800 text-lg mb-1 truncate" title={product.name}>{product.name}</h3>
+                                <p className="text-sm text-gray-500 mb-4 line-clamp-2 h-10">{product.description || 'No description available'}</p>
+
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div>
+                                        <p className="text-xs text-gray-400 uppercase font-semibold mb-0.5">Price</p>
+                                        <p className="text-gray-900 font-bold text-lg">₹{product.price}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xs text-gray-400 uppercase font-semibold mb-0.5">Stock</p>
+                                        <p className={`font-bold text-lg ${product.stock_quantity < 10 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                            {product.stock_quantity} <span className="text-sm text-gray-500 font-normal">{product.unit}</span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <h3 className="font-bold text-gray-800 text-lg mb-1 truncate">{product.name}</h3>
-                            <p className="text-sm text-gray-500 mb-4 line-clamp-1">{product.description || 'No description'}</p>
-
-                            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <div>
-                                    <p className="text-xs text-gray-400 uppercase font-semibold">Price</p>
-                                    <p className="text-gray-900 font-bold">₹{product.price}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-xs text-gray-400 uppercase font-semibold">Stock</p>
-                                    <p className={`font-bold ${product.stock_quantity < 10 ? 'text-red-600' : 'text-emerald-600'}`}>
-                                        {product.stock_quantity} {product.unit}
-                                    </p>
-                                </div>
+                            {/* Action Footer */}
+                            <div className="bg-gray-50/80 px-5 py-3 border-t border-gray-100 flex items-center justify-center gap-4">
+                                <button
+                                    onClick={() => handleEdit(product)}
+                                    className="flex items-center gap-2 px-4 py-2 text-indigo-600 bg-white border border-indigo-100 hover:bg-indigo-50 rounded-lg transition-all text-sm font-medium shadow-sm"
+                                >
+                                    <FaEdit /> Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(product.id)}
+                                    className="flex items-center gap-2 px-4 py-2 text-red-600 bg-white border border-red-100 hover:bg-red-50 rounded-lg transition-all text-sm font-medium shadow-sm"
+                                >
+                                    <FaTrash /> Delete
+                                </button>
                             </div>
                         </div>
                     ))

@@ -3,9 +3,9 @@ import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
-  title: "BillGST - Advanced GST Billing & Inventory Management",
-  description: "Complete GST billing solution with inventory management, analytics, and multi-user support",
-  keywords: "GST billing, invoice, inventory management, accounting software, India",
+  title: "BillGST - Free GST Billing & Stock Management",
+  description: "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
+  keywords: "free gst bill, billgst, gstbill, invoice generator, billing software, inventory management, small business billing, gst invoice maker",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
@@ -18,9 +18,10 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   openGraph: {
-    title: "BillGST - GST Billing & Inventory",
-    description: "Professional GST billing and inventory management system",
+    title: "BillGST - Free Billing Software",
+    description: "Create professional GST invoices for free. Best for small businesses in India.",
     type: "website",
+    siteName: 'BillGST',
   },
 };
 
