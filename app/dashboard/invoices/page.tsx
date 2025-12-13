@@ -78,7 +78,11 @@ Powered by BillGST.in`;
 
             const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
 
-            toast.success('PDF downloaded! Now opening WhatsApp...');
+            toast.success('PDF downloaded! Opening WhatsApp...', { duration: 3000 });
+            toast('Please manually attach the downloaded PDF in WhatsApp', {
+                icon: '📎',
+                duration: 4000
+            });
             setTimeout(() => {
                 window.open(url, '_blank');
             }, 500);
@@ -121,7 +125,7 @@ Powered by BillGST.in`;
                         placeholder="Search by customer name or invoice number..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                     />
                 </div>
             </div>
@@ -157,22 +161,22 @@ Powered by BillGST.in`;
                             ) : (
                                 filteredInvoices.map((invoice) => (
                                     <tr key={invoice.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="py-4 px-3 md:px-6 text-sm font-medium text-blue-600">
+                                        <td className="py-4 px-4 md:px-6 text-sm font-medium text-blue-600">
                                             {invoice.invoice_number}
                                         </td>
-                                        <td className="py-4 px-3 md:px-6 text-sm text-gray-500">
+                                        <td className="py-4 px-4 md:px-6 text-sm text-gray-500">
                                             <div className="flex flex-col">
                                                 <span className="font-medium text-gray-700">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
                                                 <span className="text-xs text-gray-400">{new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-3 md:px-6 text-sm text-gray-800 font-medium">
+                                        <td className="py-4 px-4 md:px-6 text-sm text-gray-800 font-medium">
                                             {invoice.customer.name}
                                         </td>
-                                        <td className="py-4 px-3 md:px-6 text-sm text-gray-900 font-bold text-right">
+                                        <td className="py-4 px-4 md:px-6 text-sm text-gray-900 font-bold text-right">
                                             ₹{invoice.total_amount.toLocaleString()}
                                         </td>
-                                        <td className="py-4 px-3 md:px-6">
+                                        <td className="py-4 px-4 md:px-6">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleDownload(invoice)}

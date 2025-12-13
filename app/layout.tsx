@@ -9,6 +9,19 @@ export const metadata: Metadata = {
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
+  applicationName: "BillGST",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' }
+    ],
+    apple: '/apple-icon.png',
+  },
+  openGraph: {
+    title: "BillGST - GST Billing & Inventory",
+    description: "Professional GST billing and inventory management system",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

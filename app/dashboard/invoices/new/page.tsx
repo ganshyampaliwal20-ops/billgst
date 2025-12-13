@@ -111,12 +111,38 @@ export default function NewInvoicePage() {
             return;
         }
 
+
         // Validate all items have products selected
         const hasEmptyProducts = selectedItems.some(item => !item.product_id);
         if (hasEmptyProducts) {
             toast.error('Please select a product for all items');
             return;
         }
+
+        // Check stock availability for each product
+        const outOfStockItems = [];
+        for (const item of selectedItems) {
+            const product = products.find((p: any) => p.id === item.product_id);
+            if (product) {
+                const availableStock = product.stock_quantity || 0;
+                if (availableStock < item.quantity) {
+                    outOfStockItems.push({
+                        name: item.product_name,
+                        requested: item.quantity,
+                        available: availableStock
+                    });
+                }
+            }
+        }
+
+        if (outOfStockItems.length > 0) {
+            const errorMessage = outOfStockItems.map(item =>
+                `${item.name}: ${item.requested} requested but only ${item.available} available`
+            ).join('\n');
+            toast.error(`Stock not available:\n${errorMessage}`, { duration: 5000 });
+            return;
+        }
+
 
         const customer = customers.find((c: any) => c.id === customerId);
 
@@ -187,7 +213,7 @@ export default function NewInvoicePage() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8">
                 {/* Customer & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="space-y-4">
@@ -226,7 +252,7 @@ export default function NewInvoicePage() {
                         />
                     </div>
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider text-xs">Due Date</label>
+                        <label className="text-sm font-bold text-gray-700 uppercase tracking-wider text-xs">Due Date (Optional)</label>
                         <input
                             type="date"
                             value={dueDate}
@@ -298,13 +324,13 @@ export default function NewInvoicePage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <div className="relative">
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">₹</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-slate-600 text-sm font-bold">₹</span>
                                                         <input
                                                             type="number"
                                                             value={item.unit_price}
                                                             onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value))}
-                                                            className="w-full pl-8 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
+                                                            className="flex-1 px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
                                                         />
                                                     </div>
                                                 </td>
@@ -332,9 +358,9 @@ export default function NewInvoicePage() {
                         <button
                             type="button"
                             onClick={addItem}
-                            className="px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
+                            className="px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 flex items-center gap-2.5 text-sm transform hover:scale-105 active:scale-95"
                         >
-                            <FaPlus /> Add Item
+                            <FaPlus className="text-base" /> Add Item
                         </button>
                     </div>
                 </div>
