@@ -1,19 +1,33 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
     try {
+        const session: any = await getServerSession(authOptions as any);
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const client = await pool.connect();
-        const result = await client.query('SELECT * FROM products ORDER BY created_at DESC');
+        const result = await client.query('SELECT * FROM products WHERE created_by = $1 ORDER BY created_at DESC', [session.user.id]);
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {
+        console.error('Error fetching products:', error);
         return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
     }
 }
 
 export async function POST(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
     try {
         const data = await request.json();
         console.log('API: Creating product. Received:', data);
@@ -23,9 +37,6 @@ export async function POST(request: Request) {
         // Ensure ID exists
         if (!data.id) {
             data.id = uuidv4();
-            console.log('API: Generated new UUID:', data.id);
-        } else {
-            console.log('API: Using provided ID:', data.id);
         }
 
         // Ensure numeric values are valid
@@ -33,15 +44,34 @@ export async function POST(request: Request) {
         const stock = data.stock_quantity || 0;
         const gst = parseFloat(data.gst_rate) || 0;
 
-        const result = await client.query(
-            `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
-       RETURNING *`,
-            [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock]
-        );
-
-        client.release();
-        return NextResponse.json(result.rows[0]);
+        try {
+            const result = await client.query(
+                `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) 
+           RETURNING *`,
+                [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId]
+            );
+            client.release();
+            return NextResponse.json(result.rows[0]);
+        } catch (dbError: any) {
+            // Auto-migration: If column missing error (42703), add columns and retry
+            if (dbError?.code === '42703') {
+                console.log('Product API: Missing columns detected. Attempting auto-migration...');
+                await client.query(`
+                    ALTER TABLE products ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
+                `);
+                // Retry
+                const result = await client.query(
+                    `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) 
+               RETURNING *`,
+                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId]
+                );
+                client.release();
+                return NextResponse.json(result.rows[0]);
+            }
+            throw dbError;
+        }
     } catch (error) {
         console.error('Error creating product:', error);
         return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
@@ -49,6 +79,12 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
@@ -66,8 +102,13 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Cannot delete product: It is used in existing invoices' }, { status: 400 });
         }
 
-        await client.query('DELETE FROM products WHERE id = $1', [id]);
+        // Only delete if it belongs to user
+        const result = await client.query('DELETE FROM products WHERE id = $1 AND created_by = $2', [id, userId]);
         client.release();
+
+        if (result.rowCount === 0) {
+            return NextResponse.json({ error: 'Product not found or access denied' }, { status: 404 });
+        }
 
         return NextResponse.json({ success: true, message: 'Product deleted successfully' });
     } catch (error) {

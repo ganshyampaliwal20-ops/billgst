@@ -1,19 +1,27 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
     try {
+        const session: any = await getServerSession(authOptions as any);
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const client = await pool.connect();
-        // Fetch invoices with customer details
+        // Fetch invoices ONLY for the logged-in user
         const result = await client.query(`
       SELECT i.*, 
              json_build_object('name', c.name, 'email', c.email) as customer,
              (SELECT json_agg(items) FROM invoice_items items WHERE items.invoice_id = i.id) as items
       FROM invoices i
       JOIN customers c ON i.customer_id = c.id
+      WHERE i.created_by = $1
       ORDER BY i.created_at DESC
-    `);
+    `, [session.user.id]);
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {
@@ -23,6 +31,12 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
     const client = await pool.connect();
     let data: any = {};
     let customerId: string = '';
@@ -53,8 +67,8 @@ export async function POST(request: Request) {
         INSERT INTO invoices (
             id, invoice_number, customer_id, invoice_date, due_date, 
             subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
-            paid_amount, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+            paid_amount, created_by, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
         RETURNING id
     `, [
             data.id,
@@ -69,7 +83,8 @@ export async function POST(request: Request) {
             data.sgst_amount || 0,
             data.status,
             data.notes,
-            data.paid_amount || 0
+            data.paid_amount || 0,
+            userId // Add created_by
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
@@ -133,8 +148,8 @@ export async function POST(request: Request) {
                     INSERT INTO invoices (
                         id, invoice_number, customer_id, invoice_date, due_date, 
                         subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
-                        paid_amount, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+                        paid_amount, created_by, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
                     RETURNING id
                 `, [
                     data.id,
@@ -149,7 +164,8 @@ export async function POST(request: Request) {
                     data.sgst_amount || 0,
                     data.status,
                     data.notes,
-                    data.paid_amount || 0
+                    data.paid_amount || 0,
+                    userId
                 ]);
 
                 const invoiceId = invoiceResult.rows[0].id;
