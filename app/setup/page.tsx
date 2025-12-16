@@ -64,8 +64,11 @@ export default function SetupPage() {
 
                 {status === 'error' && (
                     <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                        <h3 className="text-red-700 font-bold text-lg mb-2">❌ Error</h3>
+                        <h3 className="text-red-700 font-bold text-lg mb-2">❌ Configuration Error</h3>
                         <p className="text-red-600 text-sm">{message}</p>
+                        <p className="text-xs text-red-500 mt-2">
+                            Check Vercel Settings: Ensure 'DATABASE_URL' is added in Environment Variables.
+                        </p>
                         <button
                             onClick={runSetup}
                             className="mt-4 text-sm text-red-700 underline hover:text-red-800"
