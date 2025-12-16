@@ -1,27 +1,29 @@
+```typescript
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
 export async function GET(request: Request) {
+    let client;
     try {
         console.log("Setup API: Started");
-
+        
         const dbUrl = process.env.DATABASE_URL;
-
+        
         // DEBUG INFO CHECK
         let urlInfo = "Not Parsed";
         let isValidUrl = false;
         try {
             const parsed = new URL(dbUrl || '');
             isValidUrl = true;
-            urlInfo = `Protocol: ${parsed.protocol}, Host: ${parsed.hostname}, Valid Format: Yes`;
+            urlInfo = `Protocol: ${ parsed.protocol }, Host: ${ parsed.hostname }, Valid Format: Yes`;
         } catch (e: any) {
-            urlInfo = `Parsing Failed: ${e.message}`;
+            urlInfo = `Parsing Failed: ${ e.message } `;
         }
 
-        if (!isValidUrl || !dbUrl.startsWith("postgres")) {
-            return NextResponse.json({
-                success: false,
+        if (!isValidUrl || !dbUrl?.startsWith("postgres")) {
+            return NextResponse.json({ 
+                success: false, 
                 error: "Environment Debug: DATABASE_URL is malformed",
                 debug: {
                     exists: !!dbUrl,
@@ -33,33 +35,39 @@ export async function GET(request: Request) {
             }, { status: 500 });
         }
 
-        if (!pool) throw new Error("Database pool is not initialized");
+        // DIRECT CONNECTION TEST (Bypass lib/db.ts)
+        console.log("Setup API: Attempting DIRECT connection...");
+        const { Client } = pg;
+        client = new Client({
+            connectionString: dbUrl,
+            ssl: { rejectUnauthorized: false }
+        });
 
-        const client = await pool.connect();
-        console.log("Setup API: DB Connected");
-
+        await client.connect();
+        console.log("Setup API: DB Connected (Direct)");
+        
         // 1. Check/Create User
         const userRes = await client.query('SELECT * FROM users LIMIT 1');
         let userId;
-
+        
         if (userRes.rows.length === 0) {
             console.log("Setup API: Creating new Admin User");
             const hashedPassword = await bcrypt.hash('admin123', 10);
             const newUser = await client.query(`
-                INSERT INTO users (name, email, password, role) 
-                VALUES ('Admin User', 'admin@example.com', '${hashedPassword}', 'ADMIN') 
+                INSERT INTO users(name, email, password, role)
+VALUES('Admin User', 'admin@example.com', '${hashedPassword}', 'ADMIN') 
                 RETURNING id
-            `);
+    `);
             userId = newUser.rows[0].id;
         } else {
             console.log("Setup API: User already exists");
             userId = userRes.rows[0].id;
         }
 
-        client.release();
-
-        return NextResponse.json({
-            success: true,
+        await client.end();
+        
+        return NextResponse.json({ 
+            success: true, 
             message: 'System Setup Completed Successfully',
             user_id: userId,
             info: 'You can now create invoices.'
@@ -67,11 +75,12 @@ export async function GET(request: Request) {
 
     } catch (error) {
         console.error("Setup API Error:", error);
-
+        if (client) { try { await client.end(); } catch(e) {} }
+        
         const dbUrl = process.env.DATABASE_URL;
 
-        return NextResponse.json({
-            success: false,
+        return NextResponse.json({ 
+            success: false, 
             error: error instanceof Error ? error.message : 'Unknown Error',
             stack: error instanceof Error ? error.stack : undefined,
             debug: {
