@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import pool, { initDB } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
 export async function GET() {
     try {
+        // First ensure all tables exist
+        await initDB();
+        console.log('✅ Database schema initialized');
+
         const client = await pool.connect();
 
         // 1. Check if user exists
