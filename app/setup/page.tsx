@@ -20,7 +20,7 @@ export default function SetupPage() {
                 setStatus('error');
                 setMessage(data.error || 'Setup Failed');
                 if (data.debug) setDebugInfo(data.debug);
-                if (data.stack) setDebugInfo(prev => ({ ...prev, stack: data.stack }));
+                if (data.stack) setDebugInfo((prev: any) => ({ ...prev, stack: data.stack }));
             }
         } catch (err) {
             setStatus('error');
