@@ -206,7 +206,8 @@ export default function NewInvoicePage() {
         } else if (result?.error) {
             toast.error(`Failed: ${result.error}`);
         } else {
-            toast.error('Failed to save invoice. Please try again.');
+            console.error('Save Invoice Failed with Unknown Result:', result);
+            toast.error(`Failed: ${JSON.stringify(result)}`);
         }
     };
 
