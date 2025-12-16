@@ -30,9 +30,14 @@ export default function SetupPage() {
         }
     };
 
+    const [showGen, setShowGen] = useState(false);
+    const [genData, setGenData] = useState({ host: '', user: 'postgres', pass: '', db: 'postgres' });
+
+    const generatedUrl = `postgres://${encodeURIComponent(genData.user)}:${encodeURIComponent(genData.pass)}@${genData.host}/${encodeURIComponent(genData.db)}?sslmode=require`;
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center space-y-6">
+            <div className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full text-center space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">System Repair & Setup</h1>
                 <p className="text-slate-600">
                     Click the button below to fix the "No Users" error by creating a default admin account.
@@ -82,14 +87,77 @@ export default function SetupPage() {
                             </div>
                         )}
 
-                        <p className="text-xs text-red-500 mt-3">
-                            Check Vercel Settings &gt; Environment Variables.
-                        </p>
+                        <div className="mt-6 border-t pt-4">
+                            <p className="text-sm font-bold text-slate-700 mb-2">Detailed Help:</p>
+                            <p className="text-sm text-slate-600 mb-4">
+                                The error "Parsing Failed" or "Invalid URL" usually means your password contains special characters (like @, #, /) that need to be "encoded".
+                            </p>
+
+                            <button
+                                onClick={() => setShowGen(!showGen)}
+                                className="text-blue-600 underline font-semibold text-sm"
+                            >
+                                {showGen ? "Hide URL Builder" : "👉 Click here to generate a SAFE Connection String"}
+                            </button>
+
+                            {showGen && (
+                                <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200 text-left space-y-3">
+                                    <h4 className="font-bold text-blue-800">Connection String Builder</h4>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase">Database Host (e.g. ep-xyz.aws.neon.tech)</label>
+                                        <input
+                                            className="w-full p-2 border rounded-lg text-sm"
+                                            placeholder="Paste host here..."
+                                            value={genData.host}
+                                            onChange={e => setGenData({ ...genData, host: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase">User</label>
+                                            <input
+                                                className="w-full p-2 border rounded-lg text-sm"
+                                                value={genData.user}
+                                                onChange={e => setGenData({ ...genData, user: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 uppercase">Database Name</label>
+                                            <input
+                                                className="w-full p-2 border rounded-lg text-sm"
+                                                value={genData.db}
+                                                onChange={e => setGenData({ ...genData, db: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase">Password (Raw)</label>
+                                        <input
+                                            className="w-full p-2 border rounded-lg text-sm"
+                                            placeholder="Paste your password here"
+                                            value={genData.pass}
+                                            onChange={e => setGenData({ ...genData, pass: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="pt-2">
+                                        <p className="text-xs font-bold text-green-700 mb-1">✅ Safe Encoded URL (Copy this to Vercel):</p>
+                                        <div className="bg-slate-800 p-3 rounded-lg break-all">
+                                            <code className="text-xs text-green-400 font-mono select-all">
+                                                {generatedUrl}
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         <button
                             onClick={runSetup}
-                            className="mt-4 text-sm text-red-700 underline hover:text-red-800"
+                            className="mt-6 w-full py-3 bg-red-100 text-red-700 font-bold rounded-lg hover:bg-red-200"
                         >
-                            Try Again
+                            Reset & Try Again
                         </button>
                     </div>
                 )}
