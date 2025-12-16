@@ -9,18 +9,27 @@ export async function GET(request: Request) {
         const dbUrl = process.env.DATABASE_URL;
 
         // DEBUG INFO CHECK
-        if (!dbUrl || !dbUrl.startsWith("postgres")) {
+        let urlInfo = "Not Parsed";
+        let isValidUrl = false;
+        try {
+            const parsed = new URL(dbUrl);
+            isValidUrl = true;
+            urlInfo = `Protocol: ${parsed.protocol}, Host: ${parsed.hostname}, Valid Format: Yes`;
+        } catch (e: any) {
+            urlInfo = `Parsing Failed: ${e.message}`;
+        }
+
+        if (!isValidUrl || !dbUrl.startsWith("postgres")) {
             return NextResponse.json({
                 success: false,
-                error: "Environment Debug: DATABASE_URL is invalid or missing",
+                error: "Environment Debug: DATABASE_URL is malformed",
                 debug: {
                     exists: !!dbUrl,
-                    type: typeof dbUrl,
                     length: dbUrl ? dbUrl.length : 0,
+                    url_test: urlInfo,
                     preview: dbUrl ? dbUrl.substring(0, 10) + "..." : "NULL",
-                    node_env: process.env.NODE_ENV
                 },
-                message: "Please check Vercel Environment Variables."
+                message: "Your Database URL format is incorrect. It should look like 'postgres://user:pass@host...'"
             }, { status: 500 });
         }
 
