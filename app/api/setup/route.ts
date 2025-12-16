@@ -5,6 +5,15 @@ import bcrypt from 'bcryptjs';
 export async function GET(request: Request) {
     try {
         console.log("Setup API: Started");
+
+        if (!process.env.DATABASE_URL) {
+            return NextResponse.json({
+                success: false,
+                error: "Configuration Error: DATABASE_URL is missing.",
+                message: "You need to add 'DATABASE_URL' to your Vercel Project Settings > Environment Variables."
+            }, { status: 500 });
+        }
+
         if (!pool) throw new Error("Database pool is not initialized");
 
         const client = await pool.connect();
