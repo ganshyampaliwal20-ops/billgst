@@ -12,7 +12,7 @@ export async function GET(request: Request) {
         let urlInfo = "Not Parsed";
         let isValidUrl = false;
         try {
-            const parsed = new URL(dbUrl);
+            const parsed = new URL(dbUrl || '');
             isValidUrl = true;
             urlInfo = `Protocol: ${parsed.protocol}, Host: ${parsed.hostname}, Valid Format: Yes`;
         } catch (e: any) {
