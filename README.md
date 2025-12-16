@@ -82,6 +82,14 @@ Use these demo credentials:
 - **Email**: admin@billgst.in
 - **Password**: admin123
 
+- **Password**: admin123
+
+### 6. IMPORTANT: First Time Fix
+If you see "Unauthorized" or "No Users" error:
+1. Visit: `http://localhost:3000/api/fix-account`
+2. Ideally do this once after setting up the database.
+3. This creates the Admin user if it is missing.
+
 ## 📁 Project Structure
 
 ```
