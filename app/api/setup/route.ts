@@ -58,10 +58,21 @@ export async function GET(request: Request) {
 
     } catch (error) {
         console.error("Setup API Error:", error);
+
+        const dbUrl = process.env.DATABASE_URL;
+
         return NextResponse.json({
             success: false,
             error: error instanceof Error ? error.message : 'Unknown Error',
-            stack: error instanceof Error ? error.stack : undefined
+            stack: error instanceof Error ? error.stack : undefined,
+            debug: {
+                exists: !!dbUrl,
+                type: typeof dbUrl,
+                length: dbUrl ? dbUrl.length : 0,
+                preview: dbUrl ? dbUrl.substring(0, 10) + "..." : "NULL",
+                node_env: process.env.NODE_ENV
+            }
         }, { status: 500 });
     }
 }
+```
