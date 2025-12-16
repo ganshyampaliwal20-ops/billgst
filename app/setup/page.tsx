@@ -19,8 +19,10 @@ export default function SetupPage() {
             } else {
                 setStatus('error');
                 setMessage(data.error || 'Setup Failed');
-                if (data.debug) setDebugInfo(data.debug);
-                if (data.stack) setDebugInfo((prev: any) => ({ ...prev, stack: data.stack }));
+
+                const dbg = data.debug || {};
+                if (data.stack) dbg.stack = data.stack;
+                if (Object.keys(dbg).length > 0) setDebugInfo(dbg);
             }
         } catch (err) {
             setStatus('error');
