@@ -11,10 +11,8 @@ export const metadata: Metadata = {
   },
   applicationName: "BillGST",
   icons: {
-    icon: [
-      { url: '/logo.png', sizes: 'any' },
-      { url: '/logo.png', type: 'image/png', sizes: '512x512' }
-    ],
+    icon: '/logo.png',
+    shortcut: '/logo.png',
     apple: '/logo.png',
   },
   openGraph: {
