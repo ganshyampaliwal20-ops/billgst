@@ -18,6 +18,14 @@ export async function GET(request: Request) {
             urlInfo = `Protocol: ${parsed.protocol}, Host: ${parsed.hostname}, Valid Format: Yes`;
         } catch (e: any) {
             urlInfo = `Parsing Failed: ${e.message}`;
+
+            // Heuristic Analysis
+            if (dbUrl) {
+                if (dbUrl.includes(' ')) urlInfo += " [HINT: Spaces detected. remove them]";
+                if (dbUrl.includes('user=') || dbUrl.includes('host=')) urlInfo += " [HINT: Looks like libpq format 'key=value'. Please use 'postgres://...' URI format]";
+                if (!dbUrl.startsWith('postgres')) urlInfo += " [HINT: Must start with 'postgres://']";
+                if (dbUrl.includes('\n') || dbUrl.includes('\r')) urlInfo += " [HINT: Newline detected. Remove line breaks]";
+            }
         }
 
         if (!isValidUrl || !dbUrl?.startsWith("postgres")) {
