@@ -1,7 +1,7 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-let pool: Pool | any;
+let pool: any;
 
 let rawConnectionString = process.env.DATABASE_URL;
 let connectionString: string | undefined = undefined;
