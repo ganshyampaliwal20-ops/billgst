@@ -1,36 +1,40 @@
 import { Pool } from 'pg';
 
-let pool;
+let pool: Pool | any;
 
 if (!process.env.DATABASE_URL) {
-  console.error('CRITICAL: DATABASE_URL is missing! Database operations will fail.');
-  // Mock pool that throws clear error
-  pool = {
-    connect: async () => {
-      throw new Error('DATABASE CONFIGURATION ERROR: DATABASE_URL is missing in environment variables.');
-    },
-    query: async () => {
-      throw new Error('DATABASE CONFIGURATION ERROR: DATABASE_URL is missing in environment variables.');
-    },
-    on: () => { }
-  };
+    console.error('CRITICAL: DATABASE_URL is missing! Database operations will fail.');
+    // Mock pool that throws clear error
+    pool = {
+        connect: async () => {
+            throw new Error('DATABASE CONFIGURATION ERROR: DATABASE_URL is missing in environment variables.');
+        },
+        query: async () => {
+            throw new Error('DATABASE CONFIGURATION ERROR: DATABASE_URL is missing in environment variables.');
+        },
+        on: () => { },
+        totalCount: 0,
+        idleCount: 0,
+        waitingCount: 0,
+        end: async () => { },
+    };
 } else {
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+    });
 }
 
 // Database initialization queries
 export const initDB = async () => {
-  if (!process.env.DATABASE_URL) {
-    console.error('Skipping initDB because DATABASE_URL is missing');
-    return;
-  }
+    if (!process.env.DATABASE_URL) {
+        console.error('Skipping initDB because DATABASE_URL is missing');
+        return;
+    }
 
-  const client = await pool.connect();
-  try {
-    await client.query(`
+    const client = await pool.connect();
+    try {
+        await client.query(`
       CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
       -- Users table
@@ -152,23 +156,23 @@ export const initDB = async () => {
       CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(product_id);
     `);
 
-    // Verify/Migrate schema in separate blocks to prevent one failure from blocking others
-    try {
-      await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
-    } catch (e) { console.log('Migration note: checked products.created_by'); }
+        // Verify/Migrate schema in separate blocks to prevent one failure from blocking others
+        try {
+            await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
+        } catch (e) { console.log('Migration note: checked products.created_by'); }
 
-    try {
-      await client.query(`ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
-    } catch (e) { console.log('Migration note: checked customers.created_by'); }
+        try {
+            await client.query(`ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
+        } catch (e) { console.log('Migration note: checked customers.created_by'); }
 
-    try {
-      await client.query(`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
-    } catch (e) { console.log('Migration note: checked invoices.created_by'); }
+        try {
+            await client.query(`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
+        } catch (e) { console.log('Migration note: checked invoices.created_by'); }
 
-    console.log('Database tables created/verified successfully');
-  } finally {
-    client.release();
-  }
+        console.log('Database tables created/verified successfully');
+    } finally {
+        client.release();
+    }
 };
 
 export default pool;
