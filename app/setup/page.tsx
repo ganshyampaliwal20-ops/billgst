@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function SetupPage() {
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [message, setMessage] = useState('');
+    const [debugInfo, setDebugInfo] = useState<any>(null);
 
     const runSetup = async () => {
         setStatus('loading');
@@ -18,6 +19,8 @@ export default function SetupPage() {
             } else {
                 setStatus('error');
                 setMessage(data.error || 'Setup Failed');
+                if (data.debug) setDebugInfo(data.debug);
+                if (data.stack) setDebugInfo(prev => ({ ...prev, stack: data.stack }));
             }
         } catch (err) {
             setStatus('error');
@@ -63,11 +66,22 @@ export default function SetupPage() {
                 )}
 
                 {status === 'error' && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-left">
                         <h3 className="text-red-700 font-bold text-lg mb-2">❌ Configuration Error</h3>
-                        <p className="text-red-600 text-sm">{message}</p>
-                        <p className="text-xs text-red-500 mt-2">
-                            Check Vercel Settings: Ensure 'DATABASE_URL' is added in Environment Variables.
+                        <p className="text-red-600 text-sm font-semibold">{message}</p>
+
+                        {/* DEBUG INFO DISPLAY */}
+                        {debugInfo && (
+                            <div className="mt-4 bg-slate-900 p-3 rounded-lg overflow-x-auto">
+                                <p className="text-xs text-slate-400 mb-1">Server Debug Info:</p>
+                                <pre className="text-xs text-green-400 font-mono">
+                                    {JSON.stringify(debugInfo || {}, null, 2)}
+                                </pre>
+                            </div>
+                        )}
+
+                        <p className="text-xs text-red-500 mt-3">
+                            Check Vercel Settings &gt; Environment Variables.
                         </p>
                         <button
                             onClick={runSetup}

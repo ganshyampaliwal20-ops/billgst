@@ -6,11 +6,21 @@ export async function GET(request: Request) {
     try {
         console.log("Setup API: Started");
 
-        if (!process.env.DATABASE_URL) {
+        const dbUrl = process.env.DATABASE_URL;
+
+        // DEBUG INFO CHECK
+        if (!dbUrl || !dbUrl.startsWith("postgres")) {
             return NextResponse.json({
                 success: false,
-                error: "Configuration Error: DATABASE_URL is missing.",
-                message: "You need to add 'DATABASE_URL' to your Vercel Project Settings > Environment Variables."
+                error: "Environment Debug: DATABASE_URL is invalid or missing",
+                debug: {
+                    exists: !!dbUrl,
+                    type: typeof dbUrl,
+                    length: dbUrl ? dbUrl.length : 0,
+                    preview: dbUrl ? dbUrl.substring(0, 10) + "..." : "NULL",
+                    node_env: process.env.NODE_ENV
+                },
+                message: "Please check Vercel Environment Variables."
             }, { status: 500 });
         }
 
