@@ -23,6 +23,11 @@ export default function SetupPage() {
                 const dbg = data.debug || {};
                 if (data.stack) dbg.stack = data.stack;
                 if (Object.keys(dbg).length > 0) setDebugInfo(dbg);
+
+                // Auto-show generator if URL is bad
+                if (dbg.url_test && dbg.url_test.includes('Failed')) {
+                    setShowGen(true);
+                }
             }
         } catch (err) {
             setStatus('error');
