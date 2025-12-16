@@ -235,6 +235,9 @@ export async function POST(request: Request) {
         await client.query('ROLLBACK');
         client.release();
         console.error('Invoice API Transaction Error:', error);
-        return NextResponse.json({ error: 'Failed to save invoice', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+        return NextResponse.json({
+            error: `Database Error: ${error instanceof Error ? error.message : 'Unknown Error'}`,
+            details: error instanceof Error ? error.stack : undefined
+        }, { status: 500 });
     }
 }
