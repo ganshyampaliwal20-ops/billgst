@@ -23,7 +23,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
     const session: any = await getServerSession(authOptions as any);
+
+    console.log('Product API Debug: Session Check', {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        userRole: session?.user?.role
+    });
+
     if (!session?.user?.id) {
+        console.error('Product API Error: Unauthorized access attempt');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const userId = session.user.id;

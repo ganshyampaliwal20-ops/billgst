@@ -32,7 +32,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
     const session: any = await getServerSession(authOptions as any);
+
+    console.log('Invoice API Debug: Session Check', {
+        hasSession: !!session,
+        userId: session?.user?.id
+    });
+
     if (!session?.user?.id) {
+        console.error('Invoice API Error: Unauthorized access attempt');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const userId = session.user.id;
