@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   },
   applicationName: "BillGST",
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
   openGraph: {
     title: "BillGST - Free Billing Software",
