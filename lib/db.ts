@@ -16,6 +16,11 @@ if (rawConnectionString && typeof rawConnectionString === 'string') {
   if (sanitized.startsWith('"') && sanitized.endsWith('"')) sanitized = sanitized.slice(1, -1);
   if (sanitized.startsWith("'") && sanitized.endsWith("'")) sanitized = sanitized.slice(1, -1);
 
+  // Remove query parameters (like ?sslmode=require) to prevent conflicts
+  if (sanitized.includes('?')) {
+    sanitized = sanitized.split('?')[0];
+  }
+
   if (sanitized.length > 0) {
     connectionString = sanitized;
   }
