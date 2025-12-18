@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 import {
     FaHome, FaFileInvoice, FaUsers, FaBox, FaChartBar,
@@ -121,21 +122,30 @@ export default function DashboardLayout({
                             </div>
                         </div>
 
-                        {/* Language Toggle */}
-                        <div className="mt-4 flex bg-slate-200/50 p-1 rounded-lg">
+                        {/* Language & Logout */}
+                        <div className="mt-4 grid grid-cols-2 gap-2">
+                            <div className="flex bg-slate-200/50 p-1 rounded-lg col-span-2">
+                                <button
+                                    onClick={() => setLang('en')}
+                                    className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${lang === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    English
+                                </button>
+                                <button
+                                    onClick={() => setLang('hi')}
+                                    className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${lang === 'hi' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                >
+                                    हिंदी
+                                </button>
+                            </div>
                             <button
-                                onClick={() => setLang('en')}
-                                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${lang === 'en' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                                    }`}
+                                onClick={() => signOut({ callbackUrl: '/login' })}
+                                className="col-span-2 flex items-center justify-center gap-2 py-2 px-4 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 transition-colors border border-red-100"
                             >
-                                English
-                            </button>
-                            <button
-                                onClick={() => setLang('hi')}
-                                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${lang === 'hi' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                                    }`}
-                            >
-                                हिंदी
+                                <FaSignOutAlt size={14} />
+                                <span>{lang === 'hi' ? 'लॉग आउट' : 'Logout'}</span>
                             </button>
                         </div>
                     </div>
@@ -178,7 +188,11 @@ export default function DashboardLayout({
                                     {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
                                 </div>
 
-                                <button className="hidden md:flex items-center justify-center w-10 h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all" title="Logout">
+                                <button
+                                    onClick={() => signOut({ callbackUrl: '/login' })}
+                                    className="hidden md:flex items-center justify-center w-10 h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"
+                                    title="Logout"
+                                >
                                     <FaSignOutAlt />
                                 </button>
 
