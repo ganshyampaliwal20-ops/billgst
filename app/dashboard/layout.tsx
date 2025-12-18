@@ -29,7 +29,12 @@ export default function DashboardLayout({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [lang, setLang] = useState<'en' | 'hi'>('en');
 
-    const { businessProfile } = useStore();
+    const { businessProfile, resetStore } = useStore();
+
+    const handleLogout = () => {
+        resetStore();
+        signOut({ callbackUrl: '/login' });
+    };
 
     return (
         <div className="min-h-screen bg-[#f1f5f9] flex">
@@ -141,7 +146,7 @@ export default function DashboardLayout({
                                 </button>
                             </div>
                             <button
-                                onClick={() => signOut({ callbackUrl: '/login' })}
+                                onClick={handleLogout}
                                 className="col-span-2 flex items-center justify-center gap-2 py-2 px-4 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 transition-colors border border-red-100"
                             >
                                 <FaSignOutAlt size={14} />
@@ -189,7 +194,7 @@ export default function DashboardLayout({
                                 </div>
 
                                 <button
-                                    onClick={() => signOut({ callbackUrl: '/login' })}
+                                    onClick={handleLogout}
                                     className="hidden md:flex items-center justify-center w-10 h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"
                                     title="Logout"
                                 >

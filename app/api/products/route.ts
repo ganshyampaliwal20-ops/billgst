@@ -107,6 +107,50 @@ export async function POST(request: Request) {
     }
 }
 
+export async function PUT(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = session.user.id;
+
+    try {
+        const data = await request.json();
+        const { id, name, description, hsn_code, unit, price, gst_rate, stock_quantity } = data;
+
+        if (!id) {
+            return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+        }
+
+        const client = await pool.connect();
+
+        // Ensure the product belongs to the user
+        const checkOwner = await client.query('SELECT created_by FROM products WHERE id = $1', [id]);
+        if (checkOwner.rows.length === 0) {
+            client.release();
+            return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+        }
+        if (checkOwner.rows[0].created_by !== userId) {
+            client.release();
+            return NextResponse.json({ error: 'Unauthorized: You do not own this product' }, { status: 403 });
+        }
+
+        const result = await client.query(
+            `UPDATE products 
+             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, gst_rate = $6, stock_quantity = $7, updated_at = NOW()
+             WHERE id = $8 AND created_by = $9
+             RETURNING *`,
+            [name, description, hsn_code, unit, price, gst_rate, stock_quantity, id, userId]
+        );
+        client.release();
+
+        return NextResponse.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error updating product:', error);
+        return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
+    }
+}
+
 export async function DELETE(request: Request) {
     const session: any = await getServerSession(authOptions as any);
     if (!session?.user?.id) {
