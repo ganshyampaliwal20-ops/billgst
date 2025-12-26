@@ -137,6 +137,28 @@ export default function SettingsPage() {
                                 placeholder="business@example.com"
                             />
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2 text-indigo-600 font-bold">UPI ID (for QR Code)</label>
+                            <input
+                                type="text"
+                                value={formData.upi_id || ''}
+                                onChange={(e) => setFormData({ ...formData, upi_id: e.target.value })}
+                                className="w-full px-4 py-2 border-2 border-indigo-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition bg-indigo-50/30"
+                                placeholder="example@upi"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Authorized Signatory Name</label>
+                            <input
+                                type="text"
+                                value={formData.owner_name || ''}
+                                onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                placeholder="Person name for signature"
+                            />
+                        </div>
                     </div>
                 </div>
 
