@@ -182,8 +182,8 @@ Powered by BillGST.in`;
                                             <div className="flex flex-col items-end gap-1">
                                                 <span className="text-sm font-bold text-gray-900">₹{invoice.total_amount.toLocaleString()}</span>
                                                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                                        invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
+                                                    invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-red-100 text-red-700'
                                                     }`}>
                                                     {invoice.status || 'UNPAID'}
                                                 </span>
@@ -239,8 +239,8 @@ Powered by BillGST.in`;
                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>
                                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${selectedInvoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                            selectedInvoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
-                                                'bg-red-100 text-red-700'
+                                        selectedInvoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
+                                            'bg-red-100 text-red-700'
                                         }`}>
                                         {selectedInvoice.status || 'UNPAID'}
                                     </span>

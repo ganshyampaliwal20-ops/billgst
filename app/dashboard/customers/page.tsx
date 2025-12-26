@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaUserTie } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaChevronLeft, FaCommentDots, FaBell, FaUserPlus } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 export default function CustomersPage() {
-    const { customers, addCustomer, updateCustomer } = useStore();
+    const { customers, invoices, addCustomer, updateCustomer } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState('PARTIES');
 
     // Form State
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
         phone: '',
         gstin: '',
         address: ''
@@ -27,14 +27,20 @@ export default function CustomersPage() {
 
     if (!isClient) return null;
 
+    const getCustomerBalance = (customerId: string) => {
+        const customerInvoices = invoices.filter((inv: any) => inv.customer_id === customerId);
+        const total = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
+        const paid = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.paid_amount || 0), 0);
+        return total - paid;
+    };
+
     const filteredCustomers = customers.filter((c: any) =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.phone.includes(searchTerm)
+        (c.phone && c.phone.includes(searchTerm))
     );
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!formData.name) {
             toast.error('Name is required');
             return;
@@ -42,163 +48,181 @@ export default function CustomersPage() {
 
         if (editingId) {
             updateCustomer(editingId, formData);
-            toast.success('Customer updated');
+            toast.success('Party updated');
         } else {
             addCustomer({
                 id: crypto.randomUUID(),
                 ...formData,
                 created_at: new Date().toISOString()
             });
-            toast.success('Customer added successfully');
+            toast.success('Party added successfully');
         }
-
         resetForm();
     };
 
-    const handleEdit = (customer: any) => {
-        setFormData({
-            name: customer.name,
-            email: customer.email || '',
-            phone: customer.phone || '',
-            gstin: customer.gstin || '',
-            address: customer.address || ''
-        });
-        setEditingId(customer.id);
-        setShowModal(true);
-    };
-
     const resetForm = () => {
-        setFormData({ name: '', email: '', phone: '', gstin: '', address: '' });
+        setFormData({ name: '', phone: '', gstin: '', address: '' });
         setEditingId(null);
         setShowModal(false);
     };
 
     return (
-        <div className="space-y-6 px-4 md:px-0">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Customers</h1>
-                    <p className="text-gray-500 text-sm">Manage your client database</p>
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-white overflow-hidden">
+            {/* Custom Header - Teal color as per image */}
+            <div className="bg-[#0e7490] text-white px-4 py-3 flex items-center justify-between shadow-md">
+                <div className="flex items-center gap-4">
+                    <FaChevronLeft className="text-xl cursor-pointer" />
+                    <h1 className="text-xl font-bold tracking-wide transition-all">All Parties</h1>
                 </div>
+                <div className="flex items-center gap-6">
+                    <FaCommentDots className="text-xl cursor-pointer opacity-90 hover:opacity-100" />
+                    <FaBell className="text-xl cursor-pointer opacity-90 hover:opacity-100" />
+                </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex bg-[#0e7490] text-white/80 border-t border-white/10">
                 <button
-                    onClick={() => setShowModal(true)}
-                    className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg flex items-center gap-2"
+                    onClick={() => setActiveTab('PARTIES')}
+                    className={`flex-1 py-3 font-bold text-sm tracking-widest relative transition-all ${activeTab === 'PARTIES' ? 'text-white' : 'hover:bg-black/5'}`}
                 >
-                    <FaPlus /> Add New Customer
+                    PARTIES
+                    {activeTab === 'PARTIES' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white"></div>}
+                </button>
+                <button
+                    onClick={() => setActiveTab('GROUPS')}
+                    className={`flex-1 py-3 font-bold text-sm tracking-widest relative transition-all ${activeTab === 'GROUPS' ? 'text-white' : 'hover:bg-black/5'}`}
+                >
+                    GROUPS
+                    {activeTab === 'GROUPS' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white"></div>}
                 </button>
             </div>
 
-            {/* Search */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
-                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                    type="text"
-                    placeholder="Search customers..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg outline-none focus:border-blue-500"
-                />
+            {/* Search Bar */}
+            <div className="px-4 py-3 border-b border-gray-100">
+                <div className="relative group">
+                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0e7490] transition-colors" />
+                    <input
+                        type="text"
+                        placeholder="Search for Name / No. / Address etc."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-full outline-none focus:bg-white focus:border-[#0e7490] transition-all text-sm"
+                    />
+                </div>
             </div>
 
-            {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* List Header */}
+            <div className="bg-[#e0f2fe] px-4 py-2 flex justify-between text-xs font-bold text-[#64748b] border-b border-gray-100">
+                <span>Party Name</span>
+                <span>Amount</span>
+            </div>
+
+            {/* Parties List */}
+            <div className="flex-1 overflow-y-auto">
                 {filteredCustomers.length === 0 ? (
-                    <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-gray-100">
-                        <div className="inline-block p-4 bg-gray-50 rounded-full mb-3">
-                            <FaUserTie className="text-3xl text-gray-300" />
-                        </div>
-                        <p className="text-gray-500">No customers found</p>
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
+                        <FaUserPlus className="text-6xl mb-4 opacity-20" />
+                        <p>No parties found</p>
                     </div>
                 ) : (
-                    filteredCustomers.map((customer: any) => (
-                        <div key={customer.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition group">
-                            <div className="flex justify-between items-start mb-3">
-                                <div className="p-2 bg-blue-50 rounded-lg text-blue-600 font-bold text-lg w-10 h-10 flex items-center justify-center">
-                                    {customer.name.charAt(0).toUpperCase()}
+                    filteredCustomers.map((party: any) => {
+                        const balance = getCustomerBalance(party.id);
+                        return (
+                            <div
+                                key={party.id}
+                                className="flex justify-between items-center px-4 py-5 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group"
+                                onClick={() => {
+                                    setEditingId(party.id);
+                                    setFormData({
+                                        name: party.name,
+                                        phone: party.phone || '',
+                                        gstin: party.gstin || '',
+                                        address: party.address || ''
+                                    });
+                                    setShowModal(true);
+                                }}
+                            >
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-[#1e293b] text-[15px]">{party.name}</h3>
+                                    {party.phone && <p className="text-xs text-gray-500 mt-0.5">{party.phone}</p>}
                                 </div>
-                                <button
-                                    onClick={() => handleEdit(customer)}
-                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-gray-50 rounded-lg opacity-0 group-hover:opacity-100 transition"
-                                >
-                                    <FaEdit />
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <span className={`font-bold text-[15px] ${balance > 0 ? 'text-[#16a34a]' : 'text-gray-400'}`}>
+                                        ₹ {balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    </span>
+                                    {balance > 0 && <FaBell className="text-[#0e7490] text-sm opacity-60 group-hover:opacity-100 transition-opacity" />}
+                                </div>
                             </div>
-                            <h3 className="font-bold text-gray-800 text-lg mb-1">{customer.name}</h3>
-                            <div className="space-y-1 text-sm text-gray-500">
-                                {customer.phone && <p>{customer.phone}</p>}
-                                {customer.email && <p className="truncate">{customer.email}</p>}
-                                {customer.gstin && <span className="inline-block px-2 py-0.5 bg-gray-100 rounded text-xs mt-1">GST: {customer.gstin}</span>}
-                            </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
+
+            {/* Floating Action Button */}
+            <button
+                onClick={() => setShowModal(true)}
+                className="absolute bottom-6 right-6 w-16 h-16 bg-[#0e7490] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#0891b2] active:scale-95 transition-all z-20"
+            >
+                <FaPlus className="text-2xl" />
+            </button>
 
             {/* Add/Edit Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Customer' : 'Add New Customer'}</h2>
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+                        <h2 className="text-xl font-bold mb-6 text-[#0e7490]">{editingId ? 'Edit Party' : 'Add New Party'}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Party Name *</label>
                                 <input
                                     required
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone Number</label>
                                     <input
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
                                         value={formData.phone}
                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="Mobile No."
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">GSTIN</label>
                                     <input
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-xs"
-                                        placeholder="Optional"
+                                        className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
                                         value={formData.gstin}
                                         onChange={e => setFormData({ ...formData, gstin: e.target.value })}
+                                        placeholder="Optional"
                                     />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                                    value={formData.email}
-                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Address</label>
                                 <textarea
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
+                                    className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490] h-24 resize-none"
                                     value={formData.address}
                                     onChange={e => setFormData({ ...formData, address: e.target.value })}
                                 ></textarea>
                             </div>
-                            <div className="flex gap-3 pt-2">
+                            <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
                                     onClick={resetForm}
-                                    className="flex-1 py-2.5 border border-gray-300 rounded-xl font-semibold text-gray-600 hover:bg-gray-50"
+                                    className="flex-1 py-3 border border-gray-200 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700"
+                                    className="flex-1 py-3 bg-[#0e7490] text-white rounded-xl font-bold hover:bg-[#0891b2] transition"
                                 >
-                                    {editingId ? 'Update' : 'Save Customer'}
+                                    {editingId ? 'Update Party' : 'Save Party'}
                                 </button>
                             </div>
                         </form>

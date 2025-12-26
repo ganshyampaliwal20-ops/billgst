@@ -10,6 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
+import RegistrationPopup from './RegistrationPopup';
 
 const menuItems = [
     { icon: FaFileInvoice, label: 'Invoices', href: '/dashboard/invoices', labelHi: 'बिल' },
@@ -229,6 +230,7 @@ export default function DashboardLayout({
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
+            <RegistrationPopup />
         </div>
     );
 }
