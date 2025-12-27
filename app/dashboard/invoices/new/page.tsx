@@ -7,9 +7,20 @@ import { FaPlus, FaTrash, FaSave, FaArrowLeft, FaUserPlus } from 'react-icons/fa
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
+// Safe ID generator
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+}
+
 export default function NewInvoicePage() {
     const router = useRouter();
-    const { customers, products, addInvoice, addCustomer } = useStore();
+
+    // Select state individually to prevent destructuring errors
+    const customers = useStore((state: any) => state.customers);
+    const products = useStore((state: any) => state.products);
+    const addInvoice = useStore((state: any) => state.addInvoice);
+    const addCustomer = useStore((state: any) => state.addCustomer);
+
     const [isClient, setIsClient] = useState(false);
 
     // Form State
@@ -88,7 +99,7 @@ export default function NewInvoicePage() {
         e.preventDefault();
         if (!newCustomerName) return toast.error('Name is required');
 
-        const newId = crypto.randomUUID();
+        const newId = generateId();
         addCustomer({
             id: newId,
             name: newCustomerName,
@@ -179,7 +190,7 @@ export default function NewInvoicePage() {
             else if (paid > 0) status = 'PARTIAL';
 
             const newInvoice = {
-                id: crypto.randomUUID(),
+                id: generateId(),
                 invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
                 customer: {
                     id: customerId,

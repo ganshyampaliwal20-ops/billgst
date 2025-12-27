@@ -28,12 +28,11 @@ interface Invoice {
 }
 
 export default function InvoicesPage() {
-    const { invoices, deleteInvoice, businessProfile, fetchInvoices } = useStore() as {
-        invoices: Invoice[],
-        deleteInvoice: (id: string) => void,
-        businessProfile: any,
-        fetchInvoices: () => void
-    };
+    // Select state individually for safety
+    const invoices = useStore((state: any) => state.invoices);
+    const deleteInvoice = useStore((state: any) => state.deleteInvoice);
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const fetchInvoices = useStore((state: any) => state.fetchInvoices);
     const [searchTerm, setSearchTerm] = useState('');
     const [isClient, setIsClient] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
