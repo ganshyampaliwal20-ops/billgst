@@ -29,6 +29,10 @@ export default function NewInvoicePage() {
         setIsClient(true);
     }, []);
 
+    // Safety checks for arrays
+    const safeCustomers = Array.isArray(customers) ? customers : [];
+    const safeProducts = Array.isArray(products) ? products : [];
+
     if (!isClient) return null;
 
     // Add Item to Invoice
@@ -151,7 +155,7 @@ export default function NewInvoicePage() {
         setIsSubmitting(true);
 
         try {
-            const customer = customers.find((c: any) => c.id === customerId);
+            const customer = safeCustomers.find((c: any) => c.id === customerId);
 
             // Add total_amount to each item for PDF generation
             const itemsWithTotals = selectedItems.map(item => {
@@ -259,7 +263,7 @@ export default function NewInvoicePage() {
                                 className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300"
                             >
                                 <option value="">Select a Client...</option>
-                                {customers?.length > 0 ? customers.map((c: any) => (
+                                {safeCustomers.length > 0 ? safeCustomers.map((c: any) => (
                                     <option key={c.id} value={c.id}>{c.name}</option>
                                 )) : <option value="" disabled>No customers found</option>}
                             </select>
@@ -370,7 +374,7 @@ export default function NewInvoicePage() {
                                                         className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
                                                     >
                                                         <option value="">Select Product</option>
-                                                        {products?.length > 0 ? products.map((p: any) => (
+                                                        {safeProducts.length > 0 ? safeProducts.map((p: any) => (
                                                             <option key={p.id} value={p.id}>{p.name}</option>
                                                         )) : <option value="" disabled>No products found</option>}
                                                     </select>

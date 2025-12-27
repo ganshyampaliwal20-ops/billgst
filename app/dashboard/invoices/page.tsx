@@ -45,10 +45,19 @@ export default function InvoicesPage() {
 
     if (!isClient) return null;
 
-    const filteredInvoices = invoices.filter((inv: Invoice) =>
-        inv.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const safeInvoices = Array.isArray(invoices) ? invoices : [];
+
+    const filteredInvoices = safeInvoices.filter((inv: Invoice) => {
+        // Aggressive null checks for every field accessed
+        const customerName = inv?.customer?.name || '';
+        const invoiceNumber = inv?.invoice_number || '';
+
+        // Ensure strings before calling toLowerCase
+        return (
+            String(customerName).toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(invoiceNumber).toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
 
     const handleDownload = (e: React.MouseEvent, invoice: Invoice) => {
         e.stopPropagation();
