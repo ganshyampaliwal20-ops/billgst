@@ -40,7 +40,19 @@ export default function InvoicesPage() {
     useEffect(() => {
         setIsClient(true);
         fetchInvoices();
-    }, []);
+    }, [fetchInvoices]);
+
+    // Re-fetch when component becomes visible (user navigates back)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchInvoices();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [fetchInvoices]);
 
     if (!isClient) return null;
 
