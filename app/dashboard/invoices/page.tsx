@@ -120,14 +120,16 @@ Powered by BillGST.in`;
             {/* Search */}
             <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
                 <div className="relative">
-                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
                         placeholder="Search by customer name or invoice number..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                     />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                        <FaSearch />
+                    </div>
                 </div>
             </div>
 
@@ -176,11 +178,11 @@ Powered by BillGST.in`;
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-800 font-semibold">
-                                                {invoice.customer.name}
+                                                {invoice.customer?.name || 'Unknown'}
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex flex-col items-end gap-1">
-                                                    <span className="text-sm font-bold text-gray-900">₹{invoice.total_amount.toLocaleString()}</span>
+                                                    <span className="text-sm font-bold text-gray-900">₹{(invoice.total_amount || 0).toLocaleString()}</span>
                                                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                         invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                             'bg-red-100 text-red-700'
@@ -223,11 +225,11 @@ Powered by BillGST.in`;
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
-                                            <h3 className="font-bold text-gray-800 text-lg">{invoice.customer.name}</h3>
+                                            <h3 className="font-bold text-gray-800 text-lg">{invoice.customer?.name || 'Unknown'}</h3>
                                             <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-lg font-bold text-gray-900">₹{invoice.total_amount.toLocaleString()}</p>
+                                            <p className="text-lg font-bold text-gray-900">₹{(invoice.total_amount || 0).toLocaleString()}</p>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                 invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                     'bg-red-100 text-red-700'

@@ -493,39 +493,41 @@ export default function NewInvoicePage() {
             {showCustomerModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                        <h3 className="text-lg font-bold mb-4">Quick Add Customer</h3>
-                        <form onSubmit={handleAddCustomer} className="space-y-4">
+                        <h3 className="text-lg font-bold mb-6">Quick Add Customer</h3>
+                        <form onSubmit={handleAddCustomer} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
                                 <input
                                     autoFocus
                                     required
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                                     value={newCustomerName}
                                     onChange={e => setNewCustomerName(e.target.value)}
+                                    placeholder="Enter customer name"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                                 <input
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                                     value={newCustomerPhone}
                                     onChange={e => setNewCustomerPhone(e.target.value)}
+                                    placeholder="Enter phone number"
                                 />
                             </div>
-                            <div className="flex gap-3 pt-2">
+                            <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
                                     onClick={() => setShowCustomerModal(false)}
-                                    className="flex-1 py-2 border border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-50"
+                                    className="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700"
+                                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
                                 >
-                                    Save
+                                    Save Customer
                                 </button>
                             </div>
                         </form>
