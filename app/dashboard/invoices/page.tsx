@@ -44,7 +44,7 @@ export default function InvoicesPage() {
 
     if (!isClient) return null;
 
-    const safeInvoices = Array.isArray(invoices) ? invoices : [];
+    const safeInvoices = (Array.isArray(invoices) ? invoices : []).filter(i => i && typeof i === 'object');
 
     const filteredInvoices = safeInvoices.filter((inv: Invoice) => {
         // Aggressive null checks for every field accessed

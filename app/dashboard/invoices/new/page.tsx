@@ -25,7 +25,8 @@ export default function NewInvoicePage() {
 
     // Form State
     const [customerId, setCustomerId] = useState('');
-    const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+    // Initialize date empty to prevent hydration mismatch, set in useEffect
+    const [invoiceDate, setInvoiceDate] = useState('');
     const [paidAmount, setPaidAmount] = useState('');
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [notes, setNotes] = useState('');
@@ -38,11 +39,16 @@ export default function NewInvoicePage() {
 
     useEffect(() => {
         setIsClient(true);
+        // Set date only on client side to avoid hydration errors
+        setInvoiceDate(new Date().toISOString().split('T')[0]);
     }, []);
 
-    // Safety checks for arrays
-    const safeCustomers = Array.isArray(customers) ? customers : [];
-    const safeProducts = Array.isArray(products) ? products : [];
+    // Safety checks for arrays - Filter out nulls/undefined items
+    const rawCustomers = Array.isArray(customers) ? customers : [];
+    const safeCustomers = rawCustomers.filter((c: any) => c && typeof c === 'object' && c.id && c.name);
+
+    const rawProducts = Array.isArray(products) ? products : [];
+    const safeProducts = rawProducts.filter((p: any) => p && typeof p === 'object' && p.id && p.name);
 
     if (!isClient) return null;
 
