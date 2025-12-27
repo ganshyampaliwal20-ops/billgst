@@ -259,9 +259,9 @@ export default function NewInvoicePage() {
                                 className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300"
                             >
                                 <option value="">Select a Client...</option>
-                                {customers.map((c: any) => (
+                                {customers?.length > 0 ? customers.map((c: any) => (
                                     <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
+                                )) : <option value="" disabled>No customers found</option>}
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 group-hover:text-indigo-500 transition-colors">
                                 <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -361,7 +361,7 @@ export default function NewInvoicePage() {
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ) : selectedItems.map((item, index) => (
+                                        ) : selectedItems?.map((item, index) => (
                                             <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
                                                 <td className="px-4 py-3">
                                                     <select
@@ -370,9 +370,9 @@ export default function NewInvoicePage() {
                                                         className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
                                                     >
                                                         <option value="">Select Product</option>
-                                                        {products.map((p: any) => (
+                                                        {products?.length > 0 ? products.map((p: any) => (
                                                             <option key={p.id} value={p.id}>{p.name}</option>
-                                                        ))}
+                                                        )) : <option value="" disabled>No products found</option>}
                                                     </select>
                                                 </td>
                                                 <td className="px-4 py-3">

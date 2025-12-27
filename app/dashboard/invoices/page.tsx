@@ -75,7 +75,7 @@ Customer: ${invoice.customer.name}
 *Total Amount: ₹${invoice.total_amount}*
 
 Items:
-${invoice.items.map(item => `- ${item.product_name}: ${item.quantity} x ₹${item.unit_price}`).join('\n')}
+${invoice.items?.map(item => `- ${item.product_name}: ${item.quantity} x ₹${item.unit_price}`).join('\n') || 'No items'}
 
 Powered by BillGST.in`;
 
