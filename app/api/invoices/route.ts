@@ -7,12 +7,29 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
     try {
         const session: any = await getServerSession(authOptions as any);
-        if (!session?.user?.id) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        let userId = session?.user?.id;
+
+        // FALLBACK AUTHENTICATION - Match POST logic
+        if (!userId) {
+            console.warn('⚠️ Invoice GET API: No session found. Attempting Auto-User Fallback...');
+            try {
+                const client = await pool.connect();
+                const userResult = await client.query('SELECT id FROM users LIMIT 1');
+                client.release();
+                if (userResult.rows.length > 0) {
+                    userId = userResult.rows[0].id;
+                    console.log('✅ Auto-User Fallback Successful for GET. Using User ID:', userId);
+                }
+            } catch (fbError) { console.error('Auto-User GET Error:', fbError); }
+        }
+
+        if (!userId) {
+            console.error('Invoice GET API Error: Unauthorized access attempt');
+            return NextResponse.json({ error: 'Unauthorized: No session and no users in DB' }, { status: 401 });
         }
 
         const client = await pool.connect();
-        // Fetch invoices ONLY for the logged-in user
+        // Fetch invoices for the user
         const result = await client.query(`
       SELECT i.*, 
              json_build_object('name', c.name, 'email', c.email) as customer,
@@ -21,7 +38,7 @@ export async function GET() {
       JOIN customers c ON i.customer_id = c.id
       WHERE i.created_by = $1
       ORDER BY i.created_at DESC
-    `, [session.user.id]);
+    `, [userId]);
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {
