@@ -99,9 +99,13 @@ export default function NewInvoicePage() {
         toast.success('Customer added & selected');
     };
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     // Handle Submit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (isSubmitting) return;
 
         if (!customerId) {
             toast.error('Please select a customer');
@@ -144,70 +148,76 @@ export default function NewInvoicePage() {
             return;
         }
 
+        setIsSubmitting(true);
 
+        try {
+            const customer = customers.find((c: any) => c.id === customerId);
 
+            // Add total_amount to each item for PDF generation
+            const itemsWithTotals = selectedItems.map(item => {
+                const itemSubtotal = item.quantity * item.unit_price;
+                const itemGST = (itemSubtotal * item.gst_rate) / 100;
+                return {
+                    ...item,
+                    total_amount: itemSubtotal + itemGST
+                };
+            });
 
+            // Calculate GST breakdown using utility function
+            const { calculateInvoiceTotal } = await import('@/lib/gst-calculator');
+            const gstBreakdown = calculateInvoiceTotal(selectedItems, false); // false = intra-state (CGST+SGST)
 
-        const customer = customers.find((c: any) => c.id === customerId);
+            // Calculate Status
+            const totalAmount = gstBreakdown.total_amount;
+            const paid = parseFloat(paidAmount) || 0;
+            let status = 'UNPAID';
+            if (paid >= totalAmount) status = 'PAID';
+            else if (paid > 0) status = 'PARTIAL';
 
-        // Add total_amount to each item for PDF generation
-        const itemsWithTotals = selectedItems.map(item => {
-            const itemSubtotal = item.quantity * item.unit_price;
-            const itemGST = (itemSubtotal * item.gst_rate) / 100;
-            return {
-                ...item,
-                total_amount: itemSubtotal + itemGST
+            const newInvoice = {
+                id: crypto.randomUUID(),
+                invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+                customer: {
+                    id: customerId,
+                    name: customer?.name || 'Unknown',
+                    email: customer?.email,
+                    address: customer?.address,
+                    gstin: customer?.gstin
+                },
+                invoice_date: invoiceDate,
+                items: itemsWithTotals,
+                subtotal: gstBreakdown.subtotal,
+                cgst_amount: gstBreakdown.cgst_amount,
+                sgst_amount: gstBreakdown.sgst_amount,
+                igst_amount: gstBreakdown.igst_amount,
+                total_amount: gstBreakdown.total_amount,
+                paid_amount: paid,
+                payment_status: status,
+                total_tax: gstBreakdown.cgst_amount + gstBreakdown.sgst_amount + gstBreakdown.igst_amount,
+                status: status,
+                notes: notes,
+                created_at: new Date().toISOString()
             };
-        });
 
-        // Calculate GST breakdown using utility function
-        const { calculateInvoiceTotal } = await import('@/lib/gst-calculator');
-        const gstBreakdown = calculateInvoiceTotal(selectedItems, false); // false = intra-state (CGST+SGST)
+            // Properly await the async call
+            const result = await addInvoice(newInvoice);
 
-        // Calculate Status
-        const totalAmount = gstBreakdown.total_amount;
-        const paid = parseFloat(paidAmount) || 0;
-        let status = 'UNPAID';
-        if (paid >= totalAmount) status = 'PAID';
-        else if (paid > 0) status = 'PARTIAL';
-
-        const newInvoice = {
-            id: crypto.randomUUID(),
-            invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
-            customer: {
-                id: customerId,
-                name: customer?.name || 'Unknown',
-                email: customer?.email,
-                address: customer?.address,
-                gstin: customer?.gstin
-            },
-            invoice_date: invoiceDate,
-            items: itemsWithTotals,
-            subtotal: gstBreakdown.subtotal,
-            cgst_amount: gstBreakdown.cgst_amount,
-            sgst_amount: gstBreakdown.sgst_amount,
-            igst_amount: gstBreakdown.igst_amount,
-            total_amount: gstBreakdown.total_amount,
-            paid_amount: paid,
-            payment_status: status,
-            total_tax: gstBreakdown.cgst_amount + gstBreakdown.sgst_amount + gstBreakdown.igst_amount,
-            status: status,
-            notes: notes,
-            created_at: new Date().toISOString()
-        };
-
-        // Properly await the async call
-        const result = await addInvoice(newInvoice);
-
-        // addInvoice already shows toast and navigates on success
-        // Only navigate if result is successful
-        if (result?.success || result?.id) {
-            router.push('/dashboard/invoices');
-        } else if (result?.error) {
-            toast.error(`Failed: ${result.error}`);
-        } else {
-            console.error('Save Invoice Failed with Unknown Result:', result);
-            toast.error(`Failed: ${JSON.stringify(result)}`);
+            // addInvoice already shows toast and navigates on success
+            // Only navigate if result is successful
+            if (result?.success || result?.id) {
+                toast.success('Invoice created successfully!');
+                router.push('/dashboard/invoices');
+            } else if (result?.error) {
+                toast.error(`Failed: ${result.error}`);
+            } else {
+                console.error('Save Invoice Failed with Unknown Result:', result);
+                toast.error(`Failed: ${JSON.stringify(result)}`);
+            }
+        } catch (error: any) {
+            console.error('Submission Error:', error);
+            toast.error('Something went wrong. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -454,16 +464,27 @@ export default function NewInvoicePage() {
                     <button
                         type="button"
                         onClick={() => router.back()}
-                        className="px-6 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all"
+                        disabled={isSubmitting}
+                        className="px-6 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-black/25 flex items-center gap-2 transform active:scale-95"
+                        disabled={isSubmitting}
+                        className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-black/25 flex items-center gap-2 transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        <FaSave className="text-lg" />
-                        SAVE INVOICE
+                        {isSubmitting ? (
+                            <>
+                                <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                Saving...
+                            </>
+                        ) : (
+                            <>
+                                <FaSave className="text-lg" />
+                                SAVE INVOICE
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

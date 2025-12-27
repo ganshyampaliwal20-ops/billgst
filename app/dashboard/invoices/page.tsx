@@ -131,88 +131,136 @@ Powered by BillGST.in`;
                 </div>
             </div>
 
-            {/* Invoices List */}
+            {/* Invoices List - Desktop Table & Mobile Cards */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50/50 border-b border-gray-100">
-                            <tr>
-                                <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Invoice No</th>
-                                <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                                <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Customer</th>
-                                <th className="text-right py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
-                                <th className="text-center py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {filteredInvoices.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="py-16 text-center">
-                                        <div className="flex flex-col items-center gap-3">
-                                            <div className="p-4 bg-gray-100 rounded-full text-gray-400">
-                                                <FaFileInvoiceDollar className="text-3xl" />
-                                            </div>
-                                            <p className="text-gray-500 font-medium">No invoices found</p>
-                                            <Link href="/dashboard/invoices/new" className="text-blue-600 hover:underline text-sm font-medium">
-                                                Create your first invoice
-                                            </Link>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredInvoices.map((invoice) => (
-                                    <tr
-                                        key={invoice.id}
-                                        onClick={() => setSelectedInvoice(invoice)}
-                                        className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
-                                    >
-                                        <td className="py-4 px-6 text-sm font-bold text-blue-600">
-                                            {invoice.invoice_number}
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                            <div className="flex flex-col">
-                                                <span className="font-medium">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
-                                                <span className="text-xs text-gray-400">{new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-gray-800 font-semibold">
-                                            {invoice.customer.name}
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                            <div className="flex flex-col items-end gap-1">
-                                                <span className="text-sm font-bold text-gray-900">₹{invoice.total_amount.toLocaleString()}</span>
-                                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                                    invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
-                                                        'bg-red-100 text-red-700'
-                                                    }`}>
-                                                    {invoice.status || 'UNPAID'}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={(e) => handleDownload(e, invoice)}
-                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                                    title="Download PDF"
-                                                >
-                                                    <FaFilePdf className="text-lg" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => handleShare(e, invoice)}
-                                                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
-                                                    title="Share on WhatsApp"
-                                                >
-                                                    <FaWhatsapp className="text-lg" />
-                                                </button>
-                                            </div>
-                                        </td>
+                {filteredInvoices.length === 0 ? (
+                    <div className="py-16 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="p-4 bg-gray-100 rounded-full text-gray-400">
+                                <FaFileInvoiceDollar className="text-3xl" />
+                            </div>
+                            <p className="text-gray-500 font-medium">No invoices found</p>
+                            <Link href="/dashboard/invoices/new" className="text-blue-600 hover:underline text-sm font-medium">
+                                Create your first invoice
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        {/* Desktop Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50/50 border-b border-gray-100">
+                                    <tr>
+                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Invoice No</th>
+                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Customer</th>
+                                        <th className="text-right py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
+                                        <th className="text-center py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {filteredInvoices.map((invoice) => (
+                                        <tr
+                                            key={invoice.id}
+                                            onClick={() => setSelectedInvoice(invoice)}
+                                            className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
+                                        >
+                                            <td className="py-4 px-6 text-sm font-bold text-blue-600">
+                                                {invoice.invoice_number}
+                                            </td>
+                                            <td className="py-4 px-6 text-sm text-gray-600">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
+                                                    <span className="text-xs text-gray-400">{new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-sm text-gray-800 font-semibold">
+                                                {invoice.customer.name}
+                                            </td>
+                                            <td className="py-4 px-6 text-right">
+                                                <div className="flex flex-col items-end gap-1">
+                                                    <span className="text-sm font-bold text-gray-900">₹{invoice.total_amount.toLocaleString()}</span>
+                                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
+                                                        invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-red-100 text-red-700'
+                                                        }`}>
+                                                        {invoice.status || 'UNPAID'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button
+                                                        onClick={(e) => handleDownload(e, invoice)}
+                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                                        title="Download PDF"
+                                                    >
+                                                        <FaFilePdf className="text-lg" />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleShare(e, invoice)}
+                                                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                                                        title="Share on WhatsApp"
+                                                    >
+                                                        <FaWhatsapp className="text-lg" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile Card View (Vyapar Style) */}
+                        <div className="md:hidden divide-y divide-gray-100">
+                            {filteredInvoices.map((invoice) => (
+                                <div
+                                    key={invoice.id}
+                                    onClick={() => setSelectedInvoice(invoice)}
+                                    className="p-4 active:bg-gray-50 transition-colors cursor-pointer"
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h3 className="font-bold text-gray-800 text-lg">{invoice.customer.name}</h3>
+                                            <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-lg font-bold text-gray-900">₹{invoice.total_amount.toLocaleString()}</p>
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
+                                                invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-red-100 text-red-700'
+                                                }`}>
+                                                {invoice.status || 'UNPAID'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center mt-3">
+                                        <p className="text-xs text-gray-400">
+                                            {new Date(invoice.invoice_date).toLocaleDateString()} • {new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={(e) => handleDownload(e, invoice)}
+                                                className="p-2 text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition"
+                                            >
+                                                <FaFilePdf />
+                                            </button>
+                                            <button
+                                                onClick={(e) => handleShare(e, invoice)}
+                                                className="p-2 text-green-600 bg-green-50 rounded-full hover:bg-green-100 transition"
+                                            >
+                                                <FaWhatsapp />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Invoice Detail Modal */}
