@@ -37,6 +37,9 @@ export default function NewInvoicePage() {
     const [newCustomerName, setNewCustomerName] = useState('');
     const [newCustomerPhone, setNewCustomerPhone] = useState('');
 
+    // CRITICAL: All useState hooks MUST be above any conditional returns
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     useEffect(() => {
         setIsClient(true);
         // Set date only on client side to avoid hydration errors
@@ -119,8 +122,6 @@ export default function NewInvoicePage() {
         setNewCustomerPhone('');
         toast.success('Customer added & selected');
     };
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Handle Submit
     const handleSubmit = async (e: React.FormEvent) => {
