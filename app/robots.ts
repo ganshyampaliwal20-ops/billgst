@@ -10,14 +10,9 @@ export default function robots(): MetadataRoute.Robots {
     return {
         rules: [
             {
-                userAgent: 'Googlebot',
-                allow: ['/', '/blog'],
-                disallow: ['/api/', '/dashboard/private/'],
-            },
-            {
                 userAgent: '*',
-                allow: '/',
-                disallow: ['/api/', '/dashboard/private/'],
+                allow: ['/', '/blog', '/logo.png'],
+                disallow: ['/api/', '/dashboard/'],
             }
         ],
         sitemap: `${baseUrl}/sitemap.xml`,

@@ -12,8 +12,8 @@ export default function BlogPage() {
             {/* Navigation */}
             <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <Link href="/dashboard" className="flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 transition">
-                        <FaArrowLeft /> Back to Dashboard
+                    <Link href="/" className="flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 transition">
+                        <FaArrowLeft /> Back to Home
                     </Link>
                     <span className="font-bold text-xl text-gray-900">BillGST Blog</span>
                 </div>
