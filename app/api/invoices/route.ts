@@ -7,26 +7,13 @@ import { authOptions } from "@/lib/auth";
 export async function GET() {
     try {
         const session: any = await getServerSession(authOptions as any);
-        let userId = session?.user?.id;
 
-        // FALLBACK AUTHENTICATION - Match POST logic
-        if (!userId) {
-            console.warn('⚠️ Invoice GET API: No session found. Attempting Auto-User Fallback...');
-            try {
-                const client = await pool.connect();
-                const userResult = await client.query('SELECT id FROM users LIMIT 1');
-                client.release();
-                if (userResult.rows.length > 0) {
-                    userId = userResult.rows[0].id;
-                    console.log('✅ Auto-User Fallback Successful for GET. Using User ID:', userId);
-                }
-            } catch (fbError) { console.error('Auto-User GET Error:', fbError); }
-        }
-
-        if (!userId) {
+        if (!session?.user?.id) {
             console.error('Invoice GET API Error: Unauthorized access attempt');
-            return NextResponse.json({ error: 'Unauthorized: No session and no users in DB' }, { status: 401 });
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
+        const userId = session.user.id;
 
         const client = await pool.connect();
         // Fetch invoices for the user
@@ -55,26 +42,12 @@ export async function POST(request: Request) {
         userId: session?.user?.id
     });
 
-    let userId = session?.user?.id;
-
-    // FALLBACK AUTHENTICATION
-    if (!userId) {
-        console.warn('⚠️ Invoice API: No session found. Attempting Auto-User Fallback...');
-        try {
-            const client = await pool.connect();
-            const userResult = await client.query('SELECT id FROM users LIMIT 1');
-            client.release();
-            if (userResult.rows.length > 0) {
-                userId = userResult.rows[0].id;
-                console.log('✅ Auto-User Fallback Successful. Using User ID:', userId);
-            }
-        } catch (fbError) { console.error('Auto-User Error:', fbError); }
-    }
-
-    if (!userId) {
+    if (!session?.user?.id) {
         console.error('Invoice API Error: Unauthorized access attempt');
-        return NextResponse.json({ error: 'Unauthorized: No session and no users in DB' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = session.user.id;
 
     const client = await pool.connect();
     let data: any = {};

@@ -29,25 +29,12 @@ export async function POST(request: Request) {
         userId: session?.user?.id
     });
 
-    let userId = session?.user?.id;
-
-    // FALLBACK AUTHENTICATION
-    if (!userId) {
-        console.warn('⚠️ Customer API: No session found. Attempting Auto-User Fallback...');
-        try {
-            const client = await pool.connect();
-            const userResult = await client.query('SELECT id FROM users LIMIT 1');
-            client.release();
-            if (userResult.rows.length > 0) {
-                userId = userResult.rows[0].id;
-                console.log('✅ Auto-User Fallback Successful. Using User ID:', userId);
-            }
-        } catch (fbError) { console.error('Auto-User Error:', fbError); }
+    if (!session?.user?.id) {
+        console.error('Customer API Error: Unauthorized access attempt');
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized: No session and no users in DB' }, { status: 401 });
-    }
+    const userId = session.user.id;
 
     try {
         const data = await request.json();
