@@ -69,53 +69,63 @@ export default function CustomersPage() {
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-white overflow-hidden">
             {/* Custom Header - Teal color as per image */}
-            <div className="bg-[#0e7490] text-white px-4 py-3 flex items-center justify-between shadow-md">
+            <div className="bg-[#0e7490] text-white px-6 py-5 flex items-center justify-between shadow-lg z-20 relative">
                 <div className="flex items-center gap-4">
-                    <FaChevronLeft className="text-xl cursor-pointer" />
+                    <button onClick={() => window.history.back()} className="hover:bg-white/10 p-2 -ml-2 rounded-full transition-colors">
+                        <FaChevronLeft className="text-xl" />
+                    </button>
                     <h1 className="text-xl font-bold tracking-wide transition-all">All Parties</h1>
                 </div>
-                <div className="flex items-center gap-6">
-                    <FaCommentDots className="text-xl cursor-pointer opacity-90 hover:opacity-100" />
-                    <FaBell className="text-xl cursor-pointer opacity-90 hover:opacity-100" />
+                <div className="flex items-center gap-4">
+                    <button onClick={() => toast('No new messages', { icon: '💬' })} className="hover:bg-white/10 p-2 rounded-full transition-colors">
+                        <FaCommentDots className="text-xl" />
+                    </button>
+                    <button onClick={() => toast('Notifications feature coming soon', { icon: '🔔' })} className="hover:bg-white/10 p-2 rounded-full transition-colors">
+                        <FaBell className="text-xl" />
+                    </button>
                 </div>
             </div>
 
+            {/* Spacer between Header and Tabs - Increased for visual separation */}
+            <div className="h-4 bg-[#0b5c73] border-t border-[#0e7490]/50"></div>
+
             {/* Tabs */}
-            <div className="flex bg-[#0e7490] text-white/80 border-t border-white/10">
+            <div className="flex bg-[#0e7490] text-white/80 shadow-md relative z-10">
                 <button
                     onClick={() => setActiveTab('PARTIES')}
-                    className={`flex-1 py-3 font-bold text-sm tracking-widest relative transition-all ${activeTab === 'PARTIES' ? 'text-white' : 'hover:bg-black/5'}`}
+                    className={`flex-1 py-4 font-bold text-sm tracking-[0.2em] relative transition-all ${activeTab === 'PARTIES' ? 'text-white bg-white/10' : 'hover:bg-white/5'}`}
                 >
                     PARTIES
-                    {activeTab === 'PARTIES' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white"></div>}
+                    {activeTab === 'PARTIES' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white shadow-[0_0_10px_white]"></div>}
                 </button>
                 <button
                     onClick={() => setActiveTab('GROUPS')}
-                    className={`flex-1 py-3 font-bold text-sm tracking-widest relative transition-all ${activeTab === 'GROUPS' ? 'text-white' : 'hover:bg-black/5'}`}
+                    className={`flex-1 py-4 font-bold text-sm tracking-[0.2em] relative transition-all ${activeTab === 'GROUPS' ? 'text-white bg-white/10' : 'hover:bg-white/5'}`}
                 >
                     GROUPS
-                    {activeTab === 'GROUPS' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white"></div>}
+                    {activeTab === 'GROUPS' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white shadow-[0_0_10px_white]"></div>}
                 </button>
             </div>
 
             {/* Search Bar */}
-            <div className="px-4 py-3 border-b border-gray-100">
+            <div className="px-6 py-5 border-b border-gray-100 bg-white shadow-sm relative z-0">
                 <div className="relative group">
-                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0e7490] transition-colors" />
+                    <FaSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg group-focus-within:text-[#0e7490] transition-colors z-10" />
                     <input
                         type="text"
                         placeholder="Search for Name / No. / Address etc."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-full outline-none focus:bg-white focus:border-[#0e7490] transition-all text-sm"
+                        style={{ paddingLeft: '4.5rem' }}
+                        className="w-full pr-6 py-4 bg-gray-50 border-2 border-slate-100 rounded-full outline-none focus:bg-white focus:border-[#0e7490] focus:ring-4 focus:ring-[#0e7490]/10 transition-all text-sm font-bold text-slate-700 shadow-inner placeholder:font-normal"
                     />
                 </div>
             </div>
 
             {/* List Header */}
-            <div className="bg-[#e0f2fe] px-4 py-2 flex justify-between text-xs font-bold text-[#64748b] border-b border-gray-100">
-                <span>Party Name</span>
-                <span>Amount</span>
+            <div className="bg-[#f0f9ff] px-6 py-3 flex justify-between text-xs font-bold text-[#64748b] border-b border-gray-100 uppercase tracking-wider">
+                <span className="pl-2">Party Name</span>
+                <span className="pr-2">Amount</span>
             </div>
 
             {/* Parties List */}
@@ -123,7 +133,7 @@ export default function CustomersPage() {
                 {filteredCustomers.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
                         <FaUserPlus className="text-6xl mb-4 opacity-20" />
-                        <p>No parties found</p>
+                        <p className="font-medium text-lg text-slate-400">No parties found</p>
                     </div>
                 ) : (
                     filteredCustomers.map((party: any) => {
@@ -131,7 +141,7 @@ export default function CustomersPage() {
                         return (
                             <div
                                 key={party.id}
-                                className="flex justify-between items-center px-4 py-5 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group"
+                                className="flex justify-between items-center px-6 py-5 border-b border-gray-50 hover:bg-slate-50 transition-colors cursor-pointer group active:bg-slate-100"
                                 onClick={() => {
                                     setEditingId(party.id);
                                     setFormData({
@@ -143,15 +153,17 @@ export default function CustomersPage() {
                                     setShowModal(true);
                                 }}
                             >
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-[#1e293b] text-[15px]">{party.name}</h3>
-                                    {party.phone && <p className="text-xs text-gray-500 mt-0.5">{party.phone}</p>}
+                                <div className="flex-1 min-w-0 pr-4 pl-2">
+                                    <h3 className="font-bold text-slate-800 text-base truncate group-hover:text-[#0e7490] transition-colors">{party.name}</h3>
+                                    {party.phone && <p className="text-xs text-slate-500 mt-1 truncate font-medium flex items-center gap-1">
+                                        📞 {party.phone}
+                                    </p>}
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <span className={`font-bold text-[15px] ${balance > 0 ? 'text-[#16a34a]' : 'text-gray-400'}`}>
+                                <div className="flex items-center gap-3 shrink-0 pr-2">
+                                    <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
                                         ₹ {balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                     </span>
-                                    {balance > 0 && <FaBell className="text-[#0e7490] text-sm opacity-60 group-hover:opacity-100 transition-opacity" />}
+                                    {balance > 0 && <FaBell className="text-[#0e7490] text-sm opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />}
                                 </div>
                             </div>
                         );

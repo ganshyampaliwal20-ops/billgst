@@ -1,15 +1,15 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaArrowUp, FaArrowDown, FaPlus, FaDownload, FaEllipsisH, FaStore, FaChartLine, FaShoppingCart, FaReceipt, FaUserPlus, FaBoxOpen, FaCalendarAlt, FaClock, FaRocket } from 'react-icons/fa';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore } from 'react-icons/fa';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { translations } from '@/lib/translations';
 
 export default function DashboardPage() {
     const {
-        invoices, customers, products, businessProfile,
+        invoices, customers, products, businessProfile, settings,
         getAnalytics, getTopProducts,
         fetchCustomers, fetchProducts, fetchInvoices
     } = useStore();
@@ -17,6 +17,9 @@ export default function DashboardPage() {
     const [period, setPeriod] = useState('monthly');
     const [showSetupBanner, setShowSetupBanner] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
+
+    // Get translations
+    const t = translations[settings.language as keyof typeof translations] || translations.en;
 
     useEffect(() => {
         setIsClient(true);
@@ -40,19 +43,14 @@ export default function DashboardPage() {
     // Get Analytics Data
     const { totalSales, totalProfit, invoiceCount } = getAnalytics(period);
     const topProducts = getTopProducts() || [];
-    const activeCustomers = (customers || []).length;
     const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
-    const totalProducts = (products || []).length;
-
-    // Calculate Profit Margin
-    const profitMargin = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : 0;
 
     // Get current time greeting
     const getGreeting = () => {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Good Morning';
-        if (hour < 17) return 'Good Afternoon';
-        return 'Good Evening';
+        if (hour < 12) return t.goodMorning;
+        if (hour < 17) return t.goodAfternoon;
+        return t.goodEvening;
     };
 
     // Weekly Sales Data for Bar Chart
@@ -76,21 +74,6 @@ export default function DashboardPage() {
         { name: 'Jun', sales: totalSales, profit: totalProfit },
     ];
 
-    // Chart Data (Dynamic based on period)
-    const chartData = [
-        { name: 'Week 1', sales: totalSales * 0.2, profit: totalProfit * 0.2 },
-        { name: 'Week 2', sales: totalSales * 0.5, profit: totalProfit * 0.5 },
-        { name: 'Week 3', sales: totalSales * 0.8, profit: totalProfit * 0.8 },
-        { name: 'Current', sales: totalSales, profit: totalProfit },
-    ];
-
-    // Pie Chart Data
-    const pieData = [
-        { name: 'Sales', value: totalSales, color: '#4f46e5' },
-        { name: 'Profit', value: totalProfit, color: '#10b981' },
-        { name: 'Expense', value: totalSales - totalProfit, color: '#f59e0b' },
-    ];
-
     // Calculate Today's Sales
     const today = new Date().toDateString();
     const todaySales = invoices
@@ -100,7 +83,7 @@ export default function DashboardPage() {
     const stats = [
         {
             icon: FaRupeeSign,
-            label: 'Today\'s Sales',
+            label: t.todaysSales,
             value: todaySales,
             formattedValue: `₹${todaySales >= 100000 ? (todaySales / 100000).toFixed(1) + 'L' : todaySales.toLocaleString('en-IN')}`,
             subtext: 'vs Yesterday',
@@ -112,10 +95,10 @@ export default function DashboardPage() {
         },
         {
             icon: FaChartLine,
-            label: 'Total Revenue',
+            label: t.totalRevenue,
             value: totalSales,
             formattedValue: `₹${totalSales >= 100000 ? (totalSales / 100000).toFixed(1) + 'L' : totalSales.toLocaleString('en-IN')}`,
-            subtext: `${period.charAt(0).toUpperCase() + period.slice(1)} Sales`,
+            subtext: `${period === 'daily' ? t.daily : period === 'weekly' ? t.weekly : period === 'monthly' ? t.monthly : t.yearly} Sales`,
             color: 'from-violet-500 to-purple-600',
             shadow: 'shadow-violet-500/20',
             trend: '+12%',
@@ -124,7 +107,7 @@ export default function DashboardPage() {
         },
         {
             icon: FaFileInvoice,
-            label: 'Invoices',
+            label: t.invoices,
             value: invoiceCount,
             formattedValue: invoiceCount.toString(),
             subtext: 'Generated',
@@ -136,7 +119,7 @@ export default function DashboardPage() {
         },
         {
             icon: FaBox,
-            label: 'Low Stock',
+            label: t.lowStock,
             value: lowStockItems,
             formattedValue: lowStockItems.toString(),
             subtext: 'Items Alert',
@@ -150,10 +133,10 @@ export default function DashboardPage() {
 
     // Quick Action Items
     const quickActions = [
-        { icon: FaReceipt, label: 'New Invoice', href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
-        { icon: FaUserPlus, label: 'Add Customer', href: '/dashboard/customers', color: 'bg-emerald-500 hover:bg-emerald-600' },
-        { icon: FaBoxOpen, label: 'Add Product', href: '/dashboard/inventory', color: 'bg-violet-500 hover:bg-violet-600' },
-        { icon: FaChartLine, label: 'View Reports', href: '/dashboard/reports', color: 'bg-amber-500 hover:bg-amber-600' },
+        { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
+        { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-emerald-500 hover:bg-emerald-600' },
+        { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-violet-500 hover:bg-violet-600' },
+        { icon: FaChartLine, label: t.viewReports, href: '/dashboard/reports', color: 'bg-amber-500 hover:bg-amber-600' },
     ];
 
     return (
@@ -164,9 +147,13 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 mb-1">
                         <FaClock className="text-amber-500 text-sm" />
                         <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
-                            {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            <span suppressHydrationWarning>
+                                {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+                            </span>
                             <span className="w-1 h-1 bg-gray-300 rounded-full mx-1"></span>
-                            {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                            <span suppressHydrationWarning>
+                                {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                         </span>
                     </div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
@@ -197,21 +184,20 @@ export default function DashboardPage() {
             </div>
 
             {/* Analytics Overview Header */}
-            {/* Analytics Overview Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-2 md:mx-0">
-                <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">Analytics Overview</h2>
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-2 md:mx-0 text-center flex flex-col items-center justify-center">
+                <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
                 <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
             </div>
 
             {/* Period Filter Buttons - Separate Box */}
             <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
-                <p className="text-xs md:text-sm font-semibold text-slate-600 mb-3">Select Time Period:</p>
+                <p className="text-xs md:text-sm font-semibold text-slate-600 mb-3">{t.selectPeriod}:</p>
                 <div className="flex gap-2 md:gap-3 flex-wrap">
                     {[
-                        { key: 'daily', label: 'Daily', activeColor: 'from-blue-500 to-cyan-500' },
-                        { key: 'weekly', label: 'Weekly', activeColor: 'from-purple-500 to-pink-500' },
-                        { key: 'monthly', label: 'Monthly', activeColor: 'from-indigo-500 to-violet-500' },
-                        { key: 'yearly', label: 'Yearly', activeColor: 'from-emerald-500 to-teal-500' }
+                        { key: 'daily', label: t.daily, activeColor: 'from-blue-500 to-cyan-500' },
+                        { key: 'weekly', label: t.weekly, activeColor: 'from-purple-500 to-pink-500' },
+                        { key: 'monthly', label: t.monthly, activeColor: 'from-indigo-500 to-violet-500' },
+                        { key: 'yearly', label: t.yearly, activeColor: 'from-emerald-500 to-teal-500' }
                     ].map((item) => (
                         <button
                             key={item.key}
@@ -229,7 +215,7 @@ export default function DashboardPage() {
 
             {/* Stats Cards - Premium Container (Reverted Position) */}
             <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-1">Business Overview</h1>
+                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-1">{t.businessOverview}</h1>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {stats.map((stat, index) => {
                         const Icon = stat.icon;
@@ -289,12 +275,12 @@ export default function DashboardPage() {
                                     <FaStore className="text-lg md:text-2xl" />
                                 </div>
                                 <div>
-                                    <h2 className="text-base md:text-xl font-bold">Setup Your Business</h2>
+                                    <h2 className="text-base md:text-xl font-bold">{t.setupBusiness}</h2>
                                     <p className="text-indigo-100 text-xs md:text-sm mt-0.5">Add GSTIN and details to start invoicing.</p>
                                 </div>
                             </div>
                             <Link href="/dashboard/settings" className="px-4 md:px-6 py-2 bg-white text-indigo-600 font-bold rounded-lg md:rounded-xl hover:bg-indigo-50 transition shadow-lg text-xs md:text-sm whitespace-nowrap">
-                                Setup Now
+                                {t.setupNow}
                             </Link>
                         </div>
                     </div>
@@ -307,7 +293,7 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2">
                         <div>
-                            <h2 className="text-sm md:text-lg font-bold text-slate-800">Revenue Analytics</h2>
+                            <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.revenueAnalytics}</h2>
                             <p className="text-[10px] md:text-xs text-slate-500 font-medium">Income vs Profit trends</p>
                         </div>
                         <div className="flex items-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg">
@@ -352,7 +338,7 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
                     <div className="flex items-center justify-between mb-4 md:mb-6">
                         <div>
-                            <h2 className="text-sm md:text-lg font-bold text-slate-800">Weekly Performance</h2>
+                            <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.weeklyPerformance}</h2>
                             <p className="text-xs text-slate-500 font-medium">Sales by day of the week</p>
                         </div>
                     </div>
@@ -378,7 +364,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Top Products */}
                 <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
-                    <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6">Top Selling Products</h2>
+                    <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6">{t.topSellingProducts}</h2>
                     <div className="space-y-4 md:space-y-5">
                         {topProducts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-[180px] md:h-[220px] text-center">
@@ -411,18 +397,18 @@ export default function DashboardPage() {
                 {/* Recent Invoices */}
                 <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
                     <div className="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
-                        <h2 className="text-sm md:text-lg font-bold text-slate-800">Recent Invoices</h2>
-                        <Link href="/dashboard/invoices" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">View All</Link>
+                        <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.recentInvoices}</h2>
+                        <Link href="/dashboard/invoices" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">{t.viewReports}</Link>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[500px]">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice</th>
-                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Customer</th>
-                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                                    <th className="text-right py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
-                                    <th className="text-center py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.invoices}</th>
+                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.customer}</th>
+                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.date}</th>
+                                    <th className="text-right py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.amount}</th>
+                                    <th className="text-center py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.status}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">

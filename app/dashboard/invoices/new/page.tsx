@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
-import { FaPlus, FaTrash, FaSave, FaArrowLeft, FaUserPlus } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaSave, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import { translations } from '@/lib/translations';
 
 // Proper UUID v4 generator (compatible with PostgreSQL UUID type)
 function generateId() {
@@ -30,8 +31,12 @@ export default function NewInvoicePage() {
     const products = useStore((state: any) => state.products);
     const addInvoice = useStore((state: any) => state.addInvoice);
     const addCustomer = useStore((state: any) => state.addCustomer);
+    const settings = useStore((state: any) => state.settings);
 
     const [isClient, setIsClient] = useState(false);
+
+    // Get translations
+    const t = translations[settings.language as keyof typeof translations] || translations.en;
 
     // Form State
     const [customerId, setCustomerId] = useState('');
@@ -262,7 +267,7 @@ export default function NewInvoicePage() {
                         <FaArrowLeft className="text-indigo-600" size={18} />
                     </Link>
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">New Invoice</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{t.newInvoice}</h1>
                         <p className="text-xs sm:text-sm text-slate-600 mt-0.5">Create a professional invoice for your customer</p>
                     </div>
                 </div>
@@ -270,18 +275,17 @@ export default function NewInvoicePage() {
 
             <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8">
                 {/* Customer & Dates */}
-                {/* Customer & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Customer Selection */}
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Customer</label>
+                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">{t.customer}</label>
                             <button
                                 onClick={() => setShowCustomerModal(true)}
                                 className="group flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all border border-indigo-200"
                             >
                                 <FaPlus className="text-[10px] group-hover:rotate-90 transition-transform" />
-                                NEW CLIENT
+                                {t.newClient || 'NEW CLIENT'}
                             </button>
                         </div>
                         <div className="relative group">
@@ -290,7 +294,7 @@ export default function NewInvoicePage() {
                                 onChange={(e) => setCustomerId(e.target.value)}
                                 className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300"
                             >
-                                <option value="">Select a Client...</option>
+                                <option value="">{t.selectCustomer}</option>
                                 {safeCustomers.length > 0 ? safeCustomers.map((c: any) => (
                                     <option key={c.id} value={c.id}>{c.name}</option>
                                 )) : <option value="" disabled>No customers found</option>}
@@ -303,7 +307,7 @@ export default function NewInvoicePage() {
 
                     {/* Date */}
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Invoice Date</label>
+                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">{t.invoiceDate}</label>
                         <input
                             type="date"
                             value={invoiceDate}
@@ -314,19 +318,18 @@ export default function NewInvoicePage() {
 
                     {/* Payment Status (Toggle) */}
                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">Payment Details</label>
+                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">{t.paymentDetails}</label>
 
                         {!showPaymentInput ? (
                             <button
                                 onClick={() => setShowPaymentInput(true)}
                                 className="w-full p-4 border-2 border-dashed border-emerald-300 bg-emerald-50 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100 hover:border-emerald-400 transition-all flex items-center justify-center gap-2"
                             >
-                                <FaPlus /> Add Payment / Advance
+                                <FaPlus /> {t.addPayment}
                             </button>
                         ) : (
                             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 font-bold">₹</span>
+                                <div className="relative flex items-center gap-2">
                                     <input
                                         type="number"
                                         min="0"
@@ -335,22 +338,23 @@ export default function NewInvoicePage() {
                                         onChange={(e) => setPaidAmount(e.target.value)}
                                         placeholder="0.00"
                                         autoFocus
-                                        className="w-full p-4 pl-8 bg-white border-2 border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-emerald-700 transition-all shadow-sm"
+                                        className="flex-1 p-4 pl-4 bg-white border-2 border-emerald-500 rounded-xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-emerald-700 transition-all shadow-sm"
                                     />
                                     <button
                                         onClick={() => { setShowPaymentInput(false); setPaidAmount(''); }}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 p-1"
+                                        className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500 rounded-lg transition-all"
+                                        title={t.removePayment || "Remove Payment"}
                                     >
-                                        <FaTrash size={12} />
+                                        <FaTrash size={14} />
                                     </button>
                                 </div>
                                 <div className="text-xs font-bold text-right mt-1">
                                     {paidAmount ? (
                                         <span className={totals.total - parseFloat(paidAmount) > 0.1 ? 'text-red-500' : 'text-emerald-600'}>
-                                            Due: ₹{Math.max(0, totals.total - parseFloat(paidAmount)).toFixed(2)}
+                                            {t.due || 'Due'}: ₹{Math.max(0, totals.total - parseFloat(paidAmount)).toFixed(2)}
                                         </span>
                                     ) : (
-                                        <span className="text-slate-400">Enter amount received</span>
+                                        <span className="text-slate-400">{t.enterAmount || 'Enter amount'}</span>
                                     )}
                                 </div>
                             </div>
@@ -363,7 +367,7 @@ export default function NewInvoicePage() {
                 {/* Items Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-slate-800">Invoice Items</h2>
+                        <h2 className="text-lg font-bold text-slate-800">{t.invoiceItems}</h2>
                         <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-semibold">{selectedItems.length} {selectedItems.length === 1 ? 'Item' : 'Items'}</span>
                     </div>
 
@@ -373,11 +377,11 @@ export default function NewInvoicePage() {
                                 <table className="min-w-full divide-y divide-slate-200">
                                     <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                                         <tr>
-                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Product</th>
-                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">Quantity</th>
-                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Price</th>
-                                            <th className="px-4 py-3.5 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Total</th>
-                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">Action</th>
+                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.product}</th>
+                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">{t.quantity}</th>
+                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.price}</th>
+                                            <th className="px-4 py-3.5 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">{t.total}</th>
+                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">{t.actions}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-slate-100">
@@ -389,7 +393,7 @@ export default function NewInvoicePage() {
                                                             <FaPlus className="text-slate-400 text-2xl" />
                                                         </div>
                                                         <p className="text-slate-500 font-medium">No items added yet</p>
-                                                        <p className="text-xs text-slate-400">Click &quot;Add Item&quot; below to get started</p>
+                                                        <p className="text-xs text-slate-400">Click &quot;{t.addNewItem}&quot; below to get started</p>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -401,7 +405,7 @@ export default function NewInvoicePage() {
                                                         onChange={(e) => updateItem(index, 'product_id', e.target.value)}
                                                         className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
                                                     >
-                                                        <option value="">Select Product</option>
+                                                        <option value="">{t.selectProduct}</option>
                                                         {safeProducts.length > 0 ? safeProducts.map((p: any) => (
                                                             <option key={p.id} value={p.id}>{p.name}</option>
                                                         )) : <option value="" disabled>No products found</option>}
@@ -450,14 +454,15 @@ export default function NewInvoicePage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-center pt-3">
+                    <div className="flex justify-center pt-4">
                         <button
                             type="button"
                             onClick={addItem}
-                            className="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-indigo-600 font-lg rounded-full hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600"
+                            className="group relative inline-flex items-center gap-3 px-10 py-4 font-bold text-white transition-all duration-300 bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 bg-size-200 bg-pos-0 hover-bg-pos-100 rounded-2xl hover:shadow-2xl hover:shadow-orange-500/40 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform active:scale-95 border-2 border-orange-400/30"
                         >
-                            <FaPlus className="mr-2 text-sm group-hover:rotate-90 transition-transform" />
-                            ADD NEW ITEM
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+                            <FaPlus className="text-base group-hover:rotate-180 transition-transform duration-500 relative z-10" />
+                            <span className="text-sm tracking-wider relative z-10">{t.addNewItem}</span>
                         </button>
                     </div>
                 </div>
@@ -466,15 +471,15 @@ export default function NewInvoicePage() {
                 <div className="flex justify-end pt-4 border-t border-gray-100">
                     <div className="w-full md:w-1/2 lg:w-1/3 space-y-3">
                         <div className="flex justify-between text-sm text-gray-600">
-                            <span>Subtotal</span>
+                            <span>{t.subtotal}</span>
                             <span className="font-medium">₹{totals.subtotal.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between text-sm text-gray-600">
-                            <span>GST Total</span>
+                            <span>{t.gstTotal}</span>
                             <span className="font-medium">₹{totals.gst.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between font-bold text-xl text-gray-800 pt-2 border-t border-gray-100">
-                            <span>Total Amount</span>
+                            <span>{t.totalAmount}</span>
                             <span className="text-indigo-600">₹{totals.total.toFixed(2)}</span>
                         </div>
                     </div>
@@ -482,7 +487,7 @@ export default function NewInvoicePage() {
 
                 {/* Notes */}
                 <div>
-                    <label className="text-sm font-bold text-gray-700 block mb-2 uppercase tracking-wide text-xs">Terms / Notes</label>
+                    <label className="text-sm font-bold text-gray-700 block mb-2 uppercase tracking-wide text-xs">{t.termsNotes}</label>
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
@@ -499,7 +504,7 @@ export default function NewInvoicePage() {
                         disabled={isSubmitting}
                         className="px-6 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50"
                     >
-                        Cancel
+                        {t.cancel}
                     </button>
                     <button
                         onClick={handleSubmit}
@@ -514,7 +519,7 @@ export default function NewInvoicePage() {
                         ) : (
                             <>
                                 <FaSave className="text-lg" />
-                                SAVE INVOICE
+                                {t.saveInvoice}
                             </>
                         )}
                     </button>
@@ -539,7 +544,7 @@ export default function NewInvoicePage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t.phone}</label>
                                 <input
                                     className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                                     value={newCustomerPhone}
@@ -553,13 +558,13 @@ export default function NewInvoicePage() {
                                     onClick={() => setShowCustomerModal(false)}
                                     className="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-colors"
                                 >
-                                    Cancel
+                                    {t.cancel}
                                 </button>
                                 <button
                                     type="submit"
                                     className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
                                 >
-                                    Save Customer
+                                    {t.save} Customer
                                 </button>
                             </div>
                         </form>
