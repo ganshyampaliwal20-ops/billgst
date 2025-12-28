@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FaPlus, FaUserPlus, FaBox, FaChartBar, FaClock, FaArrowRight, FaReceipt, FaUsers } from 'react-icons/fa';
+import { FaPlus, FaUserPlus, FaBox, FaClock, FaArrowRight, FaReceipt, FaUsers } from 'react-icons/fa';
 
 export const metadata = {
   title: 'BillGST - Free GST Billing & Stock Management',
@@ -11,100 +11,86 @@ export const metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
-      {/* Header Mirroring Image */}
-      <header className="bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#a855f7] p-6 md:p-8 text-white shadow-xl">
-        <div className="max-w-7xl mx-auto flex items-center gap-5">
-          <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center p-2.5 backdrop-blur-sm shadow-inner">
-            <div className="w-full h-full bg-[#38bdf8] rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-black text-xl">B</span>
-            </div>
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none uppercase italic">BillGST Business</h1>
-            <p className="text-xs md:text-sm font-bold opacity-80 uppercase tracking-widest mt-1">Professional Billing Solution</p>
-          </div>
+    <div className="min-h-screen bg-white font-sans text-slate-800">
+      {/* Header: Exact Match to Image */}
+      <header className="bg-[#6366f1] p-4 flex items-center gap-4 text-white shadow-md">
+        <div className="w-12 h-12 bg-[#38bdf8] rounded-2xl flex items-center justify-center border-2 border-white/20 shadow-lg">
+          <span className="text-white font-black text-xl italic uppercase">B</span>
+        </div>
+        <div>
+          <h1 className="text-xl font-bold leading-none">BillGST Business</h1>
+          <p className="text-[10px] font-bold opacity-80 uppercase tracking-widest">Professional Billing</p>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-6 md:p-12 space-y-10">
-        {/* Status Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fadeIn">
-          <div className="flex items-center gap-3 text-slate-500 font-extrabold text-sm bg-slate-100 w-fit px-5 py-2 rounded-full border border-slate-200 shadow-sm">
-            <FaClock className="text-orange-500" />
-            <span>{new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} • 07:27 am</span>
+      <main className="p-4 md:p-8 space-y-6">
+        {/* Date/Time Bar */}
+        <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
+          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white">
+            <FaClock size={12} />
           </div>
+          <span className="bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+            Sun, 28 Dec • 07:27 am
+          </span>
         </div>
 
-        {/* Greeting Section */}
-        <div className="space-y-2 animate-slideUp">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-800">
-            Good Morning, <span className="text-orange-500 underline decoration-indigo-200">BillGST User</span>! 👋
+        {/* Greeting: Exact Text & Color */}
+        <div className="py-2">
+          <h2 className="text-3xl md:text-5xl font-black text-slate-800">
+            Good Morning, <span className="text-orange-500">BillGST Business</span>! 👋
           </h2>
-          <p className="text-lg text-slate-500 font-bold italic">Aapki business growth hamari pehchan hai.</p>
         </div>
 
-        {/* Triple Jumbo 3D Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-          {/* New Invoice */}
+        {/* Triple Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* New Invoice Card */}
           <Link href="/dashboard/invoices/new" className="group">
-            <div className="bg-gradient-to-br from-[#6366f1] to-[#4f46e5] rounded-[40px] p-10 text-white flex flex-col items-center justify-center gap-6 shadow-[0_12px_0_0_#3730a3] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_0_0_#3730a3] active:translate-y-0 active:shadow-none min-h-[250px] border-4 border-white/20">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
-                <FaReceipt className="text-4xl" />
-              </div>
-              <span className="text-2xl font-black uppercase tracking-tight">New Invoice</span>
+            <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 h-[180px] rounded-3xl flex flex-col items-center justify-center gap-4 text-white shadow-xl transform active:scale-95 transition-all border-b-8 border-indigo-900">
+              <FaReceipt className="text-4xl" />
+              <span className="text-xl font-black uppercase">New Invoice</span>
             </div>
           </Link>
 
-          {/* Add Customer */}
+          {/* Add Customer Card */}
           <Link href="/dashboard/customers" className="group">
-            <div className="bg-gradient-to-br from-[#10b981] to-[#059669] rounded-[40px] p-10 text-white flex flex-col items-center justify-center gap-6 shadow-[0_12px_0_0_#065f46] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_0_0_#065f46] active:translate-y-0 active:shadow-none min-h-[250px] border-4 border-white/20">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
-                <FaUsers className="text-4xl" />
-              </div>
-              <span className="text-2xl font-black uppercase tracking-tight">Add Customer</span>
+            <div className="bg-[#10b981] h-[180px] rounded-3xl flex flex-col items-center justify-center gap-4 text-white shadow-xl transform active:scale-95 transition-all border-b-8 border-[#047857]">
+              <FaUserPlus className="text-4xl" />
+              <span className="text-xl font-black uppercase">Add Customer</span>
             </div>
           </Link>
 
-          {/* Add Product */}
+          {/* Add Product Card */}
           <Link href="/dashboard/inventory" className="group">
-            <div className="bg-gradient-to-br from-[#a855f7] to-[#8b5cf6] rounded-[40px] p-10 text-white flex flex-col items-center justify-center gap-6 shadow-[0_12px_0_0_#7c3aed] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_0_0_#7c3aed] active:translate-y-0 active:shadow-none min-h-[250px] border-4 border-white/20">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
-                <FaBox className="text-4xl" />
-              </div>
-              <span className="text-2xl font-black uppercase tracking-tight">Add Product</span>
+            <div className="bg-[#8b5cf6] h-[180px] rounded-3xl flex flex-col items-center justify-center gap-4 text-white shadow-xl transform active:scale-95 transition-all border-b-8 border-[#6d28d9]">
+              <FaBox className="text-3xl" />
+              <span className="text-xl font-black uppercase">Add Product</span>
             </div>
           </Link>
         </div>
 
-        {/* Big Analytics Bar Mockup */}
-        <div className="bg-gradient-to-r from-[#8b5cf6] via-[#d946ef] to-[#f43f5e] rounded-[30px] p-10 text-white text-center shadow-2xl border-4 border-white/20 transform hover:scale-[1.01] transition-all animate-slideUp" style={{ animationDelay: '0.2s' }}>
-          <h3 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter mb-2">Analytics Overview</h3>
-          <p className="text-xl font-bold opacity-90 tracking-widest uppercase">Track your business performance in real-time</p>
+        {/* Analytics Overview Bar */}
+        <div className="bg-gradient-to-r from-[#8b5cf6] to-[#ec4899] rounded-2xl p-6 text-white text-center shadow-lg">
+          <h3 className="text-3xl font-black uppercase italic">Analytics Overview</h3>
+          <p className="text-sm font-bold opacity-90 uppercase tracking-widest mt-1">Track your business performance</p>
         </div>
 
-        {/* Period Selector Buttons Area */}
-        <div className="space-y-6 pt-4 animate-slideUp" style={{ animationDelay: '0.3s' }}>
-          <p className="font-extrabold text-slate-700 text-lg uppercase tracking-wider">Select Time Period:</p>
-          <div className="flex gap-4 md:gap-8 flex-wrap">
-            <button className="flex-1 min-w-[120px] py-5 bg-slate-100 rounded-[25px] font-black text-slate-500 border-2 border-slate-200 hover:bg-slate-200 transition-all uppercase italic">Daily</button>
-            <button className="flex-1 min-w-[120px] py-5 bg-slate-100 rounded-[25px] font-black text-slate-500 border-2 border-slate-200 hover:bg-slate-200 transition-all uppercase italic">Weekly</button>
-            <button className="flex-1 min-w-[120px] py-5 bg-[#6366f1] rounded-[25px] font-black text-white shadow-[0_8px_0_0_#4338ca] transition-all uppercase italic">Monthly</button>
+        {/* Time Period Selector */}
+        <div className="space-y-4 pt-2">
+          <p className="font-bold text-slate-600 text-sm">Select Time Period:</p>
+          <div className="flex gap-3">
+            <button className="flex-1 py-3 bg-slate-50 border border-slate-200 rounded-full font-black text-slate-400 text-xs uppercase italic">Daily</button>
+            <button className="flex-1 py-3 bg-slate-50 border border-slate-200 rounded-full font-black text-slate-400 text-xs uppercase italic">Weekly</button>
+            <button className="flex-1 py-3 bg-[#6366f1] rounded-full font-black text-white shadow-lg text-xs uppercase italic">Monthly</button>
           </div>
         </div>
 
-        {/* Final Call to Action */}
-        <div className="pt-20 text-center animate-fadeIn">
-          <Link href="/dashboard" className="inline-flex items-center gap-4 px-14 py-6 bg-[#1e293b] text-white font-black rounded-full text-2xl shadow-[0_10px_0_0_#0f172a] hover:bg-slate-800 hover:-translate-y-1 transition-all active:translate-y-0 active:shadow-none">
-            START BILLING NOW <FaArrowRight />
+        {/* Footer CTA */}
+        <div className="pt-10 flex justify-center">
+          <Link href="/dashboard" className="px-10 py-4 bg-slate-900 text-white font-black rounded-full flex items-center gap-3 shadow-2xl hover:bg-slate-800 transition-all uppercase italic text-sm">
+            Go to Dashboard <FaArrowRight />
           </Link>
-          <p className="mt-6 text-slate-400 font-bold uppercase tracking-[0.3em] text-xs underline decoration-indigo-500 underline-offset-8">India&apos;s Smartest Billing App</p>
         </div>
       </main>
-
-      {/* Subtle Starry Touches In Margin for "Premium" flair */}
-      <div className="fixed top-20 right-10 w-2 h-2 bg-indigo-500 rounded-full animate-pulse opacity-20"></div>
-      <div className="fixed bottom-40 left-10 w-3 h-3 bg-purple-500 rounded-full animate-bounce opacity-20"></div>
     </div>
   );
 }
