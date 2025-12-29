@@ -24,13 +24,15 @@ export default function LoginPrompt({
                 </div>
 
                 {/* Title */}
-                <h2 className="text-2xl md:text-3xl font-black text-slate-800 text-center mb-3">
-                    Login Required
+                <h2 className="text-2xl md:text-3xl font-black text-slate-800 text-center mb-3 italic">
+                    First Create Account
                 </h2>
 
                 {/* Message */}
-                <p className="text-slate-600 text-center mb-8 leading-relaxed">
-                    {message}
+                <p className="text-slate-600 text-center mb-8 leading-relaxed font-medium">
+                    {message === "Please login to create invoices and save your data permanently"
+                        ? "Please create an account or login to use the full features of BillGST and save your data."
+                        : message}
                 </p>
 
                 {/* Action Buttons */}

@@ -30,46 +30,42 @@ export default function LanguageSelector({ showLabel = true }: { showLabel?: boo
     }, []);
 
     return (
-        <div className="relative z-50" ref={dropdownRef}>
-            {/* Trigger Button - 3D & Premium */}
+        <div className="relative w-full" ref={dropdownRef}>
+            {/* Trigger Button - Professional Sidebar Integration */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    group relative flex items-center gap-3 px-5 py-3.5 
-                    bg-gradient-to-br from-white via-slate-50 to-slate-100
-                    text-slate-700 rounded-2xl transition-all duration-300
-                    border border-white
-                    shadow-[0_4px_0_0_rgb(203,213,225)] 
-                    hover:shadow-[0_2px_0_0_rgb(203,213,225)] hover:translate-y-[2px]
-                    active:shadow-none active:translate-y-[4px]
-                    hover:text-indigo-600
-                    w-full
+                    w-full flex items-center justify-between gap-4 px-4 py-3 
+                    bg-white text-slate-700 rounded-2xl transition-all duration-300
+                    border-2 border-slate-200 shadow-[0_4px_0_0_#e2e8f0]
+                    hover:-translate-y-1 hover:shadow-[0_8px_0_0_#cbd5e1] hover:text-indigo-600
+                    active:translate-y-0 active:shadow-none
+                    group
                 `}
                 title={t.selectLanguage}
             >
-                <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl text-white shadow-lg shadow-indigo-500/30 group-hover:scale-110 transition-transform duration-300">
-                    <FaLanguage size={20} />
-                </div>
-                {showLabel && (
-                    <div className="flex flex-col items-start text-left flex-1">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Language</span>
-                        <span className="text-sm font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">
-                            {currentLang.nativeName}
-                        </span>
+                <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-slate-100 text-slate-500 rounded-xl group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-300">
+                        <FaLanguage size={20} className="group-hover:rotate-12 transition-transform" />
                     </div>
-                )}
+                    <div className="flex flex-col items-start">
+                        {showLabel && <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Language</span>}
+                        <span className="text-sm font-bold tracking-wide">{currentLang.nativeName}</span>
+                    </div>
+                </div>
 
-                {/* 3D Edge Highlight */}
-                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/5 pointer-events-none"></div>
+                <div className={`text-slate-400 group-hover:text-indigo-500 transition-transform duration-300 ${isOpen ? 'rotate-180 scale-125' : ''}`}>
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                </div>
             </button>
 
             {/* Dropdown Menu - Glassmorphism & Animated */}
             {isOpen && (
-                <div className="absolute left-0 bottom-full mb-4 w-72 max-h-[500px] overflow-y-auto 
-                    bg-white/80 backdrop-blur-2xl rounded-3xl 
+                <div className="absolute left-0 top-full mt-2 w-72 max-h-[500px] overflow-y-auto 
+                    bg-white/95 backdrop-blur-2xl rounded-3xl 
                     shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] 
-                    border border-white/60 ring-1 ring-slate-900/5
-                    z-50 p-3 animate-in fade-in slide-in-from-bottom-6 duration-300 origin-bottom"
+                    border border-white ring-1 ring-slate-900/5
+                    z-[100] p-3 animate-in fade-in slide-in-from-top-6 duration-300 origin-top"
                 >
                     <div className="sticky top-0 bg-white/50 backdrop-blur-md p-4 border-b border-slate-100/50 mb-2 -mx-3 -mt-3 rounded-t-3xl z-10 flex justify-between items-center">
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t.selectLanguage}</span>

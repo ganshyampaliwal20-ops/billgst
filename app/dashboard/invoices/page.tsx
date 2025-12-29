@@ -81,11 +81,36 @@ export default function InvoicesPage() {
         }
     };
 
-    const handleShare = (e: React.MouseEvent, invoice: Invoice) => {
+    const handleShare = async (e: React.MouseEvent, invoice: Invoice) => {
         e.stopPropagation();
         try {
-            generateInvoicePDF(invoice, businessProfile);
+            // Generate PDF but don't save it automatically
+            const doc = generateInvoicePDF(invoice, businessProfile, false);
+            const pdfBlob = doc.output('blob');
+            const pdfFile = new File([pdfBlob], `Invoice-${invoice.invoice_number}.pdf`, { type: 'application/pdf' });
 
+            const shareText = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*\n\nInvoice No: ${invoice.invoice_number}\nDate: ${new Date(invoice.invoice_date).toLocaleDateString()}\nCustomer: ${invoice.customer.name}\n\n*Total Amount: ₹${invoice.total_amount}*\n\nPowered by BillGST.in`;
+
+            // Check if Web Share API is available and can share files
+            if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                try {
+                    await navigator.share({
+                        files: [pdfFile],
+                        title: `Invoice ${invoice.invoice_number}`,
+                        text: shareText,
+                    });
+                    toast.success('Shared successfully!');
+                    return;
+                } catch (err) {
+                    if ((err as Error).name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    } else {
+                        return; // User cancelled
+                    }
+                }
+            }
+
+            // Fallback for desktop or browsers that don't support file sharing
             const text = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*
     
 Invoice No: ${invoice.invoice_number}
@@ -111,12 +136,16 @@ Powered by BillGST.in`;
                     color: '#713200',
                 },
             });
+
+            // Trigger download as fallback
+            doc.save(`Invoice-${invoice.invoice_number}.pdf`);
+
             setTimeout(() => {
                 window.open(url, '_blank');
             }, 1000);
         } catch (error) {
             console.error(error);
-            toast.error('Failed to generate PDF');
+            toast.error('Failed to share invoice');
         }
     };
 

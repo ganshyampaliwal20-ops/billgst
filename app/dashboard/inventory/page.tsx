@@ -20,7 +20,8 @@ export default function InventoryPage() {
         price: '',
         stock_quantity: '',
         unit: 'PCS',
-        gst_rate: '18'
+        gst_rate: '18',
+        type: 'PRODUCT'
     });
 
     useEffect(() => {
@@ -72,7 +73,8 @@ export default function InventoryPage() {
             price: product.price.toString(),
             stock_quantity: product.stock_quantity.toString(),
             unit: product.unit || 'PCS',
-            gst_rate: product.gst_rate?.toString() || '18'
+            gst_rate: product.gst_rate?.toString() || '18',
+            type: product.type || 'PRODUCT'
         });
         setEditingId(product.id);
         setShowModal(true);
@@ -80,7 +82,7 @@ export default function InventoryPage() {
 
     const resetForm = () => {
         setFormData({
-            name: '', description: '', hsn_code: '', price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18'
+            name: '', description: '', hsn_code: '', price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18', type: 'PRODUCT'
         });
         setEditingId(null);
         setShowModal(false);
@@ -102,22 +104,32 @@ export default function InventoryPage() {
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg flex items-center gap-2"
+                    className="
+                        group relative px-6 py-3.5 bg-emerald-600 text-white font-black rounded-2xl
+                        border-b-4 border-emerald-800 transition-all duration-200
+                        hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/30
+                        active:translate-y-[2px] active:border-b-0
+                        flex items-center gap-3 overflow-hidden
+                    "
                 >
-                    <FaPlus /> Add New Product
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
+                    <FaPlus className="group-hover:rotate-90 transition-transform duration-300" />
+                    <span className="tracking-wider uppercase text-xs">Add New Product</span>
                 </button>
             </div>
 
-            {/* Search */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
-                <input
-                    type="text"
-                    placeholder="Search products by name or HSN..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
-                />
-                <FaSearch className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            {/* Search - Refined width */}
+            <div className="flex justify-start">
+                <div className="bg-white p-2 rounded-2xl border-2 border-slate-100 shadow-sm relative w-full md:w-96 group transition-all focus-within:border-indigo-500 focus-within:shadow-md">
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-400"
+                    />
+                    <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                </div>
             </div>
 
             {/* List */}
@@ -132,8 +144,8 @@ export default function InventoryPage() {
                 ) : (
                     filteredProducts.map((product: any) => (
                         <div key={product.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col">
-                            {/* Low Stock Indicator */}
-                            {product.stock_quantity < 10 && (
+                            {/* Low Stock Indicator - only for products */}
+                            {(product.type || 'PRODUCT') === 'PRODUCT' && product.stock_quantity < 10 && (
                                 <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-3 py-1 rounded-bl-xl text-xs font-bold flex items-center gap-1 z-10">
                                     <FaExclamationTriangle /> Low Stock
                                 </div>
@@ -143,6 +155,9 @@ export default function InventoryPage() {
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
                                         {product.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${product.type === 'SERVICE' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                        {product.type || 'PRODUCT'}
                                     </div>
                                 </div>
 
@@ -154,12 +169,14 @@ export default function InventoryPage() {
                                         <p className="text-xs text-gray-400 uppercase font-semibold mb-0.5">Price</p>
                                         <p className="text-gray-900 font-bold text-lg">₹{product.price}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-xs text-gray-400 uppercase font-semibold mb-0.5">Stock</p>
-                                        <p className={`font-bold text-lg ${product.stock_quantity < 10 ? 'text-red-600' : 'text-emerald-600'}`}>
-                                            {product.stock_quantity} <span className="text-sm text-gray-500 font-normal">{product.unit}</span>
-                                        </p>
-                                    </div>
+                                    {(product.type || 'PRODUCT') === 'PRODUCT' && (
+                                        <div className="text-right">
+                                            <p className="text-xs text-gray-400 uppercase font-semibold mb-0.5">Stock</p>
+                                            <p className={`font-bold text-lg ${product.stock_quantity < 10 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                                {product.stock_quantity} <span className="text-sm text-gray-500 font-normal">{product.unit}</span>
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -200,6 +217,28 @@ export default function InventoryPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
+                                    <select
+                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        value={formData.type || 'PRODUCT'}
+                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                    >
+                                        <option value="PRODUCT">Product</option>
+                                        <option value="SERVICE">Service</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">HSN/SAC Code</label>
+                                    <input
+                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        value={formData.hsn_code}
+                                        onChange={e => setFormData({ ...formData, hsn_code: e.target.value })}
+                                        placeholder="HSN for Products / SAC for Services"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
                                     <input
                                         type="number"
@@ -224,45 +263,39 @@ export default function InventoryPage() {
                                     </select>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Stock Qty</label>
-                                    <input
-                                        type="number"
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                        value={formData.stock_quantity}
-                                        onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })}
-                                    />
+                            {(formData.type || 'PRODUCT') === 'PRODUCT' && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Stock Qty</label>
+                                        <input
+                                            type="number"
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                            value={formData.stock_quantity}
+                                            onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                                        <input
+                                            list="units"
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                                            value={formData.unit}
+                                            onChange={e => setFormData({ ...formData, unit: e.target.value.toUpperCase() })}
+                                            placeholder="PCS, KG, GM..."
+                                        />
+                                        <datalist id="units">
+                                            <option value="PCS" />
+                                            <option value="KG" />
+                                            <option value="GM" />
+                                            <option value="LTR" />
+                                            <option value="ML" />
+                                            <option value="BOX" />
+                                            <option value="DOZEN" />
+                                            <option value="PACK" />
+                                        </datalist>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                                    <input
-                                        list="units"
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
-                                        value={formData.unit}
-                                        onChange={e => setFormData({ ...formData, unit: e.target.value.toUpperCase() })}
-                                        placeholder="PCS, KG, GM..."
-                                    />
-                                    <datalist id="units">
-                                        <option value="PCS" />
-                                        <option value="KG" />
-                                        <option value="GM" />
-                                        <option value="LTR" />
-                                        <option value="ML" />
-                                        <option value="BOX" />
-                                        <option value="DOZEN" />
-                                        <option value="PACK" />
-                                    </datalist>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">HSN Code</label>
-                                <input
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                    value={formData.hsn_code}
-                                    onChange={e => setFormData({ ...formData, hsn_code: e.target.value })}
-                                />
-                            </div>
+                            )}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <textarea

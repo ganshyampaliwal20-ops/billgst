@@ -8,7 +8,7 @@ import { useState } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
-    FaSignInAlt, FaUserPlus
+    FaSignInAlt, FaUserPlus, FaLanguage
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -94,6 +94,11 @@ export default function DashboardLayout({
 
                     {/* Navigation - Standard list with moderate spacing */}
                     <nav className="flex-1 px-4 py-6 space-y-4 overflow-y-auto">
+                        {/* Language Toggle - Integrated with Sidebar Style */}
+                        <div className="flex px-1">
+                            <LanguageSelector showLabel={true} />
+                        </div>
+
                         {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -133,20 +138,36 @@ export default function DashboardLayout({
                             );
                         })}
 
-                        {/* Auth Links Section */}
-                        <div className="pt-4 mt-4 border-t border-slate-200">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">Account</p>
+                        {/* Auth Links Section - 3D Styled */}
+                        <div className="pt-6 mt-6 border-t border-slate-200 space-y-4">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Account Actions</p>
                             {menuItems.filter(item => item.isAuth).map((item) => {
                                 const Icon = item.icon;
+                                const isActive = pathname === item.href;
                                 return (
                                     <Link
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setIsSidebarOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all font-semibold group mb-2"
+                                        className={`
+                                            flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group 
+                                            border-2 relative overflow-hidden
+                                            ${isActive
+                                                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-[0_6px_0_0_#047857] -translate-y-1'
+                                                : 'bg-white text-slate-600 font-semibold border-slate-200 shadow-[0_4px_0_0_#e2e8f0] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#cbd5e1] hover:text-indigo-600 hover:border-indigo-200 hover:scale-105 active:translate-y-0 active:shadow-none active:scale-95'
+                                            }
+                                        `}
                                     >
-                                        <Icon className="text-lg group-hover:scale-110 transition-transform" />
-                                        <span className="text-sm">{item.label}</span>
+                                        <div className={`
+                                            p-2.5 rounded-xl transition-all duration-300 relative z-10
+                                            ${isActive
+                                                ? 'bg-white/20 text-white shadow-inner'
+                                                : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                            }
+                                        `}>
+                                            <Icon className={`text-xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                        </div>
+                                        <span className="text-base tracking-wide flex-1 relative z-10">{item.label}</span>
                                     </Link>
                                 );
                             })}
@@ -155,11 +176,6 @@ export default function DashboardLayout({
 
                     {/* User Profile / Business Info */}
                     <div className="p-6 border-t border-slate-200 bg-slate-50/80 backdrop-blur-sm">
-                        {/* Language Selector */}
-                        <div className="mb-4">
-                            <LanguageSelector showLabel={true} />
-                        </div>
-
                         <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                             <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                                 {businessProfile.logo ? (

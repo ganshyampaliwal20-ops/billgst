@@ -8,7 +8,7 @@ export async function GET() {
     try {
         const session: any = await getServerSession(authOptions as any);
         if (!session?.user?.id) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
         }
 
         const client = await pool.connect();
@@ -31,8 +31,7 @@ export async function POST(request: Request) {
     });
 
     if (!session?.user?.id) {
-        console.error('Product API Error: Unauthorized access attempt');
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -54,11 +53,12 @@ export async function POST(request: Request) {
         const gst = parseFloat(data.gst_rate) || 0;
 
         try {
+            const productType = data.type || 'PRODUCT';
             const result = await client.query(
-                `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) 
+                `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, type, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId]
+                [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId, productType]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -67,14 +67,17 @@ export async function POST(request: Request) {
             if (dbError?.code === '42703') {
                 console.log('Product API: Missing columns detected. Attempting auto-migration...');
                 await client.query(`
-                    ALTER TABLE products ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
+                    ALTER TABLE products 
+                    ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
+                    ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT';
                 `);
                 // Retry
+                const productType = data.type || 'PRODUCT';
                 const result = await client.query(
-                    `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, created_at) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) 
+                    `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, type, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId]
+                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId, productType]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
@@ -90,7 +93,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
     const session: any = await getServerSession(authOptions as any);
     if (!session?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
     }
     const userId = session.user.id;
 
@@ -117,10 +120,10 @@ export async function PUT(request: Request) {
 
         const result = await client.query(
             `UPDATE products 
-             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, gst_rate = $6, stock_quantity = $7, updated_at = NOW()
-             WHERE id = $8 AND created_by = $9
+             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, gst_rate = $6, stock_quantity = $7, type = $8, updated_at = NOW()
+             WHERE id = $9 AND created_by = $10
              RETURNING *`,
-            [name, description, hsn_code, unit, price, gst_rate, stock_quantity, id, userId]
+            [name, description, hsn_code, unit, price, gst_rate, stock_quantity, data.type || 'PRODUCT', id, userId]
         );
         client.release();
 
@@ -134,7 +137,7 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
     const session: any = await getServerSession(authOptions as any);
     if (!session?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
     }
     const userId = session.user.id;
 

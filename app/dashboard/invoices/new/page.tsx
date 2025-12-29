@@ -51,6 +51,24 @@ export default function NewInvoicePage() {
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
     const [notes, setNotes] = useState('');
     const [showPaymentInput, setShowPaymentInput] = useState(false);
+    const [showCompliance, setShowCompliance] = useState(false);
+
+    // Compliance State
+    const [ewayBill, setEwayBill] = useState({
+        no: '',
+        date: '',
+        mode: 'Road',
+        distance: '',
+        transporterName: '',
+        transporterId: '',
+        vehicleNo: ''
+    });
+    const [eInvoice, setEInvoice] = useState({
+        irn: '',
+        ackNo: '',
+        ackDate: '',
+        qrCode: ''
+    });
 
     // Modal State
     const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -93,7 +111,8 @@ export default function NewInvoicePage() {
                     unit_price: product.price,
                     gst_rate: product.gst_rate || 18,
                     hsn_code: product.hsn_code,
-                    unit: product.unit || 'PCS'
+                    unit: product.unit || 'PCS',
+                    type: product.type || 'PRODUCT'
                 };
             }
         } else {
@@ -175,6 +194,9 @@ export default function NewInvoicePage() {
         // Check stock availability for each product
         const outOfStockItems = [];
         for (const item of selectedItems) {
+            // Skip stock check for Services
+            if (item.type === 'SERVICE') continue;
+
             const product = products.find((p: any) => p.id === item.product_id);
             if (product) {
                 const availableStock = product.stock_quantity || 0;
@@ -244,6 +266,18 @@ export default function NewInvoicePage() {
                 total_tax: gstBreakdown.cgst_amount + gstBreakdown.sgst_amount + gstBreakdown.igst_amount,
                 status: status,
                 notes: notes,
+                // Compliance fields
+                eway_bill_no: ewayBill.no,
+                eway_bill_date: ewayBill.date,
+                transport_mode: ewayBill.mode,
+                distance: parseInt(ewayBill.distance) || null,
+                transporter_name: ewayBill.transporterName,
+                transporter_id: ewayBill.transporterId,
+                vehicle_no: ewayBill.vehicleNo,
+                irn: eInvoice.irn,
+                ack_no: eInvoice.ackNo,
+                ack_date: eInvoice.ackDate,
+                signed_qrcode: eInvoice.qrCode,
                 created_at: new Date().toISOString()
             };
 
@@ -293,7 +327,11 @@ export default function NewInvoicePage() {
                             <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">{t.customer}</label>
                             <button
                                 onClick={() => setShowCustomerModal(true)}
-                                className="group flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all border border-indigo-200"
+                                className="
+                                    group flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black 
+                                    transition-all border-b-4 border-indigo-800 hover:-translate-y-0.5 active:translate-y-[2px] active:border-b-0
+                                    shadow-lg shadow-indigo-500/20
+                                "
                             >
                                 <FaPlus className="text-[10px] group-hover:rotate-90 transition-transform" />
                                 {t.newClient || 'NEW CLIENT'}
@@ -371,6 +409,109 @@ export default function NewInvoicePage() {
                             </div>
                         )}
                     </div>
+                </div>
+
+                <hr className="border-gray-100" />
+
+                {/* Compliance Section */}
+                <div className="space-y-4">
+                    <button
+                        type="button"
+                        onClick={() => setShowCompliance(!showCompliance)}
+                        className="flex items-center gap-2 text-sm font-bold text-slate-700 uppercase tracking-wider hover:text-indigo-600 transition-colors bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm transition-all hover:shadow-md"
+                    >
+                        <span className={`transform transition-transform ${showCompliance ? 'rotate-90' : ''}`}>▶</span>
+                        Compliance & E-Way Bill Details (Optional)
+                    </button>
+
+                    {showCompliance && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-slate-50 rounded-2xl border border-slate-200 animate-in fade-in slide-in-from-top-2 duration-300">
+                            {/* E-Way Bill */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">E-Way Bill Information</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">E-Way Bill No</label>
+                                        <input
+                                            type="text"
+                                            value={ewayBill.no}
+                                            onChange={e => setEwayBill({ ...ewayBill, no: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                            placeholder="12 Digit Number"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Vehicle No</label>
+                                        <input
+                                            type="text"
+                                            value={ewayBill.vehicleNo}
+                                            onChange={e => setEwayBill({ ...ewayBill, vehicleNo: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                            placeholder="AB 12 CD 1234"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Distance (KM)</label>
+                                        <input
+                                            type="number"
+                                            value={ewayBill.distance}
+                                            onChange={e => setEwayBill({ ...ewayBill, distance: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                            placeholder="e.g. 250"
+                                        />
+                                    </div>
+                                    <div className="col-span-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Transporter ID</label>
+                                        <input
+                                            type="text"
+                                            value={ewayBill.transporterId}
+                                            onChange={e => setEwayBill({ ...ewayBill, transporterId: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                            placeholder="GSTIN of Transporter"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* E-Invoice */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">E-Invoicing (B2B)</h3>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">IRN (Invoice Reference Number)</label>
+                                        <input
+                                            type="text"
+                                            value={eInvoice.irn}
+                                            onChange={e => setEInvoice({ ...eInvoice, irn: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                            placeholder="64 Character Hash"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Ack No</label>
+                                            <input
+                                                type="text"
+                                                value={eInvoice.ackNo}
+                                                onChange={e => setEInvoice({ ...eInvoice, ackNo: e.target.value })}
+                                                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                                placeholder="Ack Number"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Ack Date</label>
+                                            <input
+                                                type="date"
+                                                value={eInvoice.ackDate}
+                                                onChange={e => setEInvoice({ ...eInvoice, ackDate: e.target.value })}
+                                                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm shadow-inner"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <hr className="border-gray-100" />
@@ -469,11 +610,17 @@ export default function NewInvoicePage() {
                         <button
                             type="button"
                             onClick={addItem}
-                            className="group relative inline-flex items-center gap-3 px-10 py-4 font-bold text-white transition-all duration-300 bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 bg-size-200 bg-pos-0 hover-bg-pos-100 rounded-2xl hover:shadow-2xl hover:shadow-orange-500/40 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transform active:scale-95 border-2 border-orange-400/30"
+                            className="
+                                group relative inline-flex items-center gap-3 px-10 py-4 font-black text-white transition-all duration-300 
+                                bg-orange-500 rounded-2xl border-b-4 border-orange-700
+                                hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/40 
+                                active:translate-y-[2px] active:border-b-0
+                                overflow-hidden
+                            "
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
                             <FaPlus className="text-base group-hover:rotate-180 transition-transform duration-500 relative z-10" />
-                            <span className="text-sm tracking-wider relative z-10">{t.addNewItem}</span>
+                            <span className="text-sm tracking-wider uppercase relative z-10">{t.addNewItem}</span>
                         </button>
                     </div>
                 </div>
@@ -494,6 +641,108 @@ export default function NewInvoicePage() {
                             <span className="text-indigo-600">₹{totals.total.toFixed(2)}</span>
                         </div>
                     </div>
+                </div>
+
+                <hr className="border-gray-100" />
+
+                {/* Compliance Section */}
+                <div className="space-y-4">
+                    <button
+                        type="button"
+                        onClick={() => setShowCompliance(!showCompliance)}
+                        className="flex items-center gap-2 text-sm font-bold text-slate-700 uppercase tracking-wider hover:text-indigo-600 transition-colors"
+                    >
+                        <span className={`transform transition-transform ${showCompliance ? 'rotate-90' : ''}`}>▶</span>
+                        Compliance & E-Way Bill Details (Optional)
+                    </button>
+
+                    {showCompliance && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-slate-50 rounded-2xl border border-slate-200 animate-in fade-in slide-in-from-top-2 duration-300">
+                            {/* E-Way Bill */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">E-Way Bill Information</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">E-Way Bill No</label>
+                                        <input
+                                            type="text"
+                                            value={ewayBill.no}
+                                            onChange={e => setEwayBill({ ...ewayBill, no: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            placeholder="12 Digit Number"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Vehicle No</label>
+                                        <input
+                                            type="text"
+                                            value={ewayBill.vehicleNo}
+                                            onChange={e => setEwayBill({ ...ewayBill, vehicleNo: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            placeholder="AB 12 CD 1234"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Distance (KM)</label>
+                                        <input
+                                            type="number"
+                                            value={ewayBill.distance}
+                                            onChange={e => setEwayBill({ ...ewayBill, distance: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            placeholder="e.g. 250"
+                                        />
+                                    </div>
+                                    <div className="col-span-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Transporter ID</label>
+                                        <input
+                                            type="text"
+                                            value={ewayBill.transporterId}
+                                            onChange={e => setEwayBill({ ...ewayBill, transporterId: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            placeholder="GSTIN of Transporter"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* E-Invoice */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">E-Invoicing (B2B)</h3>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase">IRN (Invoice Reference Number)</label>
+                                        <input
+                                            type="text"
+                                            value={eInvoice.irn}
+                                            onChange={e => setEInvoice({ ...eInvoice, irn: e.target.value })}
+                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            placeholder="64 Character Hash"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Ack No</label>
+                                            <input
+                                                type="text"
+                                                value={eInvoice.ackNo}
+                                                onChange={e => setEInvoice({ ...eInvoice, ackNo: e.target.value })}
+                                                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Ack Date</label>
+                                            <input
+                                                type="date"
+                                                value={eInvoice.ackDate}
+                                                onChange={e => setEInvoice({ ...eInvoice, ackDate: e.target.value })}
+                                                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Notes */}
@@ -520,17 +769,24 @@ export default function NewInvoicePage() {
                     <button
                         onClick={handleSubmit}
                         disabled={isSubmitting}
-                        className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-lg hover:shadow-black/25 flex items-center gap-2 transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="
+                            relative px-10 py-4 bg-gray-900 text-white font-black rounded-2xl 
+                            border-b-4 border-black transition-all duration-200
+                            hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/25 
+                            active:translate-y-[2px] active:border-b-0
+                            flex items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group overflow-hidden
+                        "
                     >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
                         {isSubmitting ? (
                             <>
                                 <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                                Saving...
+                                <span className="uppercase tracking-widest text-sm">Saving...</span>
                             </>
                         ) : (
                             <>
-                                <FaSave className="text-lg" />
-                                {t.saveInvoice}
+                                <FaSave className="text-lg group-hover:scale-110 transition-transform" />
+                                <span className="uppercase tracking-widest text-sm">{t.saveInvoice}</span>
                             </>
                         )}
                     </button>
@@ -573,7 +829,7 @@ export default function NewInvoicePage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
+                                    className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-black border-b-4 border-indigo-800 transition-all hover:-translate-y-0.5 active:translate-y-[2px] active:border-b-0 shadow-lg shadow-indigo-500/20 uppercase text-xs tracking-widest"
                                 >
                                     {t.save} Customer
                                 </button>
@@ -595,5 +851,4 @@ export default function NewInvoicePage() {
             )}
         </div>
     );
-
 }

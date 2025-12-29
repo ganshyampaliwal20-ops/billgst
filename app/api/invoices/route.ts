@@ -10,7 +10,7 @@ export async function GET() {
 
         if (!session?.user?.id) {
             console.error('Invoice GET API Error: Unauthorized access attempt');
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
         }
 
         const userId = session.user.id;
@@ -79,15 +79,16 @@ export async function POST(request: Request) {
         INSERT INTO invoices (
             id, invoice_number, customer_id, invoice_date, due_date, 
             subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
-            paid_amount, created_by, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
+            paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
+            transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, NOW())
         RETURNING id
     `, [
             data.id,
             data.invoice_number,
-            customerId,  // Use extracted customer ID
+            customerId,
             data.invoice_date,
-            data.due_date || null, // Handle optional due date
+            data.due_date || null,
             data.subtotal,
             data.total_amount,
             data.igst_amount || 0,
@@ -96,7 +97,18 @@ export async function POST(request: Request) {
             data.status,
             data.notes,
             data.paid_amount || 0,
-            userId // Add created_by
+            userId,
+            data.eway_bill_no || null,
+            data.eway_bill_date || null,
+            data.transport_mode || null,
+            data.distance || null,
+            data.transporter_name || null,
+            data.transporter_id || null,
+            data.vehicle_no || null,
+            data.irn || null,
+            data.ack_no || null,
+            data.ack_date || null,
+            data.signed_qrcode || null
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
@@ -125,12 +137,14 @@ export async function POST(request: Request) {
                     (quantity * unitPrice) // Item total
                 ]);
 
-                // Update product stock safely
-                await client.query(`
+                // Update product stock safely if it's a PRODUCT
+                if (item.type !== 'SERVICE' && item.product_id) {
+                    await client.query(`
                         UPDATE products 
                         SET stock_quantity = COALESCE(stock_quantity, 0) - $1 
                         WHERE id = $2
                     `, [quantity, item.product_id]);
+                }
             }
         }
         console.log('Invoice API: All items inserted successfully');
@@ -160,8 +174,9 @@ export async function POST(request: Request) {
                     INSERT INTO invoices (
                         id, invoice_number, customer_id, invoice_date, due_date, 
                         subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
-                        paid_amount, created_by, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
+                        paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
+                        transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, NOW())
                     RETURNING id
                 `, [
                     data.id,
@@ -177,7 +192,18 @@ export async function POST(request: Request) {
                     data.status,
                     data.notes,
                     data.paid_amount || 0,
-                    userId
+                    userId,
+                    data.eway_bill_no || null,
+                    data.eway_bill_date || null,
+                    data.transport_mode || null,
+                    data.distance || null,
+                    data.transporter_name || null,
+                    data.transporter_id || null,
+                    data.vehicle_no || null,
+                    data.irn || null,
+                    data.ack_no || null,
+                    data.ack_date || null,
+                    data.signed_qrcode || null
                 ]);
 
                 const invoiceId = invoiceResult.rows[0].id;
@@ -203,12 +229,14 @@ export async function POST(request: Request) {
                             (quantity * unitPrice) // Item total
                         ]);
 
-                        // Update product stock safely
-                        await client.query(`
+                        // Update product stock safely (Retry)
+                        if (item.type !== 'SERVICE' && item.product_id) {
+                            await client.query(`
                                 UPDATE products 
                                 SET stock_quantity = COALESCE(stock_quantity, 0) - $1 
                                 WHERE id = $2
                             `, [quantity, item.product_id]);
+                        }
                     }
                 }
 

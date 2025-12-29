@@ -15,6 +15,7 @@ export default function DashboardPage() {
     } = useStore();
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('monthly');
+    const [customRange, setCustomRange] = useState({ start: '', end: '' });
     const [showSetupBanner, setShowSetupBanner] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -41,7 +42,7 @@ export default function DashboardPage() {
     if (!isClient) return null;
 
     // Get Analytics Data
-    const { totalSales, totalProfit, invoiceCount } = getAnalytics(period);
+    const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
     const topProducts = getTopProducts() || [];
     const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
 
@@ -197,7 +198,8 @@ export default function DashboardPage() {
                         { key: 'daily', label: t.daily, activeColor: 'from-blue-500 to-cyan-500' },
                         { key: 'weekly', label: t.weekly, activeColor: 'from-purple-500 to-pink-500' },
                         { key: 'monthly', label: t.monthly, activeColor: 'from-indigo-500 to-violet-500' },
-                        { key: 'yearly', label: t.yearly, activeColor: 'from-emerald-500 to-teal-500' }
+                        { key: 'yearly', label: t.yearly, activeColor: 'from-emerald-500 to-teal-500' },
+                        { key: 'custom', label: 'Custom', activeColor: 'from-orange-500 to-amber-500' }
                     ].map((item) => (
                         <button
                             key={item.key}
@@ -211,6 +213,30 @@ export default function DashboardPage() {
                         </button>
                     ))}
                 </div>
+
+                {period === 'custom' && (
+                    <div className="flex items-center gap-4 mt-4 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 animate-in fade-in slide-in-from-top-1 duration-300">
+                        <div className="flex-1">
+                            <label className="block text-[10px] uppercase font-black text-slate-400 mb-1 ml-1">From Date</label>
+                            <input
+                                type="date"
+                                value={customRange.start}
+                                onChange={(e) => setCustomRange({ ...customRange, start: e.target.value })}
+                                className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                            />
+                        </div>
+                        <div className="text-slate-300 mt-4">→</div>
+                        <div className="flex-1">
+                            <label className="block text-[10px] uppercase font-black text-slate-400 mb-1 ml-1">To Date</label>
+                            <input
+                                type="date"
+                                value={customRange.end}
+                                onChange={(e) => setCustomRange({ ...customRange, end: e.target.value })}
+                                className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Stats Cards - Premium Container (Reverted Position) */}

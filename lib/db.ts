@@ -203,18 +203,25 @@ export const initDB = async () => {
       CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(product_id);
     `);
 
-    // Verify/Migrate schema in separate blocks to prevent one failure from blocking others
     try {
-      await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
-    } catch (e) { console.log('Migration note: checked products.created_by'); }
+      await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT';`);
+    } catch (e) { console.log('Migration note: checked products.type'); }
 
     try {
-      await client.query(`ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
-    } catch (e) { console.log('Migration note: checked customers.created_by'); }
-
-    try {
-      await client.query(`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);`);
-    } catch (e) { console.log('Migration note: checked invoices.created_by'); }
+      await client.query(`
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS eway_bill_no VARCHAR(20),
+        ADD COLUMN IF NOT EXISTS eway_bill_date TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS transport_mode VARCHAR(20),
+        ADD COLUMN IF NOT EXISTS distance INTEGER,
+        ADD COLUMN IF NOT EXISTS transporter_name VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS transporter_id VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS vehicle_no VARCHAR(20),
+        ADD COLUMN IF NOT EXISTS irn VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS ack_no VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS ack_date TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS signed_qrcode TEXT;
+      `);
+    } catch (e) { console.log('Migration note: checked invoices compliance fields'); }
 
     console.log('Database tables created/verified successfully');
   } finally {
