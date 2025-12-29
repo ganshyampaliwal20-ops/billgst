@@ -1,75 +1,58 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaArrowRight } from 'react-icons/fa';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { useStore } from '@/lib/store';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaStore, FaCheckCircle, FaMobileAlt, FaCloud, FaShieldAlt } from 'react-icons/fa';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { translations } from '@/lib/translations';
-
-// SEO Metadata (Server component metadata won't work in client component 'app/page.tsx', 
-// so we'll use a wrapper or just the document title for now, but Next.js 13+ handles 
-// metadata in layout or by separate export in server components. 
-// However, since this is 'use client', we should really use a layout for metadata or 
-// just accept it here if technically possible. 
-// Actually, 'metadata' cannot be exported from a client component. 
-// We should have a separate server file or use a layout.)
+import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
-  const {
-    invoices, customers, products, businessProfile, settings,
-    getAnalytics, getTopProducts,
-    fetchCustomers, fetchProducts, fetchInvoices
-  } = useStore();
   const [isClient, setIsClient] = useState(false);
-  const [period, setPeriod] = useState('monthly');
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  // Get translations
-  const t = translations[settings.language as keyof typeof translations] || translations.en;
 
   useEffect(() => {
     setIsClient(true);
-    // Live Clock
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-
-    // Load Data from DB
-    fetchCustomers();
-    fetchProducts();
-    fetchInvoices();
-
-    return () => clearInterval(timer);
   }, []);
 
   if (!isClient) return null;
 
-  // Get Analytics Data
-  const { totalSales, totalProfit, invoiceCount } = getAnalytics(period);
-  const topProducts = getTopProducts() || [];
-  const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
+  const features = [
+    {
+      icon: FaFileInvoice,
+      title: 'Professional GST Invoices',
+      description: 'Create beautiful, GST-compliant invoices in seconds',
+      color: 'from-indigo-500 to-indigo-700'
+    },
+    {
+      icon: FaUsers,
+      title: 'Customer Management',
+      description: 'Track all your customers and their purchase history',
+      color: 'from-emerald-500 to-teal-700'
+    },
+    {
+      icon: FaBox,
+      title: 'Inventory Tracking',
+      description: 'Manage stock levels with automatic low-stock alerts',
+      color: 'from-violet-500 to-purple-700'
+    },
+    {
+      icon: FaChartLine,
+      title: 'Business Analytics',
+      description: 'Get insights into sales, profit, and business growth',
+      color: 'from-orange-500 to-red-600'
+    }
+  ];
 
-  // Get current time greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return t.goodMorning;
-    if (hour < 17) return t.goodAfternoon;
-    return t.goodEvening;
-  };
-
-  // Monthly Trend Data for Chart
-  const monthlyTrend = [
-    { name: 'Jan', sales: totalSales * 0.6, profit: totalProfit * 0.5 },
-    { name: 'Feb', sales: totalSales * 0.7, profit: totalProfit * 0.6 },
-    { name: 'Mar', sales: totalSales * 0.8, profit: totalProfit * 0.7 },
-    { name: 'Apr', sales: totalSales * 0.9, profit: totalProfit * 0.85 },
-    { name: 'May', sales: totalSales * 0.95, profit: totalProfit * 0.9 },
-    { name: 'Jun', sales: totalSales, profit: totalProfit },
+  const benefits = [
+    'Free forever - No hidden charges',
+    'Works offline - No internet needed',
+    'Multi-language support - Hindi, English, Marathi',
+    'WhatsApp sharing - Send invoices instantly',
+    'GST compliant - CGST, SGST, IGST support',
+    'Secure data - Your data stays with you'
   ];
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden pb-20">
-      {/* Header Mirroring Image */}
-      <header className="bg-gradient-to-r from-indigo-600 to-violet-700 p-4 md:p-6 text-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 font-sans text-slate-900">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-indigo-600 to-violet-700 p-4 md:p-6 text-white shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center p-2 backdrop-blur-sm border border-white/30">
@@ -79,149 +62,155 @@ export default function LandingPage() {
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter leading-none">
-                {businessProfile.name || 'BillGST Business'}
+                BillGST
               </h1>
               <p className="text-[10px] md:text-xs font-bold opacity-70 uppercase tracking-[0.2em] mt-1">Professional Billing</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Link href="/login" className="text-xs font-black uppercase px-4 py-2 border border-white/30 rounded-full hover:bg-white/10">Login</Link>
-            <Link href="/register" className="text-xs font-black uppercase px-4 py-2 bg-white text-indigo-700 rounded-full hover:bg-white/90">Sign Up</Link>
+            <Link href="/login" className="text-xs font-black uppercase px-4 py-2 border border-white/30 rounded-full hover:bg-white/10 transition-all">Login</Link>
+            <Link href="/register" className="text-xs font-black uppercase px-4 py-2 bg-white text-indigo-700 rounded-full hover:bg-white/90 transition-all">Sign Up</Link>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 md:p-10 space-y-8">
-
-        {/* Status Bar */}
-        <div className="flex items-center gap-2 text-slate-500 font-bold text-xs bg-slate-100 w-fit px-4 py-1.5 rounded-full border border-slate-200">
-          <FaClock className="text-orange-500" />
-          <span suppressHydrationWarning>
-            {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} • {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        </div>
-
-        {/* Greeting Section */}
-        <div className="py-2">
-          <h2 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight">
-            {getGreeting()}, <span className="text-orange-500">{businessProfile.name || 'Owner'}</span>! 👋
-          </h2>
-        </div>
-
-        {/* Triple Jumbo Action Cards (Matched to Photo) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slideUp">
-          {/* New Invoice */}
-          <Link href="/dashboard/invoices/new" className="group">
-            <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 h-[180px] md:h-[220px] rounded-[35px] text-white flex flex-col items-center justify-center gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.4)] active:scale-95 border-b-[8px] border-indigo-900 border-x border-t border-white/10">
-              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FaReceipt className="text-3xl md:text-4xl" />
-              </div>
-              <span className="text-xl md:text-2xl font-black uppercase tracking-tight italic">{t.newInvoice}</span>
-            </div>
-          </Link>
-
-          {/* Add Customer */}
-          <Link href="/dashboard/customers" className="group">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-700 h-[180px] md:h-[220px] rounded-[35px] text-white flex flex-col items-center justify-center gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.4)] active:scale-95 border-b-[8px] border-emerald-900 border-x border-t border-white/10">
-              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FaUserPlus className="text-3xl md:text-4xl" />
-              </div>
-              <span className="text-xl md:text-2xl font-black uppercase tracking-tight italic">{t.addCustomer}</span>
-            </div>
-          </Link>
-
-          {/* Add Product */}
-          <Link href="/dashboard/inventory" className="group">
-            <div className="bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed] h-[180px] md:h-[220px] rounded-[35px] text-white flex flex-col items-center justify-center gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.4)] active:scale-95 border-b-[8px] border-violet-900 border-x border-t border-white/10">
-              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FaBox className="text-3xl md:text-4xl" />
-              </div>
-              <span className="text-xl md:text-2xl font-black uppercase tracking-tight italic">{t.addProduct}</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* Analytics Overview Section Bar (Matched to Photo) */}
-        <div className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-rose-500 rounded-3xl p-6 md:p-8 text-white shadow-2xl relative overflow-hidden group">
-          <div className="relative z-10 flex flex-col items-center justify-center text-center">
-            <h3 className="text-3xl md:text-5xl font-black uppercase italic italic tracking-tighter leading-none mb-2">{t.analyticsOverview}</h3>
-            <p className="text-sm md:text-base font-bold opacity-80 uppercase tracking-[0.3em]">Track your business performance</p>
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-4 md:px-10 py-16 md:py-24">
+        <div className="text-center space-y-6 md:space-y-8">
+          <div className="inline-block">
+            <span className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider">
+              Free GST Billing Software
+            </span>
           </div>
-          {/* Decorative Shine */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-slate-800 tracking-tight leading-tight">
+            Apne Business Ko<br />
+            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Professional Banayein
+            </span>
+          </h2>
+
+          <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
+            Complete billing solution for small businesses. Create GST invoices, manage inventory, track customers, and grow your business - all for free!
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+            <Link
+              href="/register"
+              className="group px-8 py-4 bg-gradient-to-r from-indigo-600 to-violet-700 text-white font-black text-lg rounded-2xl hover:shadow-2xl hover:shadow-indigo-500/40 transition-all hover:-translate-y-1 active:scale-95 border-2 border-indigo-400/30 w-full sm:w-auto text-center"
+            >
+              Start Free Now →
+            </Link>
+            <Link
+              href="/dashboard"
+              className="px-8 py-4 bg-white text-indigo-700 font-black text-lg rounded-2xl hover:shadow-xl transition-all border-2 border-indigo-200 hover:border-indigo-300 w-full sm:w-auto text-center"
+            >
+              Try Without Signup
+            </Link>
+          </div>
+
+          <p className="text-sm text-slate-500 font-medium">
+            ✓ No credit card required  ✓ Works offline  ✓ Data stays with you
+          </p>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="max-w-7xl mx-auto px-4 md:px-10 py-16 md:py-20">
+        <div className="text-center mb-12 md:mb-16">
+          <h3 className="text-3xl md:text-5xl font-black text-slate-800 mb-4">
+            Everything You Need
+          </h3>
+          <p className="text-lg text-slate-600 font-medium">
+            Powerful features to manage your entire business
+          </p>
         </div>
 
-        {/* Period Filter (Matched to Photo) */}
-        <div className="space-y-4 pt-4">
-          <p className="font-extrabold text-slate-500 text-sm uppercase tracking-wider">{t.selectPeriod}:</p>
-          <div className="flex gap-4">
-            {[
-              { key: 'daily', label: t.daily },
-              { key: 'weekly', label: t.weekly },
-              { key: 'monthly', label: t.monthly }
-            ].map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setPeriod(item.key)}
-                className={`flex-1 py-4 md:py-5 rounded-[25px] font-black text-xs md:text-sm uppercase italic transition-all ${period === item.key
-                  ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20 active:scale-95'
-                  : 'bg-slate-50 text-slate-400 border border-slate-200 hover:bg-slate-100'
-                  }`}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={index}
+                className="bg-white rounded-3xl p-6 md:p-8 shadow-lg border border-slate-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
               >
-                {item.label}
-              </button>
+                <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
+                  <Icon className="text-2xl text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-slate-800 mb-3">{feature.title}</h4>
+                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 md:px-10">
+          <div className="text-center mb-12 md:mb-16">
+            <h3 className="text-3xl md:text-5xl font-black text-white mb-4">
+              Why Choose BillGST?
+            </h3>
+            <p className="text-lg text-indigo-100 font-medium">
+              Built for Indian businesses, by Indian developers
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {benefits.map((benefit, index) => (
+              <div
+                key={index}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all"
+              >
+                <div className="flex items-start gap-4">
+                  <FaCheckCircle className="text-2xl text-green-300 flex-shrink-0 mt-1" />
+                  <p className="text-white font-bold text-lg">{benefit}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Detailed Charts (Real Data from Store) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
-          <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 p-8">
-            <h4 className="text-xl font-black italic text-slate-800 mb-6 uppercase tracking-tight">Revenue Analytics</h4>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlyTrend}>
-                  <defs>
-                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} hide />
-                  <Tooltip
-                    contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-                  />
-                  <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorSales)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Stats Summary Panel */}
-          <div className="bg-slate-900 rounded-[40px] shadow-2xl p-8 text-white flex flex-col justify-center">
-            <div className="space-y-8">
-              <div>
-                <p className="text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-2">{t.totalRevenue}</p>
-                <h5 className="text-5xl font-black tabular-nums italic tracking-tighter">₹{totalSales.toLocaleString()}</h5>
-              </div>
-              <div className="flex items-center justify-between pt-8 border-t border-white/10">
-                <div>
-                  <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">{t.invoices}</p>
-                  <p className="text-2xl font-black italic">{invoiceCount}</p>
-                </div>
-                <Link href="/dashboard" className="px-8 py-4 bg-white text-indigo-900 font-extrabold rounded-full flex items-center gap-2 hover:bg-slate-100 transition-all text-sm shadow-xl">
-                  GO TO DASHBOARD <FaArrowRight />
-                </Link>
-              </div>
-            </div>
-          </div>
+      {/* CTA Section */}
+      <section className="max-w-7xl mx-auto px-4 md:px-10 py-16 md:py-24">
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-16 text-center shadow-2xl">
+          <FaStore className="text-6xl text-indigo-400 mx-auto mb-6" />
+          <h3 className="text-3xl md:text-5xl font-black text-white mb-6">
+            Ready to Grow Your Business?
+          </h3>
+          <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+            Join thousands of businesses using BillGST for their billing needs
+          </p>
+          <Link
+            href="/register"
+            className="inline-block px-10 py-5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-black text-xl rounded-2xl hover:shadow-2xl hover:shadow-indigo-500/40 transition-all hover:-translate-y-1 active:scale-95"
+          >
+            Get Started Free
+          </Link>
         </div>
+      </section>
 
-      </main>
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-10 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+              <span className="text-white font-black text-lg">B</span>
+            </div>
+            <span className="text-xl font-black text-white">BillGST</span>
+          </div>
+          <p className="text-sm mb-4">
+            Professional billing software for Indian businesses
+          </p>
+          <p className="text-xs text-slate-500">
+            © 2025 BillGST. Made with ❤️ in India
+          </p>
+        </div>
+      </footer>
 
-      {/* Hidden Keywords for SEO (Indexable content in background) */}
+      {/* Hidden SEO Content */}
       <div className="hidden">
         <h1>Free GST Billing Software India</h1>
         <p>Best invoice maker for small business, stock management app, inventory software, udhar track, billing app hindi marathi tamil.</p>

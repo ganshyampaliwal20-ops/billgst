@@ -7,6 +7,7 @@ import { FaPlus, FaTrash, FaSave, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { translations } from '@/lib/translations';
+import RegistrationPopup from '@/app/dashboard/RegistrationPopup';
 
 // Proper UUID v4 generator (compatible with PostgreSQL UUID type)
 function generateId() {
@@ -259,9 +260,9 @@ export default function NewInvoicePage() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 pb-20 px-2 sm:px-4 md:px-0">
+        <div className="max-w-5xl mx-auto space-y-6 pb-20 px-4 sm:px-6 md:px-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 sm:px-0">
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/invoices" className="p-2.5 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-200">
                         <FaArrowLeft className="text-indigo-600" size={18} />
@@ -273,7 +274,7 @@ export default function NewInvoicePage() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8 mx-2 sm:mx-0">
                 {/* Customer & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Customer Selection */}
@@ -371,7 +372,7 @@ export default function NewInvoicePage() {
                         <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-semibold">{selectedItems.length} {selectedItems.length === 1 ? 'Item' : 'Items'}</span>
                     </div>
 
-                    <div className="overflow-x-auto -mx-4 sm:-mx-6 md:mx-0">
+                    <div className="overflow-x-auto -mx-2 sm:-mx-4 md:mx-0">
                         <div className="inline-block min-w-full align-middle">
                             <div className="overflow-hidden border border-slate-200 rounded-xl">
                                 <table className="min-w-full divide-y divide-slate-200">
@@ -571,6 +572,9 @@ export default function NewInvoicePage() {
                     </div>
                 </div>
             )}
+
+            {/* Registration Popup for Unauthenticated Users */}
+            <RegistrationPopup />
         </div>
     );
 

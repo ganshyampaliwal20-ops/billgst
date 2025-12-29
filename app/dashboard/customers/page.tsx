@@ -28,7 +28,10 @@ export default function CustomersPage() {
     if (!isClient) return null;
 
     const getCustomerBalance = (customerId: string) => {
-        const customerInvoices = invoices.filter((inv: any) => inv.customer_id === customerId);
+        // Filter invoices by checking both customer_id and nested customer.id
+        const customerInvoices = invoices.filter((inv: any) =>
+            inv.customer_id === customerId || inv.customer?.id === customerId
+        );
         const total = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
         const paid = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.paid_amount || 0), 0);
         return total - paid;
@@ -161,7 +164,7 @@ export default function CustomersPage() {
                                 </div>
                                 <div className="flex items-center gap-3 shrink-0 pr-2">
                                     <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                        ₹ {balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                     </span>
                                     {balance > 0 && <FaBell className="text-[#0e7490] text-sm opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />}
                                 </div>
