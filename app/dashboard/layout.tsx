@@ -30,7 +30,14 @@ export default function DashboardLayout({
     // Get current translations based on store setting
     const t = translations[settings.language as keyof typeof translations] || translations.en;
 
-    const menuItems = [
+    interface MenuItem {
+        icon: any;
+        label: string;
+        href: string;
+        isAuth?: boolean;
+    }
+
+    const menuItems: MenuItem[] = [
         { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices' },
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
