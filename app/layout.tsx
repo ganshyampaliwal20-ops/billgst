@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
+import SessionWrapper from "@/app/components/SessionWrapper";
 
 export const metadata: Metadata = {
   title: "BillGST - Free GST Billing & Stock Management",
@@ -31,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning={true}>
-        {children}
+        <SessionWrapper>
+          {children}
+        </SessionWrapper>
         <Toaster position="top-right" />
       </body>
     </html>
