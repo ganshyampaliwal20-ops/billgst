@@ -70,8 +70,15 @@ export default function InvoicesPage() {
         );
     });
 
-    const handleDownload = (e: React.MouseEvent, invoice: Invoice) => {
+    const [showShareSheet, setShowShareSheet] = useState<Invoice | null>(null);
+
+    const handleDuplicate = (e: React.MouseEvent, invoice: Invoice) => {
         e.stopPropagation();
+        window.location.href = `/dashboard/invoices/new?duplicateId=${invoice.id}`;
+    };
+
+    const handleDownload = (e: React.MouseEvent | null, invoice: Invoice) => {
+        e?.stopPropagation();
         try {
             generateInvoicePDF(invoice, businessProfile);
             toast.success('Invoice downloaded!');
@@ -81,72 +88,15 @@ export default function InvoicesPage() {
         }
     };
 
-    const handleShare = async (e: React.MouseEvent, invoice: Invoice) => {
-        e.stopPropagation();
-        try {
-            // Generate PDF but don't save it automatically
-            const doc = generateInvoicePDF(invoice, businessProfile, false);
-            const pdfBlob = doc.output('blob');
-            const pdfFile = new File([pdfBlob], `Invoice-${invoice.invoice_number}.pdf`, { type: 'application/pdf' });
+    const handleShareWhatsApp = (invoice: Invoice) => {
+        const text = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*\n\nInvoice No: ${invoice.invoice_number}\nDate: ${new Date(invoice.invoice_date).toLocaleDateString()}\nCustomer: ${invoice.customer.name}\n\n*Total Amount: ₹${invoice.total_amount}*\n\nPowered by BillGST.in`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        toast.success('Opening WhatsApp...');
+    };
 
-            const shareText = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*\n\nInvoice No: ${invoice.invoice_number}\nDate: ${new Date(invoice.invoice_date).toLocaleDateString()}\nCustomer: ${invoice.customer.name}\n\n*Total Amount: ₹${invoice.total_amount}*\n\nPowered by BillGST.in`;
-
-            // Check if Web Share API is available and can share files
-            if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                try {
-                    await navigator.share({
-                        files: [pdfFile],
-                        title: `Invoice ${invoice.invoice_number}`,
-                        text: shareText,
-                    });
-                    toast.success('Shared successfully!');
-                    return;
-                } catch (err) {
-                    if ((err as Error).name !== 'AbortError') {
-                        console.error('Share failed:', err);
-                    } else {
-                        return; // User cancelled
-                    }
-                }
-            }
-
-            // Fallback for desktop or browsers that don't support file sharing
-            const text = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*
-    
-Invoice No: ${invoice.invoice_number}
-Date: ${new Date(invoice.invoice_date).toLocaleDateString()}
-Customer: ${invoice.customer.name}
-
-*Total Amount: ₹${invoice.total_amount}*
-
-Items:
-${invoice.items?.map(item => `- ${item.product_name}: ${item.quantity} x ₹${item.unit_price}`).join('\n') || 'No items'}
-
-Powered by BillGST.in`;
-
-            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-
-            toast.success('Opening WhatsApp...', { duration: 2000 });
-            toast('IMPORTANT: Please attach the downloaded PDF manually in WhatsApp', {
-                icon: '📎',
-                duration: 5000,
-                style: {
-                    border: '1px solid #713200',
-                    padding: '16px',
-                    color: '#713200',
-                },
-            });
-
-            // Trigger download as fallback
-            doc.save(`Invoice-${invoice.invoice_number}.pdf`);
-
-            setTimeout(() => {
-                window.open(url, '_blank');
-            }, 1000);
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to share invoice');
-        }
+    const handleShareSMS = (invoice: Invoice) => {
+        const text = `Invoice ${invoice.invoice_number} for ₹${invoice.total_amount} from ${businessProfile.name}. Checkout at BillGST.in`;
+        window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
 
     return (
@@ -243,18 +193,25 @@ Powered by BillGST.in`;
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
-                                                        onClick={(e) => handleDownload(e, invoice)}
+                                                        onClick={(e) => { e.stopPropagation(); handleDownload(null, invoice); }}
                                                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                                                         title="Download PDF"
                                                     >
                                                         <FaFilePdf className="text-lg" />
                                                     </button>
                                                     <button
-                                                        onClick={(e) => handleShare(e, invoice)}
+                                                        onClick={(e) => { e.stopPropagation(); setShowShareSheet(invoice); }}
                                                         className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
-                                                        title="Share on WhatsApp"
+                                                        title="Share"
                                                     >
                                                         <FaWhatsapp className="text-lg" />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleDuplicate(e, invoice)}
+                                                        className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition"
+                                                        title="Duplicate"
+                                                    >
+                                                        <FaPlus className="text-lg" />
                                                     </button>
                                                 </div>
                                             </td>
@@ -264,7 +221,7 @@ Powered by BillGST.in`;
                             </table>
                         </div>
 
-                        {/* Mobile Card View (Vyapar Style) */}
+                        {/* Mobile Card View */}
                         <div className="md:hidden divide-y divide-gray-100">
                             {filteredInvoices.map((invoice) => (
                                 <div
@@ -290,20 +247,20 @@ Powered by BillGST.in`;
 
                                     <div className="flex justify-between items-center mt-3">
                                         <p className="text-xs text-gray-400">
-                                            {new Date(invoice.invoice_date).toLocaleDateString()} • {new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(invoice.invoice_date).toLocaleDateString()}
                                         </p>
-                                        <div className="flex gap-3">
+                                        <div className="flex gap-2">
                                             <button
-                                                onClick={(e) => handleDownload(e, invoice)}
-                                                className="p-2 text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition"
+                                                onClick={(e) => { e.stopPropagation(); setShowShareSheet(invoice); }}
+                                                className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
                                             >
-                                                <FaFilePdf />
+                                                <FaWhatsapp /> Share
                                             </button>
                                             <button
-                                                onClick={(e) => handleShare(e, invoice)}
-                                                className="p-2 text-green-600 bg-green-50 rounded-full hover:bg-green-100 transition"
+                                                onClick={(e) => handleDuplicate(e, invoice)}
+                                                className="px-3 py-1.5 bg-orange-100 text-orange-600 rounded-lg text-xs font-bold"
                                             >
-                                                <FaWhatsapp />
+                                                Duplicate
                                             </button>
                                         </div>
                                     </div>
@@ -316,20 +273,17 @@ Powered by BillGST.in`;
 
             {/* Invoice Detail Modal */}
             {selectedInvoice && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedInvoice(null)}>
-                    <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 shadow-2xl backdrop-blur-sm" onClick={() => setSelectedInvoice(null)}>
+                    <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">Invoice Details</h2>
                                 <p className="text-sm text-gray-500">{selectedInvoice.invoice_number}</p>
                             </div>
-                            <button onClick={() => setSelectedInvoice(null)} className="text-gray-400 hover:text-gray-600">
-                                ✕
-                            </button>
+                            <button onClick={() => setSelectedInvoice(null)} className="text-gray-400 hover:text-gray-600">✕</button>
                         </div>
 
                         <div className="p-6 space-y-6">
-                            {/* Summary Cards */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
                                     <p className="text-xs font-bold text-blue-600 uppercase mb-1">Total Amount</p>
@@ -337,52 +291,92 @@ Powered by BillGST.in`;
                                 </div>
                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>
-                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${selectedInvoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                        selectedInvoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
-                                            'bg-red-100 text-red-700'
-                                        }`}>
+                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${selectedInvoice.status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                         {selectedInvoice.status || 'UNPAID'}
                                     </span>
                                 </div>
                             </div>
 
-                            {/* Payment Details */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                    <span className="text-gray-600">Customer Name</span>
-                                    <span className="font-semibold text-gray-900">{selectedInvoice.customer.name}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                    <span className="text-gray-600">Paid Amount</span>
-                                    <span className="font-semibold text-green-600">₹{(selectedInvoice.paid_amount || 0).toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2">
-                                    <span className="text-gray-600 font-medium">Due Amount</span>
-                                    <span className="font-bold text-red-600">₹{((selectedInvoice.total_amount - (selectedInvoice.paid_amount || 0))).toLocaleString()}</span>
-                                </div>
+                            <div className="grid grid-cols-3 gap-3">
+                                <button onClick={() => handleDownload(null, selectedInvoice)} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
+                                    <FaFilePdf className="text-2xl text-red-500" />
+                                    <span className="text-[10px] font-bold uppercase">PDF</span>
+                                </button>
+                                <button onClick={() => { setShowShareSheet(selectedInvoice); setSelectedInvoice(null); }} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
+                                    <FaWhatsapp className="text-2xl text-green-500" />
+                                    <span className="text-[10px] font-bold uppercase">Share</span>
+                                </button>
+                                <button onClick={() => window.location.href = `/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
+                                    <FaPlus className="text-2xl text-orange-500" />
+                                    <span className="text-[10px] font-bold uppercase">Duplicate</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Vyapar Style Share Sheet */}
+            {showShareSheet && (
+                <div className="fixed inset-0 bg-black/40 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4 animate-in fade-in duration-300" onClick={() => setShowShareSheet(null)}>
+                    <div
+                        className="bg-white rounded-t-[32px] sm:rounded-3xl w-full max-w-md overflow-hidden animate-in slide-in-from-bottom duration-500 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.3)]"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 sm:hidden" />
+
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl font-black text-slate-800 tracking-tight">Share Transaction</h2>
+                                <button onClick={() => setShowShareSheet(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">✕</button>
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="grid grid-cols-2 gap-3 pt-2">
-                                <button
-                                    onClick={(e) => {
-                                        handleDownload(e as any, selectedInvoice);
-                                        setSelectedInvoice(null);
-                                    }}
-                                    className="flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition"
-                                >
-                                    <FaFilePdf /> Download PDF
+                            <div className="grid grid-cols-4 gap-4 mb-8">
+                                <button onClick={() => handleShareWhatsApp(showShareSheet)} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-16 h-16 bg-[#25D366]/10 rounded-2xl flex items-center justify-center group-hover:bg-[#25D366]/20 transition-all border border-[#25D366]/20">
+                                        <FaWhatsapp className="text-3xl text-[#25D366]" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">WhatsApp</span>
                                 </button>
-                                <button
-                                    onClick={(e) => {
-                                        handleShare(e as any, selectedInvoice);
-                                        setSelectedInvoice(null);
-                                    }}
-                                    className="flex items-center justify-center gap-2 py-3 bg-green-50 text-green-600 rounded-xl font-bold hover:bg-green-100 transition"
-                                >
-                                    <FaWhatsapp /> Share
+
+                                <button onClick={() => handleShareSMS(showShareSheet)} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center group-hover:bg-blue-500/20 transition-all border border-blue-500/20">
+                                        <FaFileInvoiceDollar className="text-3xl text-blue-500" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">SMS</span>
+                                </button>
+
+                                <button onClick={() => handleDownload(null, showShareSheet)} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center group-hover:bg-red-500/20 transition-all border border-red-500/20">
+                                        <FaFilePdf className="text-3xl text-red-500" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">PDF</span>
+                                </button>
+
+                                <button className="flex flex-col items-center gap-3 group opacity-50">
+                                    <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                        <span className="text-2xl font-bold">...</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">More</span>
                                 </button>
                             </div>
+
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Amount</p>
+                                        <p className="text-xl font-black text-slate-800 italic tracking-tight">₹{showShareSheet.total_amount.toLocaleString()}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Invoice No</p>
+                                        <p className="text-sm font-black text-indigo-600 italic">{showShareSheet.invoice_number}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-gradient-to-r from-indigo-500 to-violet-600 text-center">
+                            <p className="text-white text-[10px] font-bold tracking-[0.2em] uppercase">Powered by BillGST.in</p>
                         </div>
                     </div>
                 </div>

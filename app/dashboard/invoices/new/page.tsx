@@ -77,12 +77,55 @@ export default function NewInvoicePage() {
 
     // CRITICAL: All useState hooks MUST be above any conditional returns
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDuplicating, setIsDuplicating] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
         // Set date only on client side to avoid hydration errors
         setInvoiceDate(new Date().toISOString().split('T')[0]);
-    }, []);
+
+        // Handle Duplication logic
+        const params = new URLSearchParams(window.location.search);
+        const duplicateId = params.get('duplicateId');
+
+        if (duplicateId && !isDuplicating) {
+            const invoices = useStore.getState().invoices;
+            const sourceInvoice = invoices.find((inv: any) => inv.id === duplicateId);
+
+            if (sourceInvoice) {
+                setIsDuplicating(true);
+                setCustomerId(sourceInvoice.customer_id);
+                setPaidAmount(sourceInvoice.paid_amount?.toString() || '');
+                setNotes(sourceInvoice.notes || '');
+                setSelectedItems(sourceInvoice.items.map((item: any) => ({
+                    ...item,
+                    product_id: item.product_id || '',
+                    product_name: item.product_name,
+                    quantity: item.quantity,
+                    unit_price: item.unit_price,
+                    gst_rate: item.gst_rate || 18,
+                    hsn_code: item.hsn_code,
+                    unit: item.unit || 'PCS',
+                    type: item.type || 'PRODUCT'
+                })));
+
+                // Duplication of compliance fields
+                if (sourceInvoice.eway_bill_no) {
+                    setShowCompliance(true);
+                    setEwayBill({
+                        no: sourceInvoice.eway_bill_no,
+                        date: sourceInvoice.eway_bill_date ? new Date(sourceInvoice.eway_bill_date).toISOString().split('T')[0] : '',
+                        mode: sourceInvoice.transport_mode || 'Road',
+                        distance: sourceInvoice.distance?.toString() || '',
+                        transporterName: sourceInvoice.transporter_name || '',
+                        transporterId: sourceInvoice.transporter_id || '',
+                        vehicleNo: sourceInvoice.vehicle_no || ''
+                    });
+                }
+                toast.success('Invoice details pre-filled from previous bill');
+            }
+        }
+    }, [isDuplicating]);
 
     // Safety checks for arrays - Filter out nulls/undefined items
     const rawCustomers = Array.isArray(customers) ? customers : [];
@@ -644,106 +687,6 @@ export default function NewInvoicePage() {
                 </div>
 
                 <hr className="border-gray-100" />
-
-                {/* Compliance Section */}
-                <div className="space-y-4">
-                    <button
-                        type="button"
-                        onClick={() => setShowCompliance(!showCompliance)}
-                        className="flex items-center gap-2 text-sm font-bold text-slate-700 uppercase tracking-wider hover:text-indigo-600 transition-colors"
-                    >
-                        <span className={`transform transition-transform ${showCompliance ? 'rotate-90' : ''}`}>▶</span>
-                        Compliance & E-Way Bill Details (Optional)
-                    </button>
-
-                    {showCompliance && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-slate-50 rounded-2xl border border-slate-200 animate-in fade-in slide-in-from-top-2 duration-300">
-                            {/* E-Way Bill */}
-                            <div className="space-y-4">
-                                <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest">E-Way Bill Information</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase">E-Way Bill No</label>
-                                        <input
-                                            type="text"
-                                            value={ewayBill.no}
-                                            onChange={e => setEwayBill({ ...ewayBill, no: e.target.value })}
-                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            placeholder="12 Digit Number"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Vehicle No</label>
-                                        <input
-                                            type="text"
-                                            value={ewayBill.vehicleNo}
-                                            onChange={e => setEwayBill({ ...ewayBill, vehicleNo: e.target.value })}
-                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            placeholder="AB 12 CD 1234"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Distance (KM)</label>
-                                        <input
-                                            type="number"
-                                            value={ewayBill.distance}
-                                            onChange={e => setEwayBill({ ...ewayBill, distance: e.target.value })}
-                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            placeholder="e.g. 250"
-                                        />
-                                    </div>
-                                    <div className="col-span-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase">Transporter ID</label>
-                                        <input
-                                            type="text"
-                                            value={ewayBill.transporterId}
-                                            onChange={e => setEwayBill({ ...ewayBill, transporterId: e.target.value })}
-                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            placeholder="GSTIN of Transporter"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* E-Invoice */}
-                            <div className="space-y-4">
-                                <h3 className="text-xs font-bold text-purple-600 uppercase tracking-widest">E-Invoicing (B2B)</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase">IRN (Invoice Reference Number)</label>
-                                        <input
-                                            type="text"
-                                            value={eInvoice.irn}
-                                            onChange={e => setEInvoice({ ...eInvoice, irn: e.target.value })}
-                                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            placeholder="64 Character Hash"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Ack No</label>
-                                            <input
-                                                type="text"
-                                                value={eInvoice.ackNo}
-                                                onChange={e => setEInvoice({ ...eInvoice, ackNo: e.target.value })}
-                                                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase">Ack Date</label>
-                                            <input
-                                                type="date"
-                                                value={eInvoice.ackDate}
-                                                onChange={e => setEInvoice({ ...eInvoice, ackDate: e.target.value })}
-                                                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
 
                 {/* Notes */}
                 <div>

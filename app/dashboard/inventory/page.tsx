@@ -118,17 +118,24 @@ export default function InventoryPage() {
                 </button>
             </div>
 
-            {/* Search - Refined width */}
+            {/* Search - Refined width with 3D aesthetic */}
             <div className="flex justify-start">
-                <div className="bg-white p-2 rounded-2xl border-2 border-slate-100 shadow-sm relative w-full md:w-96 group transition-all focus-within:border-indigo-500 focus-within:shadow-md">
+                <div className="
+                    bg-white p-2 rounded-2xl relative w-full md:w-96 group transition-all 
+                    border-2 border-slate-200 
+                    border-b-4 border-b-slate-300
+                    shadow-[0_4px_0_0_rgba(148,163,184,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]
+                    hover:border-indigo-400 hover:border-b-indigo-600
+                    focus-within:border-indigo-500 focus-within:border-b-indigo-700 focus-within:shadow-indigo-500/20
+                ">
                     <input
                         type="text"
                         placeholder="Search products..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-400"
+                        className="w-full pl-4 pr-12 py-2.5 bg-slate-50 border-none rounded-xl outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-400"
                     />
-                    <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <FaSearch className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-all group-hover:scale-110" />
                 </div>
             </div>
 
@@ -216,16 +223,32 @@ export default function InventoryPage() {
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                                    <select
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                        value={formData.type || 'PRODUCT'}
-                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
-                                    >
-                                        <option value="PRODUCT">Product</option>
-                                        <option value="SERVICE">Service</option>
-                                    </select>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-bold text-slate-700">Item Type *</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, type: 'PRODUCT' })}
+                                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${(formData.type || 'PRODUCT') === 'PRODUCT'
+                                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                                                    : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
+                                                }`}
+                                        >
+                                            <FaBox className="text-xl" />
+                                            <span className="text-xs font-black uppercase tracking-tight">Product</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, type: 'SERVICE' })}
+                                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.type === 'SERVICE'
+                                                    ? 'border-purple-600 bg-purple-50 text-purple-600'
+                                                    : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
+                                                }`}
+                                        >
+                                            <FaPlus className="text-xl rotate-45" />
+                                            <span className="text-xs font-black uppercase tracking-tight">Service</span>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">HSN/SAC Code</label>

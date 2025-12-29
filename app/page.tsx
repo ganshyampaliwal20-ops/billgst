@@ -94,7 +94,7 @@ export default function LandingPage() {
 
         {/* Greeting Section */}
         <div className="py-2">
-          <h2 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight">
+          <h2 className="text-2xl md:text-4xl font-black text-slate-800 tracking-tight">
             {getGreeting()}, <span className="text-orange-500">{businessProfile.name || 'Owner'}</span>! 👋
           </h2>
         </div>
@@ -103,31 +103,31 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slideUp">
           {/* New Invoice */}
           <Link href="/dashboard/invoices/new" className="group">
-            <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 h-[180px] md:h-[220px] rounded-[35px] text-white flex flex-col items-center justify-center gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.4)] active:scale-95 border-b-[8px] border-indigo-900 border-x border-t border-white/10">
-              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FaReceipt className="text-3xl md:text-4xl" />
+            <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 h-[140px] md:h-[180px] rounded-[35px] text-white flex flex-col items-center justify-center gap-4 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.4)] active:scale-95 border-b-[8px] border-indigo-900 border-x border-t border-white/10">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <FaReceipt className="text-2xl md:text-3xl" />
               </div>
-              <span className="text-xl md:text-2xl font-black uppercase tracking-tight italic">{t.newInvoice}</span>
+              <span className="text-lg md:text-xl font-black uppercase tracking-tight italic">{t.newInvoice}</span>
             </div>
           </Link>
 
           {/* Add Customer */}
           <Link href="/dashboard/customers" className="group">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-700 h-[180px] md:h-[220px] rounded-[35px] text-white flex flex-col items-center justify-center gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.4)] active:scale-95 border-b-[8px] border-emerald-900 border-x border-t border-white/10">
-              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FaUserPlus className="text-3xl md:text-4xl" />
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-700 h-[140px] md:h-[180px] rounded-[35px] text-white flex flex-col items-center justify-center gap-4 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.4)] active:scale-95 border-b-[8px] border-emerald-900 border-x border-t border-white/10">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <FaUserPlus className="text-2xl md:text-3xl" />
               </div>
-              <span className="text-xl md:text-2xl font-black uppercase tracking-tight italic">{t.addCustomer}</span>
+              <span className="text-lg md:text-xl font-black uppercase tracking-tight italic">{t.addCustomer}</span>
             </div>
           </Link>
 
           {/* Add Product */}
           <Link href="/dashboard/inventory" className="group">
-            <div className="bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed] h-[180px] md:h-[220px] rounded-[35px] text-white flex flex-col items-center justify-center gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.4)] active:scale-95 border-b-[8px] border-violet-900 border-x border-t border-white/10">
-              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FaBox className="text-3xl md:text-4xl" />
+            <div className="bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed] h-[140px] md:h-[180px] rounded-[35px] text-white flex flex-col items-center justify-center gap-4 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(139,92,246,0.4)] active:scale-95 border-b-[8px] border-violet-900 border-x border-t border-white/10">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <FaBox className="text-2xl md:text-3xl" />
               </div>
-              <span className="text-xl md:text-2xl font-black uppercase tracking-tight italic">{t.addProduct}</span>
+              <span className="text-lg md:text-xl font-black uppercase tracking-tight italic">{t.addProduct}</span>
             </div>
           </Link>
         </div>
@@ -209,18 +209,7 @@ export default function LandingPage() {
 
       </main>
 
-      {/* Hidden Keywords for SEO */}
-      <div className="hidden">
-        <h1>Free GST Billing Software India</h1>
-        <p>Best invoice maker for small business, stock management app, inventory software, udhar track, billing app hindi marathi tamil.</p>
-        <h2>Benefits of BillGST</h2>
-        <ul>
-          <li>Create Professional GST Invoices</li>
-          <li>Manage Customer Udhar and Khata</li>
-          <li>Track Inventory and Low Stock Alerts</li>
-          <li>Detailed Sales and Profit Reports</li>
-        </ul>
-      </div>
+      {/* SEO metadata is already in layout.tsx */}
     </div>
   );
 }
