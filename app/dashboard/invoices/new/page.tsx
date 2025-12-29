@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from '@/app/dashboard/RegistrationPopup';
+import LoginPrompt from '@/app/components/LoginPrompt';
+import { useSession } from 'next-auth/react';
 
 // Proper UUID v4 generator (compatible with PostgreSQL UUID type)
 function generateId() {
@@ -26,6 +28,7 @@ function generateId() {
 
 export default function NewInvoicePage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     // Select state individually to prevent destructuring errors
     const customers = useStore((state: any) => state.customers);
@@ -35,6 +38,7 @@ export default function NewInvoicePage() {
     const settings = useStore((state: any) => state.settings);
 
     const [isClient, setIsClient] = useState(false);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
     // Get translations
     const t = translations[settings.language as keyof typeof translations] || translations.en;
@@ -144,6 +148,12 @@ export default function NewInvoicePage() {
         e.preventDefault();
 
         if (isSubmitting) return;
+
+        // Check authentication before proceeding
+        if (!session?.user) {
+            setShowLoginPrompt(true);
+            return;
+        }
 
         if (!customerId) {
             toast.error('Please select a customer');
@@ -575,6 +585,14 @@ export default function NewInvoicePage() {
 
             {/* Registration Popup for Unauthenticated Users */}
             <RegistrationPopup />
+
+            {/* Login Prompt Modal */}
+            {showLoginPrompt && (
+                <LoginPrompt
+                    message="Please login to save invoices permanently. Your data will be securely stored and accessible from any device."
+                    returnUrl="/dashboard/invoices/new"
+                />
+            )}
         </div>
     );
 

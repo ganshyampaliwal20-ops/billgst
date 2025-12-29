@@ -7,7 +7,8 @@ import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
-    FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt
+    FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
+    FaSignInAlt, FaUserPlus
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -35,6 +36,8 @@ export default function DashboardLayout({
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
         { icon: FaCog, label: t.settings, href: '/dashboard/settings' },
+        { icon: FaSignInAlt, label: 'Login', href: '/login', isAuth: true },
+        { icon: FaUserPlus, label: 'Sign Up', href: '/register', isAuth: true },
     ];
 
     const handleLogout = () => {
@@ -84,7 +87,7 @@ export default function DashboardLayout({
 
                     {/* Navigation - Standard list with moderate spacing */}
                     <nav className="flex-1 px-4 py-6 space-y-4 overflow-y-auto">
-                        {menuItems.map((item) => {
+                        {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
                             return (
@@ -122,6 +125,25 @@ export default function DashboardLayout({
                                 </Link>
                             );
                         })}
+
+                        {/* Auth Links Section */}
+                        <div className="pt-4 mt-4 border-t border-slate-200">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">Account</p>
+                            {menuItems.filter(item => item.isAuth).map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setIsSidebarOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all font-semibold group mb-2"
+                                    >
+                                        <Icon className="text-lg group-hover:scale-110 transition-transform" />
+                                        <span className="text-sm">{item.label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </nav>
 
                     {/* User Profile / Business Info */}
