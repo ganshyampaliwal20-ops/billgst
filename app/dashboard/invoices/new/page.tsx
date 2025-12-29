@@ -89,22 +89,24 @@ export default function NewInvoicePage() {
         const duplicateId = params.get('duplicateId');
 
         if (duplicateId && !isDuplicating) {
-            const invoices = useStore.getState().invoices;
+            const invoices = useStore.getState().invoices || [];
             const sourceInvoice = invoices.find((inv: any) => inv.id === duplicateId);
 
             if (sourceInvoice) {
                 setIsDuplicating(true);
-                setCustomerId(sourceInvoice.customer_id);
+                setCustomerId(sourceInvoice.customer_id || '');
                 setPaidAmount(sourceInvoice.paid_amount?.toString() || '');
                 setNotes(sourceInvoice.notes || '');
-                setSelectedItems(sourceInvoice.items.map((item: any) => ({
+
+                const items = Array.isArray(sourceInvoice.items) ? sourceInvoice.items : [];
+                setSelectedItems(items.map((item: any) => ({
                     ...item,
                     product_id: item.product_id || '',
-                    product_name: item.product_name,
-                    quantity: item.quantity,
-                    unit_price: item.unit_price,
-                    gst_rate: item.gst_rate || 18,
-                    hsn_code: item.hsn_code,
+                    product_name: item.product_name || 'Unnamed Item',
+                    quantity: item.quantity || 1,
+                    unit_price: item.unit_price || 0,
+                    gst_rate: item.gst_rate ?? 18,
+                    hsn_code: item.hsn_code || '',
                     unit: item.unit || 'PCS',
                     type: item.type || 'PRODUCT'
                 })));
