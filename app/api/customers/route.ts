@@ -8,7 +8,7 @@ export async function GET() {
     try {
         const session: any = await getServerSession(authOptions as any);
         if (!session?.user?.id) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
         }
 
         const client = await pool.connect();
@@ -30,8 +30,7 @@ export async function POST(request: Request) {
     });
 
     if (!session?.user?.id) {
-        console.error('Customer API Error: Unauthorized access attempt');
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
     }
 
     const userId = session.user.id;

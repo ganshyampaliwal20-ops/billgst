@@ -140,6 +140,20 @@ body {
   }
 }
 
+@keyframes shine {
+  from {
+    transform: translateX(-100%) skewX(-12deg);
+  }
+
+  to {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+.animate-shine {
+  animation: shine 1.5s ease-in-out infinite;
+}
+
 .animate-slideUp {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
