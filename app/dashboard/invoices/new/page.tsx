@@ -172,11 +172,15 @@ export default function NewInvoicePage() {
         setSelectedItems(newItems);
     };
 
-    // Calculate Totals
+    // Calculate Totals Safely
     const calculateTotals = () => {
-        return selectedItems.reduce((acc, item) => {
-            const amount = item.quantity * item.unit_price;
-            const gstAmount = (amount * item.gst_rate) / 100;
+        return (selectedItems || []).reduce((acc, item) => {
+            const quantity = Number(item?.quantity) || 0;
+            const unit_price = Number(item?.unit_price) || 0;
+            const gst_rate = Number(item?.gst_rate) || 0;
+
+            const amount = quantity * unit_price;
+            const gstAmount = (amount * gst_rate) / 100;
             return {
                 subtotal: acc.subtotal + amount,
                 gst: acc.gst + gstAmount,
