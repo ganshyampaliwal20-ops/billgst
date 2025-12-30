@@ -36,6 +36,7 @@ export default function InvoicesPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isClient, setIsClient] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+    const [showShareSheet, setShowShareSheet] = useState<Invoice | null>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -69,8 +70,6 @@ export default function InvoicesPage() {
             String(invoiceNumber).toLowerCase().includes(searchTerm.toLowerCase())
         );
     });
-
-    const [showShareSheet, setShowShareSheet] = useState<Invoice | null>(null);
 
     const handleDuplicate = (e: React.MouseEvent, invoice: Invoice) => {
         e.stopPropagation();
