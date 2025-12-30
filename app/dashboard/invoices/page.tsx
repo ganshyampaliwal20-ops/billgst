@@ -114,8 +114,15 @@ export default function InvoicesPage() {
             }
             throw new Error('Native file sharing not supported');
 
-        } catch (e) {
+        } catch (e: any) {
             console.log('Native sharing failed, falling back to download + web share', e);
+            // Debugging: Alert the user on mobile if sharing fails so we know WHY
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                // Only alert if it's NOT just "not supported" to avoid annoyance
+                if (e.message !== 'Native file sharing not supported' && !e.message.includes('abort')) {
+                    alert(`Share Error: ${e.message}. Downloading file instead.`);
+                }
+            }
 
             // Fallback: Download PDF & Open WhatsApp
             if (doc) {
