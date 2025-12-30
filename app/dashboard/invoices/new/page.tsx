@@ -10,6 +10,7 @@ import { translations } from '@/lib/translations';
 import RegistrationPopup from '@/app/dashboard/RegistrationPopup';
 import LoginPrompt from '@/app/components/LoginPrompt';
 import { useSession } from 'next-auth/react';
+import { calculateInvoiceTotal } from '@/lib/gst-calculator';
 
 // Proper UUID v4 generator (compatible with PostgreSQL UUID type)
 function generateId() {
@@ -227,43 +228,15 @@ export default function NewInvoicePage() {
             toast.error('Please select a customer');
             return;
         }
-        if (selectedItems.length === 0) {
+        if ((selectedItems || []).length === 0) {
             toast.error('Please add at least one item');
             return;
         }
 
-
         // Validate all items have products selected
-        const hasEmptyProducts = selectedItems.some(item => !item.product_id);
+        const hasEmptyProducts = selectedItems.some(item => !item?.product_id);
         if (hasEmptyProducts) {
             toast.error('Please select a product for all items');
-            return;
-        }
-
-        // Check stock availability for each product
-        const outOfStockItems = [];
-        for (const item of selectedItems) {
-            // Skip stock check for Services
-            if (item.type === 'SERVICE') continue;
-
-            const product = products.find((p: any) => p.id === item.product_id);
-            if (product) {
-                const availableStock = product.stock_quantity || 0;
-                if (availableStock < item.quantity) {
-                    outOfStockItems.push({
-                        name: item.product_name,
-                        requested: item.quantity,
-                        available: availableStock
-                    });
-                }
-            }
-        }
-
-        if (outOfStockItems.length > 0) {
-            const errorMessage = outOfStockItems.map(item =>
-                `${item.name}: ${item.requested} requested but only ${item.available} available`
-            ).join('\n');
-            toast.error(`Stock not available:\n${errorMessage}`, { duration: 5000 });
             return;
         }
 
@@ -274,79 +247,87 @@ export default function NewInvoicePage() {
 
             // Add total_amount to each item for PDF generation
             const itemsWithTotals = selectedItems.map(item => {
-                const itemSubtotal = item.quantity * item.unit_price;
-                const itemGST = (itemSubtotal * item.gst_rate) / 100;
+                const quantity = Number(item?.quantity) || 0;
+                const unitPrice = Number(item?.unit_price) || 0;
+                const gstRate = Number(item?.gst_rate) || 0;
+
+                const itemSubtotal = quantity * unitPrice;
+                const itemGST = (itemSubtotal * gstRate) / 100;
                 return {
                     ...item,
+                    quantity,
+                    unit_price: unitPrice,
+                    gst_rate: gstRate,
                     total_amount: itemSubtotal + itemGST
                 };
             });
 
-            // Calculate GST breakdown using utility function
-            const { calculateInvoiceTotal } = await import('@/lib/gst-calculator');
-            const gstBreakdown = calculateInvoiceTotal(selectedItems, false); // false = intra-state (CGST+SGST)
+            // Calculate GST breakdown using statically imported utility
+            const gstBreakdown = calculateInvoiceTotal(selectedItems, false);
 
             // Calculate Status
-            const totalAmount = gstBreakdown.total_amount;
+            const totalAmount = Number(gstBreakdown.total_amount) || 0;
             const paid = parseFloat(paidAmount) || 0;
             let status = 'UNPAID';
-            if (paid >= totalAmount) status = 'PAID';
+            if (paid >= totalAmount && totalAmount > 0) status = 'PAID';
             else if (paid > 0) status = 'PARTIAL';
 
             const newInvoice = {
                 id: generateId(),
-                invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+                invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000).toString()}`,
                 customer: {
                     id: customerId,
                     name: customer?.name || 'Unknown',
-                    email: customer?.email,
-                    address: customer?.address,
-                    gstin: customer?.gstin
+                    email: customer?.email || '',
+                    address: customer?.address || '',
+                    gstin: customer?.gstin || ''
                 },
                 invoice_date: invoiceDate,
                 items: itemsWithTotals,
-                subtotal: gstBreakdown.subtotal,
-                cgst_amount: gstBreakdown.cgst_amount,
-                sgst_amount: gstBreakdown.sgst_amount,
-                igst_amount: gstBreakdown.igst_amount,
-                total_amount: gstBreakdown.total_amount,
+                subtotal: Number(gstBreakdown.subtotal) || 0,
+                cgst_amount: Number(gstBreakdown.cgst_amount) || 0,
+                sgst_amount: Number(gstBreakdown.sgst_amount) || 0,
+                igst_amount: Number(gstBreakdown.igst_amount) || 0,
+                total_amount: totalAmount,
                 paid_amount: paid,
                 payment_status: status,
-                total_tax: gstBreakdown.cgst_amount + gstBreakdown.sgst_amount + gstBreakdown.igst_amount,
+                total_tax: (Number(gstBreakdown.cgst_amount) || 0) + (Number(gstBreakdown.sgst_amount) || 0) + (Number(gstBreakdown.igst_amount) || 0),
                 status: status,
-                notes: notes,
+                notes: notes || '',
                 // Compliance fields
-                eway_bill_no: ewayBill.no,
-                eway_bill_date: ewayBill.date,
-                transport_mode: ewayBill.mode,
-                distance: parseInt(ewayBill.distance) || null,
-                transporter_name: ewayBill.transporterName,
-                transporter_id: ewayBill.transporterId,
-                vehicle_no: ewayBill.vehicleNo,
-                irn: eInvoice.irn,
-                ack_no: eInvoice.ackNo,
-                ack_date: eInvoice.ackDate,
-                signed_qrcode: eInvoice.qrCode,
+                eway_bill_no: ewayBill?.no || null,
+                eway_bill_date: ewayBill?.date || null,
+                transport_mode: ewayBill?.mode || 'Road',
+                distance: parseInt(ewayBill?.distance) || null,
+                transporter_name: ewayBill?.transporterName || '',
+                transporter_id: ewayBill?.transporterId || '',
+                vehicle_no: ewayBill?.vehicleNo || '',
+                irn: eInvoice?.irn || null,
+                ack_no: eInvoice?.ackNo || null,
+                ack_date: eInvoice?.ackDate || null,
+                signed_qrcode: eInvoice?.qrCode || null,
                 created_at: new Date().toISOString()
             };
+
+            console.log('Submission Debug: Attempting to save invoice', newInvoice);
 
             // Properly await the async call
             const result = await addInvoice(newInvoice);
 
-            // addInvoice already shows toast and navigates on success
-            // Only navigate if result is successful
             if (result?.success || result?.id) {
                 toast.success('Invoice created successfully!');
-                router.push('/dashboard/invoices');
-            } else if (result?.error) {
-                toast.error(`Failed: ${result.error}`);
+                // Small delay to let store update
+                setTimeout(() => {
+                    router.push('/dashboard/invoices');
+                }, 500);
             } else {
-                console.error('Save Invoice Failed with Unknown Result:', result);
-                toast.error(`Failed: ${JSON.stringify(result)}`);
+                const errorMsg = result?.error || 'Unknown server error';
+                console.error('Invoice Save Failed:', result);
+                toast.error(`Error: ${errorMsg}`);
             }
         } catch (error: any) {
-            console.error('Submission Error:', error);
-            toast.error('Something went wrong. Please try again.');
+            console.error('Submission Crash:', error);
+            toast.error(`Fatal error: ${error.message || 'Please check console'}`);
         } finally {
             setIsSubmitting(false);
         }
