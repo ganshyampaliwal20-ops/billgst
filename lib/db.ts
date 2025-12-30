@@ -209,19 +209,26 @@ export const initDB = async () => {
 
     try {
       await client.query(`
-        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS eway_bill_no VARCHAR(20),
-        ADD COLUMN IF NOT EXISTS eway_bill_date TIMESTAMP,
-        ADD COLUMN IF NOT EXISTS transport_mode VARCHAR(20),
-        ADD COLUMN IF NOT EXISTS distance INTEGER,
-        ADD COLUMN IF NOT EXISTS transporter_name VARCHAR(255),
-        ADD COLUMN IF NOT EXISTS transporter_id VARCHAR(50),
-        ADD COLUMN IF NOT EXISTS vehicle_no VARCHAR(20),
-        ADD COLUMN IF NOT EXISTS irn VARCHAR(100),
-        ADD COLUMN IF NOT EXISTS ack_no VARCHAR(50),
-        ADD COLUMN IF NOT EXISTS ack_date TIMESTAMP,
-        ADD COLUMN IF NOT EXISTS signed_qrcode TEXT;
+        -- Invoice Columns
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cgst_amount DECIMAL(10,2) DEFAULT 0;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sgst_amount DECIMAL(10,2) DEFAULT 0;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS igst_amount DECIMAL(10,2) DEFAULT 0;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS eway_bill_no VARCHAR(20);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS eway_bill_date TIMESTAMP;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS transport_mode VARCHAR(20);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS distance INTEGER;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS transporter_name VARCHAR(255);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS transporter_id VARCHAR(50);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS vehicle_no VARCHAR(20);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS irn VARCHAR(100);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS ack_no VARCHAR(50);
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS ack_date TIMESTAMP;
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS signed_qrcode TEXT;
+        
+        -- Customer Columns (Ensure consistency)
+        ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
       `);
-    } catch (e) { console.log('Migration note: checked invoices compliance fields'); }
+    } catch (e) { console.log('Migration note: checked invoices & customers columns'); }
 
     console.log('Database tables created/verified successfully');
   } finally {
