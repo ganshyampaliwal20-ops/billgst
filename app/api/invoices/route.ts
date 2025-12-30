@@ -80,8 +80,8 @@ export async function POST(request: Request) {
             id, invoice_number, customer_id, invoice_date, due_date, 
             subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
             paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
-            transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, NOW())
+            transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, NOW())
         RETURNING id
     `, [
             data.id,
@@ -108,7 +108,8 @@ export async function POST(request: Request) {
             data.irn || null,
             data.ack_no || null,
             data.ack_date || null,
-            data.signed_qrcode || null
+            data.signed_qrcode || null,
+            data.type || 'TAX_INVOICE'
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
@@ -165,6 +166,7 @@ export async function POST(request: Request) {
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cgst_amount DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sgst_amount DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS igst_amount DECIMAL(10,2) DEFAULT 0;
+                    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'TAX_INVOICE';
                 `);
                 console.log('Invoice API: Auto-migration successful. Retrying insertion...');
 
@@ -175,8 +177,8 @@ export async function POST(request: Request) {
                         id, invoice_number, customer_id, invoice_date, due_date, 
                         subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
                         paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
-                        transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, NOW())
+                        transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, NOW())
                     RETURNING id
                 `, [
                     data.id,
@@ -203,7 +205,8 @@ export async function POST(request: Request) {
                     data.irn || null,
                     data.ack_no || null,
                     data.ack_date || null,
-                    data.signed_qrcode || null
+                    data.signed_qrcode || null,
+                    data.type || 'TAX_INVOICE'
                 ]);
 
                 const invoiceId = invoiceResult.rows[0].id;

@@ -6,6 +6,7 @@ import { FaFilePdf, FaWhatsapp, FaTrash, FaPlus, FaSearch, FaFileInvoiceDollar }
 import Link from 'next/link';
 import { generateInvoicePDF } from '@/lib/pdf-generator';
 import { toast } from 'react-hot-toast';
+import { DOC_LABELS, DOC_TYPES } from '@/lib/constants';
 
 interface InvoiceItem {
     product_name: string;
@@ -25,6 +26,7 @@ interface Invoice {
     status: string;
     paid_amount: number;
     items: InvoiceItem[];
+    type?: string;
 }
 
 export default function InvoicesPage() {
@@ -88,23 +90,74 @@ export default function InvoicesPage() {
         }
     };
 
-    const handleShareWhatsApp = (invoice: Invoice) => {
+    const handleShareWhatsApp = async (invoice: Invoice) => {
         if (!invoice) return;
+
+        // Try to share as file first (Modern Mobile Browsers)
+        try {
+            const doc = generateInvoicePDF(invoice, businessProfile, false);
+            if (!doc) throw new Error('PDF Generation Failed');
+
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], `Invoice-${invoice.invoice_number || 'Bill'}.pdf`, { type: 'application/pdf' });
+
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: `Invoice ${invoice.invoice_number}`,
+                    text: `Invoice from ${businessProfile.name || 'Our Business'}`
+                });
+                return;
+            }
+        } catch (e) {
+            console.log('File share failed, falling back to link share', e);
+        }
+
+        // Fallback: Just text with WhatsApp Deep Link
         const bName = String(businessProfile?.name || 'Your Business').toUpperCase();
         const invNo = String(invoice.invoice_number || 'N/A');
-        const invDate = invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN') : 'N/A';
-        const custName = String(invoice.customer?.name || 'Customer');
         const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
-
-        const text = `*INVOICE FROM ${bName}*\n\nInvoice No: ${invNo}\nDate: ${invDate}\nCustomer: ${custName}\n\n*Total Amount: ₹${total}*\n\nPowered by BillGST.in`;
+        const text = `*INVOICE FROM ${bName}*\n\nInvoice No: ${invNo}\n*Amount: Rs. ${total}*\n\nSent via BillGST.in`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         toast.success('Opening WhatsApp...');
+    };
+
+    const handleShareMore = async (invoice: Invoice) => {
+        if (!invoice) return;
+        try {
+            const doc = generateInvoicePDF(invoice, businessProfile, false);
+            if (!doc) throw new Error('PDF Generation Failed');
+
+            const pdfBlob = doc.output('blob');
+            const fileName = `Invoice-${invoice.invoice_number || 'Bill'}.pdf`;
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+            if (navigator.share) {
+                const shareData: any = {
+                    title: `Invoice ${invoice.invoice_number}`,
+                    text: `Please find the invoice attached from ${businessProfile.name || 'Our Business'}`,
+                };
+
+                // Add file if supported
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    shareData.files = [file];
+                }
+
+                await navigator.share(shareData);
+            } else {
+                handleDownload(null, invoice);
+                toast.error('Share not supported. PDF downloaded.');
+            }
+        } catch (e) {
+            console.error('Share error:', e);
+            toast.error('Sharing failed');
+        }
     };
 
     const handleShareSMS = (invoice: Invoice) => {
         if (!invoice) return;
         const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
-        const text = `Invoice ${invoice.invoice_number || 'N/A'} for ₹${total} from ${businessProfile?.name || 'Our Business'}. Checkout at BillGST.in`;
+        const text = `Invoice ${invoice.invoice_number || 'N/A'} for Rs. ${total} from ${businessProfile?.name || 'Our Business'}. Powered by BillGST.in`;
         window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
 
@@ -177,7 +230,12 @@ export default function InvoicesPage() {
                                             className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
                                         >
                                             <td className="py-4 px-6 text-sm font-bold text-blue-600">
-                                                {invoice.invoice_number || 'N/A'}
+                                                <div className="flex flex-col">
+                                                    <span>{invoice.invoice_number || 'N/A'}</span>
+                                                    <span className="text-[10px] text-gray-400 font-medium px-1.5 py-0.5 bg-gray-100 rounded-md w-fit">
+                                                        {DOC_LABELS[invoice.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 <div className="flex flex-col">
@@ -255,7 +313,12 @@ export default function InvoicesPage() {
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <h3 className="font-bold text-gray-800 text-lg">{invoice.customer?.name || 'Unknown'}</h3>
-                                            <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number || 'N/A'}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number || 'N/A'}</p>
+                                                <span className="text-[10px] text-indigo-500 font-bold bg-indigo-50 px-2 rounded-full">
+                                                    {DOC_LABELS[invoice.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-lg font-bold text-gray-900">₹{(Number(invoice.total_amount) || 0).toLocaleString('en-IN')}</p>
@@ -381,8 +444,8 @@ export default function InvoicesPage() {
                                     <span className="text-[10px] font-bold text-slate-500 uppercase">PDF</span>
                                 </button>
 
-                                <button className="flex flex-col items-center gap-3 group opacity-50">
-                                    <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
+                                <button onClick={() => handleShareMore(showShareSheet)} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center hover:bg-slate-200 transition-all border border-slate-200">
                                         <span className="text-2xl font-bold">...</span>
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-500 uppercase">More</span>

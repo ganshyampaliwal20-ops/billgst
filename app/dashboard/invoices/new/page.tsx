@@ -11,6 +11,7 @@ import RegistrationPopup from '@/app/dashboard/RegistrationPopup';
 import LoginPrompt from '@/app/components/LoginPrompt';
 import { useSession } from 'next-auth/react';
 import { calculateInvoiceTotal } from '@/lib/gst-calculator';
+import { DOC_TYPES, DOC_LABELS } from '@/lib/constants';
 
 // Proper UUID v4 generator (compatible with PostgreSQL UUID type)
 function generateId() {
@@ -53,6 +54,7 @@ export default function NewInvoicePage() {
     const [notes, setNotes] = useState('');
     const [showPaymentInput, setShowPaymentInput] = useState(false);
     const [showCompliance, setShowCompliance] = useState(false);
+    const [docType, setDocType] = useState<string>(DOC_TYPES.TAX_INVOICE);
 
     // Compliance State
     const [ewayBill, setEwayBill] = useState({
@@ -88,6 +90,11 @@ export default function NewInvoicePage() {
         // Handle Duplication logic
         const params = new URLSearchParams(window.location.search);
         const duplicateId = params.get('duplicateId');
+        const typeParam = params.get('type');
+
+        if (typeParam && Object.values(DOC_TYPES).includes(typeParam)) {
+            setDocType(typeParam);
+        }
 
         if (duplicateId && !isDuplicating) {
             const invoices = useStore.getState().invoices || [];
@@ -129,6 +136,13 @@ export default function NewInvoicePage() {
             }
         }
     }, [isDuplicating]);
+
+    // Auto-expand compliance for E-Way Bill
+    useEffect(() => {
+        if (docType === DOC_TYPES.E_WAY_BILL) {
+            setShowCompliance(true);
+        }
+    }, [docType]);
 
     // Safety checks for arrays - Filter out nulls/undefined items
     const rawCustomers = Array.isArray(customers) ? customers : [];
@@ -306,6 +320,7 @@ export default function NewInvoicePage() {
                 ack_no: eInvoice?.ackNo || null,
                 ack_date: eInvoice?.ackDate || null,
                 signed_qrcode: eInvoice?.qrCode || null,
+                type: docType,
                 created_at: new Date().toISOString()
             };
 
@@ -349,6 +364,30 @@ export default function NewInvoicePage() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8 mx-2 sm:mx-0">
+                {/* Document Type Selector */}
+                <div className="space-y-4">
+                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">Document Type</label>
+                    <div className="flex flex-wrap gap-3">
+                        {Object.values(DOC_TYPES).map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => setDocType(type)}
+                                className={`
+                                    flex-1 min-w-[140px] px-6 py-4 rounded-xl font-bold transition-all border-b-4
+                                    ${docType === type
+                                        ? 'bg-indigo-600 text-white border-indigo-800 shadow-lg -translate-y-0.5'
+                                        : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                                    }
+                                `}
+                            >
+                                {DOC_LABELS[type]}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <hr className="border-gray-100" />
+
                 {/* Customer & Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Customer Selection */}
