@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { signOut } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
@@ -23,9 +23,16 @@ export default function DashboardLayout({
     const router = useRouter();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     // Get store values
     const { businessProfile, resetStore, settings } = useStore();
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
 
     // Get current translations based on store setting
     const t = translations[settings.language as keyof typeof translations] || translations.en;
