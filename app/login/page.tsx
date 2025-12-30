@@ -5,7 +5,6 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
-import { FaUser, FaLock } from 'react-icons/fa';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -31,7 +30,7 @@ export default function LoginPage() {
                 toast.error('Invalid email or password');
             } else {
                 toast.success('Login successful!');
-                router.push('/dashboard');
+                router.push('/dashboard'); // Or back to landing page if needed
             }
         } catch (error) {
             toast.error('Something went wrong');
@@ -41,96 +40,91 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4 font-sans antialiased text-white">
-            {/* Background: Purple Gradient & Stars */}
-            <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#7e22ce] via-[#6b21a8] to-[#1e1b4b]">
-                {/* Floating Stars Layer */}
-                <div className="absolute inset-0 opacity-40 bg-[radial-gradient(1px_1px_at_20px_30px,#fff,transparent),radial-gradient(1px_1px_at_40px_70px,#fff,transparent),radial-gradient(2px_2px_at_50px_160px,#fff,transparent),radial-gradient(2px_2px_at_80px_120px,#fff,transparent),radial-gradient(1px_1px_at_110px_210px,#fff,transparent),radial-gradient(2px_2px_at_150px_180px,#fff,transparent)] bg-[length:200px_250px] animate-pulse"></div>
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(1px_1px_at_10px_10px,#fff,transparent),radial-gradient(1.5px_1.5px_at_100px_100px,#fff,transparent),radial-gradient(2px_2px_at_200px_200px,#fff,transparent)] bg-[length:400px_400px]"></div>
-            </div>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans text-slate-900">
+            <div className="py-6 px-4 w-full">
+                <div className="grid lg:grid-cols-2 items-center gap-6 max-w-6xl w-full mx-auto">
+                    <div className="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-lg:mx-auto w-full">
+                        <form className="space-y-6" onSubmit={handleSubmit}>
+                            <div className="mb-12">
+                                <h1 className="text-slate-900 text-3xl font-semibold">Sign in</h1>
+                                <p className="text-slate-600 text-[15px] mt-6 leading-relaxed">Sign in to your account and explore a world of possibilities. Your journey begins here.</p>
+                            </div>
 
-            {/* Mountains Silhouette (Simple SVG) */}
-            <div className="absolute bottom-0 w-full z-10 pointer-events-none opacity-80">
-                <svg viewBox="0 0 1000 320" className="w-full h-auto translate-y-2">
-                    <path
-                        fill="#0f172a"
-                        fillOpacity="1"
-                        d="M0,224L48,213.3C96,203,192,181,288,186.7C384,192,480,224,576,218.7C672,213,768,171,864,160C960,149,1056,171,1152,192C1248,213,1344,235,1392,245.3L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-                    ></path>
-                    <path
-                        fill="#1e1b4b"
-                        fillOpacity="0.8"
-                        d="M0,288L60,277.3C120,267,240,245,360,245.3C480,245,600,267,720,272C840,277,960,267,1080,250.7C1200,235,1320,213,1380,202.7L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
-                    ></path>
-                </svg>
-            </div>
+                            <div>
+                                <label className="text-slate-900 text-sm font-medium mb-2 block">User name</label>
+                                <div className="relative flex items-center">
+                                    <input
+                                        name="email"
+                                        type="text"
+                                        required
+                                        className="w-full text-sm text-slate-900 border border-slate-300 pl-4 pr-10 py-3 rounded-lg outline-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                                        placeholder="Enter user name"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        disabled={isLoading}
+                                    />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#bbb" stroke="#bbb" className="w-[18px] h-[18px] absolute right-4 pointer-events-none" viewBox="0 0 24 24">
+                                        <circle cx="10" cy="7" r="6" data-original="#000000"></circle>
+                                        <path d="M14 15H6a5 5 0 0 0-5 5 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 5 5 0 0 0-5-5zm8-4h-2.59l.3-.29a1 1 0 0 0-1.42-1.42l-2 2a1 1 0 0 0 0 1.42l2 2a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42l-.3-.29H22a1 1 0 0 0 0-2z" data-original="#000000"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-slate-900 text-sm font-medium mb-2 block">Password</label>
+                                <div className="relative flex items-center">
+                                    <input
+                                        name="password"
+                                        type="password"
+                                        required
+                                        className="w-full text-sm text-slate-900 border border-slate-300 pl-4 pr-10 py-3 rounded-lg outline-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                                        placeholder="Enter password"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        disabled={isLoading}
+                                    />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="#bbb" stroke="#bbb" className="w-[18px] h-[18px] absolute right-4 cursor-pointer" viewBox="0 0 128 128">
+                                        <path d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104zM8.707 63.994C13.465 71.205 32.146 96 64 96c31.955 0 50.553-24.775 55.293-31.994C114.535 56.795 95.854 32 64 32 32.045 32 13.447 56.775 8.707 63.994zM64 88c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm0-40c-8.822 0-16 7.178-16 16s7.178 16 16 16 16-7.178 16-16-7.178-16-16-16z" data-original="#000000"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex items-center">
+                                    <input
+                                        id="remember-me"
+                                        name="remember-me"
+                                        type="checkbox"
+                                        className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                                        checked={formData.rememberMe}
+                                        onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+                                    />
+                                    <label htmlFor="remember-me" className="ml-3 block text-sm text-slate-900 cursor-pointer">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <div className="text-sm">
+                                    <Link href="/forgot-password" className="text-blue-600 hover:underline font-medium">
+                                        Forgot your password?
+                                    </Link>
+                                </div>
+                            </div>
 
-            {/* Login Glass Card */}
-            <div className="relative z-20 w-full max-w-[560px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-[40px] p-20 md:p-16 shadow-2xl animate-fadeIn">
-                <h1 className="text-4xl font-extrabold text-center mb-16 tracking-tight">Login</h1>
-
-                <form onSubmit={handleSubmit} className="space-y-12">
-                    {/* Username/Email Input */}
-                    <div className="relative">
-                        <input
-                            type="email"
-                            required
-                            placeholder="Username"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full bg-transparent border-2 border-white/50 rounded-full px-20 py-5 outline-none focus:border-white transition-all text-xl placeholder:text-white/60 pr-16"
-                        />
-                        <FaUser className="absolute right-8 top-1/2 -translate-y-1/2 text-white/80 pointer-events-none" size={20} />
+                            <div className="!mt-12">
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full shadow-xl py-2.5 px-4 text-[15px] font-medium tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {isLoading ? 'Signing in...' : 'Sign in'}
+                                </button>
+                                <p className="text-sm !mt-6 text-center text-slate-600">Don't have an account <Link href="/register" className="text-blue-600 font-medium hover:underline ml-1 whitespace-nowrap">Register here</Link></p>
+                            </div>
+                        </form>
                     </div>
 
-                    {/* Password Input */}
-                    <div className="relative">
-                        <input
-                            type="password"
-                            required
-                            placeholder="Password"
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="w-full bg-transparent border-2 border-white/50 rounded-full px-10 py-5 outline-none focus:border-white transition-all text-xl placeholder:text-white/60 pr-16"
-                        />
-                        <FaLock className="absolute right-8 top-1/2 -translate-y-1/2 text-white/80 pointer-events-none" size={20} />
+                    <div className="max-lg:mt-8">
+                        <img src="https://readymadeui.com/login-image.webp" className="w-full aspect-[71/50] max-lg:w-4/5 mx-auto block object-cover" alt="login img" />
                     </div>
-
-                    {/* Remember & Forgot */}
-                    <div className="flex items-center justify-between text-[16px] px-6">
-                        <label className="flex items-center gap-4 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                className="w-6 h-6 rounded border-white/30 bg-transparent text-white focus:ring-1 focus:ring-white transition cursor-pointer"
-                                checked={formData.rememberMe}
-                                onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
-                            />
-                            <span className="group-hover:text-white/80 transition font-bold italic">Remember me</span>
-                        </label>
-                        <a href="#" className="hover:underline font-bold italic">Forgot password?</a>
-                    </div>
-
-                    {/* Login Button Container with extra large gap */}
-                    <div className="pt-6">
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-white text-slate-900 font-extrabold py-5 rounded-full hover:bg-white/90 active:scale-[0.98] transition-all text-2xl shadow-2xl tracking-wide uppercase"
-                        >
-                            {isLoading ? 'Processing...' : 'Login'}
-                        </button>
-                    </div>
-
-                    {/* Register Link */}
-                    <div className="text-center text-[18px] pt-10">
-                        <p className="font-medium text-white/80">
-                            Don't have an account?{' '}
-                            <Link href="/register" className="text-white font-black hover:underline ml-2 italic">
-                                Register
-                            </Link>
-                        </p>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     );

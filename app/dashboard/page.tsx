@@ -185,15 +185,15 @@ export default function DashboardPage() {
             </div>
 
             {/* Analytics Overview Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-2 md:mx-0 text-center flex flex-col items-center justify-center">
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-4 md:mx-0 text-center flex flex-col items-center justify-center">
                 <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
                 <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
             </div>
 
             {/* Period Filter Buttons - Separate Box */}
             <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
-                <p className="text-xs md:text-sm font-semibold text-slate-600 mb-3">{t.selectPeriod}:</p>
-                <div className="flex gap-2 md:gap-3 flex-wrap">
+                <p className="text-xs md:text-sm font-bold text-slate-800 mb-3 text-center">{t.selectPeriod}:</p>
+                <div className="flex gap-2 md:gap-3 flex-wrap justify-center">
                     {[
                         { key: 'daily', label: t.daily, activeColor: 'from-blue-500 to-cyan-500' },
                         { key: 'weekly', label: t.weekly, activeColor: 'from-purple-500 to-pink-500' },
@@ -241,8 +241,8 @@ export default function DashboardPage() {
 
             {/* Stats Cards - Premium Container (Reverted Position) */}
             <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-1">{t.businessOverview}</h1>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-4 text-center">{t.businessOverview}</h1>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2">
                     {stats.map((stat, index) => {
                         const Icon = stat.icon;
                         return (
@@ -257,7 +257,7 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Label */}
-                                <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">
+                                <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1 px-1">
                                     {stat.label}
                                 </p>
 
@@ -284,7 +284,7 @@ export default function DashboardPage() {
             {/* Setup Business Prompt - Dismissible */}
             {
                 !businessProfile.gstin && showSetupBanner && (
-                    <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative">
+                    <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative mx-4 md:mx-0">
                         <button
                             onClick={() => {
                                 setShowSetupBanner(false);
@@ -316,13 +316,13 @@ export default function DashboardPage() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 {/* Revenue Analytics - Area Chart */}
-                <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2">
-                        <div>
-                            <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.revenueAnalytics}</h2>
+                <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2 px-2">
+                        <div className="text-center sm:text-left w-full sm:w-auto">
+                            <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center sm:text-left">{t.revenueAnalytics}</h2>
                             <p className="text-[10px] md:text-xs text-slate-500 font-medium">Income vs Profit trends</p>
                         </div>
-                        <div className="flex items-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg">
+                        <div className="flex items-center justify-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg self-center sm:self-auto">
                             <div className="flex items-center gap-1">
                                 <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
                                 <span className="text-slate-600 font-medium">Sales</span>
@@ -333,9 +333,9 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div className="h-[200px] md:h-[280px] w-full">
+                    <div className="h-[200px] md:h-[280px] w-full px-2">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20 }}>
+                            <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
                                 <defs>
                                     <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
@@ -361,16 +361,16 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Weekly Sales - Bar Chart */}
-                <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <div>
-                            <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.weeklyPerformance}</h2>
+                <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
+                    <div className="flex items-center justify-center mb-4 md:mb-6">
+                        <div className="text-center">
+                            <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center">{t.weeklyPerformance}</h2>
                             <p className="text-xs text-slate-500 font-medium">Sales by day of the week</p>
                         </div>
                     </div>
-                    <div className="h-[200px] md:h-[280px] w-full">
+                    <div className="h-[200px] md:h-[280px] w-full px-2">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 20, left: -20 }}>
+                            <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
@@ -389,9 +389,9 @@ export default function DashboardPage() {
             {/* Bottom Section - Top Products & Recent Invoices */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Top Products */}
-                <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
+                <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
                     <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6 text-center">{t.topSellingProducts}</h2>
-                    <div className="space-y-4 md:space-y-5 px-2">
+                    <div className="space-y-4 md:space-y-5 px-4">
                         {topProducts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-[180px] md:h-[220px] text-center">
                                 <div className="p-3 bg-slate-50 rounded-full mb-2">
@@ -422,19 +422,19 @@ export default function DashboardPage() {
 
                 {/* Recent Invoices */}
                 <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-                    <div className="p-4 md:p-5 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
-                        <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center md:text-left w-full md:w-auto">{t.recentInvoices}</h2>
-                        <Link href="/dashboard/invoices" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline self-end md:self-auto pr-2">{t.viewReports}</Link>
+                    <div className="p-5 md:p-5 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
+                        <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center w-full md:w-auto pl-2">{t.recentInvoices}</h2>
+                        <Link href="/dashboard/invoices" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline self-end md:self-auto pr-10">{t.viewReports}</Link>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[500px]">
-                            <thead className="bg-slate-50">
+                            <thead className="bg-indigo-600 text-white">
                                 <tr>
-                                    <th className="text-left py-2.5 md:py-3 pl-6 pr-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.invoices}</th>
-                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.customer}</th>
-                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.date}</th>
-                                    <th className="text-right py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.amount}</th>
-                                    <th className="text-center py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.status}</th>
+                                    <th className="text-center py-4 px-4 pr-3 md:px-5 text-[10px] md:text-sm font-bold uppercase tracking-wider first:rounded-l-lg">{t.invoices}</th>
+                                    <th className="text-left py-4 px-3 md:px-5 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.customer}</th>
+                                    <th className="text-left py-4 px-3 md:px-5 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.date}</th>
+                                    <th className="text-right py-4 px-3 md:px-5 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.amount}</th>
+                                    <th className="text-center py-4 px-3 md:px-5 text-[10px] md:text-sm font-bold uppercase tracking-wider last:rounded-r-lg">{t.status}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -455,7 +455,7 @@ export default function DashboardPage() {
                                         };
                                         return (
                                             <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                                <td className="py-2.5 md:py-3 pl-6 pr-3 md:px-5 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
+                                                <td className="text-center py-2.5 md:py-3 px-4 pr-3 md:px-5 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
                                                 <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-700 font-medium truncate max-w-[100px]">{invoice?.customer?.name || 'Unknown'}</td>
                                                 <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-500">{safeDate(invoice?.invoice_date)}</td>
                                                 <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-900 font-bold text-right">
