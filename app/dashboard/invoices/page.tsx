@@ -182,8 +182,22 @@ export default function InvoicesPage() {
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium">{invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN') : 'N/A'}</span>
-                                                    <span className="text-xs text-gray-400">{invoice.created_at || invoice.invoice_date ? new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                                                    <span className="font-medium">
+                                                        {(() => {
+                                                            try {
+                                                                const d = new Date(invoice?.invoice_date);
+                                                                return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN');
+                                                            } catch (e) { return 'N/A'; }
+                                                        })()}
+                                                    </span>
+                                                    <span className="text-xs text-gray-400">
+                                                        {(() => {
+                                                            try {
+                                                                const d = new Date(invoice?.created_at || invoice?.invoice_date);
+                                                                return isNaN(d.getTime()) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                            } catch (e) { return ''; }
+                                                        })()}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-800 font-semibold">
@@ -257,7 +271,12 @@ export default function InvoicesPage() {
 
                                     <div className="flex justify-between items-center mt-3">
                                         <p className="text-xs text-gray-400">
-                                            {invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN') : 'N/A'}
+                                            {(() => {
+                                                try {
+                                                    const d = new Date(invoice?.invoice_date);
+                                                    return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN');
+                                                } catch (e) { return 'N/A'; }
+                                            })()}
                                         </p>
                                         <div className="flex gap-2">
                                             <button

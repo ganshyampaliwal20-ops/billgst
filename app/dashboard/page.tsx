@@ -445,19 +445,30 @@ export default function DashboardPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    invoices.slice(0, 5).map((invoice: any, index: number) => (
-                                        <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                            <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice.invoice_number}</td>
-                                            <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-700 font-medium truncate max-w-[100px]">{invoice.customer.name}</td>
-                                            <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-500">{new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</td>
-                                            <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-900 font-bold text-right">₹{invoice.total_amount >= 1000 ? (invoice.total_amount / 1000).toFixed(1) + 'k' : invoice.total_amount}</td>
-                                            <td className="py-2.5 md:py-3 px-3 md:px-5 text-center">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold bg-emerald-100 text-emerald-700">
-                                                    Paid
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    (invoices || []).slice(0, 5).map((invoice: any, index: number) => {
+                                        const safeTotal = Number(invoice?.total_amount) || 0;
+                                        const safeDate = (d: any) => {
+                                            try {
+                                                const date = new Date(d);
+                                                return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+                                            } catch (e) { return '-'; }
+                                        };
+                                        return (
+                                            <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                                <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
+                                                <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-700 font-medium truncate max-w-[100px]">{invoice?.customer?.name || 'Unknown'}</td>
+                                                <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-500">{safeDate(invoice?.invoice_date)}</td>
+                                                <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-900 font-bold text-right">
+                                                    ₹{safeTotal >= 1000 ? (safeTotal / 1000).toFixed(1) + 'k' : safeTotal.toLocaleString('en-IN')}
+                                                </td>
+                                                <td className="py-2.5 md:py-3 px-3 md:px-5 text-center">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${invoice?.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                                        {invoice?.status || 'PAID'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
