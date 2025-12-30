@@ -147,13 +147,13 @@ export default function DashboardPage() {
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <FaClock className="text-amber-500 text-sm" />
-                        <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
-                            <span suppressHydrationWarning>
+                        <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center justify-center gap-2 min-w-[160px]">
+                            <span suppressHydrationWarning className="truncate">
                                 {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
                             </span>
-                            <span className="w-1 h-1 bg-gray-300 rounded-full mx-1"></span>
-                            <span suppressHydrationWarning>
-                                {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                            <span className="w-1 h-1 bg-gray-300 rounded-full mx-1 flex-shrink-0"></span>
+                            <span suppressHydrationWarning className="whitespace-nowrap">
+                                {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
                             </span>
                         </span>
                     </div>
@@ -335,7 +335,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-[200px] md:h-[280px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={monthlyTrend}>
+                            <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20 }}>
                                 <defs>
                                     <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
@@ -370,7 +370,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-[200px] md:h-[280px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={weeklyData} barCategoryGap="20%">
+                            <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 20, left: -20 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
@@ -390,8 +390,8 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Top Products */}
                 <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-4 md:p-6">
-                    <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6">{t.topSellingProducts}</h2>
-                    <div className="space-y-4 md:space-y-5">
+                    <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6 text-center">{t.topSellingProducts}</h2>
+                    <div className="space-y-4 md:space-y-5 px-2">
                         {topProducts.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-[180px] md:h-[220px] text-center">
                                 <div className="p-3 bg-slate-50 rounded-full mb-2">
@@ -403,7 +403,7 @@ export default function DashboardPage() {
                         ) : (
                             topProducts.slice(0, 5).map((product: any, index: number) => (
                                 <div key={index} className="group">
-                                    <div className="flex items-center justify-between mb-1.5">
+                                    <div className="flex items-center justify-between mb-1.5 px-1">
                                         <span className="text-xs md:text-sm font-semibold text-slate-700 truncate max-w-[60%]">{product.name}</span>
                                         <span className="text-xs md:text-sm font-bold text-slate-900">₹{product.sales >= 1000 ? (product.sales / 1000).toFixed(1) + 'k' : product.sales.toLocaleString()}</span>
                                     </div>
@@ -422,15 +422,15 @@ export default function DashboardPage() {
 
                 {/* Recent Invoices */}
                 <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-                    <div className="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
-                        <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.recentInvoices}</h2>
-                        <Link href="/dashboard/invoices" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline">{t.viewReports}</Link>
+                    <div className="p-4 md:p-5 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
+                        <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center md:text-left w-full md:w-auto">{t.recentInvoices}</h2>
+                        <Link href="/dashboard/invoices" className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline self-end md:self-auto pr-2">{t.viewReports}</Link>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[500px]">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.invoices}</th>
+                                    <th className="text-left py-2.5 md:py-3 pl-6 pr-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.invoices}</th>
                                     <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.customer}</th>
                                     <th className="text-left py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.date}</th>
                                     <th className="text-right py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">{t.amount}</th>
@@ -455,7 +455,7 @@ export default function DashboardPage() {
                                         };
                                         return (
                                             <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                                <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
+                                                <td className="py-2.5 md:py-3 pl-6 pr-3 md:px-5 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
                                                 <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-700 font-medium truncate max-w-[100px]">{invoice?.customer?.name || 'Unknown'}</td>
                                                 <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-500">{safeDate(invoice?.invoice_date)}</td>
                                                 <td className="py-2.5 md:py-3 px-3 md:px-5 text-[10px] md:text-sm text-slate-900 font-bold text-right">

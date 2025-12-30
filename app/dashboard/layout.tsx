@@ -224,7 +224,7 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10">
-                    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between h-12 md:h-16">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
