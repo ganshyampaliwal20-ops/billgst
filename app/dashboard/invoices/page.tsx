@@ -93,33 +93,49 @@ export default function InvoicesPage() {
     const handleShareWhatsApp = async (invoice: Invoice) => {
         if (!invoice) return;
 
-        // Try to share as file first (Modern Mobile Browsers)
+        const fileName = `Invoice-${invoice.invoice_number || 'Bill'}.pdf`;
+        let doc = null;
+
         try {
-            const doc = generateInvoicePDF(invoice, businessProfile, false);
+            doc = generateInvoicePDF(invoice, businessProfile, false);
             if (!doc) throw new Error('PDF Generation Failed');
 
+            // Try native file sharing first (Mobile Apps)
             const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], `Invoice-${invoice.invoice_number || 'Bill'}.pdf`, { type: 'application/pdf' });
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
                     title: `Invoice ${invoice.invoice_number}`,
                     text: `Invoice from ${businessProfile.name || 'Our Business'}`
                 });
-                return;
+                return; // Success!
             }
-        } catch (e) {
-            console.log('File share failed, falling back to link share', e);
-        }
+            throw new Error('Native file sharing not supported');
 
-        // Fallback: Just text with WhatsApp Deep Link
-        const bName = String(businessProfile?.name || 'Your Business').toUpperCase();
-        const invNo = String(invoice.invoice_number || 'N/A');
-        const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
-        const text = `*INVOICE FROM ${bName}*\n\nInvoice No: ${invNo}\n*Amount: Rs. ${total}*\n\nSent via BillGST.in`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        toast.success('Opening WhatsApp...');
+        } catch (e) {
+            console.log('Native sharing failed, falling back to download + web share', e);
+
+            // Fallback: Download PDF & Open WhatsApp
+            if (doc) {
+                doc.save(fileName);
+                toast.success('PDF Downloaded! Please attach file in WhatsApp', { duration: 5000, icon: '📎' });
+            }
+
+            // Open WhatsApp with a prompt to attach
+            const text = `Please find the attached invoice ${invoice.invoice_number} from ${businessProfile.name || 'Business'}.`;
+            // Check if mobile to use api.whatsapp.com for better deep linking, else web.whatsapp.com via wa.me
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const url = isMobile
+                ? `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+                : `https://web.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+            // Use window.open with a slight delay to ensure toast is seen/download starts
+            setTimeout(() => {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            }, 1000);
+        }
     };
 
     const handleShareMore = async (invoice: Invoice) => {
