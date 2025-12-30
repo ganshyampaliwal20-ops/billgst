@@ -80,6 +80,7 @@ export default function InvoicesPage() {
     const handleDownload = (e: React.MouseEvent | null, invoice: Invoice) => {
         e?.stopPropagation();
         try {
+            if (!invoice) return;
             generateInvoicePDF(invoice, businessProfile);
             toast.success('Invoice downloaded!');
         } catch (error) {
@@ -89,13 +90,22 @@ export default function InvoicesPage() {
     };
 
     const handleShareWhatsApp = (invoice: Invoice) => {
-        const text = `*INVOICE FROM ${businessProfile.name.toUpperCase()}*\n\nInvoice No: ${invoice.invoice_number}\nDate: ${new Date(invoice.invoice_date).toLocaleDateString()}\nCustomer: ${invoice.customer.name}\n\n*Total Amount: ₹${invoice.total_amount}*\n\nPowered by BillGST.in`;
+        if (!invoice) return;
+        const bName = String(businessProfile?.name || 'Your Business').toUpperCase();
+        const invNo = String(invoice.invoice_number || 'N/A');
+        const invDate = invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN') : 'N/A';
+        const custName = String(invoice.customer?.name || 'Customer');
+        const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
+
+        const text = `*INVOICE FROM ${bName}*\n\nInvoice No: ${invNo}\nDate: ${invDate}\nCustomer: ${custName}\n\n*Total Amount: ₹${total}*\n\nPowered by BillGST.in`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         toast.success('Opening WhatsApp...');
     };
 
     const handleShareSMS = (invoice: Invoice) => {
-        const text = `Invoice ${invoice.invoice_number} for ₹${invoice.total_amount} from ${businessProfile.name}. Checkout at BillGST.in`;
+        if (!invoice) return;
+        const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
+        const text = `Invoice ${invoice.invoice_number || 'N/A'} for ₹${total} from ${businessProfile?.name || 'Our Business'}. Checkout at BillGST.in`;
         window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
 
@@ -168,12 +178,12 @@ export default function InvoicesPage() {
                                             className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
                                         >
                                             <td className="py-4 px-6 text-sm font-bold text-blue-600">
-                                                {invoice.invoice_number}
+                                                {invoice.invoice_number || 'N/A'}
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-600">
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
-                                                    <span className="text-xs text-gray-400">{new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                    <span className="font-medium">{invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN') : 'N/A'}</span>
+                                                    <span className="text-xs text-gray-400">{invoice.created_at || invoice.invoice_date ? new Date(invoice.created_at || invoice.invoice_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6 text-sm text-gray-800 font-semibold">
@@ -181,7 +191,7 @@ export default function InvoicesPage() {
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex flex-col items-end gap-1">
-                                                    <span className="text-sm font-bold text-gray-900">₹{(invoice.total_amount || 0).toLocaleString()}</span>
+                                                    <span className="text-sm font-bold text-gray-900">₹{(Number(invoice.total_amount) || 0).toLocaleString('en-IN')}</span>
                                                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                         invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                             'bg-red-100 text-red-700'
@@ -232,10 +242,10 @@ export default function InvoicesPage() {
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <h3 className="font-bold text-gray-800 text-lg">{invoice.customer?.name || 'Unknown'}</h3>
-                                            <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number}</p>
+                                            <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number || 'N/A'}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-lg font-bold text-gray-900">₹{(invoice.total_amount || 0).toLocaleString()}</p>
+                                            <p className="text-lg font-bold text-gray-900">₹{(Number(invoice.total_amount) || 0).toLocaleString('en-IN')}</p>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                 invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                     'bg-red-100 text-red-700'
@@ -247,7 +257,7 @@ export default function InvoicesPage() {
 
                                     <div className="flex justify-between items-center mt-3">
                                         <p className="text-xs text-gray-400">
-                                            {new Date(invoice.invoice_date).toLocaleDateString()}
+                                            {invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN') : 'N/A'}
                                         </p>
                                         <div className="flex gap-2">
                                             <button
@@ -278,7 +288,7 @@ export default function InvoicesPage() {
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-800">Invoice Details</h2>
-                                <p className="text-sm text-gray-500">{selectedInvoice.invoice_number}</p>
+                                <p className="text-sm text-gray-500">{selectedInvoice.invoice_number || 'N/A'}</p>
                             </div>
                             <button onClick={() => setSelectedInvoice(null)} className="text-gray-400 hover:text-gray-600">✕</button>
                         </div>
@@ -287,7 +297,7 @@ export default function InvoicesPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
                                     <p className="text-xs font-bold text-blue-600 uppercase mb-1">Total Amount</p>
-                                    <p className="text-2xl font-bold text-gray-900">₹{selectedInvoice.total_amount.toLocaleString()}</p>
+                                    <p className="text-2xl font-bold text-gray-900">₹{(Number(selectedInvoice.total_amount) || 0).toLocaleString('en-IN')}</p>
                                 </div>
                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>
@@ -365,11 +375,11 @@ export default function InvoicesPage() {
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Amount</p>
-                                        <p className="text-xl font-black text-slate-800 italic tracking-tight">₹{showShareSheet.total_amount.toLocaleString()}</p>
+                                        <p className="text-xl font-black text-slate-800 italic tracking-tight">₹{(Number(showShareSheet.total_amount) || 0).toLocaleString('en-IN')}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Invoice No</p>
-                                        <p className="text-sm font-black text-indigo-600 italic">{showShareSheet.invoice_number}</p>
+                                        <p className="text-sm font-black text-indigo-600 italic">{showShareSheet.invoice_number || 'N/A'}</p>
                                     </div>
                                 </div>
                             </div>
