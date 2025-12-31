@@ -49,16 +49,17 @@ export async function POST(request: Request) {
 
         // Ensure numeric values are valid
         const price = parseFloat(data.price) || 0;
+        const purchasePrice = parseFloat(data.purchase_price) || 0;
         const stock = data.stock_quantity || 0;
         const gst = parseFloat(data.gst_rate) || 0;
 
         try {
             const productType = data.type || 'PRODUCT';
             const result = await client.query(
-                `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, type, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
+                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId, productType]
+                [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -69,15 +70,16 @@ export async function POST(request: Request) {
                 await client.query(`
                     ALTER TABLE products 
                     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
-                    ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT';
+                    ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT',
+                    ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(15, 2) DEFAULT 0;
                 `);
                 // Retry
                 const productType = data.type || 'PRODUCT';
                 const result = await client.query(
-                    `INSERT INTO products (id, name, description, hsn_code, unit, price, gst_rate, stock_quantity, created_by, type, created_at) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
+                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, gst, stock, userId, productType]
+                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
@@ -99,7 +101,7 @@ export async function PUT(request: Request) {
 
     try {
         const data = await request.json();
-        const { id, name, description, hsn_code, unit, price, gst_rate, stock_quantity } = data;
+        const { id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity } = data;
 
         if (!id) {
             return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
@@ -120,10 +122,10 @@ export async function PUT(request: Request) {
 
         const result = await client.query(
             `UPDATE products 
-             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, gst_rate = $6, stock_quantity = $7, type = $8, updated_at = NOW()
-             WHERE id = $9 AND created_by = $10
+             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, updated_at = NOW()
+             WHERE id = $10 AND created_by = $11
              RETURNING *`,
-            [name, description, hsn_code, unit, price, gst_rate, stock_quantity, data.type || 'PRODUCT', id, userId]
+            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', id, userId]
         );
         client.release();
 

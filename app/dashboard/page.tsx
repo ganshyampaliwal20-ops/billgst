@@ -1,7 +1,7 @@
 'use client';
 
 import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore } from 'react-icons/fa';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ComposedChart, Cell } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -18,6 +18,7 @@ export default function DashboardPage() {
     const [customRange, setCustomRange] = useState({ start: '', end: '' });
     const [showSetupBanner, setShowSetupBanner] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [chartView, setChartView] = useState('area'); // 'area' or 'candle'
 
     // Get translations
     const t = translations[settings.language as keyof typeof translations] || translations.en;
@@ -65,15 +66,53 @@ export default function DashboardPage() {
         { name: 'Sun', sales: totalSales * 0.03, profit: totalProfit * 0.07 },
     ];
 
-    // Monthly Trend Data
-    const monthlyTrend = [
-        { name: 'Jan', sales: totalSales * 0.6, profit: totalProfit * 0.5 },
-        { name: 'Feb', sales: totalSales * 0.7, profit: totalProfit * 0.6 },
-        { name: 'Mar', sales: totalSales * 0.8, profit: totalProfit * 0.7 },
-        { name: 'Apr', sales: totalSales * 0.9, profit: totalProfit * 0.85 },
-        { name: 'May', sales: totalSales * 0.95, profit: totalProfit * 0.9 },
-        { name: 'Jun', sales: totalSales, profit: totalProfit },
-    ];
+    // Process Invoices to get actual trend data
+    const getTrendData = () => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const currentYear = new Date().getFullYear();
+
+        // Initialize 6 months of data
+        const trend: any[] = months.slice(0, 6).map(m => ({
+            name: m,
+            sales: 0,
+            profit: 0,
+            high: 0,
+            low: 999999,
+            open: 0,
+            close: 0,
+        }));
+
+        invoices.forEach((inv: any) => {
+            const date = new Date(inv.invoice_date);
+            if (date.getFullYear() === currentYear) {
+                const monthIdx = date.getMonth();
+                if (monthIdx < 6) {
+                    const amount = parseFloat(inv.total_amount) || 0;
+                    trend[monthIdx].sales += amount;
+
+                    // Simple profit estimation for trend
+                    trend[monthIdx].profit += amount * 0.2;
+
+                    // OHLC simulated from invoices
+                    if (amount > trend[monthIdx].high) trend[monthIdx].high = amount;
+                    if (amount < trend[monthIdx].low) trend[monthIdx].low = amount;
+
+                    // Open/Close based on first/last invoice of month
+                    if (trend[monthIdx].open === 0) trend[monthIdx].open = amount;
+                    trend[monthIdx].close = amount;
+                }
+            }
+        });
+
+        return trend.map(t => ({
+            ...t,
+            low: t.low === 999999 ? 0 : t.low,
+            candle: [t.sales * 0.7, t.sales], // Body
+            wick: [t.sales * 0.6, t.sales * 1.1] // Wick
+        }));
+    };
+
+    const monthlyTrend = getTrendData();
 
     // Calculate Today's Sales
     const today = new Date().toDateString();
@@ -332,30 +371,92 @@ export default function DashboardPage() {
                                 <span className="text-slate-600 font-medium">Profit</span>
                             </div>
                         </div>
+                        <div className="flex bg-slate-100 p-1 rounded-lg self-center sm:self-auto">
+                            <button
+                                onClick={() => setChartView('area')}
+                                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${chartView === 'area' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Standard
+                            </button>
+                            <button
+                                onClick={() => setChartView('candle')}
+                                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${chartView === 'candle' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Candlestick
+                            </button>
+                        </div>
                     </div>
                     <div className="h-[200px] md:h-[280px] w-full px-2">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
-                                <defs>
-                                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
-                                <Tooltip
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
-                                    formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
-                                />
-                                <Area type="monotone" dataKey="sales" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" name="Sales" />
-                                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" name="Profit" />
-                            </AreaChart>
+                            {chartView === 'area' ? (
+                                <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
+                                    <defs>
+                                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+                                    <Tooltip
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
+                                        formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
+                                    />
+                                    <Area type="monotone" dataKey="sales" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" name="Sales" />
+                                    <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" name="Profit" />
+                                </AreaChart>
+                            ) : (
+                                <ComposedChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+                                    <Tooltip
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                                const data = payload[0].payload;
+                                                return (
+                                                    <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 text-[10px] md:text-xs">
+                                                        <p className="font-bold text-slate-800 mb-2">{data.name} Analysis</p>
+                                                        <div className="space-y-1">
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-slate-500">Total Sales:</span>
+                                                                <span className="font-bold text-indigo-600">₹{data.sales.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-slate-500">Max Sale:</span>
+                                                                <span className="font-bold text-emerald-600">₹{data.high.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-slate-500">Min Sale:</span>
+                                                                <span className="font-bold text-amber-600">₹{data.low.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4 pt-1 border-t">
+                                                                <span className="text-slate-500">Avg Profit (Est):</span>
+                                                                <span className="font-bold text-purple-600">₹{data.profit.toLocaleString()}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    {/* Wick */}
+                                    <Bar dataKey="wick" fill="#94a3b8" barSize={2} />
+                                    {/* Body */}
+                                    <Bar dataKey="candle" radius={[2, 2, 2, 2]} barSize={20}>
+                                        {monthlyTrend.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.sales > entry.open ? '#10b981' : '#f43f5e'} />
+                                        ))}
+                                    </Bar>
+                                </ComposedChart>
+                            )}
                         </ResponsiveContainer>
                     </div>
                 </div>

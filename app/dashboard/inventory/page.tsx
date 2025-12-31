@@ -18,6 +18,7 @@ export default function InventoryPage() {
         description: '',
         hsn_code: '',
         price: '',
+        purchase_price: '',
         stock_quantity: '',
         unit: 'PCS',
         gst_rate: '18',
@@ -71,6 +72,7 @@ export default function InventoryPage() {
             description: product.description || '',
             hsn_code: product.hsn_code || '',
             price: product.price.toString(),
+            purchase_price: product.purchase_price?.toString() || '',
             stock_quantity: product.stock_quantity.toString(),
             unit: product.unit || 'PCS',
             gst_rate: product.gst_rate?.toString() || '18',
@@ -82,7 +84,7 @@ export default function InventoryPage() {
 
     const resetForm = () => {
         setFormData({
-            name: '', description: '', hsn_code: '', price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18', type: 'PRODUCT'
+            name: '', description: '', hsn_code: '', price: '', purchase_price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18', type: 'PRODUCT'
         });
         setEditingId(null);
         setShowModal(false);
@@ -172,9 +174,15 @@ export default function InventoryPage() {
                                 <p className="text-sm text-gray-500 mb-4 line-clamp-2 h-10">{product.description || 'No description available'}</p>
 
                                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                                    <div>
-                                        <p className="text-xs text-gray-400 uppercase font-semibold mb-0.5">Price</p>
-                                        <p className="text-gray-900 font-bold text-lg">₹{product.price}</p>
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] text-gray-400 uppercase font-semibold">Sale Price</p>
+                                            <p className="text-gray-900 font-bold text-base">₹{product.price}</p>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] text-indigo-400 uppercase font-semibold">Purchase Price</p>
+                                            <p className="text-indigo-600 font-bold text-sm">₹{product.purchase_price || 0}</p>
+                                        </div>
                                     </div>
                                     {(product.type || 'PRODUCT') === 'PRODUCT' && (
                                         <div className="text-right">
@@ -230,8 +238,8 @@ export default function InventoryPage() {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, type: 'PRODUCT' })}
                                             className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${(formData.type || 'PRODUCT') === 'PRODUCT'
-                                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
-                                                    : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
+                                                ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                                                : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
                                                 }`}
                                         >
                                             <FaBox className="text-xl" />
@@ -241,8 +249,8 @@ export default function InventoryPage() {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, type: 'SERVICE' })}
                                             className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.type === 'SERVICE'
-                                                    ? 'border-purple-600 bg-purple-50 text-purple-600'
-                                                    : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
+                                                ? 'border-purple-600 bg-purple-50 text-purple-600'
+                                                : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
                                                 }`}
                                         >
                                             <FaPlus className="text-xl rotate-45" />
@@ -262,13 +270,24 @@ export default function InventoryPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price (Sahi Bhav) *</label>
                                     <input
                                         type="number"
                                         required
                                         className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                                         value={formData.price}
                                         onChange={e => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-indigo-700 mb-1 font-bold">Purchase Price (Kharid Bhav)</label>
+                                    <input
+                                        type="number"
+                                        className="w-full p-2.5 border-2 border-indigo-100 bg-indigo-50/30 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        value={formData.purchase_price}
+                                        onChange={e => setFormData({ ...formData, purchase_price: e.target.value })}
+                                        placeholder="0.00"
                                     />
                                 </div>
                                 <div>
