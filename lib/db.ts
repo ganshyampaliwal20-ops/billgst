@@ -92,6 +92,8 @@ export const initDB = async () => {
         password VARCHAR(255) NOT NULL,
         role VARCHAR(50) DEFAULT 'USER',
         phone VARCHAR(20),
+        reset_token VARCHAR(255),
+        reset_token_expiry TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -227,6 +229,10 @@ export const initDB = async () => {
         
         -- Customer Columns (Ensure consistency)
         ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
+
+        -- User Columns for Password Reset
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255);
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;
       `);
     } catch (e) { console.log('Migration note: checked invoices & customers columns'); }
 
