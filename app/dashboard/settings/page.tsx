@@ -52,20 +52,22 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800">Tax Settings</h2>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <div>
-                            <h3 className="font-medium text-gray-800">I have a GST Number</h3>
-                            <p className="text-sm text-gray-500">Enable this if your business is registered under GST.</p>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 gap-4">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3">
+                                <h3 className="font-bold text-gray-800">I have a GST Number</h3>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={!localSettings.nonGstMode}
+                                        onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-1">Enable this if your business is registered under GST. If you don't have a GST number, turn it off.</p>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={!localSettings.nonGstMode}
-                                onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })}
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
                     </div>
                 </div>
 

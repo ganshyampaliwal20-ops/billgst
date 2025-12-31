@@ -3,12 +3,16 @@
 import { useState, useEffect } from 'react';
 import { FaUserPlus, FaTimes, FaArrowRight } from 'react-icons/fa';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 export default function RegistrationPopup() {
+    const { status } = useSession();
     const [isVisible, setIsVisible] = useState(false);
     const [hasClosed, setHasClosed] = useState(false);
 
     useEffect(() => {
+        // Hide if authenticated
+        if (status === 'authenticated') return;
         // Check if user previously closed it in this session
         const closed = sessionStorage.getItem('register_popup_closed');
         if (closed) {
@@ -31,10 +35,10 @@ export default function RegistrationPopup() {
         sessionStorage.setItem('register_popup_closed', 'true');
     };
 
-    if (!isVisible) return null;
+    if (!isVisible || status === 'authenticated') return null;
 
     return (
-        <div className="fixed bottom-6 right-6 z-[100] animate-slideUp max-w-[350px] w-full px-4 md:px-0">
+        <div className="fixed inset-x-4 bottom-24 md:bottom-6 md:right-6 md:left-auto md:inset-x-auto z-[100] animate-slideUp max-w-[350px] mx-auto md:mx-0 w-full">
             <div className="bg-white rounded-3xl shadow-2xl shadow-indigo-200 border border-indigo-100 overflow-hidden relative">
                 <button
                     onClick={handleClose}
