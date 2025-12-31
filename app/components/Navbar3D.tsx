@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
     FaFileInvoice, FaCog, FaBars, FaTimes,
     FaSignInAlt, FaUserPlus, FaLanguage, FaStore,
-    FaSignOutAlt
+    FaSignOutAlt, FaUsers, FaBox, FaChartLine
 } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { useStore } from '@/lib/store';
@@ -163,9 +163,12 @@ export default function Navbar3D() {
 
                         {[
                             { icon: FaFileInvoice, label: 'Invoice', href: '/dashboard/invoices' },
-                            { icon: FaSignInAlt, label: 'Login Page', href: '/login' },
+                            { icon: FaUsers, label: 'Customer', href: '/dashboard/customers' },
+                            { icon: FaBox, label: 'Product', href: '/dashboard/inventory' },
+                            { icon: FaChartLine, label: 'Report', href: '/dashboard/reports' },
                             { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
-                            { icon: FaUserPlus, label: 'Signup Page', href: '/register' },
+                            { icon: FaSignInAlt, label: 'Login', href: '/login' },
+                            { icon: FaUserPlus, label: 'Register', href: '/register' },
                         ].map((item) => {
                             const Icon = item.icon;
                             return (
@@ -189,40 +192,28 @@ export default function Navbar3D() {
                                 </Link>
                             );
                         })}
-
-                        {/* My Business Section */}
-                        <div className="pt-4 mt-6 border-t border-slate-100">
-                            <Link
-                                href="/dashboard/settings"
-                                onClick={() => setIsSidebarOpen(false)}
-                                className="flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group border-2 bg-indigo-50 text-indigo-700 font-bold border-indigo-100 shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#c7d2fe] active:translate-y-0 active:shadow-none"
-                            >
-                                <div className="p-2.5 rounded-xl bg-white text-indigo-600 shadow-sm">
-                                    <FaStore className="text-xl" />
-                                </div>
-                                <div className="flex flex-col flex-1 overflow-hidden">
-                                    <span className="text-[10px] uppercase tracking-widest text-indigo-400 font-black">My Business</span>
-                                    <span className="text-base truncate">{businessProfile.name || 'Set Business Name'}</span>
-                                </div>
-                            </Link>
-                        </div>
-
-                        {status === 'authenticated' && (
-                            <button
-                                onClick={handleLogout}
-                                className="w-full mt-2 flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group border-2 bg-red-50 text-red-600 font-bold border-red-100 shadow-[0_4px_0_0_#fee2e2] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#fecaca] active:translate-y-0 active:shadow-none"
-                            >
-                                <div className="p-2.5 rounded-xl bg-white text-red-500 shadow-sm">
-                                    <FaSignOutAlt className="text-xl" />
-                                </div>
-                                <span className="text-base tracking-wide flex-1 text-left">Logout</span>
-                            </button>
-                        )}
                     </nav>
 
+                    {/* My Business Section - Now part of footer/bottom */}
+                    <div className="p-4 border-t border-slate-100">
+                        <Link
+                            href="/dashboard/settings"
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="flex items-center gap-4 px-5 py-3 rounded-2xl transition-all duration-300 group border-2 bg-indigo-50 text-indigo-700 font-bold border-indigo-100 shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#c7d2fe] active:translate-y-0 active:shadow-none"
+                        >
+                            <div className="p-2 rounded-xl bg-white text-indigo-600 shadow-sm">
+                                <FaStore className="text-lg" />
+                            </div>
+                            <div className="flex flex-col flex-1 overflow-hidden">
+                                <span className="text-[9px] uppercase tracking-widest text-indigo-400 font-black">My Business</span>
+                                <span className="text-sm truncate font-bold">{businessProfile.name || 'Set Business Name'}</span>
+                            </div>
+                        </Link>
+                    </div>
+
                     {/* Footer Info */}
-                    <div className="p-6 border-t border-slate-100 bg-slate-50/50">
-                        <p className="text-xs text-center text-slate-400 font-medium italic">
+                    <div className="p-4 bg-slate-50/50">
+                        <p className="text-[10px] text-center text-slate-400 font-medium italic">
                             {businessProfile.name || 'BillGST'} - Professional Billing
                         </p>
                     </div>
