@@ -39,6 +39,21 @@ export default function InvoicesPage() {
     const [isClient, setIsClient] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const [showShareSheet, setShowShareSheet] = useState<Invoice | null>(null);
+    const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+    // Generate QR Code when invoice is selected
+    useEffect(() => {
+        if (selectedInvoice && businessProfile.upi_id && selectedInvoice.total_amount > 0) {
+            const upiLink = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${selectedInvoice.total_amount}&cu=INR`;
+            import('qrcode').then(QRCode => {
+                QRCode.toDataURL(upiLink, { margin: 1 })
+                    .then(url => setQrCodeUrl(url))
+                    .catch(err => console.error('QR Gen Error:', err));
+            });
+        } else {
+            setQrCodeUrl('');
+        }
+    }, [selectedInvoice, businessProfile]);
 
     useEffect(() => {
         setIsClient(true);
@@ -78,11 +93,11 @@ export default function InvoicesPage() {
         window.location.href = `/dashboard/invoices/new?duplicateId=${invoice.id}`;
     };
 
-    const handleDownload = (e: React.MouseEvent | null, invoice: Invoice) => {
+    const handleDownload = async (e: React.MouseEvent | null, invoice: Invoice) => {
         e?.stopPropagation();
         try {
             if (!invoice) return;
-            generateInvoicePDF(invoice, businessProfile);
+            await generateInvoicePDF(invoice, businessProfile);
             toast.success('Invoice downloaded!');
         } catch (error) {
             console.error(error);
@@ -97,7 +112,7 @@ export default function InvoicesPage() {
         let doc = null;
 
         try {
-            doc = generateInvoicePDF(invoice, businessProfile, false);
+            doc = await generateInvoicePDF(invoice, businessProfile, false);
             if (!doc) throw new Error('PDF Generation Failed');
 
             // Try native file sharing first (Mobile Apps)
@@ -148,7 +163,7 @@ export default function InvoicesPage() {
     const handleShareMore = async (invoice: Invoice) => {
         if (!invoice) return;
         try {
-            const doc = generateInvoicePDF(invoice, businessProfile, false);
+            const doc = await generateInvoicePDF(invoice, businessProfile, false);
             if (!doc) throw new Error('PDF Generation Failed');
 
             const pdfBlob = doc.output('blob');
@@ -410,6 +425,20 @@ export default function InvoicesPage() {
                                     </span>
                                 </div>
                             </div>
+
+                            {/* UPI QR Code Section */}
+                            {qrCodeUrl && selectedInvoice.status !== 'PAID' && (
+                                <div className="p-4 bg-white border-2 border-dashed border-indigo-200 rounded-xl flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="font-bold text-gray-800">Scan to Pay</p>
+                                        <p className="text-xs text-gray-500">Pay exactly ₹{(Number(selectedInvoice.total_amount) || 0).toLocaleString('en-IN')}</p>
+                                        <p className="text-[10px] text-indigo-500 font-bold mt-1 bg-indigo-50 px-2 py-0.5 rounded w-fit">{businessProfile.upi_id}</p>
+                                    </div>
+                                    <div className="w-20 h-20 bg-white p-1 rounded-lg border border-gray-100 shadow-sm shrink-0">
+                                        <img src={qrCodeUrl} alt="UPI QR" className="w-full h-full object-contain" />
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-3 gap-3">
                                 <button onClick={() => handleDownload(null, selectedInvoice)} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
