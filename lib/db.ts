@@ -197,21 +197,133 @@ export const initDB = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- Quotations table
+      CREATE TABLE IF NOT EXISTS quotations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        quotation_number VARCHAR(50) UNIQUE NOT NULL,
+        customer_id UUID REFERENCES customers(id),
+        quotation_date DATE NOT NULL,
+        valid_until DATE,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        cgst_amount DECIMAL(10,2) DEFAULT 0,
+        sgst_amount DECIMAL(10,2) DEFAULT 0,
+        igst_amount DECIMAL(10,2) DEFAULT 0,
+        total_amount DECIMAL(12,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'PENDING',
+        converted_to_invoice_id UUID REFERENCES invoices(id),
+        notes TEXT,
+        terms TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Purchase Orders table
+      CREATE TABLE IF NOT EXISTS purchase_orders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        po_number VARCHAR(50) UNIQUE NOT NULL,
+        customer_id UUID REFERENCES customers(id),
+        po_date DATE NOT NULL,
+        delivery_date DATE,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        total_amount DECIMAL(12,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'PENDING',
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Credit Notes table
+      CREATE TABLE IF NOT EXISTS credit_notes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        credit_note_number VARCHAR(50) UNIQUE NOT NULL,
+        original_invoice_id UUID REFERENCES invoices(id),
+        customer_id UUID REFERENCES customers(id),
+        credit_date DATE NOT NULL,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        cgst_amount DECIMAL(10,2) DEFAULT 0,
+        sgst_amount DECIMAL(10,2) DEFAULT 0,
+        igst_amount DECIMAL(10,2) DEFAULT 0,
+        total_amount DECIMAL(12,2) NOT NULL,
+        reason TEXT,
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Expenses table
+      CREATE TABLE IF NOT EXISTS expenses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        expense_number VARCHAR(50),
+        category VARCHAR(100) NOT NULL,
+        vendor_name VARCHAR(200),
+        amount DECIMAL(12,2) NOT NULL,
+        expense_date DATE NOT NULL,
+        payment_method VARCHAR(50),
+        receipt_no VARCHAR(100),
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Purchases table  
+      CREATE TABLE IF NOT EXISTS purchases (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        purchase_number VARCHAR(50) UNIQUE NOT NULL,
+        vendor_name VARCHAR(200) NOT NULL,
+        vendor_gstin VARCHAR(15),
+        purchase_date DATE NOT NULL,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        cgst_amount DECIMAL(10,2) DEFAULT 0,
+        sgst_amount DECIMAL(10,2) DEFAULT 0,
+        igst_amount DECIMAL(10,2) DEFAULT 0,
+        total_amount DECIMAL(12,2) NOT NULL,
+        paid_amount DECIMAL(12,2) DEFAULT 0,
+        status VARCHAR(20) DEFAULT 'UNPAID',
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Document Templates table
+      CREATE TABLE IF NOT EXISTS document_templates (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        template_name VARCHAR(100) NOT NULL,
+        template_type VARCHAR(50) NOT NULL,
+        layout_config JSONB,
+        is_default BOOLEAN DEFAULT false,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       -- Create indexes
       CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id);
       CREATE INDEX IF NOT EXISTS idx_invoices_date ON invoices(invoice_date);
       CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice ON invoice_items(invoice_id);
       CREATE INDEX IF NOT EXISTS idx_payments_invoice ON payments(invoice_id);
       CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(product_id);
+      CREATE INDEX IF NOT EXISTS idx_quotations_customer ON quotations(customer_id);
+      CREATE INDEX IF NOT EXISTS idx_quotations_status ON quotations(status);
+      CREATE INDEX IF NOT EXISTS idx_purchase_orders_customer ON purchase_orders(customer_id);
+      CREATE INDEX IF NOT EXISTS idx_credit_notes_invoice ON credit_notes(original_invoice_id);
+      CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);
+      CREATE INDEX IF NOT EXISTS idx_purchases_date ON purchases(purchase_date);
     `);
 
     try {
       await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT';`);
-    } catch (e) { console.log('Migration note: checked products.type'); }
+      await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(10,2);`);
+    } catch (e) { console.log('Migration note: checked products columns'); }
 
     try {
       await client.query(`
         -- Invoice Columns
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'TAX_INVOICE';
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cgst_amount DECIMAL(10,2) DEFAULT 0;
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sgst_amount DECIMAL(10,2) DEFAULT 0;
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS igst_amount DECIMAL(10,2) DEFAULT 0;
