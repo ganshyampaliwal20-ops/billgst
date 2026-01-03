@@ -250,8 +250,9 @@ export async function POST(request: Request) {
                 client.release();
                 return NextResponse.json({ success: true, id: invoiceId });
 
-            } catch (retryError: any) {
-                console.error('Invoice API: Auto-migration failed:', retryError);
+            } catch (retryError) {
+                const rErr = retryError as Error;
+                console.error('Invoice API: Auto-migration failed:', rErr);
                 // Fall through to general error handler
             }
         }
