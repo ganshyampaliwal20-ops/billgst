@@ -43,6 +43,30 @@ export default function QuotationsPage() {
         return badges[status] || 'bg-gray-100 text-gray-700';
     };
 
+    const convertToInvoice = async (quotationId: string) => {
+        if (!confirm('Convert this quotation to invoice?')) return;
+
+        try {
+            const res = await fetch('/api/quotations/convert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quotation_id: quotationId })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                toast.success('Quotation converted to invoice successfully!');
+                fetchQuotations();
+                router.push(`/dashboard/invoices`);
+            } else {
+                const error = await res.json();
+                toast.error(error.error || 'Failed to convert');
+            }
+        } catch (error) {
+            toast.error('Error converting quotation');
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -75,8 +99,8 @@ export default function QuotationsPage() {
                             key={status}
                             onClick={() => setFilter(status)}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition ${filter === status
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                 }`}
                         >
                             {status}
@@ -155,6 +179,7 @@ export default function QuotationsPage() {
                                             </button>
                                             {quotation.status === 'PENDING' && (
                                                 <button
+                                                    onClick={() => convertToInvoice(quotation.id)}
                                                     className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                                                     title="Convert to Invoice"
                                                 >

@@ -234,6 +234,7 @@ export default function LandingPage() {
                 { icon: '🛒', label: 'Purchase Order', href: '/dashboard/purchase-orders', bgColor: 'bg-pink-50', textColor: 'text-pink-600' },
                 { icon: '↩️', label: 'Credit Note', href: '/dashboard/credit-notes', bgColor: 'bg-rose-50', textColor: 'text-rose-600' },
                 { icon: '💰', label: 'Expenses', href: '/dashboard/expenses', bgColor: 'bg-amber-50', textColor: 'text-amber-600' },
+                { icon: '⏰', label: 'Payment Timeline', href: '/dashboard/payment-timeline', bgColor: 'bg-green-50', textColor: 'text-green-600' },
                 { icon: '📊', label: 'Reports', href: '/dashboard/reports', bgColor: 'bg-emerald-50', textColor: 'text-emerald-600' },
                 { icon: '📈', label: 'Analytics', href: '/dashboard/reports', bgColor: 'bg-teal-50', textColor: 'text-teal-600' },
                 { icon: '💳', label: 'Business Card', href: '/dashboard/business-cards', bgColor: 'bg-cyan-50', textColor: 'text-cyan-600' },
