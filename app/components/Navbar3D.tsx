@@ -56,12 +56,12 @@ export default function Navbar3D() {
                     <div className="flex items-center justify-between">
                         {/* Left Side: Logo + Business Name */}
                         <div className="flex items-center gap-3">
-                            <Link href="/" className="flex items-center gap-2 md:gap-2 group">
+                            <Link href="/" className="flex items-center gap-2 md:gap-3 group">
                                 <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
                                     <Image
                                         src="/logo.png"
                                         alt="BillGST Logo"
-                                        width={80}
+                                        width={40}
                                         height={40}
                                         className="object-contain"
                                     />
@@ -109,7 +109,7 @@ export default function Navbar3D() {
 
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className={`flex items-center justify-center w-15 h-10 rounded-xl transition-all border-2 active:scale-95 shadow-lg ${isScrolled
+                                className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all border-2 active:scale-95 shadow-lg ${isScrolled
                                     ? 'bg-white/10 text-white border-white/30 hover:bg-white/20'
                                     : 'bg-white text-indigo-600 border-indigo-100 hover:bg-slate-50'
                                     }`}

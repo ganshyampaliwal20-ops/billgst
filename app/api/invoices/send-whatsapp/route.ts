@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         message += `\n━━━━━━━━━━━━━━━━\n`;
         message += `*ITEMS:*\n\n`;
 
-        items.forEach((item: any, index: number) => {
+        items.forEach((item: Record<string, any>, index: number) => {
             message += `${index + 1}. ${item.product_name}\n`;
             message += `   Qty: ${item.quantity} × ₹${Number(item.unit_price).toFixed(2)}\n`;
             message += `   Amount: ₹${Number(item.total_amount).toFixed(2)}\n\n`;
@@ -75,8 +75,9 @@ export async function POST(request: Request) {
             whatsapp_url: whatsappUrl,
             message: 'WhatsApp link generated successfully'
         });
-    } catch (error: any) {
-        console.error('WhatsApp Share Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const err = error as any;
+        console.error('WhatsApp Share Error:', err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

@@ -166,7 +166,7 @@ export default function LandingPage() {
     <>
       <Navbar3D />
       <main style={{ paddingTop: '40px' }} className="pb-10">
-        <div className="space-y-8 md:space-y-10 px-6 md:px-8 py-6 max-w-7xl mx-auto">
+        <div className="space-y-8 md:space-y-10 px-4 md:px-0 py-6 max-w-7xl mx-auto">
           {/* Welcome Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
             <div>
@@ -203,7 +203,7 @@ export default function LandingPage() {
           </div>
 
           {/* Quick Actions - Protected */}
-          <div className="bg-white rounded-2xl p-6 md:p-10 shadow-lg border border-slate-200">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
@@ -211,7 +211,7 @@ export default function LandingPage() {
                   <button
                     key={index}
                     onClick={() => handleProtectedAction(action.href)}
-                    className={`${action.color} text-white rounded-2xl p-5 md:p-6 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30 w-full`}
+                    className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30 w-full`}
                   >
                     <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
                       <Icon className="text-xl md:text-2xl" />
@@ -223,37 +223,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Quick Access Section - Professional Features */}
-          <div className="bg-white rounded-2xl p-6 md:p-10 shadow-lg border border-slate-200">
-            <h2 className="text-lg md:text-xl font-bold text-slate-800 mb-6 text-center">Quick Access</h2>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5">
-              {[
-                { icon: '🚚', label: 'E-way Bill', href: '/dashboard/invoices/new?type=E_WAY_BILL', bgColor: 'bg-blue-50', textColor: 'text-blue-600' },
-                { icon: '📄', label: 'E-Invoice', href: '/dashboard/invoices/new', bgColor: 'bg-indigo-50', textColor: 'text-indigo-600' },
-                { icon: '📋', label: 'Quotations', href: '/dashboard/quotations', bgColor: 'bg-purple-50', textColor: 'text-purple-600' },
-                { icon: '🛒', label: 'Purchase Order', href: '/dashboard/purchase-orders', bgColor: 'bg-pink-50', textColor: 'text-pink-600' },
-                { icon: '↩️', label: 'Credit Note', href: '/dashboard/credit-notes', bgColor: 'bg-rose-50', textColor: 'text-rose-600' },
-                { icon: '💰', label: 'Expenses', href: '/dashboard/expenses', bgColor: 'bg-amber-50', textColor: 'text-amber-600' },
-                { icon: '⏰', label: 'Payment Timeline', href: '/dashboard/payment-timeline', bgColor: 'bg-green-50', textColor: 'text-green-600' },
-                { icon: '📊', label: 'Reports', href: '/dashboard/reports', bgColor: 'bg-emerald-50', textColor: 'text-emerald-600' },
-                { icon: '📈', label: 'Analytics', href: '/dashboard/reports', bgColor: 'bg-teal-50', textColor: 'text-teal-600' },
-                { icon: '💳', label: 'Business Card', href: '/dashboard/business-cards', bgColor: 'bg-cyan-50', textColor: 'text-cyan-600' },
-                { icon: '🎨', label: 'Templates', href: '/dashboard/templates', bgColor: 'bg-violet-50', textColor: 'text-violet-600' },
-                { icon: '🎉', label: 'Greetings', href: '/dashboard/greetings', bgColor: 'bg-fuchsia-50', textColor: 'text-fuchsia-600' },
-                { icon: '⚙️', label: 'Settings', href: '/dashboard/settings', bgColor: 'bg-slate-50', textColor: 'text-slate-600' },
-              ].map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleProtectedAction(item.href)}
-                  className={`${item.bgColor} ${item.textColor} rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 min-h-[100px] border-2 border-transparent hover:border-current/20`}
-                >
-                  <span className="text-3xl">{item.icon}</span>
-                  <span className="text-xs md:text-sm font-bold text-center leading-tight">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Analytics Overview Header */}
           <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-4 md:mx-0 text-center flex flex-col items-center justify-center">
             <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
@@ -261,7 +230,7 @@ export default function LandingPage() {
           </div>
 
           {/* Period Filter Buttons */}
-          <div className="bg-white rounded-2xl p-5 md:p-6 shadow-lg border border-slate-200">
+          <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
             <p className="text-xs md:text-sm font-bold text-slate-800 mb-3 text-center">{t.selectPeriod}:</p>
             <div className="flex gap-2 md:gap-3 flex-wrap justify-center">
               {[
@@ -286,16 +255,16 @@ export default function LandingPage() {
           </div>
 
           {/* Stats Cards - Protected Links */}
-          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-6 md:p-10 shadow-lg border border-slate-200">
-            <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 text-center">{t.businessOverview}</h1>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
+            <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-4 text-center">{t.businessOverview}</h1>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2">
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
                   <button
                     key={index}
                     onClick={() => handleProtectedAction(stat.href)}
-                    className="bg-white rounded-2xl p-5 md:p-6 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[120px] flex flex-col items-center justify-center text-center hover:scale-[1.02] w-full"
+                    className="bg-white rounded-2xl p-4 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[120px] flex flex-col items-center justify-center text-center hover:scale-[1.02] w-full"
                   >
                     <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
                       <Icon className="text-xl" />
@@ -366,13 +335,13 @@ export default function LandingPage() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Revenue Analytics - Area Chart */}
-            <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-5 md:p-6">
-              <div className="flex flex-col items-center justify-center mb-4 md:mb-6 gap-2">
-                <div className="text-center">
-                  <h2 className="text-sm md:text-lg font-bold text-slate-800">{t.revenueAnalytics}</h2>
+            <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2 px-2">
+                <div className="text-center sm:text-left w-full sm:w-auto">
+                  <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center sm:text-left">{t.revenueAnalytics}</h2>
                   <p className="text-[10px] md:text-xs text-slate-500 font-medium">Income vs Profit trends</p>
                 </div>
-                <div className="flex items-center justify-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg">
+                <div className="flex items-center justify-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg self-center sm:self-auto">
                   <div className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
                     <span className="text-slate-600 font-medium">Sales</span>
@@ -385,7 +354,7 @@ export default function LandingPage() {
               </div>
               <div className="h-[200px] md:h-[280px] w-full px-2">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={monthlyTrend} margin={{ right: 10, left: 0, top: 10, bottom: 10 }}>
+                  <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
                     <defs>
                       <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
@@ -411,14 +380,14 @@ export default function LandingPage() {
             </div>
 
             {/* Weekly Sales - Bar Chart */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-8">
+            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
               <div className="flex items-center justify-center mb-4 md:mb-6">
                 <div className="text-center">
                   <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center">{t.weeklyPerformance}</h2>
                   <p className="text-xs text-slate-500 font-medium">Sales by day of the week</p>
                 </div>
               </div>
-              <div className="h-[200px] md:h-[280px] w-full">
+              <div className="h-[200px] md:h-[280px] w-full px-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -439,9 +408,9 @@ export default function LandingPage() {
           {/* Bottom Section - Top Products & Recent Invoices */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Top Products */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-8">
+            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
               <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6 text-center">{t.topSellingProducts}</h2>
-              <div className="space-y-4 md:space-y-5 px-2">
+              <div className="space-y-4 md:space-y-5 px-4">
                 {topProducts.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-[180px] md:h-[220px] text-center">
                     <div className="p-3 bg-slate-50 rounded-full mb-2">
@@ -472,7 +441,7 @@ export default function LandingPage() {
 
             {/* Recent Invoices */}
             <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-              <div className="p-5 md:p-6 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
+              <div className="p-5 md:p-5 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
                 <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center w-full md:w-auto pl-2">{t.recentInvoices}</h2>
                 <button onClick={() => handleProtectedAction('/dashboard/invoices')} className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline self-end md:self-auto pr-10">{t.viewReports}</button>
               </div>

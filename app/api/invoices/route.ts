@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET() {
     try {
-        const session: any = await getServerSession(authOptions as any);
+        const session = await getServerSession(authOptions as any) as any;
 
         if (!session?.user?.id) {
             console.error('Invoice GET API Error: Unauthorized access attempt');
@@ -29,13 +29,14 @@ export async function GET() {
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {
-        console.error('Error fetching invoices:', error);
+        const err = error as any;
+        console.error('Invoice GET API Error:', err);
         return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
     }
 }
 
 export async function POST(request: Request) {
-    const session: any = await getServerSession(authOptions as any);
+    const session = await getServerSession(authOptions as any) as any;
 
     console.log('Invoice API Debug: Session Check', {
         hasSession: !!session,
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
     const userId = session.user.id;
 
     const client = await pool.connect();
-    let data: any = {};
+    let data: Record<string, any> = {};
     let customerId: string = '';
 
     try {
@@ -155,7 +156,8 @@ export async function POST(request: Request) {
         console.log('Invoice API: Transaction committed successfully');
         return NextResponse.json({ success: true, id: invoiceId });
 
-    } catch (error: any) {
+    } catch (error) {
+        const err = error as any;
         // Auto-migration: If column missing error (42703), add columns and retry
         if (error?.code === '42703') {
             console.log('Invoice API: Missing columns detected. Attempting auto-migration...');
@@ -257,8 +259,8 @@ export async function POST(request: Request) {
         client.release();
         console.error('Invoice API Transaction Error:', error);
         return NextResponse.json({
-            error: `Database Error: ${error instanceof Error ? error.message : 'Unknown Error'}`,
-            details: error instanceof Error ? error.stack : undefined
+            error: `Database Error: ${err instanceof Error ? err.message : 'Unknown Error'}`,
+            details: err instanceof Error ? err.stack : undefined
         }, { status: 500 });
     }
 }

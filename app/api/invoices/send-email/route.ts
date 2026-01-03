@@ -134,8 +134,9 @@ export async function POST(request: Request) {
       success: true,
       message: 'Invoice sent successfully via email'
     });
-  } catch (error: any) {
-    console.error('Send Email Error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to send email' }, { status: 500 });
+  } catch (error) {
+    const err = error as any;
+    console.error('Send Email Error:', err);
+    return NextResponse.json({ error: err.message || 'Failed to send email' }, { status: 500 });
   }
 }
