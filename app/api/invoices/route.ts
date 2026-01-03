@@ -37,6 +37,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const session = await getServerSession(authOptions as any) as any;
 
     console.log('Invoice API Debug: Session Check', {
@@ -216,7 +217,8 @@ export async function POST(request: Request) {
 
                 // 2. Insert Items (Retry)
                 if (data.items && Array.isArray(data.items)) {
-                    for (const item of data.items) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    for (const item of data.items as any[]) {
                         const quantity = Number(item.quantity);
                         const unitPrice = Number(item.unit_price);
                         const gstRate = Number(item.gst_rate);

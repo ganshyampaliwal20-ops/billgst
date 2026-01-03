@@ -1,4 +1,4 @@
-module.exports=[70406,(e,t,r)=>{t.exports=e.x("next/dist/compiled/@opentelemetry/api",()=>require("next/dist/compiled/@opentelemetry/api"))},18622,(e,t,r)=>{t.exports=e.x("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js",()=>require("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js"))},56704,(e,t,r)=>{t.exports=e.x("next/dist/server/app-render/work-async-storage.external.js",()=>require("next/dist/server/app-render/work-async-storage.external.js"))},32319,(e,t,r)=>{t.exports=e.x("next/dist/server/app-render/work-unit-async-storage.external.js",()=>require("next/dist/server/app-render/work-unit-async-storage.external.js"))},24725,(e,t,r)=>{t.exports=e.x("next/dist/server/app-render/after-task-async-storage.external.js",()=>require("next/dist/server/app-render/after-task-async-storage.external.js"))},93695,(e,t,r)=>{t.exports=e.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},30056,e=>e.a(async(t,r)=>{try{let t=await e.y("pg");e.n(t),r()}catch(e){r(e)}},!0),57218,e=>e.a(async(t,r)=>{try{let i,s;var n=e.i(30056),a=t([n]);[n]=a.then?(await a)():a;let{Pool:o}=n.default,E=process.env.DATABASE_URL;if(console.log(`DB Init: Environment Variable Type: ${typeof E}`),console.log(`DB Init: Environment Variable Length: ${E?E.length:"NULL"}`),E&&"string"==typeof E){let e=E.trim();e.startsWith('"')&&e.endsWith('"')&&(e=e.slice(1,-1)),e.startsWith("'")&&e.endsWith("'")&&(e=e.slice(1,-1)),e.includes("?")&&(e=e.split("?")[0]),e.length>0&&(s=e)}if(s?console.log(`DB Init: Connection String seems valid (starts with ${s.substring(0,10)}...)`):console.error("DB Init: Connection String is INVALID or EMPTY after sanitization."),s)try{i=new o({connectionString:s,ssl:{rejectUnauthorized:!1}}),console.log("DB Init: Pool created successfully.")}catch(e){console.error("CRITICAL: Failed to create Pool:",e),i={connect:async()=>{throw Error(`Pool Creation Failed: ${e.message}`)},query:async()=>{throw Error("Pool Creation Failed")},on:()=>{},totalCount:0,idleCount:0,waitingCount:0,end:async()=>{}}}else console.error("CRITICAL: DATABASE_URL is missing or invalid!"),i={connect:async()=>{throw console.error("Mock Pool Connect Called"),Error("DATABASE CONFIGURATION ERROR: DATABASE_URL is missing. Please check Vercel Environment Variables.")},query:async()=>{throw Error("DATABASE CONFIGURATION ERROR: DATABASE_URL is missing.")},on:()=>{},totalCount:0,idleCount:0,waitingCount:0,end:async()=>{}};let T=async()=>{if(!process.env.DATABASE_URL)return void console.error("Skipping initDB because DATABASE_URL is missing");let e=await i.connect();try{await e.query(`
+module.exports=[70406,(e,t,r)=>{t.exports=e.x("next/dist/compiled/@opentelemetry/api",()=>require("next/dist/compiled/@opentelemetry/api"))},18622,(e,t,r)=>{t.exports=e.x("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js",()=>require("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js"))},56704,(e,t,r)=>{t.exports=e.x("next/dist/server/app-render/work-async-storage.external.js",()=>require("next/dist/server/app-render/work-async-storage.external.js"))},32319,(e,t,r)=>{t.exports=e.x("next/dist/server/app-render/work-unit-async-storage.external.js",()=>require("next/dist/server/app-render/work-unit-async-storage.external.js"))},24725,(e,t,r)=>{t.exports=e.x("next/dist/server/app-render/after-task-async-storage.external.js",()=>require("next/dist/server/app-render/after-task-async-storage.external.js"))},93695,(e,t,r)=>{t.exports=e.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},30056,e=>e.a(async(t,r)=>{try{let t=await e.y("pg");e.n(t),r()}catch(e){r(e)}},!0),57218,e=>e.a(async(t,r)=>{try{let s,i;var a=e.i(30056),n=t([a]);[a]=n.then?(await n)():n;let{Pool:o}=a.default,E=process.env.DATABASE_URL;if(console.log(`DB Init: Environment Variable Type: ${typeof E}`),console.log(`DB Init: Environment Variable Length: ${E?E.length:"NULL"}`),E&&"string"==typeof E){let e=E.trim();e.startsWith('"')&&e.endsWith('"')&&(e=e.slice(1,-1)),e.startsWith("'")&&e.endsWith("'")&&(e=e.slice(1,-1)),e.includes("?")&&(e=e.split("?")[0]),e.length>0&&(i=e)}if(i?console.log(`DB Init: Connection String seems valid (starts with ${i.substring(0,10)}...)`):console.error("DB Init: Connection String is INVALID or EMPTY after sanitization."),i)try{s=new o({connectionString:i,ssl:{rejectUnauthorized:!1}}),console.log("DB Init: Pool created successfully.")}catch(e){console.error("CRITICAL: Failed to create Pool:",e),s={connect:async()=>{throw Error(`Pool Creation Failed: ${e.message}`)},query:async()=>{throw Error("Pool Creation Failed")},on:()=>{},totalCount:0,idleCount:0,waitingCount:0,end:async()=>{}}}else console.error("CRITICAL: DATABASE_URL is missing or invalid!"),s={connect:async()=>{throw console.error("Mock Pool Connect Called"),Error("DATABASE CONFIGURATION ERROR: DATABASE_URL is missing. Please check Vercel Environment Variables.")},query:async()=>{throw Error("DATABASE CONFIGURATION ERROR: DATABASE_URL is missing.")},on:()=>{},totalCount:0,idleCount:0,waitingCount:0,end:async()=>{}};let T=async()=>{if(!process.env.DATABASE_URL)return void console.error("Skipping initDB because DATABASE_URL is missing");let e=await s.connect();try{await e.query(`
       CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
       -- Users table
@@ -114,14 +114,125 @@ module.exports=[70406,(e,t,r)=>{t.exports=e.x("next/dist/compiled/@opentelemetry
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- Quotations table
+      CREATE TABLE IF NOT EXISTS quotations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        quotation_number VARCHAR(50) UNIQUE NOT NULL,
+        customer_id UUID REFERENCES customers(id),
+        quotation_date DATE NOT NULL,
+        valid_until DATE,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        cgst_amount DECIMAL(10,2) DEFAULT 0,
+        sgst_amount DECIMAL(10,2) DEFAULT 0,
+        igst_amount DECIMAL(10,2) DEFAULT 0,
+        total_amount DECIMAL(12,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'PENDING',
+        converted_to_invoice_id UUID REFERENCES invoices(id),
+        notes TEXT,
+        terms TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Purchase Orders table
+      CREATE TABLE IF NOT EXISTS purchase_orders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        po_number VARCHAR(50) UNIQUE NOT NULL,
+        customer_id UUID REFERENCES customers(id),
+        po_date DATE NOT NULL,
+        delivery_date DATE,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        total_amount DECIMAL(12,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'PENDING',
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Credit Notes table
+      CREATE TABLE IF NOT EXISTS credit_notes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        credit_note_number VARCHAR(50) UNIQUE NOT NULL,
+        original_invoice_id UUID REFERENCES invoices(id),
+        customer_id UUID REFERENCES customers(id),
+        credit_date DATE NOT NULL,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        cgst_amount DECIMAL(10,2) DEFAULT 0,
+        sgst_amount DECIMAL(10,2) DEFAULT 0,
+        igst_amount DECIMAL(10,2) DEFAULT 0,
+        total_amount DECIMAL(12,2) NOT NULL,
+        reason TEXT,
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Expenses table
+      CREATE TABLE IF NOT EXISTS expenses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        expense_number VARCHAR(50),
+        category VARCHAR(100) NOT NULL,
+        vendor_name VARCHAR(200),
+        amount DECIMAL(12,2) NOT NULL,
+        expense_date DATE NOT NULL,
+        payment_method VARCHAR(50),
+        receipt_no VARCHAR(100),
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Purchases table  
+      CREATE TABLE IF NOT EXISTS purchases (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        purchase_number VARCHAR(50) UNIQUE NOT NULL,
+        vendor_name VARCHAR(200) NOT NULL,
+        vendor_gstin VARCHAR(15),
+        purchase_date DATE NOT NULL,
+        items JSONB NOT NULL,
+        subtotal DECIMAL(12,2) NOT NULL,
+        cgst_amount DECIMAL(10,2) DEFAULT 0,
+        sgst_amount DECIMAL(10,2) DEFAULT 0,
+        igst_amount DECIMAL(10,2) DEFAULT 0,
+        total_amount DECIMAL(12,2) NOT NULL,
+        paid_amount DECIMAL(12,2) DEFAULT 0,
+        status VARCHAR(20) DEFAULT 'UNPAID',
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Document Templates table
+      CREATE TABLE IF NOT EXISTS document_templates (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        template_name VARCHAR(100) NOT NULL,
+        template_type VARCHAR(50) NOT NULL,
+        layout_config JSONB,
+        is_default BOOLEAN DEFAULT false,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       -- Create indexes
       CREATE INDEX IF NOT EXISTS idx_invoices_customer ON invoices(customer_id);
       CREATE INDEX IF NOT EXISTS idx_invoices_date ON invoices(invoice_date);
       CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice ON invoice_items(invoice_id);
       CREATE INDEX IF NOT EXISTS idx_payments_invoice ON payments(invoice_id);
       CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(product_id);
-    `);try{await e.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT';")}catch(e){console.log("Migration note: checked products.type")}try{await e.query(`
+      CREATE INDEX IF NOT EXISTS idx_quotations_customer ON quotations(customer_id);
+      CREATE INDEX IF NOT EXISTS idx_quotations_status ON quotations(status);
+      CREATE INDEX IF NOT EXISTS idx_purchase_orders_customer ON purchase_orders(customer_id);
+      CREATE INDEX IF NOT EXISTS idx_credit_notes_invoice ON credit_notes(original_invoice_id);
+      CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);
+      CREATE INDEX IF NOT EXISTS idx_purchases_date ON purchases(purchase_date);
+    `);try{await e.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT';"),await e.query("ALTER TABLE products ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(10,2);")}catch(e){console.log("Migration note: checked products columns")}try{await e.query(`
         -- Invoice Columns
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'TAX_INVOICE';
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS cgst_amount DECIMAL(10,2) DEFAULT 0;
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sgst_amount DECIMAL(10,2) DEFAULT 0;
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS igst_amount DECIMAL(10,2) DEFAULT 0;
@@ -143,6 +254,6 @@ module.exports=[70406,(e,t,r)=>{t.exports=e.x("next/dist/compiled/@opentelemetry
         -- User Columns for Password Reset
         ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255);
         ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;
-      `)}catch(e){console.log("Migration note: checked invoices & customers columns")}console.log("Database tables created/verified successfully")}finally{e.release()}},A=i;e.s(["default",0,A,"initDB",0,T]),r()}catch(e){r(e)}},!1),54799,(e,t,r)=>{t.exports=e.x("crypto",()=>require("crypto"))},93420,e=>e.a(async(t,r)=>{try{var n=e.i(49486),a=e.i(83599),i=e.i(57218),s=t([i]);async function o(e){try{let{name:t,email:r,password:s}=await e.json();if(!t||!r||!s)return n.NextResponse.json({error:"All fields are required"},{status:400});if((await i.default.query("SELECT id FROM users WHERE email = $1",[r])).rows.length>0)return n.NextResponse.json({error:"User already exists"},{status:400});let o=await a.default.hash(s,10),E=await i.default.query("INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role",[t,r,o,"USER"]);return n.NextResponse.json({message:"User created successfully",user:E.rows[0]},{status:201})}catch(e){return console.error("Registration error:",e),n.NextResponse.json({error:"Internal server error"},{status:500})}}[i]=s.then?(await s)():s,e.s(["POST",()=>o]),r()}catch(e){r(e)}},!1),60909,e=>e.a(async(t,r)=>{try{var n=e.i(19878),a=e.i(48499),i=e.i(82967),s=e.i(35670),o=e.i(11664),E=e.i(15322),T=e.i(21442),A=e.i(38067),l=e.i(47920),c=e.i(51399),d=e.i(79492),u=e.i(54758),R=e.i(92873),p=e.i(72015),I=e.i(54934),L=e.i(91087),C=e.i(93695);e.i(54423);var N=e.i(88506),U=e.i(93420),D=t([U]);[U]=D.then?(await D)():D;let m=new n.AppRouteRouteModule({definition:{kind:a.RouteKind.APP_ROUTE,page:"/api/auth/register/route",pathname:"/api/auth/register",filename:"route",bundlePath:""},distDir:".next",relativeProjectDir:"",resolvedPagePath:"[project]/Desktop/bill/app/api/auth/register/route.js",nextConfigOutput:"",userland:U}),{workAsyncStorage:M,workUnitAsyncStorage:v,serverHooks:O}=m;function S(){return(0,i.patchFetch)({workAsyncStorage:M,workUnitAsyncStorage:v})}async function _(e,t,r){m.isDev&&(0,s.addRequestMeta)(e,"devRequestTimingInternalsEnd",process.hrtime.bigint());let n="/api/auth/register/route";n=n.replace(/\/index$/,"")||"/";let i=await m.prepare(e,t,{srcPage:n,multiZoneDraftMode:!1});if(!i)return t.statusCode=400,t.end("Bad Request"),null==r.waitUntil||r.waitUntil.call(r,Promise.resolve()),null;let{buildId:U,params:D,nextConfig:S,parsedUrl:_,isDraftMode:M,prerenderManifest:v,routerServerContext:O,isOnDemandRevalidate:h,revalidateOnlyGenerated:g,resolvedPathname:y,clientReferenceManifest:F,serverActionsManifest:x}=i,f=(0,A.normalizeAppPath)(n),P=!!(v.dynamicRoutes[f]||v.routes[y]),w=async()=>((null==O?void 0:O.render404)?await O.render404(e,t,_,!1):t.end("This page could not be found"),null);if(P&&!M){let e=!!v.routes[y],t=v.dynamicRoutes[f];if(t&&!1===t.fallback&&!e){if(S.experimental.adapterPath)return await w();throw new C.NoFallbackError}}let b=null;!P||m.isDev||M||(b=y,b="/index"===b?"/":b);let H=!0===m.isDev||!P,X=P&&!H;x&&F&&(0,E.setReferenceManifestsSingleton)({page:n,clientReferenceManifest:F,serverActionsManifest:x,serverModuleMap:(0,T.createServerModuleMap)({serverActionsManifest:x})});let B=e.method||"GET",V=(0,o.getTracer)(),k=V.getActiveScopeSpan(),q={params:D,prerenderManifest:v,renderOpts:{experimental:{authInterrupts:!!S.experimental.authInterrupts},cacheComponents:!!S.cacheComponents,supportsDynamicResponse:H,incrementalCache:(0,s.getRequestMeta)(e,"incrementalCache"),cacheLifeProfiles:S.cacheLife,waitUntil:r.waitUntil,onClose:e=>{t.on("close",e)},onAfterTaskError:void 0,onInstrumentationRequestError:(t,r,n)=>m.onRequestError(e,t,n,O)},sharedContext:{buildId:U}},j=new l.NodeNextRequest(e),$=new l.NodeNextResponse(t),Y=c.NextRequestAdapter.fromNodeNextRequest(j,(0,c.signalFromNodeResponse)(t));try{let i=async e=>m.handle(Y,q).finally(()=>{if(!e)return;e.setAttributes({"http.status_code":t.statusCode,"next.rsc":!1});let r=V.getRootSpanAttributes();if(!r)return;if(r.get("next.span_type")!==d.BaseServerSpan.handleRequest)return void console.warn(`Unexpected root span type '${r.get("next.span_type")}'. Please report this Next.js issue https://github.com/vercel/next.js`);let a=r.get("next.route");if(a){let t=`${B} ${a}`;e.setAttributes({"next.route":a,"http.route":a,"next.span_name":t}),e.updateName(t)}else e.updateName(`${B} ${n}`)}),E=!!(0,s.getRequestMeta)(e,"minimalMode"),T=async s=>{var o,T;let A=async({previousCacheEntry:a})=>{try{if(!E&&h&&g&&!a)return t.statusCode=404,t.setHeader("x-nextjs-cache","REVALIDATED"),t.end("This page could not be found"),null;let n=await i(s);e.fetchMetrics=q.renderOpts.fetchMetrics;let o=q.renderOpts.pendingWaitUntil;o&&r.waitUntil&&(r.waitUntil(o),o=void 0);let T=q.renderOpts.collectedTags;if(!P)return await (0,R.sendResponse)(j,$,n,q.renderOpts.pendingWaitUntil),null;{let e=await n.blob(),t=(0,p.toNodeOutgoingHttpHeaders)(n.headers);T&&(t[L.NEXT_CACHE_TAGS_HEADER]=T),!t["content-type"]&&e.type&&(t["content-type"]=e.type);let r=void 0!==q.renderOpts.collectedRevalidate&&!(q.renderOpts.collectedRevalidate>=L.INFINITE_CACHE)&&q.renderOpts.collectedRevalidate,a=void 0===q.renderOpts.collectedExpire||q.renderOpts.collectedExpire>=L.INFINITE_CACHE?void 0:q.renderOpts.collectedExpire;return{value:{kind:N.CachedRouteKind.APP_ROUTE,status:n.status,body:Buffer.from(await e.arrayBuffer()),headers:t},cacheControl:{revalidate:r,expire:a}}}}catch(t){throw(null==a?void 0:a.isStale)&&await m.onRequestError(e,t,{routerKind:"App Router",routePath:n,routeType:"route",revalidateReason:(0,u.getRevalidateReason)({isStaticGeneration:X,isOnDemandRevalidate:h})},O),t}},l=await m.handleResponse({req:e,nextConfig:S,cacheKey:b,routeKind:a.RouteKind.APP_ROUTE,isFallback:!1,prerenderManifest:v,isRoutePPREnabled:!1,isOnDemandRevalidate:h,revalidateOnlyGenerated:g,responseGenerator:A,waitUntil:r.waitUntil,isMinimalMode:E});if(!P)return null;if((null==l||null==(o=l.value)?void 0:o.kind)!==N.CachedRouteKind.APP_ROUTE)throw Object.defineProperty(Error(`Invariant: app-route received invalid cache entry ${null==l||null==(T=l.value)?void 0:T.kind}`),"__NEXT_ERROR_CODE",{value:"E701",enumerable:!1,configurable:!0});E||t.setHeader("x-nextjs-cache",h?"REVALIDATED":l.isMiss?"MISS":l.isStale?"STALE":"HIT"),M&&t.setHeader("Cache-Control","private, no-cache, no-store, max-age=0, must-revalidate");let c=(0,p.fromNodeOutgoingHttpHeaders)(l.value.headers);return E&&P||c.delete(L.NEXT_CACHE_TAGS_HEADER),!l.cacheControl||t.getHeader("Cache-Control")||c.get("Cache-Control")||c.set("Cache-Control",(0,I.getCacheControlHeader)(l.cacheControl)),await (0,R.sendResponse)(j,$,new Response(l.value.body,{headers:c,status:l.value.status||200})),null};k?await T(k):await V.withPropagatedContext(e.headers,()=>V.trace(d.BaseServerSpan.handleRequest,{spanName:`${B} ${n}`,kind:o.SpanKind.SERVER,attributes:{"http.method":B,"http.target":e.url}},T))}catch(t){if(t instanceof C.NoFallbackError||await m.onRequestError(e,t,{routerKind:"App Router",routePath:f,routeType:"route",revalidateReason:(0,u.getRevalidateReason)({isStaticGeneration:X,isOnDemandRevalidate:h})}),P)throw t;return await (0,R.sendResponse)(j,$,new Response(null,{status:500})),null}}e.s(["handler",()=>_,"patchFetch",()=>S,"routeModule",()=>m,"serverHooks",()=>O,"workAsyncStorage",()=>M,"workUnitAsyncStorage",()=>v]),r()}catch(e){r(e)}},!1)];
+      `)}catch(e){console.log("Migration note: checked invoices & customers columns")}console.log("Database tables created/verified successfully")}finally{e.release()}},A=s;e.s(["default",0,A,"initDB",0,T]),r()}catch(e){r(e)}},!1),54799,(e,t,r)=>{t.exports=e.x("crypto",()=>require("crypto"))},93420,e=>e.a(async(t,r)=>{try{var a=e.i(49486),n=e.i(83599),s=e.i(57218),i=t([s]);async function o(e){try{let{name:t,email:r,password:i}=await e.json();if(!t||!r||!i)return a.NextResponse.json({error:"All fields are required"},{status:400});if((await s.default.query("SELECT id FROM users WHERE email = $1",[r])).rows.length>0)return a.NextResponse.json({error:"User already exists"},{status:400});let o=await n.default.hash(i,10),E=await s.default.query("INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role",[t,r,o,"USER"]);return a.NextResponse.json({message:"User created successfully",user:E.rows[0]},{status:201})}catch(e){return console.error("Registration error:",e),a.NextResponse.json({error:"Internal server error"},{status:500})}}[s]=i.then?(await i)():i,e.s(["POST",()=>o]),r()}catch(e){r(e)}},!1),60909,e=>e.a(async(t,r)=>{try{var a=e.i(19878),n=e.i(48499),s=e.i(82967),i=e.i(35670),o=e.i(11664),E=e.i(15322),T=e.i(21442),A=e.i(38067),d=e.i(47920),R=e.i(51399),c=e.i(79492),u=e.i(54758),l=e.i(92873),L=e.i(72015),I=e.i(54934),N=e.i(91087),U=e.i(93695);e.i(54423);var _=e.i(88506),C=e.i(93420),D=t([C]);[C]=D.then?(await D)():D;let m=new a.AppRouteRouteModule({definition:{kind:n.RouteKind.APP_ROUTE,page:"/api/auth/register/route",pathname:"/api/auth/register",filename:"route",bundlePath:""},distDir:".next",relativeProjectDir:"",resolvedPagePath:"[project]/Desktop/bill/app/api/auth/register/route.js",nextConfigOutput:"",userland:C}),{workAsyncStorage:M,workUnitAsyncStorage:O,serverHooks:F}=m;function p(){return(0,s.patchFetch)({workAsyncStorage:M,workUnitAsyncStorage:O})}async function S(e,t,r){m.isDev&&(0,i.addRequestMeta)(e,"devRequestTimingInternalsEnd",process.hrtime.bigint());let a="/api/auth/register/route";a=a.replace(/\/index$/,"")||"/";let s=await m.prepare(e,t,{srcPage:a,multiZoneDraftMode:!1});if(!s)return t.statusCode=400,t.end("Bad Request"),null==r.waitUntil||r.waitUntil.call(r,Promise.resolve()),null;let{buildId:C,params:D,nextConfig:p,parsedUrl:S,isDraftMode:M,prerenderManifest:O,routerServerContext:F,isOnDemandRevalidate:v,revalidateOnlyGenerated:g,resolvedPathname:h,clientReferenceManifest:y,serverActionsManifest:P}=s,x=(0,A.normalizeAppPath)(a),X=!!(O.dynamicRoutes[x]||O.routes[h]),b=async()=>((null==F?void 0:F.render404)?await F.render404(e,t,S,!1):t.end("This page could not be found"),null);if(X&&!M){let e=!!O.routes[h],t=O.dynamicRoutes[x];if(t&&!1===t.fallback&&!e){if(p.experimental.adapterPath)return await b();throw new U.NoFallbackError}}let f=null;!X||m.isDev||M||(f=h,f="/index"===f?"/":f);let H=!0===m.isDev||!X,w=X&&!H;P&&y&&(0,E.setReferenceManifestsSingleton)({page:a,clientReferenceManifest:y,serverActionsManifest:P,serverModuleMap:(0,T.createServerModuleMap)({serverActionsManifest:P})});let V=e.method||"GET",B=(0,o.getTracer)(),q=B.getActiveScopeSpan(),k={params:D,prerenderManifest:O,renderOpts:{experimental:{authInterrupts:!!p.experimental.authInterrupts},cacheComponents:!!p.cacheComponents,supportsDynamicResponse:H,incrementalCache:(0,i.getRequestMeta)(e,"incrementalCache"),cacheLifeProfiles:p.cacheLife,waitUntil:r.waitUntil,onClose:e=>{t.on("close",e)},onAfterTaskError:void 0,onInstrumentationRequestError:(t,r,a)=>m.onRequestError(e,t,a,F)},sharedContext:{buildId:C}},Y=new d.NodeNextRequest(e),j=new d.NodeNextResponse(t),K=R.NextRequestAdapter.fromNodeNextRequest(Y,(0,R.signalFromNodeResponse)(t));try{let s=async e=>m.handle(K,k).finally(()=>{if(!e)return;e.setAttributes({"http.status_code":t.statusCode,"next.rsc":!1});let r=B.getRootSpanAttributes();if(!r)return;if(r.get("next.span_type")!==c.BaseServerSpan.handleRequest)return void console.warn(`Unexpected root span type '${r.get("next.span_type")}'. Please report this Next.js issue https://github.com/vercel/next.js`);let n=r.get("next.route");if(n){let t=`${V} ${n}`;e.setAttributes({"next.route":n,"http.route":n,"next.span_name":t}),e.updateName(t)}else e.updateName(`${V} ${a}`)}),E=!!(0,i.getRequestMeta)(e,"minimalMode"),T=async i=>{var o,T;let A=async({previousCacheEntry:n})=>{try{if(!E&&v&&g&&!n)return t.statusCode=404,t.setHeader("x-nextjs-cache","REVALIDATED"),t.end("This page could not be found"),null;let a=await s(i);e.fetchMetrics=k.renderOpts.fetchMetrics;let o=k.renderOpts.pendingWaitUntil;o&&r.waitUntil&&(r.waitUntil(o),o=void 0);let T=k.renderOpts.collectedTags;if(!X)return await (0,l.sendResponse)(Y,j,a,k.renderOpts.pendingWaitUntil),null;{let e=await a.blob(),t=(0,L.toNodeOutgoingHttpHeaders)(a.headers);T&&(t[N.NEXT_CACHE_TAGS_HEADER]=T),!t["content-type"]&&e.type&&(t["content-type"]=e.type);let r=void 0!==k.renderOpts.collectedRevalidate&&!(k.renderOpts.collectedRevalidate>=N.INFINITE_CACHE)&&k.renderOpts.collectedRevalidate,n=void 0===k.renderOpts.collectedExpire||k.renderOpts.collectedExpire>=N.INFINITE_CACHE?void 0:k.renderOpts.collectedExpire;return{value:{kind:_.CachedRouteKind.APP_ROUTE,status:a.status,body:Buffer.from(await e.arrayBuffer()),headers:t},cacheControl:{revalidate:r,expire:n}}}}catch(t){throw(null==n?void 0:n.isStale)&&await m.onRequestError(e,t,{routerKind:"App Router",routePath:a,routeType:"route",revalidateReason:(0,u.getRevalidateReason)({isStaticGeneration:w,isOnDemandRevalidate:v})},F),t}},d=await m.handleResponse({req:e,nextConfig:p,cacheKey:f,routeKind:n.RouteKind.APP_ROUTE,isFallback:!1,prerenderManifest:O,isRoutePPREnabled:!1,isOnDemandRevalidate:v,revalidateOnlyGenerated:g,responseGenerator:A,waitUntil:r.waitUntil,isMinimalMode:E});if(!X)return null;if((null==d||null==(o=d.value)?void 0:o.kind)!==_.CachedRouteKind.APP_ROUTE)throw Object.defineProperty(Error(`Invariant: app-route received invalid cache entry ${null==d||null==(T=d.value)?void 0:T.kind}`),"__NEXT_ERROR_CODE",{value:"E701",enumerable:!1,configurable:!0});E||t.setHeader("x-nextjs-cache",v?"REVALIDATED":d.isMiss?"MISS":d.isStale?"STALE":"HIT"),M&&t.setHeader("Cache-Control","private, no-cache, no-store, max-age=0, must-revalidate");let R=(0,L.fromNodeOutgoingHttpHeaders)(d.value.headers);return E&&X||R.delete(N.NEXT_CACHE_TAGS_HEADER),!d.cacheControl||t.getHeader("Cache-Control")||R.get("Cache-Control")||R.set("Cache-Control",(0,I.getCacheControlHeader)(d.cacheControl)),await (0,l.sendResponse)(Y,j,new Response(d.value.body,{headers:R,status:d.value.status||200})),null};q?await T(q):await B.withPropagatedContext(e.headers,()=>B.trace(c.BaseServerSpan.handleRequest,{spanName:`${V} ${a}`,kind:o.SpanKind.SERVER,attributes:{"http.method":V,"http.target":e.url}},T))}catch(t){if(t instanceof U.NoFallbackError||await m.onRequestError(e,t,{routerKind:"App Router",routePath:x,routeType:"route",revalidateReason:(0,u.getRevalidateReason)({isStaticGeneration:w,isOnDemandRevalidate:v})}),X)throw t;return await (0,l.sendResponse)(Y,j,new Response(null,{status:500})),null}}e.s(["handler",()=>S,"patchFetch",()=>p,"routeModule",()=>m,"serverHooks",()=>F,"workAsyncStorage",()=>M,"workUnitAsyncStorage",()=>O]),r()}catch(e){r(e)}},!1)];
 
 //# sourceMappingURL=%5Broot-of-the-server%5D__0533a2f1._.js.map
