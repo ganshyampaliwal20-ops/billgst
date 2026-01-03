@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../../../lib/auth";
+import { authOptions } from "@/lib/auth";
 import nodemailer from 'nodemailer';
 
 export async function POST(req: Request) {
