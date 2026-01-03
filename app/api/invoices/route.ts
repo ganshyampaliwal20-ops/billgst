@@ -30,7 +30,7 @@ export async function GET() {
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {
-        const err = error as any;
+        const err = error as Error;
         console.error('Invoice GET API Error:', err);
         return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
     }
