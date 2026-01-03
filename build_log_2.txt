@@ -1,0 +1,104 @@
+
+> bill@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\Ghanshyam\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\Ghanshyam\Desktop\bill\package-lock.json
+
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.1s
+   Running TypeScript ...
+   Collecting page data using 11 workers ...
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+   Generating static pages using 11 workers (0/28) ...
+Store rehydration started
+Store rehydration finished successfully
+DB Init: Environment Variable Type: undefined
+DB Init: Environment Variable Length: NULL
+DB Init: Connection String is INVALID or EMPTY after sanitization.
+CRITICAL: DATABASE_URL is missing or invalid!
+   Generating static pages using 11 workers (7/28) 
+Store rehydration started
+Store rehydration finished successfully
+   Generating static pages using 11 workers (14/28) 
+   Generating static pages using 11 workers (21/28) 
+ ✓ Generating static pages using 11 workers (28/28) in 1180.3ms
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/auth/register
+├ ƒ /api/customers
+├ ƒ /api/fix-account
+├ ƒ /api/invoices
+├ ƒ /api/invoices/test
+├ ƒ /api/products
+├ ƒ /api/setup
+├ ƒ /api/test-db
+├ ƒ /api/test-session
+├ ○ /blog
+├ ○ /blog/features
+├ ○ /dashboard
+├ ○ /dashboard/customers
+├ ○ /dashboard/inventory
+├ ○ /dashboard/invoices
+├ ○ /dashboard/invoices/new
+├ ○ /dashboard/reports
+├ ○ /dashboard/settings
+├ ○ /forgot-password
+├ ○ /login
+├ ○ /register
+├ ○ /robots.txt
+├ ○ /setup
+└ ○ /sitemap.xml
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
