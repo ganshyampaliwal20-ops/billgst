@@ -46,6 +46,7 @@ export default function DashboardLayout({
 
     const menuItems: MenuItem[] = [
         { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices' },
+        { icon: FaFileInvoice, label: 'Quotations', href: '/dashboard/quotations' },
         { icon: FaReceipt, label: 'Tax Invoice', href: '/dashboard/invoices/new?type=TAX_INVOICE' },
         { icon: FaReceipt, label: 'Bill of Supply', href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
         { icon: FaReceipt, label: 'Delivery Challan', href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },

@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/Desktop/bill/middleware.js"],"sourcesContent":["import { NextResponse } from 'next/server';\r\n\r\nexport function middleware(request) {\r\n    return NextResponse.next();\r\n}\r\n\r\nexport const config = {\r\n    matcher: []\r\n};\r\n"],"names":[],"mappings":";;;;;;AAAA;AAAA;;AAEO,SAAS,WAAW,OAAO;IAC9B,OAAO,mNAAY,CAAC,IAAI;AAC5B;AAEO,MAAM,SAAS;IAClB,SAAS,EAAE;AACf"}}]
-}

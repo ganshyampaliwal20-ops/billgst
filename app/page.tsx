@@ -157,9 +157,9 @@ export default function LandingPage() {
   // Quick Action Items
   const quickActions = [
     { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
-    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-emerald-500 hover:bg-emerald-600' },
-    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-violet-500 hover:bg-violet-600' },
-    { icon: FaChartLine, label: t.viewReports, href: '/dashboard/reports', color: 'bg-amber-500 hover:bg-amber-600' },
+    { icon: FaFileInvoice, label: 'New Quotation', href: '/dashboard/quotations/new', color: 'bg-emerald-500 hover:bg-emerald-600' },
+    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-violet-500 hover:bg-violet-600' },
+    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-amber-500 hover:bg-amber-600' },
   ];
 
   return (

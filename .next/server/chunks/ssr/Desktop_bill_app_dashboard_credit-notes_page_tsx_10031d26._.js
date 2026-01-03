@@ -1,3 +1,0 @@
-module.exports=[24137,a=>{"use strict";var b=a.i(16327);function c(){return(0,b.jsx)("div",{className:"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8",children:(0,b.jsxs)("div",{className:"bg-gradient-to-r from-rose-500 to-red-600 rounded-2xl p-12 text-white text-center shadow-2xl",children:[(0,b.jsx)("div",{className:"text-6xl mb-6",children:"↩️"}),(0,b.jsx)("h1",{className:"text-4xl font-bold mb-4",children:"Credit Notes"}),(0,b.jsx)("p",{className:"text-xl mb-8 opacity-90",children:"Coming Soon! This feature is under development."}),(0,b.jsx)("p",{className:"text-sm opacity-75",children:"Manage credit notes for returns and adjustments"})]})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=Desktop_bill_app_dashboard_credit-notes_page_tsx_10031d26._.js.map

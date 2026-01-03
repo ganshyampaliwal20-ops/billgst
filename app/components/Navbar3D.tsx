@@ -163,6 +163,7 @@ export default function Navbar3D() {
 
                         {[
                             { icon: FaFileInvoice, label: 'Invoice', href: '/dashboard/invoices' },
+                            { icon: FaFileInvoice, label: 'Quotation', href: '/dashboard/quotations' },
                             { icon: FaUsers, label: 'Customer', href: '/dashboard/customers' },
                             { icon: FaBox, label: 'Product', href: '/dashboard/inventory' },
                             { icon: FaChartLine, label: 'Report', href: '/dashboard/reports' },

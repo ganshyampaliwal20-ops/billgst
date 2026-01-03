@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Ghanshyam/Desktop/bill/proxy.js"],"sourcesContent":["import { NextResponse } from 'next/server';\r\n\r\nexport function proxy(request) {\r\n    return NextResponse.next();\r\n}\r\n\r\nexport const config = {\r\n    matcher: []\r\n};\r\n"],"names":[],"mappings":";;;;;;AAAA;;AAEO,SAAS,MAAM,OAAO;IACzB,OAAO,iKAAY,CAAC,IAAI;AAC5B;AAEO,MAAM,SAAS;IAClB,SAAS,EAAE;AACf"}}]
-}

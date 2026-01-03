@@ -1,8 +1,0 @@
-User-Agent: *
-Allow: /
-Allow: /blog
-Allow: /logo.png
-Disallow: /api/
-Disallow: /dashboard/
-
-Sitemap: https://billgst.in/sitemap.xml

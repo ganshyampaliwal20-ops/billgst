@@ -1,3 +1,0 @@
-module.exports=[14324,a=>{"use strict";var b=a.i(16327);function c(){return(0,b.jsx)("div",{className:"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8",children:(0,b.jsxs)("div",{className:"bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-12 text-white text-center shadow-2xl",children:[(0,b.jsx)("div",{className:"text-6xl mb-6",children:"🛒"}),(0,b.jsx)("h1",{className:"text-4xl font-bold mb-4",children:"Purchase Orders"}),(0,b.jsx)("p",{className:"text-xl mb-8 opacity-90",children:"Coming Soon! This feature is under development."}),(0,b.jsx)("p",{className:"text-sm opacity-75",children:"Track and manage purchase orders from customers"})]})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=Desktop_bill_app_dashboard_purchase-orders_page_tsx_b9d25554._.js.map
