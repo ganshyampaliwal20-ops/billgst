@@ -157,9 +157,9 @@ export default function LandingPage() {
   // Quick Action Items
   const quickActions = [
     { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
-    { icon: FaFileInvoice, label: 'New Quotation', href: '/dashboard/quotations/new', color: 'bg-emerald-500 hover:bg-emerald-600' },
-    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-violet-500 hover:bg-violet-600' },
-    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-amber-500 hover:bg-amber-600' },
+    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-emerald-500 hover:bg-emerald-600' },
+    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-violet-500 hover:bg-violet-600' },
+    { icon: FaChartLine, label: t.viewReports, href: '/dashboard/reports', color: 'bg-amber-500 hover:bg-amber-600' },
   ];
 
   return (
@@ -202,21 +202,83 @@ export default function LandingPage() {
             )}
           </div>
 
-          {/* Quick Actions - Protected */}
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {quickActions.map((action, index) => {
-                const Icon = action.icon;
+          {/* Stats Overview at the top */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleProtectedAction(stat.href)}
+                  className="bg-white rounded-3xl p-4 md:p-5 shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 group flex flex-col items-center justify-center text-center hover:scale-[1.02] w-full"
+                >
+                  <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
+                    <Icon className="text-xl" />
+                  </div>
+                  <p className="text-slate-500 text-[10px] font-bold uppercase mb-1 tracking-wider">{stat.label}</p>
+                  <p className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">{status === 'authenticated' ? stat.formattedValue : '---'}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Create Section - Protected */}
+          <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+            <div className="flex items-center gap-2 mb-6">
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">Create</h2>
+              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-[10px]">▶</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
+              {[
+                { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices/new', color: 'text-blue-600' },
+                { icon: FaBoxOpen, label: 'Purchase', href: '/dashboard/purchase', color: 'text-blue-600' },
+                { icon: FaReceipt, label: 'Quotation', href: '/dashboard/quotations', color: 'text-blue-600' },
+                { icon: FaClock, label: 'Delivery Challan', href: '/dashboard/delivery-challan', color: 'text-blue-600' },
+                { icon: FaFileInvoice, label: 'Credit Note', href: '/dashboard/credit-notes', color: 'text-blue-600' },
+                { icon: FaReceipt, label: 'Purchase Order', href: '/dashboard/purchase-orders', color: 'text-blue-600' },
+                { icon: FaRupeeSign, label: 'Expenses', href: '/dashboard/expenses', color: 'text-blue-600' },
+                { icon: FaFileInvoice, label: 'Pro Forma', href: '/dashboard/pro-forma', color: 'text-blue-600' },
+              ].map((item, idx) => {
+                const Icon = item.icon;
                 return (
-                  <button
-                    key={index}
-                    onClick={() => handleProtectedAction(action.href)}
-                    className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30 w-full`}
-                  >
-                    <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <Icon className="text-xl md:text-2xl" />
+                  <button key={idx} onClick={() => handleProtectedAction(item.href)} className="flex flex-col items-center gap-2 group">
+                    <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
+                      <Icon className={`text-2xl ${item.color}`} />
                     </div>
-                    <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
+                    <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick Access Section - Protected */}
+          <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+            <h2 className="text-xl font-black text-slate-800 tracking-tight mb-6">Quick Access</h2>
+            <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
+              {[
+                { icon: FaClock, label: 'E-way Bill', href: '/dashboard/e-way-bill', color: 'text-blue-500' },
+                { icon: FaFileInvoice, label: 'E-Invoice', href: '/dashboard/e-invoice', color: 'text-blue-500' },
+                { icon: FaClock, label: 'Timeline', href: '/dashboard/timeline', color: 'text-blue-500' },
+                { icon: FaStore, label: 'Online Store', href: '/dashboard/store', color: 'text-blue-500' },
+                { icon: FaChartLine, label: 'Reports', href: '/dashboard/reports', color: 'text-blue-500' },
+                { icon: FaChartLine, label: 'Analytics', href: '/dashboard/analytics', color: 'text-blue-500' },
+                { icon: FaUsers, label: 'Business Card', href: '/dashboard/business-cards', color: 'text-blue-500' },
+                { icon: FaUsers, label: 'Greetings', href: '/dashboard/greetings', color: 'text-blue-500' },
+                { icon: FaRupeeSign, label: 'Refer & Earn', href: '/dashboard/refer', color: 'text-blue-500' },
+                { icon: FaFileInvoice, label: 'Templates', href: '/dashboard/templates', color: 'text-blue-500' },
+                { icon: FaStore, label: 'Settings', href: '/dashboard/settings', color: 'text-blue-500' },
+                { icon: FaUsers, label: 'Help', href: '/dashboard/help', color: 'text-blue-500' },
+              ].map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <button key={idx} onClick={() => handleProtectedAction(item.href)} className="flex flex-col items-center gap-2 group">
+                    <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
+                      <Icon className={`text-2xl ${item.color}`} />
+                    </div>
+                    <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
                   </button>
                 );
               })}
@@ -224,66 +286,9 @@ export default function LandingPage() {
           </div>
 
           {/* Analytics Overview Header */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-4 md:mx-0 text-center flex flex-col items-center justify-center">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-6 shadow-xl text-center">
             <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
             <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
-          </div>
-
-          {/* Period Filter Buttons */}
-          <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
-            <p className="text-xs md:text-sm font-bold text-slate-800 mb-3 text-center">{t.selectPeriod}:</p>
-            <div className="flex gap-2 md:gap-3 flex-wrap justify-center">
-              {[
-                { key: 'daily', label: t.daily, activeColor: 'from-blue-500 to-cyan-500' },
-                { key: 'weekly', label: t.weekly, activeColor: 'from-purple-500 to-pink-500' },
-                { key: 'monthly', label: t.monthly, activeColor: 'from-indigo-500 to-violet-500' },
-                { key: 'yearly', label: t.yearly, activeColor: 'from-emerald-500 to-teal-500' },
-                { key: 'custom', label: 'Custom', activeColor: 'from-orange-500 to-amber-500' }
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setPeriod(item.key)}
-                  className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-xl text-[11px] md:text-sm font-bold transition-all duration-300 ${period === item.key
-                    ? `bg-gradient-to-r ${item.activeColor} text-white shadow-lg scale-105`
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                    }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats Cards - Protected Links */}
-          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-            <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-4 text-center">{t.businessOverview}</h1>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2">
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleProtectedAction(stat.href)}
-                    className="bg-white rounded-2xl p-4 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[120px] flex flex-col items-center justify-center text-center hover:scale-[1.02] w-full"
-                  >
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
-                      <Icon className="text-xl" />
-                    </div>
-                    <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1 px-1">
-                      {stat.label}
-                    </p>
-                    <p className="text-xl md:text-2xl font-extrabold text-slate-800 mb-1">
-                      {status === 'authenticated' ? stat.formattedValue : '---'}
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-auto">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                        {status === 'authenticated' ? stat.trend : 'Login'}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           {/* Conditional Banner - Modified for Center Alignment on Mobile */}

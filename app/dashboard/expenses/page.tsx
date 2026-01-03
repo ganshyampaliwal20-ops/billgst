@@ -1,282 +1,98 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaPlus, FaTrash } from 'react-icons/fa';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
-import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from '@/lib/constants';
+import { FaPlus, FaSearch, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+
+interface Expense {
+    id: string;
+    category: string;
+    description: string;
+    date: string;
+    amount: number;
+}
 
 export default function ExpensesPage() {
-    const [expenses, setExpenses] = useState<any[]>([]);
+    const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({
-        category: '',
-        vendor_name: '',
-        amount: '',
-        expense_date: new Date().toISOString().split('T')[0],
-        payment_method: '',
-        receipt_no: '',
-        notes: ''
-    });
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        fetchExpenses();
+        setTimeout(() => {
+            setExpenses([
+                { id: '1', category: 'Rent', description: 'Office Rent - Oct', date: '2023-10-01', amount: 25000 },
+                { id: '2', category: 'Utility', description: 'Electricity Bill', date: '2023-10-05', amount: 3500 },
+                { id: '3', category: 'Salary', description: 'Staff Salary - Sept', date: '2023-10-02', amount: 80000 },
+            ]);
+            setLoading(false);
+        }, 1000);
     }, []);
 
-    const fetchExpenses = async () => {
-        try {
-            const res = await fetch('/api/expenses');
-            const data = await res.json();
-            setExpenses(Array.isArray(data) ? data : []);
-        } catch (error) {
-            toast.error('Failed to load expenses');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const filtered = expenses.filter(e =>
+        e.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        try {
-            const res = await fetch('/api/expenses', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            if (res.ok) {
-                toast.success('Expense added successfully!');
-                setShowForm(false);
-                setFormData({
-                    category: '',
-                    vendor_name: '',
-                    amount: '',
-                    expense_date: new Date().toISOString().split('T')[0],
-                    payment_method: '',
-                    receipt_no: '',
-                    notes: ''
-                });
-                fetchExpenses();
-            } else {
-                toast.error('Failed to add expense');
-            }
-        } catch (error) {
-            toast.error('Error adding expense');
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this expense?')) return;
-
-        try {
-            const res = await fetch(`/api/expenses?id=${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                toast.success('Expense deleted');
-                fetchExpenses();
-            }
-        } catch (error) {
-            toast.error('Error deleting expense');
-        }
-    };
-
-    // Calculate total expenses
-    const totalExpenses = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
-
-    // Category wise breakdown
-    const categoryTotals = expenses.reduce((acc: any, exp) => {
-        acc[exp.category] = (acc[exp.category] || 0) + Number(exp.amount);
-        return acc;
-    }, {});
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-            </div>
-        );
-    }
+    const totalExpenses = expenses.reduce((acc, curr) => acc + curr.amount, 0);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800">Expenses</h1>
-                    <p className="text-sm text-slate-600 mt-1">Track all your business expenses</p>
+                    <h1 className="text-2xl font-bold text-slate-800">Expenses</h1>
+                    <p className="text-slate-500 text-sm">Monitor your business spending and overheads</p>
                 </div>
-                <button
-                    onClick={() => setShowForm(!showForm)}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg"
-                >
+                <button className="flex items-center justify-center gap-2 bg-rose-600 text-white px-6 py-3 rounded-xl hover:bg-rose-700 transition shadow-lg font-bold">
                     <FaPlus /> Add Expense
                 </button>
             </div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-                    <p className="text-sm text-slate-600 font-bold mb-2">Total Expenses</p>
-                    <p className="text-3xl font-bold text-red-600">₹{totalExpenses.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-                    <p className="text-sm text-slate-600 font-bold mb-2">This Month</p>
-                    <p className="text-3xl font-bold text-orange-600">
-                        ₹{expenses.filter(e => new Date(e.expense_date).getMonth() === new Date().getMonth())
-                            .reduce((sum, e) => sum + Number(e.amount), 0).toLocaleString('en-IN')}
-                    </p>
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-                    <p className="text-sm text-slate-600 font-bold mb-2">Categories</p>
-                    <p className="text-3xl font-bold text-indigo-600">{Object.keys(categoryTotals).length}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total This Month</p>
+                    <p className="text-3xl font-black text-rose-600">₹{totalExpenses.toLocaleString()}</p>
                 </div>
             </div>
 
-            {/* Add Expense Form */}
-            {showForm && (
-                <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 mb-8">
-                    <h2 className="text-xl font-bold mb-6">Add New Expense</h2>
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Category *</label>
-                            <select
-                                required
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                            >
-                                <option value="">Select Category</option>
-                                {EXPENSE_CATEGORIES.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Vendor Name</label>
-                            <input
-                                type="text"
-                                value={formData.vendor_name}
-                                onChange={(e) => setFormData({ ...formData, vendor_name: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Amount *</label>
-                            <input
-                                type="number"
-                                required
-                                step="0.01"
-                                value={formData.amount}
-                                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Date *</label>
-                            <input
-                                type="date"
-                                required
-                                value={formData.expense_date}
-                                onChange={(e) => setFormData({ ...formData, expense_date: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Payment Method</label>
-                            <select
-                                value={formData.payment_method}
-                                onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                            >
-                                <option value="">Select Method</option>
-                                {PAYMENT_METHODS.map(method => (
-                                    <option key={method} value={method}>{method}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Receipt No</label>
-                            <input
-                                type="text"
-                                value={formData.receipt_no}
-                                onChange={(e) => setFormData({ ...formData, receipt_no: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                            />
-                        </div>
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Notes</label>
-                            <textarea
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                className="w-full p-3 border border-slate-300 rounded-xl"
-                                rows={2}
-                            />
-                        </div>
-                        <div className="md:col-span-2 flex gap-4">
-                            <button
-                                type="submit"
-                                className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition"
-                            >
-                                Save Expense
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowForm(false)}
-                                className="px-8 py-3 bg-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-300 transition"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100">
+                    <div className="relative max-w-md">
+                        <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Search category or description..."
+                            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all text-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
                 </div>
-            )}
 
-            {/* Expenses List */}
-            <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-slate-200">
-                    <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
-                        <tr>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase">Date</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase">Category</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase">Vendor</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase">Payment Method</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase">Amount</th>
-                            <th className="px-6 py-4 text-center text-xs font-bold text-slate-700 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-slate-100">
-                        {expenses.length === 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-slate-50 text-slate-500">
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                                    No expenses recorded yet
-                                </td>
+                                <th className="text-left py-4 px-6 text-xs font-black uppercase tracking-wider">Category</th>
+                                <th className="text-left py-4 px-6 text-xs font-black uppercase tracking-wider">Description</th>
+                                <th className="text-left py-4 px-6 text-xs font-black uppercase tracking-wider">Date</th>
+                                <th className="text-right py-4 px-6 text-xs font-black uppercase tracking-wider">Amount</th>
                             </tr>
-                        ) : (
-                            expenses.map(expense => (
-                                <tr key={expense.id} className="hover:bg-slate-50 transition">
-                                    <td className="px-6 py-4 text-sm text-slate-700">
-                                        {new Date(expense.expense_date).toLocaleDateString('en-IN')}
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {loading ? (
+                                <tr><td colSpan={4} className="py-20 text-center text-slate-400">Loading...</td></tr>
+                            ) : filtered.map((e) => (
+                                <tr key={e.id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="py-4 px-6">
+                                        <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold uppercase">{e.category}</span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm font-bold text-indigo-600">{expense.category}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-700">{expense.vendor_name || '-'}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">{expense.payment_method || '-'}</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-right text-red-600">
-                                        ₹{Number(expense.amount).toLocaleString('en-IN')}
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button
-                                            onClick={() => handleDelete(expense.id)}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </td>
+                                    <td className="py-4 px-6 text-sm text-slate-700 font-medium">{e.description}</td>
+                                    <td className="py-4 px-6 text-sm text-slate-500">{e.date}</td>
+                                    <td className="py-4 px-6 text-sm font-black text-rose-600 text-right">₹{e.amount.toLocaleString()}</td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

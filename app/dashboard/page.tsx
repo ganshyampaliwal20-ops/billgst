@@ -1,6 +1,6 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore } from 'react-icons/fa';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ComposedChart, Cell } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
@@ -171,16 +171,8 @@ export default function DashboardPage() {
         },
     ];
 
-    // Quick Action Items
-    const quickActions = [
-        { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
-        { icon: FaFileInvoice, label: 'New Quotation', href: '/dashboard/quotations/new', color: 'bg-emerald-500 hover:bg-emerald-600' },
-        { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-violet-500 hover:bg-violet-600' },
-        { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-amber-500 hover:bg-amber-600' },
-    ];
-
     return (
-        <div className="space-y-8 md:space-y-10 px-4 md:px-0">
+        <div className="space-y-6 pb-20">
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
                 <div>
@@ -197,36 +189,98 @@ export default function DashboardPage() {
                         </span>
                     </div>
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                        {getGreeting()}, <span className="text-amber-500">{businessProfile.name || 'Owner'}</span>! 👋
+                        {getGreeting()}, <span className="text-blue-600">{businessProfile.name || 'Owner'}</span>! 👋
                     </h1>
                 </div>
             </div>
 
-            {/* Quick Actions - With White Border Container (Reverted Position) */}
-            <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                    {quickActions.map((action, index) => {
-                        const Icon = action.icon;
+            {/* Stats Overview at the top */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {stats.map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                        <Link
+                            key={index}
+                            href={stat.href}
+                            className="bg-white rounded-3xl p-4 md:p-5 shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 group flex flex-col items-center justify-center text-center hover:scale-[1.02]"
+                        >
+                            <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
+                                <Icon className="text-xl" />
+                            </div>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase mb-1 tracking-wider">{stat.label}</p>
+                            <p className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">{stat.formattedValue}</p>
+                        </Link>
+                    );
+                })}
+            </div>
+
+            {/* Create Section - Grid Layout from Image */}
+            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+                <div className="flex items-center gap-2 mb-6">
+                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Create</h2>
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-[10px]">▶</span>
+                    </div>
+                </div>
+                <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
+                    {[
+                        { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices/new', color: 'text-blue-600' },
+                        { icon: FaBoxOpen, label: 'Purchase', href: '/dashboard/purchase', color: 'text-blue-600' },
+                        { icon: FaReceipt, label: 'Quotation', href: '/dashboard/quotations', color: 'text-blue-600' },
+                        { icon: FaClock, label: 'Delivery Challan', href: '/dashboard/delivery-challan', color: 'text-blue-600' },
+                        { icon: FaFileInvoice, label: 'Credit Note', href: '/dashboard/credit-notes', color: 'text-blue-600' },
+                        { icon: FaReceipt, label: 'Purchase Order', href: '/dashboard/purchase-orders', color: 'text-blue-600' },
+                        { icon: FaRupeeSign, label: 'Expenses', href: '/dashboard/expenses', color: 'text-blue-600' },
+                        { icon: FaFileInvoice, label: 'Pro Forma', href: '/dashboard/pro-forma', color: 'text-blue-600' },
+                    ].map((item, idx) => {
+                        const Icon = item.icon;
                         return (
-                            <Link
-                                key={index}
-                                href={action.href}
-                                className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30`}
-                            >
-                                <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-                                    <Icon className="text-xl md:text-2xl" />
+                            <Link key={idx} href={item.href} className="flex flex-col items-center gap-2 group">
+                                <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
+                                    <Icon className={`text-2xl ${item.color}`} />
                                 </div>
-                                <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
+                                <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
                             </Link>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Analytics Overview Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-4 md:mx-0 text-center flex flex-col items-center justify-center">
-                <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
-                <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
+            {/* Quick Access Section */}
+            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
+                <h2 className="text-xl font-black text-slate-800 tracking-tight mb-6">Quick Access</h2>
+                <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
+                    {[
+                        { icon: FaClock, label: 'E-way Bill', href: '/dashboard/e-way-bill', color: 'text-blue-500' },
+                        { icon: FaFileInvoice, label: 'E-Invoice', href: '/dashboard/e-invoice', color: 'text-blue-500' },
+                        { icon: FaClock, label: 'Timeline', href: '/dashboard/timeline', color: 'text-blue-500' },
+                        { icon: FaStore, label: 'Online Store', href: '/dashboard/store', color: 'text-blue-500' },
+                        { icon: FaChartLine, label: 'Reports', href: '/dashboard/reports', color: 'text-blue-500' },
+                        { icon: FaChartLine, label: 'Analytics', href: '/dashboard/analytics', color: 'text-blue-500' },
+                        { icon: FaUsers, label: 'Business Card', href: '/dashboard/business-cards', color: 'text-blue-500' },
+                        { icon: FaUsers, label: 'Greetings', href: '/dashboard/greetings', color: 'text-blue-500' },
+                        { icon: FaRupeeSign, label: 'Refer & Earn', href: '/dashboard/refer', color: 'text-blue-500' },
+                        { icon: FaFileInvoice, label: 'Templates', href: '/dashboard/templates', color: 'text-blue-500' },
+                        { icon: FaCog, label: 'Settings', href: '/dashboard/settings', color: 'text-blue-500' },
+                        { icon: FaUsers, label: 'Help', href: '/dashboard/help', color: 'text-blue-500' },
+                    ].map((item, idx) => {
+                        const Icon = item.icon;
+                        return (
+                            <Link key={idx} href={item.href} className="flex flex-col items-center gap-2 group">
+                                <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
+                                    <Icon className={`text-2xl ${item.color}`} />
+                                </div>
+                                <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Analytics Overview Header (Simplified) */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-6 shadow-xl text-center">
+                <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">{t.analyticsOverview}</h2>
+                <p className="text-xs text-indigo-100 font-bold mt-1 uppercase tracking-widest">Business Performance Tracker</p>
             </div>
 
             {/* Period Filter Buttons - Separate Box */}
@@ -278,47 +332,6 @@ export default function DashboardPage() {
                 )}
             </div>
 
-            {/* Stats Cards - Premium Container (Reverted Position) */}
-            <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-                <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-4 text-center">{t.businessOverview}</h1>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2">
-                    {stats.map((stat, index) => {
-                        const Icon = stat.icon;
-                        return (
-                            <Link
-                                key={index}
-                                href={stat.href}
-                                className="bg-white rounded-2xl p-4 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[120px] flex flex-col items-center justify-center text-center hover:scale-[1.02]"
-                            >
-                                {/* Icon */}
-                                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
-                                    <Icon className="text-xl" />
-                                </div>
-
-                                {/* Label */}
-                                <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1 px-1">
-                                    {stat.label}
-                                </p>
-
-                                {/* Value */}
-                                <p className="text-xl md:text-2xl font-extrabold text-slate-800 mb-1">
-                                    {stat.formattedValue}
-                                </p>
-
-                                {/* Subtext with Trend */}
-                                <div className="flex items-center gap-1.5 mt-auto">
-                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                        {stat.trend}
-                                    </span>
-                                    <span className="text-[10px] text-slate-400 font-medium">
-                                        {stat.subtext}
-                                    </span>
-                                </div>
-                            </Link>
-                        );
-                    })}
-                </div>
-            </div>
 
             {/* Setup Business Prompt - Dismissible */}
             {
