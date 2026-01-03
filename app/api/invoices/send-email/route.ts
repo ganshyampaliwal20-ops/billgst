@@ -5,52 +5,52 @@ import nodemailer from 'nodemailer';
 
 // POST - Send invoice via email
 export async function POST(request: Request) {
-    try {
-        const session = await getServerSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+  try {
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-        const body = await request.json();
-        const { invoice_id, recipient_email, message } = body;
+    const body = await request.json();
+    const { invoice_id, recipient_email, message } = body;
 
-        if (!invoice_id || !recipient_email) {
-            return NextResponse.json({ error: 'Invoice ID and recipient email required' }, { status: 400 });
-        }
+    if (!invoice_id || !recipient_email) {
+      return NextResponse.json({ error: 'Invoice ID and recipient email required' }, { status: 400 });
+    }
 
-        // Get invoice details
-        const invoiceResult = await pool.query(
-            `SELECT i.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone
+    // Get invoice details
+    const invoiceResult = await pool.query(
+      `SELECT i.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone
        FROM invoices i
        LEFT JOIN customers c ON i.customer_id = c.id
        WHERE i.id = $1`,
-            [invoice_id]
-        );
+      [invoice_id]
+    );
 
-        if (invoiceResult.rows.length === 0) {
-            return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
-        }
+    if (invoiceResult.rows.length === 0) {
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+    }
 
-        const invoice = invoiceResult.rows[0];
+    const invoice = invoiceResult.rows[0];
 
-        // Get invoice items
-        const itemsResult = await pool.query(
-            'SELECT * FROM invoice_items WHERE invoice_id = $1',
-            [invoice_id]
-        );
-        const items = itemsResult.rows;
+    // Get invoice items
+    const itemsResult = await pool.query(
+      'SELECT * FROM invoice_items WHERE invoice_id = $1',
+      [invoice_id]
+    );
+    const items = itemsResult.rows;
 
-        // Create email transporter
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.SMTP_EMAIL,
-                pass: process.env.SMTP_PASSWORD
-            }
-        });
+    // Create email transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD
+      }
+    });
 
-        // Generate HTML email
-        const itemsHtml = items.map(item => `
+    // Generate HTML email
+    const itemsHtml = items.map((item: any) => `
       <tr>
         <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.product_name}</td>
         <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       </tr>
     `).join('');
 
-        const emailHtml = `
+    const emailHtml = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -122,20 +122,20 @@ export async function POST(request: Request) {
       </html>
     `;
 
-        // Send email
-        await transporter.sendMail({
-            from: process.env.SMTP_EMAIL,
-            to: recipient_email,
-            subject: `Invoice ${invoice.invoice_number}`,
-            html: emailHtml
-        });
+    // Send email
+    await transporter.sendMail({
+      from: process.env.SMTP_EMAIL,
+      to: recipient_email,
+      subject: `Invoice ${invoice.invoice_number}`,
+      html: emailHtml
+    });
 
-        return NextResponse.json({
-            success: true,
-            message: 'Invoice sent successfully via email'
-        });
-    } catch (error: any) {
-        console.error('Send Email Error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to send email' }, { status: 500 });
-    }
+    return NextResponse.json({
+      success: true,
+      message: 'Invoice sent successfully via email'
+    });
+  } catch (error: any) {
+    console.error('Send Email Error:', error);
+    return NextResponse.json({ error: error.message || 'Failed to send email' }, { status: 500 });
+  }
 }

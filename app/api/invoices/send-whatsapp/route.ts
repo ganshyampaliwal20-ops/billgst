@@ -50,11 +50,12 @@ export async function POST(request: Request) {
         message += `\n━━━━━━━━━━━━━━━━\n`;
         message += `*ITEMS:*\n\n`;
 
-        items.forEach((item, index) => {
+        items.forEach((item: any, index: number) => {
             message += `${index + 1}. ${item.product_name}\n`;
             message += `   Qty: ${item.quantity} × ₹${Number(item.unit_price).toFixed(2)}\n`;
             message += `   Amount: ₹${Number(item.total_amount).toFixed(2)}\n\n`;
         });
+
 
         message += `━━━━━━━━━━━━━━━━\n`;
         message += `*TOTAL AMOUNT: ₹${Number(invoice.total_amount).toLocaleString('en-IN')}*\n`;
