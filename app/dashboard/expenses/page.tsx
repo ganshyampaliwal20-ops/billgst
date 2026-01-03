@@ -21,7 +21,7 @@ export default function ExpensesPage() {
         category: '',
         description: '',
         amount: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toLocaleDateString('en-CA'),
     });
 
     useEffect(() => {

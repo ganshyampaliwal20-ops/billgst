@@ -14,8 +14,8 @@ export default function NewQuotationPage() {
     const [formData, setFormData] = useState({
         quotation_number: `QT-${Date.now().toString().slice(-6)}`,
         customer_id: '',
-        quotation_date: new Date().toISOString().split('T')[0],
-        valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        quotation_date: new Date().toLocaleDateString('en-CA'),
+        valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-CA'),
         items: [{ product_id: '', product_name: '', quantity: 1, unit_price: 0, gst_rate: 18, total_amount: 0 }],
         notes: '',
         status: 'PENDING'

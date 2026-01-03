@@ -14,8 +14,8 @@ function ReportsContent() {
     // Initialize period from URL or default to 'monthly'
     const [period, setPeriod] = useState('monthly');
     const [customRange, setCustomRange] = useState({
-        start: new Date().toISOString().split('T')[0],
-        end: new Date().toISOString().split('T')[0]
+        start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toLocaleDateString('en-CA'),
+        end: new Date().toLocaleDateString('en-CA'),
     });
 
     useEffect(() => {

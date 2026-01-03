@@ -85,7 +85,7 @@ export default function NewInvoicePage() {
     useEffect(() => {
         setIsClient(true);
         // Set date only on client side to avoid hydration errors
-        setInvoiceDate(new Date().toISOString().split('T')[0]);
+        setInvoiceDate(new Date().toLocaleDateString('en-CA'));
 
         // Handle Duplication logic
         const params = new URLSearchParams(window.location.search);
