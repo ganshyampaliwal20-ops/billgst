@@ -258,7 +258,6 @@ export async function POST(request: Request) {
 
         await client.query('ROLLBACK');
         client.release();
-        const err = error as Error;
         console.error('Invoice API Transaction Error:', err);
         return NextResponse.json({
             error: `Database Error: ${err.message || 'Unknown Error'}`,
