@@ -53,6 +53,7 @@ export async function POST(request: Request) {
     const userId = session.user.id;
 
     const client = await pool.connect();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let data: Record<string, any> = {};
     let customerId: string = '';
 
