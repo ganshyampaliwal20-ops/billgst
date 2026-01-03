@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET() {
     try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const session = await getServerSession(authOptions as any) as any;
 
         if (!session?.user?.id) {
@@ -157,9 +158,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, id: invoiceId });
 
     } catch (error) {
-        const err = error as any;
+        const err = error as Error & { code?: string };
         // Auto-migration: If column missing error (42703), add columns and retry
-        if (error?.code === '42703') {
+        if (err.code === '42703') {
             console.log('Invoice API: Missing columns detected. Attempting auto-migration...');
             try {
                 await client.query('ROLLBACK'); // Rollback failed transaction first
@@ -249,7 +250,7 @@ export async function POST(request: Request) {
                 client.release();
                 return NextResponse.json({ success: true, id: invoiceId });
 
-            } catch (retryError) {
+            } catch (retryError: any) {
                 console.error('Invoice API: Auto-migration failed:', retryError);
                 // Fall through to general error handler
             }
@@ -257,10 +258,11 @@ export async function POST(request: Request) {
 
         await client.query('ROLLBACK');
         client.release();
-        console.error('Invoice API Transaction Error:', error);
+        const err = error as Error;
+        console.error('Invoice API Transaction Error:', err);
         return NextResponse.json({
-            error: `Database Error: ${err instanceof Error ? err.message : 'Unknown Error'}`,
-            details: err instanceof Error ? err.stack : undefined
+            error: `Database Error: ${err.message || 'Unknown Error'}`,
+            details: err.stack
         }, { status: 500 });
     }
 }
