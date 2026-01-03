@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import pool from '@/lib/db';
 
 export async function GET() {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions as any);
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const result = await pool.query(`
@@ -23,7 +24,7 @@ export async function GET() {
 export async function POST(request: Request) {
     const client = await pool.connect();
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions as any);
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const body = await request.json();

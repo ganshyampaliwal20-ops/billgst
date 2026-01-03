@@ -217,66 +217,141 @@ export default function DashboardPage() {
                 })}
             </div>
 
-            {/* Create Section - Grid Layout from Image */}
-            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
-                <div className="flex items-center gap-2 mb-6">
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Create</h2>
-                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-[10px]">▶</span>
+            {/* Professional 3D Action Boxes */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Box 1: Quick Actions Hub */}
+                <div className="group relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-3xl p-[2px] shadow-2xl hover:shadow-indigo-500/50 transition-all duration-500 hover:scale-[1.02]">
+                    <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl p-8 h-full">
+                        {/* Glassmorphism overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent rounded-3xl pointer-events-none"></div>
+
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
+                                    <FaFileInvoice className="text-white text-2xl" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">Quick Actions</h2>
+                                    <p className="text-xs text-slate-500 font-semibold">Create & Manage</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <Link
+                                    href="/dashboard/invoices/new"
+                                    className="group/btn flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-2xl border-2 border-indigo-200 hover:border-indigo-400 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-xl shadow-sm group-hover/btn:shadow-md transition-shadow">
+                                            <FaFileInvoice className="text-indigo-600 text-lg" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-800">Create Invoice</p>
+                                            <p className="text-xs text-slate-500">Generate new bill</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-indigo-600 group-hover/btn:translate-x-1 transition-transform">→</div>
+                                </Link>
+
+                                <Link
+                                    href="/dashboard/customers"
+                                    className="group/btn flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 rounded-2xl border-2 border-emerald-200 hover:border-emerald-400 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-xl shadow-sm group-hover/btn:shadow-md transition-shadow">
+                                            <FaUserPlus className="text-emerald-600 text-lg" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-800">Add Customer</p>
+                                            <p className="text-xs text-slate-500">Manage parties</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-emerald-600 group-hover/btn:translate-x-1 transition-transform">→</div>
+                                </Link>
+
+                                <Link
+                                    href="/dashboard/inventory"
+                                    className="group/btn flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 rounded-2xl border-2 border-orange-200 hover:border-orange-400 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-xl shadow-sm group-hover/btn:shadow-md transition-shadow">
+                                            <FaBox className="text-orange-600 text-lg" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-800">Add Product</p>
+                                            <p className="text-xs text-slate-500">Update inventory</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-orange-600 group-hover/btn:translate-x-1 transition-transform">→</div>
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
-                    {[
-                        { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices/new', color: 'text-blue-600' },
-                        { icon: FaBoxOpen, label: 'Purchase', href: '/dashboard/purchase', color: 'text-blue-600' },
-                        { icon: FaReceipt, label: 'Quotation', href: '/dashboard/quotations', color: 'text-blue-600' },
-                        { icon: FaClock, label: 'Delivery Challan', href: '/dashboard/delivery-challan', color: 'text-blue-600' },
-                        { icon: FaFileInvoice, label: 'Credit Note', href: '/dashboard/credit-notes', color: 'text-blue-600' },
-                        { icon: FaReceipt, label: 'Purchase Order', href: '/dashboard/purchase-orders', color: 'text-blue-600' },
-                        { icon: FaRupeeSign, label: 'Expenses', href: '/dashboard/expenses', color: 'text-blue-600' },
-                        { icon: FaFileInvoice, label: 'Pro Forma', href: '/dashboard/pro-forma', color: 'text-blue-600' },
-                    ].map((item, idx) => {
-                        const Icon = item.icon;
-                        return (
-                            <Link key={idx} href={item.href} className="flex flex-col items-center gap-2 group">
-                                <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
-                                    <Icon className={`text-2xl ${item.color}`} />
-                                </div>
-                                <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                </div>
-            </div>
 
-            {/* Quick Access Section */}
-            <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
-                <h2 className="text-xl font-black text-slate-800 tracking-tight mb-6">Quick Access</h2>
-                <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
-                    {[
-                        { icon: FaClock, label: 'E-way Bill', href: '/dashboard/e-way-bill', color: 'text-blue-500' },
-                        { icon: FaFileInvoice, label: 'E-Invoice', href: '/dashboard/e-invoice', color: 'text-blue-500' },
-                        { icon: FaClock, label: 'Timeline', href: '/dashboard/timeline', color: 'text-blue-500' },
-                        { icon: FaStore, label: 'Online Store', href: '/dashboard/store', color: 'text-blue-500' },
-                        { icon: FaChartLine, label: 'Reports', href: '/dashboard/reports', color: 'text-blue-500' },
-                        { icon: FaChartLine, label: 'Analytics', href: '/dashboard/analytics', color: 'text-blue-500' },
-                        { icon: FaUsers, label: 'Business Card', href: '/dashboard/business-cards', color: 'text-blue-500' },
-                        { icon: FaUsers, label: 'Greetings', href: '/dashboard/greetings', color: 'text-blue-500' },
-                        { icon: FaRupeeSign, label: 'Refer & Earn', href: '/dashboard/refer', color: 'text-blue-500' },
-                        { icon: FaFileInvoice, label: 'Templates', href: '/dashboard/templates', color: 'text-blue-500' },
-                        { icon: FaCog, label: 'Settings', href: '/dashboard/settings', color: 'text-blue-500' },
-                        { icon: FaUsers, label: 'Help', href: '/dashboard/help', color: 'text-blue-500' },
-                    ].map((item, idx) => {
-                        const Icon = item.icon;
-                        return (
-                            <Link key={idx} href={item.href} className="flex flex-col items-center gap-2 group">
-                                <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
-                                    <Icon className={`text-2xl ${item.color}`} />
+                {/* Box 2: Business Insights */}
+                <div className="group relative bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-500 rounded-3xl p-[2px] shadow-2xl hover:shadow-emerald-500/50 transition-all duration-500 hover:scale-[1.02]">
+                    <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl p-8 h-full">
+                        {/* Glassmorphism overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent rounded-3xl pointer-events-none"></div>
+
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
+                                    <FaChartLine className="text-white text-2xl" />
                                 </div>
-                                <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
-                            </Link>
-                        );
-                    })}
+                                <div>
+                                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">Business Insights</h2>
+                                    <p className="text-xs text-slate-500 font-semibold">Key Metrics</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* Pending Invoices Alert */}
+                                <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl border-2 border-red-200">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-sm font-bold text-slate-800">Pending Invoices</p>
+                                        <span className="px-3 py-1 bg-red-500 text-white text-xs font-black rounded-full">
+                                            {invoices.filter((inv: any) => inv.status !== 'PAID').length}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-600">
+                                        ₹{invoices.filter((inv: any) => inv.status !== 'PAID').reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0).toLocaleString('en-IN')} pending
+                                    </p>
+                                </div>
+
+                                {/* Low Stock Alert */}
+                                <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl border-2 border-amber-200">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-sm font-bold text-slate-800">Low Stock Items</p>
+                                        <span className="px-3 py-1 bg-amber-500 text-white text-xs font-black rounded-full">
+                                            {lowStockItems}
+                                        </span>
+                                    </div>
+                                    <Link href="/dashboard/inventory" className="text-xs text-amber-700 font-semibold hover:underline">
+                                        View inventory →
+                                    </Link>
+                                </div>
+
+                                {/* Quick Reports Link */}
+                                <Link
+                                    href="/dashboard/reports"
+                                    className="group/btn flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 rounded-2xl border-2 border-blue-200 hover:border-blue-400 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-xl shadow-sm group-hover/btn:shadow-md transition-shadow">
+                                            <FaChartLine className="text-blue-600 text-lg" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-800">View Reports</p>
+                                            <p className="text-xs text-slate-500">Detailed analytics</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-blue-600 group-hover/btn:translate-x-1 transition-transform">→</div>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
