@@ -8,7 +8,8 @@ import { useState, useEffect } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
-    FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt
+    FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt,
+    FaClipboardList, FaMoneyBillWave, FaQuestionCircle
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -46,13 +47,16 @@ export default function DashboardLayout({
 
     const menuItems: MenuItem[] = [
         { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices' },
+        { icon: FaClipboardList, label: 'Quotations', href: '/dashboard/quotations' }, // Added
         { icon: FaReceipt, label: 'Tax Invoice', href: '/dashboard/invoices/new?type=TAX_INVOICE' },
         { icon: FaReceipt, label: 'Bill of Supply', href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
         { icon: FaReceipt, label: 'Delivery Challan', href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
         { icon: FaReceipt, label: 'E-Way Bill', href: '/dashboard/invoices/new?type=E_WAY_BILL' },
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
+        { icon: FaMoneyBillWave, label: 'Expenses', href: '/dashboard/expenses' }, // Added
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
+        { icon: FaQuestionCircle, label: 'Help & Support', href: '/dashboard/help' }, // Added
         { icon: FaCog, label: t.settings, href: '/dashboard/settings' },
         { icon: FaSignInAlt, label: 'Login', href: '/login', isAuth: true },
         { icon: FaUserPlus, label: 'Sign Up', href: '/register', isAuth: true },

@@ -20,7 +20,8 @@ export default function Navbar3D() {
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const { businessProfile, settings, resetStore } = useStore();
+    const { businessProfile, settings, resetStore, getAnalytics } = useStore();
+    const todaySales = getAnalytics('daily').totalSales;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -34,10 +35,10 @@ export default function Navbar3D() {
 
     const menuItems = [
         { icon: FaLanguage, label: 'Language', href: '#', isLanguage: true },
-        { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
         { icon: FaFileInvoice, label: 'Invoice', href: '/dashboard/invoices' },
         { icon: FaSignInAlt, label: 'Login Page', href: '/login' },
         { icon: FaUserPlus, label: 'Signup Page', href: '/register' },
+        { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
     ];
 
     const handleLogout = () => {
@@ -58,23 +59,23 @@ export default function Navbar3D() {
                         <div className="flex items-center gap-3">
                             <Link href="/" className="flex items-center gap-2 md:gap-3 group">
                                 <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
-                                    <Image
-                                        src="/logo.png"
-                                        alt="BillGST Logo"
-                                        width={40}
-                                        height={40}
-                                        className="object-contain"
+                                    <img
+                                        src={businessProfile?.logo || "/logo.png"}
+                                        alt="Logo"
+                                        className="object-contain w-full h-full"
                                     />
                                 </div>
-                                <div className="flex flex-col">
-                                    <h2 className={`text-sm md:text-xl font-bold tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm ${isScrolled ? 'text-white' : 'text-indigo-900'
-                                        }`}>
-                                        BillGST
-                                    </h2>
-                                    <p className={`text-[10px] font-bold uppercase tracking-wider hidden md:block ${isScrolled ? 'text-indigo-100/90' : 'text-slate-500'
-                                        }`}>Professional Billing</p>
-                                </div>
+                                <span className={`text-lg md:text-2xl font-black tracking-tighter ${isScrolled ? 'text-white' : 'text-slate-800'}`}>
+                                    Bill<span className={isScrolled ? 'text-amber-300' : 'text-amber-500'}>GST</span>
+                                </span>
                             </Link>
+
+                            {/* CENTER SCROLL STATS */}
+                            <div className={`hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white transition-all duration-500 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none absolute'}`}>
+                                <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">Today Sales</span>
+                                <div className="h-3 w-px bg-white/40"></div>
+                                <span className="text-sm font-black text-amber-300">₹{todaySales.toLocaleString('en-IN')}</span>
+                            </div>
                         </div>
 
                         {/* Right Side: Menu Button */}
@@ -166,9 +167,9 @@ export default function Navbar3D() {
                             { icon: FaUsers, label: 'Customer', href: '/dashboard/customers' },
                             { icon: FaBox, label: 'Product', href: '/dashboard/inventory' },
                             { icon: FaChartLine, label: 'Report', href: '/dashboard/reports' },
-                            { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
                             { icon: FaSignInAlt, label: 'Login', href: '/login' },
                             { icon: FaUserPlus, label: 'Register', href: '/register' },
+                            { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
                         ].map((item) => {
                             const Icon = item.icon;
                             return (

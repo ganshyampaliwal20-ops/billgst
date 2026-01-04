@@ -115,12 +115,9 @@ export default function DashboardPage() {
     const monthlyTrend = getTrendData();
 
     // Calculate Today's Sales
-    const todayStr = new Date().toLocaleDateString('en-CA');
+    const today = new Date().toDateString();
     const todaySales = invoices
-        .filter((inv: any) => {
-            const invDate = new Date(inv.invoice_date).toLocaleDateString('en-CA');
-            return invDate === todayStr;
-        })
+        .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
         .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
 
     const stats = [

@@ -1,24 +1,20 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaSignInAlt, FaLock } from 'react-icons/fa';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { useStore } from '@/lib/store';
+import Navbar3D from '@/app/components/Navbar3D';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { FaBox, FaChartLine, FaClock, FaFileInvoice, FaStore, FaTimes, FaUsers, FaRupeeSign, FaExclamationTriangle, FaClipboardList, FaMoneyBillWave, FaHeadset } from 'react-icons/fa';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from 'recharts';
+import { useStore } from '@/lib/store';
 import { translations } from '@/lib/translations';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
-import Navbar3D from '@/app/components/Navbar3D';
 
 export default function LandingPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const {
-    invoices, customers, products, businessProfile, settings,
+    invoices, products, settings,
     getAnalytics, getTopProducts,
     fetchCustomers, fetchProducts, fetchInvoices
   } = useStore();
+
   const [isClient, setIsClient] = useState(false);
   const [period, setPeriod] = useState('monthly');
   const [customRange, setCustomRange] = useState({ start: '', end: '' });
@@ -30,14 +26,9 @@ export default function LandingPage() {
 
   useEffect(() => {
     setIsClient(true);
-    // Setup Banner State
-    const bannerDismissed = localStorage.getItem('setupBannerDismissed');
-    if (bannerDismissed) setShowSetupBanner(false);
-
-    // Live Clock
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-    // Load Data from DB
+    // Load Data
     fetchCustomers();
     fetchProducts();
     fetchInvoices();
@@ -45,35 +36,24 @@ export default function LandingPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleProtectedAction = (path: string) => {
-    if (status === 'authenticated') {
-      router.push(path);
-    } else {
-      toast.error('Please Login or Register to access this feature', {
-        icon: '🔒',
-        style: {
-          borderRadius: '10px',
-          background: '#333',
-          color: '#fff',
-        },
-      });
-      router.push('/login');
-    }
-  };
-
   if (!isClient) return null;
 
-  // Get Analytics Data
-  const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
+  // Analytics Data for Chart
+  const { totalSales, totalProfit } = getAnalytics(period, customRange);
   const topProducts = getTopProducts() || [];
-  const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
 
-  // Get current time greeting
+  // Quick Stats Calculation
+  const todaySales = getAnalytics('daily').totalSales;
+  const totalRevenueAllTime = invoices.reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
+  const invoiceCount = invoices.length;
+  const lowStockCount = products.filter((p: any) => (parseFloat(p.quantity) || 0) <= 5).length;
+
+  // Greeting Logic
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return t.goodMorning;
-    if (hour < 17) return t.goodAfternoon;
-    return t.goodEvening;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
   };
 
   // Weekly Sales Data for Bar Chart
@@ -87,385 +67,321 @@ export default function LandingPage() {
     { name: 'Sun', sales: totalSales * 0.03, profit: totalProfit * 0.07 },
   ];
 
-  // Monthly Trend Data
-  const monthlyTrend = [
-    { name: 'Jan', sales: totalSales * 0.6, profit: totalProfit * 0.5 },
-    { name: 'Feb', sales: totalSales * 0.7, profit: totalProfit * 0.6 },
-    { name: 'Mar', sales: totalSales * 0.8, profit: totalProfit * 0.7 },
-    { name: 'Apr', sales: totalSales * 0.9, profit: totalProfit * 0.85 },
-    { name: 'May', sales: totalSales * 0.95, profit: totalProfit * 0.9 },
-    { name: 'Jun', sales: totalSales, profit: totalProfit },
-  ];
-
-  // Calculate Today's Sales
-  const today = new Date().toDateString();
-  const todaySales = invoices
-    .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
-    .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
-
-  const stats = [
-    {
-      icon: FaRupeeSign,
-      label: t.todaysSales,
-      value: todaySales,
-      formattedValue: `₹${todaySales >= 100000 ? (todaySales / 100000).toFixed(1) + 'L' : todaySales.toLocaleString('en-IN')}`,
-      subtext: 'vs Yesterday',
-      color: 'from-blue-500 to-indigo-600',
-      shadow: 'shadow-blue-500/20',
-      trend: 'Now',
-      trendUp: true,
-      href: '/dashboard/reports?period=daily'
-    },
-    {
-      icon: FaChartLine,
-      label: t.totalRevenue,
-      value: totalSales,
-      formattedValue: `₹${totalSales >= 100000 ? (totalSales / 100000).toFixed(1) + 'L' : totalSales.toLocaleString('en-IN')}`,
-      subtext: `${period === 'daily' ? t.daily : period === 'weekly' ? t.weekly : period === 'monthly' ? t.monthly : t.yearly} Sales`,
-      color: 'from-violet-500 to-purple-600',
-      shadow: 'shadow-violet-500/20',
-      trend: '+12%',
-      trendUp: true,
-      href: '/dashboard/reports'
-    },
-    {
-      icon: FaFileInvoice,
-      label: t.invoices,
-      value: invoiceCount,
-      formattedValue: invoiceCount.toString(),
-      subtext: 'Generated',
-      color: 'from-emerald-500 to-teal-600',
-      shadow: 'shadow-emerald-500/20',
-      trend: '+5',
-      trendUp: true,
-      href: '/dashboard/invoices'
-    },
-    {
-      icon: FaBox,
-      label: t.lowStock,
-      value: lowStockItems,
-      formattedValue: lowStockItems.toString(),
-      subtext: 'Items Alert',
-      color: lowStockItems > 0 ? 'from-red-500 to-rose-600' : 'from-amber-500 to-orange-600',
-      shadow: lowStockItems > 0 ? 'shadow-red-500/20' : 'shadow-amber-500/20',
-      trend: lowStockItems > 0 ? '⚠️' : '✓',
-      trendUp: lowStockItems === 0,
-      href: '/dashboard/inventory'
-    },
-  ];
-
-  // Quick Action Items
-  const quickActions = [
-    { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
-    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-emerald-500 hover:bg-emerald-600' },
-    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-violet-500 hover:bg-violet-600' },
-    { icon: FaChartLine, label: t.viewReports, href: '/dashboard/reports', color: 'bg-amber-500 hover:bg-amber-600' },
+  // Restored Fake Data for Revenue Trend
+  const chartData = [
+    { name: 'Mon', sales: 4000 },
+    { name: 'Tue', sales: 3000 },
+    { name: 'Wed', sales: 2000 },
+    { name: 'Thu', sales: 2780 },
+    { name: 'Fri', sales: 1890 },
+    { name: 'Sat', sales: 2390 },
+    { name: 'Sun', sales: 3490 },
   ];
 
   return (
     <>
       <Navbar3D />
-      <main style={{ paddingTop: '40px' }} className="pb-10">
-        <div className="space-y-8 md:space-y-10 px-4 md:px-0 py-6 max-w-7xl mx-auto">
-          {/* Welcome Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <FaClock className="text-amber-500 text-sm" />
-                <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center justify-center gap-2 min-w-[160px]">
-                  <span suppressHydrationWarning className="truncate">
-                    {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                  </span>
-                  <span className="w-1 h-1 bg-gray-300 rounded-full mx-1 flex-shrink-0"></span>
-                  <span suppressHydrationWarning className="whitespace-nowrap">
-                    {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                  </span>
-                </span>
+      <main className="pb-10 bg-[#f8fafc] min-h-screen px-4" style={{ paddingTop: '30px' }}>
+        <div className="max-w-2xl mx-auto md:max-w-4xl space-y-6">
+
+          {/* 1. Greeting - Moved to top as requested */}
+          <div className="text-center md:text-left" style={{ marginTop: '10px' }}>
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight">
+              {getGreeting()}, <span className="text-amber-500">My Business</span>! 👋
+            </h1>
+            <p className="text-slate-500 text-sm mt-1">Login to access your dashboard.</p>
+          </div>
+
+          {/* 2. Date/Time Pill */}
+          <div className="relative mb-12" style={{ marginTop: '5px' }}></div>
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-bold bg-white w-fit px-3 py-1 rounded-full border border-slate-500 shadow-sm mx-auto md:mx-0 mt-2">
+            <FaClock className="text-amber-500" />
+            <span suppressHydrationWarning>
+              {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} • {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}
+            </span>
+          </div>
+
+          {/* 4. Four Big Action Buttons - Fixed Height with 3D Effect */}
+          <div className="relative mb-12" style={{ marginTop: '8px' }}></div>
+          <div className="grid grid-cols-2 gap-4 mt-8">
+            <Link href="/login" className="bg-[#6366f1] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#4338ca] hover:shadow-[0_4px_0_0_#4338ca] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-indigo-700">
+              <div className="bg-white/20 p-3 rounded-xl mb-2">
+                <FaFileInvoice className="text-2xl md:text-3xl" />
               </div>
-              {status === 'authenticated' ? (
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                  {getGreeting()}, <span className="text-amber-500">{businessProfile.name || 'Owner'}</span>! 👋
-                </h1>
-              ) : (
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                  Welcome to <span className="text-indigo-600">BillGST</span>! 🚀
-                </h1>
-              )}
+              <span className="font-bold text-sm md:text-base">New Invoice</span>
+            </Link>
+            <Link href="/login" className="bg-[#10b981] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#047857] hover:shadow-[0_4px_0_0_#047857] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-emerald-700">
+              <div className="bg-white/20 p-3 rounded-xl mb-2">
+                <FaUsers className="text-2xl md:text-3xl" />
+              </div>
+              <span className="font-bold text-sm md:text-base">Add Customer</span>
+            </Link>
+            <Link href="/login" className="bg-[#8b5cf6] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#7c3aed] hover:shadow-[0_4px_0_0_#7c3aed] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-violet-700">
+              <div className="bg-white/20 p-3 rounded-xl mb-2">
+                <FaBox className="text-2xl md:text-3xl" />
+              </div>
+              <span className="font-bold text-sm md:text-base">Add Product</span>
+            </Link>
+            <Link href="/login" className="bg-[#f59e0b] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#d97706] hover:shadow-[0_4px_0_0_#d97706] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-amber-700">
+              <div className="bg-white/20 p-3 rounded-xl mb-2">
+                <FaChartLine className="text-2xl md:text-3xl" />
+              </div>
+              <span className="font-bold text-sm md:text-base">View Reports</span>
+            </Link>
+          </div>
+
+          {/* 4.5. Quick Actions (Quotations, Expenses, Help) - COLORFUL BOX */}
+          <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-4xl p-8 shadow-xl shadow-indigo-1000 mx-2 md:mx-0 relative overflow-hidden" style={{ marginTop: '20px', marginBottom: '20px' }}>
+            {/* ... simplified content ... */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-44 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5"></div>
+
+            <div className="flex items-center justify-between gap-4 md:gap-8 relative z-10">
+              <Link href="/dashboard/quotations" className="flex-1 flex flex-col items-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-all group">
+                <div className="p-4 rounded-full bg-white/20 text-white group-hover:scale-110 group-hover:bg-white group-hover:text-violet-600 transition-all shadow-md">
+                  <FaClipboardList className="text-2xl" />
+                </div>
+                <span className="text-sm font-bold text-white tracking-wide">Quotations</span>
+              </Link>
+
+              <div className="w-px h-12 bg-white/20"></div>
+
+              <Link href="/dashboard/expenses" className="flex-1 flex flex-col items-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-all group">
+                <div className="p-4 rounded-full bg-white/20 text-white group-hover:scale-110 group-hover:bg-white group-hover:text-rose-500 transition-all shadow-md">
+                  <FaMoneyBillWave className="text-2xl" />
+                </div>
+                <span className="text-sm font-bold text-white tracking-wide">Expenses</span>
+              </Link>
+
+              <div className="w-px h-12 bg-white/20"></div>
+
+              <Link href="/dashboard/help" className="flex-1 flex flex-col items-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-all group">
+                <div className="p-4 rounded-full bg-white/20 text-white group-hover:scale-110 group-hover:bg-white group-hover:text-emerald-500 transition-all shadow-md">
+                  <FaHeadset className="text-2xl" />
+                </div>
+                <span className="text-sm font-bold text-white tracking-wide">Support</span>
+              </Link>
             </div>
-            {status !== 'authenticated' && (
-              <button
-                onClick={() => router.push('/login')}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-700 transition shadow-lg font-bold"
-              >
-                <FaSignInAlt /> Login / Register
-              </button>
+          </div>
+
+          {/* 3. NEW 3D STATS WIDGETS with Glass Border - Moved DOWN */}
+          <div className="relative mb-12" style={{ marginTop: '10px' }}>
+            {/* Glass Container */}
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-xl rounded-3xl border border-white/50 -z-10 shadow-lg"></div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-3xl">
+              {/* Today Sales */}
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/30 hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer group flex flex-col items-center justify-center text-center h-32 gap-3">
+                <div className="p-3 bg-indigo-100 rounded-full text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-inner">
+                  <FaRupeeSign className="text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800 tracking-tight">₹{todaySales.toLocaleString('en-IN')}</h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Today Sales</p>
+                </div>
+              </div>
+
+              {/* Total Revenue */}
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer group flex flex-col items-center justify-center text-center h-32 gap-3">
+                <div className="p-3 bg-emerald-100 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors shadow-inner">
+                  <FaChartLine className="text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800 tracking-tight">₹{totalRevenueAllTime >= 1000 ? (totalRevenueAllTime / 1000).toFixed(1) + 'k' : totalRevenueAllTime.toLocaleString('en-IN')}</h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Rev</p>
+                </div>
+              </div>
+
+              {/* Invoices */}
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer group flex flex-col items-center justify-center text-center h-32 gap-3">
+                <div className="p-3 bg-blue-100 rounded-full text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-inner">
+                  <FaFileInvoice className="text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800 tracking-tight">{invoiceCount}</h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Invoices</p>
+                </div>
+              </div>
+
+              {/* Low Stock */}
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-red-200 hover:bg-red-50/30 hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer group flex flex-col items-center justify-center text-center h-32 gap-3">
+                <div className="p-3 bg-red-100 rounded-full text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors shadow-inner">
+                  <FaExclamationTriangle className="text-lg" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-800 tracking-tight">{lowStockCount}</h3>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Low Stock</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Analytics Bar */}
+          <div className="mt-8 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 p-3 text-center shadow-lg mx-2 md:mx-0">
+            <div className="relative mb-12" style={{ marginTop: '10px' }}></div>
+            <h2 className="text-lg md:text-xl font-bold text-white">Analytics Overview</h2>
+            <p className="text-xs md:text-sm text-purple-100 opacity-90">Track your business performance</p>
+          </div>
+
+          {/* 6. Time Period Pills with Custom Option */}
+          {/* 6. Time Period Segmented Control */}
+          {/* 6. Time Period Buttons */}
+          <div className="flex flex-col items-center gap-4 mt-8">
+            <div className="relative mb-12" style={{ marginTop: '0px' }}></div>
+            <div className="flex flex-wrap justify-center gap-3 w-full max-w-3xl mx-auto">
+              {['Daily', 'Weekly', 'Monthly', 'Yearly', 'Custom'].map((p) => {
+                const isActive = period === p.toLowerCase();
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p.toLowerCase())}
+                    className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 border-2 ${isActive
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200 scale-105'
+                      : 'bg-white text-slate-500 border-slate-100 hover:border-indigo-100 hover:bg-slate-50 hover:text-indigo-600'
+                      }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Range Inputs */}
+            {period === 'custom' && (
+              <div className="flex items-center gap-4 mt-2 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 w-full md:w-auto animate-in fade-in slide-in-from-top-1">
+                <div className="flex-1">
+                  <label className="block text-[10px] uppercase font-black text-slate-400 mb-1 ml-1">From Date</label>
+                  <input
+                    type="date"
+                    value={customRange.start}
+                    onChange={(e) => setCustomRange({ ...customRange, start: e.target.value })}
+                    className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                  />
+                </div>
+                <div className="text-slate-300 mt-4">→</div>
+                <div className="flex-1">
+                  <label className="block text-[10px] uppercase font-black text-slate-400 mb-1 ml-1">To Date</label>
+                  <input
+                    type="date"
+                    value={customRange.end}
+                    onChange={(e) => setCustomRange({ ...customRange, end: e.target.value })}
+                    className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                  />
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Stats Overview at the top */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-2">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleProtectedAction(stat.href)}
-                  className="bg-white rounded-3xl p-4 md:p-5 shadow-xl border border-slate-100 hover:shadow-2xl transition-all duration-300 group flex flex-col items-center justify-center text-center hover:scale-[1.02] w-full"
-                >
-                  <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
-                    <Icon className="text-xl" />
-                  </div>
-                  <p className="text-slate-500 text-[10px] font-bold uppercase mb-1 tracking-wider">{stat.label}</p>
-                  <p className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">{status === 'authenticated' ? stat.formattedValue : '---'}</p>
-                </button>
-              );
-            })}
-          </div>
+          {/* WEEKLY PERFORMANCE */}
+          {/* DASHBOARD GRID - Charts & Lists */}
+          <div className="grid grid-cols-1 gap-6 mt-8">
 
-          {/* Create Section - Protected */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-xl font-black text-slate-800 tracking-tight">Create</h2>
-              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-[10px]">▶</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
-              {[
-                { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices/new', color: 'text-blue-600' },
-                { icon: FaBoxOpen, label: 'Purchase', href: '/dashboard/purchase', color: 'text-blue-600' },
-                { icon: FaReceipt, label: 'Quotation', href: '/dashboard/quotations', color: 'text-blue-600' },
-                { icon: FaClock, label: 'Delivery Challan', href: '/dashboard/delivery-challan', color: 'text-blue-600' },
-                { icon: FaFileInvoice, label: 'Credit Note', href: '/dashboard/credit-notes', color: 'text-blue-600' },
-                { icon: FaReceipt, label: 'Purchase Order', href: '/dashboard/purchase-orders', color: 'text-blue-600' },
-                { icon: FaRupeeSign, label: 'Expenses', href: '/dashboard/expenses', color: 'text-blue-600' },
-                { icon: FaFileInvoice, label: 'Pro Forma', href: '/dashboard/pro-forma', color: 'text-blue-600' },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <button key={idx} onClick={() => handleProtectedAction(item.href)} className="flex flex-col items-center gap-2 group">
-                    <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
-                      <Icon className={`text-2xl ${item.color}`} />
-                    </div>
-                    <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Quick Access Section - Protected */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-100">
-            <h2 className="text-xl font-black text-slate-800 tracking-tight mb-6">Quick Access</h2>
-            <div className="grid grid-cols-4 md:grid-cols-4 gap-6 md:gap-8">
-              {[
-                { icon: FaClock, label: 'E-way Bill', href: '/dashboard/e-way-bill', color: 'text-blue-500' },
-                { icon: FaFileInvoice, label: 'E-Invoice', href: '/dashboard/e-invoice', color: 'text-blue-500' },
-                { icon: FaClock, label: 'Timeline', href: '/dashboard/timeline', color: 'text-blue-500' },
-                { icon: FaStore, label: 'Online Store', href: '/dashboard/store', color: 'text-blue-500' },
-                { icon: FaChartLine, label: 'Reports', href: '/dashboard/reports', color: 'text-blue-500' },
-                { icon: FaChartLine, label: 'Analytics', href: '/dashboard/analytics', color: 'text-blue-500' },
-                { icon: FaUsers, label: 'Business Card', href: '/dashboard/business-cards', color: 'text-blue-500' },
-                { icon: FaUsers, label: 'Greetings', href: '/dashboard/greetings', color: 'text-blue-500' },
-                { icon: FaRupeeSign, label: 'Refer & Earn', href: '/dashboard/refer', color: 'text-blue-500' },
-                { icon: FaFileInvoice, label: 'Templates', href: '/dashboard/templates', color: 'text-blue-500' },
-                { icon: FaStore, label: 'Settings', href: '/dashboard/settings', color: 'text-blue-500' },
-                { icon: FaUsers, label: 'Help', href: '/dashboard/help', color: 'text-blue-500' },
-              ].map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <button key={idx} onClick={() => handleProtectedAction(item.href)} className="flex flex-col items-center gap-2 group">
-                    <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-blue-50 transition-colors border border-slate-100 group-hover:border-blue-200">
-                      <Icon className={`text-2xl ${item.color}`} />
-                    </div>
-                    <span className="text-[10px] md:text-xs font-bold text-slate-600 text-center leading-tight">{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Analytics Overview Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-6 shadow-xl text-center">
-            <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
-            <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
-          </div>
-
-          {/* Conditional Banner - Modified for Center Alignment on Mobile */}
-          {status !== 'authenticated' && showSetupBanner ? (
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-orange-500/20 animate-slideUp relative mx-4 md:mx-0">
-              <button
-                onClick={() => { setShowSetupBanner(false); }}
-                className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition-colors"
-                aria-label="Close banner"
-              >
-                <FaTimes size={14} />
-              </button>
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
-                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                    <FaLock className="text-2xl" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg md:text-xl font-bold">Create Your Account</h2>
-                    <p className="text-orange-100 text-sm mt-0.5">Register now to start managing your invoices & inventory.</p>
-                  </div>
-                </div>
-                <Link href="/login" className="px-8 py-3 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition shadow-lg text-base md:text-sm whitespace-nowrap min-w-[160px] text-center">
-                  Register Now
-                </Link>
-              </div>
-            </div>
-          ) : (
-            !businessProfile.gstin && showSetupBanner && status === 'authenticated' && (
-              <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative mx-4 md:mx-0">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <div className="p-2.5 md:p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <FaStore className="text-lg md:text-2xl" />
-                    </div>
-                    <div>
-                      <h2 className="text-base md:text-xl font-bold">{t.setupBusiness}</h2>
-                      <p className="text-indigo-100 text-xs md:text-sm mt-0.5">Add GSTIN and details to start invoicing.</p>
-                    </div>
-                  </div>
-                  <Link href="/dashboard/settings" className="px-4 md:px-6 py-2 bg-white text-indigo-600 font-bold rounded-lg md:rounded-xl hover:bg-indigo-50 transition shadow-lg text-xs md:text-sm whitespace-nowrap">
-                    {t.setupNow}
-                  </Link>
+            {/* 1. WEEKLY PERFORMANCE */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+              <div className="flex items-center justify-center mb-6">
+                <div className="text-center">
+                  <h2 className="text-lg font-bold text-slate-800">{t.weeklyPerformance}</h2>
+                  <p className="text-xs text-slate-500 font-medium mt-1">Sales by day of the week</p>
                 </div>
               </div>
-            )
-          )}
-
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* Revenue Analytics - Area Chart */}
-            <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2 px-2">
-                <div className="text-center sm:text-left w-full sm:w-auto">
-                  <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center sm:text-left">{t.revenueAnalytics}</h2>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-medium">Income vs Profit trends</p>
-                </div>
-                <div className="flex items-center justify-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg self-center sm:self-auto">
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    <span className="text-slate-600 font-medium">Sales</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="text-slate-600 font-medium">Profit</span>
-                  </div>
-                </div>
-              </div>
-              <div className="h-[200px] md:h-[280px] w-full px-2">
+              <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
+                  <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 10, left: -10, top: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} width={35} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px', padding: '12px' }}
+                      formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
+                      cursor={{ fill: '#f8fafc' }}
+                    />
+                    <Bar dataKey="sales" fill="#6366f1" radius={[6, 6, 0, 0]} name="Sales" />
+                    <Bar dataKey="profit" fill="#10b981" radius={[6, 6, 0, 0]} name="Profit" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* 2. REVENUE TREND */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-slate-800 text-lg">Revenue Trend</h3>
+                <div className="text-xs font-bold text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full">+12.5%</div>
+              </div>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ right: 10, left: -10, top: 5, bottom: 5 }}>
                     <defs>
                       <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
-                      formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
-                    />
-                    <Area type="monotone" dataKey="sales" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" name="Sales" />
-                    <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" name="Profit" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} width={35} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', padding: '12px' }} />
+                    <Area type="monotone" dataKey="sales" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Weekly Sales - Bar Chart */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
-              <div className="flex items-center justify-center mb-4 md:mb-6">
-                <div className="text-center">
-                  <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center">{t.weeklyPerformance}</h2>
-                  <p className="text-xs text-slate-500 font-medium">Sales by day of the week</p>
-                </div>
-              </div>
-              <div className="h-[200px] md:h-[280px] w-full px-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
-                      formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
-                    />
-                    <Bar dataKey="sales" fill="#4f46e5" radius={[4, 4, 0, 0]} name="Sales" />
-                    <Bar dataKey="profit" fill="#10b981" radius={[4, 4, 0, 0]} name="Profit" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Section - Top Products & Recent Invoices */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            {/* Top Products */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
-              <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6 text-center">{t.topSellingProducts}</h2>
-              <div className="space-y-4 md:space-y-5 px-4">
+            {/* 3. TOP SELLING PRODUCTS */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+              <h2 className="text-lg font-bold text-slate-800 mb-6 text-center">{t.topSellingProducts}</h2>
+              <div className="space-y-6 px-2">
                 {topProducts.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-[180px] md:h-[220px] text-center">
-                    <div className="p-3 bg-slate-50 rounded-full mb-2">
-                      <FaBox className="text-slate-300 text-xl" />
+                  <div className="flex flex-col items-center justify-center h-[200px] text-center">
+                    <div className="p-4 bg-slate-50 rounded-full mb-3">
+                      <FaBox className="text-slate-300 text-2xl" />
                     </div>
                     <p className="text-slate-500 font-medium text-sm">No sales data yet</p>
-                    <p className="text-[10px] md:text-xs text-slate-400 mt-1">Start selling to see products here</p>
+                    <p className="text-xs text-slate-400 mt-1">Start selling to see products here</p>
                   </div>
                 ) : (
                   topProducts.slice(0, 5).map((product: any, index: number) => (
                     <div key={index} className="group">
-                      <div className="flex items-center justify-between mb-1.5 px-1">
-                        <span className="text-xs md:text-sm font-semibold text-slate-700 truncate max-w-[60%]">{product.name}</span>
-                        <span className="text-xs md:text-sm font-bold text-slate-900">₹{product.sales >= 1000 ? (product.sales / 1000).toFixed(1) + 'k' : product.sales.toLocaleString()}</span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-slate-700 truncate max-w-[60%]">{product.name}</span>
+                        <span className="text-sm font-bold text-slate-900">₹{product.sales >= 1000 ? (product.sales / 1000).toFixed(1) + 'k' : product.sales.toLocaleString()}</span>
                       </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                         <div
-                          className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-1000 ease-out"
+                          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-1000 ease-out relative overflow-hidden"
                           style={{ width: `${(product.sales / topProducts[0].sales) * 100}%` }}
-                        ></div>
+                        >
+                          <div className="absolute inset-0 bg-white/20"></div>
+                        </div>
                       </div>
-                      <p className="text-[10px] md:text-xs text-slate-400 mt-1 font-medium">{product.quantity} units sold</p>
+                      <p className="text-[10px] text-slate-400 mt-1.5 font-medium uppercase tracking-wide">{product.quantity} units sold</p>
                     </div>
                   ))
                 )}
               </div>
             </div>
 
-            {/* Recent Invoices */}
-            <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-              <div className="p-5 md:p-5 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
-                <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center w-full md:w-auto pl-2">{t.recentInvoices}</h2>
-                <button onClick={() => handleProtectedAction('/dashboard/invoices')} className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline self-end md:self-auto pr-10">{t.viewReports}</button>
+            {/* 4. RECENT INVOICES */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+                <h2 className="text-lg font-bold text-slate-800 pl-2">{t.recentInvoices}</h2>
+                <Link href="/dashboard/invoices" className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors">See All</Link>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[500px]">
-                  <thead className="bg-indigo-600 text-white">
+                  <thead className="bg-slate-50/50">
                     <tr>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider first:rounded-l-lg">{t.invoices}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.customer}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.date}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.amount}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider last:rounded-r-lg">{t.status}</th>
+                      <th className="text-left py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.invoices}</th>
+                      <th className="text-left py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.customer}</th>
+                      <th className="text-left py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.date}</th>
+                      <th className="text-right py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.amount}</th>
+                      <th className="text-center py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">{t.status}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-50">
                     {(invoices || []).length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-8 md:py-10 text-center text-slate-500 font-medium text-xs md:text-sm">
-                          No invoices yet. {status === 'authenticated' ? 'Create your first invoice!' : 'Login to see data.'}
+                        <td colSpan={5} className="py-12 text-center text-slate-400 text-sm">
+                          No invoices yet. Create your first one!
                         </td>
                       </tr>
                     ) : (
@@ -478,16 +394,16 @@ export default function LandingPage() {
                           } catch (e) { return '-'; }
                         };
                         return (
-                          <tr key={index} className="hover:bg-slate-50 transition-colors">
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm text-slate-700 font-medium truncate max-w-[100px]">{invoice?.customer?.name || 'Unknown'}</td>
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm text-slate-500">{safeDate(invoice?.invoice_date)}</td>
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm text-slate-900 font-bold">
+                          <tr key={index} className="hover:bg-slate-50/80 transition-colors group">
+                            <td className="py-4 px-6 text-xs font-bold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
+                            <td className="py-4 px-4 text-xs font-medium text-slate-700">{invoice?.customer?.name || 'Unknown'}</td>
+                            <td className="py-4 px-4 text-xs text-slate-500">{safeDate(invoice?.invoice_date)}</td>
+                            <td className="py-4 px-6 text-xs font-bold text-slate-900 text-right">
                               ₹{safeTotal >= 1000 ? (safeTotal / 1000).toFixed(1) + 'k' : safeTotal.toLocaleString('en-IN')}
                             </td>
-                            <td className="text-center py-2.5 md:py-3 px-4">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${invoice?.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                                {invoice?.status || 'PAID'}
+                            <td className="py-4 px-4 text-center">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold capitalize ${invoice?.status === 'PAID' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                                {invoice?.status?.toLowerCase() || 'paid'}
                               </span>
                             </td>
                           </tr>
@@ -499,6 +415,39 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+
+          {/* Setup Banner (Original) */}
+          {showSetupBanner && (
+            <div className="bg-white rounded-3xl p-5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 text-center relative mt-6 animate-slideUp">
+              <button
+                onClick={() => setShowSetupBanner(false)}
+                className="absolute top-4 right-4 text-slate-300 hover:text-slate-500"
+              >
+                <FaTimes />
+              </button>
+              <div className="flex justify-center mb-3">
+                <div className="bg-indigo-50 p-3 rounded-2xl text-indigo-600">
+                  <FaStore className="text-2xl" />
+                </div>
+              </div>
+              <h3 className="text-xl font-black text-slate-800 mb-2">Setup Your Business!</h3>
+              <p className="text-slate-500 text-xs md:text-sm mb-4 px-4">
+                Register your details to create valid invoices.
+              </p>
+              <Link
+                href="/login"
+                className="block w-full bg-[#6366f1] text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 mb-2"
+              >
+                Register Now →
+              </Link>
+              <button
+                onClick={() => setShowSetupBanner(false)}
+                className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-slate-600"
+              >
+                Do it later
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </>

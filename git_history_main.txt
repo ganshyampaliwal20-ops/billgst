@@ -1,0 +1,10 @@
+﻿1d18d2f4 2026-01-01 Implement dynamic UPI QR code on Invoice
+b5b4ec7d 2026-01-01 Implement forgot/reset password flow and update dependencies
+6f07a6c6 2025-12-31 Fix build errors and add forgot password page
+d6ed118f 2025-12-31 Center registration popup on mobile, hide for authenticated users, and improve GST toggle layout
+225ea174 2025-12-31 Refine sidebar menu order, add dashboard links, and position business info at footer
+6a69228f 2025-12-31 Restore 3D Header, fix homepage redirect, and refine sidebar menu
+4e5c7966 2025-12-31 Restore header menu and logo to landing page
+a45f14de 2025-12-30 UI: Refined Dashboard Alignment & New Register Page
+4ecf9f0a 2025-12-30 style: refine dashboard UI responsive padding, center titles, and fix chart clipping
+ecf9e0c3 2025-12-30 fix(pdf): correct invalid date format '4-digit' to 'numeric' to fix RangeError
