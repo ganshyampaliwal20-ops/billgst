@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { FaSave, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useStore } from '@/lib/store';
 
 export default function NewExpensePage() {
     const router = useRouter();
+    const { addExpense } = useStore();
     const [formData, setFormData] = useState({
         category: 'Office Supplies',
         description: '',
@@ -18,11 +20,12 @@ export default function NewExpensePage() {
     const categories = ['Office Supplies', 'Travel', 'Utilities', 'Marketing', 'Salary', 'Rent', 'Other'];
     const paymentMethods = ['Cash', 'Card', 'UPI', 'Bank Transfer', 'Cheque'];
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would save to database
-        alert('Expense added successfully!');
-        router.push('/dashboard/expenses');
+        const result = await addExpense(formData);
+        if (result.success) {
+            router.push('/dashboard/expenses');
+        }
     };
 
     const updateField = (field: string, value: string) => {

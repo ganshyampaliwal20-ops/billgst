@@ -203,6 +203,48 @@ export const initDB = async () => {
       CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice ON invoice_items(invoice_id);
       CREATE INDEX IF NOT EXISTS idx_payments_invoice ON payments(invoice_id);
       CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(product_id);
+
+      -- Quotations table
+      CREATE TABLE IF NOT EXISTS quotations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        quotation_number VARCHAR(50) UNIQUE NOT NULL,
+        customer_name VARCHAR(255) NOT NULL,
+        customer_id UUID REFERENCES customers(id),
+        quotation_date DATE NOT NULL,
+        total_amount DECIMAL(10,2) NOT NULL,
+        status VARCHAR(50) DEFAULT 'Pending',
+        notes TEXT,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Quotation Items table
+      CREATE TABLE IF NOT EXISTS quotation_items (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        quotation_id UUID REFERENCES quotations(id) ON DELETE CASCADE,
+        product_name VARCHAR(255) NOT NULL,
+        quantity DECIMAL(10,2) NOT NULL,
+        unit_price DECIMAL(10,2) NOT NULL,
+        total_amount DECIMAL(10,2) NOT NULL
+      );
+
+      -- Expenses table
+      CREATE TABLE IF NOT EXISTS expenses (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        category VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        expense_date DATE NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        payment_method VARCHAR(50),
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_quotations_customer ON quotations(customer_id);
+      CREATE INDEX IF NOT EXISTS idx_quotation_items_quotation ON quotation_items(quotation_id);
+      CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);
     `);
 
     try {

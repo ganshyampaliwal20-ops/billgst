@@ -1,31 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaPlus, FaTrash, FaEdit, FaSearch, FaCalendar } from 'react-icons/fa';
 import Link from 'next/link';
+import { useStore } from '@/lib/store';
 
 export default function ExpensesPage() {
+    const { expenses, fetchExpenses } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
 
-    // Sample data
-    const expenses = [
-        { id: 1, category: 'Office Supplies', description: 'Stationery items', date: '2026-01-04', amount: 2500 },
-        { id: 2, category: 'Travel', description: 'Client meeting travel', date: '2026-01-03', amount: 5000 },
-        { id: 3, category: 'Utilities', description: 'Electricity bill', date: '2026-01-02', amount: 3200 },
-        { id: 4, category: 'Marketing', description: 'Social media ads', date: '2026-01-01', amount: 10000 },
-    ];
+    useEffect(() => {
+        fetchExpenses();
+    }, []);
 
-    const categories = ['all', 'Office Supplies', 'Travel', 'Utilities', 'Marketing', 'Other'];
+    const categories = ['all', 'Office Supplies', 'Travel', 'Utilities', 'Marketing', 'Salary', 'Rent', 'Other'];
 
-    const filteredExpenses = expenses.filter(e => {
-        const matchesSearch = e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            e.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredExpenses = expenses.filter((e: any) => {
+        const matchesSearch = (e.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (e.category || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = filterCategory === 'all' || e.category === filterCategory;
         return matchesSearch && matchesCategory;
     });
 
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const totalExpenses = expenses.reduce((sum: number, e: any) => sum + parseFloat(e.amount || 0), 0);
 
     return (
         <div className="p-6 space-y-6">
@@ -92,11 +90,11 @@ export default function ExpensesPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredExpenses.map((expense) => (
+                                filteredExpenses.map((expense: any) => (
                                     <tr key={expense.id} className="hover:bg-slate-50 transition-colors">
                                         <td className="py-4 px-6 text-slate-600 font-medium">
                                             <FaCalendar className="inline mr-2 text-slate-400" />
-                                            {expense.date}
+                                            {new Date(expense.expense_date).toLocaleDateString('en-IN')}
                                         </td>
                                         <td className="py-4 px-6">
                                             <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
@@ -105,7 +103,7 @@ export default function ExpensesPage() {
                                         </td>
                                         <td className="py-4 px-6 text-slate-700 font-medium">{expense.description}</td>
                                         <td className="py-4 px-6 text-right font-bold text-slate-800">
-                                            ₹{expense.amount.toLocaleString('en-IN')}
+                                            ₹{parseFloat(expense.amount).toLocaleString('en-IN')}
                                         </td>
                                         <td className="py-4 px-6 text-center">
                                             <div className="flex justify-center gap-2">

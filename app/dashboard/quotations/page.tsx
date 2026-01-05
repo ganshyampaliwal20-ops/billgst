@@ -1,22 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaPlus, FaFileInvoice, FaSearch } from 'react-icons/fa';
 import Link from 'next/link';
+import { useStore } from '@/lib/store';
 
 export default function QuotationsPage() {
+    const { quotations, fetchQuotations } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Sample data
-    const quotations = [
-        { id: 1, number: 'QUO-001', customer: 'ABC Company', date: '2026-01-04', amount: 50000, status: 'Pending' },
-        { id: 2, number: 'QUO-002', customer: 'XYZ Ltd', date: '2026-01-03', amount: 75000, status: 'Accepted' },
-        { id: 3, number: 'QUO-003', customer: 'Demo Corp', date: '2026-01-02', amount: 30000, status: 'Rejected' },
-    ];
+    useEffect(() => {
+        fetchQuotations();
+    }, []);
 
-    const filteredQuotations = quotations.filter(q =>
-        q.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        q.number.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredQuotations = quotations.filter((q: any) =>
+        (q.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (q.quotation_number || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -73,17 +72,19 @@ export default function QuotationsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredQuotations.map((quotation) => (
+                                filteredQuotations.map((quotation: any) => (
                                     <tr key={quotation.id} className="hover:bg-slate-50 transition-colors">
                                         <td className="py-4 px-6 font-bold text-blue-600">
                                             <Link href={`/dashboard/quotations/${quotation.id}`} className="hover:underline">
-                                                {quotation.number}
+                                                {quotation.quotation_number}
                                             </Link>
                                         </td>
-                                        <td className="py-4 px-6 text-slate-700 font-medium">{quotation.customer}</td>
-                                        <td className="py-4 px-6 text-slate-600">{quotation.date}</td>
+                                        <td className="py-4 px-6 text-slate-700 font-medium">{quotation.customer_name}</td>
+                                        <td className="py-4 px-6 text-slate-600">
+                                            {new Date(quotation.quotation_date).toLocaleDateString('en-IN')}
+                                        </td>
                                         <td className="py-4 px-6 text-right font-bold text-slate-800">
-                                            ₹{quotation.amount.toLocaleString('en-IN')}
+                                            ₹{parseFloat(quotation.total_amount).toLocaleString('en-IN')}
                                         </td>
                                         <td className="py-4 px-6 text-center">
                                             <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${quotation.status === 'Accepted' ? 'bg-green-100 text-green-700' :
@@ -115,11 +116,11 @@ export default function QuotationsPage() {
                 </div>
                 <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
                     <h3 className="text-sm font-bold uppercase tracking-wider opacity-90">Accepted</h3>
-                    <p className="text-4xl font-black mt-2">{quotations.filter(q => q.status === 'Accepted').length}</p>
+                    <p className="text-4xl font-black mt-2">{quotations.filter((q: any) => q.status === 'Accepted').length}</p>
                 </div>
                 <div className="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg">
                     <h3 className="text-sm font-bold uppercase tracking-wider opacity-90">Pending</h3>
-                    <p className="text-4xl font-black mt-2">{quotations.filter(q => q.status === 'Pending').length}</p>
+                    <p className="text-4xl font-black mt-2">{quotations.filter((q: any) => q.status === 'Pending').length}</p>
                 </div>
             </div>
         </div>

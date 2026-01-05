@@ -5,13 +5,20 @@ import { FaSave, FaArrowLeft, FaPlus, FaTrash } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { useStore } from '@/lib/store';
+import { toast } from 'react-hot-toast';
+
 export default function NewQuotationPage() {
     const router = useRouter();
+    const { addQuotation, quotations } = useStore();
     const [customer, setCustomer] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [items, setItems] = useState([
         { id: 1, product: '', quantity: 1, rate: 0, amount: 0 }
     ]);
+
+    // Simple quotation number generation
+    const quoNumber = `QUO-${(quotations.length + 1).toString().padStart(3, '0')}`;
 
     const addItem = () => {
         setItems([...items, { id: Date.now(), product: '', quantity: 1, rate: 0, amount: 0 }]);
@@ -36,10 +43,24 @@ export default function NewQuotationPage() {
 
     const total = items.reduce((sum, item) => sum + item.amount, 0);
 
-    const handleSave = () => {
-        // Here you would save to database
-        alert('Quotation saved successfully!');
-        router.push('/dashboard/quotations');
+    const handleSave = async () => {
+        if (!customer) {
+            toast.error('Please enter customer name');
+            return;
+        }
+
+        const quotationData = {
+            quotation_number: quoNumber,
+            customer_name: customer,
+            quotation_date: date,
+            total_amount: total,
+            items: items.filter(item => item.product && item.quantity > 0)
+        };
+
+        const result = await addQuotation(quotationData);
+        if (result.success) {
+            router.push('/dashboard/quotations');
+        }
     };
 
     return (
@@ -51,7 +72,7 @@ export default function NewQuotationPage() {
                         <FaArrowLeft className="text-xl" />
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black text-slate-8900 tracking-tight">New Quotation</h1>
+                        <h1 className="text-3xl font-black text-slate-800 tracking-tight">New Quotation</h1>
                         <p className="text-slate-500 text-sm mt-1">Create a new quotation for your customer</p>
                     </div>
                 </div>

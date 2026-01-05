@@ -77,6 +77,7 @@ export default function NewInvoicePage() {
     const [showCustomerModal, setShowCustomerModal] = useState(false);
     const [newCustomerName, setNewCustomerName] = useState('');
     const [newCustomerPhone, setNewCustomerPhone] = useState('');
+    const [newCustomerGstin, setNewCustomerGstin] = useState('');
 
     // CRITICAL: All useState hooks MUST be above any conditional returns
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -216,6 +217,7 @@ export default function NewInvoicePage() {
             id: newId,
             name: newCustomerName,
             phone: newCustomerPhone,
+            gstin: newCustomerGstin,
             created_at: new Date().toISOString()
         });
 
@@ -223,6 +225,7 @@ export default function NewInvoicePage() {
         setShowCustomerModal(false);
         setNewCustomerName('');
         setNewCustomerPhone('');
+        setNewCustomerGstin('');
         toast.success('Customer added & selected');
     };
 
@@ -776,6 +779,15 @@ export default function NewInvoicePage() {
                                     value={newCustomerPhone}
                                     onChange={e => setNewCustomerPhone(e.target.value)}
                                     placeholder="Enter phone number"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">GSTIN</label>
+                                <input
+                                    className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                                    value={newCustomerGstin}
+                                    onChange={e => setNewCustomerGstin(e.target.value)}
+                                    placeholder="Enter GST number (Optional)"
                                 />
                             </div>
                             <div className="flex gap-3 pt-4">

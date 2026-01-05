@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaChevronLeft, FaCommentDots, FaBell, FaUserPlus } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaChevronLeft, FaCommentDots, FaBell, FaUserPlus, FaEdit } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 export default function CustomersPage() {
+    const router = useRouter();
     const { customers, invoices, addCustomer, updateCustomer } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -146,14 +148,7 @@ export default function CustomersPage() {
                                 key={party.id}
                                 className="flex justify-between items-center px-6 py-5 border-b border-gray-50 hover:bg-slate-50 transition-colors cursor-pointer group active:bg-slate-100"
                                 onClick={() => {
-                                    setEditingId(party.id);
-                                    setFormData({
-                                        name: party.name,
-                                        phone: party.phone || '',
-                                        gstin: party.gstin || '',
-                                        address: party.address || ''
-                                    });
-                                    setShowModal(true);
+                                    router.push(`/dashboard/customers/${party.id}`);
                                 }}
                             >
                                 <div className="flex-1 min-w-0 pr-4 pl-2">
@@ -162,11 +157,28 @@ export default function CustomersPage() {
                                         📞 {party.phone}
                                     </p>}
                                 </div>
-                                <div className="flex items-center gap-3 shrink-0 pr-2">
-                                    <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                        ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                    </span>
-                                    {balance > 0 && <FaBell className="text-[#0e7490] text-sm opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />}
+                                <div className="flex items-center gap-4 shrink-0 pr-2">
+                                    <div className="text-right">
+                                        <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                            ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingId(party.id);
+                                            setFormData({
+                                                name: party.name,
+                                                phone: party.phone || '',
+                                                gstin: party.gstin || '',
+                                                address: party.address || ''
+                                            });
+                                            setShowModal(true);
+                                        }}
+                                        className="p-2 text-slate-400 hover:text-[#0e7490] hover:bg-slate-100 rounded-lg transition-colors"
+                                    >
+                                        <FaEdit className="text-lg" />
+                                    </button>
                                 </div>
                             </div>
                         );
