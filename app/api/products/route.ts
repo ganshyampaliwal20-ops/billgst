@@ -156,8 +156,11 @@ export async function DELETE(request: Request) {
         // Check if product is used in invoices
         const checkUsage = await client.query('SELECT COUNT(*) FROM invoice_items WHERE product_id = $1', [id]);
         if (parseInt(checkUsage.rows[0].count) > 0) {
+            // If used in invoices, mark as INACTIVE instead of hard delete
+            await client.query('ALTER TABLE products ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT \'ACTIVE\'');
+            await client.query('UPDATE products SET status = $1 WHERE id = $2 AND created_by = $3', ['INACTIVE', id, userId]);
             client.release();
-            return NextResponse.json({ error: 'Cannot delete product: It is used in existing invoices' }, { status: 400 });
+            return NextResponse.json({ success: true, message: 'Product marked as inactive' });
         }
 
         // Only delete if it belongs to user

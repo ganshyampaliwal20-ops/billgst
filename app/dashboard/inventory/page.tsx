@@ -31,10 +31,12 @@ export default function InventoryPage() {
 
     if (!isClient) return null;
 
-    const filteredProducts = products.filter((p: any) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.hsn_code?.includes(searchTerm)
-    );
+    const filteredProducts = (products || [])
+        .filter((p: any) => p && (p.status !== 'INACTIVE'))
+        .filter((p: any) =>
+            (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (p.hsn_code || '').includes(searchTerm)
+        );
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -195,19 +197,33 @@ export default function InventoryPage() {
                                 </div>
                             </div>
 
-                            {/* Action Footer */}
-                            <div className="bg-gray-50/80 px-5 py-3 border-t border-gray-100 flex items-center justify-center gap-4">
+                            {/* Action Footer - Larger & More Premium Buttons */}
+                            <div className="bg-slate-50 px-5 py-4 border-t border-slate-100 flex items-center justify-center gap-4">
                                 <button
                                     onClick={() => handleEdit(product)}
-                                    className="flex items-center gap-2 px-4 py-2 text-indigo-600 bg-white border border-indigo-100 hover:bg-indigo-50 rounded-lg transition-all text-sm font-medium shadow-sm"
+                                    className="
+                                        flex-1 flex items-center justify-center gap-2 px-6 py-3.5 
+                                        bg-white border-2 border-indigo-100 text-indigo-600 
+                                        rounded-xl transition-all duration-300 font-bold text-base
+                                        shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 
+                                        hover:shadow-[0_6px_0_0_#e0e7ff] hover:bg-indigo-50/50
+                                        active:translate-y-0 active:shadow-none
+                                    "
                                 >
-                                    <FaEdit /> Edit
+                                    <FaEdit className="text-xl" /> Edit
                                 </button>
                                 <button
                                     onClick={() => handleDelete(product.id)}
-                                    className="flex items-center gap-2 px-4 py-2 text-red-600 bg-white border border-red-100 hover:bg-red-50 rounded-lg transition-all text-sm font-medium shadow-sm"
+                                    className="
+                                        flex-1 flex items-center justify-center gap-2 px-6 py-3.5 
+                                        bg-white border-2 border-red-100 text-red-600 
+                                        rounded-xl transition-all duration-300 font-bold text-base
+                                        shadow-[0_4px_0_0_#fee2e2] hover:-translate-y-1 
+                                        hover:shadow-[0_6px_0_0_#fee2e2] hover:bg-red-50/50
+                                        active:translate-y-0 active:shadow-none
+                                    "
                                 >
-                                    <FaTrash /> Delete
+                                    <FaTrash className="text-xl" /> Delete
                                 </button>
                             </div>
                         </div>

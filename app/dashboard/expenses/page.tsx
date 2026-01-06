@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FaPlus, FaTrash, FaEdit, FaSearch, FaCalendar } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaSearch, FaCalendar, FaRupeeSign, FaBox, FaReceipt } from 'react-icons/fa';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 
@@ -25,6 +25,16 @@ export default function ExpensesPage() {
 
     const totalExpenses = expenses.reduce((sum: number, e: any) => sum + parseFloat(e.amount || 0), 0);
 
+    // Calculate current month sum
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const monthlyExpenses = expenses.filter((e: any) => {
+        const d = new Date(e.expense_date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }).reduce((sum: number, e: any) => sum + parseFloat(e.amount || 0), 0);
+
+    const uniqueCategories = [...new Set(expenses.map((e: any) => e.category))].length;
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
@@ -39,6 +49,43 @@ export default function ExpensesPage() {
                 >
                     <FaPlus /> Add Expense
                 </Link>
+            </div>
+
+            {/* Summary Box - Dashboard Style (Horizontal) */}
+            <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                {/* Decorative Elements */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-44 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5"></div>
+
+                <div className="flex items-center justify-between gap-4 relative z-10">
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="p-3 rounded-full bg-white/20 text-white shadow-md">
+                            <FaRupeeSign className="text-xl" />
+                        </div>
+                        <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Expenses</span>
+                        <span className="text-lg font-black text-white">₹{totalExpenses.toLocaleString('en-IN')}</span>
+                    </div>
+
+                    <div className="w-px h-10 bg-white/20"></div>
+
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="p-3 rounded-full bg-white/20 text-white shadow-md">
+                            <FaCalendar className="text-xl" />
+                        </div>
+                        <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">This Month</span>
+                        <span className="text-lg font-black text-white">₹{monthlyExpenses.toLocaleString('en-IN')}</span>
+                    </div>
+
+                    <div className="w-px h-10 bg-white/20"></div>
+
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="p-3 rounded-full bg-white/20 text-white shadow-md">
+                            <FaBox className="text-xl" />
+                        </div>
+                        <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Categories</span>
+                        <span className="text-lg font-black text-white">{uniqueCategories}</span>
+                    </div>
+                </div>
             </div>
 
             {/* Filters */}
@@ -120,22 +167,6 @@ export default function ExpensesPage() {
                             )}
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-r from-rose-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg">
-                    <h3 className="text-sm font-bold uppercase tracking-wider opacity-90">Total Expenses</h3>
-                    <p className="text-4xl font-black mt-2">₹{totalExpenses.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
-                    <h3 className="text-sm font-bold uppercase tracking-wider opacity-90">This Month</h3>
-                    <p className="text-4xl font-black mt-2">{expenses.length}</p>
-                </div>
-                <div className="bg-gradient-to-r from-orange-500 to-amber-600 rounded-2xl p-6 text-white shadow-lg">
-                    <h3 className="text-sm font-bold uppercase tracking-wider opacity-90">Categories</h3>
-                    <p className="text-4xl font-black mt-2">{categories.length - 1}</p>
                 </div>
             </div>
         </div>

@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { FaPlus, FaFileInvoice, FaSearch } from 'react-icons/fa';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 
 export default function QuotationsPage() {
+    const router = useRouter();
     const { quotations, fetchQuotations } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -17,6 +19,10 @@ export default function QuotationsPage() {
         (q.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (q.quotation_number || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const handleConvertToInvoice = (quotation: any) => {
+        router.push(`/dashboard/invoices/new?quotationId=${quotation.id}`);
+    };
 
     return (
         <div className="p-6 space-y-6">
@@ -95,7 +101,10 @@ export default function QuotationsPage() {
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-center">
-                                            <button className="text-blue-600 hover:text-blue-800 font-bold text-sm whitespace-nowrap">
+                                            <button
+                                                onClick={() => handleConvertToInvoice(quotation)}
+                                                className="text-blue-600 hover:text-blue-800 font-bold text-sm whitespace-nowrap"
+                                            >
                                                 <FaFileInvoice className="inline mr-1" /> Convert to Invoice
                                             </button>
                                         </td>

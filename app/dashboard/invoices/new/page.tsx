@@ -88,9 +88,10 @@ export default function NewInvoicePage() {
         // Set date only on client side to avoid hydration errors
         setInvoiceDate(new Date().toISOString().split('T')[0]);
 
-        // Handle Duplication logic
+        // Handle Duplication and Quotation Conversion logic
         const params = new URLSearchParams(window.location.search);
         const duplicateId = params.get('duplicateId');
+        const quotationId = params.get('quotationId');
         const typeParam = params.get('type');
 
         if (typeParam && Object.values(DOC_TYPES).includes(typeParam)) {
@@ -134,6 +135,29 @@ export default function NewInvoicePage() {
                     });
                 }
                 toast.success('Invoice details pre-filled from previous bill');
+            }
+        } else if (quotationId && !isDuplicating) {
+            const quotations = useStore.getState().quotations || [];
+            const sourceQuotation = quotations.find((q: any) => q.id === quotationId);
+
+            if (sourceQuotation) {
+                setIsDuplicating(true); // Reuse this flag to prevent infinite loops
+                setCustomerId(sourceQuotation.customer_id || '');
+                setNotes(sourceQuotation.notes || '');
+
+                const items = Array.isArray(sourceQuotation.items) ? sourceQuotation.items : [];
+                setSelectedItems(items.map((item: any) => ({
+                    ...item,
+                    product_id: item.product_id || '',
+                    product_name: item.product_name || item.product || 'Unnamed Item',
+                    quantity: item.quantity || 1,
+                    unit_price: item.unit_price || item.rate || 0,
+                    gst_rate: item.gst_rate ?? 18,
+                    hsn_code: item.hsn_code || '',
+                    unit: item.unit || 'PCS',
+                    type: item.type || 'PRODUCT'
+                })));
+                toast.success('Invoice details pre-filled from quotation');
             }
         }
     }, [isDuplicating]);

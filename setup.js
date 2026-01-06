@@ -7,7 +7,7 @@ dotenv.config({ path: '.env.local' });
 async function setup() {
   try {
     // Dynamic import to ensure env vars are loaded first
-    const { default: pool, initDB } = await import('./lib/db.ts');
+    const { default: pool, initDB } = await import('./lib/db.js');
 
     console.log('Starting database setup...');
     console.log('DB URL:', process.env.DATABASE_URL ? 'Loaded' : 'Not Loaded');

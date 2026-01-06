@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { useParams, useRouter } from 'next/navigation';
-import { FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaFileInvoice, FaMoneyBillWave, FaExclamationCircle, FaEdit } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaFileInvoice, FaMoneyBillWave, FaExclamationCircle, FaEdit, FaReceipt, FaRupeeSign, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
@@ -38,9 +38,9 @@ export default function CustomerDetailPage() {
         .filter((inv: any) => inv.customer_id === id || inv.customer?.id === id)
         .sort((a: any, b: any) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime());
 
-    const totalSales = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
-    const totalPaid = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.paid_amount || 0), 0);
-    const totalDue = totalSales - totalPaid;
+    const totalSales = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.total_amount || 0), 0);
+    const totalPaid = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.paid_amount || 0), 0);
+    const totalDue = Math.max(0, totalSales - totalPaid);
 
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50 overflow-hidden">
@@ -66,34 +66,40 @@ export default function CustomerDetailPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                                <FaFileInvoice />
+                {/* Summary Box - Dashboard Style (Horizontal) */}
+                <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                    {/* Decorative Elements */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-44 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5"></div>
+
+                    <div className="flex items-center justify-between gap-4 relative z-10">
+                        <div className="flex-1 flex flex-col items-center gap-2">
+                            <div className="p-3 rounded-full bg-white/20 text-white shadow-md group-hover:bg-white group-hover:text-blue-500 transition-all">
+                                <FaReceipt className="text-xl" />
                             </div>
-                            <span className="text-sm font-bold text-slate-500 uppercase">Total Sales</span>
+                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Sales</span>
+                            <span className="text-lg font-black text-white">₹{totalSales.toLocaleString('en-IN')}</span>
                         </div>
-                        <p className="text-2xl font-black text-slate-800">₹{totalSales.toLocaleString('en-IN')}</p>
-                    </div>
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                                <FaMoneyBillWave />
+
+                        <div className="w-px h-10 bg-white/20"></div>
+
+                        <div className="flex-1 flex flex-col items-center gap-2">
+                            <div className="p-3 rounded-full bg-white/20 text-white shadow-md group-hover:bg-white group-hover:text-emerald-500 transition-all">
+                                <FaRupeeSign className="text-xl" />
                             </div>
-                            <span className="text-sm font-bold text-slate-500 uppercase">Total Paid</span>
+                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Paid</span>
+                            <span className="text-lg font-black text-emerald-300">₹{totalPaid.toLocaleString('en-IN')}</span>
                         </div>
-                        <p className="text-2xl font-black text-emerald-600">₹{totalPaid.toLocaleString('en-IN')}</p>
-                    </div>
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center">
-                                <FaExclamationCircle />
+
+                        <div className="w-px h-10 bg-white/20"></div>
+
+                        <div className="flex-1 flex flex-col items-center gap-2">
+                            <div className="p-3 rounded-full bg-white/20 text-white shadow-md group-hover:bg-white group-hover:text-orange-500 transition-all">
+                                <FaExclamationCircle className="text-xl" />
                             </div>
-                            <span className="text-sm font-bold text-slate-500 uppercase">Outstanding</span>
+                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Outstanding</span>
+                            <span className="text-lg font-black text-orange-300">₹{totalDue.toLocaleString('en-IN')}</span>
                         </div>
-                        <p className="text-2xl font-black text-orange-600">₹{totalDue.toLocaleString('en-IN')}</p>
                     </div>
                 </div>
 
