@@ -13,9 +13,54 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = blogPosts.find((p) => p.slug === slug);
     if (!post) return { title: 'Post Not Found' };
 
+    const url = `https://www.billgst.in/blog/${slug}`;
+
     return {
         title: `${post.title} - BillGST Blog`,
         description: post.description,
+        keywords: [
+            'GST billing software',
+            'free billing software India',
+            'GST invoice generator',
+            'inventory management',
+            'small business accounting',
+            'GST 2.0',
+            'e-invoice',
+            'GSTR filing',
+            post.category,
+        ],
+        authors: [{ name: post.author }],
+        openGraph: {
+            title: post.title,
+            description: post.description,
+            url: url,
+            siteName: 'BillGST',
+            locale: 'en_IN',
+            type: 'article',
+            publishedTime: new Date(post.date).toISOString(),
+            authors: [post.author],
+            tags: [post.category, 'GST', 'Billing', 'Business'],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: post.description,
+            creator: '@billgst',
+        },
+        alternates: {
+            canonical: url,
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
     };
 }
 

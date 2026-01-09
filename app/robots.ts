@@ -1,16 +1,19 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = 'https://billgst.in';
-
     return {
         rules: [
             {
                 userAgent: '*',
-                allow: ['/', '/blog', '/logo.png'],
-                disallow: ['/api/', '/dashboard/'],
-            }
+                allow: '/',
+                disallow: ['/dashboard/', '/api/', '/setup/'],
+            },
+            {
+                userAgent: 'Googlebot',
+                allow: '/',
+                disallow: ['/dashboard/', '/api/', '/setup/'],
+            },
         ],
-        sitemap: `${baseUrl}/sitemap.xml`,
-    };
+        sitemap: 'https://www.billgst.in/sitemap.xml',
+    }
 }

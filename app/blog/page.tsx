@@ -1,10 +1,46 @@
 import Link from 'next/link';
 import { FaArrowLeft, FaCalendar, FaTag, FaArrowRight } from 'react-icons/fa';
 import { blogPosts } from '@/lib/blog-data';
+import { Metadata } from 'next';
 
-export const metadata = {
-    title: 'BillGST Blog - GST Billing & Inventory Tips',
-    description: 'Learn how to manage inventory, create GST bills, and grow your small business with our free billing software guide.',
+export const metadata: Metadata = {
+    title: 'BillGST Blog - Free GST Billing Software Tips & Updates',
+    description: 'Learn GST billing, inventory management, and business growth tips. Latest GST 2.0 updates, e-invoice guides, and free billing software tutorials for Indian businesses.',
+    keywords: [
+        'GST billing software blog',
+        'free billing software India',
+        'GST 2.0 updates',
+        'e-invoice tutorial',
+        'inventory management tips',
+        'small business accounting',
+        'GSTR filing guide',
+        'business growth tips India',
+    ],
+    openGraph: {
+        title: 'BillGST Blog - GST Billing & Business Tips',
+        description: 'Latest GST updates, billing tips, and business growth guides for Indian entrepreneurs.',
+        url: 'https://www.billgst.in/blog',
+        siteName: 'BillGST',
+        locale: 'en_IN',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'BillGST Blog - GST Billing Tips',
+        description: 'Latest GST updates and billing tips for Indian businesses',
+        creator: '@billgst',
+    },
+    alternates: {
+        canonical: 'https://www.billgst.in/blog',
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+        },
+    },
 };
 
 export default function BlogPage() {
