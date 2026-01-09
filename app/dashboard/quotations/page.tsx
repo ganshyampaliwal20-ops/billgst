@@ -99,11 +99,40 @@ export default function QuotationsPage() {
         }
     };
 
-    const handleWhatsAppShare = () => {
+    const handleWhatsAppShare = async () => {
         if (pdfBlobUrl && selectedQuotation) {
+            const fileName = `Quotation-${selectedQuotation.quotation_number || 'draft'}.pdf`;
             const message = `Hi ${selectedQuotation.customer_name}, please find your quotation ${selectedQuotation.quotation_number} for Rs. ${parseFloat(selectedQuotation.total_amount).toLocaleString('en-IN')}`;
+
+            // Check if Web Share API is available and can share files
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const response = await fetch(pdfBlobUrl);
+                    const blob = await response.blob();
+                    const file = new File([blob], fileName, { type: 'application/pdf' });
+
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Quotation PDF',
+                            text: message,
+                        });
+                        console.log('Successfully shared PDF');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error sharing file:', error);
+                }
+            }
+
+            // Fallback for desktop or unsupported browsers
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
+
+            // Inform the user that they need to attach the file manually on desktop
+            if (!navigator.share) {
+                alert('Desktop par PDF share karne ke liye, WhatsApp khulne ke baad file manually attach karein. (Mobile par direct file share ho jati hai)');
+            }
         }
     };
 
