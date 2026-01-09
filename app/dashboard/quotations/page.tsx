@@ -203,14 +203,20 @@ export default function QuotationsPage() {
                                         <td className="py-4 px-6 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
-                                                    onClick={() => openPaymentModal(quotation)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        openPaymentModal(quotation);
+                                                    }}
                                                     className="text-green-600 hover:text-green-800 font-bold text-xs bg-green-50 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
                                                     title="Record Payment"
                                                 >
                                                     <FaHandHoldingUsd className="text-base" /> Receive
                                                 </button>
                                                 <button
-                                                    onClick={() => handleConvertToInvoice(quotation)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleConvertToInvoice(quotation);
+                                                    }}
                                                     className="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
                                                     title="Convert to Invoice"
                                                 >
