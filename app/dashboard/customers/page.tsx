@@ -74,8 +74,8 @@ export default function CustomersPage() {
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-white overflow-hidden">
             {/* Custom Header - Teal color as per image */}
-            <div className="bg-[#0e7490] text-white px-6 py-5 flex items-center justify-between shadow-lg z-20 relative">
-                <div className="flex items-center gap-4">
+            <div className="bg-[#4358f4] text-white px-6 py-5 flex items-center justify-between shadow-lg z-20 relative">
+                <div className="flex items-center gap-5">
                     <button onClick={() => window.history.back()} className="hover:bg-white/10 p-2 -ml-2 rounded-full transition-colors">
                         <FaChevronLeft className="text-xl" />
                     </button>
@@ -113,16 +113,16 @@ export default function CustomersPage() {
             </div>
 
             {/* Search Bar */}
-            <div className="px-6 py-5 border-b border-gray-100 bg-white shadow-sm relative z-0">
+            <div className="px-6 py-5 border-b border-gray-10 bg-white shadow-sm relative z-0">
                 <div className="relative group">
-                    <FaSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg group-focus-within:text-[#0e7490] transition-colors z-10" />
+                    <FaSearch className="absolute left-150 top-1/2 -translate-y-1/2 text-gray-400 text-lg group-focus-within:text-[#0e7490] transition-colors z-10" />
                     <input
                         type="text"
                         placeholder="Search for Name / No. / Address etc."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ paddingLeft: '4.5rem' }}
-                        className="w-full pr-6 py-4 bg-gray-50 border-2 border-slate-100 rounded-full outline-none focus:bg-white focus:border-[#0e7490] focus:ring-4 focus:ring-[#0e7490]/10 transition-all text-sm font-bold text-slate-700 shadow-inner placeholder:font-normal"
+                        style={{ paddingLeft: '1.1rem' }}
+                        className="w-full pr-6 py-4 bg-gray-50 border-20 border-slate-100 rounded-full outline-none focus:bg-white focus:border-[#0e7490] focus:ring-4 focus:ring-[#4358f4]/10 transition-all text-sm font-bold text-slate-700 shadow-inner placeholder:font-normal"
                     />
                 </div>
             </div>
@@ -146,20 +146,21 @@ export default function CustomersPage() {
                         return (
                             <div
                                 key={party.id}
-                                className="flex justify-between items-center px-6 py-5 border-b border-gray-50 hover:bg-slate-50 transition-colors cursor-pointer group active:bg-slate-100"
+                                className="flex justify-between items-center px-6 py-5 min-h-[50px] border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer group active:bg-blue-100"
                                 onClick={() => {
                                     router.push(`/dashboard/customers/${party.id}`);
                                 }}
                             >
                                 <div className="flex-1 min-w-0 pr-4 pl-2">
-                                    <h3 className="font-bold text-slate-800 text-base truncate group-hover:text-[#0e7490] transition-colors">{party.name}</h3>
+                                    <h3 className="font-bold text-[#4e00b6] text-base truncate group-hover:text-[#0e7490] transition-colors">{party.name}</h3>
                                     {party.phone && <p className="text-xs text-slate-500 mt-1 truncate font-medium flex items-center gap-1">
                                         📞 {party.phone}
                                     </p>}
+                                    {!party.phone && <p className="text-xs text-transparent mt-1 select-none">.</p>}
                                 </div>
                                 <div className="flex items-center gap-4 shrink-0 pr-2">
                                     <div className="text-right">
-                                        <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                        <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-[#4358f4]' : 'text-slate-400'}`}>
                                             ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                         </span>
                                     </div>
@@ -175,7 +176,7 @@ export default function CustomersPage() {
                                             });
                                             setShowModal(true);
                                         }}
-                                        className="p-2 text-slate-400 hover:text-[#0e7490] hover:bg-slate-100 rounded-lg transition-colors"
+                                        className="p-2 text-slate-40 hover:text-[#0e7490] hover:bg-slate-10 rounded-lg transition-colors"
                                     >
                                         <FaEdit className="text-lg" />
                                     </button>
@@ -189,73 +190,75 @@ export default function CustomersPage() {
             {/* Floating Action Button */}
             <button
                 onClick={() => setShowModal(true)}
-                className="absolute bottom-6 right-6 w-16 h-16 bg-[#0e7490] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#0891b2] active:scale-95 transition-all z-20"
+                className="absolute bottom-6 right-6 w-20 h-20 bg-[#0e7490] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#0891b2] active:scale-95 transition-all z-20"
             >
                 <FaPlus className="text-2xl" />
             </button>
 
             {/* Add/Edit Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-                        <h2 className="text-xl font-bold mb-6 text-[#0e7490]">{editingId ? 'Edit Party' : 'Add New Party'}</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Party Name *</label>
-                                <input
-                                    required
-                                    className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+            {
+                showModal && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-5xl w-full max-w-md p-16 shadow-2xl">
+                            <h2 className="text-xl font-bold mb-6 text-[#0e7490]">{editingId ? 'Edit Party' : 'Add New Party'}</h2>
+                            <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone Number</label>
+                                    <label className="block text-xs font-bold text-gray-800 uppercase mb-1">Party Name *</label>
                                     <input
-                                        className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
-                                        value={formData.phone}
-                                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                        placeholder="Mobile No."
+                                        required
+                                        className="w-full p-3 border border-gray-500 rounded-xl outline-none focus:border-[#0e7490]"
+                                        value={formData.name}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">GSTIN</label>
-                                    <input
-                                        className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
-                                        value={formData.gstin}
-                                        onChange={e => setFormData({ ...formData, gstin: e.target.value })}
-                                        placeholder="Optional"
-                                    />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-800 uppercase mb-1">Phone Number</label>
+                                        <input
+                                            className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
+                                            value={formData.phone}
+                                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                            placeholder="Mobile No."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-800 uppercase mb-1">GSTIN</label>
+                                        <input
+                                            className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
+                                            value={formData.gstin}
+                                            onChange={e => setFormData({ ...formData, gstin: e.target.value })}
+                                            placeholder="Optional"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Address</label>
-                                <textarea
-                                    className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490] h-24 resize-none"
-                                    value={formData.address}
-                                    onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                ></textarea>
-                            </div>
-                            <div className="flex gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={resetForm}
-                                    className="flex-1 py-3 border border-gray-200 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 py-3 bg-[#0e7490] text-white rounded-xl font-bold hover:bg-[#0891b2] transition"
-                                >
-                                    {editingId ? 'Update Party' : 'Save Party'}
-                                </button>
-                            </div>
-                        </form>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Address</label>
+                                    <textarea
+                                        className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490] h-24 resize-none"
+                                        value={formData.address}
+                                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                    ></textarea>
+                                </div>
+                                <div className="flex gap-4 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={resetForm}
+                                        className="flex-1 py-3 border border-gray-800 rounded-xl font-bold text-gray-800 hover:bg-gray-50 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-3 bg-[#0e7490] text-white rounded-xl font-bold hover:bg-[#0891b2] transition"
+                                    >
+                                        {editingId ? 'Update Party' : 'Save Party'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

@@ -1,18 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FaPlus, FaFileInvoice, FaSearch, FaHandHoldingUsd } from 'react-icons/fa';
+import { FaPlus, FaFileInvoice, FaSearch, FaHandHoldingUsd, FaWhatsapp, FaDownload, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
+import { generateQuotationPDF } from '@/lib/pdf-generator';
 
 export default function QuotationsPage() {
     const router = useRouter();
-    const { quotations, fetchQuotations, updateQuotation } = useStore();
+    const { quotations, fetchQuotations, updateQuotation, businessDetails } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
     const [paymentAmount, setPaymentAmount] = useState('');
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
 
     useEffect(() => {
         fetchQuotations();
@@ -54,31 +57,72 @@ export default function QuotationsPage() {
         setShowPaymentModal(false);
     };
 
+    const handleQuotationClick = async (quotation: any) => {
+        try {
+            const pdfDoc = await generateQuotationPDF(quotation, businessDetails, false);
+            if (pdfDoc) {
+                const pdfBlob = pdfDoc.output('blob');
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                setPdfBlobUrl(blobUrl);
+                setSelectedQuotation(quotation);
+                setShowPdfModal(true);
+            }
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('PDF generate karne mein error aaya. Kripya phir se try karein.');
+        }
+    };
+
+    const handleDownloadPdf = () => {
+        if (pdfBlobUrl && selectedQuotation) {
+            const link = document.createElement('a');
+            link.href = pdfBlobUrl;
+            link.download = `Quotation-${selectedQuotation.quotation_number}.pdf`;
+            link.click();
+        }
+    };
+
+    const handleWhatsAppShare = () => {
+        if (pdfBlobUrl && selectedQuotation) {
+            const message = `Hi ${selectedQuotation.customer_name}, please find your quotation ${selectedQuotation.quotation_number} for Rs. ${parseFloat(selectedQuotation.total_amount).toLocaleString('en-IN')}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    };
+
+    const closePdfModal = () => {
+        if (pdfBlobUrl) {
+            URL.revokeObjectURL(pdfBlobUrl);
+        }
+        setPdfBlobUrl(null);
+        setShowPdfModal(false);
+    };
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
             <div className="flex flex-col items-center justify-center gap-2 text-center">
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight">Quotations</h1>
-                <p className="text-slate-500 text-sm">Manage your quotations and convert to invoices</p>
+                <p className="text-slate-40 text-sm">Manage your quotations and convert to invoices</p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
                     <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Total Quotations</h3>
-                    <p className="text-2xl font-black mt-1">{quotations.length}</p>
+                    <p className="text-2x1 font-black mt-1">{quotations.length}</p>
                     <p className="text-[10px] opacity-75 mt-0.5">Generated</p>
                 </div>
                 <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
                     <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Received Amount</h3>
-                    <p className="text-2xl font-black mt-1">
+                    <p className="text-2x1 font-black mt-1">
                         ₹{quotations.reduce((acc: number, q: any) => acc + (parseFloat(q.paid_amount || 0)), 0).toLocaleString('en-IN')}
                     </p>
                     <p className="text-[10px] opacity-75 mt-0.5">Total Collected</p>
                 </div>
                 <div className="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
                     <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Pending Balance</h3>
-                    <p className="text-2xl font-black mt-1">
+                    <p className="text-2x1 font-black mt-1">
                         ₹{quotations.reduce((acc: number, q: any) => acc + (parseFloat(q.total_amount || 0) - parseFloat(q.paid_amount || 0)), 0).toLocaleString('en-IN')}
                     </p>
                     <p className="text-[10px] opacity-75 mt-0.5">Total Outstanding</p>
@@ -86,25 +130,26 @@ export default function QuotationsPage() {
             </div>
 
             {/* Search Bar */}
-            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '5px' }}></div>
+            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '15px' }}></div>
             <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
                 <div className="relative">
-                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <FaSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search by customer or quotation number..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                     />
                 </div>
             </div>
 
             {/* Quotations List */}
-            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '5px' }}></div>
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
+            <div className="bg-white rounded-200xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '5px' }}></div>
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[800px]">
+                    <table className="w-full min-w-[1000px]">
                         <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                             <tr>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Quotation #</th>
@@ -117,7 +162,7 @@ export default function QuotationsPage() {
                                 <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-10">
                             {filteredQuotations.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} className="py-12 text-center text-slate-500 font-bold">
@@ -126,11 +171,13 @@ export default function QuotationsPage() {
                                 </tr>
                             ) : (
                                 filteredQuotations.map((quotation: any) => (
-                                    <tr key={quotation.id} className="hover:bg-slate-50 transition-colors">
+                                    <tr
+                                        key={quotation.id}
+                                        className="hover:bg-blue-50 transition-colors cursor-pointer"
+                                        onClick={() => handleQuotationClick(quotation)}
+                                    >
                                         <td className="py-4 px-6 font-bold text-blue-600">
-                                            <Link href={`/dashboard/quotations/${quotation.id}`} className="hover:underline">
-                                                {quotation.quotation_number}
-                                            </Link>
+                                            {quotation.quotation_number}
                                         </td>
                                         <td className="py-4 px-6 text-slate-700 font-medium">{quotation.customer_name}</td>
                                         <td className="py-4 px-6 text-slate-600">
@@ -242,6 +289,54 @@ export default function QuotationsPage() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* PDF Viewer Modal */}
+            {showPdfModal && pdfBlobUrl && selectedQuotation && (
+                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-indigo-600">
+                            <div className="text-white">
+                                <h3 className="text-xl font-black">Quotation PDF</h3>
+                                <p className="text-sm opacity-90">{selectedQuotation.quotation_number} - {selectedQuotation.customer_name}</p>
+                            </div>
+                            <button
+                                onClick={closePdfModal}
+                                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+                            >
+                                <FaTimes className="text-2xl" />
+                            </button>
+                        </div>
+
+                        {/* PDF Viewer */}
+                        <div className="flex-1 overflow-hidden bg-slate-100">
+                            <iframe
+                                src={pdfBlobUrl}
+                                className="w-full h-full border-0"
+                                title="Quotation PDF"
+                            />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center justify-center gap-5 p-5 border-t border-slate-200 bg-slate-50">
+                            <button
+                                onClick={handleWhatsAppShare}
+                                className="flex items-center justify-center gap-4 px-12 py-5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 min-w-[280px]"
+                            >
+                                <FaWhatsapp className="text-3xl" />
+                                WhatsApp Share
+                            </button>
+                            <button
+                                onClick={handleDownloadPdf}
+                                className="flex items-center justify-center gap-4 px-12 py-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 min-w-[280px]"
+                            >
+                                <FaDownload className="text-3xl" />
+                                Download PDF
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

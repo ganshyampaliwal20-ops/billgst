@@ -2,15 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle, FaTrash, FaQrcode } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import QRCode from 'qrcode';
 
 export default function InventoryPage() {
+    const router = useRouter();
     const { products, addProduct, updateProduct, deleteProduct } = useStore();
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [showQrModal, setShowQrModal] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -96,6 +102,36 @@ export default function InventoryPage() {
         if (confirm('Are you sure you want to delete this product?')) {
             await deleteProduct(id);
         }
+    };
+
+    const handleGenerateQR = async (product: any) => {
+        try {
+            const productUrl = `${window.location.origin}/dashboard/inventory/${product.id}`;
+            const qrDataUrl = await QRCode.toDataURL(productUrl, {
+                width: 400,
+                margin: 2,
+                color: {
+                    dark: '#4F46E5',
+                    light: '#FFFFFF'
+                }
+            });
+            setQrCodeUrl(qrDataUrl);
+            setSelectedProduct(product);
+            setShowQrModal(true);
+        } catch (error) {
+            console.error('QR Code generation error:', error);
+            toast.error('QR Code generate karne mein error aaya');
+        }
+    };
+
+    const handleDownloadQR = () => {
+        if (!qrCodeUrl || !selectedProduct) return;
+
+        const link = document.createElement('a');
+        link.href = qrCodeUrl;
+        link.download = `QR-${selectedProduct.name.replace(/\s+/g, '-')}.png`;
+        link.click();
+        toast.success('QR Code downloaded!');
     };
 
     return (
@@ -198,32 +234,45 @@ export default function InventoryPage() {
                             </div>
 
                             {/* Action Footer - Larger & More Premium Buttons */}
-                            <div className="bg-slate-50 px-5 py-4 border-t border-slate-100 flex items-center justify-center gap-4">
+                            <div className="bg-slate-50 px-5 py-4 border-t border-slate-100 flex items-center justify-center gap-3">
+                                <button
+                                    onClick={() => handleGenerateQR(product)}
+                                    className="
+                                        flex-1 flex items-center justify-center gap-2 px-4 py-3.5 
+                                        bg-white border-2 border-purple-100 text-purple-600 
+                                        rounded-xl transition-all duration-300 font-bold text-sm
+                                        shadow-[0_4px_0_0_#f3e8ff] hover:-translate-y-1 
+                                        hover:shadow-[0_6px_0_0_#f3e8ff] hover:bg-purple-50/50
+                                        active:translate-y-0 active:shadow-none
+                                    "
+                                >
+                                    <FaQrcode className="text-lg" /> QR
+                                </button>
                                 <button
                                     onClick={() => handleEdit(product)}
                                     className="
-                                        flex-1 flex items-center justify-center gap-2 px-6 py-3.5 
+                                        flex-1 flex items-center justify-center gap-2 px-4 py-3.5 
                                         bg-white border-2 border-indigo-100 text-indigo-600 
-                                        rounded-xl transition-all duration-300 font-bold text-base
+                                        rounded-xl transition-all duration-300 font-bold text-sm
                                         shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 
                                         hover:shadow-[0_6px_0_0_#e0e7ff] hover:bg-indigo-50/50
                                         active:translate-y-0 active:shadow-none
                                     "
                                 >
-                                    <FaEdit className="text-xl" /> Edit
+                                    <FaEdit className="text-lg" /> Edit
                                 </button>
                                 <button
                                     onClick={() => handleDelete(product.id)}
                                     className="
-                                        flex-1 flex items-center justify-center gap-2 px-6 py-3.5 
+                                        flex-1 flex items-center justify-center gap-2 px-4 py-3.5 
                                         bg-white border-2 border-red-100 text-red-600 
-                                        rounded-xl transition-all duration-300 font-bold text-base
+                                        rounded-xl transition-all duration-300 font-bold text-sm
                                         shadow-[0_4px_0_0_#fee2e2] hover:-translate-y-1 
                                         hover:shadow-[0_6px_0_0_#fee2e2] hover:bg-red-50/50
                                         active:translate-y-0 active:shadow-none
                                     "
                                 >
-                                    <FaTrash className="text-xl" /> Delete
+                                    <FaTrash className="text-lg" /> Delete
                                 </button>
                             </div>
                         </div>
@@ -236,6 +285,7 @@ export default function InventoryPage() {
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl w-full max-w-2xl p-8 md:p-10 shadow-2xl animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh] border-2 border-indigo-100">
                         <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
+
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
@@ -378,6 +428,66 @@ export default function InventoryPage() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* QR Code Modal */}
+            {showQrModal && selectedProduct && (
+                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
+                        <div className="text-center">
+                            <div className="mb-6">
+                                <div className="inline-block p-4 bg-purple-100 rounded-2xl mb-4">
+                                    <FaQrcode className="text-5xl text-purple-600" />
+                                </div>
+                                <h3 className="text-2xl font-black text-gray-800 mb-2">Product QR Code</h3>
+                                <p className="text-gray-600 font-semibold">{selectedProduct.name}</p>
+                            </div>
+
+                            {/* QR Code Display */}
+                            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-2xl mb-6 border-2 border-purple-200">
+                                <img
+                                    src={qrCodeUrl}
+                                    alt="QR Code"
+                                    className="w-full max-w-xs mx-auto rounded-xl shadow-lg"
+                                />
+                            </div>
+
+                            {/* Instructions */}
+                            <div className="bg-blue-50 p-4 rounded-xl mb-6 text-left border border-blue-200">
+                                <p className="text-sm text-blue-800 font-semibold mb-2">📱 Kaise Use Karein:</p>
+                                <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                                    <li>QR Code ko scan karein apne phone se</li>
+                                    <li>Product ki puri details khul jayegi</li>
+                                    <li>Price, stock, GST sab kuch dikhai dega</li>
+                                </ul>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleDownloadQR}
+                                    className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
+                                >
+                                    Download QR
+                                </button>
+                                <button
+                                    onClick={() => router.push(`/dashboard/inventory/${selectedProduct.id}`)}
+                                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/50"
+                                >
+                                    View Details
+                                </button>
+                            </div>
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowQrModal(false)}
+                                className="mt-4 w-full py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
