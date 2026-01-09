@@ -12,15 +12,39 @@ export const metadata: Metadata = {
   },
   applicationName: "BillGST",
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
+    ],
     shortcut: '/logo.png',
-    apple: '/logo.png',
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'apple-touch-icon', url: '/apple-icon.png' },
+    ],
   },
+  manifest: '/manifest.json',
   openGraph: {
     title: "BillGST - Free Billing Software",
     description: "Create professional GST invoices for free. Best for small businesses in India.",
     type: "website",
     siteName: 'BillGST',
+    url: 'https://www.billgst.in',
+    images: [
+      {
+        url: '/logo.png',
+        width: 512,
+        height: 512,
+        alt: 'BillGST Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'BillGST - Free GST Billing Software',
+    description: 'Professional billing software for Indian small businesses',
+    images: ['/logo.png'],
   },
 };
 
