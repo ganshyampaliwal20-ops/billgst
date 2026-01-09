@@ -336,15 +336,44 @@ export default function QuotationsPage() {
 
                         {/* PDF Viewer */}
                         <div className="flex-1 overflow-hidden bg-slate-100">
+                            {/* Desktop: Show iframe */}
                             <iframe
                                 src={pdfBlobUrl}
-                                className="w-full h-full border-0"
+                                className="w-full h-full border-0 hidden md:block"
                                 title="Quotation PDF"
                             />
+
+                            {/* Mobile: Show message and direct actions */}
+                            <div className="md:hidden flex flex-col items-center justify-center h-full p-8 text-center">
+                                <div className="bg-white rounded-2xl p-8 shadow-lg max-w-sm">
+                                    <div className="text-6xl mb-4">📄</div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-2">PDF Ready!</h3>
+                                    <p className="text-gray-600 mb-6">
+                                        Mobile browser mein PDF preview nahi dikhta.
+                                        Neeche se download ya WhatsApp share karein.
+                                    </p>
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={handleDownloadPdf}
+                                            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
+                                        >
+                                            <FaDownload className="text-xl" />
+                                            Download PDF
+                                        </button>
+                                        <button
+                                            onClick={handleWhatsAppShare}
+                                            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition"
+                                        >
+                                            <FaWhatsapp className="text-xl" />
+                                            WhatsApp Share
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-center gap-5 p-5 border-t border-slate-200 bg-slate-50">
+                        {/* Action Buttons - Desktop Only */}
+                        <div className="hidden md:flex items-center justify-center gap-5 p-5 border-t border-slate-200 bg-slate-50">
                             <button
                                 onClick={handleWhatsAppShare}
                                 className="flex items-center justify-center gap-4 px-12 py-5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 min-w-[280px]"
