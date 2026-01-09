@@ -9,7 +9,7 @@ import { generateQuotationPDF } from '@/lib/pdf-generator';
 
 export default function QuotationsPage() {
     const router = useRouter();
-    const { quotations, fetchQuotations, updateQuotation, businessDetails } = useStore();
+    const { quotations, fetchQuotations, updateQuotation, businessDetails, businessProfile } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
@@ -59,17 +59,34 @@ export default function QuotationsPage() {
 
     const handleQuotationClick = async (quotation: any) => {
         try {
-            const pdfDoc = await generateQuotationPDF(quotation, businessDetails, false);
+            // Create business details object with fallbacks
+            const businessDetailsForPDF = {
+                name: businessProfile?.name || businessDetails?.name || 'Your Business',
+                email: businessProfile?.email || businessDetails?.email || '',
+                phone: businessProfile?.phone || businessDetails?.phone || '',
+                address: businessProfile?.address || businessDetails?.address || '',
+                gstin: businessProfile?.gstin || businessDetails?.gstin || '',
+                logo: businessProfile?.logo || businessDetails?.logo || null,
+                upi_id: businessProfile?.upi_id || businessDetails?.upi_id || '',
+            };
+
+            console.log('Generating quotation PDF with business details:', businessDetailsForPDF);
+
+            const pdfDoc = await generateQuotationPDF(quotation, businessDetailsForPDF, false);
+
             if (pdfDoc) {
                 const pdfBlob = pdfDoc.output('blob');
                 const blobUrl = URL.createObjectURL(pdfBlob);
                 setPdfBlobUrl(blobUrl);
                 setSelectedQuotation(quotation);
                 setShowPdfModal(true);
+            } else {
+                throw new Error('PDF document generation returned null');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error generating PDF:', error);
-            alert('PDF generate karne mein error aaya. Kripya phir se try karein.');
+            console.error('Error details:', error?.message, error?.stack);
+            alert(`PDF generate karne mein error aaya: ${error?.message || 'Unknown error'}. Kripya settings check karein.`);
         }
     };
 
