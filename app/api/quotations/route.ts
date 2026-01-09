@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         const session: any = await getServerSession(authOptions as any);
@@ -93,5 +95,60 @@ export async function POST(request: Request) {
         client.release();
         console.error('Quotation POST Error:', error);
         return NextResponse.json({ error: 'Failed to save quotation' }, { status: 500 });
+    }
+}
+
+export async function PUT(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const client = await pool.connect();
+
+    try {
+        const data = await request.json();
+        const { id, status, paid_amount } = data;
+
+        if (!id) {
+            return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+        }
+
+        const updates: string[] = [];
+        const values: any[] = [];
+        let paramCount = 1;
+
+        if (status) {
+            updates.push(`status = $${paramCount}`);
+            values.push(status);
+            paramCount++;
+        }
+
+        if (paid_amount !== undefined) {
+            updates.push(`paid_amount = $${paramCount}`);
+            values.push(paid_amount);
+            paramCount++;
+        }
+
+        if (updates.length === 0) {
+            return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+        }
+
+        values.push(id); // ID is the last parameter
+
+        await client.query(`
+            UPDATE quotations
+            SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $${paramCount}
+        `, values);
+
+        client.release();
+        return NextResponse.json({ success: true });
+
+    } catch (error) {
+        client.release();
+        console.error('Quotation PUT Error:', error);
+        return NextResponse.json({ error: 'Failed to update quotation' }, { status: 500 });
     }
 }

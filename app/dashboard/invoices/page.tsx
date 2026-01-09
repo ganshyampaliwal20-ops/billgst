@@ -253,7 +253,10 @@ export default function InvoicesPage() {
                             <table className="w-full">
                                 <thead className="bg-gray-50/50 border-b border-gray-100">
                                     <tr>
-                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Invoice No</th>
+                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                            <span className="opacity-0">#</span> Invoice No
+                                        </th>
+
                                         <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
                                         <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Customer</th>
                                         <th className="text-right py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
@@ -269,7 +272,10 @@ export default function InvoicesPage() {
                                         >
                                             <td className="py-4 px-6 text-sm font-bold text-blue-600">
                                                 <div className="flex flex-col">
-                                                    <span>{invoice.invoice_number || 'N/A'}</span>
+                                                    <span className="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg w-fit text-xs font-bold mb-1 shadow-sm">
+                                                        <span className="opacity-0">#</span>{invoice.invoice_number || 'N/A'}
+                                                    </span>
+
                                                     <span className="text-[10px] text-gray-400 font-medium px-1.5 py-0.5 bg-gray-100 rounded-md w-fit">
                                                         {DOC_LABELS[invoice.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
                                                     </span>
@@ -352,7 +358,9 @@ export default function InvoicesPage() {
                                         <div>
                                             <h3 className="font-bold text-gray-800 text-lg">{invoice.customer?.name || 'Unknown'}</h3>
                                             <div className="flex items-center gap-2">
-                                                <p className="text-xs text-gray-500 font-medium">#{invoice.invoice_number || 'N/A'}</p>
+                                                <span className="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">
+                                                    <span className="opacity-0">#</span>{invoice.invoice_number || 'N/A'}
+                                                </span>
                                                 <span className="text-[10px] text-indigo-500 font-bold bg-indigo-50 px-2 rounded-full">
                                                     {DOC_LABELS[invoice.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
                                                 </span>
@@ -404,21 +412,21 @@ export default function InvoicesPage() {
             {selectedInvoice && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 shadow-2xl backdrop-blur-sm" onClick={() => setSelectedInvoice(null)}>
                     <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <div>
+                        <div className="p-6 border-b border-gray-100 flex items-center justify-center relative bg-gray-50">
+                            <div className="text-center">
                                 <h2 className="text-xl font-bold text-gray-800">Invoice Details</h2>
                                 <p className="text-sm text-gray-500">{selectedInvoice.invoice_number || 'N/A'}</p>
                             </div>
-                            <button onClick={() => setSelectedInvoice(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+                            <button onClick={() => setSelectedInvoice(null)} className="absolute right-6 text-gray-400 hover:text-gray-600 p-2">✕</button>
                         </div>
 
                         <div className="p-6 space-y-6">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-center flex flex-col items-center justify-center">
                                     <p className="text-xs font-bold text-blue-600 uppercase mb-1">Total Amount</p>
                                     <p className="text-2xl font-bold text-gray-900">₹{(Number(selectedInvoice.total_amount) || 0).toLocaleString('en-IN')}</p>
                                 </div>
-                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-center flex flex-col items-center justify-center">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>
                                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${selectedInvoice.status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                         {selectedInvoice.status || 'UNPAID'}

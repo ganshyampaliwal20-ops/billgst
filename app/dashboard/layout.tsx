@@ -8,7 +8,8 @@ import { useState, useEffect } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
-    FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt
+    FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt,
+    FaFileAlt, FaMoneyBillWave
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -50,10 +51,12 @@ export default function DashboardLayout({
         { icon: FaReceipt, label: 'Bill of Supply', href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
         { icon: FaReceipt, label: 'Delivery Challan', href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
         { icon: FaReceipt, label: 'E-Way Bill', href: '/dashboard/invoices/new?type=E_WAY_BILL' },
+        { icon: FaFileAlt, label: 'Quotation', href: '/dashboard/quotations' },
+        { icon: FaMoneyBillWave, label: 'Expenses', href: '/dashboard/expenses' },
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
-        { icon: FaCog, label: t.settings, href: '/dashboard/settings' },
+        // Settings moved to bottom manually
         { icon: FaSignInAlt, label: 'Login', href: '/login', isAuth: true },
         { icon: FaUserPlus, label: 'Sign Up', href: '/register', isAuth: true },
     ];
@@ -103,13 +106,14 @@ export default function DashboardLayout({
                         </button>
                     </div>
 
-                    {/* Navigation - Standard list with moderate spacing */}
-                    <nav className="flex-1 px-4 py-6 space-y-4 overflow-y-auto">
-                        {/* Language Toggle - Integrated with Sidebar Style */}
-                        <div className="flex px-1">
+                    {/* Navigation - Distributed evenly to fit layout */}
+                    <nav className="flex-1 px-3 py-1 flex flex-col gap-1 overflow-hidden">
+                        {/* Language Toggle */}
+                        <div className="flex px-1 shrink-0 mb-1">
                             <LanguageSelector showLabel={true} />
                         </div>
 
+                        {/* Main Menu Items */}
                         {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -119,29 +123,28 @@ export default function DashboardLayout({
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
-                                        flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group 
-                                        border-2 relative overflow-hidden
+                                        flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
+                                        border relative overflow-hidden flex-1 min-h-0
                                         ${isActive
-                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-[0_6px_0_0_#4338ca] -translate-y-1'
-                                            : 'bg-white text-slate-600 font-semibold border-slate-200 shadow-[0_4px_0_0_#e2e8f0] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#cbd5e1] hover:text-indigo-600 hover:border-indigo-200 hover:scale-105 active:translate-y-0 active:shadow-none active:scale-95'
+                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
+                                            : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
                                         }
                                     `}
                                 >
                                     <div className={`
-                                        p-2.5 rounded-xl transition-all duration-300 relative z-10
+                                        p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                         ${isActive
-                                            ? 'bg-white/20 text-white shadow-inner'
-                                            : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                            ? 'bg-white/20 text-white'
+                                            : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                         }
                                     `}>
-                                        <Icon className={`text-xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                        <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
                                     </div>
-                                    <span className="text-base tracking-wide flex-1 relative z-10">{item.label}</span>
+                                    <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
 
-                                    {/* Active Indicator / Shine Effect */}
                                     {isActive && (
                                         <>
-                                            <div className="absolute right-4 w-3 h-3 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] animate-pulse z-10" />
+                                            <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse z-10" />
                                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 animate-shine pointer-events-none" />
                                         </>
                                     )}
@@ -149,40 +152,62 @@ export default function DashboardLayout({
                             );
                         })}
 
-                        {/* Auth Links Section - 3D Styled */}
-                        <div className="pt-6 mt-6 border-t border-slate-200 space-y-4">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Account Actions</p>
-                            {menuItems.filter(item => item.isAuth).map((item) => {
-                                const Icon = item.icon;
-                                const isActive = pathname === item.href;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        onClick={() => setIsSidebarOpen(false)}
-                                        className={`
-                                            flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group 
-                                            border-2 relative overflow-hidden
-                                            ${isActive
-                                                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-[0_6px_0_0_#047857] -translate-y-1'
-                                                : 'bg-white text-slate-600 font-semibold border-slate-200 shadow-[0_4px_0_0_#e2e8f0] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#cbd5e1] hover:text-indigo-600 hover:border-indigo-200 hover:scale-105 active:translate-y-0 active:shadow-none active:scale-95'
-                                            }
-                                        `}
-                                    >
-                                        <div className={`
-                                            p-2.5 rounded-xl transition-all duration-300 relative z-10
-                                            ${isActive
-                                                ? 'bg-white/20 text-white shadow-inner'
-                                                : 'bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                            }
-                                        `}>
-                                            <Icon className={`text-xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
-                                        </div>
-                                        <span className="text-base tracking-wide flex-1 relative z-10">{item.label}</span>
-                                    </Link>
-                                );
-                            })}
-                        </div>
+                        {/* Auth Items */}
+                        {menuItems.filter(item => item.isAuth).map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname === item.href;
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className={`
+                                        flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
+                                        border relative overflow-hidden flex-1 min-h-0
+                                        ${isActive
+                                            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-sm'
+                                            : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
+                                        }
+                                    `}
+                                >
+                                    <div className={`
+                                        p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                        ${isActive
+                                            ? 'bg-white/20 text-white'
+                                            : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                        }
+                                    `}>
+                                        <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                    </div>
+                                    <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
+                                </Link>
+                            );
+                        })}
+
+                        {/* Settings Button - Manually placed at the VERY bottom */}
+                        <Link
+                            href="/dashboard/settings"
+                            onClick={() => setIsSidebarOpen(false)}
+                            className={`
+                                flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
+                                border relative overflow-hidden flex-1 min-h-0 mt-1
+                                ${pathname === '/dashboard/settings'
+                                    ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold border-slate-900 shadow-sm'
+                                    : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
+                                }
+                            `}
+                        >
+                            <div className={`
+                                p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                ${pathname === '/dashboard/settings'
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                }
+                            `}>
+                                <FaCog className={`text-lg transition-transform duration-300 ${pathname === '/dashboard/settings' ? 'spin-slow' : 'group-hover:rotate-90'}`} />
+                            </div>
+                            <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{t.settings}</span>
+                        </Link>
                     </nav>
 
                     {/* User Profile / Business Info */}
@@ -223,8 +248,8 @@ export default function DashboardLayout({
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
-                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
+                    <div className="px-4 sm:px-6 lg:px-8 w-full">
                         <div className="flex items-center justify-between h-12 md:h-16">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
@@ -281,8 +306,8 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 p-4 md:p-8 scroll-smooth overflow-auto">
-                    <div className="max-w-7xl mx-auto animate-fadeIn">
+                <main className="flex-1 p-4 md:p-8 scroll-smooth overflow-auto flex flex-col items-center">
+                    <div className="max-w-[1600px] mx-auto w-full animate-fadeIn">
                         {children}
                     </div>
                 </main>

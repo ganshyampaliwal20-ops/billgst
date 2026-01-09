@@ -36,10 +36,10 @@ export default function HelpPage() {
             {/* Contact Options */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <a
-                    href="https://wa.me/1234567890"
+                    href="https://wa.me/7498571873"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
+                    className="flex flex-col items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaWhatsapp className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">WhatsApp</h3>
@@ -48,7 +48,7 @@ export default function HelpPage() {
 
                 <a
                     href="mailto:support@billgst.in"
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
+                    className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaEnvelope className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">Email</h3>
@@ -56,12 +56,12 @@ export default function HelpPage() {
                 </a>
 
                 <a
-                    href="tel:+911234567890"
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
+                    href="tel:+917498571873"
+                    className="flex flex-col items-center justify-center bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaPhone className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">Phone</h3>
-                    <p className="text-sm opacity-90 mt-1">+91 123 456 7890</p>
+                    <p className="text-sm opacity-90 mt-1">+91 7498571873</p>
                 </a>
             </div>
 
@@ -93,12 +93,12 @@ export default function HelpPage() {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white text-center">
                 <h3 className="text-2xl font-black mb-2">Need More Help?</h3>
                 <p className="mb-6 opacity-90">Check out our comprehensive documentation</p>
-                <a
-                    href="/docs"
-                    className="inline-block bg-white text-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg"
+                <button
+                    disabled
+                    className="inline-block bg-white/20 text-white px-8 py-3 rounded-xl font-bold cursor-not-allowed transition-all shadow-lg backdrop-blur-sm"
                 >
-                    View Documentation
-                </a>
+                    Coming Soon
+                </button>
             </div>
         </div>
     );

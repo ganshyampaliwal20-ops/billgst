@@ -376,7 +376,7 @@ export default function NewInvoicePage() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 pb-20 px-4 sm:px-6 md:px-8">
+        <div className="max-w-7xl mx-auto space-y-6 pb-20 px-6 sm:px-12 md:px-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 sm:px-0">
                 <div className="flex items-center gap-3">
@@ -422,23 +422,12 @@ export default function NewInvoicePage() {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">{t.customer}</label>
-                            <button
-                                onClick={() => setShowCustomerModal(true)}
-                                className="
-                                    group flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black
-                                    transition-all border-b-4 border-indigo-800 hover:-translate-y-0.5 active:translate-y-[2px] active:border-b-0
-                                    shadow-lg shadow-indigo-500/20
-                                "
-                            >
-                                <FaPlus className="text-[10px] group-hover:rotate-90 transition-transform" />
-                                {t.newClient || 'NEW CLIENT'}
-                            </button>
                         </div>
                         <div className="relative group">
                             <select
                                 value={customerId}
                                 onChange={(e) => setCustomerId(e.target.value)}
-                                className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300"
+                                className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300 text-center"
                             >
                                 <option value="">{t.selectCustomer}</option>
                                 {safeCustomers.length > 0 ? safeCustomers.map((c: any) => (
@@ -449,6 +438,17 @@ export default function NewInvoicePage() {
                                 <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                             </div>
                         </div>
+                        <button
+                            onClick={() => setShowCustomerModal(true)}
+                            className="
+                                group w-full flex items-center justify-center gap-2 px-4 py-4 bg-indigo-600 text-white rounded-xl text-sm font-black
+                                transition-all border-b-4 border-indigo-800 hover:-translate-y-0.5 active:translate-y-[2px] active:border-b-0
+                                shadow-lg shadow-indigo-500/20 uppercase tracking-wider
+                            "
+                        >
+                            <FaPlus className="text-xs group-hover:rotate-90 transition-transform" />
+                            {t.newClient || 'NEW CLIENT'}
+                        </button>
                     </div>
 
                     {/* Date */}
@@ -459,6 +459,7 @@ export default function NewInvoicePage() {
                             value={invoiceDate}
                             onChange={(e) => setInvoiceDate(e.target.value)}
                             className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none font-bold text-slate-700 transition-all shadow-sm"
+                            style={{ textAlign: 'center' }}
                         />
                     </div>
 
@@ -615,7 +616,7 @@ export default function NewInvoicePage() {
                                 <table className="min-w-full divide-y divide-slate-200">
                                     <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                                         <tr>
-                                            <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.product}</th>
+                                            <th className="pl-12 pr-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.product}</th>
                                             <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">{t.quantity}</th>
                                             <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.price}</th>
                                             <th className="px-4 py-3.5 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">{t.total}</th>
@@ -626,12 +627,20 @@ export default function NewInvoicePage() {
                                         {selectedItems.length === 0 ? (
                                             <tr>
                                                 <td colSpan={5} className="px-4 py-12 text-center">
-                                                    <div className="flex flex-col items-center gap-3">
-                                                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-                                                            <FaPlus className="text-slate-400 text-2xl" />
-                                                        </div>
-                                                        <p className="text-slate-500 font-medium">No items added yet</p>
-                                                        <p className="text-xs text-slate-400">Click &quot;{t.addNewItem}&quot; below to get started</p>
+                                                    <div className="flex justify-center p-4">
+                                                        <button
+                                                            type="button"
+                                                            onClick={addItem}
+                                                            className="
+                                                                group relative inline-flex items-center justify-center gap-3 px-12 py-5 font-black text-white transition-all duration-300 
+                                                                bg-orange-500 rounded-2xl border-b-4 border-orange-700
+                                                                hover:-translate-y-1 hover:shadow-xl hover:bg-orange-600
+                                                                active:translate-y-[2px] active:border-b-0
+                                                            "
+                                                        >
+                                                            <FaPlus className="text-xl" />
+                                                            <span className="text-base tracking-wider uppercase">{t.addNewItem}</span>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -641,7 +650,7 @@ export default function NewInvoicePage() {
                                                     <select
                                                         value={item.product_id}
                                                         onChange={(e) => updateItem(index, 'product_id', e.target.value)}
-                                                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
+                                                        className="w-full pl-12 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-medium text-slate-700"
                                                     >
                                                         <option value="">{t.selectProduct}</option>
                                                         {safeProducts.length > 0 ? safeProducts.map((p: any) => (
@@ -692,23 +701,23 @@ export default function NewInvoicePage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-center pt-4">
-                        <button
-                            type="button"
-                            onClick={addItem}
-                            className="
-                                group relative inline-flex items-center gap-3 px-10 py-4 font-black text-white transition-all duration-300 
-                                bg-orange-500 rounded-2xl border-b-4 border-orange-700
-                                hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-500/40 
-                                active:translate-y-[2px] active:border-b-0
-                                overflow-hidden
-                            "
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
-                            <FaPlus className="text-base group-hover:rotate-180 transition-transform duration-500 relative z-10" />
-                            <span className="text-sm tracking-wider uppercase relative z-10">{t.addNewItem}</span>
-                        </button>
-                    </div>
+                    {selectedItems.length > 0 && (
+                        <div className="flex justify-center pt-4">
+                            <button
+                                type="button"
+                                onClick={addItem}
+                                className="
+                                    group relative inline-flex items-center justify-center gap-3 w-full md:w-auto px-10 py-4 font-black text-white transition-all duration-300 
+                                    bg-orange-500 rounded-2xl border-b-4 border-orange-700
+                                    hover:-translate-y-1 hover:shadow-xl hover:bg-orange-600
+                                    active:translate-y-[2px] active:border-b-0
+                                "
+                            >
+                                <FaPlus className="text-lg" />
+                                <span className="text-sm tracking-wider uppercase">{t.addNewItem}</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Summary Section */}
@@ -743,12 +752,12 @@ export default function NewInvoicePage() {
                 </div>
 
                 {/* Bottom Action Bar */}
-                <div className="flex items-center justify-end gap-4 pt-6 mt-8 border-t border-slate-100">
+                <div className="flex items-center justify-center gap-6 pt-6 mt-8 border-t border-slate-100">
                     <button
                         type="button"
                         onClick={() => router.back()}
                         disabled={isSubmitting}
-                        className="px-6 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50"
+                        className="px-10 py-4 text-slate-600 font-bold hover:bg-slate-100 rounded-2xl transition-all disabled:opacity-50 border-2 border-transparent hover:border-slate-200"
                     >
                         {t.cancel}
                     </button>
@@ -782,33 +791,33 @@ export default function NewInvoicePage() {
             {/* Quick Add Customer Modal */}
             {showCustomerModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                        <h3 className="text-lg font-bold mb-6">Quick Add Customer</h3>
+                    <div className="bg-white rounded-3xl w-full max-w-4xl p-8 md:p-14 shadow-2xl animate-in zoom-in-95 duration-200 border-2 border-indigo-100">
+                        <h3 className="text-3xl font-black mb-8 text-center text-indigo-900 border-b-2 border-indigo-50 pb-4">Quick Add Customer</h3>
                         <form onSubmit={handleAddCustomer} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Name *</label>
                                 <input
                                     autoFocus
                                     required
-                                    className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
                                     value={newCustomerName}
                                     onChange={e => setNewCustomerName(e.target.value)}
                                     placeholder="Enter customer name"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">{t.phone}</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Phone</label>
                                 <input
-                                    className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
                                     value={newCustomerPhone}
                                     onChange={e => setNewCustomerPhone(e.target.value)}
                                     placeholder="Enter phone number"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">GSTIN</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">GSTIN</label>
                                 <input
-                                    className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
                                     value={newCustomerGstin}
                                     onChange={e => setNewCustomerGstin(e.target.value)}
                                     placeholder="Enter GST number (Optional)"

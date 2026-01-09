@@ -26,7 +26,8 @@ export default function LandingPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Get translations
-  const t = translations[settings.language as keyof typeof translations] || translations.en;
+  const language = settings?.language || 'en';
+  const t = translations[language as keyof typeof translations] || translations.en;
 
   useEffect(() => {
     setIsClient(true);
@@ -165,8 +166,8 @@ export default function LandingPage() {
   return (
     <>
       <Navbar3D />
-      <main style={{ paddingTop: '40px' }} className="pb-10">
-        <div className="space-y-8 md:space-y-10 px-4 md:px-0 py-6 max-w-7xl mx-auto">
+      <main style={{ paddingTop: '80px' }} className="pb-10 min-h-screen flex flex-col items-center">
+        <div className="space-y-8 md:space-y-10 px-4 py-6 max-w-[1600px] w-full mx-auto">
           {/* Welcome Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
             <div>
@@ -203,7 +204,7 @@ export default function LandingPage() {
           </div>
 
           {/* Quick Actions - Protected */}
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200 mx-4 md:mx-0">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
@@ -224,13 +225,13 @@ export default function LandingPage() {
           </div>
 
           {/* Analytics Overview Header */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl mx-4 md:mx-0 text-center flex flex-col items-center justify-center">
+          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl text-center flex flex-col items-center justify-center">
             <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
             <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
           </div>
 
           {/* Period Filter Buttons */}
-          <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200 mx-4 md:mx-0">
+          <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
             <p className="text-xs md:text-sm font-bold text-slate-800 mb-3 text-center">{t.selectPeriod}:</p>
             <div className="flex gap-2 md:gap-3 flex-wrap justify-center">
               {[
@@ -255,7 +256,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats Cards - Protected Links */}
-          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200 mx-4 md:mx-0">
+          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
             <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-4 text-center">{t.businessOverview}</h1>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2">
               {stats.map((stat, index) => {
@@ -276,7 +277,7 @@ export default function LandingPage() {
                       {status === 'authenticated' ? stat.formattedValue : '---'}
                     </p>
                     <div className="flex items-center gap-1.5 mt-auto">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-700'}`}>
                         {status === 'authenticated' ? stat.trend : 'Login'}
                       </span>
                     </div>
@@ -288,7 +289,7 @@ export default function LandingPage() {
 
           {/* Conditional Banner - Modified for Center Alignment on Mobile */}
           {status !== 'authenticated' && showSetupBanner ? (
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-orange-500/20 animate-slideUp relative mx-4 md:mx-0">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-orange-500/20 animate-slideUp relative">
               <button
                 onClick={() => { setShowSetupBanner(false); }}
                 className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition-colors"
@@ -313,7 +314,7 @@ export default function LandingPage() {
             </div>
           ) : (
             !businessProfile.gstin && showSetupBanner && status === 'authenticated' && (
-              <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative mx-4 md:mx-0">
+              <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="p-2.5 md:p-3 bg-white/20 rounded-xl backdrop-blur-sm">

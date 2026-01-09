@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
     FaFileInvoice, FaCog, FaBars, FaTimes,
     FaSignInAlt, FaUserPlus, FaLanguage, FaStore,
-    FaSignOutAlt, FaUsers, FaBox, FaChartLine
+    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss
 } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { useStore } from '@/lib/store';
@@ -30,7 +30,8 @@ export default function Navbar3D() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const t = translations[settings.language as keyof typeof translations] || translations.en;
+    const language = settings?.language || 'en';
+    const t = translations[language as keyof typeof translations] || translations.en;
 
     const menuItems = [
         { icon: FaLanguage, label: 'Language', href: '#', isLanguage: true },
@@ -48,11 +49,11 @@ export default function Navbar3D() {
     return (
         <>
             {/* Header - Sticky on top */}
-            <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled
+            <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 flex justify-center ${isScrolled
                 ? 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg py-2 md:py-3 border-b border-white/10'
                 : 'bg-transparent py-4 md:py-6'
                 }`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="px-4 sm:px-6 lg:px-8 w-full">
                     <div className="flex items-center justify-between">
                         {/* Left Side: Logo + Business Name */}
                         <div className="flex items-center gap-3">
@@ -166,6 +167,7 @@ export default function Navbar3D() {
                             { icon: FaUsers, label: 'Customer', href: '/dashboard/customers' },
                             { icon: FaBox, label: 'Product', href: '/dashboard/inventory' },
                             { icon: FaChartLine, label: 'Report', href: '/dashboard/reports' },
+                            { icon: FaRss, label: 'Blog', href: '/blog' },
                             { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
                             { icon: FaSignInAlt, label: 'Login', href: '/login' },
                             { icon: FaUserPlus, label: 'Register', href: '/register' },
