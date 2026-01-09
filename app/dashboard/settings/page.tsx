@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 
 export default function SettingsPage() {
-    const { businessProfile, updateProfile, settings, updateSettings } = useStore();
+    const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
     const [formData, setFormData] = useState(businessProfile);
     const [localSettings, setLocalSettings] = useState(settings);
     const [isClient, setIsClient] = useState(false);
@@ -18,11 +18,14 @@ export default function SettingsPage() {
         setLocalSettings(settings);
     }, [businessProfile, settings]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateProfile(formData);
+
+        // Save to database via new function
+        await saveBusinessProfile(formData);
+
+        // Also update local settings
         updateSettings(localSettings);
-        toast.success('Settings saved successfully!');
     };
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {

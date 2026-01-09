@@ -27,11 +27,16 @@ export default function DashboardLayout({
     const [isMounted, setIsMounted] = useState(false);
 
     // Get store values
-    const { businessProfile, resetStore, settings } = useStore();
+    const { businessProfile, resetStore, fetchBusinessProfile, settings } = useStore();
 
     useEffect(() => {
         setIsMounted(true);
-    }, []);
+
+        // Fetch business profile from database on mount
+        if (typeof window !== 'undefined') {
+            fetchBusinessProfile();
+        }
+    }, [fetchBusinessProfile]);
 
     if (!isMounted) return null;
 
