@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
         // Fetch business profile
         const profileResult = await client.query(
-            `SELECT business_name, business_gstin, business_address, business_phone, business_state
+            `SELECT business_name, business_gstin, business_address, business_phone
        FROM users WHERE id = $1`,
             [session.user.id]
         );
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         const businessProfile = {
             name: profileResult.rows[0].business_name || 'My Business',
             gstin: profileResult.rows[0].business_gstin || '',
-            state: profileResult.rows[0].business_state || '',
+            state: '', // Will be extracted from GSTIN if needed
         };
 
         if (!businessProfile.gstin) {
