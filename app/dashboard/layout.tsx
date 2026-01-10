@@ -9,7 +9,7 @@ import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt,
-    FaFileAlt, FaMoneyBillWave
+    FaFileAlt, FaMoneyBillWave, FaFileContract
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -61,6 +61,7 @@ export default function DashboardLayout({
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
+        { icon: FaFileContract, label: 'GST Returns', href: '/dashboard/gst-returns' },
         // Settings moved to bottom manually
         { icon: FaSignInAlt, label: 'Login', href: '/login', isAuth: true },
         { icon: FaUserPlus, label: 'Sign Up', href: '/register', isAuth: true },

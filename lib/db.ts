@@ -242,9 +242,26 @@ export const initDB = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- GST Returns table
+      CREATE TABLE IF NOT EXISTS gst_returns (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        return_type VARCHAR(20) NOT NULL,
+        period_from DATE NOT NULL,
+        period_to DATE NOT NULL,
+        filing_frequency VARCHAR(20),
+        generated_data JSONB NOT NULL,
+        status VARCHAR(20) DEFAULT 'DRAFT',
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE INDEX IF NOT EXISTS idx_quotations_customer ON quotations(customer_id);
       CREATE INDEX IF NOT EXISTS idx_quotation_items_quotation ON quotation_items(quotation_id);
       CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);
+      CREATE INDEX IF NOT EXISTS idx_gst_returns_user ON gst_returns(created_by);
+      CREATE INDEX IF NOT EXISTS idx_gst_returns_type ON gst_returns(return_type);
+      CREATE INDEX IF NOT EXISTS idx_gst_returns_period ON gst_returns(period_from, period_to);
     `);
 
     try {
