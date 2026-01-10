@@ -542,7 +542,7 @@ export default function GSTReturnsPage() {
                         )}
 
                         {/* GSTR-3B Professional Display */}
-                        {returnType === 'GSTR3B' && (
+                        {returnType === 'GSTR3B' && generatedData?.outward_supplies && generatedData?.total_tax_liability && (
                             <div className="space-y-6">
                                 {/* Summary Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -602,7 +602,7 @@ export default function GSTReturnsPage() {
                         )}
 
                         {/* GSTR-4 Professional Display */}
-                        {returnType === 'GSTR4' && (
+                        {returnType === 'GSTR4' && generatedData?.total_turnover !== undefined && generatedData?.supplies_made && (
                             <div className="space-y-6">
                                 {/* Main Summary Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
