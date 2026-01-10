@@ -1,7 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "@/app/components/SessionWrapper";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#3b82f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#1e40af" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "BillGST - Free GST Billing & Stock Management",
@@ -19,16 +30,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#3b82f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#1e40af" },
-  ],
   icons: {
     icon: [
       { url: '/icon.png', sizes: '192x192', type: 'image/png' },
