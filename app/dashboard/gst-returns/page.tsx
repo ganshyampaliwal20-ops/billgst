@@ -55,10 +55,14 @@ export default function GSTReturnsPage() {
         }
 
         setLoading(true);
+        setGeneratedData(null); // Clear previous data
+
         try {
             const endpoint = returnType === 'GSTR1' ? '/api/gst-returns/gstr1' :
                 returnType === 'GSTR3B' ? '/api/gst-returns/gstr3b' :
                     '/api/gst-returns/gstr4';
+
+            console.log('Generating return:', { returnType, endpoint, periodFrom, periodTo });
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -67,16 +71,23 @@ export default function GSTReturnsPage() {
             });
 
             const result = await response.json();
+            console.log('Generation result:', result);
 
             if (response.ok && result.success) {
-                setGeneratedData(result.data);
-                toast.success(`${returnType} generated successfully!`);
+                if (result.data) {
+                    setGeneratedData(result.data);
+                    toast.success(`${returnType} generated successfully!`);
+                } else {
+                    toast.error(result.message || 'No invoices found for the selected period');
+                }
             } else {
-                toast.error(result.error || 'Failed to generate return');
+                console.error('Generation failed:', result);
+                const errorMessage = result.details ? `${result.error}: ${result.details}` : result.error;
+                toast.error(errorMessage || 'Failed to generate return');
             }
         } catch (error) {
             console.error('Error generating return:', error);
-            toast.error('Failed to generate return');
+            toast.error('Failed to generate return. Please check console for details.');
         } finally {
             setLoading(false);
         }
