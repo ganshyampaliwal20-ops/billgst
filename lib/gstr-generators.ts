@@ -155,8 +155,8 @@ export function generateGSTR1(
         // Process each item for HSN summary
         invoice.items?.forEach((item) => {
             const hsnCode = item.hsn_code || 'UNKNOWN';
-            const itemTaxableValue = item.total_amount;
-            const gstRate = item.gst_rate;
+            const itemTaxableValue = Number(item.total_amount) || 0;
+            const gstRate = Number(item.gst_rate) || 0;
 
             // Calculate item-level GST
             const itemGSTAmount = (itemTaxableValue * gstRate) / 100;
@@ -166,8 +166,8 @@ export function generateGSTR1(
 
             if (hsnMap.has(hsnCode)) {
                 const existing = hsnMap.get(hsnCode)!;
-                existing.total_quantity += item.quantity;
-                existing.total_value += item.total_amount;
+                existing.total_quantity += Number(item.quantity) || 0;
+                existing.total_value += itemTaxableValue;
                 existing.taxable_value += itemTaxableValue;
                 existing.igst_amount += itemIGST;
                 existing.cgst_amount += itemCGST;
@@ -177,8 +177,8 @@ export function generateGSTR1(
                     hsn_code: hsnCode,
                     description: item.product_name,
                     uqc: 'PCS',
-                    total_quantity: item.quantity,
-                    total_value: item.total_amount,
+                    total_quantity: Number(item.quantity) || 0,
+                    total_value: itemTaxableValue,
                     taxable_value: itemTaxableValue,
                     igst_amount: itemIGST,
                     cgst_amount: itemCGST,
@@ -195,50 +195,50 @@ export function generateGSTR1(
                 customer_name: invoice.customer.name,
                 invoice_number: invoice.invoice_number,
                 invoice_date: new Date(invoice.invoice_date).toISOString().split('T')[0],
-                invoice_value: invoice.total_amount,
+                invoice_value: Number(invoice.total_amount) || 0,
                 place_of_supply: invoice.customer.state || businessProfile.state || '',
                 reverse_charge: 'N',
                 invoice_type: 'Regular',
-                rate: invoice.items[0]?.gst_rate || 0,
-                taxable_value: invoice.subtotal,
-                igst_amount: invoice.igst_amount,
-                cgst_amount: invoice.cgst_amount,
-                sgst_amount: invoice.sgst_amount,
+                rate: Number(invoice.items[0]?.gst_rate) || 0,
+                taxable_value: Number(invoice.subtotal) || 0,
+                igst_amount: Number(invoice.igst_amount) || 0,
+                cgst_amount: Number(invoice.cgst_amount) || 0,
+                sgst_amount: Number(invoice.sgst_amount) || 0,
             });
         }
         // B2CL: Large invoices (> 2.5 lakh) without GSTIN
-        else if (invoice.total_amount > 250000) {
+        else if (Number(invoice.total_amount) > 250000) {
             b2cl.push({
                 invoice_number: invoice.invoice_number,
                 invoice_date: new Date(invoice.invoice_date).toISOString().split('T')[0],
-                invoice_value: invoice.total_amount,
+                invoice_value: Number(invoice.total_amount) || 0,
                 place_of_supply: invoice.customer.state || businessProfile.state || '',
-                rate: invoice.items[0]?.gst_rate || 0,
-                taxable_value: invoice.subtotal,
-                igst_amount: invoice.igst_amount,
+                rate: Number(invoice.items[0]?.gst_rate) || 0,
+                taxable_value: Number(invoice.subtotal) || 0,
+                igst_amount: Number(invoice.igst_amount) || 0,
             });
         }
         // B2CS: Small invoices aggregated by state and rate
         else {
             const customerState = invoice.customer.state || businessProfile.state || '';
-            const rate = invoice.items[0]?.gst_rate || 0;
+            const rate = Number(invoice.items[0]?.gst_rate) || 0;
             const key = `${customerState}-${rate}`;
 
             if (b2csMap.has(key)) {
                 const existing = b2csMap.get(key)!;
-                existing.taxable_value += invoice.subtotal;
-                existing.igst_amount += invoice.igst_amount;
-                existing.cgst_amount += invoice.cgst_amount;
-                existing.sgst_amount += invoice.sgst_amount;
+                existing.taxable_value += Number(invoice.subtotal) || 0;
+                existing.igst_amount += Number(invoice.igst_amount) || 0;
+                existing.cgst_amount += Number(invoice.cgst_amount) || 0;
+                existing.sgst_amount += Number(invoice.sgst_amount) || 0;
             } else {
                 b2csMap.set(key, {
                     type: 'OE',
                     place_of_supply: customerState,
                     rate: rate,
-                    taxable_value: invoice.subtotal,
-                    igst_amount: invoice.igst_amount,
-                    cgst_amount: invoice.cgst_amount,
-                    sgst_amount: invoice.sgst_amount,
+                    taxable_value: Number(invoice.subtotal) || 0,
+                    igst_amount: Number(invoice.igst_amount) || 0,
+                    cgst_amount: Number(invoice.cgst_amount) || 0,
+                    sgst_amount: Number(invoice.sgst_amount) || 0,
                 });
             }
         }
@@ -281,10 +281,10 @@ export function generateGSTR3B(
     let totalSGST = 0;
 
     invoices.forEach((invoice) => {
-        totalTaxableValue += invoice.subtotal;
-        totalIGST += invoice.igst_amount;
-        totalCGST += invoice.cgst_amount;
-        totalSGST += invoice.sgst_amount;
+        totalTaxableValue += Number(invoice.subtotal) || 0;
+        totalIGST += Number(invoice.igst_amount) || 0;
+        totalCGST += Number(invoice.cgst_amount) || 0;
+        totalSGST += Number(invoice.sgst_amount) || 0;
     });
 
     const period = `${String(periodFrom.getMonth() + 1).padStart(2, '0')}-${periodFrom.getFullYear()}`;
@@ -324,16 +324,21 @@ export function generateGSTR4(
     let interStateSupplies = 0;
 
     invoices.forEach((invoice) => {
-        totalTurnover += invoice.total_amount;
-        totalTaxPaid += invoice.cgst_amount + invoice.sgst_amount + invoice.igst_amount;
+        const totalAmount = Number(invoice.total_amount) || 0;
+        const cgstAmount = Number(invoice.cgst_amount) || 0;
+        const sgstAmount = Number(invoice.sgst_amount) || 0;
+        const igstAmount = Number(invoice.igst_amount) || 0;
+
+        totalTurnover += totalAmount;
+        totalTaxPaid += cgstAmount + sgstAmount + igstAmount;
 
         const customerGSTIN = invoice.customer?.gstin;
         const isInterStateTxn = customerGSTIN ? isInterState(businessProfile.gstin, customerGSTIN) : false;
 
         if (isInterStateTxn) {
-            interStateSupplies += invoice.total_amount;
+            interStateSupplies += totalAmount;
         } else {
-            intraStateSupplies += invoice.total_amount;
+            intraStateSupplies += totalAmount;
         }
     });
 
