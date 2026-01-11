@@ -195,26 +195,26 @@ export default function DashboardPage() {
             </div>
 
             {/* 4. Four Big Action Buttons - Fixed Height with 3D Effect */}
-            <div className="grid grid-cols-2 gap-4 mt-8 mx-4 md:mx-0">
-                <Link href="/dashboard/invoices/new" className="bg-[#6366f1] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#4338ca] hover:shadow-[0_4px_0_0_#4338ca] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-indigo-700">
+            <div className="grid grid-cols-2 gap-5 mt-8 mx-3">
+                <Link href="/dashboard/invoices/new" className="bg-[#6366f1] h-28 md:h-36 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#4338ca] hover:shadow-[0_4px_0_0_#4338ca] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-indigo-700">
                     <div className="bg-white/20 p-3 rounded-xl mb-2">
                         <FaFileInvoice className="text-2xl md:text-3xl" />
                     </div>
                     <span className="font-bold text-sm md:text-base">{t.newInvoice}</span>
                 </Link>
-                <Link href="/dashboard/customers" className="bg-[#10b981] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#047857] hover:shadow-[0_4px_0_0_#047857] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-emerald-700">
+                <Link href="/dashboard/customers" className="bg-[#10b981] h-28 md:h-36 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#047857] hover:shadow-[0_4px_0_0_#047857] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-emerald-700">
                     <div className="bg-white/20 p-3 rounded-xl mb-2">
                         <FaUsers className="text-2xl md:text-3xl" />
                     </div>
                     <span className="font-bold text-sm md:text-base">{t.addCustomer}</span>
                 </Link>
-                <Link href="/dashboard/inventory" className="bg-[#8b5cf6] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#7c3aed] hover:shadow-[0_4px_0_0_#7c3aed] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-violet-700">
+                <Link href="/dashboard/inventory" className="bg-[#8b5cf6] h-28 md:h-36 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#7c3aed] hover:shadow-[0_4px_0_0_#7c3aed] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-violet-700">
                     <div className="bg-white/20 p-3 rounded-xl mb-2">
                         <FaBox className="text-2xl md:text-3xl" />
                     </div>
                     <span className="font-bold text-sm md:text-base">{t.addProduct}</span>
                 </Link>
-                <Link href="/dashboard/reports" className="bg-[#f59e0b] h-32 md:h-44 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#d97706] hover:shadow-[0_4px_0_0_#d97706] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-amber-700">
+                <Link href="/dashboard/reports" className="bg-[#f59e0b] h-28 md:h-36 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#d97706] hover:shadow-[0_4px_0_0_#d97706] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-amber-700">
                     <div className="bg-white/20 p-3 rounded-xl mb-2">
                         <FaChartLine className="text-2xl md:text-3xl" />
                     </div>
