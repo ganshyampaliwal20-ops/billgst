@@ -496,6 +496,26 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-100 py-8 mt-12">
+          <div className="max-w-[1600px] mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-gray-500 text-xs md:text-sm text-center md:text-left">
+              © {new Date().getFullYear()} BillGST. All rights reserved.
+            </p>
+            <div className="flex flex-wrap gap-4 md:gap-6 justify-center">
+              <Link href="/privacy" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
+                Privacy Policy
+              </Link>
+              <Link href="/blog/features" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
+                Features
+              </Link>
+              <a href="mailto:support@billgst.in" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
+                Contact Support
+              </a>
+            </div>
+          </div>
+        </footer>
       </main>
     </>
   );
