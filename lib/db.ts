@@ -292,6 +292,11 @@ export const initDB = async () => {
         -- User Columns for Password Reset
         ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255);
         ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;
+
+        -- User Columns for Subscription
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50) DEFAULT 'FREE'; 
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_expiry TIMESTAMP;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) DEFAULT 'ACTIVE';
       `);
     } catch (e) { console.log('Migration note: checked invoices & customers columns'); }
 

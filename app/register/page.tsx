@@ -58,7 +58,7 @@ export default function RegisterPage() {
         <div className="bg-slate-50 min-h-screen font-sans">
             <div className="grid md:grid-cols-2 items-center gap-10 h-full">
                 {/* Left Side: Image */}
-                <div className="max-md:order-1 p-4 h-full flex items-center justify-center bg-white md:bg-transparent">
+                <div className="max-md:order-1 p-6 h-full flex items-center justify-center bg-white md:bg-transparent">
                     <img src="https://readymadeui.com/signin-image.webp" className="lg:max-w-[85%] w-full h-auto object-contain block mx-auto drop-shadow-md" alt="Register Illustration" />
                 </div>
 

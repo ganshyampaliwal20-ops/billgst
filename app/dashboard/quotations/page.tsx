@@ -198,7 +198,7 @@ export default function QuotationsPage() {
                     <table className="w-full min-w-[1000px]">
                         <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                             <tr>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Quotation #</th>
+                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Quotation </th>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Customer</th>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Date</th>
                                 <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider">Total</th>

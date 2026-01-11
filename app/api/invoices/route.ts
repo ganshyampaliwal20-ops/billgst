@@ -3,6 +3,7 @@ import pool from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { checkLimit } from "@/lib/subscription";
 
 export async function GET() {
     try {
@@ -49,6 +50,14 @@ export async function POST(request: Request) {
 
     const userId = session.user.id;
 
+    // Check Subscription Limit
+    const limitCheck = await checkLimit(userId, 'INVOICE');
+    if (!limitCheck.allowed) {
+        return NextResponse.json({
+            error: limitCheck.reason || 'Subscription limit reached. Please upgrade.'
+        }, { status: 403 });
+    }
+
     const client = await pool.connect();
     let data: any = {};
     let customerId: string = '';
@@ -56,6 +65,16 @@ export async function POST(request: Request) {
     try {
         data = await request.json();
         console.log('Invoice API: Received data:', JSON.stringify(data, null, 2));
+
+        // Check QR Code Limit if QR is being used
+        if (data.signed_qrcode) {
+            const qrCheck = await checkLimit(userId, 'QR_CODE');
+            if (!qrCheck.allowed) {
+                return NextResponse.json({
+                    error: qrCheck.reason || 'QR Code feature requires Premium Plan.'
+                }, { status: 403 });
+            }
+        }
 
         // Ensure ID exists
         if (!data.id) {

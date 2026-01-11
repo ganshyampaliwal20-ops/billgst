@@ -17,8 +17,16 @@ export default function NewQuotationPage() {
         { id: 1, product: '', quantity: 1, rate: 0, amount: 0 }
     ]);
 
-    // Simple quotation number generation
-    const quoNumber = `QUO-${(quotations.length + 1).toString().padStart(3, '0')}`;
+    // Generate unique quotation number using timestamp to avoid duplicates on different devices
+    // Format: QUO-YYYYMMDD-XXXX (where XXXX is random)
+    const generateQuoNumber = () => {
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const random = Math.floor(1000 + Math.random() * 9000);
+        return `QUO-${dateStr}-${random}`;
+    };
+
+    const [quoNumber] = useState(generateQuoNumber());
 
     const addItem = () => {
         setItems([...items, { id: Date.now(), product: '', quantity: 1, rate: 0, amount: 0 }]);
@@ -43,28 +51,42 @@ export default function NewQuotationPage() {
 
     const total = items.reduce((sum, item) => sum + item.amount, 0);
 
+    const [loading, setLoading] = useState(false);
+
     const handleSave = async () => {
         if (!customer) {
             toast.error('Please enter customer name');
             return;
         }
 
-        const quotationData = {
-            quotation_number: quoNumber,
-            customer_name: customer,
-            quotation_date: date,
-            total_amount: total,
-            items: items.filter(item => item.product && item.quantity > 0)
-        };
+        setLoading(true);
+        try {
+            const quotationData = {
+                quotation_number: quoNumber,
+                customer_name: customer,
+                quotation_date: date,
+                total_amount: total,
+                items: items.filter(item => item.product && item.quantity > 0)
+            };
 
-        const result = await addQuotation(quotationData);
-        if (result.success) {
-            router.push('/dashboard/quotations');
+            console.log('Sending Quotation Data:', quotationData);
+
+            const result = await addQuotation(quotationData);
+            if (result.success) {
+                router.push('/dashboard/quotations');
+            } else {
+                // Show explicit alert for mobile debugging
+                alert(`Failed to save: ${result.error || 'Unknown Error'}`);
+            }
+        } catch (e: any) {
+            alert(`Client Error: ${e.message}`);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="px-6 pt-6 space-y-6 max-w-7xl mx-auto pb-20">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -78,9 +100,11 @@ export default function NewQuotationPage() {
                 </div>
                 <button
                     onClick={handleSave}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                    disabled={loading}
+                    className={`px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 text-white transition-all ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl'
+                        }`}
                 >
-                    <FaSave /> Save Quotation
+                    {loading ? 'Saving...' : <><FaSave /> Save Quotation</>}
                 </button>
             </div>
 
@@ -205,9 +229,11 @@ export default function NewQuotationPage() {
                 </Link>
                 <button
                     onClick={handleSave}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+                    disabled={loading}
+                    className={`px-6 py-3 rounded-xl font-bold shadow-lg text-white transition-all ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl'
+                        }`}
                 >
-                    Save Quotation
+                    {loading ? 'Saving...' : 'Save Quotation'}
                 </button>
             </div>
         </div>

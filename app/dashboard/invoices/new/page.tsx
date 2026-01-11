@@ -376,9 +376,9 @@ export default function NewInvoicePage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6 pb-20 px-6 sm:px-12 md:px-20">
+        <div className="max-w-7xl mx-auto space-y-6 pb-20 px-8 sm:px-12 md:px-20 pt-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 sm:px-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/invoices" className="p-2.5 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-200">
                         <FaArrowLeft className="text-indigo-600" size={18} />
@@ -390,18 +390,18 @@ export default function NewInvoicePage() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 md:p-10 space-y-6 md:space-y-8 mx-2 sm:mx-0">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 sm:p-8 md:p-10 space-y-6 md:space-y-8">
                 {/* Document Type Selector */}
                 <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">Document Type</label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-4 md:grid-cols-4 gap-2">
                         {Object.values(DOC_TYPES).map((type) => (
                             <button
                                 key={type}
                                 type="button"
                                 onClick={() => setDocType(type)}
                                 className={`
-                                    px-8 py-6 rounded-2xl font-black text-sm transition-all border-b-4
+                                    px-8 py-6 rounded-4xl font-black text-sm transition-all border-b-4
                                     ${docType === type
                                         ? 'bg-indigo-600 text-white border-indigo-800 shadow-lg -translate-y-0.5'
                                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
@@ -417,38 +417,38 @@ export default function NewInvoicePage() {
                 <hr className="border-gray-100" />
 
                 {/* Customer & Dates */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {/* Customer Selection */}
                     <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">{t.customer}</label>
-                        </div>
-                        <div className="relative group">
-                            <select
-                                value={customerId}
-                                onChange={(e) => setCustomerId(e.target.value)}
-                                className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300 text-center"
-                            >
-                                <option value="">{t.selectCustomer}</option>
-                                {safeCustomers.length > 0 ? safeCustomers.map((c: any) => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                )) : <option value="" disabled>No customers found</option>}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400 group-hover:text-indigo-500 transition-colors">
-                                <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">{t.customer}</label>
+                        <div className="grid grid-cols-2 gap-2 h-[40px]">
+                            <div className="relative group h-full">
+                                <select
+                                    value={customerId}
+                                    onChange={(e) => setCustomerId(e.target.value)}
+                                    className="w-full h-full px-3 bg-white border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none appearance-none font-bold text-slate-700 transition-all shadow-sm hover:border-slate-300 text-sm text-center"
+                                >
+                                    <option value="">{t.selectCustomer}</option>
+                                    {safeCustomers.length > 0 ? safeCustomers.map((c: any) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    )) : <option value="" disabled>No customers found</option>}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center px-2 text-slate-400 group-hover:text-indigo-500 transition-colors">
+                                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                                </div>
                             </div>
+                            <button
+                                onClick={() => setShowCustomerModal(true)}
+                                className="
+                                    w-full h-full flex items-center justify-center gap-2 bg-indigo-600 text-white rounded-xl text-xs font-black
+                                    transition-all border-b-4 border-indigo-800 hover:-translate-y-0.5 active:translate-y-[1px] active:border-b-0
+                                    shadow-md shadow-indigo-500/20 uppercase tracking-wider
+                                "
+                            >
+                                <FaPlus className="text-xs group-hover:rotate-90 transition-transform" />
+                                {t.newClient || 'NEW'}
+                            </button>
                         </div>
-                        <button
-                            onClick={() => setShowCustomerModal(true)}
-                            className="
-                                group w-full flex items-center justify-center gap-2 px-4 py-4 bg-indigo-600 text-white rounded-xl text-sm font-black
-                                transition-all border-b-4 border-indigo-800 hover:-translate-y-0.5 active:translate-y-[2px] active:border-b-0
-                                shadow-lg shadow-indigo-500/20 uppercase tracking-wider
-                            "
-                        >
-                            <FaPlus className="text-xs group-hover:rotate-90 transition-transform" />
-                            {t.newClient || 'NEW CLIENT'}
-                        </button>
                     </div>
 
                     {/* Date */}
@@ -470,7 +470,7 @@ export default function NewInvoicePage() {
                         {!showPaymentInput ? (
                             <button
                                 onClick={() => setShowPaymentInput(true)}
-                                className="w-full p-4 border-2 border-dashed border-emerald-300 bg-emerald-50 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100 hover:border-emerald-400 transition-all flex items-center justify-center gap-2"
+                                className="w-full h-[30px] border-1 border-dashed border-emerald-300 bg-emerald-50 text-emerald-700 font-bold rounded-xl hover:bg-emerald-100 hover:border-emerald-400 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                             >
                                 <FaPlus /> {t.addPayment}
                             </button>
@@ -751,41 +751,42 @@ export default function NewInvoicePage() {
                     ></textarea>
                 </div>
 
-                {/* Bottom Action Bar */}
-                <div className="flex items-center justify-center gap-6 pt-6 mt-8 border-t border-slate-100">
-                    <button
-                        type="button"
-                        onClick={() => router.back()}
-                        disabled={isSubmitting}
-                        className="px-10 py-4 text-slate-600 font-bold hover:bg-slate-100 rounded-2xl transition-all disabled:opacity-50 border-2 border-transparent hover:border-slate-200"
-                    >
-                        {t.cancel}
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting}
-                        className="
-                            relative px-10 py-4 bg-gray-900 text-white font-black rounded-2xl 
-                            border-b-4 border-black transition-all duration-200
-                            hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/25 
-                            active:translate-y-[2px] active:border-b-0
-                            flex items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed group overflow-hidden
-                        "
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
-                        {isSubmitting ? (
-                            <>
-                                <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                                <span className="uppercase tracking-widest text-sm">Saving...</span>
-                            </>
-                        ) : (
-                            <>
-                                <FaSave className="text-lg group-hover:scale-110 transition-transform" />
-                                <span className="uppercase tracking-widest text-sm">{t.saveInvoice}</span>
-                            </>
-                        )}
-                    </button>
-                </div>
+                {/* Spacer for fixed footer */}
+                <div className="h-24"></div>
+            </div>
+
+            {/* Bottom Action Bar - Fixed Full Width */}
+            <div className="fixed bottom-0 left-0 md:left-72 right-0 bg-white border-t border-slate-200 p-4 px-6 gap-4 flex items-center justify-between z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    disabled={isSubmitting}
+                    className="flex-1 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50 border border-slate-300"
+                >
+                    {t.cancel}
+                </button>
+                <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="
+                        flex-[2] relative py-3.5 bg-gray-900 text-white font-black rounded-xl
+                        shadow-lg transition-all duration-200
+                        hover:-translate-y-1 hover:shadow-xl active:translate-y-[1px]
+                        flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed
+                    "
+                >
+                    {isSubmitting ? (
+                        <>
+                            <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                            <span className="uppercase tracking-widest text-xs">Saving...</span>
+                        </>
+                    ) : (
+                        <>
+                            <FaSave className="text-lg" />
+                            <span className="uppercase tracking-widest text-xs">{t.saveInvoice}</span>
+                        </>
+                    )}
+                </button>
             </div>
 
             {/* Quick Add Customer Modal */}

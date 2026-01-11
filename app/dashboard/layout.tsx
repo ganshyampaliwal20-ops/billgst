@@ -9,7 +9,7 @@ import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt,
-    FaFileAlt, FaMoneyBillWave, FaFileContract
+    FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -62,6 +62,7 @@ export default function DashboardLayout({
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
         { icon: FaFileContract, label: 'GST Returns', href: '/dashboard/gst-returns' },
+        { icon: FaStar, label: 'Subscription', href: '/dashboard/pricing' },
         // Settings moved to bottom manually
         { icon: FaSignInAlt, label: 'Login', href: '/login', isAuth: true },
         { icon: FaUserPlus, label: 'Sign Up', href: '/register', isAuth: true },
@@ -312,7 +313,7 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 p-4 md:p-8 scroll-smooth overflow-auto flex flex-col items-center">
+                <main className="flex-1 scroll-smooth overflow-auto flex flex-col items-center relative">
                     <div className="max-w-[1600px] mx-auto w-full animate-fadeIn">
                         {children}
                     </div>

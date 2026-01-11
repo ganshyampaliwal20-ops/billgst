@@ -19,20 +19,17 @@ async function checkSchema() {
         const client = await pool.connect();
         console.log("Connected to DB. Checking 'users' table columns...");
 
-        const res = await client.query(`
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'users';
-        `);
+        const result = await client.query(`
+    SELECT column_name 
+    FROM information_schema.columns 
+    WHERE table_name = 'quotations' AND column_name = 'created_by';
+`);
 
-        console.log("Columns in 'users' table:");
-        console.table(res.rows);
-
-        const hasResetToken = res.rows.some(r => r.column_name === 'reset_token');
-        const hasResetTokenExpiry = res.rows.some(r => r.column_name === 'reset_token_expiry');
-
-        console.log(`Has reset_token: ${hasResetToken}`);
-        console.log(`Has reset_token_expiry: ${hasResetTokenExpiry}`);
+        if (result.rows.length === 0) {
+            console.log("MISSING: created_by column in quotations table");
+        } else {
+            console.log("FOUND: created_by column in quotations table");
+        }
 
         client.release();
         await pool.end();

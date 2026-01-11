@@ -3,6 +3,7 @@ import pool from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { checkLimit } from "@/lib/subscription";
 
 export const dynamic = 'force-dynamic';
 
@@ -37,64 +38,113 @@ export async function POST(request: Request) {
     const session: any = await getServerSession(authOptions as any);
 
     if (!session?.user?.id) {
+        console.error('[Quotation POST] Unauthorized: No session');
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = session.user.id;
-    const client = await pool.connect();
+    console.log(`[Quotation POST] User ID: ${userId}`);
+
+    // Check Subscription Limit
+    const limitCheck = await checkLimit(userId, 'QUOTATION');
+    if (!limitCheck.allowed) {
+        console.error(`[Quotation POST] Limit Reached: ${limitCheck.reason}`);
+        return NextResponse.json({
+            error: limitCheck.reason || 'Subscription limit reached. Please upgrade.'
+        }, { status: 403 });
+    }
+
+    const transactionClient = await pool.connect();
 
     try {
-        const data = await request.json();
+        const body = await request.json();
+        console.log('[Quotation POST] Payload:', JSON.stringify(body));
 
-        if (!data.id) data.id = uuidv4();
+        // Sanitize Data
+        let customerId = body.customer_id;
+        if (!customerId || customerId.trim() === '') {
+            customerId = null; // Ensure empty string becomes null for UUID
+        }
 
-        await client.query('BEGIN');
+        let quoNumber = body.quotation_number;
 
-        const quotationResult = await client.query(`
-            INSERT INTO quotations (
-                id, quotation_number, customer_name, customer_id, quotation_date, 
-                total_amount, status, notes, created_by
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING id
-        `, [
-            data.id,
-            data.quotation_number,
-            data.customer_name,
-            data.customer_id || null,
-            data.quotation_date,
-            data.total_amount,
-            data.status || 'Pending',
-            data.notes || null,
-            userId
-        ]);
+        // Retry Loop for Duplicate Quotation Number
+        let attempts = 0;
+        let savedId = null;
 
-        const quotationId = quotationResult.rows[0].id;
+        while (attempts < 3) {
+            try {
+                attempts++;
+                const newId = body.id || uuidv4();
 
-        if (data.items && Array.isArray(data.items)) {
-            for (const item of data.items) {
-                await client.query(`
-                    INSERT INTO quotation_items (
-                        quotation_id, product_name, quantity, unit_price, total_amount
-                    ) VALUES ($1, $2, $3, $4, $5)
+                await transactionClient.query('BEGIN');
+
+                const quotationResult = await transactionClient.query(`
+                    INSERT INTO quotations (
+                        id, quotation_number, customer_name, customer_id, quotation_date, 
+                        total_amount, status, notes, created_by
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                    RETURNING id
                 `, [
-                    quotationId,
-                    item.product,
-                    Number(item.quantity),
-                    Number(item.rate),
-                    Number(item.amount)
+                    newId,
+                    quoNumber,
+                    body.customer_name || 'Unknown Customer',
+                    customerId,
+                    body.quotation_date,
+                    Number(body.total_amount) || 0,
+                    body.status || 'Pending',
+                    body.notes || null,
+                    userId
                 ]);
+
+                const quotationId = quotationResult.rows[0].id;
+
+                if (body.items && Array.isArray(body.items)) {
+                    for (const item of body.items) {
+                        await transactionClient.query(`
+                            INSERT INTO quotation_items (
+                                quotation_id, product_name, quantity, unit_price, total_amount
+                            ) VALUES ($1, $2, $3, $4, $5)
+                        `, [
+                            quotationId,
+                            item.product || 'Item',
+                            Number(item.quantity) || 0,
+                            Number(item.rate) || 0,
+                            Number(item.amount) || 0
+                        ]);
+                    }
+                }
+
+                await transactionClient.query('COMMIT');
+                savedId = quotationId;
+                break; // Success!
+
+            } catch (err: any) {
+                await transactionClient.query('ROLLBACK');
+
+                // If Duplicate Key Error (code 23505), modify number and retry
+                if (err.code === '23505' && err.constraint?.includes('quotation_number')) {
+                    console.warn(`[Quotation POST] Duplicate Number ${quoNumber}. Retrying...`);
+                    quoNumber = `${quoNumber}-${Math.floor(Math.random() * 100)}`;
+                    continue;
+                }
+
+                // If other error, throw it to outer catch
+                throw err;
             }
         }
 
-        await client.query('COMMIT');
-        client.release();
-        return NextResponse.json({ success: true, id: quotationId });
+        if (savedId) {
+            transactionClient.release();
+            return NextResponse.json({ success: true, id: savedId });
+        } else {
+            throw new Error("Failed to save after 3 attempts");
+        }
 
     } catch (error: any) {
-        await client.query('ROLLBACK');
-        client.release();
-        console.error('Quotation POST Error:', error);
-        return NextResponse.json({ error: 'Failed to save quotation' }, { status: 500 });
+        transactionClient.release();
+        console.error('Quotation POST Critical Error:', error);
+        return NextResponse.json({ error: `Server Error: ${error.message}` }, { status: 500 });
     }
 }
 

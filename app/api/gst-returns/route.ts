@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { checkLimit } from "@/lib/subscription";
 
 // GET - Fetch all saved GST returns
 export async function GET() {
@@ -39,6 +40,16 @@ export async function POST(request: Request) {
 
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const userId = session.user.id;
+
+        // Check Subscription Limit
+        const limitCheck = await checkLimit(userId, 'GST_RETURN');
+        if (!limitCheck.allowed) {
+            return NextResponse.json({
+                error: limitCheck.reason || 'Subscription limit reached. Please upgrade.'
+            }, { status: 403 });
         }
 
         const data = await request.json();

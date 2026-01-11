@@ -27,13 +27,25 @@ export async function POST(request) {
             );
         }
 
+        // Check user count for "First 100 Lifetime Free" logic
+        const userCountRes = await pool.query('SELECT COUNT(*) FROM users');
+        const userCount = parseInt(userCountRes.rows[0].count);
+
+        // Logic: First 100 users (0-99) get LIFETIME. 101st (index 100) gets FREE.
+        let planType = 'FREE';
+        let subStatus = 'ACTIVE'; // Free is active by default
+
+        if (userCount < 100) {
+            planType = 'LIFETIME';
+        }
+
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create user
         const result = await pool.query(
-            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-            [name, email, hashedPassword, 'USER']
+            'INSERT INTO users (name, email, password, role, plan_type, subscription_status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, role, plan_type',
+            [name, email, hashedPassword, 'USER', planType, subStatus]
         );
 
         return NextResponse.json({

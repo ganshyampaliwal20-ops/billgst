@@ -38,7 +38,7 @@ export default function ExpensesPage() {
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 tracking-tight">Expenses</h1>
                     <p className="text-slate-500 text-sm mt-1">Track and manage your business expenses</p>
@@ -52,20 +52,22 @@ export default function ExpensesPage() {
             </div>
 
             {/* Summary Box - Dashboard Style (Horizontal) */}
+
+            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
+            <div className="relative mt-20 mb-50 ml-40"></div>
             <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden">
                 {/* Decorative Elements */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
                 <div className="absolute bottom-0 left-0 w-24 h-44 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5"></div>
 
-                <div className="flex items-center justify-between gap-4 relative z-10">
-                    <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex items-center justify-between gap-2 relative z-10">
+                    <div className="flex-1 flex flex-col items-center gap-3">
                         <div className="p-3 rounded-full bg-white/20 text-white shadow-md">
                             <FaRupeeSign className="text-xl" />
                         </div>
                         <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Expenses</span>
                         <span className="text-lg font-black text-white">₹{totalExpenses.toLocaleString('en-IN')}</span>
                     </div>
-
                     <div className="w-px h-10 bg-white/20"></div>
 
                     <div className="flex-1 flex flex-col items-center gap-2">
@@ -91,7 +93,8 @@ export default function ExpensesPage() {
             {/* Filters */}
             <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200 space-y-4">
                 <div className="relative">
-                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '5px' }}></div>
+                    <FaSearch className="absolute left-120 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                         type="text"
                         placeholder="Search expenses..."
@@ -117,11 +120,13 @@ export default function ExpensesPage() {
             </div>
 
             {/* Expenses List */}
+            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
             <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gradient-to-r from-rose-600 to-pink-600 text-white">
                             <tr>
+                                <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '30px' }}></div>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Date</th>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Category</th>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Description</th>
@@ -169,6 +174,6 @@ export default function ExpensesPage() {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

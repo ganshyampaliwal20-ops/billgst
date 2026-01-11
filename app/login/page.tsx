@@ -41,7 +41,7 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans text-slate-900">
-            <div className="py-6 px-4 w-full">
+            <div className="py-8 px-6 w-full">
                 <div className="grid lg:grid-cols-2 items-center gap-6 max-w-6xl w-full mx-auto">
                     <div className="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-lg:mx-auto w-full">
                         <form className="space-y-6" onSubmit={handleSubmit}>
