@@ -15,11 +15,22 @@ export default function PricingPage() {
     const [qrCodeData, setQrCodeData] = useState<string>('');
     const [loading, setLoading] = useState(false);
 
-    // Mock fetching user plan
+    // New state for Transaction ID
+    const [transactionId, setTransactionId] = useState('');
+
     useEffect(() => {
-        // In real app, fetch from /api/user/me or similar
-        // For MVP, we presume user might know current plan or we fetch if possible.
-        // We'll skip fetch for now and default to FREE, or fetch efficiently.
+        const fetchStatus = async () => {
+            try {
+                const res = await fetch('/api/subscription/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCurrentPlan(data.plan);
+                }
+            } catch (err) {
+                console.error("Failed to fetch plan status", err);
+            }
+        };
+        fetchStatus();
     }, []);
 
     const plans = [
@@ -86,6 +97,7 @@ export default function PricingPage() {
     const handleUpgrade = async (plan: any) => {
         setSelectedPlan(plan);
         setLoading(true);
+        setTransactionId(''); // Reset transaction ID
 
         // Generate UPI QR Code
         const upiId = 'ganshyampaliwal20-2@okhdfcbank';
@@ -106,11 +118,12 @@ export default function PricingPage() {
     };
 
     const verifyPayment = async () => {
-        // Mock Payment Verification
-        // In real world, we'd ask user for Transaction ID and verify with Bank API or Manual Admin Review.
-        // For MVP/Demo: We trust the user or simulate success.
+        if (!transactionId || transactionId.length < 6) {
+            toast.error('Please enter a valid Transaction / UTR ID');
+            return;
+        }
 
-        const confirm = window.confirm("Have you completed the payment?");
+        const confirm = window.confirm(`Confirm payment with Transaction ID: ${transactionId}?`);
         if (!confirm) return;
 
         setLoading(true);
@@ -118,14 +131,16 @@ export default function PricingPage() {
             const res = await fetch('/api/subscription/upgrade', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ planType: selectedPlan?.type })
+                body: JSON.stringify({
+                    planType: selectedPlan?.type,
+                    transactionId: transactionId
+                })
             });
 
             if (res.ok) {
                 toast.success('Plan activated successfully!');
                 setShowPaymentModal(false);
-                // Refresh page or state
-                window.location.reload();
+                setTimeout(() => window.location.reload(), 1000);
             } else {
                 toast.error('Failed to update plan.');
             }
@@ -142,37 +157,47 @@ export default function PricingPage() {
             <p className="text-gray-600 mb-8">Choose the right plan for your business needs.</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {plans.map((plan: any) => (
-                    <div key={plan.name} className={`border rounded-xl p-6 relative flex flex-col ${plan.color} shadow-sm hover:shadow-md transition-shadow`}>
-                        {plan.popular && (
-                            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-medium">
-                                Most Popular
-                            </span>
-                        )}
-                        <h3 className="text-xl font-bold">{plan.name}</h3>
-                        <div className="mt-2 flex items-end gap-1">
-                            <span className="text-3xl font-bold">₹{plan.price}</span>
-                            {plan.price > 0 && <span className="text-gray-500 mb-1">/{plan.duration === '1 Year' ? 'year' : 'mo'}</span>}
+                {plans.map((plan: any) => {
+                    const isActive = currentPlan === plan.type;
+                    return (
+                        <div key={plan.name} className={`border rounded-xl p-6 relative flex flex-col ${plan.color} shadow-sm hover:shadow-md transition-shadow ${isActive ? 'ring-2 ring-green-500' : ''}`}>
+                            {isActive && (
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs px-3 py-1 rounded-full font-medium z-10">
+                                    Active Plan
+                                </span>
+                            )}
+                            {!isActive && plan.popular && (
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full font-medium">
+                                    Most Popular
+                                </span>
+                            )}
+                            <h3 className="text-xl font-bold mb-5 text-center">{plan.name}</h3>
+                            <div className="mt-5 flex items-end justify-center gap-1 mb-5">
+                                <span className="text-3xl font-bold">₹{plan.price}</span>
+                                {plan.price > 0 && <span className="text-gray-500 mb-1">/{plan.duration === '1 Year' ? 'year' : 'mo'}</span>}
+                            </div>
+
+                            <ul className="mt-8 space-y-3 flex-1">
+                                {plan.features.map((feat: string, i: number) => (
+                                    <li key={i} className="ml-10 flex items-center gap-3 py-3 pr-3 pl-6 rounded-lg bg-white border border-slate-100 shadow-sm transition-all text-sm font-bold text-slate-700 hover:border-green-200">
+                                        <div className="p-1 rounded-full bg-green-100 shrink-0 flex items-center justify-center">
+                                            <FaCheck className="text-green-600 text-[10px]" />
+                                        </div>
+                                        <span>{feat}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <button
+                                onClick={() => handleUpgrade(plan)}
+                                disabled={isActive}
+                                className={`mt-6 w-full py-2 rounded-lg font-medium text-white transition-colors ${isActive ? 'bg-green-600 cursor-default' : plan.btnColor}`}
+                            >
+                                {isActive ? 'Active' : 'Upgrade Now'}
+                            </button>
                         </div>
-
-                        <ul className="mt-6 space-y-3 flex-1">
-                            {plan.features.map((feat: string, i: number) => (
-                                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                                    <FaCheck className="text-green-500 mt-1 shrink-0" />
-                                    <span>{feat}</span>
-                                </li>
-                            ))}
-                        </ul>
-
-                        <button
-                            onClick={() => handleUpgrade(plan)}
-                            disabled={plan.type === 'FREE'}
-                            className={`mt-6 w-full py-2 rounded-lg font-medium text-white transition-colors ${plan.type === 'FREE' ? 'bg-gray-400 cursor-not-allowed' : plan.btnColor}`}
-                        >
-                            {plan.type === 'FREE' ? 'Current Plan' : 'Upgrade Now'}
-                        </button>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {showPaymentModal && selectedPlan && (
@@ -192,17 +217,57 @@ export default function PricingPage() {
                             )}
                         </div>
 
-                        <div className="text-center text-sm text-gray-600 mb-6">
-                            <p className="font-medium text-gray-900 mb-1">UPI ID: ganshyampaliwal20-2@okhdfcbank</p>
-                            <p>Scan with GPay, PhonePe, or Paytm</p>
+                        <div className="text-center text-sm text-gray-600 mb-4 space-y-3">
+                            <div>
+                                <p className="font-medium text-gray-900 mb-1">UPI ID: ganshyampaliwal20-2@okhdfcbank</p>
+                                <p>Scan with any UPI App or click below:</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <a
+                                    href={`tez://upi/pay?pa=ganshyampaliwal20-2@okhdfcbank&pn=BillGST&am=${selectedPlan.price}&cu=INR`}
+                                    className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-xl font-bold transition-colors border border-slate-200"
+                                >
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="GPay" className="h-5" />
+                                </a>
+                                <a
+                                    href={`phonepe://pay?pa=ganshyampaliwal20-2@okhdfcbank&pn=BillGST&am=${selectedPlan.price}&cu=INR`}
+                                    className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-xl font-bold transition-colors border border-slate-200"
+                                >
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" alt="PhonePe" className="h-5" />
+                                </a>
+                                <a
+                                    href={`upi://pay?pa=ganshyampaliwal20-2@okhdfcbank&pn=BillGST&am=${selectedPlan.price}&cu=INR`}
+                                    className="col-span-2 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 py-3 rounded-xl font-bold transition-colors border border-blue-200"
+                                >
+                                    Pay with any UPI App
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Transaction ID Input */}
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+                                Enter UTR / Transaction ID <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="e.g. 30894728XXXX"
+                                value={transactionId}
+                                onChange={(e) => setTransactionId(e.target.value)}
+                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
                         </div>
 
                         <button
                             onClick={verifyPayment}
-                            disabled={loading}
-                            className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition-colors"
+                            disabled={loading || transactionId.length < 6}
+                            className={`w-full py-3 rounded-lg font-bold transition-colors ${loading || transactionId.length < 6
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-green-600 text-white hover:bg-green-700'
+                                }`}
                         >
-                            {loading ? 'Processing...' : 'I have Paid'}
+                            {loading ? 'Verifying...' : 'I have Paid'}
                         </button>
                     </div>
                 </div>

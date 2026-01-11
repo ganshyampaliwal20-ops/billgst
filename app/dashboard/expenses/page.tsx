@@ -1,14 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FaPlus, FaTrash, FaEdit, FaSearch, FaCalendar, FaRupeeSign, FaBox, FaReceipt } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaSearch, FaCalendar, FaRupeeSign, FaBox, FaReceipt, FaBriefcase, FaPlane, FaLightbulb, FaBullhorn, FaUserTie, FaHome, FaLayerGroup } from 'react-icons/fa';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
+import toast from 'react-hot-toast';
 
 export default function ExpensesPage() {
-    const { expenses, fetchExpenses } = useStore();
+    const router = useRouter();
+    const { expenses, fetchExpenses, deleteExpense } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState('all');
+
+    const handleDelete = async (id: string) => {
+        if (confirm('Are you sure you want to delete this expense?')) {
+            await deleteExpense(id);
+        }
+    };
 
     useEffect(() => {
         fetchExpenses();
@@ -43,18 +52,11 @@ export default function ExpensesPage() {
                     <h1 className="text-3xl font-black text-slate-800 tracking-tight">Expenses</h1>
                     <p className="text-slate-500 text-sm mt-1">Track and manage your business expenses</p>
                 </div>
-                <Link
-                    href="/dashboard/expenses/new"
-                    className="bg-gradient-to-r from-rose-600 to-pink-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                >
-                    <FaPlus /> Add Expense
-                </Link>
             </div>
 
             {/* Summary Box - Dashboard Style (Horizontal) */}
 
             <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
-            <div className="relative mt-20 mb-50 ml-40"></div>
             <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden">
                 {/* Decorative Elements */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
@@ -103,35 +105,46 @@ export default function ExpensesPage() {
                         className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                     />
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                    {categories.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() => setFilterCategory(cat)}
-                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${filterCategory === cat
-                                ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-lg'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                }`}
-                        >
-                            {cat === 'all' ? 'All Categories' : cat}
-                        </button>
-                    ))}
+                <div className="grid grid-cols-4 gap-2 md:flex md:flex-wrap md:justify-center md:gap-6">
+                    {categories.map((cat) => {
+                        let Icon = FaBox;
+                        if (cat === 'Office Supplies') Icon = FaBriefcase;
+                        if (cat === 'Travel') Icon = FaPlane;
+                        if (cat === 'Utilities') Icon = FaLightbulb;
+                        if (cat === 'Marketing') Icon = FaBullhorn;
+                        if (cat === 'Salary') Icon = FaUserTie;
+                        if (cat === 'Rent') Icon = FaHome;
+
+                        const isActive = filterCategory === cat;
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => setFilterCategory(cat)}
+                                className={`flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 md:px-8 py-2 md:py-4 rounded-xl md:rounded-2xl font-bold text-[10px] md:text-lg transition-all transform hover:scale-105 shadow-sm hover:shadow-lg ${isActive
+                                        ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-lg shadow-rose-200 ring-4 ring-rose-100 scale-105'
+                                        : 'bg-white text-slate-600 border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200'
+                                    }`}
+                            >
+                                <Icon className={`text-sm md:text-xl ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                                <span className="text-center leading-tight whitespace-nowrap">{cat === 'all' ? 'All' : cat}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
             {/* Expenses List */}
             <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-24">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gradient-to-r from-rose-600 to-pink-600 text-white">
                             <tr>
-                                <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '30px' }}></div>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Date</th>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Category</th>
+                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider w-32">Date</th>
+                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider w-32">Category</th>
                                 <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Description</th>
-                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider">Amount</th>
-                                <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider">Actions</th>
+                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider w-32">Amount</th>
+                                <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider w-24">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -159,10 +172,16 @@ export default function ExpensesPage() {
                                         </td>
                                         <td className="py-4 px-6 text-center">
                                             <div className="flex justify-center gap-2">
-                                                <button className="text-blue-600 hover:text-blue-800 p-2">
+                                                <button
+                                                    onClick={() => router.push(`/dashboard/expenses/edit/${expense.id}`)}
+                                                    className="text-blue-600 hover:text-blue-800 p-2"
+                                                >
                                                     <FaEdit />
                                                 </button>
-                                                <button className="text-red-600 hover:text-red-800 p-2">
+                                                <button
+                                                    onClick={() => handleDelete(expense.id)}
+                                                    className="text-red-600 hover:text-red-800 p-2"
+                                                >
                                                     <FaTrash />
                                                 </button>
                                             </div>
@@ -173,6 +192,16 @@ export default function ExpensesPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Floating Add Button */}
+            <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 pointer-events-none">
+                <Link
+                    href="/dashboard/expenses/new"
+                    className="pointer-events-auto bg-gradient-to-r from-rose-600 to-pink-600 text-white px-8 py-4 rounded-full font-black text-lg shadow-2xl hover:shadow-rose-500/50 hover:scale-105 transition-all flex items-center gap-3 ring-4 ring-white"
+                >
+                    <FaPlus className="text-xl" /> ADD EXPENSE
+                </Link>
             </div>
         </div >
     );

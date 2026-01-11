@@ -13,7 +13,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { planType } = await request.json();
+        const { planType, transactionId } = await request.json();
+
+        // Optional: Store transaction ID in DB if we have a table, else log for now
+        console.log(`User ${session.user.id} upgrading to ${planType} with TXN: ${transactionId}`);
 
         // Validation
         const validPlans = ['BASIC_30', 'PREMIUM_99', 'YEARLY_999'];
