@@ -135,35 +135,22 @@ export default function InventoryPage() {
     };
 
     return (
-        <div className="space-y-6 px-4 md:px-0">
+        <div className="space-y-6 p-8 md:p-12">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Inventory</h1>
-                    <p className="text-gray-500 text-sm">Manage your products and stock</p>
+            {/* Header - Centered Layout */}
+            <div className="flex flex-col items-center justify-center gap-10 mb-8">
+                <div className="text-center space-y-1">
+                    <h1 className="text-3xl font-black text-gray-800 tracking-tight">Inventory</h1>
+                    <p className="text-gray-500 text-sm font-medium">Manage your products and stock</p>
                 </div>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="
-                        group relative px-6 py-3.5 bg-emerald-600 text-white font-black rounded-2xl
-                        border-b-4 border-emerald-800 transition-all duration-200
-                        hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/30
-                        active:translate-y-[2px] active:border-b-0
-                        flex items-center gap-3 overflow-hidden
-                    "
-                >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
-                    <FaPlus className="group-hover:rotate-90 transition-transform duration-300" />
-                    <span className="tracking-wider uppercase text-xs">Add New Product</span>
-                </button>
             </div>
 
             {/* Search - Refined width with 3D aesthetic */}
-            <div className="flex justify-start">
+            <div className="flex justify-center mb-8">
                 <div className="
-                    bg-white p-2 rounded-2xl relative w-full md:w-96 group transition-all 
-                    border-2 border-slate-200 
-                    border-b-4 border-b-slate-300
+                    bg-white p-2 rounded-[5px] relative w-full md:w-96 group transition-all 
+                    border-4 border-slate-200 
+                    border-b-8 border-slate-300
                     shadow-[0_4px_0_0_rgba(148,163,184,0.1),0_10px_15px_-3px_rgba(0,0,0,0.1)]
                     hover:border-indigo-400 hover:border-b-indigo-600
                     focus-within:border-indigo-500 focus-within:border-b-indigo-700 focus-within:shadow-indigo-500/20
@@ -173,7 +160,7 @@ export default function InventoryPage() {
                         placeholder="Search products..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-4 pr-12 py-2.5 bg-slate-50 border-none rounded-xl outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-400"
+                        className="w-full pl-4 pr-12 py-2.5 bg-slate-50 border-none rounded-[5px] outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-400"
                     />
                     <FaSearch className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-all group-hover:scale-110" />
                 </div>
@@ -182,7 +169,7 @@ export default function InventoryPage() {
             {/* List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.length === 0 ? (
-                    <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-gray-100">
+                    <div className="col-span-full py-12 text-center bg-white rounded-[5px] border border-gray-100">
                         <div className="inline-block p-4 bg-gray-50 rounded-full mb-3">
                             <FaBox className="text-3xl text-gray-300" />
                         </div>
@@ -190,20 +177,20 @@ export default function InventoryPage() {
                     </div>
                 ) : (
                     filteredProducts.map((product: any) => (
-                        <div key={product.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col">
+                        <div key={product.id} className="bg-white rounded-[2px] border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col">
                             {/* Low Stock Indicator - only for products */}
                             {(product.type || 'PRODUCT') === 'PRODUCT' && product.stock_quantity < 10 && (
-                                <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-3 py-1 rounded-bl-xl text-xs font-bold flex items-center gap-1 z-10">
+                                <div className="absolute top-0 right-5 bg-red-100 text-red-600 px-3 py-1 rounded-bl-[5px] text-xs font-bold flex items-center gap-1 z-10">
                                     <FaExclamationTriangle /> Low Stock
                                 </div>
                             )}
 
-                            <div className="p-5 flex-1">
+                            <div className="p-4 flex-1">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
+                                    <div className="p-3 bg-indigo-50 rounded-[2px] text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
                                         {product.name.charAt(0).toUpperCase()}
                                     </div>
-                                    <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${product.type === 'SERVICE' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                    <div className={`px-2 py-1 rounded-[2px] text-[10px] font-bold uppercase tracking-wider ${product.type === 'SERVICE' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                         {product.type || 'PRODUCT'}
                                     </div>
                                 </div>
@@ -211,7 +198,7 @@ export default function InventoryPage() {
                                 <h3 className="font-bold text-gray-800 text-lg mb-1 truncate" title={product.name}>{product.name}</h3>
                                 <p className="text-sm text-gray-500 mb-4 line-clamp-2 h-10">{product.description || 'No description available'}</p>
 
-                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <div className="flex items-center justify-between pt-30 border-t border-gray-100">
                                     <div className="flex flex-col gap-1">
                                         <div className="flex flex-col">
                                             <p className="text-[10px] text-gray-400 uppercase font-semibold">Sale Price</p>
@@ -240,7 +227,7 @@ export default function InventoryPage() {
                                     className="
                                         flex-1 flex items-center justify-center gap-2 px-4 py-3.5 
                                         bg-white border-2 border-purple-100 text-purple-600 
-                                        rounded-xl transition-all duration-300 font-bold text-sm
+                                        rounded-[5px] transition-all duration-300 font-bold text-sm
                                         shadow-[0_4px_0_0_#f3e8ff] hover:-translate-y-1 
                                         hover:shadow-[0_6px_0_0_#f3e8ff] hover:bg-purple-50/50
                                         active:translate-y-0 active:shadow-none
@@ -253,7 +240,7 @@ export default function InventoryPage() {
                                     className="
                                         flex-1 flex items-center justify-center gap-2 px-4 py-3.5 
                                         bg-white border-2 border-indigo-100 text-indigo-600 
-                                        rounded-xl transition-all duration-300 font-bold text-sm
+                                        rounded-[5px] transition-all duration-300 font-bold text-sm
                                         shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 
                                         hover:shadow-[0_6px_0_0_#e0e7ff] hover:bg-indigo-50/50
                                         active:translate-y-0 active:shadow-none
@@ -266,7 +253,7 @@ export default function InventoryPage() {
                                     className="
                                         flex-1 flex items-center justify-center gap-2 px-4 py-3.5 
                                         bg-white border-2 border-red-100 text-red-600 
-                                        rounded-xl transition-all duration-300 font-bold text-sm
+                                        rounded-[5px] transition-all duration-300 font-bold text-sm
                                         shadow-[0_4px_0_0_#fee2e2] hover:-translate-y-1 
                                         hover:shadow-[0_6px_0_0_#fee2e2] hover:bg-red-50/50
                                         active:translate-y-0 active:shadow-none
@@ -283,15 +270,17 @@ export default function InventoryPage() {
             {/* Add/Edit Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-2xl p-8 md:p-10 shadow-2xl animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh] border-2 border-indigo-100">
-                        <h2 className="text-xl font-bold mb-4">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
+                    <div className="bg-white rounded-[5px] w-full max-w-2xl p-8 md:p-10 shadow-2xl animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh] border-2 border-indigo-100">
+                        <h2 className="text-2xl font-black mb-8 text-center text-gray-800 uppercase tracking-wide border-b-2 border-gray-100 pb-4">
+                            {editingId ? 'Edit Product' : 'Add New Product'}
+                        </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
                                 <input
                                     required
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 />
@@ -303,7 +292,7 @@ export default function InventoryPage() {
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, type: 'PRODUCT' })}
-                                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${(formData.type || 'PRODUCT') === 'PRODUCT'
+                                            className={`flex flex-col items-center gap-2 p-3 rounded-[5px] border-2 transition-all ${(formData.type || 'PRODUCT') === 'PRODUCT'
                                                 ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
                                                 : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
                                                 }`}
@@ -314,7 +303,7 @@ export default function InventoryPage() {
                                         <button
                                             type="button"
                                             onClick={() => setFormData({ ...formData, type: 'SERVICE' })}
-                                            className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.type === 'SERVICE'
+                                            className={`flex flex-col items-center gap-2 p-3 rounded-[5px] border-2 transition-all ${formData.type === 'SERVICE'
                                                 ? 'border-purple-600 bg-purple-50 text-purple-600'
                                                 : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
                                                 }`}
@@ -327,7 +316,7 @@ export default function InventoryPage() {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">HSN/SAC Code</label>
                                     <input
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500"
                                         value={formData.hsn_code}
                                         onChange={e => setFormData({ ...formData, hsn_code: e.target.value })}
                                         placeholder="HSN for Products / SAC for Services"
@@ -340,7 +329,7 @@ export default function InventoryPage() {
                                     <input
                                         type="number"
                                         required
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500"
                                         value={formData.price}
                                         onChange={e => setFormData({ ...formData, price: e.target.value })}
                                         placeholder="0.00"
@@ -350,7 +339,7 @@ export default function InventoryPage() {
                                     <label className="block text-sm font-medium text-indigo-700 mb-1 font-bold">Purchase Price (Kharid Bhav)</label>
                                     <input
                                         type="number"
-                                        className="w-full p-2.5 border-2 border-indigo-100 bg-indigo-50/30 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full p-2.5 border-2 border-indigo-100 bg-indigo-50/30 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500"
                                         value={formData.purchase_price}
                                         onChange={e => setFormData({ ...formData, purchase_price: e.target.value })}
                                         placeholder="0.00"
@@ -359,7 +348,7 @@ export default function InventoryPage() {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">GST Rate (%)</label>
                                     <select
-                                        className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500"
                                         value={formData.gst_rate}
                                         onChange={e => setFormData({ ...formData, gst_rate: e.target.value })}
                                     >
@@ -377,7 +366,7 @@ export default function InventoryPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Stock Qty</label>
                                         <input
                                             type="number"
-                                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                                            className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500"
                                             value={formData.stock_quantity}
                                             onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })}
                                         />
@@ -386,7 +375,7 @@ export default function InventoryPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Unit</label>
                                         <input
                                             list="units"
-                                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                                            className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
                                             value={formData.unit}
                                             onChange={e => setFormData({ ...formData, unit: e.target.value.toUpperCase() })}
                                             placeholder="PCS, KG, GM..."
@@ -407,7 +396,7 @@ export default function InventoryPage() {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <textarea
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 h-20 resize-none"
+                                    className="w-full p-2.5 border border-gray-300 rounded-[5px] outline-none focus:ring-2 focus:ring-indigo-500 h-20 resize-none"
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                                 ></textarea>
@@ -416,13 +405,13 @@ export default function InventoryPage() {
                                 <button
                                     type="button"
                                     onClick={resetForm}
-                                    className="flex-1 py-2.5 border border-gray-300 rounded-xl font-semibold text-gray-600 hover:bg-gray-50"
+                                    className="flex-1 py-2.5 border border-gray-300 rounded-[5px] font-semibold text-gray-600 hover:bg-gray-50"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700"
+                                    className="flex-1 py-2.5 bg-indigo-600 text-white rounded-[5px] font-bold hover:bg-indigo-700"
                                 >
                                     {editingId ? 'Update' : 'Save Product'}
                                 </button>
@@ -432,13 +421,33 @@ export default function InventoryPage() {
                 </div>
             )}
 
+            {/* Fixed Bottom Add Product Button */}
+            <div className="fixed bottom-8 left-0 right-0 flex justify-center z-40 pointer-events-none">
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="
+                        pointer-events-auto
+                        group relative px-12 py-5 bg-emerald-600 text-white font-black rounded-full
+                        border-b-4 border-emerald-800 transition-all duration-200
+                        shadow-2xl shadow-emerald-900/40
+                        hover:-translate-y-1 hover:shadow-3xl hover:shadow-emerald-900/50
+                        active:translate-y-[2px] active:border-b-0
+                        flex items-center gap-4 overflow-hidden text-sm uppercase tracking-wider
+                    "
+                >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
+                    <FaPlus className="group-hover:rotate-90 transition-transform duration-300 text-xl" />
+                    Add New Product
+                </button>
+            </div>
+
             {/* QR Code Modal */}
             {showQrModal && selectedProduct && (
                 <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white rounded-[5px] w-full max-w-md p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
                         <div className="text-center">
                             <div className="mb-6">
-                                <div className="inline-block p-4 bg-purple-100 rounded-2xl mb-4">
+                                <div className="inline-block p-4 bg-purple-100 rounded-[5px] mb-4">
                                     <FaQrcode className="text-5xl text-purple-600" />
                                 </div>
                                 <h3 className="text-2xl font-black text-gray-800 mb-2">Product QR Code</h3>
@@ -446,16 +455,16 @@ export default function InventoryPage() {
                             </div>
 
                             {/* QR Code Display */}
-                            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-2xl mb-6 border-2 border-purple-200">
+                            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-[5px] mb-6 border-2 border-purple-200">
                                 <img
                                     src={qrCodeUrl}
                                     alt="QR Code"
-                                    className="w-full max-w-xs mx-auto rounded-xl shadow-lg"
+                                    className="w-full max-w-xs mx-auto rounded-[5px] shadow-lg"
                                 />
                             </div>
 
                             {/* Instructions */}
-                            <div className="bg-blue-50 p-4 rounded-xl mb-6 text-left border border-blue-200">
+                            <div className="bg-blue-50 p-4 rounded-[5px] mb-6 text-left border border-blue-200">
                                 <p className="text-sm text-blue-800 font-semibold mb-2">📱 Kaise Use Karein:</p>
                                 <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
                                     <li>QR Code ko scan karein apne phone se</li>
@@ -468,13 +477,13 @@ export default function InventoryPage() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={handleDownloadQR}
-                                    className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
+                                    className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-[5px] font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/50"
                                 >
                                     Download QR
                                 </button>
                                 <button
                                     onClick={() => router.push(`/dashboard/inventory/${selectedProduct.id}`)}
-                                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/50"
+                                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-[5px] font-bold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/50"
                                 >
                                     View Details
                                 </button>
@@ -483,7 +492,7 @@ export default function InventoryPage() {
                             {/* Close Button */}
                             <button
                                 onClick={() => setShowQrModal(false)}
-                                className="mt-4 w-full py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition-colors"
+                                className="mt-4 w-full py-3 border-2 border-gray-300 text-gray-600 rounded-[5px] font-bold hover:bg-gray-50 transition-colors"
                             >
                                 Close
                             </button>

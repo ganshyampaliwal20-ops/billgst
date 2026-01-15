@@ -617,6 +617,7 @@ export default function NewInvoicePage() {
                                     <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                                         <tr>
                                             <th className="pl-12 pr-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.product}</th>
+                                            <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">HSN/SAC</th>
                                             <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">{t.quantity}</th>
                                             <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.price}</th>
                                             <th className="px-4 py-3.5 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">{t.total}</th>
@@ -626,7 +627,7 @@ export default function NewInvoicePage() {
                                     <tbody className="bg-white divide-y divide-slate-100">
                                         {selectedItems.length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="px-4 py-12 text-center">
+                                                <td colSpan={6} className="px-4 py-12 text-center">
                                                     <div className="flex justify-center p-4">
                                                         <button
                                                             type="button"
@@ -657,6 +658,15 @@ export default function NewInvoicePage() {
                                                             <option key={p.id} value={p.id}>{p.name}</option>
                                                         )) : <option value="" disabled>No products found</option>}
                                                     </select>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <input
+                                                        type="text"
+                                                        value={item.hsn_code || ''}
+                                                        onChange={(e) => updateItem(index, 'hsn_code', e.target.value)}
+                                                        className="w-24 px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-center outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white transition-all font-semibold text-slate-700"
+                                                        placeholder="HSN"
+                                                    />
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center justify-center gap-2">
