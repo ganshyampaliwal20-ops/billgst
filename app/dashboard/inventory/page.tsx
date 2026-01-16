@@ -135,7 +135,7 @@ export default function InventoryPage() {
     };
 
     return (
-        <div className="space-y-6 p-8 md:p-12">
+        <div className="space-y-8 p-10 md:p-14 lg:p-20 pb-40">
             {/* Header */}
             {/* Header - Centered Layout */}
             <div className="flex flex-col items-center justify-center gap-10 mb-8">
@@ -180,12 +180,12 @@ export default function InventoryPage() {
                         <div key={product.id} className="bg-white rounded-[2px] border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col">
                             {/* Low Stock Indicator - only for products */}
                             {(product.type || 'PRODUCT') === 'PRODUCT' && product.stock_quantity < 10 && (
-                                <div className="absolute top-0 right-5 bg-red-100 text-red-600 px-3 py-1 rounded-bl-[5px] text-xs font-bold flex items-center gap-1 z-10">
+                                <div className="absolute top-0 right-10 bg-red-100 text-red-600 px-3 py-1 rounded-bl-[5px] text-xs font-bold flex items-center gap-5 z-10">
                                     <FaExclamationTriangle /> Low Stock
                                 </div>
                             )}
 
-                            <div className="p-4 flex-1">
+                            <div className="px-10 py-6 flex-1">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="p-3 bg-indigo-50 rounded-[2px] text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
                                         {product.name.charAt(0).toUpperCase()}
@@ -198,7 +198,7 @@ export default function InventoryPage() {
                                 <h3 className="font-bold text-gray-800 text-lg mb-1 truncate" title={product.name}>{product.name}</h3>
                                 <p className="text-sm text-gray-500 mb-4 line-clamp-2 h-10">{product.description || 'No description available'}</p>
 
-                                <div className="flex items-center justify-between pt-30 border-t border-gray-100">
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                                     <div className="flex flex-col gap-1">
                                         <div className="flex flex-col">
                                             <p className="text-[10px] text-gray-400 uppercase font-semibold">Sale Price</p>
@@ -221,7 +221,7 @@ export default function InventoryPage() {
                             </div>
 
                             {/* Action Footer - Larger & More Premium Buttons */}
-                            <div className="bg-slate-50 px-5 py-4 border-t border-slate-100 flex items-center justify-center gap-3">
+                            <div className="bg-slate-50 px-10 py-6 border-t border-slate-100 flex items-center justify-center gap-3">
                                 <button
                                     onClick={() => handleGenerateQR(product)}
                                     className="

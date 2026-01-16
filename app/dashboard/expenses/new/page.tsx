@@ -33,7 +33,7 @@ export default function NewExpensePage() {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-8 md:p-12 space-y-8">
             {/* Header */}
             <div className="flex items-center gap-2">
                 <Link href="/dashboard/expenses" className="text-slate-600 hover:text-slate-800">
@@ -46,7 +46,7 @@ export default function NewExpensePage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Category */}
                     <div>
@@ -54,7 +54,7 @@ export default function NewExpensePage() {
                         <select
                             value={formData.category}
                             onChange={(e) => updateField('category', e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                             required
                         >
                             {categories.map((cat) => (
@@ -70,7 +70,7 @@ export default function NewExpensePage() {
                             type="date"
                             value={formData.date}
                             onChange={(e) => updateField('date', e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                             required
                         />
                     </div>
@@ -83,7 +83,7 @@ export default function NewExpensePage() {
                             onChange={(e) => updateField('description', e.target.value)}
                             placeholder="Enter expense details..."
                             rows={3}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium resize-none"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium resize-none"
                             required
                         />
                     </div>
@@ -98,7 +98,7 @@ export default function NewExpensePage() {
                             placeholder="0.00"
                             min="0"
                             step="0.01"
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                             required
                         />
                     </div>
@@ -109,7 +109,7 @@ export default function NewExpensePage() {
                         <select
                             value={formData.paymentMethod}
                             onChange={(e) => updateField('paymentMethod', e.target.value)}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                         >
                             {paymentMethods.map((method) => (
                                 <option key={method} value={method}>{method}</option>

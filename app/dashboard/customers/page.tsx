@@ -134,9 +134,9 @@ export default function CustomersPage() {
             </div>
 
             {/* Parties List */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-4">
                 {filteredCustomers.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400">
                         <FaUserPlus className="text-6xl mb-4 opacity-20" />
                         <p className="font-medium text-lg text-slate-400">No parties found</p>
                     </div>
@@ -146,21 +146,26 @@ export default function CustomersPage() {
                         return (
                             <div
                                 key={party.id}
-                                className="flex justify-between items-center px-6 py-5 min-h-[50px] border-b border-gray-50 hover:bg-blue-50 transition-colors cursor-pointer group active:bg-blue-100"
+                                className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex justify-between items-center hover:shadow-md transition-all cursor-pointer active:scale-[0.99] group"
                                 onClick={() => {
                                     router.push(`/dashboard/customers/${party.id}`);
                                 }}
                             >
-                                <div className="flex-1 min-w-0 pr-4 pl-2">
-                                    <h3 className="font-bold text-[#4e00b6] text-base truncate group-hover:text-[#0e7490] transition-colors">{party.name}</h3>
-                                    {party.phone && <p className="text-xs text-slate-500 mt-1 truncate font-medium flex items-center gap-1">
-                                        📞 {party.phone}
-                                    </p>}
-                                    {!party.phone && <p className="text-xs text-transparent mt-1 select-none">.</p>}
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-slate-800 text-lg truncate group-hover:text-[#0e7490] transition-colors">{party.name}</h3>
+                                    {party.phone ? (
+                                        <p className="text-sm text-slate-500 mt-1 font-medium flex items-center gap-2">
+                                            <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs">📞</span>
+                                            {party.phone}
+                                        </p>
+                                    ) : (
+                                        <p className="text-sm text-slate-400 mt-1 italic">No phone number</p>
+                                    )}
                                 </div>
-                                <div className="flex items-center gap-4 shrink-0 pr-2">
+                                <div className="flex items-center gap-4 shrink-0 pl-4 border-l border-slate-100 ml-4">
                                     <div className="text-right">
-                                        <span className={`font-bold text-base whitespace-nowrap ${balance > 0 ? 'text-[#4358f4]' : 'text-slate-400'}`}>
+                                        <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">Balance</p>
+                                        <span className={`font-black text-lg whitespace-nowrap ${balance > 0 ? 'text-[#4358f4]' : 'text-slate-600'}`}>
                                             ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                         </span>
                                     </div>
@@ -176,7 +181,7 @@ export default function CustomersPage() {
                                             });
                                             setShowModal(true);
                                         }}
-                                        className="p-2 text-slate-40 hover:text-[#0e7490] hover:bg-slate-10 rounded-lg transition-colors"
+                                        className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#0e7490] hover:bg-[#0e7490]/10 rounded-full transition-all"
                                     >
                                         <FaEdit className="text-lg" />
                                     </button>

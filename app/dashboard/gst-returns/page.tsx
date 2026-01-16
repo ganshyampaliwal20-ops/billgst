@@ -181,23 +181,22 @@ export default function GSTReturnsPage() {
 
                     {/* Return Type Selector */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-4">Select Return Type</label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Select Return Type</label>
+                        <div className="grid grid-cols-3 gap-2">
                             {[
-                                { value: 'GSTR1', label: 'GSTR-1', desc: 'Outward Supplies' },
-                                { value: 'GSTR3B', label: 'GSTR-3B', desc: 'Summary Return' },
-                                { value: 'GSTR4', label: 'GSTR-4', desc: 'Composition Scheme' },
+                                { value: 'GSTR1', label: 'GSTR-1' },
+                                { value: 'GSTR3B', label: 'GSTR-3B' },
+                                { value: 'GSTR4', label: 'GSTR-4' },
                             ].map((type) => (
                                 <button
                                     key={type.value}
                                     onClick={() => setReturnType(type.value as ReturnType)}
-                                    className={`p-4 rounded-xl border-2 transition-all text-left ${returnType === type.value
-                                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    className={`p-2 rounded-lg border-2 transition-all text-center ${returnType === type.value
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                                        : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
                                         }`}
                                 >
-                                    <div className="font-bold text-gray-800">{type.label}</div>
-                                    <div className="text-xs text-gray-500 mt-1">{type.desc}</div>
+                                    <div className="font-bold text-xs sm:text-sm">{type.label}</div>
                                 </button>
                             ))}
                         </div>
@@ -344,50 +343,100 @@ export default function GSTReturnsPage() {
 
                                 {/* B2B Invoices Table */}
                                 {generatedData.b2b && generatedData.b2b.length > 0 && (
-                                    <div className="space-y-3">
-                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                                            B2B Invoices (Business to Business)
-                                        </h3>
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                            <table className="w-full text-sm">
-                                                <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                                                    <tr>
-                                                        <th className="px-4 py-3 text-left font-bold">GSTIN</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Customer Name</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Invoice No.</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Date</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Taxable Value</th>
-                                                        <th className="px-4 py-3 text-right font-bold">IGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">CGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">SGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Total</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {generatedData.b2b.map((invoice: any, idx: number) => (
-                                                        <tr key={idx} className="hover:bg-blue-50 transition">
-                                                            <td className="px-4 py-3 font-mono text-xs">{invoice.gstin}</td>
-                                                            <td className="px-4 py-3 font-medium">{invoice.customer_name}</td>
-                                                            <td className="px-4 py-3 font-mono text-xs">{invoice.invoice_number}</td>
-                                                            <td className="px-4 py-3 text-gray-600">{new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
-                                                            <td className="px-4 py-3 text-right font-semibold">₹{invoice.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-orange-600">₹{invoice.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-green-600">₹{invoice.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-blue-600">₹{invoice.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right font-bold text-gray-900">₹{invoice.invoice_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                                <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                                                B2B Invoices
+                                            </h3>
+                                            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                                                {generatedData.b2b.length} Records
+                                            </span>
+                                        </div>
+
+                                        <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm text-left">
+                                                    <thead className="bg-slate-500 border-b border-slate-200">
+                                                        <tr>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 w-32 min-w-[150px]">GSTIN</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 min-w-[250px]">Customer Name</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 w-32 min-w-[160px]">Invoice No.</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 w-28 min-w-[140px]">Date</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-36 min-w-[140px]">Taxable Value</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-28">IGST</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-28">CGST</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-28">SGST</th>
+                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-36 min-w-[140px] bg-slate-100/50">Total</th>
                                                         </tr>
-                                                    ))}
-                                                    <tr className="bg-blue-100 font-bold">
-                                                        <td colSpan={4} className="px-4 py-3 text-right">Total</td>
-                                                        <td className="px-4 py-3 text-right">₹{generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-orange-700">₹{generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-green-700">₹{generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.cgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-blue-700">₹{generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.sgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-900">₹{generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100">
+                                                        {generatedData.b2b.map((invoice: any, idx: number) => {
+                                                            const formatAmount = (amount: number) =>
+                                                                new Intl.NumberFormat('en-IN', {
+                                                                    maximumFractionDigits: 2,
+                                                                    minimumFractionDigits: amount % 1 === 0 ? 0 : 2
+                                                                }).format(amount);
+
+                                                            return (
+                                                                <tr key={idx} className="hover:bg-blue-50/30 transition-colors group">
+                                                                    <td className="px-6 py-4 font-mono text-xs font-medium text-slate-600">{invoice.gstin}</td>
+                                                                    <td className="px-6 py-4 font-medium text-slate-800">{invoice.customer_name}</td>
+                                                                    <td className="px-6 py-4 font-mono text-xs text-slate-500">{invoice.invoice_number}</td>
+                                                                    <td className="px-6 py-4 text-slate-500 text-xs">
+                                                                        {new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right font-medium text-slate-700">
+                                                                        {formatAmount(invoice.taxable_value)}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right text-slate-500 group-hover:text-amber-600 transition-colors">
+                                                                        {invoice.igst_amount > 0 ? formatAmount(invoice.igst_amount) : '-'}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right text-slate-500 group-hover:text-emerald-600 transition-colors">
+                                                                        {invoice.cgst_amount > 0 ? formatAmount(invoice.cgst_amount) : '-'}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right text-slate-500 group-hover:text-blue-600 transition-colors">
+                                                                        {invoice.sgst_amount > 0 ? formatAmount(invoice.sgst_amount) : '-'}
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right font-bold text-slate-900 bg-slate-50/30">
+                                                                        {formatAmount(invoice.invoice_value)}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                        {generatedData.b2b.length > 0 && (
+                                                            <tr className="bg-slate-50 font-bold border-t-2 border-slate-200 text-sm">
+                                                                <td colSpan={4} className="px-6 py-4 text-right uppercase tracking-wider text-slate-500 text-xs">Total</td>
+                                                                <td className="px-6 py-4 text-right text-slate-800">
+                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
+                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0)
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right text-amber-700">
+                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
+                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0)
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right text-emerald-700">
+                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
+                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.cgst_amount, 0)
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right text-blue-700">
+                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
+                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.sgst_amount, 0)
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right text-slate-900 text-base">
+                                                                    ₹{new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
+                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0)
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
