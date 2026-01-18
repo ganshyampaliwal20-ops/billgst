@@ -200,25 +200,20 @@ export default function InvoicesPage() {
     };
 
     return (
-        <div className="space-y-6 px-4 md:px-8 pb-10">
+        <div className="space-y-6 px-4 md:px-8 pb-10" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ paddingLeft: '5px', paddingRight: '5px' }}>
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Invoices</h1>
                     <p className="text-gray-500 text-sm mt-1">Manage and track all your bills</p>
                 </div>
-                <Link
-                    href="/dashboard/invoices/new"
-                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 flex items-center gap-2"
-                >
-                    <FaPlus />
-                    Create New Invoice
-                </Link>
+
             </div>
 
             {/* Search */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-                <div className="relative">
+            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
+                <div className="relative" style={{ paddingTop: '8px' }}
+                >
                     <input
                         type="text"
                         placeholder="Search by customer name or invoice number..."
@@ -233,7 +228,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Invoices List - Desktop Table & Mobile Cards */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                 {filteredInvoices.length === 0 ? (
                     <div className="py-16 text-center">
                         <div className="flex flex-col items-center gap-3">
@@ -532,6 +527,16 @@ export default function InvoicesPage() {
                     </div>
                 </div>
             )}
+            {/* Floating Create Button */}
+            <div className="fixed bottom-6 left-0 right-0 flex justify-center z-40 pointer-events-none">
+                <Link
+                    href="/dashboard/invoices/new"
+                    className="pointer-events-auto bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-2xl hover:bg-blue-700 hover:scale-105 transition-all flex items-center gap-2 ring-4 ring-white"
+                >
+                    <FaPlus className="text-lg" />
+                    CREATE INVOICE
+                </Link>
+            </div>
         </div>
     );
 }

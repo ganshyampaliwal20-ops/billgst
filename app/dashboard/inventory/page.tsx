@@ -177,7 +177,7 @@ export default function InventoryPage() {
                     </div>
                 ) : (
                     filteredProducts.map((product: any) => (
-                        <div key={product.id} className="bg-white rounded-[2px] border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col">
+                        <div key={product.id} className="bg-white rounded-[2px] border border-gray-100 shadow-sm hover:shadow-md transition group relative overflow-hidden flex flex-col" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
                             {/* Low Stock Indicator - only for products */}
                             {(product.type || 'PRODUCT') === 'PRODUCT' && product.stock_quantity < 10 && (
                                 <div className="absolute top-0 right-10 bg-red-100 text-red-600 px-3 py-1 rounded-bl-[5px] text-xs font-bold flex items-center gap-5 z-10">

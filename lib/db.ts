@@ -16,7 +16,7 @@ if (rawConnectionString && typeof rawConnectionString === 'string') {
   if (sanitized.startsWith('"') && sanitized.endsWith('"')) sanitized = sanitized.slice(1, -1);
   if (sanitized.startsWith("'") && sanitized.endsWith("'")) sanitized = sanitized.slice(1, -1);
 
-  // Remove query parameters (like ?sslmode=require) to prevent conflicts
+  // Remove query parameters (like ?sslmode=require) to prevent conflicts with manual SSL config
   if (sanitized.includes('?')) {
     sanitized = sanitized.split('?')[0];
   }
@@ -54,11 +54,15 @@ if (!connectionString) {
     // FORCE connectionString to be a string
     pool = new Pool({
       connectionString: connectionString,
-      ssl: { rejectUnauthorized: false }
+      ssl: { rejectUnauthorized: false } // Strict SSL handling for Supabase
     });
     console.log("DB Init: Pool created successfully.");
   } catch (err: any) {
-    console.error('CRITICAL: Failed to create Pool:', err);
+    console.error('CRITICAL: Failed to create Pool. Message:', err.message);
+    console.error('CRITICAL: Stack:', err.stack);
+    if (err.code === 'SELF_SIGNED_CERT_IN_CHAIN') {
+      console.error('HINT: SSL Certificate error detected. Please check rejectUnauthorized setting.');
+    }
     // Fallback to error mock
     pool = {
       connect: async () => { throw new Error(`Pool Creation Failed: ${err.message}`); },

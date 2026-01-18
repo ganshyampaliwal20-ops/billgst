@@ -172,11 +172,11 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="space-y-6 pb-20">
+        <div className="space-y-6 pb-20" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
             {/* Welcome Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
                 <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
                         <FaClock className="text-amber-500 text-sm" />
                         <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center justify-center gap-2 min-w-[160px]">
                             <span suppressHydrationWarning className="truncate">
@@ -195,7 +195,7 @@ export default function DashboardPage() {
             </div>
 
             {/* 4. Four Big Action Buttons - Fixed Height with 3D Effect */}
-            <div className="grid grid-cols-2 gap-5 mt-8 mx-3">
+            <div className="grid grid-cols-2 gap-5 mt-8 mx-6">
                 <Link href="/dashboard/invoices/new" className="bg-[#6366f1] h-28 md:h-36 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#4338ca] hover:shadow-[0_4px_0_0_#4338ca] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-indigo-700">
                     <div className="bg-white/20 p-3 rounded-xl mb-2">
                         <FaFileInvoice className="text-2xl md:text-3xl" />

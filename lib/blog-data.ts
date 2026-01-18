@@ -148,5 +148,192 @@ GST Portal par registration milne ke baad, **30 dino ke andar** bank account det
 ## Registration Bachane Ka Tarika
 Turant GST portal par login karein aur 'Services' tab mein jakar apna active bank account update karein. **BillGST** par hum aapko aise har compliance ka alert dete hain taaki aapka business bina ruke chalta rahe.
         `
+    },
+    {
+        slug: 'gstr-1-vs-gstr-3b-mismatch-solution',
+        title: 'GSTR-1 vs GSTR-3B Mismatch: Kaise Theek Karein – Complete Guide 2026',
+        description: 'GSTR-1 aur GSTR-3B me difference aa gaya? ITC block ho sakta hai. Jane mismatch theek karne ka sahi tarika.',
+        date: 'January 18, 2026',
+        author: 'BillGST Team',
+        category: 'GST Guide',
+        content: `
+# GSTR-1 vs GSTR-3B Mismatch: Kaise Theek Karein – Complete Guide 2026
+
+Aaj kal sabse badi problem jo GST taxpayers face karte hain wo hai GSTR-1 aur GSTR-3B mismatch. Agar dono return me figures match nahi hue to:
+
+*   Buyer ka ITC ruk sakta hai
+*   GST notice aa sakta hai
+*   Future me penalty lag sakti hai
+
+## Mismatch Kyu Hota Hai?
+
+1.  Invoice GSTR-1 me daal diya, lekin 3B me bhool gaye
+2.  Wrong tax amount enter ho gaya
+3.  Credit note/debit note ka effect nahi diya
+4.  Amendment sahi month me nahi kiya
+5.  Accountant change ho gaya
+
+## Kaise Check Karein?
+
+*   Sabse pehle month wise sales ka total nikalein
+*   GSTR-1 ka taxable value = 3B table 3.1(b)
+*   ITC = 2B se match karein
+
+## Solution Steps
+
+*   Agar 3B kam bhara → next month me pay karein
+*   Agar 1 me galat gaya → amendment karein
+*   Buyer ko inform karein
+*   Reconciliation sheet banayein
+
+👉 **BillGST** software me auto reconciliation milta hai jisse ek click me mismatch dikh jata hai.
+        `
+    },
+    {
+        slug: 'mobile-se-gst-return-kaise-bharein',
+        title: 'Mobile Se GST Return Kaise Bharein – GSTR-1 & 3B',
+        description: 'Bina computer ke mobile se GST return filing ka aasan tarika. Small dukandaar ke liye guide.',
+        date: 'January 18, 2026',
+        author: 'BillGST Team',
+        category: 'How-to Guide',
+        content: `
+# Mobile Se GST Return Kaise Bharein – GSTR-1 & 3B
+
+Pehle GST return sirf computer se hota tha, lekin aaj aap mobile se bhi GST return bhar sakte ho. Small dukandaar ke liye ye sabse asan tarika hai.
+
+## Kya Kya Chahiye?
+
+*   GST ID password
+*   Sales data
+*   Purchase bills
+*   Internet connection
+
+### GSTR-1 Mobile Process
+
+1.  Bill banayein
+2.  Party GST number check karein
+3.  HSN code select karein
+4.  Upload on portal
+
+### GSTR-3B Process
+
+1.  Total sales
+2.  ITC from 2B
+3.  Tax payable
+4.  Payment via UPI/netbanking
+
+👉 **BillGST App** se aap bina laptop ke poora return bhar sakte ho.
+        `
+    },
+    {
+        slug: 'regular-gst-vs-composition-scheme',
+        title: 'Regular GST vs Composition – Small Business Ke Liye Best Kya?',
+        description: 'Chhote vyapari ko regular GST lena chahiye ya composition scheme? Jane dono ke fayde aur nuksan.',
+        date: 'January 18, 2026',
+        author: 'BillGST Team',
+        category: 'Business Guide',
+        content: `
+# Regular GST vs Composition – Small Business Ke Liye Best Kya?
+
+Naya business start karte hi sabse bada confusion hota hai – **Regular GST** lein ya **Composition**?
+
+## Composition Scheme
+
+*   Tax rate 1% ya 5%
+*   Simple return
+*   Input credit nahi milega
+*   Inter-state sale allowed nahi
+
+## Regular GST
+
+*   ITC milega
+*   B2B business ke liye best
+*   Har month return
+*   E-invoice applicable
+
+## Kisko Kya Lena Chahiye?
+
+*   **Dukandaar** → Composition
+*   **Wholesaler** → Regular
+*   **Online seller** → Regular
+*   **Service provider** → Regular
+
+👉 **BillGST** me dono type ke invoice ready milte hain.
+        `
+    },
+    {
+        slug: 'gst-notice-reply-guide',
+        title: 'GST Notice Aane Par Kya Karein – Step by Step',
+        description: 'GST notice milne par ghabraye nahi, sahi reply ka tarika aur documents ki list yahan dekhein.',
+        date: 'January 18, 2026',
+        author: 'BillGST Team',
+        category: 'Compliance',
+        content: `
+# GST Notice Aane Par Kya Karein – Step by Step
+
+GST notice dekh kar sab dar jate hain. Lekin har notice penalty nahi hota.
+
+## Common Notices
+
+*   ASMT-10 mismatch
+*   Return non filing
+*   ITC difference
+*   E-way issue
+
+## Reply Ka Sahi Tarika
+
+1.  Notice dhyan se padhein
+2.  Time limit dekhein
+3.  Documents jama karein
+4.  Professional reply likhein
+5.  Portal par upload karein
+
+### Required Documents
+
+*   Sales register
+*   Purchase register
+*   Bank statement
+*   GSTR reports
+
+👉 **BillGST** se aap ek click me sab report download kar sakte ho.
+        `
+    },
+    {
+        slug: 'e-way-bill-mistake-correction-rules',
+        title: 'E-Way Bill Mistake – Edit, Cancel Aur Penalty Rules',
+        description: 'E-way bill me galti ho jaye to kaise sudharein? Jane edit, cancel aur penalty bachaane ke rules.',
+        date: 'January 18, 2026',
+        author: 'BillGST Team',
+        category: 'Logistics',
+        content: `
+# E-Way Bill Mistake – Edit, Cancel Aur Penalty Rules
+
+E-way bill me chhoti si galti bhi truck rok sakti hai.
+
+## Kab Edit Hota Hai?
+
+*   Vehicle number
+*   Transporter ID
+*   Part-B details
+
+## Kab Cancel Karna Padta Hai?
+
+*   Party change
+*   Amount wrong
+*   Duplicate bill
+
+### Time Limit
+
+*   24 ghante me cancel
+*   Uske baad naya banana padega
+
+### Penalty
+
+*   10,000 ya tax amount
+*   Goods detention risk
+
+👉 **BillGST** se e-way bill direct invoice se banta hai – mistake kam hoti hai.
+        `
     }
 ];
+

@@ -95,16 +95,17 @@ export default function ExpensesPage() {
             {/* Filters */}
             <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200 space-y-4">
                 <div className="relative">
-                    <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '5px' }}></div>
-                    <FaSearch className="absolute left-120 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
+                    <FaSearch className="absolute left-100 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                         type="text"
                         placeholder="Search expenses..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium" style={{ paddingLeft: '20px' }}
                     />
                 </div>
+                <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
                 <div className="grid grid-cols-4 gap-2 md:flex md:flex-wrap md:justify-center md:gap-6">
                     {categories.map((cat) => {
                         let Icon = FaBox;
@@ -121,8 +122,8 @@ export default function ExpensesPage() {
                                 key={cat}
                                 onClick={() => setFilterCategory(cat)}
                                 className={`flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 md:px-8 py-2 md:py-4 rounded-xl md:rounded-2xl font-bold text-[10px] md:text-lg transition-all transform hover:scale-105 shadow-sm hover:shadow-lg ${isActive
-                                        ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-lg shadow-rose-200 ring-4 ring-rose-100 scale-105'
-                                        : 'bg-white text-slate-600 border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200'
+                                    ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-lg shadow-rose-200 ring-4 ring-rose-100 scale-105'
+                                    : 'bg-white text-slate-600 border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200'
                                     }`}
                             >
                                 <Icon className={`text-sm md:text-xl ${isActive ? 'text-white' : 'text-slate-400'}`} />
@@ -135,16 +136,16 @@ export default function ExpensesPage() {
 
             {/* Expenses List */}
             <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-24">
+            <div className="bg-white rounded-10xl shadow-lg border border-slate-200 overflow-hidden mb-24">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gradient-to-r from-rose-600 to-pink-600 text-white">
                             <tr>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider w-32">Date</th>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider w-32">Category</th>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Description</th>
-                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider w-32">Amount</th>
-                                <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider w-24">Actions</th>
+                                <th className="text-left py-4 pr-6 text-sm font-bold uppercase tracking-wider min-w-[160px] whitespace-nowrap" style={{ paddingLeft: '20px' }}>Date</th>
+                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider min-w-[160px] whitespace-nowrap">Category</th>
+                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider min-w-[200px] whitespace-nowrap">Description</th>
+                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider min-w-[140px] whitespace-nowrap">Amount</th>
+                                <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider min-w-[140px] whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -157,7 +158,7 @@ export default function ExpensesPage() {
                             ) : (
                                 filteredExpenses.map((expense: any) => (
                                     <tr key={expense.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="py-4 px-6 text-slate-600 font-medium">
+                                        <td className="py-4 pr-6 text-slate-600 font-medium" style={{ paddingLeft: '15px' }}>
                                             <FaCalendar className="inline mr-2 text-slate-400" />
                                             {new Date(expense.expense_date).toLocaleDateString('en-IN')}
                                         </td>

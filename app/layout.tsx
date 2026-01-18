@@ -15,6 +15,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.billgst.in"),
   title: "BillGST - Free GST Billing & Stock Management",
   description: "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
   keywords: "free gst bill, billgst, gstbill, invoice generator, billing software, inventory management, small business billing, gst invoice maker",
@@ -75,6 +76,28 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning={true}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "BillGST",
+              "url": "https://www.billgst.in",
+              "logo": "https://www.billgst.in/logo.png",
+              "description": "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "IN"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "email": "support@billgst.in",
+                "contactType": "customer support"
+              }
+            })
+          }}
+        />
         <SessionWrapper>
           {children}
         </SessionWrapper>

@@ -122,19 +122,19 @@ export default function CustomersPage() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ paddingLeft: '1.1rem' }}
-                        className="w-full pr-6 py-4 bg-gray-50 border-20 border-slate-100 rounded-full outline-none focus:bg-white focus:border-[#0e7490] focus:ring-4 focus:ring-[#4358f4]/10 transition-all text-sm font-bold text-slate-700 shadow-inner placeholder:font-normal"
+                        className="w-full pr-6 py-4 bg-gray-50 border-15 border-slate-100 rounded-full outline-none focus:bg-white focus:border-[#0e7490] focus:ring-4 focus:ring-[#4358f4]/10 transition-all text-sm font-bold text-slate-700 shadow-inner placeholder:font-normal"
                     />
                 </div>
             </div>
 
             {/* List Header */}
             <div className="bg-[#f0f9ff] px-6 py-3 flex justify-between text-xs font-bold text-[#64748b] border-b border-gray-100 uppercase tracking-wider">
-                <span className="pl-2">Party Name</span>
-                <span className="pr-2">Amount</span>
+                <span className="pl-2" style={{ paddingLeft: '8px' }}>Party Name</span>
+                <span className="pr-2" style={{ paddingRight: '8px' }}>Amount</span>
             </div>
 
             {/* Parties List */}
-            <div className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-4" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
                 {filteredCustomers.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400">
                         <FaUserPlus className="text-6xl mb-4 opacity-20" />

@@ -390,10 +390,10 @@ export default function NewInvoicePage() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 sm:p-8 md:p-10 space-y-6 md:space-y-8">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 sm:p-8 md:p-10 space-y-6 md:space-y-8" style={{ paddingLeft: '10px', paddingRight: '10px' }}>
                 {/* Document Type Selector */}
                 <div className="space-y-4">
-                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">Document Type</label>
+                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block" style={{ paddingLeft: '5px' }}>Document Type</label>
                     <div className="grid grid-cols-4 md:grid-cols-4 gap-2">
                         {Object.values(DOC_TYPES).map((type) => (
                             <button
@@ -417,7 +417,7 @@ export default function NewInvoicePage() {
                 <hr className="border-gray-100" />
 
                 {/* Customer & Dates */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {/* Customer Selection */}
                     <div className="space-y-4">
                         <label className="text-sm font-bold text-slate-700 uppercase tracking-wider block">{t.customer}</label>
@@ -616,7 +616,7 @@ export default function NewInvoicePage() {
                                 <table className="min-w-full divide-y divide-slate-200">
                                     <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                                         <tr>
-                                            <th className="pl-12 pr-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.product}</th>
+                                            <th className="pl-12 pr-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider" style={{ paddingLeft: '8px' }}>{t.product}</th>
                                             <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">HSN/SAC</th>
                                             <th className="px-4 py-3.5 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">{t.quantity}</th>
                                             <th className="px-4 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">{t.price}</th>
@@ -647,7 +647,7 @@ export default function NewInvoicePage() {
                                             </tr>
                                         ) : selectedItems?.map((item, index) => (
                                             <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
-                                                <td className="px-4 py-3">
+                                                <td className="px-4 py-3" style={{ paddingLeft: '5px' }}>
                                                     <select
                                                         value={item.product_id}
                                                         onChange={(e) => updateItem(index, 'product_id', e.target.value)}
@@ -733,15 +733,15 @@ export default function NewInvoicePage() {
                 {/* Summary Section */}
                 <div className="flex justify-end pt-4 border-t border-gray-100">
                     <div className="w-full md:w-1/2 lg:w-1/3 space-y-3">
-                        <div className="flex justify-between text-sm text-gray-600">
+                        <div className="flex justify-between text-sm text-gray-600" style={{ paddingLeft: '8px' }}>
                             <span>{t.subtotal}</span>
                             <span className="font-medium">₹{totals.subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-sm text-gray-600">
+                        <div className="flex justify-between text-sm text-gray-600" style={{ paddingLeft: '8px' }}>
                             <span>{t.gstTotal}</span>
                             <span className="font-medium">₹{totals.gst.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between font-bold text-xl text-gray-800 pt-2 border-t border-gray-100">
+                        <div className="flex justify-between font-bold text-xl text-gray-800 pt-2 border-t border-gray-100" style={{ paddingLeft: '8px' }}>
                             <span>{t.totalAmount}</span>
                             <span className="text-indigo-600">₹{totals.total.toFixed(2)}</span>
                         </div>
@@ -752,12 +752,13 @@ export default function NewInvoicePage() {
 
                 {/* Notes */}
                 <div>
-                    <label className="text-sm font-bold text-gray-700 block mb-2 uppercase tracking-wide text-xs">{t.termsNotes}</label>
+                    <label className="text-sm font-bold text-gray-700 block mb-2 uppercase tracking-wide text-xs" style={{ paddingLeft: '8px' }}>{t.termsNotes}</label>
                     <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Thank you for your business..."
                         className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none transition-all placeholder:text-slate-400"
+                        style={{ paddingLeft: '8px' }}
                     ></textarea>
                 </div>
 

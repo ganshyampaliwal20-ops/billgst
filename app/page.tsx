@@ -38,13 +38,18 @@ export default function LandingPage() {
     // Live Clock
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-    // Load Data from DB
     fetchCustomers();
     fetchProducts();
     fetchInvoices();
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
 
   const handleProtectedAction = (path: string) => {
     if (status === 'authenticated') {

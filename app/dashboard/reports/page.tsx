@@ -73,7 +73,7 @@ function ReportsContent() {
     return (
         <div className="space-y-6 px-4 md:px-0">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h1 className="text-2xl font-bold text-gray-800">Business Reports</h1>
+                <h1 className="text-2xl font-bold text-gray-800" style={{ paddingLeft: '8px' }}>Business Reports</h1>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                     {period === 'custom' && (
