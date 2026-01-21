@@ -46,13 +46,13 @@ export default function LoginPage() {
                     <div className="border border-slate-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-lg:mx-auto w-full">
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="mb-12">
-                                <h1 className="text-slate-900 text-3xl font-semibold">Sign in</h1>
-                                <p className="text-slate-600 text-[15px] mt-6 leading-relaxed">Sign in to your account and explore a world of possibilities. Your journey begins here.</p>
+                                <h1 className="text-slate-900 text-3xl font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Sign in</h1>
+                                <p className="text-slate-600 text-[15px] mt-6 leading-relaxed" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Sign in to your account and explore a world of possibilities. Your journey begins here.</p>
                             </div>
 
                             <div>
-                                <label className="text-slate-900 text-sm font-medium mb-2 block">User name</label>
-                                <div className="relative flex items-center">
+                                <label className="text-slate-900 text-sm font-medium mb-2 block" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>User name</label>
+                                <div className="relative flex items-center" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>
                                     <input
                                         name="email"
                                         type="text"
@@ -70,8 +70,8 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="text-slate-900 text-sm font-medium mb-2 block">Password</label>
-                                <div className="relative flex items-center">
+                                <label className="text-slate-900 text-sm font-medium mb-2 block" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>Password</label>
+                                <div className="relative flex items-center" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '1px' }}>
                                     <input
                                         name="password"
                                         type="password"
@@ -87,7 +87,7 @@ export default function LoginPage() {
                                     </svg>
                                 </div>
                             </div>
-                            <div className="flex flex-wrap items-center justify-between gap-4">
+                            <div className="flex flex-wrap items-center justify-between gap-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                                 <div className="flex items-center">
                                     <input
                                         id="remember-me"

@@ -1,6 +1,6 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaSignInAlt, FaLock } from 'react-icons/fa';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaSignInAlt, FaLock, FaShieldAlt, FaHandshake, FaQuestionCircle, FaCheckCircle, FaStar } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
@@ -502,6 +502,151 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* How It Works Section */}
+        <div className="w-full bg-white py-12 md:py-20 mt-8">
+          <div className="max-w-[1600px] mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-12 text-center">Create GST Bills in 3 Simple Steps</h2>
+            <div className="grid md:grid-cols-3 gap-8 text-center relative">
+              {/* Connector Line (Desktop) */}
+              <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-indigo-200 via-purple-200 to-emerald-200 -z-10"></div>
+
+              <div className="relative group">
+                <div className="w-24 h-24 bg-white border-4 border-indigo-100 rounded-full flex items-center justify-center text-3xl text-indigo-600 mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                  <FaUserPlus />
+                </div>
+                <div className="absolute top-0 right-[25%] bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-white">1</div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Register</h3>
+                <p className="text-slate-500 text-sm px-4">Sign up in seconds. Setup your business profile with GSTIN.</p>
+              </div>
+
+              <div className="relative group">
+                <div className="w-24 h-24 bg-white border-4 border-purple-100 rounded-full flex items-center justify-center text-3xl text-purple-600 mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                  <FaBoxOpen />
+                </div>
+                <div className="absolute top-0 right-[25%] bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-white">2</div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Add Products</h3>
+                <p className="text-slate-500 text-sm px-4">Add your inventory items or services with prices.</p>
+              </div>
+
+              <div className="relative group">
+                <div className="w-24 h-24 bg-white border-4 border-emerald-100 rounded-full flex items-center justify-center text-3xl text-emerald-600 mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                  <FaFileInvoice />
+                </div>
+                <div className="absolute top-0 right-[25%] bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-white">3</div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Create & Print</h3>
+                <p className="text-slate-500 text-sm px-4">Select customer, products and click print. Share via WhatsApp.</p>
+              </div>
+            </div>
+
+            {/* Made In India Badge */}
+            <div className="mt-16 text-center">
+              <span className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-50 via-white to-green-50 px-6 py-3 rounded-full border border-orange-100 shadow-sm">
+                <span className="text-orange-500 font-bold">Made with ❤️ in</span>
+                <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-blue-500 to-green-600">INDIA</span>
+                <span className="text-xl">🇮🇳</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        {/* Trust & Features Section - Visible to All */}
+        <div className="w-full bg-slate-50 py-12 md:py-20 mt-12 border-t border-slate-200">
+          <div className="max-w-[1600px] mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">Why Businesses Trust BillGST?</h2>
+              <p className="text-slate-500">Built with security, compliance, and ease of use in mind.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Feature 1 */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
+                <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                  <FaShieldAlt />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">100% Secure & Safe</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Your data is encrypted and stored securely. We use industry-standard security protocols to keep your business information safe.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
+                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                  <FaCheckCircle />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">GST Compliant</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Always up-to-date with the latest GST rules and formats. Generate valid tax invoices, bills of supply, and e-way bills easily.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
+                <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                  <FaHandshake />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Free Plan Available</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  Start for free with up to 30 invoices per month. Upgrade to premium for unlimited billing and advanced features as you grow.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Testimonials Section */}
+        <div className="w-full bg-white py-12 md:py-20 border-t border-slate-100">
+          <div className="max-w-[1600px] mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-12 text-center">What Our Users Say (Testimonials)</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { name: "Rahul Sharma", role: "Shop Owner, Delhi", text: "BillGST has made my billing so easy. I can create GST bills in seconds on my phone. Very trustworthy app!" },
+                { name: "Priya Patel", role: "Butique Owner, Mumbai", text: "I was looking for simple software and found this. It's free and better than paid ones. Data is safe and support is good." },
+                { name: "Amit Verma", role: "Wholesaler, Jaipur", text: "Inventory tracking is excellent. Now I know exactly what stock is low. Highly recommended for small traders." }
+              ].map((review, i) => (
+                <div key={i} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative">
+                  <FaStore className="text-slate-200 text-6xl absolute top-4 right-4 opacity-20" />
+                  <div className="flex items-center gap-1 mb-4 text-amber-400">
+                    {[1, 2, 3, 4, 5].map(star => <FaStar key={star} />)}
+                  </div>
+                  <p className="text-slate-600 mb-6 italic">"{review.text}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 text-sm">{review.name}</p>
+                      <p className="text-xs text-slate-500">{review.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="w-full bg-slate-50 py-12 md:py-20 border-t border-slate-200">
+          <div className="max-w-4xl mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-10 text-center">Frequently Asked Questions (FAQ)</h2>
+            <div className="space-y-4">
+              {[
+                { q: "Is BillGST really free?", a: "We offer a Free Plan that creates up to 30 invoices per month at no cost. For unlimited invoices and advanced features, you can upgrade to our affordable premium plans." },
+                { q: "Is my data safe?", a: "Absolutely. We use secure encryption and your data is stored safely. We do not sell your data to anyone." },
+                { q: "Can I use it on mobile?", a: "Yes! BillGST is fully responsive and works perfectly on any mobile, tablet, or desktop browser." },
+                { q: "How do I get support?", a: "You can email us at support@billgst.in. We are here to help you grow your business." }
+              ].map((item, i) => (
+                <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <h3 className="flex items-start gap-3 text-lg font-bold text-slate-800 mb-2">
+                    <FaQuestionCircle className="text-indigo-500 mt-1 shrink-0" />
+                    {item.q}
+                  </h3>
+                  <p className="text-slate-600 pl-8">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
         <footer className="bg-white border-t border-gray-100 py-8 mt-12">
           <div className="max-w-[1600px] mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -509,6 +654,9 @@ export default function LandingPage() {
               © {new Date().getFullYear()} BillGST. All rights reserved.
             </p>
             <div className="flex flex-wrap gap-4 md:gap-6 justify-center">
+              <Link href="/about" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
+                About Us
+              </Link>
               <Link href="/privacy" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
                 Privacy Policy
               </Link>

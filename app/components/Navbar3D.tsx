@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
     FaFileInvoice, FaCog, FaBars, FaTimes,
     FaSignInAlt, FaUserPlus, FaLanguage, FaStore,
-    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss
+    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss, FaInfoCircle, FaShieldAlt
 } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { useStore } from '@/lib/store';
@@ -38,7 +38,6 @@ export default function Navbar3D() {
         { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
         { icon: FaFileInvoice, label: 'Invoice', href: '/dashboard/invoices' },
         { icon: FaSignInAlt, label: 'Login Page', href: '/login' },
-        { icon: FaUserPlus, label: 'Signup Page', href: '/register' },
     ];
 
     const handleLogout = () => {
@@ -93,16 +92,9 @@ export default function Navbar3D() {
                                     <>
                                         <Link
                                             href="/login"
-                                            className={`text-sm font-bold transition-colors ${isScrolled ? 'text-white' : 'text-slate-700 hover:text-indigo-600'
-                                                }`}
+                                            className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-slate-50 hover:text-indigo-600 border border-transparent hover:border-indigo-100 transition shadow-lg"
                                         >
                                             Login
-                                        </Link>
-                                        <Link
-                                            href="/register"
-                                            className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg"
-                                        >
-                                            Register Free
                                         </Link>
                                     </>
                                 )}
@@ -168,9 +160,10 @@ export default function Navbar3D() {
                             { icon: FaBox, label: 'Product', href: '/dashboard/inventory' },
                             { icon: FaChartLine, label: 'Report', href: '/dashboard/reports' },
                             { icon: FaRss, label: 'Blog', href: '/blog' },
+                            { icon: FaInfoCircle, label: 'About Us', href: '/about' },
+                            { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
                             { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
                             { icon: FaSignInAlt, label: 'Login', href: '/login' },
-                            { icon: FaUserPlus, label: 'Register', href: '/register' },
                         ].map((item) => {
                             const Icon = item.icon;
                             return (

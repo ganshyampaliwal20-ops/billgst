@@ -66,14 +66,14 @@ export default function RegisterPage() {
                 <div className="flex items-center lg:p-14 p-8 bg-slate-900 h-full w-full lg:w-11/12 lg:ml-auto shadow-2xl relative">
                     <form className="max-w-lg w-full mx-auto space-y-8" onSubmit={handleSubmit}>
                         <div className="mb-10">
-                            <h1 className="text-3xl font-bold text-indigo-400 tracking-wide">Create Account</h1>
-                            <p className="text-slate-400 text-sm mt-2">Get started with your free account today.</p>
+                            <h1 className="text-3xl font-bold text-indigo-400 tracking-wide" style={{ paddingLeft: '50px', paddingRight: '8px', paddingTop: '8px' }}>Create Account</h1>
+                            <p className="text-slate-400 text-sm mt-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Get started with your free account today.</p>
                         </div>
 
                         {/* Full Name */}
                         <div>
-                            <label className="text-slate-300 text-xs uppercase tracking-wider font-semibold block mb-2">Full Name</label>
-                            <div className="relative flex items-center">
+                            <label className="text-slate-300 text-xs uppercase tracking-wider font-semibold block mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Full Name</label>
+                            <div className="relative flex items-center" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px' }}>
                                 <input
                                     name="name"
                                     type="text"
@@ -89,8 +89,8 @@ export default function RegisterPage() {
 
                         {/* Email */}
                         <div className="mt-6">
-                            <label className="text-slate-300 text-xs uppercase tracking-wider font-semibold block mb-2">Email Address</label>
-                            <div className="relative flex items-center">
+                            <label className="text-slate-300 text-xs uppercase tracking-wider font-semibold block mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Email Address</label>
+                            <div className="relative flex items-center" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '1px' }}>
                                 <input
                                     name="email"
                                     type="email"
@@ -106,8 +106,8 @@ export default function RegisterPage() {
 
                         {/* Password */}
                         <div className="mt-6">
-                            <label className="text-slate-300 text-xs uppercase tracking-wider font-semibold block mb-2">Password</label>
-                            <div className="relative flex items-center">
+                            <label className="text-slate-300 text-xs uppercase tracking-wider font-semibold block mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Password</label>
+                            <div className="relative flex items-center" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '1px' }}>
                                 <input
                                     name="password"
                                     type="password"
@@ -122,7 +122,7 @@ export default function RegisterPage() {
                         </div>
 
                         {/* Terms */}
-                        <div className="flex items-center mt-8">
+                        <div className="flex items-center mt-8" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                             <input
                                 id="remember-me"
                                 name="remember-me"
@@ -132,12 +132,12 @@ export default function RegisterPage() {
                                 onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
                             />
                             <label htmlFor="remember-me" className="text-slate-400 ml-3 block text-sm cursor-pointer select-none">
-                                I accept the <Link href="/terms" className="text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors ml-1">Terms and Conditions</Link>
+                                I accept the <Link href="/terms" className="text-indigo-400 font-medium hover:text-indigo-300 hover:underline transition-colors ml-1" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Terms and Conditions</Link>
                             </label>
                         </div>
 
                         {/* Submit */}
-                        <div className="mt-10">
+                        <div className="mt-10" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                             <button
                                 type="submit"
                                 disabled={isLoading}
@@ -145,7 +145,7 @@ export default function RegisterPage() {
                             >
                                 {isLoading ? 'Creating Account...' : 'Register Now'}
                             </button>
-                            <p className="text-sm text-slate-400 mt-8 text-center bg-slate-800/50 py-3 rounded-lg">
+                            <p className="text-sm text-slate-400 mt-8 text-center bg-slate-800/50 py-3 rounded-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                                 Already have an account? <Link href="/login" className="text-indigo-400 font-bold hover:underline ml-1">Log in here</Link>
                             </p>
                         </div>
