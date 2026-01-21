@@ -655,30 +655,30 @@ export default function GSTReturnsPage() {
                                 {/* Main Summary Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border-2 border-emerald-200 shadow-sm">
-                                        <div className="text-sm text-emerald-700 font-bold mb-2">Total Turnover</div>
-                                        <div className="text-3xl font-bold text-emerald-900">₹{generatedData.total_turnover.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                        <div className="text-sm text-emerald-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Total Turnover</div>
+                                        <div className="text-3xl font-bold text-emerald-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.total_turnover.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                     </div>
-                                    <div className="p-6 bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl border-2 border-rose-200 shadow-sm">
-                                        <div className="text-sm text-rose-700 font-bold mb-2">Total Tax Paid</div>
-                                        <div className="text-3xl font-bold text-rose-900">₹{generatedData.total_tax_paid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                    <div className="p-6 bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl border-2 border-rose-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                        <div className="text-sm text-rose-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Total Tax Paid</div>
+                                        <div className="text-3xl font-bold text-rose-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.total_tax_paid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                     </div>
                                 </div>
 
                                 {/* State-wise Breakdown */}
                                 <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-gray-800">Supply Breakdown</h3>
+                                    <h3 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Supply Breakdown</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                                            <div className="text-xs text-blue-700 font-bold mb-2">Intra-State Supplies</div>
-                                            <div className="text-2xl font-bold text-blue-900">₹{generatedData.supplies_made.intra_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                            <div className="mt-2 text-xs text-blue-600">
+                                        <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                            <div className="text-xs text-blue-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Intra-State Supplies</div>
+                                            <div className="text-2xl font-bold text-blue-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.supplies_made.intra_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                            <div className="mt-2 text-xs text-blue-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                                                 {((generatedData.supplies_made.intra_state / generatedData.total_turnover) * 100).toFixed(1)}% of total
                                             </div>
                                         </div>
-                                        <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
-                                            <div className="text-xs text-purple-700 font-bold mb-2">Inter-State Supplies</div>
-                                            <div className="text-2xl font-bold text-purple-900">₹{generatedData.supplies_made.inter_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                            <div className="mt-2 text-xs text-purple-600">
+                                        <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                            <div className="text-xs text-purple-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Inter-State Supplies</div>
+                                            <div className="text-2xl font-bold text-purple-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.supplies_made.inter_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                            <div className="mt-2 text-xs text-purple-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                                                 {((generatedData.supplies_made.inter_state / generatedData.total_turnover) * 100).toFixed(1)}% of total
                                             </div>
                                         </div>
@@ -687,34 +687,34 @@ export default function GSTReturnsPage() {
 
                                 {/* Summary Table */}
                                 <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-gray-800">Composition Scheme Summary</h3>
+                                    <h3 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>Composition Scheme Summary</h3>
                                     <div className="overflow-x-auto rounded-xl border border-gray-200">
                                         <table className="w-full text-sm">
                                             <thead className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
                                                 <tr>
-                                                    <th className="px-4 py-3 text-left font-bold">Particulars</th>
-                                                    <th className="px-4 py-3 text-right font-bold">Amount</th>
+                                                    <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Particulars</th>
+                                                    <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Amount</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Total Turnover</td>
-                                                    <td className="px-4 py-3 text-right font-bold text-emerald-700">₹{generatedData.total_turnover.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                            <tbody className="bg-white divide-y divide-gray-200" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                                <tr className="hover:bg-emerald-50 transition" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                                    <td className="px-4 py-3 font-medium" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Total Turnover</td>
+                                                    <td className="px-4 py-3 text-right font-bold text-emerald-700" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.total_turnover.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                </tr>
+                                                <tr className="hover:bg-emerald-50 transition" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                                    <td className="px-4 py-3 font-medium" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Total Tax Paid</td>
+                                                    <td className="px-4 py-3 text-right font-bold text-rose-700" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.total_tax_paid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                 </tr>
                                                 <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Total Tax Paid</td>
-                                                    <td className="px-4 py-3 text-right font-bold text-rose-700">₹{generatedData.total_tax_paid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-3 font-medium" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Intra-State Supplies</td>
+                                                    <td className="px-4 py-3 text-right font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.supplies_made.intra_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                 </tr>
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Intra-State Supplies</td>
-                                                    <td className="px-4 py-3 text-right font-semibold">₹{generatedData.supplies_made.intra_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                </tr>
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Inter-State Supplies</td>
-                                                    <td className="px-4 py-3 text-right font-semibold">₹{generatedData.supplies_made.inter_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                <tr className="hover:bg-emerald-50 transition" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                                    <td className="px-4 py-3 font-medium" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Inter-State Supplies</td>
+                                                    <td className="px-4 py-3 text-right font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.supplies_made.inter_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                 </tr>
                                                 <tr className="bg-emerald-100">
-                                                    <td className="px-4 py-4 font-bold">Effective Tax Rate</td>
+                                                    <td className="px-4 py-4 font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Effective Tax Rate</td>
                                                     <td className="px-4 py-4 text-right font-bold text-gray-900">{((generatedData.total_tax_paid / generatedData.total_turnover) * 100).toFixed(2)}%</td>
                                                 </tr>
                                             </tbody>
@@ -725,7 +725,7 @@ export default function GSTReturnsPage() {
                         )}
 
                         {/* View JSON Toggle */}
-                        <details className="bg-gray-50 rounded-xl border border-gray-200">
+                        <details className="bg-gray-50 rounded-xl border border-gray-200" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>
                             <summary className="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-gray-100 transition rounded-xl">
                                 View Raw JSON Data
                             </summary>
