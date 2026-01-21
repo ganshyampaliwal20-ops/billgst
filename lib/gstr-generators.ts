@@ -158,27 +158,30 @@ export function generateGSTR1(
             const itemTaxableValue = Number(item.total_amount) || 0;
             const gstRate = Number(item.gst_rate) || 0;
 
+            // Composite key for HSN summary (HSN + Rate)
+            const hsnKey = `${hsnCode}-${gstRate}`;
+
             // Calculate item-level GST
             const itemGSTAmount = (itemTaxableValue * gstRate) / 100;
             const itemCGST = isInterStateTxn ? 0 : itemGSTAmount / 2;
             const itemSGST = isInterStateTxn ? 0 : itemGSTAmount / 2;
             const itemIGST = isInterStateTxn ? itemGSTAmount : 0;
 
-            if (hsnMap.has(hsnCode)) {
-                const existing = hsnMap.get(hsnCode)!;
+            if (hsnMap.has(hsnKey)) {
+                const existing = hsnMap.get(hsnKey)!;
                 existing.total_quantity += Number(item.quantity) || 0;
-                existing.total_value += itemTaxableValue;
+                existing.total_value += itemTaxableValue + itemGSTAmount;
                 existing.taxable_value += itemTaxableValue;
                 existing.igst_amount += itemIGST;
                 existing.cgst_amount += itemCGST;
                 existing.sgst_amount += itemSGST;
             } else {
-                hsnMap.set(hsnCode, {
+                hsnMap.set(hsnKey, {
                     hsn_code: hsnCode,
                     description: item.product_name,
                     uqc: 'PCS',
                     total_quantity: Number(item.quantity) || 0,
-                    total_value: itemTaxableValue,
+                    total_value: itemTaxableValue + itemGSTAmount,
                     taxable_value: itemTaxableValue,
                     igst_amount: itemIGST,
                     cgst_amount: itemCGST,

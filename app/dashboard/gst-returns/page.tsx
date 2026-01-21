@@ -297,14 +297,13 @@ export default function GSTReturnsPage() {
 
                 {/* Generated Data Preview */}
                 {generatedData && (
-                    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
-                            <h2 className="text-2xl font-bold text-gray-800" >Generated Return Preview</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 px-2" >Generated Return Preview</h2>
                             <div className="flex flex-wrap gap-3">
                                 <button
                                     onClick={handleSave}
-                                    className="px-6 py-3 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-                                >
+                                    className="px-6 py-3 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2" >
                                     <FaCheckCircle />
                                     Save Draft
                                 </button>
@@ -322,52 +321,52 @@ export default function GSTReturnsPage() {
                         {returnType === 'GSTR1' && (
                             <div className="space-y-8">
                                 {/* Summary Cards */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                                    <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                                        <div className="text-xs text-blue-700 font-bold mb-1">B2B Invoices</div>
-                                        <div className="text-2xl font-bold text-blue-900">{generatedData.b2b?.length || 0}</div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+                                    <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm">
+                                        <div className="text-xs text-blue-700 font-bold mb-2 uppercase tracking-wider">B2B Invoices</div>
+                                        <div className="text-3xl font-bold text-blue-900">{generatedData.b2b?.length || 0}</div>
                                     </div>
-                                    <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-                                        <div className="text-xs text-green-700 font-bold mb-1">B2C Large</div>
-                                        <div className="text-2xl font-bold text-green-900">{generatedData.b2cl?.length || 0}</div>
+                                    <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
+                                        <div className="text-xs text-green-700 font-bold mb-2 uppercase tracking-wider">B2C Large</div>
+                                        <div className="text-3xl font-bold text-green-900">{generatedData.b2cl?.length || 0}</div>
                                     </div>
-                                    <div className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
-                                        <div className="text-xs text-yellow-700 font-bold mb-1">B2C Small</div>
-                                        <div className="text-2xl font-bold text-yellow-900">{generatedData.b2cs?.length || 0}</div>
+                                    <div className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200 shadow-sm">
+                                        <div className="text-xs text-yellow-700 font-bold mb-2 uppercase tracking-wider">B2C Small</div>
+                                        <div className="text-3xl font-bold text-yellow-900">{generatedData.b2cs?.length || 0}</div>
                                     </div>
-                                    <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
-                                        <div className="text-xs text-purple-700 font-bold mb-1">HSN Codes</div>
-                                        <div className="text-2xl font-bold text-purple-900">{generatedData.hsn?.length || 0}</div>
+                                    <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 shadow-sm">
+                                        <div className="text-xs text-purple-700 font-bold mb-2 uppercase tracking-wider">HSN Codes</div>
+                                        <div className="text-3xl font-bold text-purple-900">{generatedData.hsn?.length || 0}</div>
                                     </div>
                                 </div>
 
                                 {/* B2B Invoices Table */}
                                 {generatedData.b2b && generatedData.b2b.length > 0 && (
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between">
+                                    <div className="space-y-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                                        <div className="flex items-center justify-between px-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                                             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                                                 <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
                                                 B2B Invoices
                                             </h3>
-                                            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
                                                 {generatedData.b2b.length} Records
                                             </span>
                                         </div>
 
-                                        <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white">
+                                        <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white mx-2">
                                             <div className="overflow-x-auto">
                                                 <table className="w-full text-sm text-left">
                                                     <thead className="bg-slate-50 border-b border-slate-200">
                                                         <tr>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 w-32 min-w-[150px]">GSTIN</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 min-w-[250px]">Customer Name</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 w-32 min-w-[160px]">Invoice No.</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 w-28 min-w-[140px]">Date</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-36 min-w-[140px]">Taxable Value</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-28">IGST</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-28">CGST</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-28">SGST</th>
-                                                            <th className="px-6 py-4 font-bold text-slate-700 text-right w-36 min-w-[140px] bg-slate-100/50">Total</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 w-32 min-w-[150px]" style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '0px' }}>GSTIN</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 min-w-[250px]">Customer Name</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 w-32 min-w-[160px]">Invoice No.</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 w-28 min-w-[100px]">Date</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 text-right w-36 min-w-[140px]">Taxable Value</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 text-right w-28">IGST</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 text-right w-28">CGST</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 text-right w-28">SGST</th>
+                                                            <th className="px-6 py-5 font-bold text-slate-700 text-right w-36 min-w-[140px] bg-slate-100/50">Total</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-slate-100">
@@ -380,25 +379,25 @@ export default function GSTReturnsPage() {
 
                                                             return (
                                                                 <tr key={idx} className="hover:bg-blue-50/30 transition-colors group">
-                                                                    <td className="px-6 py-4 font-mono text-xs font-medium text-slate-600">{invoice.gstin}</td>
-                                                                    <td className="px-6 py-4 font-medium text-slate-800">{invoice.customer_name}</td>
-                                                                    <td className="px-6 py-4 font-mono text-xs text-slate-500">{invoice.invoice_number}</td>
-                                                                    <td className="px-6 py-4 text-slate-500 text-xs">
+                                                                    <td className="px-6 py-5 font-mono text-xs font-medium text-slate-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{invoice.gstin}</td>
+                                                                    <td className="px-6 py-5 font-medium text-slate-800">{invoice.customer_name}</td>
+                                                                    <td className="px-6 py-5 font-mono text-xs text-slate-500">{invoice.invoice_number}</td>
+                                                                    <td className="px-6 py-5 text-slate-500 text-xs">
                                                                         {new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-right font-medium text-slate-700">
+                                                                    <td className="px-6 py-5 text-right font-medium text-slate-700">
                                                                         {formatAmount(invoice.taxable_value)}
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-right text-slate-500 group-hover:text-amber-600 transition-colors">
+                                                                    <td className="px-6 py-5 text-right text-slate-500 group-hover:text-amber-600 transition-colors">
                                                                         {invoice.igst_amount > 0 ? formatAmount(invoice.igst_amount) : '-'}
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-right text-slate-500 group-hover:text-emerald-600 transition-colors">
+                                                                    <td className="px-6 py-5 text-right text-slate-500 group-hover:text-emerald-600 transition-colors">
                                                                         {invoice.cgst_amount > 0 ? formatAmount(invoice.cgst_amount) : '-'}
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-right text-slate-500 group-hover:text-blue-600 transition-colors">
+                                                                    <td className="px-6 py-5 text-right text-slate-500 group-hover:text-blue-600 transition-colors">
                                                                         {invoice.sgst_amount > 0 ? formatAmount(invoice.sgst_amount) : '-'}
                                                                     </td>
-                                                                    <td className="px-6 py-4 text-right font-bold text-slate-900 bg-slate-50/30">
+                                                                    <td className="px-6 py-5 text-right font-bold text-slate-900 bg-slate-50/30">
                                                                         {formatAmount(invoice.invoice_value)}
                                                                     </td>
                                                                 </tr>
@@ -406,28 +405,28 @@ export default function GSTReturnsPage() {
                                                         })}
                                                         {generatedData.b2b.length > 0 && (
                                                             <tr className="bg-slate-50 font-bold border-t-2 border-slate-200 text-sm">
-                                                                <td colSpan={4} className="px-6 py-4 text-right uppercase tracking-wider text-slate-500 text-xs">Total</td>
-                                                                <td className="px-6 py-4 text-right text-slate-800">
+                                                                <td colSpan={4} className="px-6 py-6 text-right uppercase tracking-wider text-slate-500 text-xs">Total</td>
+                                                                <td className="px-6 py-6 text-right text-slate-800">
                                                                     {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
                                                                         generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0)
                                                                     )}
                                                                 </td>
-                                                                <td className="px-6 py-4 text-right text-amber-700">
+                                                                <td className="px-6 py-6 text-right text-amber-700">
                                                                     {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
                                                                         generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0)
                                                                     )}
                                                                 </td>
-                                                                <td className="px-6 py-4 text-right text-emerald-700">
+                                                                <td className="px-6 py-6 text-right text-emerald-700">
                                                                     {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
                                                                         generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.cgst_amount, 0)
                                                                     )}
                                                                 </td>
-                                                                <td className="px-6 py-4 text-right text-blue-700">
+                                                                <td className="px-6 py-6 text-right text-blue-700">
                                                                     {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
                                                                         generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.sgst_amount, 0)
                                                                     )}
                                                                 </td>
-                                                                <td className="px-6 py-4 text-right text-slate-900 text-base">
+                                                                <td className="px-6 py-6 text-right text-slate-900 text-base">
                                                                     ₹{new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
                                                                         generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0)
                                                                     )}
@@ -443,7 +442,7 @@ export default function GSTReturnsPage() {
 
                                 {/* B2CL Invoices Table */}
                                 {generatedData.b2cl && generatedData.b2cl.length > 0 && (
-                                    <div className="space-y-3">
+                                    <div className="space-y-3" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                                         <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                                             <span className="w-2 h-2 bg-green-600 rounded-full"></span>
                                             B2CL Invoices (B2C Large - Above ₹2.5 Lakh)
@@ -452,32 +451,32 @@ export default function GSTReturnsPage() {
                                             <table className="w-full text-sm">
                                                 <thead className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left font-bold">Invoice No.</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Date</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Place of Supply</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Rate</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Taxable Value</th>
-                                                        <th className="px-4 py-3 text-right font-bold">IGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Total</th>
+                                                        <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Invoice No.</th>
+                                                        <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Date</th>
+                                                        <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Place of Supply</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Rate</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '5px', paddingRight: '8px', paddingTop: '8px' }}>Taxable Value</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>IGST</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '20px', paddingRight: '8px', paddingTop: '8px' }}>Total</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {generatedData.b2cl.map((invoice: any, idx: number) => (
-                                                        <tr key={idx} className="hover:bg-green-50 transition">
-                                                            <td className="px-4 py-3 font-mono text-xs">{invoice.invoice_number}</td>
+                                                        <tr key={idx} className="hover:bg-green-50 transition" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                                                            <td className="px-4 py-3 font-mono text-xs" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>{invoice.invoice_number}</td>
                                                             <td className="px-4 py-3 text-gray-600">{new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
                                                             <td className="px-4 py-3">{invoice.place_of_supply}</td>
-                                                            <td className="px-4 py-3 text-right">{invoice.rate}%</td>
-                                                            <td className="px-4 py-3 text-right font-semibold">₹{invoice.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-orange-600">₹{invoice.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right font-bold text-gray-900">₹{invoice.invoice_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>{invoice.rate}%</td>
+                                                            <td className="px-4 py-3 text-right font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{invoice.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right text-orange-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{invoice.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right font-bold text-gray-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{invoice.invoice_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                         </tr>
                                                     ))}
                                                     <tr className="bg-green-100 font-bold">
-                                                        <td colSpan={4} className="px-4 py-3 text-right">Total</td>
-                                                        <td className="px-4 py-3 text-right">₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-orange-700">₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-gray-900">₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                        <td colSpan={4} className="px-4 py-3 text-right" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Total</td>
+                                                        <td className="px-4 py-3 text-right" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                        <td className="px-4 py-3 text-right text-orange-700" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                        <td className="px-4 py-3 text-right text-gray-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -488,22 +487,22 @@ export default function GSTReturnsPage() {
                                 {/* B2CS Summary Table */}
                                 {generatedData.b2cs && generatedData.b2cs.length > 0 && (
                                     <div className="space-y-3">
-                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-yellow-600 rounded-full"></span>
+                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                                            <span className="w-2 h-2 bg-yellow-600 rounded-full" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}></span>
                                             B2CS Summary (B2C Small - Below ₹2.5 Lakh)
                                         </h3>
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                            <table className="w-full text-sm">
+                                        <div className="overflow-x-auto rounded-xl border border-gray-200" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                            <table className="w-full text-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                                                 <thead className="bg-gradient-to-r from-yellow-600 to-amber-600 text-white">
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left font-bold">Type</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Place of Supply</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Rate</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Taxable Value</th>
-                                                        <th className="px-4 py-3 text-right font-bold">IGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">CGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">SGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Total Tax</th>
+                                                        <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Type</th>
+                                                        <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Place Supply</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Rate</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Taxable Value</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>IGST</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>CGST</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>SGST</th>
+                                                        <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Total Tax</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
@@ -513,12 +512,12 @@ export default function GSTReturnsPage() {
                                                                 <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">{summary.type}</span>
                                                             </td>
                                                             <td className="px-4 py-3">{summary.place_of_supply}</td>
-                                                            <td className="px-4 py-3 text-right">{summary.rate}%</td>
-                                                            <td className="px-4 py-3 text-right font-semibold">₹{summary.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-orange-600">₹{summary.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-green-600">₹{summary.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-blue-600">₹{summary.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right font-bold text-gray-900">₹{(summary.igst_amount + summary.cgst_amount + summary.sgst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{summary.rate}%</td>
+                                                            <td className="px-4 py-3 text-right font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{summary.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right text-orange-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{summary.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right text-green-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{summary.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right text-blue-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{summary.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-4 py-3 text-right font-bold text-gray-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{(summary.igst_amount + summary.cgst_amount + summary.sgst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                         </tr>
                                                     ))}
                                                     <tr className="bg-yellow-100 font-bold">
@@ -537,50 +536,50 @@ export default function GSTReturnsPage() {
 
                                 {/* HSN Summary Table */}
                                 {generatedData.hsn && generatedData.hsn.length > 0 && (
-                                    <div className="space-y-3">
+                                    <div className="space-y-3" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                                         <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
+                                            <span className="w-2 h-2 bg-purple-600 rounded-full" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}></span>
                                             HSN-wise Summary of Outward Supplies
                                         </h3>
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                        <div className="overflow-x-auto rounded-xl border border-gray-200 mx-2 shadow-md">
                                             <table className="w-full text-sm">
-                                                <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                                                <thead className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left font-bold">HSN Code</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Description</th>
-                                                        <th className="px-4 py-3 text-center font-bold">UQC</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Quantity</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Taxable Value</th>
-                                                        <th className="px-4 py-3 text-right font-bold">Rate</th>
-                                                        <th className="px-4 py-3 text-right font-bold">IGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">CGST</th>
-                                                        <th className="px-4 py-3 text-right font-bold">SGST</th>
+                                                        <th className="px-6 py-5 text-left font-bold min-w-[120px]" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>HSN Code</th>
+                                                        <th className="px-6 py-5 text-left font-bold min-w-[200px]" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Description</th>
+                                                        <th className="px-6 py-5 text-center font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>UQC</th>
+                                                        <th className="px-6 py-5 text-right font-bold w-32" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Quantity</th>
+                                                        <th className="px-6 py-5 text-right font-bold w-40" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Taxable Value</th>
+                                                        <th className="px-6 py-5 text-right font-bold w-24" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Rate</th>
+                                                        <th className="px-6 py-5 text-right font-bold w-32" style={{ paddingLeft: '8px', paddingRight: '8x', paddingTop: '0px' }}>IGST</th>
+                                                        <th className="px-6 py-5 text-right font-bold w-32" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>CGST</th>
+                                                        <th className="px-6 py-5 text-right font-bold w-32" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>SGST</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {generatedData.hsn.map((hsn: any, idx: number) => (
-                                                        <tr key={idx} className="hover:bg-purple-50 transition">
-                                                            <td className="px-4 py-3 font-mono font-bold text-purple-700">{hsn.hsn_code}</td>
-                                                            <td className="px-4 py-3">{hsn.description}</td>
-                                                            <td className="px-4 py-3 text-center">
-                                                                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-bold">{hsn.uqc}</span>
+                                                        <tr key={idx} className="hover:bg-purple-50/50 transition-colors group">
+                                                            <td className="px-6 py-5 font-mono font-bold text-purple-700" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{hsn.hsn_code}</td>
+                                                            <td className="px-6 py-5 text-gray-700" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{hsn.description}</td>
+                                                            <td className="px-6 py-5 text-center">
+                                                                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{hsn.uqc}</span>
                                                             </td>
-                                                            <td className="px-4 py-3 text-right">{hsn.total_quantity}</td>
-                                                            <td className="px-4 py-3 text-right font-semibold">₹{hsn.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right">{hsn.rate}%</td>
-                                                            <td className="px-4 py-3 text-right text-orange-600">₹{hsn.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-green-600">₹{hsn.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-4 py-3 text-right text-blue-600">₹{hsn.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-6 py-5 text-right font-medium text-slate-700" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{hsn.total_quantity}</td>
+                                                            <td className="px-6 py-5 text-right font-semibold text-slate-900 whitespace-nowrap" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{hsn.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-6 py-5 text-right text-slate-600" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>{hsn.rate}%</td>
+                                                            <td className="px-6 py-5 text-right text-orange-600 font-medium whitespace-nowrap" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{hsn.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-6 py-5 text-right text-green-600 font-medium whitespace-nowrap" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{hsn.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                            <td className="px-6 py-5 text-right text-blue-600 font-medium whitespace-nowrap" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{hsn.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                         </tr>
                                                     ))}
-                                                    <tr className="bg-purple-100 font-bold">
-                                                        <td colSpan={3} className="px-4 py-3 text-right">Total</td>
-                                                        <td className="px-4 py-3 text-right">{generatedData.hsn.reduce((sum: number, h: any) => sum + h.total_quantity, 0)}</td>
-                                                        <td className="px-4 py-3 text-right">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3"></td>
-                                                        <td className="px-4 py-3 text-right text-orange-700">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-green-700">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.cgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-4 py-3 text-right text-blue-700">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.sgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <tr className="bg-purple-50/40 font-bold border-t-2 border-purple-100">
+                                                        <td colSpan={3} className="px-6 py-6 text-right uppercase tracking-wider text-purple-700 text-xs">Total</td>
+                                                        <td className="px-6 py-6 text-right text-slate-900">{generatedData.hsn.reduce((sum: number, h: any) => sum + h.total_quantity, 0)}</td>
+                                                        <td className="px-6 py-6 text-right text-slate-900 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                        <td className="px-6 py-6 text-right"></td>
+                                                        <td className="px-6 py-6 text-right text-orange-700 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                        <td className="px-6 py-6 text-right text-green-700 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.cgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                        <td className="px-6 py-6 text-right text-blue-700 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.sgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -594,54 +593,54 @@ export default function GSTReturnsPage() {
                         {returnType === 'GSTR3B' && generatedData?.outward_supplies && generatedData?.total_tax_liability && (
                             <div className="space-y-6">
                                 {/* Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
                                     <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 shadow-sm">
-                                        <div className="text-xs text-blue-700 font-bold mb-2">Taxable Value</div>
-                                        <div className="text-2xl font-bold text-blue-900">₹{generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                        <div className="text-xs text-blue-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '4px' }}>Taxable Value</div>
+                                        <div className="text-2xl font-bold text-blue-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '4px' }}>₹{generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                     </div>
-                                    <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 shadow-sm">
-                                        <div className="text-xs text-orange-700 font-bold mb-2">IGST</div>
-                                        <div className="text-2xl font-bold text-orange-900">₹{generatedData.total_tax_liability.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                    <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                                        <div className="text-xs text-orange-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '4px' }}>IGST</div>
+                                        <div className="text-2xl font-bold text-orange-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '4x' }}>₹{generatedData.total_tax_liability.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                     </div>
-                                    <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 shadow-sm">
-                                        <div className="text-xs text-green-700 font-bold mb-2">CGST</div>
-                                        <div className="text-2xl font-bold text-green-900">₹{generatedData.total_tax_liability.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                    <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                                        <div className="text-xs text-green-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '4px' }}>CGST</div>
+                                        <div className="text-2xl font-bold text-green-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{generatedData.total_tax_liability.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                     </div>
-                                    <div className="p-5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border-2 border-indigo-200 shadow-sm">
-                                        <div className="text-xs text-indigo-700 font-bold mb-2">SGST</div>
-                                        <div className="text-2xl font-bold text-indigo-900">₹{generatedData.total_tax_liability.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                    <div className="p-5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border-2 border-indigo-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                                        <div className="text-xs text-indigo-700 font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>SGST</div>
+                                        <div className="text-2xl font-bold text-indigo-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{generatedData.total_tax_liability.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                     </div>
                                 </div>
 
                                 {/* Total Tax Liability */}
                                 <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white text-center">
-                                    <div className="text-sm font-bold mb-2">Total Tax Liability</div>
-                                    <div className="text-4xl font-bold">₹{(generatedData.total_tax_liability.igst + generatedData.total_tax_liability.cgst + generatedData.total_tax_liability.sgst).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                                    <div className="text-sm font-bold mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Total Tax Liability</div>
+                                    <div className="text-4xl font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{(generatedData.total_tax_liability.igst + generatedData.total_tax_liability.cgst + generatedData.total_tax_liability.sgst).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                                 </div>
 
                                 {/* Detailed Summary Table */}
                                 <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-gray-800">Tax Liability Breakdown</h3>
-                                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                    <h3 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Tax Liability Breakdown</h3>
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                                         <table className="w-full text-sm">
                                             <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                                                 <tr>
-                                                    <th className="px-4 py-3 text-left font-bold">Description</th>
-                                                    <th className="px-4 py-3 text-right font-bold">Taxable Value</th>
-                                                    <th className="px-4 py-3 text-right font-bold">IGST</th>
-                                                    <th className="px-4 py-3 text-right font-bold">CGST</th>
-                                                    <th className="px-4 py-3 text-right font-bold">SGST</th>
-                                                    <th className="px-4 py-3 text-right font-bold">Total Tax</th>
+                                                    <th className="px-4 py-3 text-left font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Description</th>
+                                                    <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Taxable Value</th>
+                                                    <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>IGST</th>
+                                                    <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>CGST</th>
+                                                    <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>SGST</th>
+                                                    <th className="px-4 py-3 text-right font-bold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Total Tax</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white">
                                                 <tr className="hover:bg-indigo-50 transition">
-                                                    <td className="px-4 py-4 font-bold text-gray-800">Outward Taxable Supplies</td>
-                                                    <td className="px-4 py-4 text-right font-semibold">₹{generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right text-orange-600 font-semibold">₹{generatedData.outward_supplies.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right text-green-600 font-semibold">₹{generatedData.outward_supplies.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right text-blue-600 font-semibold">₹{generatedData.outward_supplies.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right font-bold text-gray-900">₹{(generatedData.outward_supplies.igst + generatedData.outward_supplies.cgst + generatedData.outward_supplies.sgst).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-4 font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Outward Taxable Supplies</td>
+                                                    <td className="px-4 py-4 text-right font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>₹{generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-4 text-right text-orange-600 font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.outward_supplies.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-4 text-right text-green-600 font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.outward_supplies.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-4 text-right text-blue-600 font-semibold" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{generatedData.outward_supplies.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                    <td className="px-4 py-4 text-right font-bold text-gray-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>₹{(generatedData.outward_supplies.igst + generatedData.outward_supplies.cgst + generatedData.outward_supplies.sgst).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -769,6 +768,6 @@ export default function GSTReturnsPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
