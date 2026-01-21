@@ -165,11 +165,11 @@ export default function GSTReturnsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-800">GST Returns</h1>
-                        <p className="text-gray-500 text-sm mt-2">Generate GSTR-1, GSTR-3B & GSTR-4 returns automatically</p>
+                        <h1 className="text-4xl font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>GST Returns</h1>
+                        <p className="text-gray-500 text-sm mt-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px' }}>Generate GSTR-1, GSTR-3B & GSTR-4 returns automatically</p>
                     </div>
                     {businessProfile.gstin && (
-                        <div className="text-sm text-gray-700 bg-blue-50 px-5 py-3 rounded-xl border-2 border-blue-200 shadow-sm">
+                        <div className="text-sm text-gray-700 bg-blue-50 px-5 py-3 rounded-xl border-2 border-blue-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                             <span className="font-bold text-blue-700">GSTIN:</span> <span className="font-mono ml-2">{businessProfile.gstin}</span>
                         </div>
                     )}
@@ -177,12 +177,12 @@ export default function GSTReturnsPage() {
 
                 {/* Configuration Panel */}
                 <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8">
-                    <h2 className="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-3">Configure Return</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-3" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Configure Return</h2>
 
                     {/* Return Type Selector */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Select Return Type</label>
-                        <div className="grid grid-cols-3 gap-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Select Return Type</label>
+                        <div className="grid grid-cols-3 gap-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                             {[
                                 { value: 'GSTR1', label: 'GSTR-1' },
                                 { value: 'GSTR3B', label: 'GSTR-3B' },
@@ -204,8 +204,8 @@ export default function GSTReturnsPage() {
 
                     {/* Filing Frequency */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-4">Filing Frequency</label>
-                        <div className="flex gap-4">
+                        <label className="block text-sm font-bold text-gray-700 mb-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Filing Frequency</label>
+                        <div className="flex gap-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                             {['MONTHLY', 'QUARTERLY'].map((freq) => (
                                 <button
                                     key={freq}
@@ -223,10 +223,10 @@ export default function GSTReturnsPage() {
 
                     {/* Date Range */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-4">Select Period</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Select Period</label>
 
                         {/* Quick Period Buttons */}
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="flex flex-wrap gap-2 mb-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px' }}>
                             <button
                                 onClick={() => setQuickPeriod('current_month')}
                                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition"
@@ -247,10 +247,10 @@ export default function GSTReturnsPage() {
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-2">From Date</label>
-                                <div className="relative">
+                                <label className="block text-xs font-medium text-gray-600 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px' }}>From Date</label>
+                                <div className="relative" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                                     <input
                                         type="date"
                                         value={periodFrom}
@@ -261,8 +261,8 @@ export default function GSTReturnsPage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-2">To Date</label>
-                                <div className="relative">
+                                <label className="block text-xs font-medium text-gray-600 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>To Date</label>
+                                <div className="relative" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px' }}>
                                     <input
                                         type="date"
                                         value={periodTo}
@@ -280,7 +280,7 @@ export default function GSTReturnsPage() {
                         onClick={handleGenerate}
                         disabled={loading}
                         className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-6"
-                    >
+                        style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                         {loading ? (
                             <>
                                 <FaSpinner className="animate-spin" />
@@ -297,9 +297,9 @@ export default function GSTReturnsPage() {
 
                 {/* Generated Data Preview */}
                 {generatedData && (
-                    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8">
+                    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Generated Return Preview</h2>
+                            <h2 className="text-2xl font-bold text-gray-800" >Generated Return Preview</h2>
                             <div className="flex flex-wrap gap-3">
                                 <button
                                     onClick={handleSave}
@@ -357,7 +357,7 @@ export default function GSTReturnsPage() {
                                         <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white">
                                             <div className="overflow-x-auto">
                                                 <table className="w-full text-sm text-left">
-                                                    <thead className="bg-slate-500 border-b border-slate-200">
+                                                    <thead className="bg-slate-50 border-b border-slate-200">
                                                         <tr>
                                                             <th className="px-6 py-4 font-bold text-slate-700 w-32 min-w-[150px]">GSTIN</th>
                                                             <th className="px-6 py-4 font-bold text-slate-700 min-w-[250px]">Customer Name</th>
