@@ -145,12 +145,13 @@ export async function POST(request: Request) {
 
                 await client.query(`
                     INSERT INTO invoice_items (
-                    invoice_id, product_id, product_name, quantity, unit_price, gst_rate, total_amount
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    invoice_id, product_id, product_name, hsn_code, quantity, unit_price, gst_rate, total_amount
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 `, [
                     invoiceId,
                     item.product_id,
                     item.product_name,
+                    item.hsn_code || null,
                     quantity,
                     unitPrice,
                     gstRate,
@@ -239,12 +240,13 @@ export async function POST(request: Request) {
 
                         await client.query(`
                             INSERT INTO invoice_items (
-                            invoice_id, product_id, product_name, quantity, unit_price, gst_rate, total_amount
-                            ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+                            invoice_id, product_id, product_name, hsn_code, quantity, unit_price, gst_rate, total_amount
+                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                         `, [
                             invoiceId,
                             item.product_id,
                             item.product_name,
+                            item.hsn_code || null,
                             quantity,
                             unitPrice,
                             gstRate,

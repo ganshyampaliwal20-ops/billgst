@@ -38,6 +38,8 @@ export default function NewInvoicePage() {
     const addInvoice = useStore((state: any) => state.addInvoice);
     const addCustomer = useStore((state: any) => state.addCustomer);
     const settings = useStore((state: any) => state.settings);
+    const quotations = useStore((state: any) => state.quotations);
+    const fetchQuotations = useStore((state: any) => state.fetchQuotations);
 
     const [isClient, setIsClient] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -137,13 +139,17 @@ export default function NewInvoicePage() {
                 toast.success('Invoice details pre-filled from previous bill');
             }
         } else if (quotationId && !isDuplicating) {
-            const quotations = useStore.getState().quotations || [];
+            if (!quotations || quotations.length === 0) {
+                fetchQuotations();
+                return;
+            }
+
             const sourceQuotation = quotations.find((q: any) => q.id === quotationId);
 
             if (sourceQuotation) {
                 setIsDuplicating(true); // Reuse this flag to prevent infinite loops
                 setCustomerId(sourceQuotation.customer_id || '');
-                setNotes(sourceQuotation.notes || '');
+                setNotes(sourceQuotation.notes || sourceQuotation.terms || '');
 
                 const items = Array.isArray(sourceQuotation.items) ? sourceQuotation.items : [];
                 setSelectedItems(items.map((item: any) => ({
@@ -160,7 +166,7 @@ export default function NewInvoicePage() {
                 toast.success('Invoice details pre-filled from quotation');
             }
         }
-    }, [isDuplicating]);
+    }, [isDuplicating, quotations, fetchQuotations]);
 
     // Auto-expand compliance for E-Way Bill
     useEffect(() => {

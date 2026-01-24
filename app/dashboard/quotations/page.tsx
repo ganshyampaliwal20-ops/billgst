@@ -149,11 +149,11 @@ export default function QuotationsPage() {
             {/* Header */}
             <div className="flex flex-col items-center justify-center gap-2 text-center">
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight">Quotations</h1>
-                <p className="text-slate-40 text-sm">Manage your quotations and convert to invoices</p>
+                <p className="text-slate-30 text-sm">Manage your quotations and convert to invoices</p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-3 md:grid-cols-3 gap-5">
                 <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
                     <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Total Quotations</h3>
                     <p className="text-2x1 font-black mt-1">{quotations.length}</p>

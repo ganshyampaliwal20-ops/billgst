@@ -16,7 +16,9 @@ export async function GET() {
         // Fetch business profile from users table
         const result = await client.query(
             `SELECT business_name, business_gstin, business_address, business_phone, 
-                    business_email, business_logo, business_upi_id, business_owner_name 
+                    business_email, business_logo, business_upi_id, business_owner_name,
+                    business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
+                    business_account_holder, business_show_bank_details
              FROM users WHERE id = $1`,
             [session.user.id]
         );
@@ -37,7 +39,13 @@ export async function GET() {
             email: dbRow.business_email || '',
             logo: dbRow.business_logo || null,
             upi_id: dbRow.business_upi_id || '',
-            owner_name: dbRow.business_owner_name || ''
+            owner_name: dbRow.business_owner_name || '',
+            bank_name: dbRow.business_bank_name || '',
+            account_no: dbRow.business_account_no || '',
+            ifsc_code: dbRow.business_ifsc_code || '',
+            branch_name: dbRow.business_branch_name || '',
+            account_holder: dbRow.business_account_holder || '',
+            show_bank_details: dbRow.business_show_bank_details ?? true
         };
 
         return NextResponse.json(businessProfile);
@@ -73,10 +81,18 @@ export async function POST(request: Request) {
                      business_email = $5, 
                      business_logo = $6, 
                      business_upi_id = $7, 
-                     business_owner_name = $8
-                 WHERE id = $9
+                     business_owner_name = $8,
+                     business_bank_name = $9,
+                     business_account_no = $10,
+                     business_ifsc_code = $11,
+                     business_branch_name = $12,
+                     business_account_holder = $13,
+                     business_show_bank_details = $14
+                 WHERE id = $15
                  RETURNING business_name, business_gstin, business_address, business_phone, 
-                           business_email, business_logo, business_upi_id, business_owner_name`,
+                           business_email, business_logo, business_upi_id, business_owner_name,
+                           business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
+                           business_account_holder, business_show_bank_details`,
                 [
                     data.name || 'My Business',
                     data.gstin || '',
@@ -86,6 +102,12 @@ export async function POST(request: Request) {
                     data.logo || null,
                     data.upi_id || '',
                     data.owner_name || '',
+                    data.bank_name || '',
+                    data.account_no || '',
+                    data.ifsc_code || '',
+                    data.branch_name || '',
+                    data.account_holder || '',
+                    data.show_bank_details ?? true,
                     session.user.id
                 ]
             );
@@ -105,7 +127,13 @@ export async function POST(request: Request) {
                 email: dbRow.business_email || '',
                 logo: dbRow.business_logo || null,
                 upi_id: dbRow.business_upi_id || '',
-                owner_name: dbRow.business_owner_name || ''
+                owner_name: dbRow.business_owner_name || '',
+                bank_name: dbRow.business_bank_name || '',
+                account_no: dbRow.business_account_no || '',
+                ifsc_code: dbRow.business_ifsc_code || '',
+                branch_name: dbRow.business_branch_name || '',
+                account_holder: dbRow.business_account_holder || '',
+                show_bank_details: dbRow.business_show_bank_details ?? true
             };
 
             client.release();
@@ -130,7 +158,13 @@ export async function POST(request: Request) {
                         ADD COLUMN IF NOT EXISTS business_email VARCHAR(255),
                         ADD COLUMN IF NOT EXISTS business_logo TEXT,
                         ADD COLUMN IF NOT EXISTS business_upi_id VARCHAR(100),
-                        ADD COLUMN IF NOT EXISTS business_owner_name VARCHAR(255);
+                        ADD COLUMN IF NOT EXISTS business_owner_name VARCHAR(255),
+                        ADD COLUMN IF NOT EXISTS business_bank_name VARCHAR(255),
+                        ADD COLUMN IF NOT EXISTS business_account_no VARCHAR(50),
+                        ADD COLUMN IF NOT EXISTS business_ifsc_code VARCHAR(20),
+                        ADD COLUMN IF NOT EXISTS business_branch_name VARCHAR(255),
+                        ADD COLUMN IF NOT EXISTS business_account_holder VARCHAR(255),
+                        ADD COLUMN IF NOT EXISTS business_show_bank_details BOOLEAN DEFAULT TRUE;
                     `);
                     console.log('Business Profile API: Columns added successfully. Retrying update...');
 
@@ -144,10 +178,18 @@ export async function POST(request: Request) {
                              business_email = $5, 
                              business_logo = $6, 
                              business_upi_id = $7, 
-                             business_owner_name = $8
-                         WHERE id = $9
+                             business_owner_name = $8,
+                             business_bank_name = $9,
+                             business_account_no = $10,
+                             business_ifsc_code = $11,
+                             business_branch_name = $12,
+                             business_account_holder = $13,
+                             business_show_bank_details = $14
+                         WHERE id = $15
                          RETURNING business_name, business_gstin, business_address, business_phone, 
-                                   business_email, business_logo, business_upi_id, business_owner_name`,
+                                   business_email, business_logo, business_upi_id, business_owner_name,
+                                   business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
+                                   business_account_holder, business_show_bank_details`,
                         [
                             data.name || 'My Business',
                             data.gstin || '',
@@ -157,6 +199,12 @@ export async function POST(request: Request) {
                             data.logo || null,
                             data.upi_id || '',
                             data.owner_name || '',
+                            data.bank_name || '',
+                            data.account_no || '',
+                            data.ifsc_code || '',
+                            data.branch_name || '',
+                            data.account_holder || '',
+                            data.show_bank_details ?? true,
                             session.user.id
                         ]
                     );
@@ -170,7 +218,13 @@ export async function POST(request: Request) {
                         email: dbRow.business_email || '',
                         logo: dbRow.business_logo || null,
                         upi_id: dbRow.business_upi_id || '',
-                        owner_name: dbRow.business_owner_name || ''
+                        owner_name: dbRow.business_owner_name || '',
+                        bank_name: dbRow.business_bank_name || '',
+                        account_no: dbRow.business_account_no || '',
+                        ifsc_code: dbRow.business_ifsc_code || '',
+                        branch_name: dbRow.business_branch_name || '',
+                        account_holder: dbRow.business_account_holder || '',
+                        show_bank_details: dbRow.business_show_bank_details ?? true
                     };
 
                     client.release();

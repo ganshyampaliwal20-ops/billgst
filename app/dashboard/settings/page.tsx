@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity } from 'react-icons/fa';
 
 export default function SettingsPage() {
     const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
@@ -42,23 +42,23 @@ export default function SettingsPage() {
     if (!isClient) return null;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 px-4 md:px-0">
-            <h1 className="text-2xl font-bold text-gray-800">Business Settings</h1>
+        <div className="max-w-4xl mx-auto space-y-6 px-[5px]">
+            <h1 className="text-2xl font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Business Settings</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                 {/* Tax Settings (Non-GST Mode) */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-green-100 text-green-600 rounded-lg">
                             <FaFileInvoiceDollar className="text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-800">Tax Settings</h2>
+                        <h2 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '2px', paddingRight: '8px', paddingTop: '0px' }}>Tax Settings</h2>
                     </div>
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 gap-4">
                         <div className="flex-1">
                             <div className="flex items-center gap-3">
-                                <h3 className="font-bold text-gray-800">I have a GST Number</h3>
+                                <h3 className="font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>I have a GST Number</h3>
                                 <label className="relative inline-flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -69,13 +69,13 @@ export default function SettingsPage() {
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">Enable this if your business is registered under GST. If you don't have a GST number, turn it off.</p>
+                            <p className="text-sm text-gray-500 mt-1" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Enable this if your business is registered under GST. If you don't have a GST number, turn it off.</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Business Profile Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                             <FaStore className="text-xl" />
@@ -85,83 +85,170 @@ export default function SettingsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Business Name</label>
                             <input
                                 type="text"
                                 required
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                placeholder="Enter business name"
+                                placeholder="Enter business name" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                             />
                         </div>
 
                         {/* Show GSTIN only if Non-GST Mode is OFF */}
                         {!localSettings.nonGstMode && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">GSTIN</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>GSTIN</label>
                                 <input
                                     type="text"
                                     value={formData.gstin}
                                     onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                    placeholder="22AAAAA0000A1Z5"
+                                    placeholder="22AAAAA0000A1Z5" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                                 />
                             </div>
                         )}
 
                         <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Address</label>
                             <textarea
                                 rows={3}
                                 value={formData.address}
                                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                placeholder="Business address"
+                                placeholder="Business address" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Phone Number</label>
                             <input
                                 type="tel"
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                placeholder="+91 9999999999"
+                                placeholder="+91 9999999999" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Email</label>
                             <input
                                 type="email"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                placeholder="business@example.com"
+                                placeholder="business@example.com" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2 text-indigo-600 font-bold">UPI ID (for QR Code)</label>
-                            <input
-                                type="text"
-                                value={formData.upi_id || ''}
-                                onChange={(e) => setFormData({ ...formData, upi_id: e.target.value })}
-                                className="w-full px-4 py-2 border-2 border-indigo-100 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition bg-indigo-50/30"
-                                placeholder="example@upi"
-                            />
+                        <div className="md:col-span-2 space-y-4">
+                            <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                                <label className="block text-sm font-bold text-indigo-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>UPI ID (for QR Code)</label>
+                                <input
+                                    type="text"
+                                    value={formData.upi_id || ''}
+                                    onChange={(e) => setFormData({ ...formData, upi_id: e.target.value })}
+                                    className="w-full px-4 py-2 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition bg-white"
+                                    placeholder="example@upi" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                                />
+                                <p className="text-[10px] text-indigo-500 mt-1 font-medium italic" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>यह ID आपके इनवॉइसेस पर पेमेंट QR कोड जनरेट करने के लिए उपयोग होगी।</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Authorized Signatory Name</label>
+                                <input
+                                    type="text"
+                                    value={formData.owner_name || ''}
+                                    onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                    placeholder="Person name for signature" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bank Details Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                <FaUniversity className="text-xl" />
+                            </div>
+                            <h2 className="text-lg font-bold text-gray-800">Bank Account Details</h2>
                         </div>
 
+                        <div className="flex items-center gap-2">
+                            <span className={`text-xs font-bold ${formData.show_bank_details ? 'text-emerald-600' : 'text-gray-400'}`}>
+                                {formData.show_bank_details ? 'ON' : 'OFF'}
+                            </span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={formData.show_bank_details}
+                                    onChange={(e) => setFormData({ ...formData, show_bank_details: e.target.checked })}
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-300 ${formData.show_bank_details ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Authorized Signatory Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Bank Name</label>
                             <input
                                 type="text"
-                                value={formData.owner_name || ''}
-                                onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
+                                value={formData.bank_name || ''}
+                                onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                placeholder="Person name for signature"
+                                placeholder="e.g. State Bank of India" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Account Number</label>
+                            <input
+                                type="text"
+                                value={formData.account_no || ''}
+                                onChange={(e) => setFormData({ ...formData, account_no: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                placeholder="Enter A/C number" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>IFSC Code</label>
+                            <input
+                                type="text"
+                                value={formData.ifsc_code || ''}
+                                onChange={(e) => setFormData({ ...formData, ifsc_code: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                placeholder="SBIN0001234" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Branch Name</label>
+                            <input
+                                type="text"
+                                value={formData.branch_name || ''}
+                                onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                placeholder="Branch location" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Account Holder Name</label>
+                            <input
+                                type="text"
+                                value={formData.account_holder || ''}
+                                onChange={(e) => setFormData({ ...formData, account_holder: e.target.value })}
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                placeholder="Name as per bank records" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                             />
                         </div>
                     </div>
@@ -173,7 +260,7 @@ export default function SettingsPage() {
                         <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
                             <FaImage className="text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-800">Branding</h2>
+                        <h2 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '2px', paddingRight: '8px', paddingTop: '0px' }}>Branding</h2>
                     </div>
 
                     <div className="flex items-start gap-6">
@@ -208,11 +295,11 @@ export default function SettingsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Language</label>
                             <select
                                 value={localSettings.language}
                                 onChange={(e) => setLocalSettings({ ...localSettings, language: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                             >
                                 <option value="en">English</option>
                                 <option value="hi">Hindi (हिंदी)</option>
@@ -227,7 +314,7 @@ export default function SettingsPage() {
                         <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
                             <FaUserLock className="text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-800">Account & Access</h2>
+                        <h2 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Account & Access</h2>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

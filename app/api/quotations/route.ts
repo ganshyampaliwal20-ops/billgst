@@ -103,11 +103,12 @@ export async function POST(request: Request) {
                     for (const item of body.items) {
                         await transactionClient.query(`
                             INSERT INTO quotation_items (
-                                quotation_id, product_name, quantity, unit_price, total_amount
-                            ) VALUES ($1, $2, $3, $4, $5)
+                                quotation_id, product_name, hsn_code, quantity, unit_price, total_amount
+                            ) VALUES ($1, $2, $3, $4, $5, $6)
                         `, [
                             quotationId,
                             item.product || 'Item',
+                            item.hsn_code || null,
                             Number(item.quantity) || 0,
                             Number(item.rate) || 0,
                             Number(item.amount) || 0

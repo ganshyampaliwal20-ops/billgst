@@ -228,6 +228,7 @@ export const initDB = async () => {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         quotation_id UUID REFERENCES quotations(id) ON DELETE CASCADE,
         product_name VARCHAR(255) NOT NULL,
+        hsn_code VARCHAR(10),
         quantity DECIMAL(10,2) NOT NULL,
         unit_price DECIMAL(10,2) NOT NULL,
         total_amount DECIMAL(10,2) NOT NULL
@@ -301,6 +302,8 @@ export const initDB = async () => {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50) DEFAULT 'FREE'; 
         ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_expiry TIMESTAMP;
         ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(20) DEFAULT 'ACTIVE';
+        -- Quotation Items (Missing columns)
+        ALTER TABLE quotation_items ADD COLUMN IF NOT EXISTS hsn_code VARCHAR(10);
       `);
     } catch (e) { console.log('Migration note: checked invoices & customers columns'); }
 
