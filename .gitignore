@@ -36,3 +36,10 @@ next-env.d.ts
 build_log*.txt
 lint-report.json
 lint_output.txt
+
+# Android / TWA
+.gradle/
+/app/build/
+*.keystore
+*.apk
+*.aab

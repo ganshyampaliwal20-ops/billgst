@@ -5,9 +5,9 @@
         ],
         "target": {
             "namespace": "android_app",
-            "package_name": "in.billgst.app",
+            "package_name": "in.billgst.twa",
             "sha256_cert_fingerprints": [
-                "TEMP_FINGERPRINT_WILL_BE_UPDATED_AFTER_KEYSTORE_GENERATION"
+                "99:5F:4C:CA:D8:53:E9:00:56:22:AC:71:9B:A9:6B:80:33:21:7E:11:D0:72:0A:6D:88:24:7A:24:0A:71:C4:CF"
             ]
         }
     }
