@@ -22,12 +22,31 @@ export async function GET(
             return NextResponse.json({ error: 'Store not found' }, { status: 404 });
         }
 
-        // 2. Fetch Active Products
-        const productsResult = await client.query(
-            `SELECT id, name, price, unit, stock_quantity, category, description, image_url 
-             FROM products WHERE user_id = $1 ORDER BY name ASC`,
-            [id]
-        );
+        // 2. Fetch Active Products (with auto-migration for new store columns)
+        let productsResult;
+        try {
+            productsResult = await client.query(
+                `SELECT id, name, price, unit, stock_quantity, category, description, image_url 
+                 FROM products WHERE created_by = $1 ORDER BY name ASC`,
+                [id]
+            );
+        } catch (dbError: any) {
+            if (dbError?.code === '42703') { // Missing columns
+                await client.query(`
+                    ALTER TABLE products 
+                    ADD COLUMN IF NOT EXISTS category VARCHAR(100) DEFAULT 'General',
+                    ADD COLUMN IF NOT EXISTS image_url TEXT;
+                `);
+                // Retry
+                productsResult = await client.query(
+                    `SELECT id, name, price, unit, stock_quantity, category, description, image_url 
+                     FROM products WHERE created_by = $1 ORDER BY name ASC`,
+                    [id]
+                );
+            } else {
+                throw dbError;
+            }
+        }
 
         client.release();
 

@@ -48,7 +48,8 @@ export async function GET() {
                 account_holder: dbRow.business_account_holder || '',
                 show_bank_details: dbRow.business_show_bank_details ?? true,
                 plan_type: dbRow.plan_type || 'FREE',
-                invoice_template: dbRow.invoice_template || 'TEMPLATE_1'
+                invoice_template: dbRow.invoice_template || 'TEMPLATE_1',
+                id: session.user.id
             };
 
             client.release();
@@ -96,7 +97,8 @@ export async function GET() {
                         gstin: r.business_gstin || '',
                         address: r.business_address || '',
                         plan_type: r.plan_type || 'FREE',
-                        invoice_template: r.invoice_template || 'TEMPLATE_1'
+                        invoice_template: r.invoice_template || 'TEMPLATE_1',
+                        id: session.user.id
                     });
                 }
                 return NextResponse.json({ error: 'User not found' }, { status: 404 });

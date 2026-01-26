@@ -15,7 +15,10 @@ export default function PublicStorePage() {
     const [selectedCategory, setSelectedCategory] = useState('All');
 
     useEffect(() => {
+        if (!id || id === 'undefined') return;
+
         async function fetchStore() {
+            setLoading(true);
             try {
                 const res = await fetch(`/api/public/store/${id}`);
                 const data = await res.json();
@@ -163,8 +166,8 @@ export default function PublicStorePage() {
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
                             className={`px-6 py-2 rounded-full whitespace-nowrap text-sm font-bold transition-all ${selectedCategory === cat
-                                    ? 'bg-indigo-600 text-white shadow-md'
-                                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                                ? 'bg-indigo-600 text-white shadow-md'
+                                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                                 }`}
                         >
                             {cat}

@@ -204,31 +204,80 @@ export default function NewInvoicePage() {
     };
 
     const processAICommand = (text: string) => {
-        // Simple NLP pattern matching
-        // Example: "Add 5 units of Parle G" or "5 kilo Chini add karo"
-        const qtyMatch = text.match(/\d+/);
+        // AI NLP Logic: Detection of intent and products
+        const words = text.toLowerCase();
+
+        // 1. Detect Intent
+        const isDelete = words.includes('remove') || words.includes('delete') || words.includes('hatao') || words.includes('kam karo');
+
+        // 2. Extract Quantity (Smart detection for digits)
+        const qtyMatch = words.match(/\d+/);
         const quantity = qtyMatch ? parseInt(qtyMatch[0]) : 1;
 
-        // Find best matching product
-        const foundProduct = safeProducts.find((p: any) =>
-            text.includes(p.name.toLowerCase()) ||
-            p.name.toLowerCase().split(' ').some((word: string) => text.includes(word))
-        );
+        // 3. Advanced Product Matching (Scoring based)
+        let bestMatch = null;
+        let highestScore = 0;
 
-        if (foundProduct) {
-            setSelectedItems(prev => [...prev, {
-                product_id: foundProduct.id,
-                product_name: foundProduct.name,
-                quantity: quantity,
-                unit_price: foundProduct.price,
-                gst_rate: foundProduct.gst_rate || 18,
-                hsn_code: foundProduct.hsn_code,
-                unit: foundProduct.unit || 'PCS',
-                type: foundProduct.type || 'PRODUCT'
-            }]);
-            toast.success(`${quantity} ${foundProduct.name} added!`, { icon: '✨' });
+        safeProducts.forEach((p: any) => {
+            const pName = p.name.toLowerCase();
+            let score = 0;
+
+            // Exact match (highest priority)
+            if (words.includes(pName)) score += 100;
+
+            // Partial match (individual words) - Using exact word boundaries for safety
+            const transcriptWords = words.split(/[\s,]+/);
+            const pWords = pName.split(' ').filter((w: string) => w.length > 2);
+            pWords.forEach((pw: string) => {
+                if (transcriptWords.includes(pw)) score += 30;
+            });
+
+            if (score > highestScore) {
+                highestScore = score;
+                bestMatch = p;
+            }
+        });
+
+        if (bestMatch && highestScore >= 20) {
+            const matchedProduct = bestMatch as any;
+            if (isDelete) {
+                setSelectedItems(prev => {
+                    const existing = prev.find(item => item.product_id === matchedProduct.id);
+                    if (existing) {
+                        toast.success(`${matchedProduct.name} removed`, { icon: '🗑️' });
+                        return prev.filter(item => item.product_id !== matchedProduct.id);
+                    }
+                    return prev;
+                });
+            } else {
+                setSelectedItems(prev => {
+                    // Check if already in list to update qty
+                    const idx = prev.findIndex(item => item.product_id === matchedProduct.id);
+                    if (idx > -1) {
+                        const newItems = [...prev];
+                        newItems[idx].quantity += quantity;
+                        toast.success(`Added ${quantity} more ${matchedProduct.name}`, { icon: '➕' });
+                        return newItems;
+                    }
+
+                    toast.success(`${quantity} ${matchedProduct.name} added!`, { icon: '✨' });
+                    return [...prev, {
+                        product_id: matchedProduct.id,
+                        product_name: matchedProduct.name,
+                        quantity: quantity,
+                        unit_price: matchedProduct.price,
+                        gst_rate: matchedProduct.gst_rate || 18,
+                        hsn_code: matchedProduct.hsn_code,
+                        unit: matchedProduct.unit || 'PCS',
+                        type: matchedProduct.type || 'PRODUCT'
+                    }];
+                });
+            }
         } else {
-            toast.error("Couldn't find that product. Please try again or add manually.");
+            toast.error(`Sorry, I didn't recognize any product in: "${text}"`, {
+                duration: 3000,
+                style: { borderRadius: '10px', background: '#333', color: '#fff' }
+            });
         }
     };
 

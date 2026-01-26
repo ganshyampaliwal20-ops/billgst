@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { FaRobot, FaPaperPlane, FaTimes, FaMinus, FaExternalLinkAlt, FaLightbulb } from 'react-icons/fa';
+import { FaRobot, FaPaperPlane, FaTimes, FaMinus, FaExternalLinkAlt, FaLightbulb, FaMicrophone } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 
 export default function AIChat() {
     const [isOpen, setIsOpen] = useState(false);
@@ -87,8 +88,8 @@ export default function AIChat() {
                         {messages.map((m, i) => (
                             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
                                 <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${m.role === 'user'
-                                        ? 'bg-indigo-600 text-white rounded-tr-none'
-                                        : 'bg-white text-slate-700 border border-slate-200 rounded-tl-none shadow-sm'
+                                    ? 'bg-indigo-600 text-white rounded-tr-none'
+                                    : 'bg-white text-slate-700 border border-slate-200 rounded-tl-none shadow-sm'
                                     }`}>
                                     {m.text}
                                 </div>
@@ -131,6 +132,24 @@ export default function AIChat() {
                                 placeholder="Kuch bhi poochein..."
                                 className="flex-1 bg-transparent border-none outline-none px-3 py-2 text-sm text-slate-700"
                             />
+                            <button
+                                onClick={() => {
+                                    const recognition = new ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)();
+                                    recognition.lang = 'hi-IN';
+                                    recognition.onstart = () => {
+                                        toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });
+                                    };
+                                    recognition.onresult = (event: any) => {
+                                        const transcript = event.results[0][0].transcript;
+                                        setInput(transcript);
+                                    };
+                                    recognition.start();
+                                }}
+                                className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                                title="Boliye (Voice)"
+                            >
+                                <FaMicrophone />
+                            </button>
                             <button
                                 onClick={handleSend}
                                 disabled={!input.trim() || isLoading}
