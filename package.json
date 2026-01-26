@@ -15,6 +15,7 @@
     "clsx": "^2.1.0",
     "date-fns": "^3.0.0",
     "dotenv": "^17.2.3",
+    "framer-motion": "^12.29.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "next": "16.0.7",

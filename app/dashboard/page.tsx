@@ -1,12 +1,13 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaMicrophone, FaShareAlt, FaGlobe, FaBrain, FaBolt } from 'react-icons/fa';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaMicrophone, FaShareAlt, FaGlobe, FaBrain, FaBolt, FaWhatsapp, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ComposedChart, Cell } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { translations } from '@/lib/translations';
+import VoiceAssistant from './VoiceAssistant';
 
 export default function DashboardPage() {
     const {
@@ -20,6 +21,8 @@ export default function DashboardPage() {
     const [showSetupBanner, setShowSetupBanner] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [chartView, setChartView] = useState('area'); // 'area' or 'candle'
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
     // Get translations
     const t = translations[settings.language as keyof typeof translations] || translations.en;
@@ -40,6 +43,25 @@ export default function DashboardPage() {
             navigator.clipboard.writeText(url);
             toast.success('Store link copied to clipboard!');
         }
+    };
+
+    const handleSendReminder = (invoice: any) => {
+        const customerName = invoice.customer?.name || 'Customer';
+        const amount = invoice.total_amount;
+        const invoiceNum = invoice.invoice_number;
+        const businessName = businessProfile.name || 'Our Business';
+
+        const message = `Namaste ${customerName} ji, hope you are doing well. This is a gentle reminder regarding your Invoice #${invoiceNum} of ₹${amount} from ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
+
+        const phone = invoice.customer?.phone?.replace(/\D/g, '') || '';
+        if (!phone) {
+            toast.error('Customer phone number missing!');
+            return;
+        }
+
+        const whatsappUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+        toast.success('Opening WhatsApp...');
     };
 
     useEffect(() => {
@@ -219,8 +241,56 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* 4. Four Big Action Buttons - Fixed Height with 3D Effect */}
-            <div className="grid grid-cols-2 gap-5 mt-8 mx-6">
+            {/* 1.5. GLOBAL SMART SEARCH - The Ease of Access */}
+            <div className="mx-6 mb-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>
+                <div className="relative group">
+                    <div className="absolute inset-y-110 left-0 pl-4 flex items-center pointer-events-none">
+                        <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Quick Search: Type customer name, invoice"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="block w-full pl-12 pr-4 py-4 bg-white border-4 border-slate-100 rounded-2xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm"
+                    />
+                    {searchTerm && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 max-h-96 overflow-y-auto p-4 animate-in fade-in slide-in-from-top-2">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 px-2">Search Results</h4>
+                            <div className="space-y-2">
+                                {customers.filter((c: any) => c.name.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 3).map((c: any) => (
+                                    <Link key={c.id} href="/dashboard/customers" className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><FaUsers size={12} /></div>
+                                            <span className="font-bold text-slate-700">{c.name}</span>
+                                        </div>
+                                        <span className="text-[10px] font-black text-blue-500 uppercase">Customer</span>
+                                    </Link>
+                                ))}
+                                {invoices.filter((i: any) => i.invoice_number.toString().includes(searchTerm) || i.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 3).map((i: any) => (
+                                    <Link key={i.id} href="/dashboard/invoices" className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600"><FaFileInvoice size={12} /></div>
+                                            <span className="font-bold text-slate-700">#{i.invoice_number} - {i.customer?.name}</span>
+                                        </div>
+                                        <span className="text-[10px] font-black text-indigo-500 uppercase">₹{i.total_amount}</span>
+                                    </Link>
+                                ))}
+                                {products.filter((p: any) => p.name.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 3).map((p: any) => (
+                                    <Link key={p.id} href="/dashboard/inventory" className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600"><FaBox size={12} /></div>
+                                            <span className="font-bold text-slate-700">{p.name}</span>
+                                        </div>
+                                        <span className="text-[10px] font-black text-emerald-500 uppercase">Stock: {p.stock_quantity}</span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-5 mt-8 mx-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>
                 <Link href="/dashboard/invoices/new" className="bg-[#6366f1] h-28 md:h-36 rounded-2xl flex flex-col items-center justify-center text-white shadow-[0_6px_0_0_#4338ca] hover:shadow-[0_4px_0_0_#4338ca] hover:translate-y-1 active:shadow-none active:translate-y-[6px] transition-all border-b-0 border-indigo-700">
                     <div className="bg-white/20 p-3 rounded-xl mb-2">
                         <FaFileInvoice className="text-2xl md:text-3xl" />
@@ -359,7 +429,7 @@ export default function DashboardPage() {
 
 
             {/* Digital Store Front Link Card */}
-            <div className="mx-6 mt-6">
+            <div className="mx-6 mt-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>
                 <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-4xl p-8 shadow-xl shadow-emerald-900/10 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-10 -mt-20 group-hover:scale-110 transition-transform duration-700"></div>
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
@@ -394,6 +464,66 @@ export default function DashboardPage() {
                                     </button>
                                 </>
                             )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 1.75. COLLECTION CENTER - Manage Outstanding Payments */}
+            <div className="mx-6 mt-8" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                <div className="bg-white rounded-4xl border-4 border-slate-100 shadow-xl overflow-hidden relative">
+                    <div className="p-8 border-b-4 border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 shadow-inner">
+                                <FaRupeeSign className="text-2xl" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-black text-slate-800 tracking-tighter uppercase italic text-left">Collection Center</h3>
+                                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest text-left" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Outstanding Payments Tracker</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 bg-rose-50 px-4 py-2 rounded-2xl border border-rose-100">
+                            <span className="text-rose-600 font-black text-lg">
+                                ₹{(invoices || []).filter((inv: any) => inv.status !== 'PAID').reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0), 0).toLocaleString()}
+                            </span>
+                            <span className="text-rose-400 text-[10px] font-black uppercase" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Pending Total</span>
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
+                        <div className="min-w-[600px] p-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {(invoices || []).filter((inv: any) => inv.status !== 'PAID').length === 10 ? (
+                                    <div className="col-span-full py-16 text-center border-4 border-dashed border-slate-50 rounded-4xl">
+                                        <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-100">
+                                            <FaBolt className="text-3xl" />
+                                        </div>
+                                        <h4 className="text-xl font-black text-slate-800 uppercase italic">Great Job!</h4>
+                                        <p className="text-slate-500 font-bold mt-2">All payments collected. Your cashflow is healthy.</p>
+                                    </div>
+                                ) : (
+                                    (invoices || []).filter((inv: any) => inv.status !== 'PAID').slice(0, 6).map((inv: any, idx: number) => (
+                                        <div key={idx} className="bg-slate-50 border-4 border-slate-100 rounded-3xl p-6 hover:border-rose-200 hover:bg-white transition-all group shadow-sm hover:shadow-xl hover:-translate-y-1 duration-300">
+                                            <div className="flex justify-between items-start mb-6">
+                                                <div className="flex-1 min-w-0 text-left">
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" style={{ paddingLeft: '8px', paddingRight: '0px', paddingTop: '2px' }}>Invoice #{inv.invoice_number}</p>
+                                                    <h4 className="font-bold text-slate-800 truncate text-lg" style={{ paddingLeft: '8px', paddingRight: '0px', paddingTop: '0px' }}>{inv.customer?.name || 'Unknown Client'}</h4>
+                                                </div>
+                                                <div className="text-right ml-4">
+                                                    <p className="text-rose-600 font-black text-xl whitespace-nowrap">₹{inv.total_amount}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400">{new Date(inv.invoice_date).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleSendReminder(inv)}
+                                                className="w-full py-4 bg-white border-4 border-emerald-500 text-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-500 hover:text-white transition-all shadow-[0_4px_0_0_#10b981] active:shadow-none active:translate-y-1"
+                                            >
+                                                <FaWhatsapp className="text-xl" /> Send Reminder
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -579,8 +709,7 @@ export default function DashboardPage() {
                 {/* AI Voice Assistant Card - Restored & Improved */}
                 <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-200 flex flex-col md:flex-row items-center justify-between group cursor-pointer hover:bg-indigo-700 transition-all gap-6 relative overflow-hidden"
                     onClick={() => {
-                        toast.success('AI Assistant ready! Ask me anything about your business.', { icon: '🤖' });
-                        // Smooth scroll to chat if needed or just let the floating bot handle it
+                        setIsVoiceAssistantOpen(true);
                     }}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
 
@@ -621,15 +750,15 @@ export default function DashboardPage() {
                                     </div>
                                     BUSINESS PULSE AI™
                                 </h2>
-                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Top Selling Products</p>
+                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>Top Selling Products</p>
                             </div>
-                            <div className="bg-white/5 border border-white/10 px-3 py-1 rounded-full flex items-center gap-2">
+                            <div className="bg-white/5 border border-white/10 px-3 py-1 rounded-full flex items-center gap-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                                <span className="text-[10px] font-bold text-slate-400">REALTIME</span>
+                                <span className="text-[10px] font-bold text-slate-400" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>REALTIME</span>
                             </div>
                         </div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
                             {topProducts.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-[200px] text-center">
                                     <FaBoxOpen className="text-slate-800 text-4xl mb-4" />
@@ -716,6 +845,11 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+            {/* Voice Assistant Overlay */}
+            <VoiceAssistant
+                isOpen={isVoiceAssistantOpen}
+                onClose={() => setIsVoiceAssistantOpen(false)}
+            />
         </div>
     );
 }

@@ -11,17 +11,21 @@ export async function POST(request: Request) {
         if ((msg.includes('hi') || msg.includes('hello') || msg.includes('namaste')) && msg.length < 15) {
             reply = "Namaste! 🙏 Main BillGST ka expert AI hoon. Main aapki Billing, Inventory, GST returns aur aapke Digital Store setup karne mein madad kar sakta hoon. Aap mujhse kuch bhi puch sakte hain!";
         }
-        else if (msg.includes('gst') && (msg.includes('kya') || msg.includes('what') || msg.includes('kaise'))) {
-            reply = "GST (Goods & Services Tax) India ka unified tax system hai. BillGST par aap GSTR-1, GSTR-3B aur GSTR-4 reports sirf 1-click mein generate kar sakte hain. Hum regular aur composition dono dealers ko support karte hain.";
+        else if ((msg.includes('gst') || msg.includes('जीएसटी')) && (msg.includes('kya') || msg.includes('what') || msg.includes('kaise') || msg.includes('report') || msg.includes('return') || msg.includes('vapas'))) {
+            reply = "BillGST par GSTR-1, GSTR-3B aur GSTR-4 reports generate karna bohot aasaan hai. Bas 'Reports' section mein jayiye, apni dates select kijiye aur data export kijiye. Hum automatically HSN-wise summary bhi bana dete hain.";
         }
-        else if (msg.includes('invoice') || msg.includes('bill') || msg.includes('billing')) {
-            reply = "BillGST par aap 5 seconds mein professional invoice bana sakte hain. Humare paas multiple templates hain (Classic, Modern, Thermal). Aap Voice Billing ka use karke bol kar bhi bill bana sakte hain!";
+        else if (msg.includes('invoice') || msg.includes('bill') || msg.includes('billing') || msg.includes('बिल') || msg.includes('इनवॉइस')) {
+            reply = "BillGST par aap 5 seconds mein professional invoice bana sakte hain. Aap direct 'New Invoice' button par click karein, customer aur product select karein aur 'Save' karein. Aap ise seedhe WhatsApp par bhi share kar sakte hain.";
         }
-        else if (msg.includes('stock') || msg.includes('inventory') || msg.includes('maal')) {
-            reply = "Inventory management BillGST ka ek powerhouse feature hai. Aap items add karein, unka stock level track karein, aur 'Low Stock Alert' set karein. Sales hote hi stock apne aap update ho jata hai.";
+        else if (msg.includes('stock') || msg.includes('inventory') || msg.includes('maal') || msg.includes('item') || msg.includes('स्टॉक') || msg.includes('माल')) {
+            reply = "Inventory track karne ke liye aap 'Inventory' page par jayein. Wahan aap naya maal (Product) add kar sakte hain aur 'Low Stock Alert' set kar sakte hain taaki maal khatam hone se pehle aapko pata chal jaye.";
         }
-        else if (msg.includes('whatsapp') || msg.includes('reminder') || msg.includes('msg')) {
-            reply = "Humare software mein built-in WhatsApp integration hai. Aap customers को automated payment reminders bhej sakte hain aur seedhe WhatsApp par bill share kar sakte hain.";
+        else if (msg.includes('whatsapp') || msg.includes('reminder') || msg.includes('msg') || msg.includes('api') || msg.includes('set') || msg.includes('व्हाट्सएप') || msg.includes('एपी')) {
+            if (msg.includes('api') || msg.includes('set') || msg.includes('setup') || msg.includes('kaise') || msg.includes('एपी') || msg.includes('सेट') || msg.includes('डाउनलोड')) {
+                reply = "BillGST mein WhatsApp API set karne ya download karne ki koi zaroorat nahi hai! Humne isse pehle se hi 'Ready-to-use' rakha hai. Bas Invoice bachate (save) waqt 'Share on WhatsApp' par click karein. Ye aapke browser ke through direct chalta hai, isliye koi extra setup nahi chahiye.";
+            } else {
+                reply = "Humare software mein built-in WhatsApp integration hai. Aap customers ko automated payment reminders bhej sakte hain aur seedhe WhatsApp par bill share kar sakte hain. Iske liye koi alag se setup nahi chahiye.";
+            }
         }
         else if (msg.includes('tally') || msg.includes('export')) {
             reply = "Haan! BillGST fully Tally compatible hai. Aap saara data Tally XML format mein export karke apne CA ko de sakte hain, jo seedhe Tally mein import ho jayega.";
