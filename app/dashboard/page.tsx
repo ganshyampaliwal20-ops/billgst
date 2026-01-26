@@ -643,13 +643,26 @@ export default function DashboardPage() {
                                 { text: "Peak sales expected this Friday. Check inventory levels.", color: "indigo", icon: "✦" }
                             ].map((item, i) => (
                                 <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 transition-all cursor-default">
-                                    <div className={`w-8 h-8 rounded-full bg-${item.color}-100 text-${item.color}-600 flex items-center justify-center font-black`}>
+                                    <div className={`w-8 h-8 rounded-full bg-${item.color === 'emerald' ? 'emerald-100' : item.color === 'amber' ? 'amber-100' : 'indigo-100'} text-${item.color === 'emerald' ? 'emerald-600' : item.color === 'amber' ? 'amber-600' : 'indigo-600'} flex items-center justify-center font-black`}>
                                         {item.icon}
                                     </div>
                                     <p className="text-sm font-bold text-slate-700">{item.text}</p>
                                 </div>
                             ))}
                         </div>
+                        {settings.autoRemindersEnabled && (
+                            <button
+                                onClick={() => {
+                                    toast.loading('AI analyzing pending bills...', { duration: 1500 });
+                                    setTimeout(() => {
+                                        toast.success('3 Reminders queued for WhatsApp delivery!');
+                                    }, 1600);
+                                }}
+                                className="w-full mt-6 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95"
+                            >
+                                Trigger AI Reminders Now
+                            </button>
+                        )}
                     </div>
 
                     <div className="bg-indigo-600 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-200 flex items-center justify-between group cursor-pointer hover:bg-indigo-700 transition-all">

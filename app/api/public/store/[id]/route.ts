@@ -3,11 +3,11 @@ import pool from '@/lib/db';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     let client;
     try {
-        const { id } = params;
+        const { id } = await params;
         client = await pool.connect();
 
         // 1. Fetch Business Profile
