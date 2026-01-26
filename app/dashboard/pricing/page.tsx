@@ -39,9 +39,9 @@ export default function PricingPage() {
             price: 0,
             type: 'FREE',
             features: [
-                '30 Invoices / Month',
+                '5 Invoices / Month',
                 '30 Quotations / Month',
-                '30 GST Returns / Month',
+                'GST Returns',
                 'No Invoice QR Code',
                 'Basic Support'
             ],
@@ -55,7 +55,7 @@ export default function PricingPage() {
             features: [
                 'Unlimited Invoices',
                 'Unlimited Quotations',
-                '30 GST Returns / Month',
+                'GST Returns',
                 'No Invoice QR Code',
                 'Priority Support'
             ],

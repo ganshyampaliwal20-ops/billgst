@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity } from 'react-icons/fa';
+import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt } from 'react-icons/fa';
 
 export default function SettingsPage() {
     const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
@@ -281,6 +281,101 @@ export default function SettingsPage() {
                             />
                             <p className="mt-2 text-xs text-gray-500">Recommended size: 200x200px. Max size: 2MB.</p>
                         </div>
+                    </div>
+                </div>
+
+                {/* Invoice Templates Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                            <FaFileInvoiceDollar className="text-xl" />
+                        </div>
+                        <h2 className="text-lg font-bold text-gray-800">Invoice Templates</h2>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                        {[
+                            { id: 'TEMPLATE_1', name: 'Modern Purple', color: 'bg-purple-600' },
+                            { id: 'TEMPLATE_2', name: 'Royal Blue', color: 'bg-blue-600' },
+                            { id: 'TEMPLATE_3', name: 'Slate Gray', color: 'bg-slate-600' },
+                            { id: 'TEMPLATE_4', name: 'Energetic Orange', color: 'bg-orange-600' },
+                            { id: 'TEMPLATE_5', name: 'Classic Green', color: 'bg-green-600' },
+                        ].map((tpl) => (
+                            <button
+                                key={tpl.id}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, invoice_template: tpl.id })}
+                                className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.invoice_template === tpl.id
+                                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                                    : 'border-gray-100 hover:border-gray-300'
+                                    }`}
+                            >
+                                <div className={`w-12 h-16 rounded shadow-inner ${tpl.color} relative`}>
+                                    <div className="absolute top-1 left-1 right-1 h-1 bg-white/20 rounded-full" />
+                                    <div className="absolute top-3 left-1 right-3 h-1 bg-white/10 rounded-full" />
+                                </div>
+                                <span className={`text-[10px] font-bold ${formData.invoice_template === tpl.id ? 'text-blue-700' : 'text-gray-500'}`}>
+                                    {tpl.name}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* WhatsApp AI Bot Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                <FaBolt className="text-xl" />
+                            </div>
+                            <h2 className="text-lg font-bold text-gray-800">WhatsApp AI Agent (Beta)</h2>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={localSettings.whatsappBotEnabled}
+                                onChange={(e) => setLocalSettings({ ...localSettings, whatsappBotEnabled: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+
+                    <div className={`space-y-4 transition-all ${localSettings.whatsappBotEnabled ? 'opacity-100' : 'opacity-40 grayscale'}`}>
+                        <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                            <p className="text-xs font-bold text-emerald-800 mb-2 uppercase tracking-tight">How it works:</p>
+                            <p className="text-xs text-emerald-700 leading-relaxed italic">
+                                Jab aapka customer aapko WhatsApp karega, hamara AI Agent unhe reply dega. Wo unka pending balance bata sakta hai, invoice bhej sakta hai aur payment QR bhi dikha sakta hai.
+                            </p>
+                        </div>
+
+                        {localSettings.whatsappBotEnabled && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Bot Access Token</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={`WHATSAPP_AI_${businessProfile.id?.substring(0, 8).toUpperCase()}`}
+                                            className="flex-1 px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono text-slate-600 outline-none"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(`WHATSAPP_AI_${businessProfile.id?.substring(0, 8).toUpperCase()}`);
+                                                toast.success('Token copied!');
+                                            }}
+                                            className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors"
+                                        >
+                                            Copy Token
+                                        </button>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 mt-2 font-medium italic">Use this token to connect your WhatsApp Business API with BillGST.</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

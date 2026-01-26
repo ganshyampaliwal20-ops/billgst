@@ -16,6 +16,7 @@ import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from './RegistrationPopup';
+import AIChat from '@/app/components/AIChat';
 
 export default function DashboardLayout({
     children,
@@ -330,6 +331,7 @@ export default function DashboardLayout({
                 />
             )}
             <RegistrationPopup />
+            <AIChat />
         </div>
     );
 }

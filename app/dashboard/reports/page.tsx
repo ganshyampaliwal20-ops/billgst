@@ -3,7 +3,8 @@
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import { useStore } from '@/lib/store';
-import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers } from 'react-icons/fa';
+import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers, FaFileDownload, FaTable, FaFileCode } from 'react-icons/fa';
+import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 function ReportsContent() {
@@ -105,7 +106,39 @@ function ReportsContent() {
                         <option value="yearly">This Year</option>
                         <option value="custom">Custom Date</option>
                     </select>
+
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => {
+                                const { invoices } = useStore.getState();
+                                const xml = generateTallyXML(invoices, 'Business');
+                                downloadFile(xml, `Tally_Sales_${period}.xml`, 'text/xml');
+                            }}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg font-bold text-sm hover:bg-orange-700 transition shadow-md"
+                        >
+                            <FaFileCode /> TALLY XML
+                        </button>
+                        <button
+                            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg font-bold text-sm hover:bg-emerald-700 transition shadow-md"
+                        >
+                            <FaTable /> EXCEL
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            {/* Smart Audit Highlight */}
+            <div className="bg-indigo-900 rounded-2xl p-4 text-white flex items-center justify-between border border-indigo-700 shadow-xl">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                        <FaChartLine className="text-indigo-300" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest leading-none">Smart Advisory</p>
+                        <h4 className="text-sm font-medium mt-1">Your HSN compliance is at 92%. Add missing codes to avoid penalties.</h4>
+                    </div>
+                </div>
+                <button className="text-[10px] font-black bg-white text-indigo-900 px-3 py-1.5 rounded-lg uppercase">Maximize ITC</button>
             </div>
 
             {/* Stats Grid */}

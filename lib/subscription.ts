@@ -1,6 +1,6 @@
 
 // Logic for Tiered Pricing
-// FREE: 30 Invoices, 30 Quotes, 30 GST Returns per month.
+// FREE: 5 Invoices, 30 Quotes, 30 GST Returns per month.
 // BASIC_30: Unlimited Invoices/Quotes. GST/QR locked. 30 Days.
 // PREMIUM_99: Unlimited All. 30 Days.
 // YEARLY_999: Unlimited All. 365 Days.
@@ -38,14 +38,9 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
         const expiry = user.plan_expiry ? new Date(user.plan_expiry) : null;
         let status = user.subscription_status || 'ACTIVE';
 
-        // 2. Check Expiry (if not FREE or LIFETIME)
+        // 2. Check Expiry
         if (plan !== 'FREE' && plan !== 'LIFETIME') {
             if (expiry && isAfter(new Date(), expiry)) {
-                // Expired! Fallback to FREE restrictions effectively, or strict block?
-                // User requirement: "plan exper ho jana chahiye" -> presumably functionality stops or reverts.
-                // Let's block "Paid Features" but allow "Free Tier" limits? 
-                // Alternatively, mark as EXPIRED and block everything?
-                // For now, let's say if expired, they are effectively invalid for paid features.
                 status = 'EXPIRED';
             }
         }
@@ -55,45 +50,37 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
             return { allowed: true, plan };
         }
 
-        // 4. Basic Plan (30 Rs)
-        // Assumption: Unlocks Invoices & Quotes. Blocks GST & QR Code (unless clarified otherwise, but typical upselling).
-        // User said: "99 ka primium plan... gst return me... 999 vaala plan me sab access"
-        // Implicitly: 30 Rs plan is likely just for Invoices/Quotes limits.
+        // 4. QR Code Logic (First 10 Free trial, then Premium Only)
+        if (feature === 'QR_CODE') {
+            const totalInvoicesRes = await client.query(
+                `SELECT COUNT(*) FROM invoices WHERE created_by = $1`,
+                [userId]
+            );
+            const totalCount = parseInt(totalInvoicesRes.rows[0].count);
+
+            if (totalCount < 10) {
+                return { allowed: true, plan };
+            }
+
+            if (plan === 'FREE' || plan === 'BASIC_30' || status === 'EXPIRED') {
+                return { allowed: false, reason: 'Requires Premium Plan (99) after 10 trial invoices', plan };
+            }
+        }
+
+        // 5. Basic Plan (30 Rs)
         if (status === 'ACTIVE' && plan === 'BASIC_30') {
             if (feature === 'INVOICE' || feature === 'QUOTATION') {
                 return { allowed: true, plan };
             }
-            // For GST/QR, fall through to check (or block if exclusive to Premium)
-            // Re-reading user request: "30 users ko free milegi... uske baad 99 ka plan" -> Wait.
-            // "30 rupye ka plan lena padega jiska 1 month ka plan hoga" for exceeding 30 invoices.
-            // So Basic 30 unlocks Invoices.
-            if (feature === 'GST_RETURN' || feature === 'QR_CODE') {
-                // Basic plan does NOT explicitly say it unlocks GST/QR. Let's block QR Code (Premium feature). 
-                // GST might be limited to 30 still? Or unlocked?
-                // Let's safe-guess: Basic unlocks Counts, but QR is Premium. GST is Premium?
-                // User said: "gst return me... 99 ka plan lagega". 
-                // So GST Return > 30 requires 99 Plan? Or 30 Plan?
-                // "30 bar generate karne ke baad primum plan lagana hai" (GST Return).
-                // So GST Return limit 30 -> Premium (99).
-                // Invoice limit 30 -> Basic (30).
-                if (feature === 'QR_CODE') return { allowed: false, reason: 'Requires Premium Plan (99)', plan };
-            }
         }
 
-        // 5. Free Tier Logic (or Expired Paid Plan falling back to Free Limits)
-
-        // QR Code is Premium Only
-        if (feature === 'QR_CODE') {
-            return { allowed: false, reason: 'Requires Premium Plan (99)', plan };
-        }
-
-        // Check Counts for Current Month
+        // 6. Monthly Limits for FREE tier
         const now = new Date();
         const start = startOfMonth(now).toISOString();
         const end = endOfMonth(now).toISOString();
 
         let count = 0;
-        let limit = 30; // Default limit
+        let limit = 5; // Default Invoice Limit
 
         if (feature === 'INVOICE') {
             const countRes = await client.query(
@@ -101,18 +88,21 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
                 [userId, start, end]
             );
             count = parseInt(countRes.rows[0].count);
+            limit = 5;
         } else if (feature === 'QUOTATION') {
             const countRes = await client.query(
                 `SELECT COUNT(*) FROM quotations WHERE created_by = $1 AND created_at >= $2 AND created_at <= $3`,
                 [userId, start, end]
             );
             count = parseInt(countRes.rows[0].count);
+            limit = 30;
         } else if (feature === 'GST_RETURN') {
             const countRes = await client.query(
                 `SELECT COUNT(*) FROM gst_returns WHERE created_by = $1 AND created_at >= $2 AND created_at <= $3`,
                 [userId, start, end]
             );
             count = parseInt(countRes.rows[0].count);
+            limit = 30;
         }
 
         if (count >= limit) {
@@ -129,7 +119,6 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
 
     } catch (error) {
         console.error('Check Limit Error:', error);
-        // Fail safe: Allow if DB error to avoid outage? Or block? Block is safer for billing.
         return { allowed: false, reason: 'System Error Checking Limits' };
     } finally {
         client.release();

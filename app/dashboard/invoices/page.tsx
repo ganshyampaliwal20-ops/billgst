@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaFilePdf, FaWhatsapp, FaTrash, FaPlus, FaSearch, FaFileInvoiceDollar } from 'react-icons/fa';
+import { FaFilePdf, FaWhatsapp, FaTrash, FaPlus, FaSearch, FaFileInvoiceDollar, FaRupeeSign } from 'react-icons/fa';
 import Link from 'next/link';
 import { generateInvoicePDF } from '@/lib/pdf-generator';
 import { toast } from 'react-hot-toast';
@@ -197,6 +197,16 @@ export default function InvoicesPage() {
         const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
         const text = `Invoice ${invoice.invoice_number || 'N/A'} for Rs. ${total} from ${businessProfile?.name || 'Our Business'}. Powered by BillGST.in`;
         window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    const handleSharePaymentLink = (invoice: Invoice) => {
+        if (!invoice || !businessProfile.upi_id) {
+            toast.error('Please set UPI ID in settings first');
+            return;
+        }
+        const upiLink = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${Number(invoice.total_amount).toFixed(2)}&cu=INR`;
+        const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nYou can pay quickly using this link: ${upiLink}\n\nRegards,\n${businessProfile.name}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     };
 
     return (
@@ -504,6 +514,15 @@ export default function InvoicesPage() {
                                         <span className="text-2xl font-bold">...</span>
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-500 uppercase">More</span>
+                                </button>
+                            </div>
+
+                            <div className="mb-6 px-2">
+                                <button
+                                    onClick={() => handleSharePaymentLink(showShareSheet)}
+                                    className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all"
+                                >
+                                    <FaRupeeSign /> SEND PAYMENT LINK (WA)
                                 </button>
                             </div>
 

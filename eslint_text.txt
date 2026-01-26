@@ -1,0 +1,33 @@
+
+F:\bill\app\dashboard\invoices\new\page.tsx
+    6:62   warning  'FaCamera' is defined but never used             @typescript-eslint/no-unused-vars
+    6:81   warning  'FaVolumeUp' is defined but never used           @typescript-eslint/no-unused-vars
+   33:28   warning  'status' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   36:40   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   37:39   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   38:41   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   39:42   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   40:39   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   41:41   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   42:46   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   55:56   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  105:55   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  114:51   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  147:57   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  155:51   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  172:12   warning  'isScanning' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  176:46   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  176:83   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  191:40   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  209:52   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  256:51   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  259:49   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  269:62   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  272:47   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  369:53   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  452:25   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  528:87   error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  753:105  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+??? 28 problems (24 errors, 4 warnings)
+
