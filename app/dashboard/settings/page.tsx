@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt } from 'react-icons/fa';
+import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock } from 'react-icons/fa';
 
 export default function SettingsPage() {
     const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
-    const [formData, setFormData] = useState(businessProfile);
-    const [localSettings, setLocalSettings] = useState(settings);
+    const [formData, setFormData] = useState(businessProfile || {});
+    const [localSettings, setLocalSettings] = useState(settings || {});
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -63,7 +63,7 @@ export default function SettingsPage() {
                                     <input
                                         type="checkbox"
                                         className="sr-only peer"
-                                        checked={!localSettings.nonGstMode}
+                                        checked={!localSettings.nonGstMode || false}
                                         onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })}
                                     />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -89,7 +89,7 @@ export default function SettingsPage() {
                             <input
                                 type="text"
                                 required
-                                value={formData.name}
+                                value={formData.name || ''}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                                 placeholder="Enter business name" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
@@ -102,7 +102,7 @@ export default function SettingsPage() {
                                 <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>GSTIN</label>
                                 <input
                                     type="text"
-                                    value={formData.gstin}
+                                    value={formData.gstin || ''}
                                     onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                                     placeholder="22AAAAA0000A1Z5" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
@@ -114,7 +114,7 @@ export default function SettingsPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Address</label>
                             <textarea
                                 rows={3}
-                                value={formData.address}
+                                value={formData.address || ''}
                                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                                 placeholder="Business address" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
@@ -125,7 +125,7 @@ export default function SettingsPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Phone Number</label>
                             <input
                                 type="tel"
-                                value={formData.phone}
+                                value={formData.phone || ''}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                                 placeholder="+91 9999999999" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Email</label>
                             <input
                                 type="email"
-                                value={formData.email}
+                                value={formData.email || ''}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                                 placeholder="business@example.com" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
@@ -335,7 +335,7 @@ export default function SettingsPage() {
                             <input
                                 type="checkbox"
                                 className="sr-only peer"
-                                checked={localSettings.whatsappBotEnabled}
+                                checked={localSettings.whatsappBotEnabled || false}
                                 onChange={(e) => setLocalSettings({ ...localSettings, whatsappBotEnabled: e.target.checked })}
                             />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
@@ -376,6 +376,41 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Automatic Payment Reminders Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <FaClock className="text-xl" />
+                            </div>
+                            <h2 className="text-lg font-bold text-gray-800">Automatic Payment Reminders</h2>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={localSettings.autoRemindersEnabled || false}
+                                onChange={(e) => setLocalSettings({ ...localSettings, autoRemindersEnabled: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+
+                    <div className={`space-y-4 transition-all ${localSettings.autoRemindersEnabled ? 'opacity-100' : 'opacity-40'}`}>
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                            <p className="text-xs font-bold text-blue-800 mb-2 uppercase tracking-tight">AI Recovery System:</p>
+                            <p className="text-xs text-blue-700 leading-relaxed italic">
+                                Jab bhi koi invoice 3 din se zyada "Unpaid" rahega, hamara AI automatically customer ko ek gentle reminder WhatsApp pe bhej dega. Isse aapka recovery rate 40% tak badh sakta hai.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase px-2">
+                            <span>Frequency: Every 3 Days</span>
+                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                            <span>Time: 10:00 AM</span>
+                        </div>
                     </div>
                 </div>
 
