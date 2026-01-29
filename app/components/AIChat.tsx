@@ -14,11 +14,87 @@ export default function AIChat() {
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    // Draggable State
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStart = useRef({ x: 0, y: 0 });
+
+    useEffect(() => {
+        // Initialize position to bottom-right on mount
+        if (typeof window !== 'undefined') {
+            setPosition({
+                x: window.innerWidth - 420, // 400px width + 20px margin
+                y: window.innerHeight - 600 // 550px height + margin
+            });
+        }
+    }, []);
+
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages]);
+
+    // Drag Handlers
+    const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+        if (e.type === 'touchstart') {
+            const touch = (e as React.TouchEvent).touches[0];
+            dragStart.current = {
+                x: touch.clientX - position.x,
+                y: touch.clientY - position.y
+            };
+        } else {
+            dragStart.current = {
+                x: (e as React.MouseEvent).clientX - position.x,
+                y: (e as React.MouseEvent).clientY - position.y
+            };
+        }
+        setIsDragging(true);
+    };
+
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+        if (!isDragging) return;
+        e.preventDefault(); // Prevent scrolling on touch
+
+        let clientX, clientY;
+        if (e.type === 'touchmove') {
+            const touch = (e as TouchEvent).touches[0];
+            clientX = touch.clientX;
+            clientY = touch.clientY;
+        } else {
+            clientX = (e as MouseEvent).clientX;
+            clientY = (e as MouseEvent).clientY;
+        }
+
+        setPosition({
+            x: clientX - dragStart.current.x,
+            y: clientY - dragStart.current.y
+        });
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            window.addEventListener('touchmove', handleMouseMove, { passive: false });
+            window.addEventListener('touchend', handleMouseUp);
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleMouseMove);
+            window.removeEventListener('touchend', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleMouseMove);
+            window.removeEventListener('touchend', handleMouseUp);
+        };
+    }, [isDragging]);
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -46,7 +122,16 @@ export default function AIChat() {
     if (!isOpen) {
         return (
             <button
-                onClick={() => setIsOpen(true)}
+                onClick={() => {
+                    setIsOpen(true);
+                    // Reset position if off-screen or weird
+                    if (position.x === 0 && position.y === 0) {
+                        setPosition({
+                            x: window.innerWidth - 90 < 400 ? 20 : window.innerWidth - 420,
+                            y: window.innerHeight - 600
+                        });
+                    }
+                }}
                 className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all z-[100] group"
             >
                 <FaRobot size={28} className="group-hover:rotate-12 transition-transform" />
@@ -56,10 +141,17 @@ export default function AIChat() {
     }
 
     return (
-        <div className={`fixed bottom-6 right-6 w-[90vw] sm:w-[400px] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-200 z-[100] transition-all overflow-hidden flex flex-col ${isMinimized ? 'h-16' : 'h-[550px]'}`}>
-            {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 p-4 flex items-center justify-between text-white shrink-0">
-                <div className="flex items-center gap-3">
+        <div
+            style={{ left: position.x, top: position.y }}
+            className={`fixed w-[90vw] sm:w-[400px] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-200 z-[100] transition-height overflow-hidden flex flex-col ${isMinimized ? 'h-16' : 'h-[550px]'}`}
+        >
+            {/* Header - DRAGGABLE */}
+            <div
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleMouseDown}
+                className="bg-gradient-to-r from-indigo-600 to-indigo-800 p-4 flex items-center justify-between text-white shrink-0 cursor-move"
+            >
+                <div className="flex items-center gap-3 pointer-events-none">
                     <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                         <FaRobot size={20} />
                     </div>
@@ -83,8 +175,8 @@ export default function AIChat() {
 
             {!isMinimized && (
                 <>
-                    {/* Chat Area */}
-                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+                    {/* Chat Area - Added Padding 8px */}
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-[8px] space-y-4 bg-slate-50/50" style={{ paddingLeft: '8px', paddingRight: '0px', paddingTop: '8px' }}>
                         {messages.map((m, i) => (
                             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
                                 <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${m.role === 'user'
@@ -96,7 +188,7 @@ export default function AIChat() {
                             </div>
                         ))}
                         {isLoading && (
-                            <div className="flex justify-start">
+                            <div className="flex justify-start" style={{ paddingLeft: '8px', paddingRight: '0px', paddingTop: '8px' }}>
                                 <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none flex gap-1">
                                     <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
                                     <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -107,7 +199,7 @@ export default function AIChat() {
 
                         {/* Quick Suggestions */}
                         {messages.length < 3 && (
-                            <div className="flex flex-wrap gap-2 pt-2">
+                            <div className="flex flex-wrap gap-2 pt-2 p-[8px]" style={{ paddingLeft: '8px', paddingRight: '0px', paddingTop: '5px' }}>
                                 {['GST kya hai?', 'Invoice kaise banayein?', 'Stock Manage kaise karein?'].map((s, i) => (
                                     <button
                                         key={i}
@@ -122,7 +214,7 @@ export default function AIChat() {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-4 bg-white border-t border-slate-100 shrink-0">
+                    <div className="p-[8px] bg-white border-t border-slate-100 shrink-0">
                         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                             <input
                                 type="text"
@@ -145,7 +237,7 @@ export default function AIChat() {
                                     };
                                     recognition.start();
                                 }}
-                                className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                                className="p-2 text-slate-400 hover:text-indigo-600 transition-colors" style={{ paddingLeft: '8px', paddingRight: '0px', paddingTop: '8px' }}
                                 title="Boliye (Voice)"
                             >
                                 <FaMicrophone />

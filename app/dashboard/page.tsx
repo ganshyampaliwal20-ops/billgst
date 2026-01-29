@@ -221,7 +221,7 @@ export default function DashboardPage() {
     return (
         <div className="space-y-6 pb-20" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
             {/* Welcome Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
                 <div>
                     <div className="flex items-center gap-2 mb-1" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
                         <FaClock className="text-amber-500 text-sm" />
@@ -471,8 +471,8 @@ export default function DashboardPage() {
 
             {/* 1.75. COLLECTION CENTER - Manage Outstanding Payments */}
             <div className="mx-6 mt-8" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
-                <div className="bg-white rounded-4xl border-4 border-slate-100 shadow-xl overflow-hidden relative">
-                    <div className="p-8 border-b-4 border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="bg-white rounded-4xl border-4 border-slate-10 shadow-xl overflow-hidden relative">
+                    <div className="p-4 border-b-4 border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <div className="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 shadow-inner">
                                 <FaRupeeSign className="text-2xl" />
@@ -492,7 +492,7 @@ export default function DashboardPage() {
 
                     <div className="overflow-x-auto" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                         <div className="min-w-[600px] p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-6">
                                 {(invoices || []).filter((inv: any) => inv.status !== 'PAID').length === 10 ? (
                                     <div className="col-span-full py-16 text-center border-4 border-dashed border-slate-50 rounded-4xl">
                                         <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-100">

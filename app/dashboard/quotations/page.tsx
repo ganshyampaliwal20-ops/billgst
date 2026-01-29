@@ -242,7 +242,7 @@ export default function QuotationsPage() {
                     <FaSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search by customer or quotation number..."
+                        placeholder="Search by customer or quotation number"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"

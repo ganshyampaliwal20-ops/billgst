@@ -27,7 +27,7 @@ export async function GET(
         try {
             productsResult = await client.query(
                 `SELECT id, name, price, unit, stock_quantity, category, description, image_url 
-                 FROM products WHERE created_by = $1 ORDER BY name ASC`,
+                 FROM products WHERE created_by = $1 AND (status != 'INACTIVE' OR status IS NULL) ORDER BY name ASC`,
                 [id]
             );
         } catch (dbError: any) {
@@ -40,7 +40,7 @@ export async function GET(
                 // Retry
                 productsResult = await client.query(
                     `SELECT id, name, price, unit, stock_quantity, category, description, image_url 
-                     FROM products WHERE created_by = $1 ORDER BY name ASC`,
+                     FROM products WHERE created_by = $1 AND (status != 'INACTIVE' OR status IS NULL) ORDER BY name ASC`,
                     [id]
                 );
             } else {

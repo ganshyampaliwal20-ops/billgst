@@ -150,7 +150,7 @@ export default function PublicStorePage() {
             {/* Search & Categories */}
             <div className="max-w-7xl mx-auto mt-8 px-4 space-y-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
                 <div className="relative">
-                    <FaSearch className="absolute left-100 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <FaSearch className="absolute left-75 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search for items..."

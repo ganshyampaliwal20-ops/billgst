@@ -574,16 +574,16 @@ export default function NewInvoicePage() {
                         <p className="text-xs sm:text-sm text-slate-600 mt-0.5">Create a professional invoice for your customer</p>
                     </div>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
                     <button
                         onClick={startVoiceBilling}
-                        className={`px-6 py-3 rounded-2xl font-black text-xs flex items-center gap-3 transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-indigo-600 border-2 border-indigo-100 shadow-md hover:border-indigo-500'}`}
+                        className={`w-full justify-center px-4 py-3 rounded-2xl font-black text-xs flex items-center gap-2 transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-indigo-600 border-2 border-indigo-100 shadow-md hover:border-indigo-500'}`}
                     >
-                        <FaMicrophone /> {isListening ? 'LISTENING...' : 'VOICE BILLING'}
+                        <FaMicrophone /> {isListening ? 'LISTENING' : 'VOICE BILLING'}
                     </button>
                     <button
                         onClick={handleMagicScan}
-                        className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl font-black text-xs flex items-center gap-3 shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+                        className="w-full justify-center px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl font-black text-xs flex items-center gap-2 shadow-lg shadow-orange-200 hover:scale-105 transition-all"
                     >
                         <FaMagic /> MAGIC SCAN
                     </button>
@@ -967,12 +967,18 @@ export default function NewInvoicePage() {
             </div>
 
             {/* Bottom Action Bar - Fixed Full Width */}
-            <div className="fixed bottom-0 left-0 md:left-72 right-0 bg-white border-t border-slate-200 p-4 px-6 gap-4 flex items-center justify-between z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <div className="fixed bottom-0 left-0 md:left-72 right-0 bg-white border-t border-slate-200 p-4 px-6 gap-6 flex items-center justify-between z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                 <button
                     type="button"
                     onClick={() => router.back()}
                     disabled={isSubmitting}
-                    className="flex-1 py-3.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-all disabled:opacity-50 border border-slate-300"
+                    className="
+                        flex-1 h-16 flex items-center justify-center gap-2
+                        bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-wider
+                        hover:bg-slate-200 hover:text-slate-800 hover:scale-[1.02] transition-all duration-200
+                        border-b-4 border-slate-300 active:border-b-0 active:translate-y-1
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                    "
                 >
                     {t.cancel}
                 </button>
@@ -980,21 +986,23 @@ export default function NewInvoicePage() {
                     onClick={handleSubmit}
                     disabled={isSubmitting}
                     className="
-                        flex-[2] relative py-3.5 bg-gray-900 text-white font-black rounded-xl
-                        shadow-lg transition-all duration-200
-                        hover:-translate-y-1 hover:shadow-xl active:translate-y-[1px]
-                        flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed
+                        flex-[2] h-16 flex items-center justify-center gap-3
+                        bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest
+                        shadow-xl shadow-indigo-500/30 border-b-4 border-indigo-800
+                        hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200
+                        active:border-b-0 active:translate-y-1
+                        disabled:opacity-70 disabled:cursor-not-allowed
                     "
                 >
                     {isSubmitting ? (
                         <>
                             <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-                            <span className="uppercase tracking-widest text-xs">Saving...</span>
+                            <span>Saving...</span>
                         </>
                     ) : (
                         <>
-                            <FaSave className="text-lg" />
-                            <span className="uppercase tracking-widest text-xs">{t.saveInvoice}</span>
+                            <FaSave className="text-xl" />
+                            <span>{t.saveInvoice}</span>
                         </>
                     )}
                 </button>
