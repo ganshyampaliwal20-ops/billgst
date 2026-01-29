@@ -290,7 +290,7 @@ export default function SettingsPage() {
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">
                             <FaFileInvoiceDollar className="text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-800">Invoice Templates</h2>
+                        <h2 className="text-lg font-bold text-gray-800">Invoice Color Theme</h2>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
@@ -317,6 +317,52 @@ export default function SettingsPage() {
                                 <span className={`text-[10px] font-bold ${formData.invoice_template === tpl.id ? 'text-blue-700' : 'text-gray-500'}`}>
                                     {tpl.name}
                                 </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Invoice Table Layout Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-cyan-100 text-cyan-600 rounded-lg">
+                            <FaFileInvoiceDollar className="text-xl" />
+                        </div>
+                        <h2 className="text-lg font-bold text-gray-800">Invoice Table Layout</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                        {[
+                            { id: 'FORMAT_1', name: 'Standard', desc: 'Default Look', icon: 'M4 4h16v16H4V4zm2 2v12h12V6H6z' },
+                            { id: 'FORMAT_2', name: 'Grid Box', desc: 'Full Borders', icon: 'M4 4h16v16H4V4zm2 2v4h12V6H6zm0 6v4h12v-4H6zm0 6v2h12v-2H6z' },
+                            { id: 'FORMAT_3', name: 'Minimal', desc: 'Clean Lines', icon: 'M4 6h16v2H4V6zm0 6h16v2H4v-2zm0 6h16v2H4v-2z' },
+                            { id: 'FORMAT_4', name: 'Modern', desc: 'Striped Rows', icon: 'M4 4h16v4H4V4zm0 6h16v4H4v-4zm0 6h16v4H4v-4z' },
+                            { id: 'FORMAT_5', name: 'Compact', desc: 'More Items', icon: 'M4 5h16v2H4V5zm0 4h16v2H4V9zm0 4h16v2H4v-2zm0 4h16v2H4v-2z' },
+                        ].map((fmt) => (
+                            <button
+                                key={fmt.id}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, invoice_table_format: fmt.id })}
+                                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${formData.invoice_table_format === fmt.id
+                                    ? 'border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500'
+                                    : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <svg
+                                    className={`w-10 h-10 ${formData.invoice_table_format === fmt.id ? 'text-blue-600' : 'text-gray-400'}`}
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d={fmt.icon} />
+                                </svg>
+                                <div className="text-center">
+                                    <span className={`block text-xs font-bold ${formData.invoice_table_format === fmt.id ? 'text-blue-700' : 'text-gray-700'}`}>
+                                        {fmt.name}
+                                    </span>
+                                    <span className="block text-[10px] text-gray-500 mt-1">
+                                        {fmt.desc}
+                                    </span>
+                                </div>
                             </button>
                         ))}
                     </div>

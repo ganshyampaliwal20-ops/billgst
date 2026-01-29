@@ -136,6 +136,66 @@ export default function QuotationsPage() {
         }
     };
 
+    const generatePdfForAction = async (quotation: any) => {
+        const businessDetailsForPDF = {
+            name: businessProfile?.name || businessDetails?.name || 'Your Business',
+            email: businessProfile?.email || businessDetails?.email || '',
+            phone: businessProfile?.phone || businessDetails?.phone || '',
+            address: businessProfile?.address || businessDetails?.address || '',
+            gstin: businessProfile?.gstin || businessDetails?.gstin || '',
+            logo: businessProfile?.logo || businessDetails?.logo || null,
+            upi_id: businessProfile?.upi_id || businessDetails?.upi_id || '',
+        };
+
+        const pdfDoc = await generateQuotationPDF(quotation, businessDetailsForPDF, false);
+        return pdfDoc ? pdfDoc.output('blob') : null;
+    };
+
+    const handleDownloadRow = async (e: React.MouseEvent, quotation: any) => {
+        e.stopPropagation();
+        try {
+            const blob = await generatePdfForAction(quotation);
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Quotation-${quotation.quotation_number}.pdf`;
+                link.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('PDF generate karne mein error aaya');
+        }
+    };
+
+    const handleShareRow = async (e: React.MouseEvent, quotation: any) => {
+        e.stopPropagation();
+        try {
+            const blob = await generatePdfForAction(quotation);
+            if (!blob) return;
+
+            const fileName = `Quotation-${quotation.quotation_number}.pdf`;
+            const file = new File([blob], fileName, { type: 'application/pdf' });
+            const message = `Hi ${quotation.customer_name}, please find your quotation ${quotation.quotation_number} for Rs. ${parseFloat(quotation.total_amount).toLocaleString('en-IN')}`;
+
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Quotation PDF',
+                    text: message,
+                });
+            } else {
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                alert('Desktop par file manually attach karein.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Share karne mein error aaya');
+        }
+    };
+
     const closePdfModal = () => {
         if (pdfBlobUrl) {
             URL.revokeObjectURL(pdfBlobUrl);
@@ -149,7 +209,7 @@ export default function QuotationsPage() {
             {/* Header */}
             <div className="flex flex-col items-center justify-center gap-2 text-center">
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight">Quotations</h1>
-                <p className="text-slate-30 text-sm">Manage your quotations and convert to invoices</p>
+                <p className="text-slate-400 text-sm">Manage your quotations and convert to invoices</p>
             </div>
 
             {/* Stats */}
@@ -249,14 +309,29 @@ export default function QuotationsPage() {
                                         <td className="py-4 px-6 text-center">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
+                                                    onClick={(e) => handleDownloadRow(e, quotation)}
+                                                    className="text-slate-600 hover:text-slate-800 font-bold text-xs bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+                                                    title="Download PDF"
+                                                >
+                                                    <FaDownload />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => handleShareRow(e, quotation)}
+                                                    className="text-green-600 hover:text-green-800 font-bold text-xs bg-green-50 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+                                                    title="Share on WhatsApp"
+                                                >
+                                                    <FaWhatsapp className="text-base" />
+                                                </button>
+                                                <div className="w-px h-6 bg-slate-200 mx-1"></div>
+                                                <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         openPaymentModal(quotation);
                                                     }}
-                                                    className="text-green-600 hover:text-green-800 font-bold text-xs bg-green-50 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+                                                    className="text-emerald-600 hover:text-emerald-800 font-bold text-xs bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
                                                     title="Record Payment"
                                                 >
-                                                    <FaHandHoldingUsd className="text-base" /> Receive
+                                                    <FaHandHoldingUsd className="text-base" />
                                                 </button>
                                                 <button
                                                     onClick={(e) => {
@@ -266,7 +341,7 @@ export default function QuotationsPage() {
                                                     className="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
                                                     title="Convert to Invoice"
                                                 >
-                                                    <FaFileInvoice className="text-base" /> Convert
+                                                    <FaFileInvoice className="text-base" />
                                                 </button>
                                             </div>
                                         </td>

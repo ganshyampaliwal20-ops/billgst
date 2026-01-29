@@ -500,13 +500,14 @@ export default function NewInvoicePage() {
 
             const newInvoice = {
                 id: generateId(),
-                invoice_number: `INV-${Math.floor(1000 + Math.random() * 9000).toString()}`,
+                invoice_number: `INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`,
                 customer: {
                     id: customerId,
                     name: customer?.name || 'Unknown',
                     email: customer?.email || '',
-                    address: customer?.address || '',
-                    gstin: customer?.gstin || ''
+                    address: customer?.address || '', // Address might be missing in quick add, update later if needed
+                    gstin: customer?.gstin || '',
+                    phone: customer?.phone || ''  // Added missing phone field
                 },
                 invoice_date: invoiceDate,
                 items: itemsWithTotals,

@@ -65,9 +65,9 @@ export default function CustomerDetailPage() {
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6" style={{ paddingLeft: '8px', paddingRight: '10px', paddingTop: '8px' }}>
                 {/* Summary Box - Dashboard Style (Horizontal) */}
-                <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden" >
                     {/* Decorative Elements */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-44 bg-white/10 rounded-full blur-2xl -ml-5 -mb-5"></div>
@@ -106,14 +106,14 @@ export default function CustomerDetailPage() {
                 {/* Info Section */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h2 className="font-bold text-slate-800">Basic Information</h2>
+                        <h2 className="font-bold text-slate-800" style={{ paddingLeft: '8px', paddingRight: '10px', paddingTop: '5px' }}>Basic Information</h2>
                     </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8" style={{ paddingLeft: '8px', paddingRight: '10px', paddingTop: '10px' }}>
                         {customer.phone && (
                             <div className="flex items-center gap-4">
                                 <FaPhone className="text-slate-400" />
                                 <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Phone</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase" style={{ paddingLeft: '8px', paddingRight: '10px', paddingTop: '5px' }}>Phone</p>
                                     <p className="font-bold text-slate-700">{customer.phone}</p>
                                 </div>
                             </div>
@@ -140,7 +140,7 @@ export default function CustomerDetailPage() {
                 </div>
 
                 {/* Invoice History */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200" style={{ paddingLeft: '8px', paddingRight: '10px', paddingTop: '10px' }}>
                     <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                         <h2 className="font-bold text-slate-800">Invoice History</h2>
                         <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full font-bold">
