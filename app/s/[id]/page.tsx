@@ -94,7 +94,7 @@ export default function PublicStorePage() {
 
             {/* Header */}
             <div className="bg-white shadow-sm sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto p-4 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white overflow-hidden overflow-hidden shadow-md">
                             {storeData.business.business_logo ? (
@@ -123,15 +123,15 @@ export default function PublicStorePage() {
             </div>
 
             {/* Store Banner/Info */}
-            <div className="max-w-4xl mx-auto mt-6 px-4">
+            <div className="max-w-7xl mx-auto mt-6 px-4">
                 <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
                     <div className="relative z-10">
-                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest mb-1">Welcome to our digital store</p>
-                        <h2 className="text-2xl font-black mb-4 italic">Experience Seamless Shopping</h2>
+                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest mb-1" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '8px' }}>Welcome to our digital store</p>
+                        <h2 className="text-2xl font-black mb-4 italic" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '1px' }}>Experience Seamless Shopping</h2>
                         <div className="flex flex-wrap gap-4 text-sm mt-4">
                             {storeData.business.business_phone && (
-                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm">
+                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
                                     <FaPhone className="text-xs" />
                                     <span>{storeData.business.business_phone}</span>
                                 </div>
@@ -148,9 +148,9 @@ export default function PublicStorePage() {
             </div>
 
             {/* Search & Categories */}
-            <div className="max-w-4xl mx-auto mt-8 px-4 space-y-4">
+            <div className="max-w-7xl mx-auto mt-8 px-4 space-y-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
                 <div className="relative">
-                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <FaSearch className="absolute left-100 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search for items..."
@@ -160,7 +160,7 @@ export default function PublicStorePage() {
                     />
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>
                     {categories.map(cat => (
                         <button
                             key={cat}
@@ -177,7 +177,7 @@ export default function PublicStorePage() {
             </div>
 
             {/* Product Grid */}
-            <div className="max-w-4xl mx-auto mt-8 px-4">
+            <div className="max-w-7xl mx-auto mt-8 px-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {filteredProducts.map((p: any) => (
                         <div key={p.id} className="bg-white rounded-[2rem] p-3 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col">
@@ -219,7 +219,7 @@ export default function PublicStorePage() {
 
             {/* Fixed Checkout Bar */}
             {cartCount > 0 && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90vw] max-w-4xl z-50 animate-in slide-in-from-bottom-10">
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90vw] max-w-7xl z-50 animate-in slide-in-from-bottom-10">
                     <div className="bg-indigo-900 rounded-3xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 backdrop-blur-lg flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white ring-2 ring-white/20">

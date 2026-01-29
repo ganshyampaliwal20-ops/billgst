@@ -1,13 +1,13 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaMicrophone, FaShareAlt, FaGlobe, FaBrain, FaBolt, FaWhatsapp, FaSearch } from 'react-icons/fa';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaShareAlt, FaGlobe, FaBrain, FaBolt, FaWhatsapp, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ComposedChart, Cell } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { translations } from '@/lib/translations';
-import VoiceAssistant from './VoiceAssistant';
+
 
 export default function DashboardPage() {
     const {
@@ -22,7 +22,7 @@ export default function DashboardPage() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [chartView, setChartView] = useState('area'); // 'area' or 'candle'
     const [searchTerm, setSearchTerm] = useState('');
-    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+
 
     // Get translations
     const t = translations[settings.language as keyof typeof translations] || translations.en;
@@ -438,11 +438,11 @@ export default function DashboardPage() {
                                 <FaGlobe className="text-3xl" />
                             </div>
                             <div className="text-center md:text-left">
-                                <h3 className="text-white text-2xl font-black italic tracking-tight uppercase">Your Digital Shop is LIVE!</h3>
+                                <h3 className="text-white text-2xl font-black italic tracking-tight uppercase" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>Your Digital Shop is LIVE!</h3>
                                 <p className="text-emerald-50 mt-1 font-bold text-sm">Customers can now browse and order products online.</p>
                             </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>
                             {!businessProfile.id ? (
                                 <div className="px-8 py-3 bg-white/20 text-white font-black rounded-2xl animate-pulse text-xs tracking-widest uppercase">
                                     Initializing...
@@ -707,35 +707,7 @@ export default function DashboardPage() {
             {/* Bottom Section - Top Products & Recent Invoices */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* AI Voice Assistant Card - Restored & Improved */}
-                <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-200 flex flex-col md:flex-row items-center justify-between group cursor-pointer hover:bg-indigo-700 transition-all gap-6 relative overflow-hidden"
-                    onClick={() => {
-                        setIsVoiceAssistantOpen(true);
-                    }}>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
 
-                    <div className="flex items-center gap-6 relative z-10">
-                        <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg backdrop-blur-md">
-                            <FaMicrophone size={32} className="animate-pulse" />
-                        </div>
-                        <div>
-                            <h4 className="text-2xl font-black italic tracking-tighter uppercase mb-1">AI Business Advisor™</h4>
-                            <p className="text-indigo-100 font-bold opacity-80">"How much GST did I pay this month?"</p>
-                            <div className="flex items-center gap-2 mt-3">
-                                <span className="flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Voice Recognition Active</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="relative z-10 w-full md:w-auto">
-                        <button className="w-full md:w-auto px-10 py-4 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
-                            Speak to AI
-                        </button>
-                    </div>
-                </div>
 
                 {/* Top Selling Products - Refined to BUSINESS PULSE AI Aesthetic */}
                 <div className="bg-gradient-to-br from-slate-900 to-black rounded-[2rem] shadow-2xl border border-indigo-500/20 p-8 relative overflow-hidden group">
@@ -846,10 +818,7 @@ export default function DashboardPage() {
                 </div>
             </div>
             {/* Voice Assistant Overlay */}
-            <VoiceAssistant
-                isOpen={isVoiceAssistantOpen}
-                onClose={() => setIsVoiceAssistantOpen(false)}
-            />
+
         </div>
     );
 }

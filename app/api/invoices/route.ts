@@ -20,7 +20,16 @@ export async function GET() {
         // Fetch invoices for the user
         const result = await client.query(`
       SELECT i.*, 
-             json_build_object('name', c.name, 'email', c.email) as customer,
+             json_build_object(
+                 'name', c.name, 
+                 'email', c.email, 
+                 'phone', c.phone,
+                 'gstin', c.gstin,
+                 'address', c.address,
+                 'city', c.city,
+                 'state', c.state,
+                 'pincode', c.pincode
+             ) as customer,
              (SELECT json_agg(items) FROM invoice_items items WHERE items.invoice_id = i.id) as items
       FROM invoices i
       JOIN customers c ON i.customer_id = c.id

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle, FaTrash, FaQrcode } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle, FaTrash, FaQrcode, FaImage } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
@@ -28,7 +28,8 @@ export default function InventoryPage() {
         stock_quantity: '',
         unit: 'PCS',
         gst_rate: '18',
-        type: 'PRODUCT'
+        type: 'PRODUCT',
+        image_url: ''
     });
 
     useEffect(() => {
@@ -43,6 +44,17 @@ export default function InventoryPage() {
             (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (p.hsn_code || '').includes(searchTerm)
         );
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({ ...prev, image_url: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,7 +96,8 @@ export default function InventoryPage() {
             stock_quantity: product.stock_quantity.toString(),
             unit: product.unit || 'PCS',
             gst_rate: product.gst_rate?.toString() || '18',
-            type: product.type || 'PRODUCT'
+            type: product.type || 'PRODUCT',
+            image_url: product.image_url || ''
         });
         setEditingId(product.id);
         setShowModal(true);
@@ -92,7 +105,7 @@ export default function InventoryPage() {
 
     const resetForm = () => {
         setFormData({
-            name: '', description: '', hsn_code: '', price: '', purchase_price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18', type: 'PRODUCT'
+            name: '', description: '', hsn_code: '', price: '', purchase_price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18', type: 'PRODUCT', image_url: ''
         });
         setEditingId(null);
         setShowModal(false);
@@ -187,9 +200,15 @@ export default function InventoryPage() {
 
                             <div className="px-10 py-6 flex-1">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="p-3 bg-indigo-50 rounded-[2px] text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
-                                        {product.name.charAt(0).toUpperCase()}
-                                    </div>
+                                    {product.image_url ? (
+                                        <div className="w-12 h-12 rounded-[5px] overflow-hidden border border-slate-200">
+                                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="p-3 bg-indigo-50 rounded-[2px] text-indigo-600 font-bold text-xl w-12 h-12 flex items-center justify-center">
+                                            {product.name.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
                                     <div className={`px-2 py-1 rounded-[2px] text-[10px] font-bold uppercase tracking-wider ${product.type === 'SERVICE' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}`}>
                                         {product.type || 'PRODUCT'}
                                     </div>
@@ -276,7 +295,40 @@ export default function InventoryPage() {
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Image Upload */}
+                            <div className="flex flex-col items-center justify-center mb-6">
+                                {formData.image_url ? (
+                                    <div className="relative w-32 h-32 mb-2">
+                                        <img
+                                            src={formData.image_url}
+                                            alt="Product"
+                                            className="w-full h-full object-cover rounded-[5px] border-2 border-slate-200 shadow-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, image_url: '' })}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 shadow-md transition-colors"
+                                        >
+                                            <FaTrash className="text-xs" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-slate-300 rounded-[5px] cursor-pointer hover:bg-slate-50 hover:border-indigo-400 transition-all group">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <FaImage className="mb-2 text-2xl text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                                            <p className="mb-1 text-xs text-slate-500 font-semibold">Add Photo</p>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageUpload}
+                                        />
+                                    </label>
+                                )}
+                            </div>
                             <div>
+
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
                                 <input
                                     required
