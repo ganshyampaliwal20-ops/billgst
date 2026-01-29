@@ -34,8 +34,8 @@ export default function CustomersPage() {
         const customerInvoices = invoices.filter((inv: any) =>
             inv.customer_id === customerId || inv.customer?.id === customerId
         );
-        const total = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.total_amount || 0), 0);
-        const paid = customerInvoices.reduce((sum: number, inv: any) => sum + (inv.paid_amount || 0), 0);
+        const total = customerInvoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0), 0);
+        const paid = customerInvoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.paid_amount) || 0), 0);
         return total - paid;
     };
 

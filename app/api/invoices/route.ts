@@ -292,3 +292,69 @@ export async function POST(request: Request) {
         }, { status: 500 });
     }
 }
+
+export async function PUT(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+
+    try {
+        const body = await request.json();
+        const { id, ...updateData } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 });
+        }
+
+        const client = await pool.connect();
+
+        // Build dynamic query
+        const sets: string[] = [];
+        const values: any[] = [];
+        let paramIndex = 1;
+
+        // Allowed fields to update
+        const allowedFields = ['status', 'paid_amount', 'notes', 'due_date'];
+
+        Object.keys(updateData).forEach(key => {
+            if (allowedFields.includes(key)) {
+                sets.push(`${key} = $${paramIndex}`);
+                values.push(updateData[key]);
+                paramIndex++;
+            }
+        });
+
+        if (sets.length === 0) {
+            client.release();
+            return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+        }
+
+        // Add ID and UserID to values for WHERE clause
+        values.push(id);
+        values.push(userId);
+
+        const query = `
+            UPDATE invoices 
+            SET ${sets.join(', ')} 
+            WHERE id = $${paramIndex} AND created_by = $${paramIndex + 1}
+            RETURNING *
+        `;
+
+        const result = await client.query(query, values);
+        client.release();
+
+        if (result.rowCount === 0) {
+            return NextResponse.json({ error: 'Invoice not found or unauthorized' }, { status: 404 });
+        }
+
+        return NextResponse.json({ success: true, invoice: result.rows[0] });
+
+    } catch (error) {
+        console.error('Error updating invoice:', error);
+        return NextResponse.json({ error: 'Failed to update invoice' }, { status: 500 });
+    }
+}

@@ -13,6 +13,12 @@ export default function CustomerDetailPage() {
     const { customers, invoices, fetchInvoices, fetchCustomers } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
+    // Payment State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [paymentMode, setPaymentMode] = useState('CASH');
+    const [isProcessing, setIsProcessing] = useState(false);
+
     useEffect(() => {
         setIsClient(true);
         if (customers.length === 0) fetchCustomers();
@@ -41,6 +47,89 @@ export default function CustomerDetailPage() {
     const totalSales = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.total_amount || 0), 0);
     const totalPaid = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.paid_amount || 0), 0);
     const totalDue = Math.max(0, totalSales - totalPaid);
+
+    const handlePayment = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const amount = parseFloat(paymentAmount);
+        if (!amount || amount <= 0) {
+            toast.error('Please enter a valid amount');
+            return;
+        }
+
+        if (amount > totalDue) {
+            toast.error('Amount exceeds total due!');
+            return;
+        }
+
+        setIsProcessing(true);
+
+        try {
+            // Find unpaid invoices (Oldest First to apply FIFO)
+            const unpaidInvoices = customerInvoices
+                .filter((inv: any) => {
+                    const due = parseFloat(inv.total_amount) - parseFloat(inv.paid_amount || 0);
+                    return due > 0; // Filter floating point dust
+                })
+                .sort((a: any, b: any) => new Date(a.invoice_date).getTime() - new Date(b.invoice_date).getTime());
+
+            let remainingPayment = amount;
+            let processedCount = 0;
+
+            for (const inv of unpaidInvoices) {
+                if (remainingPayment <= 0.01) break;
+
+                const currentPaid = parseFloat(inv.paid_amount || 0);
+                const currentTotal = parseFloat(inv.total_amount);
+                const pending = currentTotal - currentPaid;
+
+                let paymentForInvoice = 0;
+
+                if (remainingPayment >= pending) {
+                    paymentForInvoice = pending;
+                    remainingPayment -= pending;
+                } else {
+                    paymentForInvoice = remainingPayment;
+                    remainingPayment = 0;
+                }
+
+                const newPaidAmount = currentPaid + paymentForInvoice;
+                const newStatus = Math.abs(newPaidAmount - currentTotal) < 0.1 ? 'PAID' : 'PARTIAL';
+
+                // Call API to update invoice
+                const res = await fetch('/api/invoices', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: inv.id,
+                        paid_amount: newPaidAmount,
+                        status: newStatus
+                    })
+                });
+
+                if (res.ok) {
+                    processedCount++;
+                } else {
+                    console.error('Failed to update invoice', inv.invoice_number);
+                }
+            }
+
+            if (processedCount > 0) {
+                toast.success(`Payment of ₹${amount} received successfully!`);
+                await fetchInvoices(); // Refresh data
+                setShowPaymentModal(false);
+                setPaymentAmount('');
+            } else {
+                toast.error('Failed to process payment. Try again.');
+            }
+
+        } catch (error) {
+            console.error('Payment Error:', error);
+            toast.error('An error occurred during payment');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50 overflow-hidden">
@@ -209,6 +298,104 @@ export default function CustomerDetailPage() {
                     </div>
                 </div>
             </div>
+            {/* Fixed Bottom Action Bar */}
+            <div className="p-4 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-30">
+                <div className="max-w-md mx-auto">
+                    <button
+                        onClick={() => {
+                            if (totalDue <= 0) {
+                                toast.success('All clear! No pending payments.');
+                                return;
+                            }
+                            setPaymentAmount(totalDue.toString());
+                            setShowPaymentModal(true);
+                        }}
+                        className="
+                            w-full py-4 px-6 rounded-2xl
+                            bg-[#4358f4] text-white font-black text-sm uppercase tracking-widest
+                            shadow-lg shadow-indigo-500/30
+                            flex items-center justify-center gap-3
+                            hover:scale-[1.02] active:scale-[0.98] transition-all
+                            border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1
+                        "
+                    >
+                        <FaMoneyBillWave className="text-xl" />
+                        Receive Payment
+                    </button>
+                </div>
+            </div>
+
+            {/* Payment Modal */}
+            {showPaymentModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl scale-100 animate-in zoom-in-95 duration-200 relative">
+                        <button
+                            onClick={() => setShowPaymentModal(false)}
+                            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            ✕
+                        </button>
+
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+                                <FaRupeeSign />
+                            </div>
+                            <h3 className="text-xl font-black text-slate-800">Receive Payment</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase mt-1">From {customer.name}</p>
+                        </div>
+
+                        <form onSubmit={handlePayment} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Amount (₹)</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                                    <input
+                                        type="number"
+                                        value={paymentAmount}
+                                        onChange={(e) => setPaymentAmount(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-black text-xl text-slate-800 outline-none focus:border-blue-500 transition-all placeholder:text-slate-300"
+                                        placeholder="0.00"
+                                        autoFocus
+                                        max={totalDue}
+                                    />
+                                </div>
+                                <p className="text-[10px] font-bold text-slate-400 mt-2 text-right">Total Due: ₹{totalDue.toLocaleString()}</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Payment Mode</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {['CASH', 'ONLINE'].map((mode) => (
+                                        <button
+                                            key={mode}
+                                            type="button"
+                                            onClick={() => setPaymentMode(mode)}
+                                            className={`py-3 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all ${paymentMode === mode
+                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg'
+                                                    : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                                                }`}
+                                        >
+                                            {mode}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isProcessing}
+                                className="w-full py-4 mt-4 bg-green-500 text-white rounded-xl font-black uppercase tracking-widest shadow-lg shadow-green-500/30 hover:bg-green-600 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                                {isProcessing ? (
+                                    <>Processing...</>
+                                ) : (
+                                    <>Confirm Payment <FaReceipt /></>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

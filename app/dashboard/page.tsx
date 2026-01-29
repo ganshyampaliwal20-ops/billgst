@@ -167,7 +167,7 @@ export default function DashboardPage() {
             icon: FaRupeeSign,
             label: t.todaysSales,
             value: todaySales,
-            formattedValue: `₹${todaySales >= 100000 ? (todaySales / 100000).toFixed(1) + 'L' : todaySales.toLocaleString('en-IN')}`,
+            formattedValue: `₹${todaySales >= 10000000 ? (todaySales / 10000000).toFixed(2) + ' Cr' : todaySales >= 100000 ? (todaySales / 100000).toFixed(2) + ' L' : todaySales.toLocaleString('en-IN')}`,
             subtext: 'vs Yesterday',
             color: 'from-blue-500 to-indigo-600',
             shadow: 'shadow-blue-500/20',
@@ -179,7 +179,7 @@ export default function DashboardPage() {
             icon: FaChartLine,
             label: t.totalRevenue,
             value: totalSales,
-            formattedValue: `₹${totalSales >= 100000 ? (totalSales / 100000).toFixed(1) + 'L' : totalSales.toLocaleString('en-IN')}`,
+            formattedValue: `₹${totalSales >= 10000000 ? (totalSales / 10000000).toFixed(2) + ' Cr' : totalSales >= 100000 ? (totalSales / 100000).toFixed(2) + ' L' : totalSales.toLocaleString('en-IN')}`,
             subtext: `${period === 'daily' ? t.daily : period === 'weekly' ? t.weekly : period === 'monthly' ? t.monthly : t.yearly} Sales`,
             color: 'from-violet-500 to-purple-600',
             shadow: 'shadow-violet-500/20',
@@ -442,7 +442,7 @@ export default function DashboardPage() {
                                 <p className="text-emerald-50 mt-1 font-bold text-sm">Customers can now browse and order products online.</p>
                             </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '10px' }}>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                             {!businessProfile.id ? (
                                 <div className="px-8 py-3 bg-white/20 text-white font-black rounded-2xl animate-pulse text-xs tracking-widest uppercase">
                                     Initializing...

@@ -359,7 +359,7 @@ export default function NewInvoicePage() {
     const safeCustomers = rawCustomers.filter((c: any) => c && typeof c === 'object' && c.id && c.name);
 
     const rawProducts = Array.isArray(products) ? products : [];
-    const safeProducts = rawProducts.filter((p: any) => p && typeof p === 'object' && p.id && p.name);
+    const safeProducts = rawProducts.filter((p: any) => p && typeof p === 'object' && p.id && p.name && p.status !== 'INACTIVE');
 
     if (!isClient) return null;
 

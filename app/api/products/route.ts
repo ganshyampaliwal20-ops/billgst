@@ -56,10 +56,10 @@ export async function POST(request: Request) {
         try {
             const productType = data.type || 'PRODUCT';
             const result = await client.query(
-                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) 
+                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType]
+                [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -71,15 +71,16 @@ export async function POST(request: Request) {
                     ALTER TABLE products 
                     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
                     ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT',
-                    ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(15, 2) DEFAULT 0;
+                    ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(15, 2) DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS image_url TEXT;
                 `);
                 // Retry
                 const productType = data.type || 'PRODUCT';
                 const result = await client.query(
-                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, created_at) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) 
+                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType]
+                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
@@ -101,7 +102,7 @@ export async function PUT(request: Request) {
 
     try {
         const data = await request.json();
-        const { id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity } = data;
+        const { id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, image_url } = data;
 
         if (!id) {
             return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
@@ -122,10 +123,10 @@ export async function PUT(request: Request) {
 
         const result = await client.query(
             `UPDATE products 
-             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, updated_at = NOW()
-             WHERE id = $10 AND created_by = $11
+             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, image_url = $10, updated_at = NOW()
+             WHERE id = $11 AND created_by = $12
              RETURNING *`,
-            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', id, userId]
+            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', image_url, id, userId]
         );
         client.release();
 
