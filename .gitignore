@@ -43,3 +43,7 @@ lint_output.txt
 *.keystore
 *.apk
 *.aab
+*.jks
+
+# IDE / Other
+Android Studio/

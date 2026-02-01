@@ -4,13 +4,23 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock } from 'react-icons/fa';
+import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock, FaPenNib } from 'react-icons/fa';
+import SignatureModal from '@/app/components/SignatureModal';
+
+const THEMES = {
+    TEMPLATE_1: { accent: '#5d5088', title: '#8b7eb0' }, // Modern Purple
+    TEMPLATE_2: { accent: '#1e40af', title: '#3b82f6' }, // Royal Blue
+    TEMPLATE_3: { accent: '#334155', title: '#64748b' }, // Slate Gray
+    TEMPLATE_4: { accent: '#c2410c', title: '#f97316' }, // Energetic Orange
+    TEMPLATE_5: { accent: '#059669', title: '#10b981' }, // Classic Green
+};
 
 export default function SettingsPage() {
     const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
     const [formData, setFormData] = useState(businessProfile || {});
     const [localSettings, setLocalSettings] = useState(settings || {});
     const [isClient, setIsClient] = useState(false);
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -42,7 +52,7 @@ export default function SettingsPage() {
     if (!isClient) return null;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 px-[5px]">
+        <div className="max-w-4xl mx-auto space-y-6 px-[5px] pb-10">
             <h1 className="text-2xl font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>Business Settings</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
@@ -158,14 +168,40 @@ export default function SettingsPage() {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Authorized Signatory Name</label>
-                                <input
-                                    type="text"
-                                    value={formData.owner_name || ''}
-                                    onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                                    placeholder="Person name for signature" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
-                                />
+                                <div className="space-y-3">
+                                    <input
+                                        type="text"
+                                        value={formData.owner_name || ''}
+                                        onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition font-bold"
+                                        placeholder="Person name for signature" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                                    />
+
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsSignatureModalOpen(true)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-slate-600 font-black text-xs hover:bg-slate-100 transition-all uppercase tracking-widest"
+                                        >
+                                            <FaPenNib className="text-blue-500" />
+                                            {formData.signature ? 'Change Signature' : 'Draw Digital Signature'}
+                                        </button>
+
+                                        {formData.signature && (
+                                            <div className="w-24 h-12 bg-white border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm">
+                                                <img src={formData.signature} alt="Sign" className="max-h-full max-w-full object-contain" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 font-medium italic">Your signature will be printed on invoices and quotations.</p>
+                                </div>
                             </div>
+
+                            <SignatureModal
+                                isOpen={isSignatureModalOpen}
+                                onClose={() => setIsSignatureModalOpen(false)}
+                                onSave={(data) => setFormData({ ...formData, signature: data })}
+                            />
                         </div>
                     </div>
                 </div>
@@ -282,6 +318,7 @@ export default function SettingsPage() {
                             <p className="mt-2 text-xs text-gray-500">Recommended size: 200x200px. Max size: 2MB.</p>
                         </div>
                     </div>
+
                 </div>
 
                 {/* Invoice Templates Card */}
@@ -331,7 +368,7 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800">Invoice Table Layout</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-3 gap-3 md:gap-4">
                         {[
                             { id: 'FORMAT_1', name: 'Standard', desc: 'Default Look', icon: 'M4 4h16v16H4V4zm2 2v12h12V6H6z' },
                             { id: 'FORMAT_2', name: 'Grid Box', desc: 'Full Borders', icon: 'M4 4h16v16H4V4zm2 2v4h12V6H6zm0 6v4h12v-4H6zm0 6v2h12v-2H6z' },
@@ -343,28 +380,180 @@ export default function SettingsPage() {
                                 key={fmt.id}
                                 type="button"
                                 onClick={() => setFormData({ ...formData, invoice_table_format: fmt.id })}
-                                className={`flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all ${formData.invoice_table_format === fmt.id
+                                className={`flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl border-2 transition-all ${formData.invoice_table_format === fmt.id
                                     ? 'border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500'
                                     : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
                                 <svg
-                                    className={`w-10 h-10 ${formData.invoice_table_format === fmt.id ? 'text-blue-600' : 'text-gray-400'}`}
+                                    className={`w-8 h-8 md:w-10 md:h-10 ${formData.invoice_table_format === fmt.id ? 'text-blue-600' : 'text-gray-400'}`}
                                     fill="currentColor"
                                     viewBox="0 0 24 24"
                                 >
                                     <path d={fmt.icon} />
                                 </svg>
                                 <div className="text-center">
-                                    <span className={`block text-xs font-bold ${formData.invoice_table_format === fmt.id ? 'text-blue-700' : 'text-gray-700'}`}>
+                                    <span className={`block text-[10px] md:text-xs font-bold ${formData.invoice_table_format === fmt.id ? 'text-blue-700' : 'text-gray-700'}`}>
                                         {fmt.name}
                                     </span>
-                                    <span className="block text-[10px] text-gray-500 mt-1">
+                                    <span className="hidden md:block text-[10px] text-gray-500 mt-1">
                                         {fmt.desc}
                                     </span>
                                 </div>
                             </button>
                         ))}
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Logo Alignment on Invoice</label>
+                        <div className="grid grid-cols-3 gap-3">
+                            {[
+                                { id: 'LEFT', name: 'Left Border', icon: '⬅️' },
+                                { id: 'CENTER', name: 'Center Top', icon: '🔼' },
+                                { id: 'RIGHT', name: 'Right Side', icon: '➡️' },
+                            ].map((pos) => (
+                                <button
+                                    key={pos.id}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, logo_position: pos.id })}
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${formData.logo_position === pos.id
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                                        : 'border-gray-50 text-gray-400 hover:border-gray-200 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <span className="text-xl">{pos.icon}</span>
+                                    <span className="text-[10px] font-bold uppercase">{pos.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mt-8"></div>
+
+                    {/* LIVE PREVIEW SECTION */}
+                    <div className="mt-8 border-2 border-dashed border-slate-200 rounded-3xl p-2 sm:p-6 bg-slate-50/50">
+                        <div className="flex items-center justify-between mb-4 px-2">
+                            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                Live Demo Preview
+                            </h3>
+                            <span className="text-[10px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100 shadow-sm">Sample Data Attached</span>
+                        </div>
+
+                        {/* THE PREVIEW PAPER */}
+                        <div className={`bg-white shadow-2xl rounded-sm mx-auto overflow-hidden transition-all duration-500 border border-slate-200 w-full max-w-[500px] min-h-[400px] select-none scale-[0.95] sm:scale-100`}
+                            style={{ fontFamily: formData.invoice_template === 'TEMPLATE_3' ? 'serif' : 'sans-serif' }}>
+
+                            {/* Header Section */}
+                            <div className={`p-6 border-b flex ${formData.logo_position === 'CENTER'
+                                ? 'flex-col items-center text-center'
+                                : formData.logo_position === 'LEFT'
+                                    ? 'flex-row-reverse justify-between items-start text-left'
+                                    : 'flex-row justify-between items-start text-left'
+                                }`}>
+                                {formData.logo_position === 'CENTER' && (
+                                    <div className="text-[10px] font-bold uppercase mb-2" style={{ color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>TAX INVOICE</div>
+                                )}
+                                <div className={formData.logo_position === 'CENTER' ? 'order-2' : 'flex-1'}>
+                                    <h4 className="text-lg font-black uppercase text-slate-800 leading-tight">{formData.name || 'YOUR BUSINESS NAME'}</h4>
+                                    <p className="text-[9px] text-slate-500 mt-1 max-w-[200px] mx-auto uppercase font-bold">{formData.address || 'Street Name, City, State - 000000'}</p>
+                                    <p className="text-[9px] text-slate-400 font-bold">Mob: {formData.phone || '+91 0000000000'}</p>
+                                </div>
+
+                                {formData.logo ? (
+                                    <img src={formData.logo} alt="Logo" className={`w-12 h-12 object-contain ${formData.logo_position === 'CENTER' ? 'order-1 mb-2' : ''}`} />
+                                ) : (
+                                    <div className={`w-12 h-12 bg-slate-100 rounded flex items-center justify-center text-[8px] text-slate-300 font-bold border-2 border-dashed border-slate-200 ${formData.logo_position === 'CENTER' ? 'order-1 mb-2' : ''}`}>LOGO</div>
+                                )}
+
+                                {formData.logo_position !== 'CENTER' && (
+                                    <div className={`text-right ${formData.logo_position === 'LEFT' ? 'order-3' : ''}`}>
+                                        <h4 className="text-lg font-black italic tracking-tight" style={{ color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>TAX INVOICE</h4>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Client Section & Info */}
+                            <div className="p-6 flex justify-between text-[9px]">
+                                <div>
+                                    <p className="font-bold text-slate-400 uppercase tracking-tighter mb-1">Bill To:</p>
+                                    <p className="text-[12px] font-black text-slate-800">Ramesh Kumar</p>
+                                    <p className="text-slate-500 font-medium">South Extension Part I, Delhi</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="font-bold text-slate-800">Inv #: <span className="text-slate-500">IV-101</span></p>
+                                    <p className="font-bold text-slate-800">Date: <span className="text-slate-500">24-01-2026</span></p>
+                                </div>
+                            </div>
+
+                            {/* TABLE PREVIEW */}
+                            <div className="px-6 pb-6 mt-2">
+                                <table className={`w-full text-left text-[9px] border-collapse ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>
+                                    <thead style={{
+                                        backgroundColor: formData.invoice_table_format === 'FORMAT_3' ? 'transparent' : (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088'),
+                                        color: formData.invoice_table_format === 'FORMAT_3' ? (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088') : '#fff'
+                                    }}>
+                                        <tr className={formData.invoice_table_format === 'FORMAT_3' ? 'border-b-2' : ''} style={{ borderColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent }}>
+                                            <th className={`p-2 font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>#</th>
+                                            <th className={`p-2 font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Item Name</th>
+                                            <th className={`p-2 font-black text-center ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Qty</th>
+                                            <th className={`p-2 font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Price</th>
+                                            <th className={`p-2 font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {[
+                                            { n: 'Premium Cotton Shirt', q: 2, p: 1200 },
+                                            { n: 'Office Table Lamp', q: 1, p: 850 },
+                                        ].map((it, i) => (
+                                            <tr key={i} className={`
+                                                ${formData.invoice_table_format === 'FORMAT_4' && i % 2 !== 0 ? 'bg-slate-50' : ''}
+                                                ${formData.invoice_table_format === 'FORMAT_3' || formData.invoice_table_format === 'FORMAT_2' ? 'border-b' : ''}
+                                            `}>
+                                                <td className={`p-2 font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{i + 1}</td>
+                                                <td className={`p-2 font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.n}</td>
+                                                <td className={`p-2 text-center font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.q}</td>
+                                                <td className={`p-2 text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{it.p.toFixed(2)}</td>
+                                                <td className={`p-2 text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{(it.q * it.p).toFixed(2)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                {/* Totals Preview */}
+                                <div className="mt-8 flex justify-end">
+                                    <div className="w-[120px] space-y-2">
+                                        <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                                            <span>Subtotal:</span>
+                                            <span>₹3250.00</span>
+                                        </div>
+                                        <div className="flex justify-between p-2 rounded text-[12px] font-black text-white shadow-lg" style={{ backgroundColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>
+                                            <span>Total:</span>
+                                            <span>₹3250.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer Mock */}
+                            <div className="p-6 pt-0 flex justify-between items-end">
+                                <div className="w-16 h-16 bg-slate-100 rounded border-2 border-dashed border-slate-300 flex items-center justify-center text-[7px] font-black opacity-30">UPI QR</div>
+                                <div className="text-right">
+                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">For {formData.name || 'YOUR BUSINESS'}</p>
+
+                                    {formData.signature ? (
+                                        <div className="h-10 w-24 ml-auto my-1 flex items-center justify-end overflow-hidden">
+                                            <img src={formData.signature} alt="Sign" className="max-h-full object-contain" />
+                                        </div>
+                                    ) : (
+                                        <div className="h-4" />
+                                    )}
+
+                                    <div className="w-24 h-px bg-slate-400 mb-1 ml-auto"></div>
+                                    <p className="text-[8px] font-black uppercase text-slate-800">Authorized Signatory</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -445,17 +634,43 @@ export default function SettingsPage() {
                         </label>
                     </div>
 
-                    <div className={`space-y-4 transition-all ${localSettings.autoRemindersEnabled ? 'opacity-100' : 'opacity-40'}`}>
+                    <div className={`space-y-6 transition-all ${localSettings.autoRemindersEnabled ? 'opacity-100' : 'opacity-40'}`}>
                         <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
                             <p className="text-xs font-bold text-blue-800 mb-2 uppercase tracking-tight">AI Recovery System:</p>
                             <p className="text-xs text-blue-700 leading-relaxed italic">
-                                Jab bhi koi invoice 3 din se zyada "Unpaid" rahega, hamara AI automatically customer ko ek gentle reminder WhatsApp pe bhej dega. Isse aapka recovery rate 40% tak badh sakta hai.
+                                Jab bhi koi invoice {localSettings.reminderFrequency || 3} din se zyada "Unpaid" rahega, hamara AI automatically customer ko ek gentle reminder WhatsApp pe bhej dega at {localSettings.reminderTime || '10:00'}.
                             </p>
                         </div>
-                        <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase px-2">
-                            <span>Frequency: Every 3 Days</span>
-                            <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
-                            <span>Time: 10:00 AM</span>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2 px-1">Reminder Frequency (Days)</label>
+                                <select
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm"
+                                    value={localSettings.reminderFrequency || 3}
+                                    onChange={(e) => setLocalSettings({ ...localSettings, reminderFrequency: parseInt(e.target.value) })}
+                                    disabled={!localSettings.autoRemindersEnabled}
+                                >
+                                    {[1, 2, 3, 5, 7, 10, 15, 30].map(d => (
+                                        <option key={d} value={d}>Every {d} {d === 1 ? 'Day' : 'Days'}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2 px-1">Reminder Time</label>
+                                <input
+                                    type="time"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm"
+                                    value={localSettings.reminderTime || '10:00'}
+                                    onChange={(e) => setLocalSettings({ ...localSettings, reminderTime: e.target.value })}
+                                    disabled={!localSettings.autoRemindersEnabled}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                            <FaBolt className="text-amber-500 text-xs" />
+                            <p className="text-[10px] text-amber-700 font-bold uppercase italic">BillGST AI will check for unpaid bills daily and trigger reminders based on these rules.</p>
                         </div>
                     </div>
                 </div>

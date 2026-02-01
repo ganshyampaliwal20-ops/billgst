@@ -21,7 +21,8 @@ export async function GET() {
                         business_email, business_logo, business_upi_id, business_owner_name,
                         business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
                         business_account_holder, business_show_bank_details,
-                        plan_type, invoice_template, invoice_table_format
+                        plan_type, invoice_template, invoice_table_format,
+                        business_signature, business_logo_position
                  FROM users WHERE id = $1`,
                 [session.user.id]
             );
@@ -50,6 +51,8 @@ export async function GET() {
                 plan_type: dbRow.plan_type || 'FREE',
                 invoice_template: dbRow.invoice_template || 'TEMPLATE_1',
                 invoice_table_format: dbRow.invoice_table_format || 'FORMAT_1',
+                signature: dbRow.business_signature || null,
+                logo_position: dbRow.business_logo_position || 'RIGHT',
                 id: session.user.id
             };
 
@@ -77,7 +80,9 @@ export async function GET() {
                     ADD COLUMN IF NOT EXISTS business_account_holder VARCHAR(255),
                     ADD COLUMN IF NOT EXISTS business_show_bank_details BOOLEAN DEFAULT TRUE,
                     ADD COLUMN IF NOT EXISTS invoice_template VARCHAR(50) DEFAULT 'TEMPLATE_1',
-                    ADD COLUMN IF NOT EXISTS invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1';
+                    ADD COLUMN IF NOT EXISTS invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1',
+                    ADD COLUMN IF NOT EXISTS business_signature TEXT,
+                    ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT';
                 `);
 
                 // Retry query once
@@ -86,7 +91,8 @@ export async function GET() {
                             business_email, business_logo, business_upi_id, business_owner_name,
                             business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
                             business_account_holder, business_show_bank_details,
-                            plan_type, invoice_template, invoice_table_format
+                            plan_type, invoice_template, invoice_table_format,
+                            business_signature, business_logo_position
                      FROM users WHERE id = $1`,
                     [session.user.id]
                 );
@@ -98,9 +104,21 @@ export async function GET() {
                         name: r.business_name || 'My Business',
                         gstin: r.business_gstin || '',
                         address: r.business_address || '',
+                        phone: r.business_phone || '',
+                        email: r.business_email || '',
+                        logo: r.business_logo || null,
+                        upi_id: r.business_upi_id || '',
+                        owner_name: r.business_owner_name || '',
+                        bank_name: r.business_bank_name || '',
+                        account_no: r.account_no || '',
+                        ifsc_code: r.ifsc_code || '',
+                        branch_name: r.branch_name || '',
+                        show_bank_details: r.show_bank_details ?? true,
                         plan_type: r.plan_type || 'FREE',
                         invoice_template: r.invoice_template || 'TEMPLATE_1',
                         invoice_table_format: r.invoice_table_format || 'FORMAT_1',
+                        signature: r.business_signature || null,
+                        logo_position: r.business_logo_position || 'RIGHT',
                         id: session.user.id
                     });
                 }
@@ -146,13 +164,16 @@ export async function POST(request: Request) {
                      business_account_holder = $13,
                      business_show_bank_details = $14,
                      invoice_template = $16,
-                     invoice_table_format = $17
+                     invoice_table_format = $17,
+                     business_signature = $18,
+                     business_logo_position = $19
                  WHERE id = $15
                  RETURNING business_name, business_gstin, business_address, business_phone, 
                            business_email, business_logo, business_upi_id, business_owner_name,
                            business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
                            business_account_holder, business_show_bank_details,
-                           plan_type, invoice_template, invoice_table_format`,
+                           plan_type, invoice_template, invoice_table_format,
+                           business_signature, business_logo_position`,
                 [
                     data.name || 'My Business',
                     data.gstin || '',
@@ -170,7 +191,9 @@ export async function POST(request: Request) {
                     data.show_bank_details ?? true,
                     session.user.id,
                     data.invoice_template || 'TEMPLATE_1',
-                    data.invoice_table_format || 'FORMAT_1'
+                    data.invoice_table_format || 'FORMAT_1',
+                    data.signature || null,
+                    data.logo_position || 'RIGHT'
                 ]
             );
 
@@ -188,7 +211,9 @@ export async function POST(request: Request) {
                     name: dbRow.business_name,
                     gstin: dbRow.business_gstin,
                     address: dbRow.business_address,
-                    invoice_table_format: dbRow.invoice_table_format
+                    invoice_table_format: dbRow.invoice_table_format,
+                    signature: dbRow.business_signature,
+                    logo_position: dbRow.business_logo_position
                 }
             });
 
@@ -203,7 +228,9 @@ export async function POST(request: Request) {
                     ADD COLUMN IF NOT EXISTS business_account_holder VARCHAR(255),
                     ADD COLUMN IF NOT EXISTS business_show_bank_details BOOLEAN DEFAULT TRUE,
                     ADD COLUMN IF NOT EXISTS invoice_template VARCHAR(50) DEFAULT 'TEMPLATE_1',
-                    ADD COLUMN IF NOT EXISTS invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1';
+                    ADD COLUMN IF NOT EXISTS invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1',
+                    ADD COLUMN IF NOT EXISTS business_signature TEXT,
+                    ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT';
                 `);
                 client.release();
                 return NextResponse.json({ success: false, error: 'Database migrated. Please retry saving.' });

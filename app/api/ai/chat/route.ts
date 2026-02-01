@@ -7,56 +7,53 @@ export async function POST(request: Request) {
 
         let reply = "";
 
-        // Universal Knowledge Base for BillGST & Website Features
-        if ((msg.includes('hi') || msg.includes('hello') || msg.includes('namaste')) && msg.length < 15) {
-            reply = "Namaste! 🙏 Main BillGST ka expert AI hoon. Main aapki Billing, Inventory, GST returns aur aapke Digital Store setup karne mein madad kar sakta hoon. Aap mujhse kuch bhi puch sakte hain!";
+        // Common "How-To" Instructions
+        const HOW_TO_ADD_PRODUCT = "Product add karne ke liye: \n1. **Dashboard** par jayein.\n2. **'Add Product'** button (violet color) par click karein.\n3. Details bharke 'Save' kar dein. \n\n*Aap purane bills ki photo khinch kar 'Magic Scan' se bhi items auto-add kar sakte hain!*";
+        const HOW_TO_CREATE_INVOICE = "Naya Bill banane ke liye: \n1. **Dashboard** par jayein.\n2. **'New Invoice'** (indigo color) par click karein.\n3. Customer aur items select karke 'Generate' kar dein. \n\n*Direct shortcut: Screen ke bottom mein 'New' button bhi hai.*";
+        const HOW_TO_ADD_CUSTOMER = "Customer add karne ke liye: \n1. **Dashboard** par jayein.\n2. **'Add Customer'** (emerald color) button par click karein.\n3. Naam aur phone number dalkar save karein.";
+
+        // Universal Knowledge Base - ADVANCED UPGRADE
+        if (msg.includes('vyapar') || msg.includes('viyapar')) {
+            reply = "Vyapar ek purani technology hai. **BillGST** usse 10x better hai kyunki:\n\n1. **Online Store:** Aapka khud ka digital catalog.\n2. **Zero-Setup WhatsApp:** Bina number save kiye reminders.\n3. **Modern UI:** Bahut fast aur easy interface.\n4. **Magic AI:** Purane bills se auto-data entry.";
         }
-        else if ((msg.includes('gst') || msg.includes('जीएसटी')) && (msg.includes('kya') || msg.includes('what') || msg.includes('kaise') || msg.includes('report') || msg.includes('return') || msg.includes('vapas'))) {
-            reply = "BillGST par GSTR-1, GSTR-3B aur GSTR-4 reports generate karna bohot aasaan hai. Bas 'Reports' section mein jayiye, apni dates select kijiye aur data export kijiye. Hum automatically HSN-wise summary bhi bana dete hain.";
-        }
-        else if (msg.includes('invoice') || msg.includes('bill') || msg.includes('billing') || msg.includes('बिल') || msg.includes('इनवॉइस')) {
-            reply = "BillGST par aap 5 seconds mein professional invoice bana sakte hain. Aap direct 'New Invoice' button par click karein, customer aur product select karein aur 'Save' karein. Aap ise seedhe WhatsApp par bhi share kar sakte hain.";
-        }
-        else if (msg.includes('stock') || msg.includes('inventory') || msg.includes('maal') || msg.includes('item') || msg.includes('स्टॉक') || msg.includes('माल')) {
-            reply = "Inventory track karne ke liye aap 'Inventory' page par jayein. Wahan aap naya maal (Product) add kar sakte hain aur 'Low Stock Alert' set kar sakte hain taaki maal khatam hone se pehle aapko pata chal jaye.";
-        }
-        else if (msg.includes('whatsapp') || msg.includes('reminder') || msg.includes('msg') || msg.includes('api') || msg.includes('set') || msg.includes('व्हाट्सएप') || msg.includes('एपी')) {
-            if (msg.includes('api') || msg.includes('set') || msg.includes('setup') || msg.includes('kaise') || msg.includes('एपी') || msg.includes('सेट') || msg.includes('डाउनलोड')) {
-                reply = "BillGST mein WhatsApp API set karne ya download karne ki koi zaroorat nahi hai! Humne isse pehle se hi 'Ready-to-use' rakha hai. Bas Invoice bachate (save) waqt 'Share on WhatsApp' par click karein. Ye aapke browser ke through direct chalta hai, isliye koi extra setup nahi chahiye.";
+        else if (msg.includes('product') || msg.includes('item') || msg.includes('maal') || msg.includes('स्टॉक') || msg.includes('माल') || msg.includes('entry')) {
+            if (msg.includes('add') || msg.includes('kaise') || msg.includes('create') || msg.includes('naya') || msg.includes('jode')) {
+                reply = HOW_TO_ADD_PRODUCT;
             } else {
-                reply = "Humare software mein built-in WhatsApp integration hai. Aap customers ko automated payment reminders bhej sakte hain aur seedhe WhatsApp par bill share kar sakte hain. Iske liye koi alag se setup nahi chahiye.";
+                reply = "Inventory management ab 'Auto-Pilot' par hai. Aap products add karein aur main (AI) unka stock track karunga. Jab maal kam hoga, main low-stock alert de dunga.\n\n" + HOW_TO_ADD_PRODUCT;
             }
         }
-        else if (msg.includes('tally') || msg.includes('export')) {
-            reply = "Haan! BillGST fully Tally compatible hai. Aap saara data Tally XML format mein export karke apne CA ko de sakte hain, jo seedhe Tally mein import ho jayega.";
+        else if (msg.includes('invoice') || msg.includes('bill') || msg.includes('billing') || msg.includes('बिल') || msg.includes('इनवॉइस')) {
+            if (msg.includes('kaise') || msg.includes('banaye') || msg.includes('create') || msg.includes('how')) {
+                reply = HOW_TO_CREATE_INVOICE;
+            } else {
+                reply = "BillGST par billing super-fast hai. Aap 5 seconds mein GST bill bana sakte hain. \n\n" + HOW_TO_CREATE_INVOICE;
+            }
         }
-        else if (msg.includes('payment') || msg.includes('qr') || msg.includes('upi')) {
-            reply = "Aap BillGST mein apni UPI ID set kar sakte hain, jiske baad har bill par ek Smart QR code apne aap print ho jayega. Customers use scan karke turant pay kar sakte hain.";
+        else if (msg.includes('customer') || msg.includes('party') || msg.includes('client')) {
+            reply = HOW_TO_ADD_CUSTOMER;
         }
-        else if (msg.includes('pricing') || msg.includes('cost') || msg.includes('paisa') || msg.includes('free')) {
-            reply = "Humare 3 plans hain:\n1. **FREE:** Naye businesses ke liye (5 bills/month).\n2. **BASIC (₹30):** Unlimited billing ke liye.\n3. **PREMIUM (₹99):** GST, Magic Scan, aur WhatsApp AI ke saath.\nAap pricing page par jaakar upgrade kar sakte hain.";
+        else if (msg.includes('bulk') || msg.includes('reminder') || msg.includes('whatsapp') || msg.includes('saath')) {
+            reply = "BillGST ka **Bulk WhatsApp** feature sabse best hai. \n\nCollection Center par jayein aur 'Bulk Remind' dabaein. Sabhi customers ko unka pending balance ek saath WhatsApp ho jayega. No manual work!";
         }
-        else if (msg.includes('security') || msg.includes('safe') || msg.includes('data')) {
-            reply = "Aapka data BillGST par 100% safe aur encrypted hai. Hum Amazon Web Services (AWS) use karte hain aur har din automatic backup lete hain, taaki aapka record kabhi na khoye.";
+        else if (msg.includes('gst') || msg.includes('report') || msg.includes('return') || msg.includes('जीएसटी')) {
+            reply = "Report section mein aapko **GSTR-1, 3B aur Tally XML** export mil jayega. CA ko data bhejna ab boring nahi raha! Sab kuch automatic calculation se hota hai.";
         }
         else if (msg.includes('magic scan') || msg.includes('ocr') || msg.includes('photo')) {
-            reply = "Magic Scan hamara flagship AI feature hai! Aap kisi bhi purane bill ki photo kheenchiye, aur hamara AI usse turant digital invoice mein convert kar dega. Typing ki mehnat khatam!";
+            reply = "Magic Scan hamara flagship AI feature hai. Kisi bhi purane bill ki photo khinchiye aur system use digital items mein convert kar dega. Typing band, Magic shuru!";
         }
-        else if (msg.includes('digital store') || msg.includes('online shop') || msg.includes('s/')) {
-            reply = "BillGST aapko ek personal Digital Store link deta hai (Jaise: billgst.in/s/your-id). Aap ise WhatsApp par share kar sakte hain aur customers seedhe online order de sakte hain.";
+        else if (msg.includes('pricing') || msg.includes('cost') || msg.includes('paisa') || msg.includes('free')) {
+            reply = "Digital growth sasti honi chahiye! BillGST Free hai (5 bills/mo), aur Premium features sirf ₹99/month se start hote hain. Vyapar jaise mehange software se 80% sasta.";
         }
-        else if (msg.includes('voice') || msg.includes('bol kar')) {
-            reply = "Voice Billing se aap bina keyboard touch kiye bill bana sakte hain. Bas 'Add 2kg Sugar' bolein aur system use apne aap item list mein jod dega. Ye India ka sabse fast billing method hai!";
-        }
-        else if (msg.includes('mobile') || msg.includes('app') || msg.includes('phone')) {
-            reply = "BillGST fully responsive hai, yani aap ise apne Mobile, Tablet ya Laptop kisi bhi device par chala sakte hain. Iska user interface mobile users ke liye special optimize kiya gaya hai.";
+        else if (msg.includes('hi') || msg.includes('hello') || msg.includes('namaste') || msg.includes('kaun') || msg.includes('help')) {
+            reply = "Namaste! 🙏 Main BillGST Advisory AI hoon. \n\nMujhse kuch bhi poochein, jaise:\n- *'Product kaise add karein?'*\n- *'Naya bill kaise banayein?'*\n- *'Low stock kaise check karein?'*";
         }
         else {
-            reply = "Main BillGST AI Assistant hoon aur main aapke software, GST reports, Inventory, aur Digital Store ke har sawal ka jawab de sakta hoon. Kya aap kisi specific feature ke baare mein janna chahte hain?";
+            reply = "Maaf kijiye, main ye samajh nahi paaya. Kya aap **Product add karne**, **Bill banane**, ya **WhatsApp reminders** ke baare mein janna chahte hain? \n\nAap BillGST par apna **Digital Online Store** bhi chala sakte hain!";
         }
 
         return NextResponse.json({ reply });
     } catch (error) {
-        return NextResponse.json({ reply: "Maaf kijiye, abhi system busy hai." }, { status: 500 });
+        return NextResponse.json({ reply: "Maaf kijiye, abhi system busy hai. Kripya thodi der baad koshish karein." }, { status: 500 });
     }
 }

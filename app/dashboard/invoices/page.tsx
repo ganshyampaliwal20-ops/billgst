@@ -21,6 +21,7 @@ interface Invoice {
     created_at?: string;
     customer: {
         name: string;
+        phone?: string;
     };
     total_amount: number;
     status: string;
@@ -147,15 +148,17 @@ export default function InvoicesPage() {
 
             // Open WhatsApp with a prompt to attach
             const text = `Please find the attached invoice ${invoice.invoice_number} from ${businessProfile.name || 'Business'}.`;
-            // Check if mobile to use api.whatsapp.com for better deep linking, else web.whatsapp.com via wa.me
+            const phone = invoice.customer?.phone?.replace(/\D/g, '') || '';
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const url = isMobile
-                ? `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
-                : `https://web.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+            // If phone exists, use direct chat link, else use generic share link
+            const whatsappUrl = phone
+                ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}`
+                : `https://wa.me/?text=${encodeURIComponent(text)}`;
 
             // Use window.open with a slight delay to ensure toast is seen/download starts
             setTimeout(() => {
-                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                window.open(whatsappUrl, '_blank');
             }, 1000);
         }
     };
@@ -206,7 +209,11 @@ export default function InvoicesPage() {
         }
         const upiLink = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${Number(invoice.total_amount).toFixed(2)}&cu=INR`;
         const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nYou can pay quickly using this link: ${upiLink}\n\nRegards,\n${businessProfile.name}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        const phone = invoice.customer?.phone?.replace(/\D/g, '') || '';
+        const whatsappUrl = phone
+            ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}`
+            : `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
     };
 
     return (

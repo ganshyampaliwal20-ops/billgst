@@ -204,17 +204,20 @@ function ReportsContent() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={index} className="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
-                            <div>
-                                <p className="text-gray-500 text-sm font-medium mb-1">{stat.label}</p>
-                                <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
+                        <div key={index} className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center gap-6 hover:shadow-md transition-all hover:-translate-y-1 group relative overflow-hidden">
+                            {/* Decorative background circle to add depth */}
+                            <div className={`absolute -top-10 -right-10 w-32 h-32 ${stat.bg} opacity-5 rounded-full`}></div>
+
+                            <div className={`p-5 md:p-6 rounded-[2rem] ${stat.bg} ${stat.color} bg-opacity-10 text-opacity-100 transform group-hover:scale-110 transition-transform mb-2 shadow-inner`}>
+                                <Icon className="text-3xl md:text-4xl" />
                             </div>
-                            <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} bg-opacity-10 text-opacity-100`}>
-                                <Icon className="text-xl" />
+                            <div className="relative z-10">
+                                <h3 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">{stat.value}</h3>
+                                <p className="text-slate-400 text-[10px] md:text-xs font-black uppercase tracking-widest mt-2">{stat.label}</p>
                             </div>
                         </div>
                     );
