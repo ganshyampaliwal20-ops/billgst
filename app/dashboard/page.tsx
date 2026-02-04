@@ -186,11 +186,11 @@ export default function DashboardPage() {
     const pendingCustomersList = Object.values(pendingByCustomer).sort((a: any, b: any) => b.totalPending - a.totalPending);
 
     return (
-        <div className="space-y-6 pb-20 px-4">
+        <div className="space-y-6 pb-20 px-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2" >
                 <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1" >
                         <FaClock className="text-amber-500 text-sm" />
                         <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
                             {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
@@ -206,7 +206,7 @@ export default function DashboardPage() {
 
             {/* Smart Search */}
             <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-4 left-90 pl-4 flex items-center pointer-events-none">
                     <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                     placeholder="Quick Search: Type customer name, invoice"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm"
+                    className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}
                 />
 
                 {/* Instant Search Results Dropdown */}
@@ -264,7 +264,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                 <Link href="/dashboard/invoices/new" className="bg-[#6366f1] h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2">
                     <FaFileInvoice className="text-2xl" />
                     <span>{t.newInvoice}</span>
@@ -284,7 +284,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Sub Quick Actions */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                 <Link href="/dashboard/quotations" className="bg-slate-800 h-24 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2">
                     <FaReceipt className="text-xl" />
                     <span>Quotations</span>
@@ -293,14 +293,23 @@ export default function DashboardPage() {
                     <FaRupeeSign className="text-xl" />
                     <span>Expenses</span>
                 </Link>
-                <Link href="/dashboard/help" className="bg-blue-600 h-24 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2">
-                    <FaUsers className="text-xl" />
-                    <span>Support</span>
-                </Link>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                {stats.map((stat, index) => (
+                    <div key={index} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm">
+                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
+                        <div>
+                            <h3 className="text-xl font-black text-slate-800 tracking-tight">₹{stat.value.toLocaleString()}</h3>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {/* Time Period Selector */}
-            <div className="space-y-4">
+            <div className="space-y-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                 <div className="flex bg-white p-1 rounded-2xl border-2 border-slate-100 shadow-sm overflow-x-auto no-scrollbar">
                     {['daily', 'weekly', 'monthly', 'yearly', 'custom'].map((p) => (
                         <button
@@ -337,42 +346,30 @@ export default function DashboardPage() {
                 )}
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-                {stats.map((stat, index) => (
-                    <div key={index} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
-                        <div>
-                            <h3 className="text-xl font-black text-slate-800 tracking-tight">₹{stat.value.toLocaleString()}</h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
 
             {/* Recent Invoices Table */}
             <div className="bg-white rounded-[2rem] border-2 border-slate-100 overflow-hidden mt-8 shadow-sm">
                 <div className="p-6 border-b flex items-center justify-between bg-slate-50/30">
-                    <h2 className="text-lg font-black text-slate-800 uppercase italic">Recent Invoices</h2>
-                    <Link href="/dashboard/invoices" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline">View All Invoices</Link>
+                    <h2 className="text-lg font-black text-slate-800 uppercase italic" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Recent Invoices</h2>
+                    <Link href="/dashboard/invoices" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>View All Invoices</Link>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-slate-50 text-slate-400 font-black text-[10px] uppercase tracking-widest">
                             <tr>
-                                <th className="p-6">Bill No</th>
-                                <th className="p-6">Customer</th>
-                                <th className="p-6">Amount</th>
-                                <th className="p-6">Status</th>
+                                <th className="p-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Bill No</th>
+                                <th className="p-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Customer</th>
+                                <th className="p-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Amount</th>
+                                <th className="p-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y border-t border-slate-50">
                             {(invoices || []).slice(0, 5).map((invoice: any, index: number) => (
                                 <tr key={index} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="p-6 font-black text-indigo-600">#{invoice.invoice_number}</td>
-                                    <td className="p-6 font-bold text-slate-700 uppercase text-xs">{invoice.customer?.name || 'Unknown'}</td>
-                                    <td className="p-6 font-black text-slate-800">₹{parseFloat(invoice.total_amount).toLocaleString()}</td>
-                                    <td className="p-6">
+                                    <td className="p-6 font-black text-indigo-600" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>#{invoice.invoice_number}</td>
+                                    <td className="p-6 font-bold text-slate-700 uppercase text-xs" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{invoice.customer?.name || 'Unknown'}</td>
+                                    <td className="p-6 font-black text-slate-800" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>₹{parseFloat(invoice.total_amount).toLocaleString()}</td>
+                                    <td className="p-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${invoice.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                                             {invoice.status}
                                         </span>
@@ -386,11 +383,11 @@ export default function DashboardPage() {
 
             {/* Online Store Card */}
             <div className="bg-white rounded-[2rem] p-6 border-2 border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 mt-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                     <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-sm"><FaGlobe /></div>
                     <div className="text-left">
                         <h3 className="text-lg font-black text-slate-800 uppercase italic">Your Online Store</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Share link with customers</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Share link with customers</p>
                     </div>
                 </div>
                 <button onClick={handleShareStore} className="w-full md:w-auto px-8 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">
@@ -399,13 +396,13 @@ export default function DashboardPage() {
             </div>
 
             {/* Collection Center */}
-            <div className="bg-white rounded-[2rem] border-2 border-slate-100 overflow-hidden mt-8 shadow-sm">
+            <div className="bg-white rounded-[2rem] border-2 border-slate-100 overflow-hidden mt-8 shadow-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                 <div className="p-6 border-b flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-50/50">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl shadow-sm"><FaRupeeSign /></div>
                         <div className="text-left">
-                            <h3 className="text-lg font-black text-slate-800 uppercase italic">Collection Center</h3>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manage Pending Payments</p>
+                            <h3 className="text-lg font-black text-slate-800 uppercase italic" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Collection Center</h3>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Manage Pending Payments</p>
                         </div>
                     </div>
                     <button
@@ -417,15 +414,15 @@ export default function DashboardPage() {
                 </div>
 
                 {pendingCustomersList.length > 0 && (
-                    <div className="px-6 py-3 bg-white border-b flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                        <button onClick={() => selectedCustomers.length === pendingCustomersList.length ? setSelectedCustomers([]) : setSelectedCustomers(pendingCustomersList.map((c: any) => c.id))} className="text-indigo-600 hover:text-indigo-800">
+                    <div className="px-6 py-3 bg-white border-b flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
+                        <button onClick={() => selectedCustomers.length === pendingCustomersList.length ? setSelectedCustomers([]) : setSelectedCustomers(pendingCustomersList.map((c: any) => c.id))} className="text-indigo-600 hover:text-indigo-800" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                             {selectedCustomers.length === pendingCustomersList.length ? 'Deselect All' : 'Select All'}
                         </button>
                         <span>Selected Customers: {selectedCustomers.length}</span>
                     </div>
                 )}
 
-                <div className={`transition-all duration-500 overflow-hidden ${showAllCollection ? 'max-h-none p-6' : 'p-6'}`}>
+                <div className={`transition-all duration-500 overflow-hidden ${showAllCollection ? 'max-h-none p-6' : 'p-6'}`} style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ${!showAllCollection ? 'max-h-[320px] overflow-y-auto pr-2 custom-scrollbar' : ''}`}>
                         {pendingCustomersList.length === 0 ? (
                             <div className="col-span-full py-10 text-center text-slate-400 italic">No pending payments! 🎉</div>
@@ -446,16 +443,16 @@ export default function DashboardPage() {
                                         </div>
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="text-left">
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{cust.invoiceCount} Bills</p>
-                                                <h4 className="font-bold text-slate-800 uppercase truncate text-sm">{cust.name}</h4>
+                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{cust.invoiceCount} Bills</p>
+                                                <h4 className="font-bold text-slate-800 uppercase truncate text-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{cust.name}</h4>
                                             </div>
-                                            <p className="text-rose-600 font-black text-sm">₹{cust.totalPending.toLocaleString()}</p>
+                                            <p className="text-rose-600 font-black text-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>₹{cust.totalPending.toLocaleString()}</p>
                                         </div>
-                                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50">
+                                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                                             <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100' : 'border-slate-200 bg-white'}`}>
-                                                {isSelected && <FaBolt className="text-[10px]" />}
+                                                {isSelected && <FaBolt className="text-[10px]" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }} />}
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-400 italic">{new Date(cust.lastInvoiceDate).toLocaleDateString()}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 italic" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{new Date(cust.lastInvoiceDate).toLocaleDateString()}</p>
                                         </div>
                                     </div>
                                 );
@@ -465,10 +462,10 @@ export default function DashboardPage() {
                 </div>
 
                 {pendingCustomersList.length > 3 && (
-                    <div className="px-6 py-4 bg-slate-50/50 border-t text-center">
+                    <div className="px-6 py-4 bg-slate-50/50 border-t text-center" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                         <button
                             onClick={() => setShowAllCollection(!showAllCollection)}
-                            className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-2 mx-auto"
+                            className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-2 mx-auto" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}
                         >
                             {showAllCollection ? 'Show Compact View ↑' : `View All ${pendingCustomersList.length} Customers ↓`}
                         </button>
@@ -478,22 +475,22 @@ export default function DashboardPage() {
 
 
             {/* AI Business Pulse */}
-            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white mt-8 relative overflow-hidden group shadow-2xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
+            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white mt-8 relative overflow-hidden group shadow-2xl" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-blue-500/20 transition-all duration-700" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}></div>
                 <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-blue-400 border border-white/10 shadow-xl">
+                    <div className="flex items-center gap-4 mb-8" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
+                        <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-blue-400 border border-white/10 shadow-xl" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                             <FaBrain className="animate-pulse" />
                         </div>
-                        <div className="text-left">
+                        <div className="text-left" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                             <h3 className="text-xl font-black italic uppercase tracking-tighter">Business Pulse AI</h3>
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Top Moving Products</p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                         {topProducts.slice(0, 3).map((item: any, idx: number) => (
-                            <div key={idx} className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/5 hover:bg-white/10 transition-all">
+                            <div key={idx} className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/5 hover:bg-white/10 transition-all" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-8 h-8 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 font-bold text-xs">{idx + 1}</div>
                                     <span className="text-[10px] font-black italic text-emerald-400 uppercase tracking-widest">Best Seller</span>
@@ -507,6 +504,14 @@ export default function DashboardPage() {
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* Bottom Support Button */}
+            <div className="mt-8 px-2" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '0px', paddingBottom: '10px' }}>
+                <Link href="/dashboard/help" className="w-full bg-blue-600 py-5 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2 hover:bg-blue-700 transition-colors">
+                    <FaUsers className="text-2xl" />
+                    <span>Support</span>
+                </Link>
             </div>
 
         </div>
