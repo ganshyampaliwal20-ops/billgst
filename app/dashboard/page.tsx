@@ -392,9 +392,18 @@ export default function DashboardPage() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>Share link with customers</p>
                     </div>
                 </div>
-                <button onClick={handleShareStore} className="w-full md:w-auto px-8 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">
-                    <FaShareAlt /> Share Link
-                </button>
+                <div className="flex gap-2 w-full md:w-auto">
+                    <Link
+                        href={`/s/${businessProfile.id}`}
+                        target="_blank"
+                        className="flex-1 md:flex-none px-8 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+                    >
+                        <FaGlobe /> Open
+                    </Link>
+                    <button onClick={handleShareStore} className="flex-1 md:flex-none px-8 py-3 bg-emerald-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">
+                        <FaShareAlt /> Share
+                    </button>
+                </div>
             </div>
 
             {/* Collection Center */}
