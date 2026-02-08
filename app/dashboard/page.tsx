@@ -206,12 +206,12 @@ export default function DashboardPage() {
 
             {/* Smart Search */}
             <div className="relative group">
-                <div className="absolute inset-y-4 left-50 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-4 left-80 pl-4 flex items-center pointer-events-none">
                     <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
                     type="text"
-                    placeholder="Quick Search: Type customer name, invoice"
+                    placeholder="Quick Search: customer name, invoice"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}
@@ -298,13 +298,15 @@ export default function DashboardPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                 {stats.map((stat, index) => (
-                    <div key={index} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm">
+                    <Link key={index} href={stat.href} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm hover:border-blue-100 transition-all active:scale-95">
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
                         <div>
-                            <h3 className="text-xl font-black text-slate-800 tracking-tight">₹{stat.value.toLocaleString()}</h3>
+                            <h3 className="text-xl font-black text-slate-800 tracking-tight">
+                                {stat.label === t.invoices || stat.label === t.lowStock ? stat.value.toLocaleString() : `₹${stat.value.toLocaleString()}`}
+                            </h3>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
 
