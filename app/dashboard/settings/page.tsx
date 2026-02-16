@@ -31,10 +31,10 @@ export default function SettingsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Save to database via new function
-        await saveBusinessProfile(formData);
+        // Save to database via new function - merging local settings
+        await saveBusinessProfile({ ...formData, ...localSettings });
 
-        // Also update local settings
+        // Also update local store settings (though store already has them)
         updateSettings(localSettings);
     };
 
@@ -667,6 +667,36 @@ export default function SettingsPage() {
                                 />
                             </div>
                         </div>
+
+                        {localSettings.autoRemindersEnabled && (
+                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4 animate-in fade-in duration-500">
+                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">WhatsApp Gateway Config (For Automation)</h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Your WhatsApp Number (Sender)</label>
+                                        <input
+                                            type="tel"
+                                            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold"
+                                            placeholder="e.g. 919876543210"
+                                            value={localSettings.whatsappSenderNumber || ''}
+                                            onChange={(e) => setLocalSettings({ ...localSettings, whatsappSenderNumber: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">UltraMsg Instance ID / API Token</label>
+                                        <input
+                                            type="text"
+                                            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold"
+                                            placeholder="Your API Key/Token"
+                                            value={localSettings.whatsappApiKey || ''}
+                                            onChange={(e) => setLocalSettings({ ...localSettings, whatsappApiKey: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-[9px] text-slate-400 italic">अगर आपके पास API Key नहीं है, तो अभी डेमो के लिए इसे खाली छोड़ दें।</p>
+                            </div>
+                        )}
 
                         <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl border border-amber-100">
                             <FaBolt className="text-amber-500 text-xs" />

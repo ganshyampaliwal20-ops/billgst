@@ -22,7 +22,9 @@ export async function GET() {
                         business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
                         business_account_holder, business_show_bank_details,
                         plan_type, invoice_template, invoice_table_format,
-                        business_signature, business_logo_position
+                        business_signature, business_logo_position,
+                        auto_reminders_enabled, reminder_frequency, reminder_time,
+                        whatsapp_bot_enabled
                  FROM users WHERE id = $1`,
                 [session.user.id]
             );
@@ -53,6 +55,10 @@ export async function GET() {
                 invoice_table_format: dbRow.invoice_table_format || 'FORMAT_1',
                 signature: dbRow.business_signature || null,
                 logo_position: dbRow.business_logo_position || 'RIGHT',
+                autoRemindersEnabled: dbRow.auto_reminders_enabled ?? false,
+                reminderFrequency: dbRow.reminder_frequency ?? 3,
+                reminderTime: dbRow.reminder_time || '10:00',
+                whatsappBotEnabled: dbRow.whatsapp_bot_enabled ?? false,
                 id: session.user.id
             };
 
@@ -82,7 +88,11 @@ export async function GET() {
                     ADD COLUMN IF NOT EXISTS invoice_template VARCHAR(50) DEFAULT 'TEMPLATE_1',
                     ADD COLUMN IF NOT EXISTS invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1',
                     ADD COLUMN IF NOT EXISTS business_signature TEXT,
-                    ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT';
+                    ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT',
+                    ADD COLUMN IF NOT EXISTS auto_reminders_enabled BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN IF NOT EXISTS reminder_frequency INTEGER DEFAULT 3,
+                    ADD COLUMN IF NOT EXISTS reminder_time VARCHAR(10) DEFAULT '10:00',
+                    ADD COLUMN IF NOT EXISTS whatsapp_bot_enabled BOOLEAN DEFAULT FALSE;
                 `);
 
                 // Retry query once
@@ -166,14 +176,23 @@ export async function POST(request: Request) {
                      invoice_template = $16,
                      invoice_table_format = $17,
                      business_signature = $18,
-                     business_logo_position = $19
+                     business_logo_position = $19,
+                     auto_reminders_enabled = $20,
+                     reminder_frequency = $21,
+                     reminder_time = $22,
+                     whatsapp_bot_enabled = $23,
+                     whatsapp_sender_number = $24,
+                     whatsapp_api_key = $25,
+                     whatsapp_api_url = $26
                  WHERE id = $15
                  RETURNING business_name, business_gstin, business_address, business_phone, 
                            business_email, business_logo, business_upi_id, business_owner_name,
                            business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
                            business_account_holder, business_show_bank_details,
                            plan_type, invoice_template, invoice_table_format,
-                           business_signature, business_logo_position`,
+                           business_signature, business_logo_position,
+                           auto_reminders_enabled, reminder_frequency, reminder_time,
+                           whatsapp_bot_enabled, whatsapp_sender_number, whatsapp_api_key, whatsapp_api_url`,
                 [
                     data.name || 'My Business',
                     data.gstin || '',
@@ -193,7 +212,14 @@ export async function POST(request: Request) {
                     data.invoice_template || 'TEMPLATE_1',
                     data.invoice_table_format || 'FORMAT_1',
                     data.signature || null,
-                    data.logo_position || 'RIGHT'
+                    data.logo_position || 'RIGHT',
+                    data.autoRemindersEnabled ?? false,
+                    data.reminderFrequency ?? 3,
+                    data.reminderTime || '10:00',
+                    data.whatsappBotEnabled ?? false,
+                    data.whatsappSenderNumber || '',
+                    data.whatsappApiKey || '',
+                    data.whatsappApiUrl || ''
                 ]
             );
 
@@ -213,12 +239,16 @@ export async function POST(request: Request) {
                     address: dbRow.business_address,
                     invoice_table_format: dbRow.invoice_table_format,
                     signature: dbRow.business_signature,
-                    logo_position: dbRow.business_logo_position
+                    logo_position: dbRow.business_logo_position,
+                    autoRemindersEnabled: dbRow.auto_reminders_enabled,
+                    reminderFrequency: dbRow.reminder_frequency,
+                    reminderTime: dbRow.reminder_time,
+                    whatsappBotEnabled: dbRow.whatsapp_bot_enabled
                 }
             });
 
         } catch (dbError: any) {
-            if (dbError?.code === '42703') {
+            if (dbError?.code === '42703' || dbError?.code === '42P01') {
                 await client.query(`
                     ALTER TABLE users 
                     ADD COLUMN IF NOT EXISTS business_bank_name VARCHAR(255),
@@ -230,7 +260,13 @@ export async function POST(request: Request) {
                     ADD COLUMN IF NOT EXISTS invoice_template VARCHAR(50) DEFAULT 'TEMPLATE_1',
                     ADD COLUMN IF NOT EXISTS invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1',
                     ADD COLUMN IF NOT EXISTS business_signature TEXT,
-                    ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT';
+                    ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT',
+                    ADD COLUMN IF NOT EXISTS auto_reminders_enabled BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN IF NOT EXISTS reminder_frequency INTEGER DEFAULT 3,
+                    ADD COLUMN IF NOT EXISTS reminder_time VARCHAR(10) DEFAULT '10:00',
+                    ADD COLUMN IF NOT EXISTS whatsapp_bot_enabled BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN IF NOT EXISTS whatsapp_sender_number VARCHAR(20),
+                    ADD COLUMN IF NOT EXISTS whatsapp_api_key TEXT;
                 `);
                 client.release();
                 return NextResponse.json({ success: false, error: 'Database migrated. Please retry saving.' });

@@ -23,6 +23,8 @@ export default function DashboardPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
     const [showAllCollection, setShowAllCollection] = useState(false);
+    const [autoReminders, setAutoReminders] = useState<any[]>([]);
+    const [isRefreshingReminders, setIsRefreshingReminders] = useState(false);
 
     const t = translations[settings.language as keyof typeof translations] || translations.en;
 
@@ -60,6 +62,7 @@ export default function DashboardPage() {
     };
 
     const handleBulkReminder = (customersToRemind: any[]) => {
+        const horror = 'Opening WhatsApp for multiple customers. Your browser might block popups.';
         const toRemind = selectedCustomers.length > 0
             ? customersToRemind.filter(c => selectedCustomers.includes(c.id))
             : customersToRemind;
@@ -69,22 +72,40 @@ export default function DashboardPage() {
             return;
         }
 
-        toast.success(`Opening WhatsApp for ${toRemind.length} customers...`, { icon: '🚀' });
+        toast.success(`Processing ${toRemind.length} customers...`, { icon: '🚀' });
 
         toRemind.forEach((cust, index) => {
             setTimeout(() => {
                 const customerName = cust.name;
-                const amount = cust.totalPending;
+                const amount = cust.totalPending || cust.pending_amount;
                 const businessName = businessProfile.name || 'Our Business';
-                const message = `Namaste ${customerName} ji, this is a reminder for your total pending balance of ₹${amount.toLocaleString('en-IN')} with ${businessName}. Thank you!`;
-                const phone = cust.phone?.replace(/\D/g, '') || '';
+                const message = cust.message || `Namaste ${customerName} ji, this is a reminder for your total pending balance of ₹${amount.toLocaleString('en-IN')} with ${businessName}. Thank you!`;
+                const phone = cust.phone?.replace(/\D/g, '') || cust.customer_phone?.replace(/\D/g, '') || '';
 
                 if (phone) {
                     const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
                     window.open(whatsappUrl, '_blank');
                 }
-            }, index * 2000);
+            }, index * 3000); // 3 second delay to prevent browser blocks
         });
+    };
+
+    const fetchAutoReminders = async () => {
+        if (!businessProfile.id) return;
+        setIsRefreshingReminders(true);
+        try {
+            const res = await fetch(`/api/public/whatsapp/reminders?secret=admin_debug_123`);
+            const data = await res.json();
+            if (data.success) {
+                // Filter only for this business
+                const myReminders = data.reminders.filter((r: any) => r.business_id === businessProfile.id);
+                setAutoReminders(myReminders);
+            }
+        } catch (error) {
+            console.error('Failed to fetch auto-reminders:', error);
+        } finally {
+            setIsRefreshingReminders(false);
+        }
     };
 
     useEffect(() => {
@@ -94,10 +115,18 @@ export default function DashboardPage() {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         fetchCustomers();
         fetchProducts();
+        fetchProducts();
         fetchInvoices();
         fetchBusinessProfile();
+        fetchAutoReminders();
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (businessProfile.id) {
+            fetchAutoReminders();
+        }
+    }, [businessProfile.id]);
 
     if (!isClient) return null;
 
@@ -206,12 +235,12 @@ export default function DashboardPage() {
 
             {/* Smart Search */}
             <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-90 pl-4 flex items-center pointer-events-none">
                     <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
                     type="text"
-                    placeholder="Quick Search: customer name, invoice"
+                    placeholder="Quick Search: "
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}
@@ -405,6 +434,32 @@ export default function DashboardPage() {
                     </button>
                 </div>
             </div>
+
+            {/* AI Auto-Reminders Smart Card */}
+            {autoReminders.length > 0 && (
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl animate-in zoom-in-95 duration-500" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}></div>
+                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
+                        <div className="flex items-center gap-5">
+                            <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-3xl shadow-2xl border border-white/30">
+                                <FaBolt className="text-yellow-300 animate-pulse" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="text-2xl font-black italic uppercase tracking-tighter">AI Auto-Reminders</h3>
+                                <p className="text-blue-100 text-xs font-bold uppercase tracking-widest leading-none mt-1">
+                                    {autoReminders.length} Customers are due for a reminder today
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => handleBulkReminder(autoReminders)}
+                            className="w-full md:w-auto px-10 py-4 bg-white text-blue-700 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-3"
+                        >
+                            <FaWhatsapp className="text-lg" /> Send All Reminders
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Collection Center */}
             <div className="bg-white rounded-[2rem] border-2 border-slate-100 overflow-hidden mt-8 shadow-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
