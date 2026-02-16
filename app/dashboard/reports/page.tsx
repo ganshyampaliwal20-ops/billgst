@@ -81,8 +81,40 @@ function ReportsContent() {
                 return;
             }
 
+            // Filter invoices based on period
+            const now = new Date();
+            let filteredInvoices = invoices;
+
+            if (period === 'daily') {
+                filteredInvoices = invoices.filter((inv: any) => new Date(inv.invoice_date).toDateString() === now.toDateString());
+            } else if (period === 'monthly') {
+                filteredInvoices = invoices.filter((inv: any) =>
+                    new Date(inv.invoice_date).getMonth() === now.getMonth() &&
+                    new Date(inv.invoice_date).getFullYear() === now.getFullYear()
+                );
+            } else if (period === 'weekly') {
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                filteredInvoices = invoices.filter((inv: any) => new Date(inv.invoice_date) >= oneWeekAgo);
+            } else if (period === 'yearly') {
+                filteredInvoices = invoices.filter((inv: any) => new Date(inv.invoice_date).getFullYear() === now.getFullYear());
+            } else if (period === 'custom' && customRange?.start && customRange?.end) {
+                const start = new Date(customRange.start);
+                const end = new Date(customRange.end);
+                end.setHours(23, 59, 59, 999);
+                filteredInvoices = invoices.filter((inv: any) => {
+                    const d = new Date(inv.invoice_date);
+                    return d >= start && d <= end;
+                });
+            }
+
+            if (filteredInvoices.length === 0) {
+                toast.error('No invoices found for the selected period');
+                return;
+            }
+
             // Prepare data for Excel
-            const excelData = invoices.map((inv: any) => ({
+            const excelData = filteredInvoices.map((inv: any) => ({
                 'Invoice No': inv.invoice_number,
                 'Date': new Date(inv.invoice_date).toLocaleDateString('en-IN'),
                 'Customer Name': inv.customer?.name || 'Unknown',
@@ -157,7 +189,38 @@ function ReportsContent() {
                     <button
                         onClick={() => {
                             const { invoices } = useStore.getState();
-                            const xml = generateTallyXML(invoices, 'Business');
+                            const now = new Date();
+                            let filteredInvoices = invoices;
+
+                            if (period === 'daily') {
+                                filteredInvoices = invoices.filter((inv: any) => new Date(inv.invoice_date).toDateString() === now.toDateString());
+                            } else if (period === 'monthly') {
+                                filteredInvoices = invoices.filter((inv: any) =>
+                                    new Date(inv.invoice_date).getMonth() === now.getMonth() &&
+                                    new Date(inv.invoice_date).getFullYear() === now.getFullYear()
+                                );
+                            } else if (period === 'weekly') {
+                                const oneWeekAgo = new Date();
+                                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                                filteredInvoices = invoices.filter((inv: any) => new Date(inv.invoice_date) >= oneWeekAgo);
+                            } else if (period === 'yearly') {
+                                filteredInvoices = invoices.filter((inv: any) => new Date(inv.invoice_date).getFullYear() === now.getFullYear());
+                            } else if (period === 'custom' && customRange?.start && customRange?.end) {
+                                const start = new Date(customRange.start);
+                                const end = new Date(customRange.end);
+                                end.setHours(23, 59, 59, 999);
+                                filteredInvoices = invoices.filter((inv: any) => {
+                                    const d = new Date(inv.invoice_date);
+                                    return d >= start && d <= end;
+                                });
+                            }
+
+                            if (filteredInvoices.length === 0) {
+                                toast.error('No invoices found for the selected period');
+                                return;
+                            }
+
+                            const xml = generateTallyXML(filteredInvoices, 'Business');
                             downloadFile(xml, `Tally_Sales_${period}.xml`, 'text/xml');
                             toast.success('Tally XML downloaded!');
                         }}
