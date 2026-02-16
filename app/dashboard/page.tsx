@@ -235,7 +235,7 @@ export default function DashboardPage() {
 
             {/* Smart Search */}
             <div className="relative group">
-                <div className="absolute inset-y-0 left-80 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-70 pl-4 flex items-center pointer-events-none">
                     <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
@@ -324,20 +324,6 @@ export default function DashboardPage() {
                 </Link>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-                {stats.map((stat, index) => (
-                    <Link key={index} href={stat.href} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm hover:border-blue-100 transition-all active:scale-95">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
-                        <div>
-                            <h3 className="text-xl font-black text-slate-800 tracking-tight">
-                                {stat.label === t.invoices || stat.label === t.lowStock ? stat.value.toLocaleString() : `₹${stat.value.toLocaleString()}`}
-                            </h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
-                        </div>
-                    </Link>
-                ))}
-            </div>
 
             {/* Time Period Selector */}
             <div className="space-y-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
@@ -375,6 +361,21 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                {stats.map((stat, index) => (
+                    <Link key={index} href={stat.href} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm hover:border-blue-100 transition-all active:scale-95">
+                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
+                        <div>
+                            <h3 className="text-xl font-black text-slate-800 tracking-tight">
+                                {stat.label === t.invoices || stat.label === t.lowStock ? stat.value.toLocaleString() : `₹${stat.value.toLocaleString()}`}
+                            </h3>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
+                        </div>
+                    </Link>
+                ))}
             </div>
 
 
