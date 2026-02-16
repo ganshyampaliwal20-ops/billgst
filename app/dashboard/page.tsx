@@ -235,7 +235,7 @@ export default function DashboardPage() {
 
             {/* Smart Search */}
             <div className="relative group">
-                <div className="absolute inset-y-0 left-90 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-80 pl-4 flex items-center pointer-events-none">
                     <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 </div>
                 <input
