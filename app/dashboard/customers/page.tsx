@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaChevronLeft, FaCommentDots, FaBell, FaUserPlus, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaChevronLeft, FaCommentDots, FaBell, FaUserPlus, FaEdit, FaWhatsapp } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 export default function CustomersPage() {
     const router = useRouter();
-    const { customers, invoices, addCustomer, updateCustomer } = useStore() as any;
+    const { customers, invoices, addCustomer, updateCustomer, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -69,6 +69,22 @@ export default function CustomersPage() {
         setFormData({ name: '', phone: '', gstin: '', address: '' });
         setEditingId(null);
         setShowModal(false);
+    };
+
+    const handleSendWhatsApp = (party: any, balance: number) => {
+        if (!party.phone) {
+            toast.error('Customer phone number missing!');
+            return;
+        }
+
+        const customerName = party.name || 'Customer';
+        const businessName = businessProfile?.name || 'Our Business';
+        const message = `Namaste ${customerName} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ₹${balance.toLocaleString('en-IN')} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
+
+        const phone = party.phone.replace(/\D/g, '');
+        const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+        toast.success(`Opening WhatsApp for ${customerName}...`);
     };
 
     return (
@@ -169,6 +185,16 @@ export default function CustomersPage() {
                                             ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                         </span>
                                     </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSendWhatsApp(party, balance);
+                                        }}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${balance > 0 ? 'text-emerald-500 hover:bg-emerald-50' : 'text-slate-300 pointer-events-none'}`}
+                                        title="Send WhatsApp Reminder"
+                                    >
+                                        <FaWhatsapp className="text-xl" />
+                                    </button>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
