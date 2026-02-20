@@ -5,9 +5,9 @@
         ],
         "target": {
             "namespace": "android_app",
-            "package_name": "in.billgst.twa",
+            "package_name": "in.billgst.app",
             "sha256_cert_fingerprints": [
-                "99:5F:4C:CA:D8:53:E9:00:56:22:AC:71:9B:A9:6B:80:33:21:7E:11:D0:72:0A:6D:88:24:7A:24:0A:71:C4:CF"
+                "98:D9:ED:70:5C:05:39:62:31:FF:40:79:71:10:79:90:70:7D:81:06:39:61:96:42:15:A3:46:CD:1F:39:02:B6"
             ]
         }
     }

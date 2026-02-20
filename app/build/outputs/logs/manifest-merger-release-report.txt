@@ -89,7 +89,7 @@ MERGED from [com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\
 	android:theme
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:43:9-68
 	android:name
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:35:9-35
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:35:9-50
 meta-data#asset_statements
 ADDED from F:\bill\app\src\main\AndroidManifest.xml:45:9-47:58
 	android:resource
@@ -143,7 +143,7 @@ ADDED from F:\bill\app\src\main\AndroidManifest.xml:78:9-159:20
 	android:alwaysRetainTaskState
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:79:13-49
 	android:name
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:78:19-50
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:78:19-65
 meta-data#android.support.customtabs.trusted.DEFAULT_URL
 ADDED from F:\bill\app\src\main\AndroidManifest.xml:82:13-83:53
 	android:value
@@ -289,7 +289,7 @@ ADDED from F:\bill\app\src\main\AndroidManifest.xml:176:9-191:19
 	android:exported
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:179:13-56
 	android:name
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:177:13-46
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:177:13-60
 meta-data#android.support.customtabs.trusted.SMALL_ICON
 ADDED from F:\bill\app\src\main\AndroidManifest.xml:182:17-184:73
 	android:resource

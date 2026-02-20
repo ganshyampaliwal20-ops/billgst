@@ -23,8 +23,8 @@
 23-->
 24<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 25    package="in.billgst.app"
-26    android:versionCode="10"
-27    android:versionName="2.0.0" >
+26    android:versionCode="12"
+27    android:versionName="2.2.0" >
 28
 29    <uses-sdk
 30        android:minSdkVersion="21"
@@ -87,7 +87,7 @@
 59    <application
 59-->F:\bill\app\src\main\AndroidManifest.xml:34:5-226:19
 60        android:name="in.billgst.app.Application"
-60-->F:\bill\app\src\main\AndroidManifest.xml:35:9-35
+60-->F:\bill\app\src\main\AndroidManifest.xml:35:9-50
 61        android:allowBackup="true"
 61-->F:\bill\app\src\main\AndroidManifest.xml:36:9-35
 62        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
@@ -153,7 +153,7 @@
 94        <activity
 94-->F:\bill\app\src\main\AndroidManifest.xml:78:9-159:20
 95            android:name="in.billgst.app.LauncherActivity"
-95-->F:\bill\app\src\main\AndroidManifest.xml:78:19-50
+95-->F:\bill\app\src\main\AndroidManifest.xml:78:19-65
 96            android:alwaysRetainTaskState="true"
 96-->F:\bill\app\src\main\AndroidManifest.xml:79:13-49
 97            android:exported="true"
@@ -308,7 +308,7 @@
 173        <service
 173-->F:\bill\app\src\main\AndroidManifest.xml:176:9-191:19
 174            android:name="in.billgst.app.DelegationService"
-174-->F:\bill\app\src\main\AndroidManifest.xml:177:13-46
+174-->F:\bill\app\src\main\AndroidManifest.xml:177:13-60
 175            android:enabled="@bool/enableNotification"
 175-->F:\bill\app\src\main\AndroidManifest.xml:178:13-55
 176            android:exported="@bool/enableNotification" >
