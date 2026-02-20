@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'in.billgst.twa',
+  appId: 'in.billgst.app',
   appName: 'BillGST',
   webDir: 'out',
   server: {

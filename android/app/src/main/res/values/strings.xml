@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">BillGST</string>
     <string name="title_activity_main">BillGST</string>
-    <string name="package_name">in.billgst.twa</string>
-    <string name="custom_url_scheme">in.billgst.twa</string>
+    <string name="package_name">in.billgst.app</string>
+    <string name="custom_url_scheme">in.billgst.app</string>
 </resources>

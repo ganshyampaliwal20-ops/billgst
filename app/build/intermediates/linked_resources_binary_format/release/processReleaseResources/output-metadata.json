@@ -4,15 +4,15 @@
     "type": "LINKED_RESOURCES_BINARY_FORMAT",
     "kind": "Directory"
   },
-  "applicationId": "in.billgst.twa",
+  "applicationId": "in.billgst.app",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 1,
-      "versionName": "1",
+      "versionCode": 10,
+      "versionName": "2.0.0",
       "outputFile": "linked-resources-binary-format-release.ap_"
     }
   ],

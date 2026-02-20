@@ -40,7 +40,7 @@
     <!-- Value from default config. -->
     <string name="orientation" translatable="false">portrait</string>
     <!-- Value from default config. -->
-    <string name="providerAuthority" translatable="false">in.billgst.twa.fileprovider</string>
+    <string name="providerAuthority" translatable="false">in.billgst.app.fileprovider</string>
     <!-- Value from default config. -->
     <string name="shortcut_name_0" translatable="false">New Invoice</string>
     <!-- Value from default config. -->

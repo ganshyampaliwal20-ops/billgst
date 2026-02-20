@@ -4,7 +4,7 @@
     "type": "BUNDLE",
     "kind": "RegularFile"
   },
-  "applicationId": "in.billgst.twa",
+  "applicationId": "in.billgst.app",
   "variantName": "release",
   "elements": [
     {

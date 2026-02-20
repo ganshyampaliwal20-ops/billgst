@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "in.billgst.twa"
+    namespace "in.billgst.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "in.billgst.twa"
+        applicationId "in.billgst.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.3"
+        versionCode 11
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,10 +18,10 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('billgst-key.jks')
-            storePassword '00GD*#paliwal'
-            keyAlias 'key0'
-            keyPassword '00GD*#paliwal'
+            storeFile file('../new_billgst_keystore.jks')
+            storePassword 'BillGST@2024'
+            keyAlias 'billgst_new'
+            keyPassword 'BillGST@2024'
         }
     }
     buildTypes {

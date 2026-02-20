@@ -20,12 +20,8 @@ plugins {
     id 'com.android.application'
 }
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
 def twaManifest = [
-    applicationId: 'in.billgst.twa',
+    applicationId: 'in.billgst.app',
     hostName: 'billgst.in', // The domain being opened in the TWA.
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
     name: 'BillGST - Free GST Billing Software', // The application name.
@@ -57,20 +53,20 @@ def twaManifest = [
 android {
     signingConfigs {
         release {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+            storeFile file("F:/bill/android/new_billgst_keystore.jks")
+            storePassword "BillGST@2024"
+            keyAlias "billgst_new"
+            keyPassword "BillGST@2024"
         }
     }
     compileSdkVersion 36
-    namespace "in.billgst.twa"
+    namespace "in.billgst.app"
     defaultConfig {
-        applicationId "in.billgst.twa"
+        applicationId "in.billgst.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 1
-        versionName "1"
+        versionCode 12
+        versionName "2.2.0"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -224,6 +220,6 @@ dependencies {
     
         implementation 'com.google.androidbrowserhelper:billing:1.1.0'
     
-        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
+        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
     
 }
