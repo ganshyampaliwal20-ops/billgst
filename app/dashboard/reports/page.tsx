@@ -3,11 +3,13 @@
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import { useStore } from '@/lib/store';
+import Link from 'next/link';
 import { FaChartLine, FaRupeeSign, FaFileInvoice, FaUsers, FaFileDownload, FaTable, FaFileCode } from 'react-icons/fa';
 import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 import { toast } from 'react-hot-toast';
+import { formatCompactNumber } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 
 function ReportsContent() {
@@ -46,31 +48,35 @@ function ReportsContent() {
     const stats = [
         {
             label: 'Total Revenue',
-            value: `₹${totalSales >= 10000000 ? (totalSales / 10000000).toFixed(2) + ' Cr' : totalSales >= 100000 ? (totalSales / 100000).toFixed(2) + ' L' : totalSales.toLocaleString('en-IN')}`,
+            value: formatCompactNumber(totalSales),
             icon: FaRupeeSign,
             color: 'text-indigo-600',
-            bg: 'bg-indigo-50'
+            bg: 'bg-indigo-50',
+            href: '/dashboard/invoices'
         },
         {
             label: 'Net Profit',
-            value: `₹${totalProfit >= 10000000 ? (totalProfit / 10000000).toFixed(2) + ' Cr' : totalProfit >= 100000 ? (totalProfit / 100000).toFixed(2) + ' L' : totalProfit.toLocaleString('en-IN')}`,
+            value: formatCompactNumber(totalProfit),
             icon: FaChartLine,
             color: 'text-emerald-600',
-            bg: 'bg-emerald-50'
+            bg: 'bg-emerald-50',
+            href: '/dashboard/reports'
         },
         {
             label: 'Total Invoices',
             value: invoiceCount,
             icon: FaFileInvoice,
             color: 'text-blue-600',
-            bg: 'bg-blue-50'
+            bg: 'bg-blue-50',
+            href: '/dashboard/invoices'
         },
         {
             label: 'Avg. Order Value',
-            value: `₹${invoiceCount > 0 ? (totalSales / invoiceCount).toFixed(0) : 0}`,
+            value: formatCompactNumber(invoiceCount > 0 ? (totalSales / invoiceCount) : 0),
             icon: FaUsers,
             color: 'text-purple-600',
-            bg: 'bg-purple-50'
+            bg: 'bg-purple-50',
+            href: '/dashboard/invoices'
         }
     ];
 
@@ -271,7 +277,11 @@ function ReportsContent() {
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={index} className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center gap-6 hover:shadow-md transition-all hover:-translate-y-1 group relative overflow-hidden">
+                        <Link
+                            key={index}
+                            href={stat.href}
+                            className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center gap-6 hover:shadow-md transition-all hover:-translate-y-1 group relative overflow-hidden active:scale-95 cursor-pointer"
+                        >
                             {/* Decorative background circle to add depth */}
                             <div className={`absolute -top-10 -right-10 w-32 h-32 ${stat.bg} opacity-5 rounded-full`}></div>
 
@@ -282,7 +292,7 @@ function ReportsContent() {
                                 <h3 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">{stat.value}</h3>
                                 <p className="text-slate-400 text-[10px] md:text-xs font-black uppercase tracking-widest mt-2">{stat.label}</p>
                             </div>
-                        </div>
+                        </Link>
                     );
                 })}
             </div>

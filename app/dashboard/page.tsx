@@ -7,6 +7,7 @@ import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { translations } from '@/lib/translations';
+import { formatCurrency, formatCompactNumber } from '@/lib/utils';
 
 export default function DashboardPage() {
     const {
@@ -50,7 +51,7 @@ export default function DashboardPage() {
         const customerName = customer.name || 'Customer';
         const amount = customer.totalPending;
         const businessName = businessProfile.name || 'Our Business';
-        const message = `Namaste ${customerName} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ₹${amount.toLocaleString('en-IN')} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
+        const message = `Namaste ${customerName} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ${formatCurrency(amount)} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
         const phone = customer.phone?.replace(/\D/g, '') || '';
         if (!phone) {
             toast.error('Customer phone number missing!');
@@ -79,7 +80,7 @@ export default function DashboardPage() {
                 const customerName = cust.name;
                 const amount = cust.totalPending || cust.pending_amount;
                 const businessName = businessProfile.name || 'Our Business';
-                const message = cust.message || `Namaste ${customerName} ji, this is a reminder for your total pending balance of ₹${amount.toLocaleString('en-IN')} with ${businessName}. Thank you!`;
+                const message = cust.message || `Namaste ${customerName} ji, this is a reminder for your total pending balance of ${formatCurrency(amount)} with ${businessName}. Thank you!`;
                 const phone = cust.phone?.replace(/\D/g, '') || cust.customer_phone?.replace(/\D/g, '') || '';
 
                 if (phone) {
@@ -187,8 +188,8 @@ export default function DashboardPage() {
         .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
 
     const stats = [
-        { icon: FaRupeeSign, label: t.todaysSales, value: todaySales, formattedValue: `₹${todaySales.toLocaleString('en-IN')}`, subtext: 'vs Yesterday', color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/20', trend: 'Now', trendUp: true, href: '/dashboard/reports?period=daily' },
-        { icon: FaChartLine, label: t.totalRevenue, value: totalSales, formattedValue: `₹${totalSales.toLocaleString('en-IN')}`, subtext: `${period} Sales`, color: 'from-violet-500 to-purple-600', shadow: 'shadow-violet-500/20', trend: '+12%', trendUp: true, href: '/dashboard/reports' },
+        { icon: FaRupeeSign, label: t.todaysSales, value: todaySales, formattedValue: formatCompactNumber(todaySales), subtext: 'vs Yesterday', color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/20', trend: 'Now', trendUp: true, href: '/dashboard/reports?period=daily' },
+        { icon: FaChartLine, label: t.totalRevenue, value: totalSales, formattedValue: formatCompactNumber(totalSales), subtext: `${period} Sales`, color: 'from-violet-500 to-purple-600', shadow: 'shadow-violet-500/20', trend: '+12%', trendUp: true, href: '/dashboard/reports' },
         { icon: FaFileInvoice, label: t.invoices, value: invoiceCount, formattedValue: invoiceCount.toString(), subtext: 'Generated', color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/20', trend: '+5', trendUp: true, href: '/dashboard/invoices' },
         { icon: FaBox, label: t.lowStock, value: lowStockItems, formattedValue: lowStockItems.toString(), subtext: 'Items Alert', color: lowStockItems > 0 ? 'from-red-500 to-rose-600' : 'from-emerald-500 to-teal-600', shadow: lowStockItems > 0 ? 'shadow-red-500/20' : 'shadow-emerald-500/20', trend: lowStockItems > 0 ? '⚠️' : '✓', trendUp: lowStockItems === 0, href: '/dashboard/inventory' },
     ];
@@ -282,7 +283,7 @@ export default function DashboardPage() {
                                                     <p className="text-[10px] text-slate-400 font-bold">{inv.customer?.name}</p>
                                                 </div>
                                             </div>
-                                            <p className="font-black text-slate-800 text-xs text-right italic">₹{parseFloat(inv.total_amount).toLocaleString()}</p>
+                                            <p className="font-black text-slate-800 text-xs text-right italic">{formatCurrency(parseFloat(inv.total_amount))}</p>
                                         </Link>
                                     ))
                                 )}
@@ -370,7 +371,7 @@ export default function DashboardPage() {
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
                         <div>
                             <h3 className="text-xl font-black text-slate-800 tracking-tight">
-                                {stat.label === t.invoices || stat.label === t.lowStock ? stat.value.toLocaleString() : `₹${stat.value.toLocaleString()}`}
+                                {stat.label === t.invoices || stat.label === t.lowStock ? stat.value.toLocaleString() : formatCompactNumber(stat.value)}
                             </h3>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
                         </div>
@@ -400,7 +401,7 @@ export default function DashboardPage() {
                                 <tr key={index} className="hover:bg-slate-50/50 transition-colors">
                                     <td className="p-6 font-black text-indigo-600" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>#{invoice.invoice_number}</td>
                                     <td className="p-6 font-bold text-slate-700 uppercase text-xs" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{invoice.customer?.name || 'Unknown'}</td>
-                                    <td className="p-6 font-black text-slate-800" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>₹{parseFloat(invoice.total_amount).toLocaleString()}</td>
+                                    <td className="p-6 font-black text-slate-800" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{formatCurrency(parseFloat(invoice.total_amount))}</td>
                                     <td className="p-6" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${invoice.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                                             {invoice.status}
@@ -513,7 +514,7 @@ export default function DashboardPage() {
                                                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{cust.invoiceCount} Bills</p>
                                                 <h4 className="font-bold text-slate-800 uppercase truncate text-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{cust.name}</h4>
                                             </div>
-                                            <p className="text-rose-600 font-black text-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>₹{cust.totalPending.toLocaleString()}</p>
+                                            <p className="text-rose-600 font-black text-sm" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>{formatCompactNumber(cust.totalPending)}</p>
                                         </div>
                                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-50" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                                             <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100' : 'border-slate-200 bg-white'}`}>
@@ -565,7 +566,7 @@ export default function DashboardPage() {
                                 <h4 className="font-bold text-slate-100 mb-1 uppercase tracking-tight truncate text-sm">{item.name}</h4>
                                 <div className="flex justify-between items-end mt-2">
                                     <p className="text-slate-400 text-[10px] font-bold uppercase">{item.quantity} Sold</p>
-                                    <p className="text-lg font-black text-white italic">₹{(item.sales || 0).toLocaleString()}</p>
+                                    <p className="text-lg font-black text-white italic">{formatCompactNumber(item.sales || 0)}</p>
                                 </div>
                             </div>
                         ))}

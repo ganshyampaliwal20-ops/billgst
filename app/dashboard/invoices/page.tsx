@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { generateInvoicePDF } from '@/lib/pdf-generator';
 import { toast } from 'react-hot-toast';
 import { DOC_LABELS, DOC_TYPES } from '@/lib/constants';
+import { formatCurrency, formatCompactNumber } from '@/lib/utils';
 
 interface InvoiceItem {
     product_name: string;
@@ -197,7 +198,7 @@ export default function InvoicesPage() {
 
     const handleShareSMS = (invoice: Invoice) => {
         if (!invoice) return;
-        const total = (Number(invoice.total_amount) || 0).toLocaleString('en-IN');
+        const total = formatCurrency(Number(invoice.total_amount) || 0);
         const text = `Invoice ${invoice.invoice_number || 'N/A'} for Rs. ${total} from ${businessProfile?.name || 'Our Business'}. Powered by BillGST.in`;
         window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
@@ -318,7 +319,7 @@ export default function InvoicesPage() {
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex flex-col items-end gap-1">
-                                                    <span className="text-sm font-bold text-gray-900">₹{(Number(invoice.total_amount) || 0).toLocaleString('en-IN')}</span>
+                                                    <span className="text-sm font-bold text-gray-900">{formatCompactNumber(Number(invoice.total_amount) || 0)}</span>
                                                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                         invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                             'bg-red-100 text-red-700'
@@ -379,7 +380,7 @@ export default function InvoicesPage() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-lg font-bold text-gray-900">₹{(Number(invoice.total_amount) || 0).toLocaleString('en-IN')}</p>
+                                            <p className="text-lg font-bold text-gray-900">{formatCompactNumber(Number(invoice.total_amount) || 0)}</p>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
                                                 invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                                                     'bg-red-100 text-red-700'
@@ -436,7 +437,7 @@ export default function InvoicesPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-center flex flex-col items-center justify-center">
                                     <p className="text-xs font-bold text-blue-600 uppercase mb-1">Total Amount</p>
-                                    <p className="text-2xl font-bold text-gray-900">₹{(Number(selectedInvoice.total_amount) || 0).toLocaleString('en-IN')}</p>
+                                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(Number(selectedInvoice.total_amount) || 0)}</p>
                                 </div>
                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-center flex flex-col items-center justify-center">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>
@@ -451,7 +452,7 @@ export default function InvoicesPage() {
                                 <div className="p-4 bg-white border-2 border-dashed border-indigo-200 rounded-xl flex items-center justify-between gap-4">
                                     <div>
                                         <p className="font-bold text-gray-800">Scan to Pay</p>
-                                        <p className="text-xs text-gray-500">Pay exactly ₹{(Number(selectedInvoice.total_amount) || 0).toLocaleString('en-IN')}</p>
+                                        <p className="text-xs text-gray-500">Pay exactly {formatCurrency(Number(selectedInvoice.total_amount) || 0)}</p>
                                         <p className="text-[10px] text-indigo-500 font-bold mt-1 bg-indigo-50 px-2 py-0.5 rounded w-fit">{businessProfile.upi_id}</p>
                                     </div>
                                     <div className="w-20 h-20 bg-white p-1 rounded-lg border border-gray-100 shadow-sm shrink-0">
@@ -537,7 +538,7 @@ export default function InvoicesPage() {
                                 <div className="flex justify-between items-center">
                                     <div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Amount</p>
-                                        <p className="text-xl font-black text-slate-800 italic tracking-tight">₹{(Number(showShareSheet.total_amount) || 0).toLocaleString('en-IN')}</p>
+                                        <p className="text-xl font-black text-slate-800 italic tracking-tight">{formatCurrency(Number(showShareSheet.total_amount) || 0)}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Invoice No</p>

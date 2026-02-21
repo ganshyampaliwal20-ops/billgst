@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Navbar3D from '@/app/components/Navbar3D';
 
 export const metadata: Metadata = {

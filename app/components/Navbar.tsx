@@ -29,7 +29,7 @@ export default function Navbar() {
     return (
         <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg py-3' : 'bg-transparent py-5'
             }`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
@@ -108,7 +108,7 @@ export default function Navbar() {
             {/* Mobile Menu */}
             <div className={`md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 shadow-xl transition-all duration-300 origin-top ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'
                 }`}>
-                <div className="px-4 py-6 space-y-4">
+                <div className="px-4 py-6 space-y-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px' }}>
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}

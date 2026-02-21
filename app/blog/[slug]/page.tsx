@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaCalendar, FaUser, FaTag } from 'react-icons/fa';
 import { blogPosts } from '@/lib/blog-data';
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 interface Props {
     params: Promise<{ slug: string }>;

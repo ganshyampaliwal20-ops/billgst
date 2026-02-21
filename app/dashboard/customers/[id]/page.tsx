@@ -8,6 +8,7 @@ import {
     FaEdit, FaReceipt, FaRupeeSign, FaCalendarCheck, FaRegClock, FaMoneyBillWave
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '@/lib/utils';
 
 export default function CustomerDetailPage() {
     const { id } = useParams();
@@ -151,17 +152,17 @@ export default function CustomerDetailPage() {
                     <div className="flex items-center justify-between gap-4 relative z-10">
                         <div className="flex-1 flex flex-col items-center gap-2">
                             <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Sales</span>
-                            <span className="text-lg font-black text-white">₹{totalSales.toLocaleString()}</span>
+                            <span className="text-lg font-black text-white">{formatCurrency(totalSales)}</span>
                         </div>
                         <div className="w-px h-10 bg-white/20"></div>
                         <div className="flex-1 flex flex-col items-center gap-2">
                             <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Paid</span>
-                            <span className="text-lg font-black text-emerald-300">₹{totalPaid.toLocaleString()}</span>
+                            <span className="text-lg font-black text-emerald-300">{formatCurrency(totalPaid)}</span>
                         </div>
                         <div className="w-px h-10 bg-white/20"></div>
                         <div className="flex-1 flex flex-col items-center gap-2">
                             <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Outstanding</span>
-                            <span className="text-lg font-black text-orange-300">₹{totalDue.toLocaleString()}</span>
+                            <span className="text-lg font-black text-orange-300">{formatCurrency(totalDue)}</span>
                         </div>
                     </div>
                 </div>
@@ -252,7 +253,7 @@ export default function CustomerDetailPage() {
                                             {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                                         </td>
                                         <td className="px-6 py-5 text-sm font-black text-blue-600">{inv.invoice_number}</td>
-                                        <td className="px-6 py-5 text-sm font-black text-right">₹{inv.total_amount?.toLocaleString()}</td>
+                                        <td className="px-6 py-5 text-sm font-black text-right">{formatCurrency(inv.total_amount || 0)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -266,7 +267,7 @@ export default function CustomerDetailPage() {
                     onClick={() => { setPaymentAmount(totalDue.toString()); setShowPaymentModal(true); }}
                     className="w-full py-4 bg-[#4358f4] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 >
-                    <FaMoneyBillWave className="text-xl" /> Receive Payment (₹{totalDue.toLocaleString()})
+                    <FaMoneyBillWave className="text-xl" /> Receive Payment ({formatCurrency(totalDue)})
                 </button>
             </div>
 

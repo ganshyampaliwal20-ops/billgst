@@ -5,6 +5,7 @@ import { useStore } from '@/lib/store';
 import { FaPlus, FaSearch, FaChevronLeft, FaCommentDots, FaBell, FaUserPlus, FaEdit, FaWhatsapp } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { formatCompactNumber } from '@/lib/utils';
 
 export default function CustomersPage() {
     const router = useRouter();
@@ -182,7 +183,7 @@ export default function CustomersPage() {
                                     <div className="text-right">
                                         <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">Balance</p>
                                         <span className={`font-black text-lg whitespace-nowrap ${balance > 0 ? 'text-[#4358f4]' : 'text-slate-600'}`}>
-                                            ₹ {(balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                            {formatCompactNumber(balance || 0)}
                                         </span>
                                     </div>
                                     <button

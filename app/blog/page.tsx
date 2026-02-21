@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FaArrowLeft, FaCalendar, FaTag, FaArrowRight } from 'react-icons/fa';
 import { blogPosts } from '@/lib/blog-data';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'BillGST Blog - Free GST Billing Software Tips & Updates',

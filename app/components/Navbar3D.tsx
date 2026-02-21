@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
     FaFileInvoice, FaCog, FaBars, FaTimes,
     FaSignInAlt, FaUserPlus, FaLanguage, FaStore,
-    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss, FaInfoCircle, FaShieldAlt
+    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss, FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { useStore } from '@/lib/store';
@@ -20,6 +20,7 @@ export default function Navbar3D() {
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
     const { businessProfile, settings, resetStore } = useStore();
 
     useEffect(() => {
@@ -52,7 +53,7 @@ export default function Navbar3D() {
                 ? 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg py-2 md:py-3 border-b border-white/10'
                 : 'bg-transparent py-4 md:py-6'
                 }`}>
-                <div className="px-4 sm:px-6 lg:px-8 w-full">
+                <div className="px-8 sm:px-6 lg:px-8 w-full">
                     <div className="flex items-center justify-between">
                         {/* Left Side: Logo + Business Name */}
                         <div className="flex items-center gap-3">
@@ -155,17 +156,69 @@ export default function Navbar3D() {
                         </div>
 
                         {[
-                            { icon: FaFileInvoice, label: 'Invoice', href: '/dashboard/invoices' },
-                            { icon: FaUsers, label: 'Customer', href: '/dashboard/customers' },
-                            { icon: FaBox, label: 'Product', href: '/dashboard/inventory' },
-                            { icon: FaChartLine, label: 'Report', href: '/dashboard/reports' },
+                            {
+                                icon: FaFileInvoice,
+                                label: 'Invoice',
+                                href: '/dashboard/invoices',
+                                subItems: [
+                                    { label: t.invoices, href: '/dashboard/invoices' },
+                                    { label: t.taxInvoice, href: '/dashboard/invoices/new?type=TAX_INVOICE' },
+                                    { label: t.billOfSupply, href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
+                                    { label: t.eWayBill, href: '/dashboard/invoices/new?type=E_WAY_BILL' },
+                                    { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
+                                ]
+                            },
+                            { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
+                            { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
+                            { icon: FaChartLine, label: t.reports, href: '/dashboard/reports' },
                             { icon: FaRss, label: 'Blog', href: '/blog' },
                             { icon: FaInfoCircle, label: 'About Us', href: '/about' },
                             { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
-                            { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
+                            { icon: FaCog, label: t.settings, href: '/dashboard/settings' },
                             { icon: FaSignInAlt, label: 'Login', href: '/login' },
                         ].map((item) => {
                             const Icon = item.icon;
+                            const isActive = pathname === item.href || (item.subItems?.some((sub: any) => pathname === sub.href));
+
+                            if (item.subItems) {
+                                return (
+                                    <div key={item.label} className="flex flex-col gap-1">
+                                        <button
+                                            onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
+                                            className={`
+                                                flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 group 
+                                                border-2 relative overflow-hidden w-full text-left
+                                                bg-blue-600 text-white font-bold border-blue-700 shadow-xl
+                                            `}
+                                        >
+                                            <div className="p-2.5 rounded-xl bg-white/20 text-white group-hover:bg-white/30 transition-colors group-hover:scale-110">
+                                                <Icon className="text-xl transition-transform duration-300 group-hover:rotate-12" />
+                                            </div>
+                                            <span className="text-base tracking-wide flex-1 font-bold">{item.label}</span>
+                                            {isInvoiceOpen ? <FaChevronUp /> : <FaChevronDown />}
+                                        </button>
+
+                                        {isInvoiceOpen && (
+                                            <div className="flex flex-col gap-3 mt-3 px-2">
+                                                {item.subItems.map((sub: any) => (
+                                                    <Link
+                                                        key={sub.href}
+                                                        href={sub.href}
+                                                        onClick={() => setIsSidebarOpen(false)}
+                                                        className={`
+                                                            flex items-center justify-center p-4 rounded-2xl text-base font-black transition-all border-b-4
+                                                            bg-orange-500 text-white border-orange-700 shadow-lg hover:bg-orange-600 hover:-translate-y-0.5 active:translate-y-0 active:border-b-0
+                                                        `}
+                                                    >
+                                                        {sub.label}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <Link
                                     key={item.href}
@@ -207,7 +260,7 @@ export default function Navbar3D() {
                     </div>
 
                     {/* Footer Info */}
-                    <div className="p-4 bg-slate-50/50">
+                    <div className="p-4 pb-12 bg-slate-50/50">
                         <p className="text-[10px] text-center text-slate-400 font-medium italic">
                             {businessProfile.name || 'BillGST'} - Professional Billing
                         </p>

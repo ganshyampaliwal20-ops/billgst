@@ -10,7 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
-    FaInfoCircle, FaShieldAlt
+    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -27,6 +27,7 @@ export default function DashboardLayout({
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
     // Get store values
     const { businessProfile, resetStore, fetchBusinessProfile, settings } = useStore();
@@ -50,14 +51,22 @@ export default function DashboardLayout({
         label: string;
         href: string;
         isAuth?: boolean;
+        subItems?: { label: string; href: string }[];
     }
 
     const menuItems: MenuItem[] = [
-        { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices' },
-        { icon: FaReceipt, label: 'Tax Invoice', href: '/dashboard/invoices/new?type=TAX_INVOICE' },
-        { icon: FaReceipt, label: 'Bill of Supply', href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
-        { icon: FaReceipt, label: 'Delivery Challan', href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
-        { icon: FaReceipt, label: 'E-Way Bill', href: '/dashboard/invoices/new?type=E_WAY_BILL' },
+        {
+            icon: FaFileInvoice,
+            label: t.invoices,
+            href: '/dashboard/invoices',
+            subItems: [
+                { label: t.invoices, href: '/dashboard/invoices' },
+                { label: t.taxInvoice, href: '/dashboard/invoices/new?type=TAX_INVOICE' },
+                { label: t.billOfSupply, href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
+                { label: t.eWayBill, href: '/dashboard/invoices/new?type=E_WAY_BILL' },
+                { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
+            ]
+        },
         { icon: FaFileAlt, label: 'Quotation', href: '/dashboard/quotations' },
         { icon: FaMoneyBillWave, label: 'Expenses', href: '/dashboard/expenses' },
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
@@ -126,7 +135,54 @@ export default function DashboardLayout({
                         {/* Main Menu Items */}
                         {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
-                            const isActive = pathname === item.href;
+                            const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
+                            const hasSubItems = item.subItems && item.subItems.length > 0;
+
+                            if (hasSubItems) {
+                                return (
+                                    <div key={item.label} className="flex flex-col gap-1">
+                                        <button
+                                            onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
+                                            className={`
+                                                flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
+                                                border relative overflow-hidden flex-1 min-h-[44px] w-full text-left
+                                                bg-blue-600 text-white font-bold border-blue-700 shadow-lg
+                                            `}
+                                        >
+                                            <div className={`
+                                                p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                                ${isActive
+                                                    ? 'bg-white/20 text-white'
+                                                    : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                                }
+                                            `}>
+                                                <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                            </div>
+                                            <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
+                                            {isInvoiceOpen ? <FaChevronUp className="text-xs" /> : <FaChevronDown className="text-xs" />}
+                                        </button>
+
+                                        {isInvoiceOpen && (
+                                            <div className="flex flex-col gap-2 mt-2 px-1">
+                                                {item.subItems?.map((sub) => (
+                                                    <Link
+                                                        key={sub.href}
+                                                        href={sub.href}
+                                                        onClick={() => setIsSidebarOpen(false)}
+                                                        className={`
+                                                            flex items-center justify-center p-3 rounded-xl text-sm font-bold transition-all border-2
+                                                            bg-orange-500 text-white border-orange-600 shadow-md hover:bg-orange-600 hover:scale-[1.02] active:scale-95
+                                                        `}
+                                                    >
+                                                        {sub.label}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <Link
                                     key={item.href}
@@ -134,7 +190,7 @@ export default function DashboardLayout({
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
                                         flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                        border relative overflow-hidden flex-1 min-h-0
+                                        border relative overflow-hidden flex-1 min-h-[44px]
                                         ${isActive
                                             ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
                                             : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
@@ -221,7 +277,7 @@ export default function DashboardLayout({
                     </nav>
 
                     {/* User Profile / Business Info */}
-                    <div className="p-6 border-t border-slate-200 bg-slate-50/80 backdrop-blur-sm">
+                    <div className="p-6 pb-32 md:pb-8 border-t border-slate-200 bg-slate-50/80 backdrop-blur-sm">
                         <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                             <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                                 {businessProfile.logo ? (
@@ -259,7 +315,7 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
-                    <div className="px-4 sm:px-6 lg:px-8 w-full">
+                    <div className="px-8 sm:px-6 lg:px-8 w-full">
                         <div className="flex items-center justify-between h-12 md:h-16">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
