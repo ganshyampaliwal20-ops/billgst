@@ -273,7 +273,7 @@ function ReportsContent() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
@@ -281,6 +281,7 @@ function ReportsContent() {
                             key={index}
                             href={stat.href}
                             className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center gap-6 hover:shadow-md transition-all hover:-translate-y-1 group relative overflow-hidden active:scale-95 cursor-pointer"
+                            style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
                         >
                             {/* Decorative background circle to add depth */}
                             <div className={`absolute -top-10 -right-10 w-32 h-32 ${stat.bg} opacity-5 rounded-full`}></div>

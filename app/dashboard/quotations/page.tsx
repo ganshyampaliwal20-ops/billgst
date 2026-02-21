@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FaPlus, FaFileInvoice, FaSearch, FaHandHoldingUsd, FaWhatsapp, FaDownload, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaFileInvoice, FaSearch, FaHandHoldingUsd, FaWhatsapp, FaDownload, FaTimes, FaChevronLeft, FaCommentDots, FaBell, FaReceipt, FaShareAlt, FaUserEdit, FaTrash } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { generateQuotationPDF } from '@/lib/pdf-generator';
+import { toast } from 'react-hot-toast';
+import { formatCompactNumber } from '@/lib/utils';
 
 export default function QuotationsPage() {
     const router = useRouter();
@@ -53,13 +55,12 @@ export default function QuotationsPage() {
         }
 
         await updateQuotation(selectedQuotation.id, updates);
-
+        toast.success('Payment recorded successfully', { icon: '💰' });
         setShowPaymentModal(false);
     };
 
     const handleQuotationClick = async (quotation: any) => {
         try {
-            // Create business details object with fallbacks
             const businessDetailsForPDF = {
                 name: businessProfile?.name || businessDetails?.name || 'Your Business',
                 email: businessProfile?.email || businessDetails?.email || '',
@@ -69,8 +70,6 @@ export default function QuotationsPage() {
                 logo: businessProfile?.logo || businessDetails?.logo || null,
                 upi_id: businessProfile?.upi_id || businessDetails?.upi_id || '',
             };
-
-            console.log('Generating quotation PDF with business details:', businessDetailsForPDF);
 
             const pdfDoc = await generateQuotationPDF(quotation, businessDetailsForPDF, false);
 
@@ -85,8 +84,7 @@ export default function QuotationsPage() {
             }
         } catch (error: any) {
             console.error('Error generating PDF:', error);
-            console.error('Error details:', error?.message, error?.stack);
-            alert(`PDF generate karne mein error aaya: ${error?.message || 'Unknown error'}. Kripya settings check karein.`);
+            toast.error(`PDF error: ${error?.message || 'Unknown error'}`);
         }
     };
 
@@ -104,7 +102,6 @@ export default function QuotationsPage() {
             const fileName = `Quotation-${selectedQuotation.quotation_number || 'draft'}.pdf`;
             const message = `Hi ${selectedQuotation.customer_name}, please find your quotation ${selectedQuotation.quotation_number} for Rs. ${parseFloat(selectedQuotation.total_amount).toLocaleString('en-IN')}`;
 
-            // Check if Web Share API is available and can share files
             if (navigator.share && navigator.canShare) {
                 try {
                     const response = await fetch(pdfBlobUrl);
@@ -117,7 +114,6 @@ export default function QuotationsPage() {
                             title: 'Quotation PDF',
                             text: message,
                         });
-                        console.log('Successfully shared PDF');
                         return;
                     }
                 } catch (error) {
@@ -125,14 +121,8 @@ export default function QuotationsPage() {
                 }
             }
 
-            // Fallback for desktop or unsupported browsers
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
-
-            // Inform the user that they need to attach the file manually on desktop
-            if (!navigator.share) {
-                alert('Desktop par PDF share karne ke liye, WhatsApp khulne ke baad file manually attach karein. (Mobile par direct file share ho jati hai)');
-            }
         }
     };
 
@@ -162,10 +152,10 @@ export default function QuotationsPage() {
                 link.download = `Quotation-${quotation.quotation_number}.pdf`;
                 link.click();
                 URL.revokeObjectURL(url);
+                toast.success('PDF Downloaded');
             }
         } catch (error) {
-            console.error(error);
-            alert('PDF generate karne mein error aaya');
+            toast.error('PDF error');
         }
     };
 
@@ -188,11 +178,9 @@ export default function QuotationsPage() {
             } else {
                 const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
-                alert('Desktop par file manually attach karein.');
             }
         } catch (error) {
-            console.error(error);
-            alert('Share karne mein error aaya');
+            toast.error('Share error');
         }
     };
 
@@ -205,292 +193,254 @@ export default function QuotationsPage() {
     };
 
     return (
-        <div className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex flex-col items-center justify-center gap-2 text-center">
-                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Quotations</h1>
-                <p className="text-slate-400 text-sm">Manage your quotations and convert to invoices</p>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 md:grid-cols-3 gap-5">
-                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
-                    <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Total Quotations</h3>
-                    <p className="text-2x1 font-black mt-1">{quotations.length}</p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Generated</p>
-                </div>
-                <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
-                    <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Received Amount</h3>
-                    <p className="text-2x1 font-black mt-1">
-                        ₹{quotations.reduce((acc: number, q: any) => acc + (parseFloat(q.paid_amount || 0)), 0).toLocaleString('en-IN')}
-                    </p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Total Collected</p>
-                </div>
-                <div className="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl p-4 text-white shadow-lg flex flex-col items-center justify-center text-center">
-                    <h3 className="text-xs font-bold uppercase tracking-wider opacity-90">Pending Balance</h3>
-                    <p className="text-2x1 font-black mt-1">
-                        ₹{quotations.reduce((acc: number, q: any) => acc + (parseFloat(q.total_amount || 0) - parseFloat(q.paid_amount || 0)), 0).toLocaleString('en-IN')}
-                    </p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Total Outstanding</p>
+        <div className="flex flex-col h-screen bg-[#f8fafc] overflow-hidden">
+            {/* Premium Header */}
+            <div className="bg-white border-b-4 border-emerald-500 px-6 py-6 flex flex-col items-center justify-center text-center shadow-sm z-20 relative">
+                <div className="flex flex-col items-center gap-2">
+                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">Quotations</h1>
+                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Manage Your Deals</p>
                 </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '15px' }}></div>
-            <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
-                <div className="relative">
-                    <FaSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            {/* Stats Grid - Single Row */}
+            <div className="grid grid-cols-3 gap-3 p-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg"><FaReceipt className="text-xl" /></div>
+                    <div>
+                        <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{quotations.length}</h3>
+                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Total Deals</p>
+                    </div>
+                </div>
+                <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg"><FaHandHoldingUsd className="text-xl" /></div>
+                    <div>
+                        <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{formatCompactNumber(quotations.reduce((acc: number, q: any) => acc + (parseFloat(q.paid_amount || 0)), 0))}</h3>
+                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Received</p>
+                    </div>
+                </div>
+                <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
+                    <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-lg"><FaSearch className="text-xl" /></div>
+                    <div>
+                        <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{formatCompactNumber(quotations.reduce((acc: number, q: any) => acc + (parseFloat(q.total_amount || 0) - parseFloat(q.paid_amount || 0)), 0))}</h3>
+                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Pending</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Search Bar - 3D Style */}
+            <div className="px-6 py-4 bg-white border-b border-emerald-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-emerald-100 border-b-8 border-emerald-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                     <input
                         type="text"
-                        placeholder="Search by customer or quotation number"
+                        placeholder="SEARCH QUOTATION / CUSTOMER"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        className="w-full py-4 bg-emerald-50/20 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-slate-500 uppercase tracking-widest pl-5"
                     />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <FaSearch className="text-lg" />
+                    </div>
                 </div>
             </div>
 
-            {/* Quotations List */}
-            <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '10px' }}></div>
-            <div className="bg-white rounded-200xl shadow-lg border border-slate-200 overflow-hidden">
-                <div className="relative mb-1 mx-4 md:mx-0" style={{ marginTop: '5px' }}></div>
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1000px]">
-                        <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                            <tr>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Quotation </th>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Customer</th>
-                                <th className="text-left py-4 px-6 text-sm font-bold uppercase tracking-wider">Date</th>
-                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider">Total</th>
-                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider">Paid</th>
-                                <th className="text-right py-4 px-6 text-sm font-bold uppercase tracking-wider">Balance</th>
-                                <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider">Status</th>
-                                <th className="text-center py-4 px-6 text-sm font-bold uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-10">
-                            {filteredQuotations.length === 0 ? (
-                                <tr>
-                                    <td colSpan={8} className="py-12 text-center text-slate-500 font-bold">
-                                        No quotations found. Create your first quotation!
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredQuotations.map((quotation: any) => (
-                                    <tr
-                                        key={quotation.id}
-                                        className="hover:bg-blue-50 transition-colors cursor-pointer"
-                                        onClick={() => handleQuotationClick(quotation)}
-                                    >
-                                        <td className="py-4 px-6 font-bold text-blue-600">
-                                            {quotation.quotation_number}
-                                        </td>
-                                        <td className="py-4 px-6 text-slate-700 font-medium">{quotation.customer_name}</td>
-                                        <td className="py-4 px-6 text-slate-600">
-                                            {new Date(quotation.quotation_date).toLocaleDateString('en-IN')}
-                                        </td>
-                                        <td className="py-4 px-6 text-right font-bold text-slate-800">
+            {/* List Header */}
+            <div className="px-8 py-3 flex justify-between text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em] bg-emerald-50/30" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                <span>Quotation List ({filteredQuotations.length})</span>
+                <span>Amount Report</span>
+            </div>
+
+            {/* Card List */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                {filteredQuotations.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                        <FaReceipt className="text-8xl mb-6 opacity-20" />
+                        <p className="font-black uppercase tracking-widest text-sm italic">No quotations found</p>
+                    </div>
+                ) : (
+                    filteredQuotations.map((quotation: any, idx: number) => {
+                        const balance = parseFloat(quotation.total_amount) - parseFloat(quotation.paid_amount || 0);
+                        return (
+                            <div
+                                key={quotation.id}
+                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer group"
+                                style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
+                                onClick={() => handleQuotationClick(quotation)}
+                            >
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-emerald-600 shadow-sm border border-slate-100 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                            {idx + 1}
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-black text-slate-900 uppercase tracking-tight leading-none text-sm">{quotation.customer_name}</h3>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-[9px] font-bold text-slate-400 bg-slate-200/50 px-2 py-0.5 rounded-full">{quotation.quotation_number}</span>
+                                                <span className="text-[9px] font-bold text-slate-400">{new Date(quotation.quotation_date).toLocaleDateString('en-IN')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className={`text-sm font-black ${balance > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                                             ₹{parseFloat(quotation.total_amount).toLocaleString('en-IN')}
-                                        </td>
-                                        <td className="py-4 px-6 text-right font-bold text-green-600">
-                                            ₹{parseFloat(quotation.paid_amount || 0).toLocaleString('en-IN')}
-                                        </td>
-                                        <td className="py-4 px-6 text-right font-bold text-red-600">
-                                            ₹{(parseFloat(quotation.total_amount) - parseFloat(quotation.paid_amount || 0)).toLocaleString('en-IN')}
-                                        </td>
-                                        <td className="py-4 px-6 text-center">
-                                            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${quotation.status === 'Accepted' || quotation.status === 'Received' ? 'bg-green-100 text-green-700' :
-                                                quotation.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                    'bg-yellow-100 text-yellow-700'
-                                                }`}>
+                                        </div>
+                                        <div className="flex items-center justify-end gap-1 mt-1">
+                                            <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${quotation.status === 'Accepted' || quotation.status === 'Received' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                                 {quotation.status}
                                             </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-center">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={(e) => handleDownloadRow(e, quotation)}
-                                                    className="text-slate-600 hover:text-slate-800 font-bold text-xs bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
-                                                    title="Download PDF"
-                                                >
-                                                    <FaDownload />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => handleShareRow(e, quotation)}
-                                                    className="text-green-600 hover:text-green-800 font-bold text-xs bg-green-50 hover:bg-green-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
-                                                    title="Share on WhatsApp"
-                                                >
-                                                    <FaWhatsapp className="text-base" />
-                                                </button>
-                                                <div className="w-px h-6 bg-slate-200 mx-1"></div>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        openPaymentModal(quotation);
-                                                    }}
-                                                    className="text-emerald-600 hover:text-emerald-800 font-bold text-xs bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
-                                                    title="Record Payment"
-                                                >
-                                                    <FaHandHoldingUsd className="text-base" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleConvertToInvoice(quotation);
-                                                    }}
-                                                    className="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
-                                                    title="Convert to Invoice"
-                                                >
-                                                    <FaFileInvoice className="text-base" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Quick Actions Overlay */}
+                                <div className="grid grid-cols-4 gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                        onClick={(e) => handleShareRow(e, quotation)}
+                                        className="py-3 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                                    >
+                                        <FaWhatsapp className="text-lg" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => handleDownloadRow(e, quotation)}
+                                        className="py-3 bg-blue-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                                    >
+                                        <FaDownload className="text-lg" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); openPaymentModal(quotation); }}
+                                        className="py-3 bg-orange-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                                    >
+                                        <FaHandHoldingUsd className="text-lg" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleConvertToInvoice(quotation); }}
+                                        className="py-3 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                                    >
+                                        <FaFileInvoice className="text-lg" />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+                <div className="h-20"></div>
             </div>
 
-            {/* New Quotation Button - Large & Professional */}
-            <div className="flex justify-center mt-8">
+            {/* Floating Action Button */}
+            <div className="fixed bottom-6 right-6 z-50">
                 <Link
                     href="/dashboard/quotations/new"
-                    className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-16 py-5 rounded-2xl font-black text-xl shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 flex items-center gap-4 border-2 border-blue-400/30"
+                    className="w-16 h-16 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center shadow-[0_12px_40px_-8px_rgba(234,179,8,0.4)] hover:scale-110 active:scale-95 transition-all border-4 border-white"
                 >
                     <FaPlus className="text-2xl" />
-                    <span>Create New Quotation</span>
                 </Link>
             </div>
 
             {/* Payment Modal */}
             {showPaymentModal && selectedQuotation && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <h3 className="text-xl font-black text-gray-800 mb-4">Record Payment</h3>
-                        <div className="bg-slate-50 p-4 rounded-xl mb-6">
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-slate-500 font-bold">Total Amount:</span>
-                                <span className="font-bold">₹{parseFloat(selectedQuotation.total_amount).toLocaleString('en-IN')}</span>
+                <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-md p-2 shadow-2xl animate-in zoom-in duration-300 border-2 border-emerald-500/20">
+                        <div className="bg-emerald-50/50 rounded-[2rem] overflow-hidden" style={{ padding: '8px' }}>
+                            <div className="flex justify-between items-center mb-4 px-4 pt-4">
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 uppercase italic leading-none">Record Payment</h3>
+                                    <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mt-1">Receive Quotation Payment</p>
+                                </div>
+                                <button onClick={() => setShowPaymentModal(false)} className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl text-slate-400 hover:text-red-500 flex items-center justify-center transition-all active:scale-95"><FaTimes /></button>
                             </div>
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-slate-500 font-bold">Already Paid:</span>
-                                <span className="font-bold text-green-600">₹{parseFloat(selectedQuotation.paid_amount || 0).toLocaleString('en-IN')}</span>
-                            </div>
-                            <div className="flex justify-between text-base border-t border-slate-200 pt-2 mt-2">
-                                <span className="text-slate-700 font-black uppercase">Balance:</span>
-                                <span className="font-black text-red-600">
-                                    ₹{(parseFloat(selectedQuotation.total_amount) - parseFloat(selectedQuotation.paid_amount || 0)).toLocaleString('en-IN')}
-                                </span>
-                            </div>
-                        </div>
 
-                        <form onSubmit={submitPayment} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Amount Received</label>
-                                <input
-                                    type="number"
-                                    required
-                                    min="1"
-                                    step="0.01"
-                                    value={paymentAmount}
-                                    onChange={e => setPaymentAmount(e.target.value)}
-                                    className="w-full p-4 border border-slate-300 rounded-xl font-bold text-lg outline-none focus:ring-2 focus:ring-green-500"
-                                    placeholder="Enter amount..."
-                                />
+                            <div className="bg-white p-6 rounded-3xl mb-4 border-2 border-slate-50 shadow-inner">
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Bill</span>
+                                        <span className="text-sm font-black text-slate-900">₹{parseFloat(selectedQuotation.total_amount).toLocaleString('en-IN')}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Already Paid</span>
+                                        <span className="text-sm font-black text-emerald-600">₹{parseFloat(selectedQuotation.paid_amount || 0).toLocaleString('en-IN')}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-1">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Balance Due</span>
+                                        <span className="text-2xl font-black text-rose-600 tracking-tighter">
+                                            ₹{(parseFloat(selectedQuotation.total_amount) - parseFloat(selectedQuotation.paid_amount || 0)).toLocaleString('en-IN')}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPaymentModal(false)}
-                                    className="flex-1 py-3 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-50"
-                                >
-                                    Cancel
-                                </button>
+
+                            <form onSubmit={submitPayment} className="space-y-4">
+                                <div className="px-2 pb-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 block pl-2">Amount Received Now</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-lg">₹</div>
+                                        <input
+                                            type="number"
+                                            required
+                                            min="0.01"
+                                            step="0.01"
+                                            value={paymentAmount}
+                                            onChange={e => setPaymentAmount(e.target.value)}
+                                            className="w-full pl-12 pr-6 py-5 bg-white border-4 border-emerald-100 rounded-2xl font-black text-2xl text-slate-800 focus:border-emerald-500 outline-none transition-all shadow-lg placeholder:text-slate-200"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-500/30"
+                                    className="w-full py-6 bg-emerald-600 text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/30 active:scale-95 transition-all text-xs border-b-4 border-emerald-800"
                                 >
-                                    Save Payment
+                                    CONFIRM & RECEIVE
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* PDF Viewer Modal */}
             {showPdfModal && pdfBlobUrl && selectedQuotation && (
-                <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl">
+                <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-md">
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden border-4 border-emerald-500">
                         {/* Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-600 to-indigo-600">
-                            <div className="text-white">
-                                <h3 className="text-xl font-black">Quotation PDF</h3>
-                                <p className="text-sm opacity-90">{selectedQuotation.quotation_number} - {selectedQuotation.customer_name}</p>
+                        <div className="flex items-center justify-between p-6 bg-white border-b border-slate-100">
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 uppercase italic">Quotation Preview</h3>
+                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{selectedQuotation.quotation_number} • {selectedQuotation.customer_name}</p>
                             </div>
                             <button
                                 onClick={closePdfModal}
-                                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+                                className="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center hover:text-red-500 transition-colors"
                             >
-                                <FaTimes className="text-2xl" />
+                                <FaTimes className="text-xl" />
                             </button>
                         </div>
 
-                        {/* PDF Viewer */}
-                        <div className="flex-1 overflow-hidden bg-slate-100">
-                            {/* Desktop: Show iframe */}
-                            <iframe
-                                src={pdfBlobUrl}
-                                className="w-full h-full border-0 hidden md:block"
-                                title="Quotation PDF"
-                            />
-
-                            {/* Mobile: Show message and direct actions */}
-                            <div className="md:hidden flex flex-col items-center justify-center h-full p-8 text-center">
-                                <div className="bg-white rounded-2xl p-8 shadow-lg max-w-sm">
-                                    <div className="text-6xl mb-4">📄</div>
-                                    <h3 className="text-xl font-bold text-gray-800 mb-2">PDF Ready!</h3>
-                                    <p className="text-gray-600 mb-6">
-                                        Mobile browser mein PDF preview nahi dikhta.
-                                        Neeche se download ya WhatsApp share karein.
-                                    </p>
-                                    <div className="space-y-3">
-                                        <button
-                                            onClick={handleDownloadPdf}
-                                            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
-                                        >
-                                            <FaDownload className="text-xl" />
-                                            Download PDF
-                                        </button>
-                                        <button
-                                            onClick={handleWhatsAppShare}
-                                            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition"
-                                        >
-                                            <FaWhatsapp className="text-xl" />
-                                            WhatsApp Share
-                                        </button>
-                                    </div>
+                        {/* PDF Viewer Content */}
+                        <div className="flex-1 bg-slate-100 overflow-hidden relative">
+                            <iframe src={pdfBlobUrl} className="w-full h-full border-0 hidden md:block" title="Quotation PDF" />
+                            <div className="md:hidden flex flex-col items-center justify-center h-full p-8 text-center bg-white m-4 rounded-[2rem] border-2 border-slate-100">
+                                <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center text-4xl mb-6 shadow-sm"><FaReceipt /></div>
+                                <h3 className="text-xl font-black text-slate-900 uppercase italic mb-2">PDF is Ready!</h3>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 leading-relaxed px-4">Preview is limited on mobile. Use actions below to share or download.</p>
+                                <div className="grid grid-cols-2 gap-4 w-full">
+                                    <button onClick={handleWhatsAppShare} className="py-5 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95"><FaWhatsapp className="text-xl" /> Share</button>
+                                    <button onClick={handleDownloadPdf} className="py-5 bg-blue-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95"><FaDownload className="text-xl" /> Files</button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Action Buttons - Desktop Only */}
-                        <div className="hidden md:flex items-center justify-center gap-5 p-5 border-t border-slate-200 bg-slate-50">
+                        {/* Action Bar - Desktop */}
+                        <div className="hidden md:flex items-center justify-center gap-6 p-6 bg-slate-50">
                             <button
                                 onClick={handleWhatsAppShare}
-                                className="flex items-center justify-center gap-4 px-12 py-5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 min-w-[280px]"
+                                className="flex items-center gap-3 px-12 py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
                             >
-                                <FaWhatsapp className="text-3xl" />
-                                WhatsApp Share
+                                <FaWhatsapp className="text-2xl" /> WhatsApp Share
                             </button>
                             <button
                                 onClick={handleDownloadPdf}
-                                className="flex items-center justify-center gap-4 px-12 py-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-xl shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 min-w-[280px]"
+                                className="flex items-center gap-3 px-12 py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all"
                             >
-                                <FaDownload className="text-3xl" />
-                                Download PDF
+                                <FaDownload className="text-2xl" /> Download System
                             </button>
                         </div>
                     </div>

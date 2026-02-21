@@ -89,129 +89,127 @@ export default function CustomersPage() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-white overflow-hidden">
-            {/* Custom Header - Teal color as per image */}
-            <div className="bg-[#4358f4] text-white px-6 py-5 flex items-center justify-between shadow-lg z-20 relative">
-                <div className="flex items-center gap-5">
-                    <button onClick={() => window.history.back()} className="hover:bg-white/10 p-2 -ml-2 rounded-full transition-colors">
-                        <FaChevronLeft className="text-xl" />
-                    </button>
-                    <h1 className="text-xl font-bold tracking-wide transition-all">All Parties</h1>
-                </div>
+        <div className="flex flex-col h-screen bg-[#f8fafc] overflow-hidden">
+            {/* Premium Header */}
+            <div className="bg-white border-b-4 border-emerald-500 px-6 py-6 flex items-center justify-between shadow-sm z-20 relative">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => toast('No new messages', { icon: '💬' })} className="hover:bg-white/10 p-2 rounded-full transition-colors">
-                        <FaCommentDots className="text-xl" />
+                    <button onClick={() => window.history.back()} className="hover:bg-slate-100 p-2 -ml-2 rounded-xl transition-all">
+                        <FaChevronLeft className="text-xl text-slate-800" />
                     </button>
-                    <button onClick={() => toast('Notifications feature coming soon', { icon: '🔔' })} className="hover:bg-white/10 p-2 rounded-full transition-colors">
-                        <FaBell className="text-xl" />
+                    <div>
+                        <h1 className="text-xl font-black italic uppercase tracking-tighter text-slate-900">All Parties</h1>
+                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mt-1">Manage Your Customers</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button onClick={() => toast('No new messages', { icon: '💬' })} className="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center shadow-sm hover:bg-slate-100 transition-all font-bold">
+                        <FaCommentDots className="text-lg" />
+                    </button>
+                    <button onClick={() => toast('Notifications feature coming soon', { icon: '🔔' })} className="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center shadow-sm hover:bg-slate-100 transition-all font-bold">
+                        <FaBell className="text-lg" />
                     </button>
                 </div>
             </div>
 
-            {/* Spacer between Header and Tabs - Increased for visual separation */}
-            <div className="h-4 bg-[#0b5c73] border-t border-[#0e7490]/50"></div>
-
             {/* Tabs */}
-            <div className="flex bg-[#0e7490] text-white/80 shadow-md relative z-10">
+            <div className="flex bg-white border-b border-emerald-50 px-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 <button
                     onClick={() => setActiveTab('PARTIES')}
-                    className={`flex-1 py-4 font-bold text-sm tracking-[0.2em] relative transition-all ${activeTab === 'PARTIES' ? 'text-white bg-white/10' : 'hover:bg-white/5'}`}
+                    className={`flex-1 py-6 font-black text-xs tracking-[0.2em] rounded-2xl transition-all ${activeTab === 'PARTIES' ? 'text-white bg-emerald-600 shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:bg-slate-50'}`}
                 >
                     PARTIES
-                    {activeTab === 'PARTIES' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white shadow-[0_0_10px_white]"></div>}
                 </button>
                 <button
                     onClick={() => setActiveTab('GROUPS')}
-                    className={`flex-1 py-4 font-bold text-sm tracking-[0.2em] relative transition-all ${activeTab === 'GROUPS' ? 'text-white bg-white/10' : 'hover:bg-white/5'}`}
+                    className={`flex-1 py-6 font-black text-xs tracking-[0.2em] rounded-2xl transition-all ${activeTab === 'GROUPS' ? 'text-white bg-emerald-600 shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:bg-slate-50'}`}
                 >
                     GROUPS
-                    {activeTab === 'GROUPS' && <div className="absolute bottom-0 left-0 w-full h-1 bg-white shadow-[0_0_10px_white]"></div>}
                 </button>
             </div>
 
-            {/* Search Bar */}
-            <div className="px-6 py-5 border-b border-gray-10 bg-white shadow-sm relative z-0">
-                <div className="relative group">
-                    <FaSearch className="absolute left-150 top-1/2 -translate-y-1/2 text-gray-400 text-lg group-focus-within:text-[#0e7490] transition-colors z-10" />
+            {/* Search Bar - 3D Style */}
+            <div className="px-6 py-5 bg-white border-b border-emerald-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-emerald-100 border-b-8 border-emerald-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                     <input
                         type="text"
-                        placeholder="Search for Name / No. / Address etc."
+                        placeholder="SEARCH NAME / PHONE / HSN"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ paddingLeft: '1.1rem' }}
-                        className="w-full pr-6 py-4 bg-gray-50 border-15 border-slate-100 rounded-full outline-none focus:bg-white focus:border-[#0e7490] focus:ring-4 focus:ring-[#4358f4]/10 transition-all text-sm font-bold text-slate-700 shadow-inner placeholder:font-normal"
+                        className="w-full py-4 bg-emerald-50/20 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-slate-500 uppercase tracking-widest pl-5"
                     />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <FaSearch className="text-lg" />
+                    </div>
                 </div>
             </div>
 
-            {/* List Header */}
-            <div className="bg-[#f0f9ff] px-6 py-3 flex justify-between text-xs font-bold text-[#64748b] border-b border-gray-100 uppercase tracking-wider">
-                <span className="pl-2" style={{ paddingLeft: '8px' }}>Party Name</span>
-                <span className="pr-2" style={{ paddingRight: '8px' }}>Amount</span>
+            {/* Parties List Header */}
+            <div className="px-8 py-3 flex justify-between text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em] bg-emerald-50/30" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                <span>Party List ({filteredCustomers.length})</span>
+                <span>Balance Report</span>
             </div>
 
             {/* Parties List */}
-            <div className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-4" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 {filteredCustomers.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                        <FaUserPlus className="text-6xl mb-4 opacity-20" />
-                        <p className="font-medium text-lg text-slate-400">No parties found</p>
+                    <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                        <FaUserPlus className="text-8xl mb-6 opacity-20" />
+                        <p className="font-black uppercase tracking-widest text-sm italic">No parties found</p>
                     </div>
                 ) : (
-                    filteredCustomers.map((party: any) => {
+                    filteredCustomers.map((party: any, idx: number) => {
                         const balance = getCustomerBalance(party.id);
                         return (
                             <div
                                 key={party.id}
-                                className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex justify-between items-center hover:shadow-md transition-all cursor-pointer active:scale-[0.99] group"
-                                onClick={() => {
-                                    router.push(`/dashboard/customers/${party.id}`);
-                                }}
+                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer group"
+                                style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
+                                onClick={() => router.push(`/dashboard/customers/${party.id}`)}
                             >
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-slate-800 text-lg truncate group-hover:text-[#0e7490] transition-colors">{party.name}</h3>
-                                    {party.phone ? (
-                                        <p className="text-sm text-slate-500 mt-1 font-medium flex items-center gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs">📞</span>
-                                            {party.phone}
-                                        </p>
-                                    ) : (
-                                        <p className="text-sm text-slate-400 mt-1 italic">No phone number</p>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-4 shrink-0 pl-4 border-l border-slate-100 ml-4">
-                                    <div className="text-right">
-                                        <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">Balance</p>
-                                        <span className={`font-black text-lg whitespace-nowrap ${balance > 0 ? 'text-[#4358f4]' : 'text-slate-600'}`}>
-                                            {formatCompactNumber(balance || 0)}
-                                        </span>
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="w-8 h-8 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                                        {idx + 1}
                                     </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleSendWhatsApp(party, balance);
-                                        }}
-                                        className={`w-10 h-10 flex items-center justify-center rounded-full transition-all ${balance > 0 ? 'text-emerald-500 hover:bg-emerald-50' : 'text-slate-300 pointer-events-none'}`}
-                                        title="Send WhatsApp Reminder"
-                                    >
-                                        <FaWhatsapp className="text-xl" />
-                                    </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEditingId(party.id);
-                                            setFormData({
-                                                name: party.name,
-                                                phone: party.phone || '',
-                                                gstin: party.gstin || '',
-                                                address: party.address || ''
-                                            });
-                                            setShowModal(true);
-                                        }}
-                                        className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#0e7490] hover:bg-[#0e7490]/10 rounded-full transition-all"
-                                    >
-                                        <FaEdit className="text-lg" />
-                                    </button>
+                                    <span className={`text-[10px] font-black italic uppercase tracking-widest ${balance > 0 ? 'text-rose-500' : 'text-emerald-500'}`} style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                                        {balance > 0 ? 'Payment Pending' : 'Clear Account'}
+                                    </span>
+                                </div>
+
+                                <div style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                                    <h4 className="font-black text-slate-800 mb-1 uppercase truncate text-sm hover:text-emerald-600 transition-colors">{party.name}</h4>
+                                    <div className="flex justify-between items-end mt-2">
+                                        <div className="flex flex-col gap-1">
+                                            <p className="text-slate-400 text-[10px] font-black uppercase flex items-center gap-1 leading-none shadow-sm bg-white px-2 py-1 rounded-lg border border-slate-100 w-fit">
+                                                📞 {party.phone || 'NO NO.'}
+                                            </p>
+                                        </div>
+                                        <p className={`text-lg font-black italic ${balance > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+                                            {formatCompactNumber(balance || 0)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleSendWhatsApp(party, balance); }}
+                                            className={`p-2 rounded-xl transition-all ${balance > 0 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-200 text-slate-400'}`}
+                                        >
+                                            <FaWhatsapp className="text-lg" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingId(party.id);
+                                                setFormData({ name: party.name, phone: party.phone || '', gstin: party.gstin || '', address: party.address || '' });
+                                                setShowModal(true);
+                                            }}
+                                            className="p-2 bg-white text-slate-400 border border-slate-100 rounded-xl hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"
+                                        >
+                                            <FaEdit className="text-lg" />
+                                        </button>
+                                    </div>
+                                    <div className="text-[8px] font-black text-slate-400 uppercase italic">Touch to View Party</div>
                                 </div>
                             </div>
                         );
@@ -219,12 +217,12 @@ export default function CustomersPage() {
                 )}
             </div>
 
-            {/* Floating Action Button */}
+            {/* Floating Action Button - Large & Yellow */}
             <button
                 onClick={() => setShowModal(true)}
-                className="absolute bottom-6 right-6 w-20 h-20 bg-[#0e7490] text-white rounded-full flex items-center justify-center shadow-xl hover:bg-[#0891b2] active:scale-95 transition-all z-20"
+                className="fixed bottom-8 right-8 w-20 h-20 bg-yellow-400 text-slate-900 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-yellow-500/40 hover:scale-110 active:scale-95 transition-all z-30 border-4 border-white"
             >
-                <FaPlus className="text-2xl" />
+                <FaUserPlus className="text-3xl" />
             </button>
 
             {/* Add/Edit Modal */}

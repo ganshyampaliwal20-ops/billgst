@@ -130,7 +130,7 @@ export default function CustomerDetailPage() {
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50 overflow-hidden">
             {/* Header */}
-            <div className="bg-[#0e7490] text-white px-6 py-5 flex items-center justify-between shadow-lg z-20">
+            <div className="bg-orange-600 text-white px-6 py-5 flex items-center justify-between shadow-lg z-20">
                 <div className="flex items-center gap-4">
                     <button onClick={() => router.back()} className="hover:bg-white/10 p-2 -ml-2 rounded-full transition-colors">
                         <FaArrowLeft className="text-xl" />
@@ -147,7 +147,7 @@ export default function CustomerDetailPage() {
 
             <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
                 {/* Summary Box */}
-                <div className="bg-[#0e7490] rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                <div className="bg-blue-600 rounded-3xl p-6 shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
                     <div className="flex items-center justify-between gap-4 relative z-10">
                         <div className="flex-1 flex flex-col items-center gap-2">

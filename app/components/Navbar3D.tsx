@@ -69,7 +69,7 @@ export default function Navbar3D() {
                                 </div>
                                 <div className="flex flex-col">
                                     <h2 className={`text-sm md:text-xl font-bold tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm ${isScrolled ? 'text-white' : 'text-indigo-900'
-                                        }`}>
+                                        }`} style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '10px' }}>
                                         BillGST
                                     </h2>
                                     <p className={`text-[10px] font-bold uppercase tracking-wider hidden md:block ${isScrolled ? 'text-indigo-100/90' : 'text-slate-500'

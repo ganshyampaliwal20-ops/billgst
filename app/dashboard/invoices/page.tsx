@@ -8,6 +8,7 @@ import { generateInvoicePDF } from '@/lib/pdf-generator';
 import { toast } from 'react-hot-toast';
 import { DOC_LABELS, DOC_TYPES } from '@/lib/constants';
 import { formatCurrency, formatCompactNumber } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
 
 interface InvoiceItem {
     product_name: string;
@@ -37,11 +38,23 @@ export default function InvoicesPage() {
     const deleteInvoice = useStore((state: any) => state.deleteInvoice);
     const businessProfile = useStore((state: any) => state.businessProfile);
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
-    const [searchTerm, setSearchTerm] = useState('');
+
+    const searchParams = useSearchParams();
+    const initialSearch = searchParams.get('search') || '';
+
+    const [searchTerm, setSearchTerm] = useState(initialSearch);
     const [isClient, setIsClient] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const [showShareSheet, setShowShareSheet] = useState<Invoice | null>(null);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+    // Update search term if URL params change
+    useEffect(() => {
+        const query = searchParams.get('search');
+        if (query) {
+            setSearchTerm(query);
+        }
+    }, [searchParams]);
 
     // Generate QR Code when invoice is selected
     useEffect(() => {
@@ -82,11 +95,15 @@ export default function InvoicesPage() {
         // Aggressive null checks for every field accessed
         const customerName = inv?.customer?.name || '';
         const invoiceNumber = inv?.invoice_number || '';
+        const itemsMatch = (inv?.items || []).some(item =>
+            String(item.product_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
         // Ensure strings before calling toLowerCase
         return (
             String(customerName).toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(invoiceNumber).toLowerCase().includes(searchTerm.toLowerCase())
+            String(invoiceNumber).toLowerCase().includes(searchTerm.toLowerCase()) ||
+            itemsMatch
         );
     });
 

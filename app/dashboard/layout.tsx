@@ -315,12 +315,12 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
-                    <div className="px-8 sm:px-6 lg:px-8 w-full">
+                    <div className="px-8 sm:px-6 lg:px-8 w-full" style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '0px' }}>
                         <div className="flex items-center justify-between h-12 md:h-16">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
                                 <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
-                                    <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
+                                    <div className="relative w-12 h-10 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
                                         <Image
                                             src="/logo.png"
                                             alt="BillGST Logo"
@@ -361,7 +361,7 @@ export default function DashboardLayout({
                                 {/* Mobile Menu Button */}
                                 <button
                                     onClick={() => setIsSidebarOpen(true)}
-                                    className="md:hidden flex items-center justify-center w-9 h-9 text-white hover:bg-white/20 rounded-lg transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md"
+                                    className="md:hidden flex items-center justify-center w-10 h-10 text-white hover:bg-white/20 rounded-lg transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                                     aria-label="Open Menu"
                                 >
                                     <FaBars size={18} />
