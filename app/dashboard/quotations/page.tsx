@@ -15,6 +15,7 @@ export default function QuotationsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
+    const [showActionModal, setShowActionModal] = useState<any>(null);
     const [paymentAmount, setPaymentAmount] = useState('');
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
@@ -141,8 +142,8 @@ export default function QuotationsPage() {
         return pdfDoc ? pdfDoc.output('blob') : null;
     };
 
-    const handleDownloadRow = async (e: React.MouseEvent, quotation: any) => {
-        e.stopPropagation();
+    const handleDownloadRow = async (e: React.MouseEvent | null, quotation: any) => {
+        e?.stopPropagation();
         try {
             const blob = await generatePdfForAction(quotation);
             if (blob) {
@@ -159,8 +160,8 @@ export default function QuotationsPage() {
         }
     };
 
-    const handleShareRow = async (e: React.MouseEvent, quotation: any) => {
-        e.stopPropagation();
+    const handleShareRow = async (e: React.MouseEvent | null, quotation: any) => {
+        e?.stopPropagation();
         try {
             const blob = await generatePdfForAction(quotation);
             if (!blob) return;
@@ -264,7 +265,7 @@ export default function QuotationsPage() {
                                 key={quotation.id}
                                 className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer group"
                                 style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                                onClick={() => handleQuotationClick(quotation)}
+                                onClick={() => setShowActionModal(quotation)}
                             >
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
@@ -291,8 +292,8 @@ export default function QuotationsPage() {
                                     </div>
                                 </div>
 
-                                {/* Quick Actions Overlay */}
-                                <div className="grid grid-cols-4 gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                {/* Quick Actions Overlay (Desktop Only) */}
+                                <div className="hidden md:grid grid-cols-4 gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                                     <button
                                         onClick={(e) => handleShareRow(e, quotation)}
                                         className="py-3 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
@@ -324,6 +325,57 @@ export default function QuotationsPage() {
                 )}
                 <div className="h-20"></div>
             </div>
+
+            {/* Quick Actions Pop-up (Mobile) */}
+            {showActionModal && (
+                <div className="fixed inset-0 bg-black/60 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowActionModal(null)}>
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-6 shadow-2xl animate-in zoom-in duration-300 border-4 border-emerald-500" onClick={e => e.stopPropagation()}>
+                        <div className="text-center mb-6">
+                            <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter">Quotation Actions</h3>
+                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1"># {showActionModal.quotation_number}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">{showActionModal.customer_name}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={() => { handleShareRow(null, showActionModal); setShowActionModal(null); }}
+                                className="flex flex-col items-center gap-3 p-5 bg-emerald-50 rounded-3xl border-b-4 border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all group"
+                            >
+                                <FaWhatsapp className="text-xl text-emerald-500 group-hover:text-white" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">WhatsApp</span>
+                            </button>
+                            <button
+                                onClick={() => { handleDownloadRow(null, showActionModal); setShowActionModal(null); }}
+                                className="flex flex-col items-center gap-3 p-5 bg-blue-50 rounded-3xl border-b-4 border-blue-100 hover:bg-blue-600 hover:text-white transition-all group"
+                            >
+                                <FaDownload className="text-xl text-blue-500 group-hover:text-white" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Download</span>
+                            </button>
+                            <button
+                                onClick={() => { openPaymentModal(showActionModal); setShowActionModal(null); }}
+                                className="flex flex-col items-center gap-3 p-5 bg-orange-50 rounded-3xl border-b-4 border-orange-100 hover:bg-orange-600 hover:text-white transition-all group"
+                            >
+                                <FaHandHoldingUsd className="text-xl text-orange-500 group-hover:text-white" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Payment</span>
+                            </button>
+                            <button
+                                onClick={() => { handleConvertToInvoice(showActionModal); setShowActionModal(null); }}
+                                className="flex flex-col items-center gap-3 p-5 bg-indigo-50 rounded-3xl border-b-4 border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all group"
+                            >
+                                <FaFileInvoice className="text-xl text-indigo-500 group-hover:text-white" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">To Bill</span>
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={() => { handleQuotationClick(showActionModal); setShowActionModal(null); }}
+                            className="mt-6 w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl active:scale-95 transition-all border-b-4 border-slate-700"
+                        >
+                            VIEW FULL PREVIEW
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Floating Action Button */}
             <div className="fixed bottom-6 right-6 z-50">
@@ -398,19 +450,21 @@ export default function QuotationsPage() {
 
             {/* PDF Viewer Modal */}
             {showPdfModal && pdfBlobUrl && selectedQuotation && (
-                <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-md">
-                    <div className="bg-white rounded-[2.5rem] w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden border-4 border-emerald-500">
+                <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-2 backdrop-blur-md" onClick={closePdfModal}>
+                    <div className="bg-white rounded-[2.5rem] w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden border-4 border-emerald-500 mt-12" onClick={e => e.stopPropagation()}>
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 bg-white border-b border-slate-100">
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900 uppercase italic">Quotation Preview</h3>
-                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{selectedQuotation.quotation_number} • {selectedQuotation.customer_name}</p>
+                        <div className="flex flex-col items-center justify-center p-6 bg-white border-b border-slate-100 relative">
+                            <div className="text-center">
+                                <h3 className="text-xl font-black text-slate-900 uppercase italic leading-none">Quotation Preview</h3>
+                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">
+                                    {selectedQuotation.quotation_number} • {selectedQuotation.customer_name}
+                                </p>
                             </div>
                             <button
                                 onClick={closePdfModal}
-                                className="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center hover:text-red-500 transition-colors"
+                                className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-slate-100 hover:text-red-500 transition-all active:scale-95 shadow-sm border border-slate-100"
                             >
-                                <FaTimes className="text-xl" />
+                                <FaTimes className="text-lg" />
                             </button>
                         </div>
 

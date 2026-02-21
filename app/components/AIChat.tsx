@@ -148,10 +148,10 @@ export default function AIChat() {
                     {/* Dismiss Button for the Handle */}
                     <button
                         onClick={(e) => { e.stopPropagation(); setIsHidden(true); toast.success('AI dismissed until next reload'); }}
-                        className="absolute -top-2 -left-2 w-7 h-7 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 border-2 border-white"
+                        className="absolute -top-1 -left-1 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 border-2 border-white active:scale-95"
                         title="Remove AI"
                     >
-                        <FaTimes size={12} />
+                        <FaTimes size={14} />
                     </button>
                 </div>
             </div>
@@ -177,11 +177,11 @@ export default function AIChat() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                            <div className="flex items-center gap-1">
+                                <button onClick={() => setIsMinimized(!isMinimized)} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl transition-colors">
                                     <FaMinus size={14} />
                                 </button>
-                                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+                                <button onClick={() => setIsOpen(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-rose-500/20 rounded-xl transition-colors border border-white/10 active:scale-95">
                                     <FaTimes size={18} />
                                 </button>
                             </div>
