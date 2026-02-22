@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
-    FaSignInAlt, FaUserPlus, FaLanguage, FaReceipt,
+    FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
     FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
@@ -77,7 +77,6 @@ export default function DashboardLayout({
         { icon: FaInfoCircle, label: 'About Us', href: '/about' },
         { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
         // Settings moved to bottom manually
-        { icon: FaSignInAlt, label: 'Login', href: '/login', isAuth: true },
     ];
 
     const handleLogout = () => {

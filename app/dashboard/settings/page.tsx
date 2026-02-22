@@ -729,42 +729,15 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Account & Access Card */}
+                {/* Account Security Info */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
                             <FaUserLock className="text-xl" />
                         </div>
-                        <h2 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Account & Access</h2>
+                        <h2 className="text-lg font-bold text-gray-800">Account Security</h2>
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Link
-                            href="/login"
-                            className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white rounded-lg text-slate-400 group-hover:text-indigo-600 shadow-sm transition-colors">
-                                    <FaSignInAlt />
-                                </div>
-                                <span className="font-bold text-slate-700 italic">Login Karein</span>
-                            </div>
-                            <span className="text-xs font-bold text-slate-400">SIGN IN</span>
-                        </Link>
-
-                        <Link
-                            href="/register"
-                            className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white rounded-lg text-slate-400 group-hover:text-emerald-600 shadow-sm transition-colors">
-                                    <FaUserPlus />
-                                </div>
-                                <span className="font-bold text-slate-700 italic">Naya Account</span>
-                            </div>
-                            <span className="text-xs font-bold text-slate-400">REGISTER</span>
-                        </Link>
-                    </div>
+                    <p className="text-sm text-gray-500 italic">Apna business profile aur settings yahan se manage karein. Sabhi badlav (changes) save karne ke liye 'Save Settings' button dabayein.</p>
                 </div>
 
                 {/* Save Button */}
