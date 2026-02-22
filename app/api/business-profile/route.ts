@@ -8,10 +8,17 @@ export async function GET() {
     let client;
     try {
         const session: any = await getServerSession(authOptions as any);
+        console.log('Business Profile GET: Session check', {
+            hasSession: !!session,
+            userId: session?.user?.id,
+            email: session?.user?.email
+        });
+
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        const userId = session.user.id;
         client = await pool.connect();
 
         try {
@@ -24,9 +31,9 @@ export async function GET() {
                         plan_type, invoice_template, invoice_table_format,
                         business_signature, business_logo_position,
                         auto_reminders_enabled, reminder_frequency, reminder_time,
-                        whatsapp_bot_enabled
+                        whatsapp_bot_enabled, whatsapp_sender_number, whatsapp_api_key, whatsapp_api_url
                  FROM users WHERE id = $1`,
-                [session.user.id]
+                [userId]
             );
 
             if (result.rows.length === 0) {
@@ -59,7 +66,10 @@ export async function GET() {
                 reminderFrequency: dbRow.reminder_frequency ?? 3,
                 reminderTime: dbRow.reminder_time || '10:00',
                 whatsappBotEnabled: dbRow.whatsapp_bot_enabled ?? false,
-                id: session.user.id
+                whatsapp_sender_number: dbRow.whatsapp_sender_number || '',
+                whatsapp_api_key: dbRow.whatsapp_api_key || '',
+                whatsapp_api_url: dbRow.whatsapp_api_url || '',
+                id: userId
             };
 
             client.release();
@@ -67,7 +77,7 @@ export async function GET() {
 
         } catch (dbError: any) {
             // Missing columns handling for GET
-            if (dbError?.code === '42703') {
+            if (dbError?.code === '42703' || dbError?.code === '42P01') {
                 console.log('GET Profile: Missing columns. Running migration...');
                 await client.query(`
                     ALTER TABLE users 
@@ -92,7 +102,10 @@ export async function GET() {
                     ADD COLUMN IF NOT EXISTS auto_reminders_enabled BOOLEAN DEFAULT FALSE,
                     ADD COLUMN IF NOT EXISTS reminder_frequency INTEGER DEFAULT 3,
                     ADD COLUMN IF NOT EXISTS reminder_time VARCHAR(10) DEFAULT '10:00',
-                    ADD COLUMN IF NOT EXISTS whatsapp_bot_enabled BOOLEAN DEFAULT FALSE;
+                    ADD COLUMN IF NOT EXISTS whatsapp_bot_enabled BOOLEAN DEFAULT FALSE,
+                    ADD COLUMN IF NOT EXISTS whatsapp_sender_number VARCHAR(20),
+                    ADD COLUMN IF NOT EXISTS whatsapp_api_key TEXT,
+                    ADD COLUMN IF NOT EXISTS whatsapp_api_url TEXT;
                 `);
 
                 // Retry query once
@@ -102,9 +115,11 @@ export async function GET() {
                             business_bank_name, business_account_no, business_ifsc_code, business_branch_name,
                             business_account_holder, business_show_bank_details,
                             plan_type, invoice_template, invoice_table_format,
-                            business_signature, business_logo_position
+                            business_signature, business_logo_position,
+                            auto_reminders_enabled, reminder_frequency, reminder_time,
+                            whatsapp_bot_enabled, whatsapp_sender_number, whatsapp_api_key, whatsapp_api_url
                      FROM users WHERE id = $1`,
-                    [session.user.id]
+                    [userId]
                 );
 
                 client.release();
@@ -120,25 +135,34 @@ export async function GET() {
                         upi_id: r.business_upi_id || '',
                         owner_name: r.business_owner_name || '',
                         bank_name: r.business_bank_name || '',
-                        account_no: r.account_no || '',
-                        ifsc_code: r.ifsc_code || '',
-                        branch_name: r.branch_name || '',
-                        show_bank_details: r.show_bank_details ?? true,
+                        account_no: r.business_account_no || '',
+                        ifsc_code: r.business_ifsc_code || '',
+                        branch_name: r.business_branch_name || '',
+                        account_holder: r.business_account_holder || '',
+                        show_bank_details: r.business_show_bank_details ?? true,
                         plan_type: r.plan_type || 'FREE',
                         invoice_template: r.invoice_template || 'TEMPLATE_1',
                         invoice_table_format: r.invoice_table_format || 'FORMAT_1',
                         signature: r.business_signature || null,
                         logo_position: r.business_logo_position || 'RIGHT',
-                        id: session.user.id
+                        autoRemindersEnabled: r.auto_reminders_enabled ?? false,
+                        reminderFrequency: r.reminder_frequency ?? 3,
+                        reminderTime: r.reminder_time || '10:00',
+                        whatsappBotEnabled: r.whatsapp_bot_enabled ?? false,
+                        whatsapp_sender_number: r.whatsapp_sender_number || '',
+                        whatsapp_api_key: r.whatsapp_api_key || '',
+                        whatsapp_api_url: r.whatsapp_api_url || '',
+                        id: userId
                     });
                 }
-                return NextResponse.json({ error: 'User not found' }, { status: 404 });
+                return NextResponse.json({ error: 'Failed' }, { status: 500 });
             }
+            client.release();
             throw dbError;
         }
 
     } catch (error) {
-        console.error('Error fetching business profile:', error);
+        console.error('Error in GET business-profile:', error);
         if (client) client.release();
         return NextResponse.json({ error: 'Failed to fetch business profile' }, { status: 500 });
     }
@@ -149,6 +173,11 @@ export async function POST(request: Request) {
     let client;
     try {
         const session: any = await getServerSession(authOptions as any);
+        console.log('Business Profile POST: Session check', {
+            hasSession: !!session,
+            userId: session?.user?.id
+        });
+
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -248,7 +277,9 @@ export async function POST(request: Request) {
             });
 
         } catch (dbError: any) {
+            console.log('POST Profile: DB error', dbError.code);
             if (dbError?.code === '42703' || dbError?.code === '42P01') {
+                console.log('POST Profile: Missing columns. Running migration...');
                 await client.query(`
                     ALTER TABLE users 
                     ADD COLUMN IF NOT EXISTS business_bank_name VARCHAR(255),
@@ -266,15 +297,48 @@ export async function POST(request: Request) {
                     ADD COLUMN IF NOT EXISTS reminder_time VARCHAR(10) DEFAULT '10:00',
                     ADD COLUMN IF NOT EXISTS whatsapp_bot_enabled BOOLEAN DEFAULT FALSE,
                     ADD COLUMN IF NOT EXISTS whatsapp_sender_number VARCHAR(20),
-                    ADD COLUMN IF NOT EXISTS whatsapp_api_key TEXT;
+                    ADD COLUMN IF NOT EXISTS whatsapp_api_key TEXT,
+                    ADD COLUMN IF NOT EXISTS whatsapp_api_url TEXT;
                 `);
+
+                // Retry Update
+                const retryResult = await client.query(
+                    `UPDATE users 
+                     SET business_name = $1, business_gstin = $2, business_address = $3, business_phone = $4, 
+                         business_email = $5, business_logo = $6, business_upi_id = $7, business_owner_name = $8,
+                         business_bank_name = $9, business_account_no = $10, business_ifsc_code = $11, 
+                         business_branch_name = $12, business_account_holder = $13, business_show_bank_details = $14,
+                         invoice_template = $16, invoice_table_format = $17, business_signature = $18, 
+                         business_logo_position = $19, auto_reminders_enabled = $20, reminder_frequency = $21, 
+                         reminder_time = $22, whatsapp_bot_enabled = $23, whatsapp_sender_number = $24, 
+                         whatsapp_api_key = $25, whatsapp_api_url = $26
+                     WHERE id = $15
+                     RETURNING *`,
+                    [
+                        data.name || 'My Business', data.gstin || '', data.address || '', data.phone || '',
+                        data.email || '', data.logo || null, data.upi_id || '', data.owner_name || '',
+                        data.bank_name || '', data.account_no || '', data.ifsc_code || '',
+                        data.branch_name || '', data.account_holder || '', data.show_bank_details ?? true,
+                        session.user.id, data.invoice_template || 'TEMPLATE_1', data.invoice_table_format || 'FORMAT_1',
+                        data.signature || null, data.logo_position || 'RIGHT',
+                        data.autoRemindersEnabled ?? false, data.reminderFrequency ?? 3,
+                        data.reminderTime || '10:00', data.whatsappBotEnabled ?? false,
+                        data.whatsappSenderNumber || '', data.whatsappApiKey || '', data.whatsappApiUrl || ''
+                    ]
+                );
+
                 client.release();
-                return NextResponse.json({ success: false, error: 'Database migrated. Please retry saving.' });
+                if (retryResult.rows.length > 0) {
+                    return NextResponse.json({ success: true, data: retryResult.rows[0] });
+                }
+                return NextResponse.json({ success: true, message: 'Database updated. Please save again.' });
             }
+            if (client) client.release();
             throw dbError;
         }
     } catch (error: any) {
+        console.error('Business Profile POST API Error:', error);
         if (client) client.release();
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to update business profile' }, { status: 500 });
     }
 }

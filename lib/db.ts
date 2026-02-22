@@ -96,6 +96,37 @@ export const initDB = async () => {
         password VARCHAR(255) NOT NULL,
         role VARCHAR(50) DEFAULT 'USER',
         phone VARCHAR(20),
+        
+        -- Business Profile
+        business_name VARCHAR(255) DEFAULT 'My Business',
+        business_gstin VARCHAR(20),
+        business_address TEXT,
+        business_phone VARCHAR(20),
+        business_email VARCHAR(255),
+        business_logo TEXT,
+        business_upi_id VARCHAR(100),
+        business_owner_name VARCHAR(255),
+        business_bank_name VARCHAR(255),
+        business_account_no VARCHAR(50),
+        business_ifsc_code VARCHAR(20),
+        business_branch_name VARCHAR(255),
+        business_account_holder VARCHAR(255),
+        business_show_bank_details BOOLEAN DEFAULT TRUE,
+        invoice_template VARCHAR(50) DEFAULT 'TEMPLATE_1',
+        invoice_table_format VARCHAR(50) DEFAULT 'FORMAT_1',
+        business_signature TEXT,
+        business_logo_position VARCHAR(20) DEFAULT 'RIGHT',
+        
+        -- WhatsApp & Reminders
+        auto_reminders_enabled BOOLEAN DEFAULT FALSE,
+        reminder_frequency INTEGER DEFAULT 3,
+        reminder_time VARCHAR(10) DEFAULT '10:00',
+        whatsapp_bot_enabled BOOLEAN DEFAULT FALSE,
+        whatsapp_sender_number VARCHAR(20),
+        whatsapp_api_key TEXT,
+        whatsapp_api_url TEXT,
+
+        -- Auth & Metadata
         reset_token VARCHAR(255),
         reset_token_expiry TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
