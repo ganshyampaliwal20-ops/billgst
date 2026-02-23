@@ -12,7 +12,11 @@ export async function GET() {
         }
 
         const client = await pool.connect();
-        const result = await client.query('SELECT * FROM products WHERE created_by = $1 ORDER BY created_at DESC', [session.user.id]);
+        const result = await client.query(`
+            SELECT * FROM products 
+            WHERE created_by = $1 AND (status IS NULL OR status != 'INACTIVE')
+            ORDER BY created_at DESC
+        `, [session.user.id]);
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {

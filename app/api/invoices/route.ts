@@ -17,30 +17,41 @@ export async function GET() {
         const userId = session.user.id;
 
         const client = await pool.connect();
-        // Fetch invoices for the user
-        const result = await client.query(`
-      SELECT i.*, 
-             json_build_object(
-                 'name', c.name, 
-                 'email', c.email, 
-                 'phone', c.phone,
-                 'gstin', c.gstin,
-                 'address', c.address,
-                 'city', c.city,
-                 'state', c.state,
-                 'pincode', c.pincode
-             ) as customer,
-             (SELECT json_agg(items) FROM invoice_items items WHERE items.invoice_id = i.id) as items
-      FROM invoices i
-      JOIN customers c ON i.customer_id = c.id
-      WHERE i.created_by = $1
-      ORDER BY i.created_at DESC
-    `, [userId]);
-        client.release();
-        return NextResponse.json(result.rows);
-    } catch (error) {
-        console.error('Error fetching invoices:', error);
-        return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
+        try {
+            // Fetch invoices for the user
+            const result = await client.query(`
+          SELECT i.*, 
+                 CASE 
+                    WHEN c.id IS NOT NULL THEN
+                         json_build_object(
+                             'name', c.name, 
+                             'email', c.email, 
+                             'phone', c.phone,
+                             'gstin', c.gstin,
+                             'address', c.address,
+                             'city', c.city,
+                             'state', c.state,
+                             'pincode', c.pincode
+                         )
+                    ELSE json_build_object('name', 'Cash Sale', 'phone', null)
+                 END as customer,
+                 (SELECT json_agg(items) FROM invoice_items items WHERE items.invoice_id = i.id) as items
+          FROM invoices i
+          LEFT JOIN customers c ON i.customer_id = c.id
+          WHERE i.created_by = $1
+          ORDER BY i.created_at DESC
+        `, [userId]);
+
+            client.release();
+            return NextResponse.json(result.rows);
+        } catch (dbError: any) {
+            client.release();
+            console.error('Database Error fetching invoices:', dbError);
+            return NextResponse.json({ error: 'Database error: ' + dbError.message }, { status: 500 });
+        }
+    } catch (error: any) {
+        console.error('Critical Error fetching invoices:', error);
+        return NextResponse.json({ error: 'Critical error: ' + error.message }, { status: 500 });
     }
 }
 
@@ -351,10 +362,75 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Invoice not found or unauthorized' }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, invoice: result.rows[0] });
+        return NextResponse.json({ success: true, data: result.rows[0] });
+    } catch (error: any) {
+        console.error('Invoice PUT Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
 
-    } catch (error) {
-        console.error('Error updating invoice:', error);
-        return NextResponse.json({ error: 'Failed to update invoice' }, { status: 500 });
+export async function DELETE(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+        return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 });
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Get items to restore stock
+        const itemsResult = await client.query(`
+            SELECT product_id, quantity 
+            FROM invoice_items 
+            WHERE invoice_id = $1
+        `, [id]);
+
+        // 2. Restore stock for each item
+        for (const item of itemsResult.rows) {
+            if (item.product_id) {
+                await client.query(`
+                    UPDATE products 
+                    SET stock_quantity = COALESCE(stock_quantity, 0) + $1 
+                    WHERE id = $2
+                `, [item.quantity, item.product_id]);
+            }
+        }
+
+        // 3. Delete invoice items (Foreign key should handle this if ON DELETE CASCADE, but being explicit is safer)
+        await client.query('DELETE FROM invoice_items WHERE invoice_id = $1', [id]);
+
+        // 4. Delete invoice payments
+        await client.query('DELETE FROM payments WHERE invoice_id = $1', [id]);
+
+        // 5. Delete the invoice
+        const deleteResult = await client.query(`
+            DELETE FROM invoices 
+            WHERE id = $1 AND created_by = $2
+            RETURNING id
+        `, [id, userId]);
+
+        if (deleteResult.rowCount === 0) {
+            await client.query('ROLLBACK');
+            client.release();
+            return NextResponse.json({ error: 'Invoice not found or unauthorized' }, { status: 404 });
+        }
+
+        await client.query('COMMIT');
+        client.release();
+        return NextResponse.json({ success: true, message: 'Invoice deleted and stock restored' });
+    } catch (error: any) {
+        await client.query('ROLLBACK');
+        client.release();
+        console.error('Invoice DELETE Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

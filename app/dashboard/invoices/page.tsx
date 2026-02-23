@@ -181,6 +181,17 @@ export default function InvoicesPage() {
         }
     };
 
+    const handleDelete = async (e: React.MouseEvent, invoice: Invoice) => {
+        e.stopPropagation();
+        if (window.confirm(`Are you sure you want to delete Invoice #${invoice.invoice_number}? This will also restore stock levels.`)) {
+            const res = await deleteInvoice(invoice.id);
+            if (res.success) {
+                setShowShareSheet(null);
+                setSelectedInvoice(null);
+            }
+        }
+    };
+
     const handleShareMore = async (invoice: Invoice) => {
         if (!invoice) return;
         try {
@@ -368,6 +379,13 @@ export default function InvoicesPage() {
                                                     >
                                                         <FaPlus className="text-lg" />
                                                     </button>
+                                                    <button
+                                                        onClick={(e) => handleDelete(e, invoice)}
+                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                                        title="Delete"
+                                                    >
+                                                        <FaTrash className="text-lg" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -539,6 +557,13 @@ export default function InvoicesPage() {
                                         <span className="text-2xl font-bold">...</span>
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-500 uppercase">More</span>
+                                </button>
+
+                                <button onClick={(e) => handleDelete(e, showShareSheet)} className="flex flex-col items-center gap-3 group">
+                                    <div className="w-16 h-16 bg-red-100/50 rounded-2xl flex items-center justify-center hover:bg-red-100 transition-all border border-red-200">
+                                        <FaTrash className="text-2xl text-red-600" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-red-600 uppercase">Delete</span>
                                 </button>
                             </div>
 
