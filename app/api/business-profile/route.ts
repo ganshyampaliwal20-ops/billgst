@@ -221,9 +221,9 @@ function normalizeProfile(dbRow: any, userId: string) {
         reminderFrequency: dbRow.reminder_frequency ?? 3,
         reminderTime: dbRow.reminder_time || '10:00',
         whatsappBotEnabled: dbRow.whatsapp_bot_enabled ?? false,
-        whatsappSenderNumber: dbRow.whatsapp_sender_number || '',
-        whatsappApiKey: dbRow.whatsapp_api_key || '',
-        whatsappApiUrl: dbRow.whatsapp_api_url || '',
+        whatsapp_sender_number: dbRow.whatsapp_sender_number || '',
+        whatsapp_api_key: dbRow.whatsapp_api_key || '',
+        whatsapp_api_url: dbRow.whatsapp_api_url || '',
         id: userId
     };
 }

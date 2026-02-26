@@ -97,8 +97,8 @@ export default function CustomersPage() {
                         <FaChevronLeft className="text-xl text-slate-800" />
                     </button>
                     <div>
-                        <h1 className="text-xl font-black italic uppercase tracking-tighter text-slate-900">All Parties</h1>
-                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mt-1">Manage Your Customers</p>
+                        <h1 className="text-xl font-bold text-slate-900">All Customers</h1>
+                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none mt-1">Manage Your Customers</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">

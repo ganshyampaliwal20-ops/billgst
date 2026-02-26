@@ -658,8 +658,8 @@ export default function NewInvoicePage() {
                             type="date"
                             value={invoiceDate}
                             onChange={(e) => setInvoiceDate(e.target.value)}
-                            className="w-full p-4 bg-white border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none font-bold text-slate-700 transition-all shadow-sm"
-                            style={{ textAlign: 'center' }}
+                            className="w-full py-4 pr-4 pl-5 bg-white border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none font-bold text-slate-700 transition-all shadow-sm"
+                            style={{ textAlign: 'center', paddingLeft: '20px' }}
                         />
                     </div>
 
