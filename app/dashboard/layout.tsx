@@ -301,7 +301,7 @@ export default function DashboardLayout({
 
                         <button
                             onClick={handleLogout}
-                            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
+                            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group mb-2"
                         >
                             <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
                             <span>{t.welcome === 'स्वागत है' ? 'सुरक्षित लॉगआउट' : 'Logout Safe'}</span>

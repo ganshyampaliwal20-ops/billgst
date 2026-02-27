@@ -1,13 +1,15 @@
 [
     {
         "relation": [
-            "delegate_permission/common.handle_all_urls"
+            "delegate_permission/common.handle_all_urls",
+            "delegate_permission/common.get_login_creds"
         ],
         "target": {
             "namespace": "android_app",
             "package_name": "in.billgst.app",
             "sha256_cert_fingerprints": [
-                "98:D9:ED:70:5C:05:39:62:31:FF:40:79:71:10:79:90:70:7D:81:06:39:61:96:42:15:A3:46:CD:1F:39:02:B6"
+                "98:D9:ED:70:5C:05:39:62:31:FF:40:79:71:10:79:90:70:7D:81:06:39:61:96:42:15:A3:46:CD:1F:39:02:B6",
+                "63:AB:10:47:01:5E:17:93:DF:B1:3F:E3:7E:01:21:BA:78:6A:38:80:EB:2F:AB:A2:61:63:1F:C7:D4:17:2C:F1"
             ]
         }
     }
