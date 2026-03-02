@@ -132,7 +132,7 @@ export default function CustomersPage() {
                 <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-emerald-100 border-b-8 border-emerald-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                     <input
                         type="text"
-                        placeholder="SEARCH NAME / PHONE / HSN"
+                        placeholder="SEARCH NAME / PHONE"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full py-4 bg-emerald-50/20 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-slate-500 uppercase tracking-widest pl-5"
@@ -183,7 +183,7 @@ export default function CustomersPage() {
                                                 📞 {party.phone || 'NO NO.'}
                                             </p>
                                         </div>
-                                        <p className={`text-lg font-black italic ${balance > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+                                        <p className={`text-lg font-black italic ${balance > 0 ? 'text-slate-900' : 'text-slate-400'}`}>
                                             {formatCompactNumber(balance || 0)}
                                         </p>
                                     </div>

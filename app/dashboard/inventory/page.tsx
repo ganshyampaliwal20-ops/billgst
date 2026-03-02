@@ -167,29 +167,38 @@ export default function InventoryPage() {
                 </div>
             </div>
 
-            {/* Stats Grid - Single Row */}
+            {/* Stats Grid - Single Row - Clickable Buttons */}
             <div className="grid grid-cols-3 gap-3 p-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
+                <button
+                    onClick={() => setFilterCategory('ALL')}
+                    className={`p-4 rounded-3xl border-2 flex flex-col items-center justify-center text-center gap-2 shadow-sm transition-all active:scale-95 ${filterCategory === 'ALL' ? 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-500/20' : 'bg-white border-slate-50'}`}
+                >
                     <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg"><FaCubes className="text-xl" /></div>
                     <div>
                         <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{products.length}</h3>
                         <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Items</p>
                     </div>
-                </div>
-                <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
+                </button>
+                <button
+                    onClick={() => setFilterCategory('LOW STOCK')}
+                    className={`p-4 rounded-3xl border-2 flex flex-col items-center justify-center text-center gap-2 shadow-sm transition-all active:scale-95 ${filterCategory === 'LOW STOCK' ? 'bg-rose-50 border-rose-200 ring-2 ring-rose-500/20' : 'bg-white border-slate-50'}`}
+                >
                     <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-lg"><FaExclamationCircle className="text-xl" /></div>
                     <div>
                         <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{lowStockCount}</h3>
                         <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Low Stock</p>
                     </div>
-                </div>
-                <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
+                </button>
+                <button
+                    onClick={() => toast.success(`Portfolio Value: ₹${totalInventoryValue.toLocaleString('en-IN')}`, { icon: '💰', style: { borderRadius: '20px', background: '#065f46', color: '#fff' } })}
+                    className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm transition-all active:scale-95 hover:border-emerald-200"
+                >
                     <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg"><FaChartLine className="text-xl" /></div>
                     <div>
                         <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{formatCompactNumber(totalInventoryValue)}</h3>
                         <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Value</p>
                     </div>
-                </div>
+                </button>
             </div>
 
             {/* Search Bar - 3D Style */}

@@ -10,7 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
-    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp
+    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -30,7 +30,7 @@ export default function DashboardLayout({
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
     // Get store values
-    const { businessProfile, resetStore, fetchBusinessProfile, settings } = useStore();
+    const { businessProfile, resetStore, fetchBusinessProfile, settings, setAiChatOpen } = useStore();
 
     useEffect(() => {
         setIsMounted(true);
@@ -52,6 +52,7 @@ export default function DashboardLayout({
         href: string;
         isAuth?: boolean;
         subItems?: { label: string; href: string }[];
+        onClick?: () => void;
     }
 
     const menuItems: MenuItem[] = [
@@ -73,6 +74,15 @@ export default function DashboardLayout({
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
         { icon: FaFileContract, label: 'GST Returns', href: '/dashboard/gst-returns' },
+        {
+            icon: FaRobot,
+            label: 'AI Assistant',
+            href: '#',
+            onClick: () => {
+                setAiChatOpen(true);
+                setIsSidebarOpen(false);
+            }
+        },
         { icon: FaStar, label: 'Subscription', href: '/dashboard/pricing' },
         { icon: FaInfoCircle, label: 'About Us', href: '/about' },
         { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
@@ -184,9 +194,16 @@ export default function DashboardLayout({
 
                             return (
                                 <Link
-                                    key={item.href}
+                                    key={item.label}
                                     href={item.href}
-                                    onClick={() => setIsSidebarOpen(false)}
+                                    onClick={(e) => {
+                                        if (item.onClick) {
+                                            e.preventDefault();
+                                            item.onClick();
+                                        } else {
+                                            setIsSidebarOpen(false);
+                                        }
+                                    }}
                                     className={`
                                         flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
                                         border relative overflow-hidden flex-1 min-h-[44px]

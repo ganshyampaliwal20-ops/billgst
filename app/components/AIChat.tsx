@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useStore } from '@/lib/store';
 import { FaRobot, FaPaperPlane, FaTimes, FaMinus, FaLightbulb, FaMicrophone } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 export default function AIChat() {
+    const { aiChatOpen: isOpen, setAiChatOpen: setIsOpen } = useStore();
     const [isHidden, setIsHidden] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [messages, setMessages] = useState([
         { role: 'ai', text: 'Namaste! Main BillGST AI Assistant hoon. Business growth ya GST ke baare mein kuch poochna chahte hain?' }
@@ -48,36 +49,6 @@ export default function AIChat() {
 
     return (
         <>
-            {/* Fixed AI Button — bottom-right, clean with tooltip */}
-            {!isOpen && (
-                <div className="fixed bottom-6 right-6 z-[1000] group">
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full right-0 mb-3 w-52 bg-slate-900 text-white text-[10px] font-bold rounded-xl px-3 py-2 text-right opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 shadow-xl">
-                        🤖 AI Assistant
-                        <br />
-                        <span className="text-slate-300">GST · Billing · Stock Help</span>
-                        <div className="absolute top-full right-4 border-4 border-transparent border-t-slate-900"></div>
-                    </div>
-
-                    {/* Dismiss button */}
-                    <button
-                        onClick={() => { setIsHidden(true); toast.success('AI dismissed until next reload'); }}
-                        className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-md z-10 border border-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Remove AI"
-                    >
-                        <FaTimes size={8} />
-                    </button>
-
-                    {/* Main AI Button */}
-                    <button
-                        onClick={() => setIsOpen(true)}
-                        className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-2xl shadow-2xl shadow-indigo-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all border-b-4 border-indigo-900"
-                    >
-                        <FaRobot size={22} className="pointer-events-none" />
-                        <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white animate-pulse pointer-events-none"></div>
-                    </button>
-                </div>
-            )}
 
 
             {/* Centered Chat Boat/Window */}

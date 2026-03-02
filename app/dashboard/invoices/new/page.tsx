@@ -980,7 +980,7 @@ export default function NewInvoicePage() {
             </div>
 
             {/* Bottom Action Bar - Fixed Full Width */}
-            <div className="fixed bottom-0 left-0 md:left-72 right-0 bg-white border-t border-slate-200 p-4 px-6 gap-6 flex items-center justify-between z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <div className="fixed bottom-0 left-0 md:left-72 right-0 bg-white border-t border-slate-200 pt-4 pb-3 px-2 gap-4 flex items-center justify-between z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 <button
                     type="button"
                     onClick={() => router.back()}

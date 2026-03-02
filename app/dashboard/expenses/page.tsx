@@ -50,17 +50,17 @@ export default function ExpensesPage() {
     return (
         <div className="flex flex-col h-screen bg-[#f8fafc] overflow-hidden">
             {/* Premium Header - Centered */}
-            <div className="bg-white border-b-4 border-rose-500 px-6 py-6 flex flex-col items-center justify-center text-center shadow-sm z-20 relative">
+            <div className="bg-white border-b-4 border-indigo-500 px-6 py-6 flex flex-col items-center justify-center text-center shadow-sm z-20 relative">
                 <div className="flex flex-col items-center gap-2">
                     <h1 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">Business Expenses</h1>
-                    <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mt-1">Track Your Spending</p>
+                    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mt-1">Track Your Spending</p>
                 </div>
             </div>
 
             {/* Stats Grid - Single Row */}
             <div className="grid grid-cols-3 gap-3 p-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
-                    <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-lg"><FaWallet className="text-xl" /></div>
+                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg"><FaWallet className="text-xl" /></div>
                     <div>
                         <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{formatCompactNumber(monthlyExpenses)}</h3>
                         <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">This Month</p>
@@ -74,7 +74,7 @@ export default function ExpensesPage() {
                     </div>
                 </div>
                 <div className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm relative overflow-hidden group">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg"><FaTags className="text-xl" /></div>
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 text-indigo-600 flex items-center justify-center shadow-sm"><FaTags className="text-xl" /></div>
                     <div>
                         <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{uniqueCategoriesCount}</h3>
                         <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Categories</p>
@@ -83,16 +83,16 @@ export default function ExpensesPage() {
             </div>
 
             {/* Search Bar - 3D Style */}
-            <div className="px-6 py-4 bg-white border-b border-rose-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-rose-100 border-b-8 border-rose-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+            <div className="px-6 py-4 bg-white border-b border-indigo-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+                <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-indigo-100 border-b-8 border-indigo-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                     <input
                         type="text"
                         placeholder="SEARCH EXPENSE / CATEGORY"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full py-4 bg-rose-50/20 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-slate-400 uppercase tracking-widest pl-5"
+                        className="w-full py-4 bg-indigo-50/20 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-slate-400 uppercase tracking-widest pl-5"
                     />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-rose-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-md">
                         <FaSearch className="text-lg" />
                     </div>
                 </div>
@@ -104,7 +104,7 @@ export default function ExpensesPage() {
                     <button
                         key={cat}
                         onClick={() => setFilterCategory(cat)}
-                        className={`px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap shadow-sm active:scale-95 ${filterCategory === cat ? 'bg-rose-600 text-white shadow-rose-200' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+                        className={`px-6 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap shadow-sm active:scale-95 ${filterCategory === cat ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
                     >
                         {cat}
                     </button>
@@ -112,7 +112,7 @@ export default function ExpensesPage() {
             </div>
 
             {/* List Header */}
-            <div className="px-8 py-3 flex justify-between text-[10px] font-black uppercase text-rose-600 tracking-[0.2em] bg-rose-50/30" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
+            <div className="px-8 py-3 flex justify-between text-[10px] font-black uppercase text-indigo-600 tracking-[0.2em] bg-indigo-50/30" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 <span>Expense Records ({filteredExpenses.length})</span>
                 <span>Amount Spent</span>
             </div>
@@ -129,19 +129,19 @@ export default function ExpensesPage() {
                         return (
                             <div
                                 key={expense.id}
-                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-rose-500 hover:bg-rose-50/20 transition-all cursor-pointer group"
+                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-indigo-500 hover:bg-indigo-50/20 transition-all cursor-pointer group"
                                 style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
                                 onClick={() => router.push(`/dashboard/expenses/edit/${expense.id}`)}
                             >
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-rose-600 shadow-sm border border-slate-100 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-indigo-600 shadow-sm border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                                             {idx + 1}
                                         </div>
                                         <div className="text-left">
                                             <h3 className="font-black text-slate-900 uppercase tracking-tight leading-none text-sm">{expense.description || 'Unnamed Expense'}</h3>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-[9px] font-bold text-rose-500 bg-rose-100 px-2 py-0.5 rounded-full">{expense.category}</span>
+                                                <span className="text-[9px] font-bold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded-full">{expense.category}</span>
                                                 <span className="text-[9px] font-bold text-slate-400">{new Date(expense.expense_date).toLocaleDateString('en-IN')}</span>
                                             </div>
                                         </div>

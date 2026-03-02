@@ -378,7 +378,7 @@ export default function DashboardPage() {
                                     </span>
                                 </div>
                                 {/* Total Amount — clearly labeled */}
-                                <p className={`text-sm font-black mt-1.5 ${invoice.status === 'PAID' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                <p className="text-sm font-black mt-1.5 text-slate-900">
                                     ₹{parseFloat(invoice.total_amount).toLocaleString('en-IN')}
                                     <span className="text-[9px] font-bold text-slate-400 ml-1">(GST incl.)</span>
                                 </p>
