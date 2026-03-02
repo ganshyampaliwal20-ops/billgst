@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import { FaUserPlus, FaArrowRight, FaLock } from 'react-icons/fa';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -112,11 +113,42 @@ export default function LoginPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full shadow-xl py-2.5 px-4 text-[15px] font-medium tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+                                    className="w-full shadow-2xl py-4 px-4 text-sm font-black tracking-widest rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-95 border-b-4 border-indigo-900 uppercase italic flex items-center justify-center gap-3"
                                 >
-                                    {isLoading ? 'Signing in...' : 'Sign in'}
+                                    {isLoading ? (
+                                        <>
+                                            <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                            <span>SIGNING IN...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FaLock />
+                                            <span>SIGN IN</span>
+                                        </>
+                                    )}
                                 </button>
-                                <p className="text-sm !mt-6 text-center text-slate-600">Don't have an account <Link href="/register" className="text-blue-600 font-medium hover:underline ml-1 whitespace-nowrap">Register here</Link></p>
+
+                                <div className="mt-10 pt-8 border-t-2 border-slate-50 text-center">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 italic">Naya Account Banana Hai?</p>
+                                    <Link
+                                        href="/register"
+                                        className="
+                                            group relative inline-flex items-center justify-center w-full py-4 px-6 
+                                            bg-white text-indigo-600 font-black rounded-2xl 
+                                            border-2 border-indigo-100 hover:border-indigo-600 hover:bg-indigo-50 
+                                            transition-all shadow-xl shadow-indigo-100/20 active:scale-95 
+                                            uppercase text-xs tracking-widest gap-3 overflow-hidden
+                                        "
+                                    >
+                                        <div className="absolute inset-0 bg-indigo-600 translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-300"></div>
+                                        <FaUserPlus className="text-lg relative z-10 group-hover:text-white transition-colors" />
+                                        <span className="relative z-10 group-hover:text-white transition-colors">Abhi Register Karein</span>
+                                        <FaArrowRight className="text-xs relative z-10 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all group-hover:text-white" />
+                                    </Link>
+                                    <p className="mt-4 text-[9px] font-black text-slate-300 uppercase tracking-widest leading-relaxed">
+                                        Join 1,000+ businesses using BillGST
+                                    </p>
+                                </div>
                             </div>
                         </form>
                     </div>

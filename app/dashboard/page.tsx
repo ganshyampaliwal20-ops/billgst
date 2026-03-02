@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { translations } from '@/lib/translations';
 import { formatCurrency, formatCompactNumber } from '@/lib/utils';
+import FreePlanPopup from './FreePlanPopup';
+import RegistrationPopup from './RegistrationPopup';
 
 export default function DashboardPage() {
     const {
@@ -645,6 +647,10 @@ export default function DashboardPage() {
                     <span>Support</span>
                 </Link>
             </div>
+
+            {/* Promotional Popups */}
+            <FreePlanPopup />
+            <RegistrationPopup />
         </div>
     );
 }
