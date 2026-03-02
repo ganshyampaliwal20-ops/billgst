@@ -575,18 +575,31 @@ export default function NewInvoicePage() {
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
-                    <button
-                        onClick={startVoiceBilling}
-                        className={`w-full justify-center px-4 py-3 rounded-2xl font-black text-xs flex items-center gap-2 transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-indigo-600 border-2 border-indigo-100 shadow-md hover:border-indigo-500'}`}
-                    >
-                        <FaMicrophone /> {isListening ? 'LISTENING' : 'VOICE BILLING'}
-                    </button>
-                    <button
-                        onClick={handleMagicScan}
-                        className="w-full justify-center px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl font-black text-xs flex items-center gap-2 shadow-lg shadow-orange-200 hover:scale-105 transition-all"
-                    >
-                        <FaMagic /> MAGIC SCAN
-                    </button>
+                    <div className="relative group">
+                        <button
+                            onClick={startVoiceBilling}
+                            className={`w-full justify-center px-4 py-3 rounded-2xl font-black text-xs flex items-center gap-2 transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-indigo-600 border-2 border-indigo-100 shadow-md hover:border-indigo-500'}`}
+                        >
+                            <FaMicrophone /> {isListening ? 'LISTENING...' : 'VOICE BILLING'}
+                        </button>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-slate-900 text-white text-[10px] font-bold rounded-xl px-3 py-2 text-center opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50 shadow-xl">
+                            🎙️ बोलकर बिल बनाएं! <br />"5 चीनी add करो" बोलें और product auto-add होगा।
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                        </div>
+                    </div>
+                    <div className="relative group">
+                        <button
+                            onClick={handleMagicScan}
+                            className="w-full justify-center px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl font-black text-xs flex items-center gap-2 shadow-lg shadow-orange-200 hover:scale-105 transition-all"
+                        >
+                            <FaMagic /> MAGIC SCAN
+                        </button>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-slate-900 text-white text-[10px] font-bold rounded-xl px-3 py-2 text-center opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 z-50 shadow-xl">
+                            📷 पुराने बिल की फोटो खींचें! <br />AI खुद items read करके बिल में डाल देगा।
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                        </div>
+                    </div>
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 </div>
             </div>
 
@@ -974,9 +987,9 @@ export default function NewInvoicePage() {
                     disabled={isSubmitting}
                     className="
                         flex-1 h-16 flex items-center justify-center gap-2
-                        bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-wider
-                        hover:bg-slate-200 hover:text-slate-800 hover:scale-[1.02] transition-all duration-200
-                        border-b-4 border-slate-300 active:border-b-0 active:translate-y-1
+                        bg-white text-rose-600 rounded-2xl font-black uppercase tracking-wider
+                        border-2 border-rose-400 hover:bg-rose-50 hover:border-rose-600 hover:scale-[1.02] transition-all duration-200
+                        border-b-4 border-b-rose-500 active:border-b-0 active:translate-y-1
                         disabled:opacity-50 disabled:cursor-not-allowed
                     "
                 >
@@ -1047,7 +1060,7 @@ export default function NewInvoicePage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowCustomerModal(false)}
-                                    className="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+                                    className="flex-1 py-3 border-2 border-rose-400 text-rose-600 rounded-xl font-bold hover:bg-rose-50 hover:border-rose-600 transition-colors"
                                 >
                                     {t.cancel}
                                 </button>

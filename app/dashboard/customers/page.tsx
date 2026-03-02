@@ -273,7 +273,7 @@ export default function CustomersPage() {
                                     <button
                                         type="button"
                                         onClick={resetForm}
-                                        className="flex-1 py-3 border border-gray-800 rounded-xl font-bold text-gray-800 hover:bg-gray-50 transition"
+                                        className="flex-1 py-3 border-2 border-rose-400 text-rose-600 rounded-xl font-bold hover:bg-rose-50 hover:border-rose-600 transition"
                                     >
                                         Cancel
                                     </button>

@@ -15,86 +15,11 @@ export default function AIChat() {
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Draggable State for the Handle
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isDragging, setIsDragging] = useState(false);
-    const dragStart = useRef({ x: 0, y: 0 });
-
-    useEffect(() => {
-        // Initialize position to bottom-right on mount
-        if (typeof window !== 'undefined') {
-            setPosition({
-                x: window.innerWidth - 80,
-                y: window.innerHeight - 80
-            });
-        }
-    }, []);
-
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages]);
-
-    // Drag Handlers
-    const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
-        if (e.type === 'touchstart') {
-            const touch = (e as React.TouchEvent).touches[0];
-            dragStart.current = {
-                x: touch.clientX - position.x,
-                y: touch.clientY - position.y
-            };
-        } else {
-            dragStart.current = {
-                x: (e as React.MouseEvent).clientX - position.x,
-                y: (e as React.MouseEvent).clientY - position.y
-            };
-        }
-        setIsDragging(true);
-    };
-
-    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
-        if (!isDragging) return;
-
-        let clientX, clientY;
-        if (e.type === 'touchmove') {
-            const touch = (e as TouchEvent).touches[0];
-            clientX = touch.clientX;
-            clientY = touch.clientY;
-        } else {
-            clientX = (e as MouseEvent).clientX;
-            clientY = (e as MouseEvent).clientY;
-        }
-
-        setPosition({
-            x: clientX - dragStart.current.x,
-            y: clientY - dragStart.current.y
-        });
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-    };
-
-    useEffect(() => {
-        if (isDragging) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-            window.addEventListener('touchmove', handleMouseMove, { passive: false });
-            window.addEventListener('touchend', handleMouseUp);
-        } else {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('touchmove', handleMouseMove);
-            window.removeEventListener('touchend', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('touchmove', handleMouseMove);
-            window.removeEventListener('touchend', handleMouseUp);
-        };
-    }, [isDragging]);
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -123,38 +48,37 @@ export default function AIChat() {
 
     return (
         <>
-            {/* Draggable Floating Robot Handle */}
-            <div
-                style={{
-                    left: position.x,
-                    top: position.y,
-                    touchAction: 'none',
-                    paddingLeft: '8px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px'
-                }}
-                className={`fixed z-[1000] ${isOpen ? 'scale-0 pointer-events-none' : 'scale-100'} transition-all duration-300 group`}
-            >
-                <div className="relative">
+            {/* Fixed AI Button — bottom-right, clean with tooltip */}
+            {!isOpen && (
+                <div className="fixed bottom-6 right-6 z-[1000] group">
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full right-0 mb-3 w-52 bg-slate-900 text-white text-[10px] font-bold rounded-xl px-3 py-2 text-right opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 shadow-xl">
+                        🤖 AI Assistant
+                        <br />
+                        <span className="text-slate-300">GST · Billing · Stock Help</span>
+                        <div className="absolute top-full right-4 border-4 border-transparent border-t-slate-900"></div>
+                    </div>
+
+                    {/* Dismiss button */}
                     <button
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleMouseDown}
-                        onClick={() => {
-                            if (!isDragging) setIsOpen(true);
-                        }}
-                        className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform cursor-move"
-                    >
-                        <FaRobot size={28} className="pointer-events-none" />
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse pointer-events-none"></div>
-                    </button>
-                    {/* Dismiss Button for the Handle */}
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setIsHidden(true); toast.success('AI dismissed until next reload'); }}
-                        className="absolute -top-1 -left-1 w-8 h-8 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 border-2 border-white active:scale-95"
+                        onClick={() => { setIsHidden(true); toast.success('AI dismissed until next reload'); }}
+                        className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-md z-10 border border-white opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove AI"
                     >
-                        <FaTimes size={14} />
+                        <FaTimes size={8} />
+                    </button>
+
+                    {/* Main AI Button */}
+                    <button
+                        onClick={() => setIsOpen(true)}
+                        className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-2xl shadow-2xl shadow-indigo-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all border-b-4 border-indigo-900"
+                    >
+                        <FaRobot size={22} className="pointer-events-none" />
+                        <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white animate-pulse pointer-events-none"></div>
                     </button>
                 </div>
-            </div>
+            )}
+
 
             {/* Centered Chat Boat/Window */}
             {isOpen && (

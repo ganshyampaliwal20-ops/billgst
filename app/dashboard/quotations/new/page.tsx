@@ -223,7 +223,7 @@ export default function NewQuotationPage() {
             <div className="flex gap-4 justify-end">
                 <Link
                     href="/dashboard/quotations"
-                    className="px-6 py-3 bg-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-300 transition-all"
+                    className="px-6 py-3 bg-white text-rose-600 border-2 border-rose-400 rounded-xl font-bold hover:bg-rose-50 hover:border-rose-600 transition-all"
                 >
                     Cancel
                 </Link>

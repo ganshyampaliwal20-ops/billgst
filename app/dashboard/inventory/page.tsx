@@ -215,8 +215,8 @@ export default function InventoryPage() {
                         key={cat}
                         onClick={() => setFilterCategory(cat)}
                         className={`py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 border-b-4 ${filterCategory === cat
-                                ? 'bg-emerald-600 text-white border-emerald-800 shadow-emerald-200'
-                                : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'
+                            ? 'bg-emerald-600 text-white border-emerald-800 shadow-emerald-200'
+                            : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'
                             }`}
                     >
                         {cat}
@@ -242,9 +242,8 @@ export default function InventoryPage() {
                         return (
                             <div
                                 key={product.id}
-                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer group"
+                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all group"
                                 style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                                onClick={() => handleEdit(product)}
                             >
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
@@ -279,19 +278,25 @@ export default function InventoryPage() {
                                     </div>
                                 </div>
 
-                                {/* Quick Actions Overlay */}
-                                <div className="grid grid-cols-2 gap-2 mt-4 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-3 gap-2 mt-4">
                                     <button
                                         onClick={(e) => handleGenerateQR(e, product)}
-                                        className="py-3 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                                        className="py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all border border-indigo-100 font-bold text-xs gap-1"
                                     >
-                                        <FaQrcode className="text-lg" />
+                                        <FaQrcode className="text-sm" /> QR
+                                    </button>
+                                    <button
+                                        onClick={() => handleEdit(product)}
+                                        className="py-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all border border-emerald-100 font-bold text-xs gap-1"
+                                    >
+                                        <FaEdit className="text-sm" /> Edit
                                     </button>
                                     <button
                                         onClick={(e) => handleDelete(e, product.id)}
-                                        className="py-3 bg-rose-600 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                                        className="py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all border border-rose-100 font-bold text-xs gap-1"
                                     >
-                                        <FaTrash className="text-lg" />
+                                        <FaTrash className="text-sm" /> Delete
                                     </button>
                                 </div>
                             </div>

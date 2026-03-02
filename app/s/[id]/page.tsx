@@ -78,15 +78,25 @@ export default function PublicStorePage() {
         );
     }
 
-    const categories = ['All', ...Array.from(new Set(storeData.products.map((p: any) => p.category || 'General')))] as string[];
-    const filteredProducts = storeData.products.filter((p: any) => {
+    const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
+    const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+    const DEMO_KIRANA_PRODUCTS = [
+        { id: 'd1', name: 'Tata Salt', price: 24, unit: 'KG', stock_quantity: 100, category: 'Grocery', image_url: '', description: '1 KG Iodized Salt' },
+        { id: 'd2', name: 'Amul Butter', price: 55, unit: 'PCS', stock_quantity: 50, category: 'Dairy', image_url: '', description: '100g Pack' },
+        { id: 'd3', name: 'Atta (Wheat Flour)', price: 45, unit: 'KG', stock_quantity: 200, category: 'Grocery', image_url: '', description: '5 KG Bag' },
+        { id: 'd4', name: 'Basmati Rice', price: 85, unit: 'KG', stock_quantity: 150, category: 'Grocery', image_url: '', description: 'Premium Quality' },
+        { id: 'd5', name: 'Surf Excel Soap', price: 48, unit: 'PCS', stock_quantity: 80, category: 'Household', image_url: '', description: 'Washing Bar 200g' },
+        { id: 'd6', name: 'Maggi Noodles', price: 14, unit: 'PCS', stock_quantity: 120, category: 'Snacks', image_url: '', description: '70g Pack' },
+    ];
+    const isDemoMode = !storeData || storeData.products.length === 0;
+    const allProducts = isDemoMode ? DEMO_KIRANA_PRODUCTS : storeData.products;
+    const categories = ['All', ...Array.from(new Set(allProducts.map((p: any) => p.category || 'General')))] as string[];
+    const filteredProducts = allProducts.filter((p: any) => {
         const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || (p.category || 'General') === selectedCategory;
         return matchesSearch && matchesCategory;
     });
-
-    const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
-    const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
 
     return (
         <div className="min-h-screen bg-slate-50 pb-32">
@@ -103,11 +113,15 @@ export default function PublicStorePage() {
                                 <FaStore size={20} />
                             )}
                         </div>
-                        <div>
-                            <h1 className="font-black text-slate-800 tracking-tight">{storeData.business.business_name}</h1>
-                            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
+                        <div className="group relative">
+                            <h1 className="font-bold text-slate-800 tracking-tight text-sm md:text-base">{storeData.business.business_name}</h1>
+                            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-bold uppercase tracking-widest cursor-help">
                                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
                                 Online Now
+                            </div>
+                            {/* Tooltip */}
+                            <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 text-white text-[10px] p-2 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                This store is active. You can add items to cart and place orders directly via WhatsApp.
                             </div>
                         </div>
                     </div>
@@ -127,8 +141,8 @@ export default function PublicStorePage() {
                 <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
                     <div className="relative z-10">
-                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest mb-1" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '8px' }}>Welcome to our digital store</p>
-                        <h2 className="text-2xl font-black mb-4 italic" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '1px' }}>Experience Seamless Shopping</h2>
+                        <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Digital Storefront</p>
+                        <h2 className="text-xl font-bold mb-3 tracking-tight">Order from our latest collection</h2>
                         <div className="flex flex-wrap gap-4 text-sm mt-4">
                             {storeData.business.business_phone && (
                                 <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
@@ -178,30 +192,40 @@ export default function PublicStorePage() {
 
             {/* Product Grid */}
             <div className="max-w-7xl mx-auto mt-8 px-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {/* Demo Mode Banner */}
+                {isDemoMode && (
+                    <div className="mb-4 bg-amber-50 border-2 border-amber-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+                        <span className="text-xl">🛒</span>
+                        <div>
+                            <p className="text-xs font-black text-amber-700 uppercase tracking-widest">Demo Store</p>
+                            <p className="text-[10px] text-amber-600 font-bold">यह एक demo है – असली products dashboard में जोड़ें!</p>
+                        </div>
+                    </div>
+                )}
+                <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {filteredProducts.map((p: any) => (
                         <div key={p.id} className="bg-white rounded-[2rem] p-3 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col">
-                            <div className="aspect-square bg-slate-100 rounded-2xl mb-3 overflow-hidden relative">
+                            <div className="aspect-[4/3] bg-slate-100 rounded-xl mb-2 overflow-hidden relative">
                                 {p.image_url ? (
                                     <Image src={p.image_url} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                        <FaStore size={32} />
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <p className="text-2xl font-black text-slate-300">{p.name.charAt(0)}</p>
                                     </div>
                                 )}
-                                <div className="absolute top-2 right-2 bg-indigo-600/90 text-white text-[10px] font-black px-2 py-1 rounded-lg backdrop-blur-sm">
-                                    ₹{p.price}
+                                <div className="absolute top-1 right-1 bg-emerald-600/90 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+                                    ₹{p.price}/{p.unit}
                                 </div>
                             </div>
-                            <div className="px-1 flex-1">
-                                <h3 className="text-slate-800 font-bold text-sm leading-tight mb-1 truncate">{p.name}</h3>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase">{p.category || 'General'}</p>
+                            <div className="px-0.5 flex-1">
+                                <h3 className="text-slate-800 font-bold text-[11px] leading-tight mb-0.5 line-clamp-2 min-h-[2.5em]">{p.name}</h3>
+                                <p className="text-[8px] text-slate-400 font-black uppercase mb-0.5">{p.category || 'General'}</p>
                             </div>
                             <button
-                                onClick={() => addToCart(p)}
-                                className="mt-3 w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black shadow-lg hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-2"
+                                onClick={() => !isDemoMode && addToCart(p)}
+                                className={`mt-2 w-full py-2 rounded-lg text-[10px] font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 ${isDemoMode ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}
                             >
-                                <FaPlus size={10} /> ADD
+                                <FaPlus size={8} /> {isDemoMode ? 'DEMO' : 'ADD'}
                             </button>
                         </div>
                     ))}

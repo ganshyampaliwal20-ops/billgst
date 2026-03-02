@@ -254,31 +254,35 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-                <Link href="/dashboard/invoices/new" className="bg-[#6366f1] h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2">
-                    <FaFileInvoice className="text-2xl" />
-                    <span>{t.newInvoice}</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '6px' }}>
+                <Link href="/dashboard/invoices/new" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-indigo-800" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' }}>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
+                    <FaFileInvoice className="text-2xl relative z-10 drop-shadow" />
+                    <span className="relative z-10">{t.newInvoice}</span>
                 </Link>
-                <Link href="/dashboard/customers" className="bg-[#10b981] h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2">
-                    <FaUsers className="text-2xl" />
-                    <span>{t.addCustomer}</span>
+                <Link href="/dashboard/customers" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-emerald-800" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
+                    <FaUsers className="text-2xl relative z-10 drop-shadow" />
+                    <span className="relative z-10">{t.addCustomer}</span>
                 </Link>
-                <Link href="/dashboard/inventory" className="bg-[#8b5cf6] h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2">
-                    <FaBox className="text-2xl" />
-                    <span>{t.addProduct}</span>
+                <Link href="/dashboard/inventory" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-violet-800" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
+                    <FaBox className="text-2xl relative z-10 drop-shadow" />
+                    <span className="relative z-10">{t.addProduct}</span>
                 </Link>
-                <Link href="/dashboard/reports" className="bg-[#f59e0b] h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2">
-                    <FaChartLine className="text-2xl" />
-                    <span>{t.viewReports}</span>
+                <Link href="/dashboard/reports" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-indigo-900" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)' }}>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
+                    <FaChartLine className="text-2xl relative z-10 drop-shadow" />
+                    <span className="relative z-10">{t.viewReports}</span>
                 </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-                <Link href="/dashboard/quotations" className="bg-slate-800 h-24 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2">
+            <div className="grid grid-cols-2 gap-3" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '6px', paddingBottom: '10px' }}>
+                <Link href="/dashboard/quotations" className="relative overflow-hidden h-20 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-emerald-900" style={{ background: 'linear-gradient(135deg, #059669 0%, #047857 100%)' }}>
                     <FaReceipt className="text-xl" />
                     <span>Quotations</span>
                 </Link>
-                <Link href="/dashboard/expenses" className="bg-rose-600 h-24 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2">
+                <Link href="/dashboard/expenses" className="relative overflow-hidden h-20 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-violet-900" style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' }}>
                     <FaRupeeSign className="text-xl" />
                     <span>Expenses</span>
                 </Link>
@@ -337,72 +341,64 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            {/* Recent Invoices - Premium 3D Refresh */}
-            <div className="space-y-4 mt-8" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
-                <div className="flex items-center justify-between px-2">
+            {/* Recent Invoices */}
+            <div className="space-y-3 mt-6" style={{ paddingLeft: '5px', paddingRight: '5px' }}>
+                {/* Header — simple, no italic */}
+                <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                            <FaFileInvoice className="text-xl" />
+                        <div className="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-md">
+                            <FaFileInvoice className="text-sm" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 uppercase italic leading-none">Recent Invoices</h2>
-                            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mt-1">Latest Billing Activity</p>
+                            <h2 className="text-base font-black text-slate-900 leading-none">Recent Invoices</h2>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Latest Billing Activity</p>
                         </div>
                     </div>
-                    <Link href="/dashboard/invoices" className="p-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all active:scale-95 border-b-4 border-slate-200 hover:border-indigo-800">
+                    <Link href="/dashboard/invoices" className="px-3 py-2 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-sm">
                         View All
                     </Link>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                     {(invoices || []).slice(0, 5).map((invoice: any, index: number) => (
                         <div
                             key={index}
-                            className="bg-white p-4 rounded-3xl border-2 border-slate-50 shadow-sm hover:border-indigo-100 transition-all group relative overflow-hidden active:scale-[0.98]"
+                            className={`bg-white rounded-2xl border-l-4 border-r border-t border-b px-4 py-3 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all ${invoice.status === 'PAID' ? 'border-l-emerald-500 border-slate-100' : 'border-l-rose-500 border-slate-100'}`}
                         >
-                            {/* 3D Accent Line */}
-                            <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${invoice.status === 'PAID' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center border-b-4 ${invoice.status === 'PAID' ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-rose-50 border-rose-200 text-rose-600'}`}>
-                                        <span className="text-[10px] font-black uppercase leading-none mb-1">Total</span>
-                                        <span className="text-sm font-black italic">{formatCompactNumber(parseFloat(invoice.total_amount))}</span>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-black text-slate-800 uppercase leading-none group-hover:text-indigo-600 transition-colors">
-                                            {invoice.customer?.name || 'Unknown Client'}
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-slate-400">#{invoice.invoice_number}</span>
-                                            <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-                                            <span className="text-[10px] font-bold text-slate-400">
-                                                {new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm border-b-2 ${invoice.status === 'PAID' ? 'bg-emerald-500 text-white border-emerald-700' : 'bg-rose-600 text-white border-rose-800'}`}>
-                                        {invoice.status}
+                            {/* Left: Customer + Invoice details */}
+                            <div className="flex-1 min-w-0" style={{ paddingLeft: '5px', paddingRight: '5px' }}>
+                                <p className="text-sm font-black text-slate-800 leading-none truncate">
+                                    {invoice.customer?.name || 'Unknown Client'}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[9px] font-bold text-slate-400">#{invoice.invoice_number}</span>
+                                    <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                                    <span className="text-[9px] font-bold text-slate-400">
+                                        {new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                                     </span>
                                 </div>
+                                {/* Total Amount — clearly labeled */}
+                                <p className={`text-sm font-black mt-1.5 ${invoice.status === 'PAID' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                    ₹{parseFloat(invoice.total_amount).toLocaleString('en-IN')}
+                                    <span className="text-[9px] font-bold text-slate-400 ml-1">(GST incl.)</span>
+                                </p>
                             </div>
 
-                            {/* Hover Actions Bar */}
-                            <div className="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Quick Actions</span>
-                                <div className="flex gap-2">
+                            {/* Right: Status badge + actions */}
+                            <div className="flex flex-col items-end gap-2 ml-3 flex-shrink-0">
+                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${invoice.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'PARTIAL' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
+                                    {invoice.status}
+                                </span>
+                                <div className="flex gap-1.5">
                                     <button
                                         onClick={() => handleSendReminder(invoice.customer || invoice)}
-                                        className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm active:scale-95 border-b-2 border-emerald-100 hover:border-emerald-800"
+                                        className="w-7 h-7 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all active:scale-95"
                                     >
                                         <FaWhatsapp className="text-xs" />
                                     </button>
                                     <Link
-                                        href={`/dashboard/invoices`}
-                                        className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95 border-b-2 border-indigo-100 hover:border-indigo-800"
+                                        href="/dashboard/invoices"
+                                        className="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
                                     >
                                         <FaSearch className="text-xs" />
                                     </Link>
