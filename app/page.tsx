@@ -1,6 +1,6 @@
 'use client';
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaSignInAlt, FaLock, FaShieldAlt, FaHandshake, FaQuestionCircle, FaCheckCircle, FaStar } from 'react-icons/fa';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaSignInAlt, FaLock, FaShieldAlt, FaHandshake, FaQuestionCircle, FaCheckCircle, FaStar, FaBolt, FaMagic, FaSearch, FaLeaf } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Navbar3D from '@/app/components/Navbar3D';
+import { formatCompactNumber } from '@/lib/utils';
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
@@ -38,12 +39,14 @@ export default function LandingPage() {
     // Live Clock
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-    fetchCustomers();
-    fetchProducts();
-    fetchInvoices();
+    if (status === 'authenticated') {
+      fetchCustomers();
+      fetchProducts();
+      fetchInvoices();
+    }
 
     return () => clearInterval(timer);
-  }, []);
+  }, [status]);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -55,12 +58,13 @@ export default function LandingPage() {
     if (status === 'authenticated') {
       router.push(path);
     } else {
-      toast.error('Please Login or Register to access this feature', {
+      toast.error('यह फ़ीचर देखने के लिए कृपया लॉगिन करें!', {
         icon: '🔒',
         style: {
           borderRadius: '10px',
-          background: '#333',
+          background: '#FF9933',
           color: '#fff',
+          fontWeight: 'bold'
         },
       });
       router.push('/login');
@@ -69,31 +73,28 @@ export default function LandingPage() {
 
   if (!isClient) return null;
 
-  // Get Analytics Data
-  const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
-  const topProducts = getTopProducts() || [];
-  const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
+  // Analytics Data - Provide Demo Data for Landing Page
+  let { totalSales, totalProfit, invoiceCount } = getAnalytics ? getAnalytics(period, customRange) : { totalSales: 0, totalProfit: 0, invoiceCount: 0 };
 
-  // Get current time greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return t.goodMorning;
-    if (hour < 17) return t.goodAfternoon;
-    return t.goodEvening;
-  };
+  // High-value Demo Data for Non-Logged-In Users
+  const isDemo = status !== 'authenticated';
+  if (isDemo) {
+    totalSales = 285430;
+    totalProfit = 84200;
+    invoiceCount = 142;
+  }
 
-  // Weekly Sales Data for Bar Chart
-  const weeklyData = [
-    { name: 'Mon', sales: totalSales * 0.12, profit: totalProfit * 0.10 },
-    { name: 'Tue', sales: totalSales * 0.18, profit: totalProfit * 0.15 },
-    { name: 'Wed', sales: totalSales * 0.15, profit: totalProfit * 0.12 },
-    { name: 'Thu', sales: totalSales * 0.22, profit: totalProfit * 0.20 },
-    { name: 'Fri', sales: totalSales * 0.25, profit: totalProfit * 0.28 },
-    { name: 'Sat', sales: totalSales * 0.05, profit: totalProfit * 0.08 },
-    { name: 'Sun', sales: totalSales * 0.03, profit: totalProfit * 0.07 },
-  ];
+  const topProducts = isDemo ? [
+    { name: 'Redmi Note 13 Pro', sales: 125000, quantity: 45 },
+    { name: 'Samsung Galaxy S24', sales: 98000, quantity: 32 },
+    { name: 'iPhone 15 Case', sales: 42000, quantity: 156 },
+    { name: 'Bluetooth Earbuds', sales: 15000, quantity: 84 },
+    { name: 'HDMI Cable 2m', sales: 5430, quantity: 38 },
+  ] : (getTopProducts ? getTopProducts() : []);
 
-  // Monthly Trend Data
+  const lowStockItems = isDemo ? 4 : (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
+
+  // Monthly Trend Data - Better demo visualization
   const monthlyTrend = [
     { name: 'Jan', sales: totalSales * 0.6, profit: totalProfit * 0.5 },
     { name: 'Feb', sales: totalSales * 0.7, profit: totalProfit * 0.6 },
@@ -103,519 +104,398 @@ export default function LandingPage() {
     { name: 'Jun', sales: totalSales, profit: totalProfit },
   ];
 
-  // Calculate Today's Sales
-  const today = new Date().toDateString();
-  const todaySales = invoices
-    .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
-    .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
-
   const stats = [
     {
       icon: FaRupeeSign,
-      label: t.todaysSales,
-      value: todaySales,
-      formattedValue: `₹${todaySales >= 100000 ? (todaySales / 100000).toFixed(1) + 'L' : todaySales.toLocaleString('en-IN')}`,
-      subtext: 'vs Yesterday',
-      color: 'from-blue-500 to-indigo-600',
+      label: "Today's Sales",
+      value: totalSales * 0.12,
+      formattedValue: isDemo ? '₹1.25 L' : formatCompactNumber(totalSales * 0.12),
+      subtext: 'Demo Stats',
+      color: 'from-blue-600 to-indigo-700',
       shadow: 'shadow-blue-500/20',
-      trend: 'Now',
+      trend: '+15%',
       trendUp: true,
       href: '/dashboard/reports?period=daily'
     },
     {
       icon: FaChartLine,
-      label: t.totalRevenue,
+      label: "Total Revenue",
       value: totalSales,
-      formattedValue: `₹${totalSales >= 100000 ? (totalSales / 100000).toFixed(1) + 'L' : totalSales.toLocaleString('en-IN')}`,
-      subtext: `${period === 'daily' ? t.daily : period === 'weekly' ? t.weekly : period === 'monthly' ? t.monthly : t.yearly} Sales`,
-      color: 'from-violet-500 to-purple-600',
-      shadow: 'shadow-violet-500/20',
-      trend: '+12%',
+      formattedValue: isDemo ? '₹2.85 L' : formatCompactNumber(totalSales),
+      subtext: isDemo ? 'June Performance' : `${period} Sales`,
+      color: 'from-orange-500 to-[#FF9933]',
+      shadow: 'shadow-orange-500/20',
+      trend: '+22%',
       trendUp: true,
       href: '/dashboard/reports'
     },
     {
       icon: FaFileInvoice,
-      label: t.invoices,
+      label: "Invoices",
       value: invoiceCount,
       formattedValue: invoiceCount.toString(),
-      subtext: 'Generated',
+      subtext: 'Professional Billing',
       color: 'from-emerald-500 to-teal-600',
       shadow: 'shadow-emerald-500/20',
-      trend: '+5',
+      trend: '+42',
       trendUp: true,
       href: '/dashboard/invoices'
     },
     {
       icon: FaBox,
-      label: t.lowStock,
+      label: "Inventory Status",
       value: lowStockItems,
       formattedValue: lowStockItems.toString(),
-      subtext: 'Items Alert',
-      color: lowStockItems > 0 ? 'from-red-500 to-rose-600' : 'from-amber-500 to-orange-600',
-      shadow: lowStockItems > 0 ? 'shadow-red-500/20' : 'shadow-amber-500/20',
-      trend: lowStockItems > 0 ? '⚠️' : '✓',
-      trendUp: lowStockItems === 0,
+      subtext: 'Predictive Alert',
+      color: 'from-violet-500 to-purple-600',
+      shadow: 'shadow-violet-500/20',
+      trend: 'Low',
+      trendUp: false,
       href: '/dashboard/inventory'
     },
   ];
 
   // Quick Action Items
   const quickActions = [
-    { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-500 hover:bg-indigo-600' },
-    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-emerald-500 hover:bg-emerald-600' },
-    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-violet-500 hover:bg-violet-600' },
-    { icon: FaChartLine, label: t.viewReports, href: '/dashboard/reports', color: 'bg-amber-500 hover:bg-amber-600' },
+    { icon: FaReceipt, label: t.newInvoice, href: '/dashboard/invoices/new', color: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' },
+    { icon: FaUserPlus, label: t.addCustomer, href: '/dashboard/customers', color: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' },
+    { icon: FaBoxOpen, label: t.addProduct, href: '/dashboard/inventory', color: 'bg-orange-500 hover:bg-[#FF9933] shadow-orange-200' },
+    { icon: FaChartLine, label: t.viewReports, href: '/dashboard/reports', color: 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' },
   ];
+
+  // Demo Invoices
+  const demoInvoices = [
+    { invoice_number: '2024-001', customer: { name: 'Aman General Store' }, invoice_date: new Date(), total_amount: 12500, status: 'PAID' },
+    { invoice_number: '2024-002', customer: { name: 'Priya Traders' }, invoice_date: new Date(), total_amount: 4500, status: 'PAID' },
+    { invoice_number: '2024-003', customer: { name: 'Sagar Mobiles' }, invoice_date: new Date(), total_amount: 68900, status: 'PAID' },
+    { invoice_number: '2024-004', customer: { name: 'Deepak Electricals' }, invoice_date: new Date(), total_amount: 15400, status: 'PAID' },
+    { invoice_number: '2024-005', customer: { name: 'Bharat Hardware' }, invoice_date: new Date(), total_amount: 9200, status: 'PAID' },
+  ];
+
+  const displayInvoices = isDemo ? demoInvoices : (invoices || []).slice(0, 5);
 
   return (
     <>
       <Navbar3D />
-      <main style={{ paddingTop: '80px' }} className="pb-10 min-h-screen flex flex-col items-center">
-        <div className="space-y-8 md:space-y-10 px-4 py-6 max-w-[1600px] w-full mx-auto">
-          {/* Welcome Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <FaClock className="text-amber-500 text-sm" />
-                <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center justify-center gap-2 min-w-[160px]">
-                  <span suppressHydrationWarning className="truncate">
-                    {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                  </span>
-                  <span className="w-1 h-1 bg-gray-300 rounded-full mx-1 flex-shrink-0"></span>
-                  <span suppressHydrationWarning className="whitespace-nowrap">
-                    {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                  </span>
-                </span>
-              </div>
-              {status === 'authenticated' ? (
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                  {getGreeting()}, <span className="text-amber-500">{businessProfile.name || 'Owner'}</span>! 👋
-                </h1>
-              ) : (
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                  Welcome to <span className="text-indigo-600">BillGST</span>! 🚀
-                </h1>
-              )}
+      <main style={{ paddingTop: '88px', paddingLeft: '8px', paddingRight: '8px', paddingBottom: '8px' }} className="min-h-screen bg-slate-50 flex flex-col items-center overflow-x-hidden">
+
+        {/* Modern Hero Section */}
+        <div className="w-full bg-gradient-to-br from-[#FF9933] via-[#FF8800] to-[#FF9933] text-white py-10 md:py-16 relative overflow-hidden transition-all duration-700 rounded-3xl">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full -mr-48 -mt-24 blur-[100px] animate-pulse"></div>
+
+          <div className="max-w-[1600px] mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-xl px-4 py-2 rounded-full border border-white/40 text-[10px] md:text-xs font-black mb-4 animate-bounce shadow-xl uppercase tracking-widest">
+              <FaBolt className="text-yellow-300" /> <span className="uppercase tracking-widest">Digital Bharat's Billing Partner</span>
             </div>
-            {status !== 'authenticated' && (
+
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-black mb-4 tracking-tighter drop-shadow-2xl leading-tight">
+              Elevate Your <span className="text-blue-900 italic">Business</span> <br className="hidden md:block" /> with BillGST Pro
+            </h1>
+
+            <p className="text-sm md:text-lg text-orange-50 max-w-xl mb-8 font-bold leading-relaxed opacity-90">
+              Transform your shop into a professional brand. Lightning-fast billing, smart inventory, and absolute compliance.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-6">
+              <Link href="/login" className="px-6 py-3 bg-white text-[#FF9933] font-black rounded-xl hover:bg-orange-50 transition-all shadow-xl hover:scale-105 active:scale-95 text-base flex items-center justify-center gap-3">
+                <FaMagic /> START FREE
+              </Link>
               <button
-                onClick={() => router.push('/login')}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-xl hover:bg-indigo-700 transition shadow-lg font-bold"
+                onClick={() => window.scrollTo({ top: 1100, behavior: 'smooth' })}
+                className="px-6 py-3 bg-blue-900 text-white font-black rounded-xl hover:bg-blue-800 transition-all shadow-xl hover:scale-105 active:scale-95 text-base border-2 border-white/10"
               >
-                <FaSignInAlt /> Login / Register
+                LIVE DEMO
               </button>
-            )}
+            </div>
+
+            {/* Live Stats Preview */}
+            <div className="mt-10 bg-white/10 backdrop-blur-2xl border border-white/30 rounded-2xl p-4 flex gap-6 md:gap-12 items-center justify-center overflow-x-hidden md:px-10 shadow-xl">
+              <div className="flex flex-col items-center">
+                <span className="text-xl md:text-2xl font-black italic">50,000+</span>
+                <span className="text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 text-white/80">Merchants</span>
+              </div>
+              <div className="w-px h-6 bg-white/30"></div>
+              <div className="flex flex-col items-center">
+                <span className="text-xl md:text-2xl font-black italic">₹100 Cr+</span>
+                <span className="text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 text-white/80">Volume</span>
+              </div>
+              <div className="w-px h-6 bg-white/30"></div>
+              <div className="flex flex-col items-center">
+                <span className="text-xl md:text-2xl font-black italic">4.9/5</span>
+                <span className="text-[7px] md:text-[9px] font-black uppercase tracking-widest mt-1 text-white/80">Rating</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-8 md:space-y-12 px-2 py-6 max-w-[1600px] w-full mx-auto -mt-12 relative z-30">
+
+          {/* 3D Smart Search Bar - Icon Moved to Right Side */}
+          <div className="relative group max-w-4xl mx-auto transition-all duration-500 hover:scale-[1.01]">
+            <div className="absolute inset-y-0 right-0 pr-[75px] flex items-center pointer-events-none">
+              <FaSearch className="text-[#FF9933] text-lg" />
+            </div>
+            <input
+              type="text"
+              placeholder="Try: 'Mobile Phones', 'Sales'..."
+              readOnly
+              className="block w-full pl-10 pr-[120px] py-4 bg-white border-[3px] border-orange-100 rounded-[1.5rem] leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-[#FF9933] transition-all font-black text-lg text-slate-700 shadow-2xl cursor-pointer"
+              onClick={() => handleProtectedAction('/dashboard')}
+            />
           </div>
 
-          {/* Quick Actions - Protected */}
-          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {/* Quick Actions */}
+          <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl border-2 border-slate-50 relative overflow-hidden">
+            <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
                 return (
                   <button
                     key={index}
                     onClick={() => handleProtectedAction(action.href)}
-                    className={`${action.color} text-white rounded-2xl p-4 md:p-5 flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95 shadow-lg min-h-[100px] md:min-h-[120px] border-2 border-white/30 w-full`}
+                    className={`${action.color} text-white rounded-[1.5rem] p-4 md:p-6 flex flex-col items-center justify-center gap-3 transition-all duration-500 hover:scale-[1.03] active:scale-95 shadow-lg min-h-[120px] md:min-h-[150px] border-b-4 border-black/20 w-full`}
                   >
-                    <div className="p-3 md:p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <Icon className="text-xl md:text-2xl" />
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <Icon className="text-2xl md:text-3xl" />
                     </div>
-                    <span className="text-sm md:text-base font-bold text-center">{action.label}</span>
+                    <span className="text-[10px] md:text-xs font-black uppercase tracking-tight text-center leading-none">{action.label}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Analytics Overview Header */}
-          <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-6 md:p-8 shadow-xl text-center flex flex-col items-center justify-center">
-            <h2 className="text-xl md:text-3xl font-bold text-white tracking-wide">{t.analyticsOverview}</h2>
-            <p className="text-sm md:text-base text-indigo-100 font-medium mt-1">Track your business performance</p>
+          {/* Premium Overview Section - Centered Headers & 8px Padding */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
+
+            {/* Business Intelligence */}
+            <div className="bg-white rounded-[2rem] p-2 shadow-2xl border-4 border-[#FF9933] relative overflow-hidden group/stats">
+              <div className="flex flex-col items-center justify-center mb-6 py-4">
+                <h2 className="text-xl font-black text-slate-900 italic uppercase leading-none text-center">Business Intelligence</h2>
+                <p className="text-[8px] font-black text-[#FF9933] uppercase tracking-widest mt-1 text-center">Real-time Insights</p>
+                <div className="mt-4 w-12 h-1 bg-orange-100 rounded-full"></div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {stats.map((stat, index) => (
+                  <div key={index} className="bg-slate-50 p-4 rounded-2xl border-b-2 border-slate-200 hover:border-[#FF9933] transition-all duration-500 hover:bg-orange-50/40 group relative overflow-hidden flex flex-col items-center justify-center text-center">
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} text-white flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-transform`}><stat.icon className="text-sm" /></div>
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                    <h3 className="text-base font-black text-slate-800 ">{stat.formattedValue}</h3>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Growth Trends */}
+            <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl border-2 border-blue-100 relative overflow-hidden flex flex-col justify-between group/chart">
+              <div>
+                <div className="flex flex-col items-center justify-center mb-6 py-4">
+                  <h2 className="text-xl font-black text-slate-900 italic uppercase leading-none text-center text-blue-900">Growth Trends</h2>
+                  <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest mt-1 text-center">Income Analysis</p>
+                  <div className="flex items-center gap-2 text-[8px] font-black bg-blue-50 px-2 py-1 rounded-lg mt-3">
+                    <div className="flex items-center gap-1 text-indigo-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> SALES
+                    </div>
+                  </div>
+                </div>
+                <div className="h-[200px] w-full mt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={monthlyTrend} margin={{ right: 10, left: 10, top: 10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 700 }} />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 700 }}
+                        width={45}
+                        tickFormatter={(value) => formatCompactNumber(value).replace('₹', '')}
+                      />
+                      <Area type="monotone" dataKey="sales" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" name="Sales" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <button onClick={() => handleProtectedAction('/dashboard/reports')} className="mt-4 w-full py-4 bg-indigo-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg">
+                ANALYTICS
+              </button>
+            </div>
           </div>
 
-          {/* Period Filter Buttons */}
-          <div className="bg-white rounded-2xl p-4 md:p-5 shadow-lg border border-slate-200">
-            <p className="text-xs md:text-sm font-bold text-slate-800 mb-3 text-center">{t.selectPeriod}:</p>
-            <div className="flex gap-2 md:gap-3 flex-wrap justify-center">
+          {/* Saffron Styled Best-Sellers */}
+          <div className="bg-white rounded-[2rem] border-2 border-[#FF9933] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div className="relative z-10">
+              <div className="flex flex-col items-center justify-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-[#FF9933] text-white rounded-xl flex items-center justify-center text-2xl shadow-lg border-2 border-orange-100">
+                  <FaBolt />
+                </div>
+                <h3 className="text-xl font-black italic uppercase text-slate-800 leading-none text-center">Best-Sellers</h3>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {topProducts.slice(0, 5).map((item: any, idx: number) => (
+                  <div key={idx} className="bg-slate-50 rounded-2xl p-4 border-2 border-slate-100 hover:border-[#FF9933] transition-all flex flex-col items-center justify-center text-center h-[140px] gap-2">
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-[10px] ${idx === 0 ? 'bg-[#FF9933] text-white shadow-md' : 'bg-white border border-slate-200 text-slate-400'}`}>
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-slate-800 text-[10px] uppercase line-clamp-2 mb-1">{item.name}</h4>
+                      <p className="text-lg font-black text-slate-900 leading-none">₹{formatCompactNumber(item.sales).replace('₹', '')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Invoices - 8px Padding */}
+          <div className="bg-white rounded-[2rem] shadow-xl border-2 border-indigo-100 overflow-hidden p-2">
+            <div className="p-4 border-b-2 border-slate-50 flex flex-col items-center justify-center gap-4 bg-indigo-50/20 rounded-t-[1.5rem]">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 bg-indigo-700 text-white rounded-xl flex items-center justify-center shadow-md">
+                  <FaReceipt className="text-xl" />
+                </div>
+                <h2 className="text-lg font-black text-slate-900 italic uppercase">Recent Billing</h2>
+              </div>
+              <button onClick={() => handleProtectedAction('/dashboard/invoices')} className="px-4 py-2 bg-indigo-700 text-white rounded-lg font-black text-[10px] tracking-widest hover:bg-slate-900 transition-all flex items-center gap-2">
+                VIEW ALL <FaMagic />
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[600px]">
+                <thead className="bg-slate-900 text-white">
+                  <tr>
+                    <th className="py-4 px-6 text-[8px] font-black uppercase tracking-widest text-left">Bill #</th>
+                    <th className="py-4 px-6 text-[8px] font-black uppercase tracking-widest text-left">Entity</th>
+                    <th className="py-4 px-6 text-[8px] font-black uppercase tracking-widest text-left">Amount</th>
+                    <th className="py-4 px-6 text-[8px] font-black uppercase tracking-widest text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y-2 divide-slate-50">
+                  {displayInvoices.map((invoice: any, index: number) => (
+                    <tr key={index} className="hover:bg-indigo-50/40">
+                      <td className="p-2 px-5 whitespace-nowrap text-[10px] font-bold text-indigo-700">#{(invoice?.invoice_number || '').split('-').pop()}</td>
+                      <td className="p-2 px-4 text-[10px] text-slate-800 font-extrabold uppercase">{invoice?.customer?.name}</td>
+                      <td className="p-2 px-4 text-sm font-black text-slate-900">₹{(invoice?.total_amount || 0).toLocaleString('en-IN')}</td>
+                      <td className="p-2 px-4">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-lg text-[8px] font-black uppercase ${invoice?.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                          {invoice?.status || 'PAID'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Improved How It Works Section - Icons Perfectly Centered */}
+        <div className="w-full bg-white py-16 md:py-20 border-t-4 border-orange-50 mt-12 relative overflow-hidden rounded-[2.5rem]">
+          <div className="max-w-[1600px] mx-auto px-4 relative z-10 text-center">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-12 uppercase italic text-center">Simple 3-Step Setup</h2>
+            <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto flex justify-center items-center">
               {[
-                { key: 'daily', label: t.daily, activeColor: 'from-blue-500 to-cyan-500' },
-                { key: 'weekly', label: t.weekly, activeColor: 'from-purple-500 to-pink-500' },
-                { key: 'monthly', label: t.monthly, activeColor: 'from-indigo-500 to-violet-500' },
-                { key: 'yearly', label: t.yearly, activeColor: 'from-emerald-500 to-teal-500' },
-                { key: 'custom', label: 'Custom', activeColor: 'from-orange-500 to-amber-500' }
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setPeriod(item.key)}
-                  className={`flex-1 min-w-[70px] px-3 md:px-5 py-2.5 md:py-3 rounded-xl text-[11px] md:text-sm font-bold transition-all duration-300 ${period === item.key
-                    ? `bg-gradient-to-r ${item.activeColor} text-white shadow-lg scale-105`
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
-                    }`}
-                >
-                  {item.label}
-                </button>
+                { step: 1, icon: FaUserPlus, title: "Register", text: "Configure GST in minutes.", color: 'orange', iconColor: 'text-orange-500', bgColor: 'from-white to-orange-50', borderColor: 'border-orange-50' },
+                { step: 2, icon: FaBoxOpen, title: "Add Stock", text: "Import your product catalog.", color: 'blue', iconColor: 'text-blue-600', bgColor: 'from-white to-blue-50', borderColor: 'border-blue-50' },
+                { step: 3, icon: FaFileInvoice, title: "Start Bills", text: "Create and share via WhatsApp.", color: 'emerald', iconColor: 'text-emerald-600', bgColor: 'from-white to-emerald-50', borderColor: 'border-emerald-50' }
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center justify-center text-center">
+                  <div className={`w-24 h-24 bg-white border-4 ${item.borderColor} rounded-[2rem] flex items-center justify-center text-4xl ${item.iconColor} shadow-md bg-gradient-to-br ${item.bgColor} mb-6 transition-transform hover:scale-110`}>
+                    <item.icon />
+                  </div>
+                  <h3 className="text-lg font-black text-slate-800 mb-2 uppercase italic text-center">0{item.step}. {item.title}</h3>
+                  <p className="text-slate-500 text-xs font-bold leading-relaxed text-center px-4">{item.text}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Premium Bharat Badge */}
+            <div className="mt-16">
+              <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-md px-6 py-4 rounded-2xl border-2 border-orange-100 shadow-lg">
+                <FaLeaf className="text-orange-500 text-xl" />
+                <div className="text-left leading-none">
+                  <span className="block text-orange-500 font-black text-[10px] tracking-widest">MADE IN</span>
+                  <span className="block font-black text-lg bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-blue-700 to-green-700 mt-0.5 uppercase italic">Bharat (India)</span>
+                </div>
+                <div className="text-3xl ml-1">🇮🇳</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Global Standard Trust Section */}
+        <div className="w-full bg-slate-900 py-16 relative overflow-hidden rounded-[2.5rem] mt-8">
+          <div className="max-w-[1600px] mx-auto px-4 relative z-10">
+            <h2 className="text-2xl font-black text-white mb-12 text-center uppercase italic">Security & Compliance</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { icon: FaShieldAlt, title: "Secure Data", text: "Encrypted vaults in Indian centers.", color: 'bg-indigo-600' },
+                { icon: FaCheckCircle, title: "GST Ready", text: "Automatic tax validation logic.", color: 'bg-[#FF9933]' },
+                { icon: FaHandshake, title: "Digital Shop", text: "Direct orders to WhatsApp.", color: 'bg-emerald-500' }
+              ].map((feature, i) => (
+                <div key={i} className="bg-white/5 backdrop-blur-sm p-8 rounded-[2rem] border border-white/10 flex flex-col items-center text-center">
+                  <div className={`w-14 h-14 ${feature.color} text-white rounded-xl flex items-center justify-center text-2xl mb-6 shadow-md`}>
+                    <feature.icon />
+                  </div>
+                  <h3 className="text-lg font-black text-white mb-2 italic tracking-tight">{feature.title}</h3>
+                  <p className="text-slate-400 text-xs font-bold leading-relaxed opacity-90">{feature.text}</p>
+                </div>
               ))}
             </div>
           </div>
-
-          {/* Stats Cards - Protected Links */}
-          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 md:p-8 shadow-lg border border-slate-200">
-            <h1 className="text-base md:text-lg font-bold text-slate-700 mb-5 md:mb-6 px-4 text-center">{t.businessOverview}</h1>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2">
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleProtectedAction(stat.href)}
-                    className="bg-white rounded-2xl p-4 md:p-5 shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 group min-h-[120px] flex flex-col items-center justify-center text-center hover:scale-[1.02] w-full"
-                  >
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3 transform group-hover:scale-110 transition-transform`}>
-                      <Icon className="text-xl" />
-                    </div>
-                    <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1 px-1">
-                      {stat.label}
-                    </p>
-                    <p className="text-xl md:text-2xl font-extrabold text-slate-800 mb-1">
-                      {status === 'authenticated' ? stat.formattedValue : '---'}
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-auto">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-700'}`}>
-                        {status === 'authenticated' ? stat.trend : 'Login'}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Conditional Banner - Modified for Center Alignment on Mobile */}
-          {status !== 'authenticated' && showSetupBanner ? (
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-orange-500/20 animate-slideUp relative">
-              <button
-                onClick={() => { setShowSetupBanner(false); }}
-                className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-lg transition-colors"
-                aria-label="Close banner"
-              >
-                <FaTimes size={14} />
-              </button>
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
-                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                    <FaLock className="text-2xl" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg md:text-xl font-bold">Create Your Account</h2>
-                    <p className="text-orange-100 text-sm mt-0.5">Register now to start managing your invoices & inventory.</p>
-                  </div>
-                </div>
-                <Link href="/login" className="px-8 py-3 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition shadow-lg text-base md:text-sm whitespace-nowrap min-w-[160px] text-center">
-                  Register Now
-                </Link>
-              </div>
-            </div>
-          ) : (
-            !businessProfile.gstin && showSetupBanner && status === 'authenticated' && (
-              <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-xl shadow-indigo-500/20 animate-slideUp relative">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <div className="p-2.5 md:p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                      <FaStore className="text-lg md:text-2xl" />
-                    </div>
-                    <div>
-                      <h2 className="text-base md:text-xl font-bold">{t.setupBusiness}</h2>
-                      <p className="text-indigo-100 text-xs md:text-sm mt-0.5">Add GSTIN and details to start invoicing.</p>
-                    </div>
-                  </div>
-                  <Link href="/dashboard/settings" className="px-4 md:px-6 py-2 bg-white text-indigo-600 font-bold rounded-lg md:rounded-xl hover:bg-indigo-50 transition shadow-lg text-xs md:text-sm whitespace-nowrap">
-                    {t.setupNow}
-                  </Link>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* Revenue Analytics - Area Chart */}
-            <div className="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2 px-2">
-                <div className="text-center sm:text-left w-full sm:w-auto">
-                  <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center sm:text-left">{t.revenueAnalytics}</h2>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-medium">Income vs Profit trends</p>
-                </div>
-                <div className="flex items-center justify-center gap-3 text-[9px] md:text-xs bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg self-center sm:self-auto">
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    <span className="text-slate-600 font-medium">Sales</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="text-slate-600 font-medium">Profit</span>
-                  </div>
-                </div>
-              </div>
-              <div className="h-[200px] md:h-[280px] w-full px-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={monthlyTrend} margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
-                      formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
-                    />
-                    <Area type="monotone" dataKey="sales" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" name="Sales" />
-                    <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" name="Profit" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Weekly Sales - Bar Chart */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
-              <div className="flex items-center justify-center mb-4 md:mb-6">
-                <div className="text-center">
-                  <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center">{t.weeklyPerformance}</h2>
-                  <p className="text-xs text-slate-500 font-medium">Sales by day of the week</p>
-                </div>
-              </div>
-              <div className="h-[200px] md:h-[280px] w-full px-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyData} barCategoryGap="20%" margin={{ right: 20, left: -20, top: 5, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} width={40} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '12px' }}
-                      formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
-                    />
-                    <Bar dataKey="sales" fill="#4f46e5" radius={[4, 4, 0, 0]} name="Sales" />
-                    <Bar dataKey="profit" fill="#10b981" radius={[4, 4, 0, 0]} name="Profit" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Section - Top Products & Recent Invoices */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            {/* Top Products */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 p-6 md:p-6">
-              <h2 className="text-sm md:text-lg font-bold text-slate-800 mb-4 md:mb-6 text-center">{t.topSellingProducts}</h2>
-              <div className="space-y-4 md:space-y-5 px-4">
-                {topProducts.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-[180px] md:h-[220px] text-center">
-                    <div className="p-3 bg-slate-50 rounded-full mb-2">
-                      <FaBox className="text-slate-300 text-xl" />
-                    </div>
-                    <p className="text-slate-500 font-medium text-sm">No sales data yet</p>
-                    <p className="text-[10px] md:text-xs text-slate-400 mt-1">Start selling to see products here</p>
-                  </div>
-                ) : (
-                  topProducts.slice(0, 5).map((product: any, index: number) => (
-                    <div key={index} className="group">
-                      <div className="flex items-center justify-between mb-1.5 px-1">
-                        <span className="text-xs md:text-sm font-semibold text-slate-700 truncate max-w-[60%]">{product.name}</span>
-                        <span className="text-xs md:text-sm font-bold text-slate-900">₹{product.sales >= 1000 ? (product.sales / 1000).toFixed(1) + 'k' : product.sales.toLocaleString()}</span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-1000 ease-out"
-                          style={{ width: `${(product.sales / topProducts[0].sales) * 100}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-[10px] md:text-xs text-slate-400 mt-1 font-medium">{product.quantity} units sold</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Recent Invoices */}
-            <div className="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-              <div className="p-5 md:p-5 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-2">
-                <h2 className="text-sm md:text-lg font-bold text-slate-800 text-center w-full md:w-auto pl-2">{t.recentInvoices}</h2>
-                <button onClick={() => handleProtectedAction('/dashboard/invoices')} className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold hover:underline self-end md:self-auto pr-10">{t.viewReports}</button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[500px]">
-                  <thead className="bg-indigo-600 text-white">
-                    <tr>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider first:rounded-l-lg">{t.invoices}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.customer}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.date}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider">{t.amount}</th>
-                      <th className="text-center py-4 px-4 text-[10px] md:text-sm font-bold uppercase tracking-wider last:rounded-r-lg">{t.status}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {(invoices || []).length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="py-8 md:py-10 text-center text-slate-500 font-medium text-xs md:text-sm">
-                          No invoices yet. {status === 'authenticated' ? 'Create your first invoice!' : 'Login to see data.'}
-                        </td>
-                      </tr>
-                    ) : (
-                      (invoices || []).slice(0, 5).map((invoice: any, index: number) => {
-                        const safeTotal = Number(invoice?.total_amount) || 0;
-                        const safeDate = (d: any) => {
-                          try {
-                            const date = new Date(d);
-                            return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-                          } catch (e) { return '-'; }
-                        };
-                        return (
-                          <tr key={index} className="hover:bg-slate-50 transition-colors">
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm font-semibold text-indigo-600">#{invoice?.invoice_number || 'N/A'}</td>
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm text-slate-700 font-medium truncate max-w-[100px]">{invoice?.customer?.name || 'Unknown'}</td>
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm text-slate-500">{safeDate(invoice?.invoice_date)}</td>
-                            <td className="text-center py-2.5 md:py-3 px-4 text-[10px] md:text-sm text-slate-900 font-bold">
-                              ₹{safeTotal >= 1000 ? (safeTotal / 1000).toFixed(1) + 'k' : safeTotal.toLocaleString('en-IN')}
-                            </td>
-                            <td className="text-center py-2.5 md:py-3 px-4">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${invoice?.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                                {invoice?.status || 'PAID'}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* How It Works Section */}
-        <div className="w-full bg-white py-12 md:py-20 mt-8">
-          <div className="max-w-[1600px] mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-12 text-center">Create GST Bills in 3 Simple Steps</h2>
-            <div className="grid md:grid-cols-3 gap-8 text-center relative">
-              {/* Connector Line (Desktop) */}
-              <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-indigo-200 via-purple-200 to-emerald-200 -z-10"></div>
-
-              <div className="relative group">
-                <div className="w-24 h-24 bg-white border-4 border-indigo-100 rounded-full flex items-center justify-center text-3xl text-indigo-600 mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                  <FaUserPlus />
-                </div>
-                <div className="absolute top-0 right-[25%] bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-white">1</div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Register</h3>
-                <p className="text-slate-500 text-sm px-4">Sign up in seconds. Setup your business profile with GSTIN.</p>
-              </div>
-
-              <div className="relative group">
-                <div className="w-24 h-24 bg-white border-4 border-purple-100 rounded-full flex items-center justify-center text-3xl text-purple-600 mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                  <FaBoxOpen />
-                </div>
-                <div className="absolute top-0 right-[25%] bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-white">2</div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Add Products</h3>
-                <p className="text-slate-500 text-sm px-4">Add your inventory items or services with prices.</p>
-              </div>
-
-              <div className="relative group">
-                <div className="w-24 h-24 bg-white border-4 border-emerald-100 rounded-full flex items-center justify-center text-3xl text-emerald-600 mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                  <FaFileInvoice />
-                </div>
-                <div className="absolute top-0 right-[25%] bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-4 border-white">3</div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Create & Print</h3>
-                <p className="text-slate-500 text-sm px-4">Select customer, products and click print. Share via WhatsApp.</p>
-              </div>
+        {/* Support/FAQ Section */}
+        <div className="w-full bg-slate-50 py-16 border-t-4 border-slate-100 rounded-[2.5rem] mt-8">
+          <div className="max-w-3xl mx-auto px-6">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl font-black text-slate-900 uppercase italic">Support</h2>
             </div>
-
-            {/* Made In India Badge */}
-            <div className="mt-16 text-center">
-              <span className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-50 via-white to-green-50 px-6 py-3 rounded-full border border-orange-100 shadow-sm">
-                <span className="text-orange-500 font-bold">Made with ❤️ in</span>
-                <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-blue-500 to-green-600">INDIA</span>
-                <span className="text-xl">🇮🇳</span>
-              </span>
-            </div>
-          </div>
-        </div>
-        {/* Trust & Features Section - Visible to All */}
-        <div className="w-full bg-slate-50 py-12 md:py-20 mt-12 border-t border-slate-200">
-          <div className="max-w-[1600px] mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">Why Businesses Trust BillGST?</h2>
-              <p className="text-slate-500">Built with security, compliance, and ease of use in mind.</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-                <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-2xl mb-4">
-                  <FaShieldAlt />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">100% Secure & Safe</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Your data is encrypted and stored securely. We use industry-standard security protocols to keep your business information safe.
-                </p>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-                <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4">
-                  <FaCheckCircle />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">GST Compliant</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Always up-to-date with the latest GST rules and formats. Generate valid tax invoices, bills of supply, and e-way bills easily.
-                </p>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
-                <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-2xl mb-4">
-                  <FaHandshake />
-                </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Free Plan Available</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Start for free with up to 30 invoices per month. Upgrade to premium for unlimited billing and advanced features as you grow.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Testimonials Section */}
-        <div className="w-full bg-white py-12 md:py-20 border-t border-slate-100">
-          <div className="max-w-[1600px] mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-12 text-center">What Our Users Say (Testimonials)</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-4">
               {[
-                { name: "Rahul Sharma", role: "Shop Owner, Delhi", text: "BillGST has made my billing so easy. I can create GST bills in seconds on my phone. Very trustworthy app!" },
-                { name: "Priya Patel", role: "Butique Owner, Mumbai", text: "I was looking for simple software and found this. It's free and better than paid ones. Data is safe and support is good." },
-                { name: "Amit Verma", role: "Wholesaler, Jaipur", text: "Inventory tracking is excellent. Now I know exactly what stock is low. Highly recommended for small traders." }
+                { q: "Is BillGST really free?", a: "हाँ! हम छोटे व्यापारियों के लिए 30 इनवॉइस प्रतिमाह पूरी तरह मुफ्त ऑफर करते हैं।" },
+                { q: "Need Support?", a: "हमारी समर्पित टीम support@billgst.in पर 24/7 उपलब्ध है।" }
+              ].map((item, i) => (
+                <div key={i} className="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 group">
+                  <h3 className="flex items-start gap-3 text-base font-black text-slate-900 mb-2 group-hover:text-[#FF9933]">
+                    <FaQuestionCircle className="text-lg text-indigo-600 group-hover:text-[#FF9933]" />
+                    {item.q}
+                  </h3>
+                  <p className="text-slate-500 pl-8 text-sm font-bold opacity-80">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Merchant Feedback Section - Moved to Niche (Bottom) */}
+        <div className="w-full bg-white py-16 md:py-24 border-t-4 border-slate-50">
+          <div className="max-w-[1600px] mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-12 text-center uppercase italic">Merchant Feedback</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { name: "Rahul Sharma", role: "Elite Tech, Delhi", text: "BillGST isn't just software; it's a productivity multiplier. My billing time dropped by 80%!", color: 'border-orange-200', bg: 'bg-orange-50/20' },
+                { name: "Priya Patel", role: "Boutique, Ahmedabad", text: "The localized interface and the heritage theme create an instant bond. Best billing app!", color: 'border-blue-200', bg: 'bg-blue-50/20' },
+                { name: "Amit Verma", role: "Hardware, Jaipur", text: "Inventory precision is unmatched. The platform predicts my stockouts perfectly.", color: 'border-emerald-200', bg: 'bg-emerald-50/20' }
               ].map((review, i) => (
-                <div key={i} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative">
-                  <FaStore className="text-slate-200 text-6xl absolute top-4 right-4 opacity-20" />
-                  <div className="flex items-center gap-1 mb-4 text-amber-400">
+                <div key={i} className={`p-8 rounded-[2rem] border-2 ${review.color} ${review.bg} relative shadow-md hover:shadow-xl transition-all`}>
+                  <div className="flex items-center justify-center gap-1 mb-6 text-yellow-400 text-lg p-2">
                     {[1, 2, 3, 4, 5].map(star => <FaStar key={star} />)}
                   </div>
-                  <p className="text-slate-600 mb-6 italic">"{review.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  <p className="text-slate-700 mb-8 italic text-base font-bold opacity-90 leading-relaxed">"{review.text}"</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">
                       {review.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900 text-sm">{review.name}</p>
-                      <p className="text-xs text-slate-500">{review.role}</p>
+                      <p className="font-black text-slate-900 text-base leading-none">{review.name}</p>
+                      <p className="text-[8px] text-[#FF9933] font-black uppercase mt-1 tracking-widest">{review.role}</p>
                     </div>
                   </div>
                 </div>
@@ -624,48 +504,21 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* FAQ Section */}
-        <div className="w-full bg-slate-50 py-12 md:py-20 border-t border-slate-200">
-          <div className="max-w-4xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-10 text-center">Frequently Asked Questions (FAQ)</h2>
-            <div className="space-y-4">
-              {[
-                { q: "Is BillGST really free?", a: "We offer a Free Plan that creates up to 30 invoices per month at no cost. For unlimited invoices and advanced features, you can upgrade to our affordable premium plans." },
-                { q: "Is my data safe?", a: "Absolutely. We use secure encryption and your data is stored safely. We do not sell your data to anyone." },
-                { q: "Can I use it on mobile?", a: "Yes! BillGST is fully responsive and works perfectly on any mobile, tablet, or desktop browser." },
-                { q: "How do I get support?", a: "You can email us at support@billgst.in. We are here to help you grow your business." }
-              ].map((item, i) => (
-                <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                  <h3 className="flex items-start gap-3 text-lg font-bold text-slate-800 mb-2">
-                    <FaQuestionCircle className="text-indigo-500 mt-1 shrink-0" />
-                    {item.q}
-                  </h3>
-                  <p className="text-slate-600 pl-8">{item.a}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Master Footer */}
+        <footer className="w-full bg-white border-t-8 border-orange-50 py-12 relative overflow-hidden mt-8 rounded-[20px_20px_0px_0px]">
+          <div className="max-w-[1600px] mx-auto px-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="text-center md:text-left">
+                <h2 className="text-2xl font-black text-slate-900 tracking-tighter mb-1 italic">BillGST<span className="text-[#FF9933]">.in</span></h2>
+                <p className="text-slate-400 font-bold text-[9px] uppercase tracking-widest mb-4">PIONEERING DIGITAL BHARAT</p>
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-tight opacity-60">© {new Date().getFullYear()} Intellectual Property of BillGST.</p>
+              </div>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-gray-100 py-8 mt-12">
-          <div className="max-w-[1600px] mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-xs md:text-sm text-center md:text-left">
-              © {new Date().getFullYear()} BillGST. All rights reserved.
-            </p>
-            <div className="flex flex-wrap gap-4 md:gap-6 justify-center">
-              <Link href="/about" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
-                About Us
-              </Link>
-              <Link href="/privacy" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
-                Privacy Policy
-              </Link>
-              <Link href="/blog/features" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
-                Features
-              </Link>
-              <a href="mailto:support@billgst.in" className="text-gray-500 hover:text-indigo-600 text-xs md:text-sm font-medium transition">
-                Contact Support
-              </a>
+              <div className="flex gap-8">
+                <Link href="/about" className="text-slate-500 hover:text-[#FF9933] text-xs font-bold">About</Link>
+                <Link href="/privacy" className="text-slate-500 hover:text-[#FF9933] text-xs font-bold">Privacy</Link>
+                <a href="mailto:support@billgst.in" className="text-slate-500 hover:text-blue-600 text-xs font-bold">Support</a>
+              </div>
             </div>
           </div>
         </footer>
