@@ -30,9 +30,14 @@ const client = new Client({
         clientId: "billgst-agent",
         dataPath: path.join(ROOT, '.wwebjs_auth')
     }),
-    qrMaxRetries: 5, // Allow some retries
+    qrMaxRetries: 10,
+    authTimeoutMs: 120000, // Wait 2 minutes for scan
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1019014569-alpha.html',
+    },
     puppeteer: {
-        headless: 'new',
+        headless: 'new', // Use 'new' for current Chrome versions
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -41,7 +46,7 @@ const client = new Client({
             '--no-first-run',
             '--no-zygote',
             '--disable-gpu',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
         ],
         executablePath: process.env.CHROME_PATH || undefined
     }
