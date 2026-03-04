@@ -22,6 +22,28 @@ export default function SettingsPage() {
     const [localSettings, setLocalSettings] = useState(settings || {});
     const [isClient, setIsClient] = useState(false);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [botStatus, setBotStatus] = useState<any>({ status: 'LOADING', qr: null });
+
+    // Polling WhatsApp Bot Status
+    useEffect(() => {
+        if (!localSettings.whatsappBotEnabled) return;
+
+        const checkStatus = async () => {
+            try {
+                const res = await fetch('/api/public/whatsapp/bot-status');
+                const data = await res.json();
+                if (data.success) {
+                    setBotStatus(data);
+                }
+            } catch (e) {
+                console.error('Failed to fetch bot status');
+            }
+        };
+
+        checkStatus();
+        const interval = setInterval(checkStatus, 5000); // Poll every 5 seconds
+        return () => clearInterval(interval);
+    }, [localSettings.whatsappBotEnabled]);
 
     useEffect(() => {
         setIsClient(true);
@@ -580,46 +602,70 @@ export default function SettingsPage() {
 
                         {localSettings.whatsappBotEnabled && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                <div className="border-2 border-dashed border-emerald-200 rounded-xl p-6 bg-gradient-to-b from-emerald-50/50 to-white text-center space-y-4">
+                                <div className={`border-2 rounded-xl p-6 text-center space-y-4 transition-all ${botStatus.connected ? 'border-emerald-500 bg-emerald-50' : 'border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50/50 to-white'}`}>
                                     {/* Icon */}
                                     <div className="flex justify-center">
-                                        <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                                            <FaWhatsapp className="text-emerald-500 text-3xl" />
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${botStatus.connected ? 'bg-emerald-500 text-white shadow-lg' : 'bg-emerald-100 text-emerald-500'}`}>
+                                            <FaWhatsapp className="text-3xl" />
                                         </div>
                                     </div>
 
                                     {/* Badge */}
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 rounded-full border border-amber-200">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        <span className="text-[10px] font-black text-amber-700 uppercase tracking-wider">Under Development</span>
+                                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${botStatus.connected ? 'bg-emerald-100 border-emerald-200' : 'bg-amber-100 border-amber-200'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${botStatus.connected ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                                        <span className={`text-[10px] font-black uppercase tracking-wider ${botStatus.connected ? 'text-emerald-700' : 'text-amber-700'}`}>
+                                            {botStatus.connected ? 'CONNECTED & ACTIVE' : botStatus.status === 'QR_READY' ? 'READY TO SCAN' : 'WAITING FOR SERVICE'}
+                                        </span>
                                     </div>
 
                                     <div>
-                                        <h3 className="text-sm font-bold text-gray-800 mb-1">WhatsApp Device Linking</h3>
+                                        <h3 className="text-sm font-bold text-gray-800 mb-1">
+                                            {botStatus.connected ? 'AI Bot is LIVE!' : 'WhatsApp Device Linking'}
+                                        </h3>
                                         <p className="text-xs text-gray-500 leading-relaxed px-2">
-                                            Jald hi aap apna <b>WhatsApp number directly link</b> kar sakenge. Customers ko aapke apne number se auto-reply milega.
+                                            {botStatus.connected
+                                                ? `Aapka number registered hai. Ab aapke customers ko AI auto-reply milega.`
+                                                : `Apne phone ke WhatsApp → Linked Devices → Link a Device se scan karein.`
+                                            }
                                         </p>
                                     </div>
 
-                                    {/* Steps preview */}
-                                    <div className="text-left bg-white rounded-xl border border-slate-100 p-4 space-y-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">How it will work:</p>
-                                        {[
-                                            '1. Yahan ek real QR code dikhega',
-                                            '2. WhatsApp → Linked Devices → Link a Device',
-                                            '3. QR scan karo — aapka number link!',
-                                            '4. Customers ke messages pe AI auto-reply karega'
-                                        ].map((step, i) => (
-                                            <div key={i} className="flex items-start gap-2">
-                                                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 text-[8px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
-                                                <p className="text-[10px] text-slate-600 font-medium">{step.replace(/^\d+\.\s/, '')}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    {/* Real QR Display */}
+                                    {!botStatus.connected && (
+                                        <div className="flex flex-col items-center gap-4">
+                                            {botStatus.qr ? (
+                                                <div className="p-3 bg-white rounded-2xl border-2 border-emerald-200 shadow-lg inline-block">
+                                                    <QRCodeCanvas value={botStatus.qr} size={160} level="H" />
+                                                </div>
+                                            ) : (
+                                                <div className="w-40 h-40 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4">
+                                                    <FaSync className="text-slate-300 text-2xl animate-spin mb-2" />
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Terminal par service start karein...</p>
+                                                </div>
+                                            )}
 
-                                    <p className="text-[9px] text-slate-400 italic">
-                                        Filhaal Automatic Payment Reminders ka use karein — yeh bilkul teyar hai! ✅
-                                    </p>
+                                            <div className="bg-slate-900 rounded-lg p-3 text-left w-full overflow-hidden border border-slate-700 shadow-xl">
+                                                <p className="text-[9px] text-emerald-400 font-mono mb-1 w-full">$ node scripts/whatsapp-service.js</p>
+                                                <p className="text-[8px] text-slate-400 leading-tight">Run this command in a new terminal to start the AI Bot service.</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {botStatus.connected && (
+                                        <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-sm text-left">
+                                            <p className="text-[10px] font-black text-emerald-600 uppercase mb-2">Bot Statistics:</p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                                    <p className="text-[8px] text-slate-400 uppercase font-black">Status</p>
+                                                    <p className="text-xs font-bold text-slate-700">Online</p>
+                                                </div>
+                                                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                                    <p className="text-[8px] text-slate-400 uppercase font-black">Uptime</p>
+                                                    <p className="text-xs font-bold text-slate-700">Live Now</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
