@@ -40,30 +40,15 @@ const getChromePath = () => {
 
 const client = new Client({
     authStrategy: new LocalAuth({
-        clientId: "billgst-agent",
+        clientId: "billgst-main", // Fresh ID
         dataPath: path.join(ROOT, '.wwebjs_auth')
     }),
-    qrMaxRetries: 20,
-    authTimeoutMs: 180000,
-    webVersionCache: {
-        type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1015822643-alpha.html',
-    },
     puppeteer: {
-        headless: 'new',
-        executablePath: getChromePath(), // Try to use user's real browser
+        headless: false, // BROWSER DIKHEGA AB! 
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu',
-            '--disable-blink-features=AutomationControlled',
-            '--disable-infobars',
-            '--window-size=1280,720',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+            '--disable-blink-features=AutomationControlled'
         ]
     }
 });
