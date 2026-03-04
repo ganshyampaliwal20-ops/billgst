@@ -25,19 +25,33 @@ if (!fs.existsSync(TMP)) {
 fs.writeFileSync(STATUS_FILE, JSON.stringify({ status: 'STARTING', lastUpdate: Date.now() }));
 console.log('✅ Status initialized to STARTING');
 
+// Helper to find Chrome on Windows
+const getChromePath = () => {
+    const paths = [
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
+    ];
+    for (const p of paths) {
+        if (fs.existsSync(p)) return p;
+    }
+    return undefined;
+};
+
 const client = new Client({
     authStrategy: new LocalAuth({
         clientId: "billgst-agent",
         dataPath: path.join(ROOT, '.wwebjs_auth')
     }),
-    qrMaxRetries: 15,
-    authTimeoutMs: 180000, // 3 minutes for slow scans
+    qrMaxRetries: 20,
+    authTimeoutMs: 180000,
     webVersionCache: {
         type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1018861072-alpha.html',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1015822643-alpha.html',
     },
     puppeteer: {
         headless: 'new',
+        executablePath: getChromePath(), // Try to use user's real browser
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -46,10 +60,11 @@ const client = new Client({
             '--no-first-run',
             '--no-zygote',
             '--disable-gpu',
-            '--disable-blink-features=AutomationControlled', // Bypass bot detection
+            '--disable-blink-features=AutomationControlled',
+            '--disable-infobars',
+            '--window-size=1280,720',
             '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
-        ],
-        executablePath: process.env.CHROME_PATH || undefined
+        ]
     }
 });
 
