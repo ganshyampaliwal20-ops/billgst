@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock, FaPenNib } from 'react-icons/fa';
+import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock, FaPenNib, FaSync, FaWhatsapp } from 'react-icons/fa';
 import SignatureModal from '@/app/components/SignatureModal';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const THEMES = {
     TEMPLATE_1: { accent: '#5d5088', title: '#8b7eb0' }, // Modern Purple
@@ -541,14 +542,6 @@ export default function SettingsPage() {
                                 <div className="text-right">
                                     <p className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">For {formData.name || 'YOUR BUSINESS'}</p>
 
-                                    {formData.signature ? (
-                                        <div className="h-10 w-24 ml-auto my-1 flex items-center justify-end overflow-hidden">
-                                            <img src={formData.signature} alt="Sign" className="max-h-full object-contain" />
-                                        </div>
-                                    ) : (
-                                        <div className="h-4" />
-                                    )}
-
                                     <div className="w-24 h-px bg-slate-400 mb-1 ml-auto"></div>
                                     <p className="text-[8px] font-black uppercase text-slate-800">Authorized Signatory</p>
                                 </div>
@@ -587,27 +580,36 @@ export default function SettingsPage() {
 
                         {localSettings.whatsappBotEnabled && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Bot Access Token</label>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            readOnly
-                                            value={`WHATSAPP_AI_${businessProfile.id?.substring(0, 8).toUpperCase()}`}
-                                            className="flex-1 px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono text-slate-600 outline-none"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(`WHATSAPP_AI_${businessProfile.id?.substring(0, 8).toUpperCase()}`);
-                                                toast.success('Token copied!');
-                                            }}
-                                            className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors"
-                                        >
-                                            Copy Token
-                                        </button>
+                                <div className="border border-slate-200 rounded-xl p-6 bg-white text-center">
+                                    <h3 className="text-sm font-bold text-gray-800 mb-2">Link your WhatsApp Number</h3>
+                                    <p className="text-xs text-gray-500 mb-4 px-4">
+                                        Apne phone ke WhatsApp se is QR code ko scan karein. Aapke customers ko reply aapke is number se hi jayega.
+                                    </p>
+                                    <div className="flex justify-center mb-4">
+                                        {/* QR Code Canvas */}
+                                        <div className="w-40 h-40 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center relative overflow-hidden group hover:border-emerald-400 transition-colors cursor-pointer">
+                                            <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
+                                                <FaSync className="text-emerald-500 text-2xl mb-1 min-w-max" />
+                                                <span className="text-[10px] font-bold text-emerald-700">Click to Refresh QR</span>
+                                            </div>
+                                            <div className="p-2 bg-white rounded-md shadow-sm filter blur-[2px] opacity-60">
+                                                <QRCodeCanvas value={"https://billgst.com/connect?id=" + Math.random()} size={120} />
+                                            </div>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-white/70 backdrop-blur-sm z-20 group-hover:hidden">
+                                                <FaWhatsapp className="text-emerald-500 text-2xl mb-1 min-w-max" />
+                                                <span className="text-[10px] font-black text-slate-700 text-center leading-tight">Connecting Setup...<br />Coming Soon</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] text-slate-400 mt-2 font-medium italic">Use this token to connect your WhatsApp Business API with BillGST.</p>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => toast.success('Aapka device connect karne ka system jaldi hi update hoga!')}
+                                        className="inline-flex items-center gap-2 px-6 py-2 bg-slate-900 text-white text-xs font-bold rounded-full hover:bg-slate-800 transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#25D366" /><path fillRule="evenodd" clipRule="evenodd" d="M17.8427 6.16279C16.2952 4.61578 14.234 3.76562 12.0427 3.76562C7.54041 3.76562 3.88177 7.42426 3.88177 11.9264C3.88177 13.3644 4.2568 14.7621 5.00688 15.9897L3.79199 20.4287L8.33785 19.231C9.52841 19.9077 10.7419 20.2523 12.0427 20.2523H12.0475C16.5498 20.2523 20.2084 16.5937 20.2084 12.0915C20.2084 9.90483 19.3562 7.72898 17.8427 6.16279ZM12.0428 18.8687C10.751 18.8687 9.47967 18.524 8.35821 17.859L8.08639 17.6953L5.38541 18.4069L6.11059 15.7607L5.93297 15.4851C5.20327 14.3218 4.82583 12.9697 4.82583 11.9224C4.82583 7.94273 8.06803 4.70054 12.0475 4.70054C13.9749 4.70054 15.7725 5.45163 17.1352 6.81436C18.4979 8.17709 19.2489 9.97463 19.2489 11.902C19.2489 15.8817 16.0357 19.1239 12.0561 19.1239" fill="white" /><path d="M16.0628 14.2238C15.8623 14.1236 14.8727 13.6358 14.6934 13.5714C14.5142 13.5069 14.3852 13.4747 14.2562 13.6752C14.1272 13.8757 13.7618 14.3054 13.6543 14.4344C13.5468 14.5633 13.4393 14.5776 13.2388 14.4774A8.77494 8.77494 0 0 1 10.6666 12.8953C9.66416 11.8929 8.99121 10.8693 8.88373 10.6688C8.77625 10.4683 8.87326 10.3609 8.97354 10.2606C9.06666 10.1675 9.16694 10.0458 9.26723 9.93836C9.36751 9.8309 9.40333 9.7521 9.47496 9.616C9.54659 9.47989 9.51078 9.3581 9.46063 9.25781C9.41049 9.15753 8.7658 7.57448 8.49359 6.93699C8.22855 6.31383 7.96582 6.39343 7.76678 6.39054C7.5877 6.39054 7.40862 6.388 7.22954 6.388C7.05045 6.388 6.76392 6.45247 6.51319 6.72468C6.26247 6.99689 5.56046 7.64155 5.56046 8.95254C5.56046 10.2635 6.54185 11.5315 6.67795 11.7249C6.81406 11.9183 8.52263 14.6534 11.1623 15.7565C12.8444 16.46 13.5186 16.5985 14.2812 16.5055C14.7397 16.4523 15.7005 15.9392 15.9011 15.3734C16.1017 14.8075 16.1017 14.3276 16.0372 14.2238Z" fill="white" /></svg>
+                                        Connect WhatsApp Device
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -635,11 +637,17 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={`space-y-6 transition-all ${localSettings.autoRemindersEnabled ? 'opacity-100' : 'opacity-40'}`}>
-                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                            <p className="text-xs font-bold text-blue-800 mb-2 uppercase tracking-tight">AI Recovery System:</p>
-                            <p className="text-xs text-blue-700 leading-relaxed italic">
-                                Jab bhi koi invoice {localSettings.reminderFrequency || 3} din se zyada "Unpaid" rahega, hamara AI automatically customer ko ek gentle reminder WhatsApp pe bhej dega at {localSettings.reminderTime || '10:00'}.
-                            </p>
+                        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
+                            <div className="p-2 bg-blue-600 text-white rounded-lg mt-1 shrink-0">
+                                <FaBolt className="text-sm" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-blue-800 mb-1 uppercase tracking-tight">Zero-Config AI Reminders:</p>
+                                <p className="text-xs text-blue-700 leading-relaxed italic">
+                                    Bas ise ON karein! Jab koi bill {localSettings.reminderFrequency || 3} din se zayada unpaid rahega, BillGST automatically aapke customer ko gentle reminder bhej dega.
+                                    <span className="block mt-1 font-bold text-blue-600">Aapko koi setting karne ki zaroorat nahi hai.</span>
+                                </p>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -684,17 +692,26 @@ export default function SettingsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">UltraMsg Instance ID / API Token</label>
+                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">UltraMsg Instance ID : API Token</label>
                                         <input
                                             type="text"
                                             className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold"
-                                            placeholder="Your API Key/Token"
+                                            placeholder="instance12345 : tokenabcde"
                                             value={localSettings.whatsappApiKey || ''}
                                             onChange={(e) => setLocalSettings({ ...localSettings, whatsappApiKey: e.target.value })}
                                         />
+                                        <p className="text-[10px] text-blue-500 mt-1 font-bold">Format: InstanceID:Token (Beech me ":" zaroori hai)</p>
                                     </div>
                                 </div>
-                                <p className="text-[9px] text-slate-400 italic">अगर आपके पास API Key नहीं है, तो अभी डेमो के लिए इसे खाली छोड़ दें।</p>
+                                <div className="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg border border-emerald-100 mt-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <p className="text-[9px] text-emerald-700 font-bold uppercase tracking-tight">
+                                        {!localSettings.whatsappApiKey ? 'Platform Shared Gateway Active (Free)' : 'Private API Gateway Active (Pro)'}
+                                    </p>
+                                </div>
+                                <p className="text-[9px] text-slate-400 italic mt-3 px-1">
+                                    <b>Note:</b> Agar aap apni branding use karna chahte hain, tabhi API Key bharein. Warna ise khali chhod dein.
+                                </p>
                             </div>
                         )}
 
@@ -741,7 +758,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Save Button */}
-                <div className="flex justify-end">
+                <div className="flex justify-end" style={{ paddingBottom: '10px' }}>
                     <button
                         type="submit"
                         className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2"

@@ -135,104 +135,106 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Navigation - Distributed evenly to fit layout */}
-                    <nav className="flex-1 px-3 py-1 flex flex-col gap-1 overflow-hidden">
+                    <nav className="flex-1 px-3 py-1 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
                         {/* Language Toggle */}
                         <div className="flex px-1 shrink-0 mb-1">
                             <LanguageSelector showLabel={true} />
                         </div>
 
-                        {/* Main Menu Items */}
-                        {menuItems.filter(item => !item.isAuth).map((item) => {
-                            const Icon = item.icon;
-                            const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
-                            const hasSubItems = item.subItems && item.subItems.length > 0;
+                        {/* Menu Items Container shifted to bottom */}
+                        <div className="flex flex-col gap-3 mt-auto mb-2">
+                            {menuItems.filter(item => !item.isAuth).map((item) => {
+                                const Icon = item.icon;
+                                const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
+                                const hasSubItems = item.subItems && item.subItems.length > 0;
 
-                            if (hasSubItems) {
+                                if (hasSubItems) {
+                                    return (
+                                        <div key={item.label} className="flex flex-col gap-1">
+                                            <button
+                                                onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
+                                                className={`
+                                                    flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
+                                                    border relative overflow-hidden flex-1 min-h-[52px] w-full text-left
+                                                    bg-blue-600 text-white font-bold border-blue-700 shadow-lg
+                                                `}
+                                            >
+                                                <div className={`
+                                                    p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                                    ${isActive
+                                                        ? 'bg-white/20 text-white'
+                                                        : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                                    }
+                                                `}>
+                                                    <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                                </div>
+                                                <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
+                                                {isInvoiceOpen ? <FaChevronUp className="text-xs" /> : <FaChevronDown className="text-xs" />}
+                                            </button>
+
+                                            {isInvoiceOpen && (
+                                                <div className="flex flex-col gap-2 mt-2 px-1">
+                                                    {item.subItems?.map((sub) => (
+                                                        <Link
+                                                            key={sub.href}
+                                                            href={sub.href}
+                                                            onClick={() => setIsSidebarOpen(false)}
+                                                            className={`
+                                                                flex items-center justify-center p-3 rounded-xl text-sm font-bold transition-all border-2
+                                                                bg-orange-500 text-white border-orange-600 shadow-md hover:bg-orange-600 hover:scale-[1.02] active:scale-95
+                                                            `}
+                                                        >
+                                                            {sub.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                }
+
                                 return (
-                                    <div key={item.label} className="flex flex-col gap-1">
-                                        <button
-                                            onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
-                                            className={`
-                                                flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                                border relative overflow-hidden flex-1 min-h-[44px] w-full text-left
-                                                bg-blue-600 text-white font-bold border-blue-700 shadow-lg
-                                            `}
-                                        >
-                                            <div className={`
-                                                p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                                                ${isActive
-                                                    ? 'bg-white/20 text-white'
-                                                    : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                                }
-                                            `}>
-                                                <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
-                                            </div>
-                                            <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
-                                            {isInvoiceOpen ? <FaChevronUp className="text-xs" /> : <FaChevronDown className="text-xs" />}
-                                        </button>
+                                    <Link
+                                        key={item.label}
+                                        href={item.href}
+                                        onClick={(e) => {
+                                            if (item.onClick) {
+                                                e.preventDefault();
+                                                item.onClick();
+                                            } else {
+                                                setIsSidebarOpen(false);
+                                            }
+                                        }}
+                                        className={`
+                                            flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
+                                            border relative overflow-hidden flex-shrink-0 min-h-[52px]
+                                            ${isActive
+                                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
+                                                : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
+                                            }
+                                        `}
+                                    >
+                                        <div className={`
+                                            p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                            ${isActive
+                                                ? 'bg-white/20 text-white'
+                                                : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
+                                            }
+                                        `}>
+                                            <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                        </div>
+                                        <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
 
-                                        {isInvoiceOpen && (
-                                            <div className="flex flex-col gap-2 mt-2 px-1">
-                                                {item.subItems?.map((sub) => (
-                                                    <Link
-                                                        key={sub.href}
-                                                        href={sub.href}
-                                                        onClick={() => setIsSidebarOpen(false)}
-                                                        className={`
-                                                            flex items-center justify-center p-3 rounded-xl text-sm font-bold transition-all border-2
-                                                            bg-orange-500 text-white border-orange-600 shadow-md hover:bg-orange-600 hover:scale-[1.02] active:scale-95
-                                                        `}
-                                                    >
-                                                        {sub.label}
-                                                    </Link>
-                                                ))}
-                                            </div>
+                                        {isActive && (
+                                            <>
+                                                <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse z-10" />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 animate-shine pointer-events-none" />
+                                            </>
                                         )}
-                                    </div>
+                                    </Link>
                                 );
-                            }
-
-                            return (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    onClick={(e) => {
-                                        if (item.onClick) {
-                                            e.preventDefault();
-                                            item.onClick();
-                                        } else {
-                                            setIsSidebarOpen(false);
-                                        }
-                                    }}
-                                    className={`
-                                        flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                        border relative overflow-hidden flex-1 min-h-[44px]
-                                        ${isActive
-                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
-                                            : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
-                                        }
-                                    `}
-                                >
-                                    <div className={`
-                                        p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                                        ${isActive
-                                            ? 'bg-white/20 text-white'
-                                            : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                        }
-                                    `}>
-                                        <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
-                                    </div>
-                                    <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
-
-                                    {isActive && (
-                                        <>
-                                            <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse z-10" />
-                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 animate-shine pointer-events-none" />
-                                        </>
-                                    )}
-                                </Link>
-                            );
-                        })}
+                            })}
+                        </div>
 
                         {/* Auth Items */}
                         {menuItems.filter(item => item.isAuth).map((item) => {
@@ -245,7 +247,7 @@ export default function DashboardLayout({
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
                                         flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                        border relative overflow-hidden flex-1 min-h-0
+                                        border relative overflow-hidden flex-shrink-0 min-h-[52px]
                                         ${isActive
                                             ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-sm'
                                             : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
@@ -272,7 +274,7 @@ export default function DashboardLayout({
                             onClick={() => setIsSidebarOpen(false)}
                             className={`
                                 flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                border relative overflow-hidden flex-1 min-h-0 mt-1
+                                border relative overflow-hidden flex-shrink-0 min-h-[52px] mt-1
                                 ${pathname === '/dashboard/settings'
                                     ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold border-slate-900 shadow-sm'
                                     : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
@@ -293,7 +295,7 @@ export default function DashboardLayout({
                     </nav>
 
                     {/* User Profile / Business Info */}
-                    <div className="p-6 pb-32 md:pb-8 border-t border-slate-200 bg-slate-50/80 backdrop-blur-sm">
+                    <div className="p-6 pb-20 md:pb-8 border-t border-slate-200 bg-white/90 backdrop-blur-md sticky bottom-0 mt-auto">
                         <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                             <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                                 {businessProfile.logo ? (
@@ -318,7 +320,7 @@ export default function DashboardLayout({
 
                         <button
                             onClick={handleLogout}
-                            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group mb-2"
+                            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
                         >
                             <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
                             <span>{t.welcome === 'स्वागत है' ? 'सुरक्षित लॉगआउट' : 'Logout Safe'}</span>

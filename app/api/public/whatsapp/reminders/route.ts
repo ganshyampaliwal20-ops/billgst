@@ -66,22 +66,33 @@ export async function GET(request: Request) {
                     api_key: user.whatsapp_api_key
                 };
 
-                // OPTIONAL: Truly automatic sending if API Key is present
-                if (user.whatsapp_api_key && user.whatsapp_api_key.includes('instance')) {
-                    try {
-                        const instanceId = user.whatsapp_api_key.split(':')[0]; // Example format instance123:tokenabc
-                        const token = user.whatsapp_api_key.split(':')[1];
+                // 2. Determine Gateway (User's private gateway OR System Central Gateway)
+                let instanceId = '';
+                let token = '';
 
-                        await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
+                if (user.whatsapp_api_key && user.whatsapp_api_key.includes(':')) {
+                    // Use User's own Gateway
+                    [instanceId, token] = user.whatsapp_api_key.split(':').map((s: string) => s.trim());
+                } else if (process.env.WHATSAPP_INSTANCE_ID && process.env.WHATSAPP_TOKEN) {
+                    // Use System Fallback Gateway (for automatic sending if user hasn't setup)
+                    instanceId = process.env.WHATSAPP_INSTANCE_ID;
+                    token = process.env.WHATSAPP_TOKEN;
+                }
+
+                // 3. Send if gateway found
+                if (instanceId && token) {
+                    try {
+                        const res = await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: new URLSearchParams({
                                 token: token,
-                                to: inv.customer_phone.startsWith('91') ? inv.customer_phone : `91${inv.customer_phone}`,
+                                to: inv.customer_phone.startsWith('91') ? inv.customer_phone.trim() : `91${inv.customer_phone.trim()}`,
                                 body: message
                             })
                         });
-                        console.log(`Auto-sent reminder to ${inv.customer_phone}`);
+                        const resData = await res.json();
+                        console.log(`WhatsApp Status: ${resData.sent === 'true' ? 'SENT' : 'FAILED'} to ${inv.customer_phone}`);
                     } catch (e) {
                         console.error('Failed to auto-send via UltraMsg:', e);
                     }
