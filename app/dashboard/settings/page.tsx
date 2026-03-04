@@ -580,50 +580,46 @@ export default function SettingsPage() {
 
                         {localSettings.whatsappBotEnabled && (
                             <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                <div className="border border-emerald-100 rounded-xl p-6 bg-gradient-to-b from-emerald-50 to-white text-center space-y-4">
-                                    <div className="flex items-center justify-center gap-2 mb-1">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                        <h3 className="text-sm font-bold text-gray-800">Link your WhatsApp Number</h3>
-                                    </div>
-                                    <p className="text-xs text-gray-500 px-4">
-                                        Apne phone ke WhatsApp → <b>Linked Devices</b> → <b>Link a Device</b> se is QR code ko scan karein.
-                                    </p>
-
-                                    {/* Actual QR Code — clean, no blur */}
+                                <div className="border-2 border-dashed border-emerald-200 rounded-xl p-6 bg-gradient-to-b from-emerald-50/50 to-white text-center space-y-4">
+                                    {/* Icon */}
                                     <div className="flex justify-center">
-                                        <div className="p-3 bg-white rounded-2xl border-2 border-emerald-200 shadow-lg shadow-emerald-100 inline-block">
-                                            <QRCodeCanvas
-                                                value={`https://billgst.com/whatsapp-connect?user=${businessProfile.id || 'demo'}&t=${Date.now()}`}
-                                                size={160}
-                                                bgColor="#ffffff"
-                                                fgColor="#111827"
-                                                level="H"
-                                                imageSettings={{
-                                                    src: "data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z' fill='%2325D366'/%3E%3C/svg%3E",
-                                                    height: 30,
-                                                    width: 30,
-                                                    excavate: true,
-                                                }}
-                                            />
+                                        <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                                            <FaWhatsapp className="text-emerald-500 text-3xl" />
                                         </div>
                                     </div>
 
-                                    <p className="text-[10px] text-slate-400 italic">
-                                        ⏱️ QR code 60 seconds mein expire ho jata hai. Refresh karein agar kaam na kare.
-                                    </p>
+                                    {/* Badge */}
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 rounded-full border border-amber-200">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                        <span className="text-[10px] font-black text-amber-700 uppercase tracking-wider">Under Development</span>
+                                    </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            // Force re-render to get a new QR
-                                            setLocalSettings({ ...localSettings });
-                                            toast.success('QR Code refresh ho gaya!');
-                                        }}
-                                        className="inline-flex items-center gap-2 px-5 py-2 bg-emerald-600 text-white text-xs font-bold rounded-full hover:bg-emerald-700 transition-all shadow-md shadow-emerald-200"
-                                    >
-                                        <FaSync className="text-[10px]" />
-                                        Refresh QR Code
-                                    </button>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-800 mb-1">WhatsApp Device Linking</h3>
+                                        <p className="text-xs text-gray-500 leading-relaxed px-2">
+                                            Jald hi aap apna <b>WhatsApp number directly link</b> kar sakenge. Customers ko aapke apne number se auto-reply milega.
+                                        </p>
+                                    </div>
+
+                                    {/* Steps preview */}
+                                    <div className="text-left bg-white rounded-xl border border-slate-100 p-4 space-y-2">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">How it will work:</p>
+                                        {[
+                                            '1. Yahan ek real QR code dikhega',
+                                            '2. WhatsApp → Linked Devices → Link a Device',
+                                            '3. QR scan karo — aapka number link!',
+                                            '4. Customers ke messages pe AI auto-reply karega'
+                                        ].map((step, i) => (
+                                            <div key={i} className="flex items-start gap-2">
+                                                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 text-[8px] font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                                                <p className="text-[10px] text-slate-600 font-medium">{step.replace(/^\d+\.\s/, '')}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <p className="text-[9px] text-slate-400 italic">
+                                        Filhaal Automatic Payment Reminders ka use karein — yeh bilkul teyar hai! ✅
+                                    </p>
                                 </div>
                             </div>
                         )}
