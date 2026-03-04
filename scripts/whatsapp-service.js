@@ -27,8 +27,10 @@ console.log('✅ Status initialized to STARTING');
 
 const client = new Client({
     authStrategy: new LocalAuth({
+        clientId: "billgst-agent",
         dataPath: path.join(ROOT, '.wwebjs_auth')
     }),
+    qrMaxRetries: 5, // Allow some retries
     puppeteer: {
         headless: 'new',
         args: [
@@ -39,9 +41,9 @@ const client = new Client({
             '--no-first-run',
             '--no-zygote',
             '--disable-gpu',
-            '--window-size=1280,720'
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
         ],
-        executablePath: process.env.CHROME_PATH || undefined // Allow manual path if needed
+        executablePath: process.env.CHROME_PATH || undefined
     }
 });
 
