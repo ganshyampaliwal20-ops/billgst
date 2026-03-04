@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import {
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
@@ -28,6 +28,7 @@ export default function DashboardLayout({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+    const { data: session, status } = useSession();
 
     // Get store values
     const { businessProfile, resetStore, fetchBusinessProfile, settings, setAiChatOpen } = useStore();
@@ -35,13 +36,19 @@ export default function DashboardLayout({
     useEffect(() => {
         setIsMounted(true);
 
-        // Fetch business profile from database on mount
-        if (typeof window !== 'undefined') {
+        // Only fetch profile if session is active
+        if (typeof window !== 'undefined' && status === 'authenticated') {
             fetchBusinessProfile();
         }
-    }, [fetchBusinessProfile]);
 
-    if (!isMounted) return null;
+        // Redirect to login only if session is definitively unauthenticated
+        if (status === 'unauthenticated') {
+            router.push('/login?callbackUrl=' + encodeURIComponent(pathname));
+        }
+    }, [fetchBusinessProfile, status, pathname, router]);
+
+    if (!isMounted || status === 'loading') return null;
+    if (status === 'unauthenticated') return null;
 
     // Get current translations based on store setting
     const t = translations[settings.language as keyof typeof translations] || translations.en;
