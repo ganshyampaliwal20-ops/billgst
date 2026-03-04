@@ -643,11 +643,6 @@ export default function SettingsPage() {
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Terminal par service start karein...</p>
                                                 </div>
                                             )}
-
-                                            <div className="bg-slate-900 rounded-lg p-3 text-left w-full overflow-hidden border border-slate-700 shadow-xl">
-                                                <p className="text-[9px] text-emerald-400 font-mono mb-1 w-full">$ node scripts/whatsapp-service.js</p>
-                                                <p className="text-[8px] text-slate-400 leading-tight">Run this command in a new terminal to start the AI Bot service.</p>
-                                            </div>
                                         </div>
                                     )}
 
