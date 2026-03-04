@@ -614,7 +614,7 @@ export default function SettingsPage() {
                                     <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${botStatus.connected ? 'bg-emerald-100 border-emerald-200' : 'bg-amber-100 border-amber-200'}`}>
                                         <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${botStatus.connected ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
                                         <span className={`text-[10px] font-black uppercase tracking-wider ${botStatus.connected ? 'text-emerald-700' : 'text-amber-700'}`}>
-                                            {botStatus.connected ? 'CONNECTED & ACTIVE' : botStatus.status === 'QR_READY' ? 'READY TO SCAN' : 'WAITING FOR SERVICE'}
+                                            {botStatus.connected ? 'CONNECTED & ACTIVE' : botStatus.isOtherUserConnected ? 'BOT OCCUPIED (BY OTHER USER)' : botStatus.status === 'QR_READY' ? 'READY TO SCAN' : 'WAITING FOR SERVICE'}
                                         </span>
                                     </div>
 
