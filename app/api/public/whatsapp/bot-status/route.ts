@@ -14,40 +14,49 @@ export async function GET() {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
         }
 
+        const userId = session.user.id;
         const userEmail = session.user.email;
         const root = process.cwd();
-        const qrFilePath = path.join(root, 'tmp', 'whatsapp-qr.txt');
-        const statusFilePath = path.join(root, 'tmp', 'whatsapp-status.json');
+
+        const userTmpDir = path.join(root, 'tmp', `user-${userId}`);
+        const statusFilePath = path.join(userTmpDir, 'status.json');
+        const qrFilePath = path.join(userTmpDir, 'qr.txt');
+        const requestDir = path.join(root, 'tmp', 'requests');
+
+        // Ensure request dir exists
+        if (!fs.existsSync(requestDir)) fs.mkdirSync(requestDir, { recursive: true });
 
         let status = 'INITIALIZING';
         let qr = null;
         let owner = null;
 
-        // Check if status file exists
+        // 1. Check if user already has a status file
         if (fs.existsSync(statusFilePath)) {
             try {
                 const statusData = JSON.parse(fs.readFileSync(statusFilePath, 'utf8'));
                 status = statusData.status || status;
                 owner = statusData.owner || null;
             } catch (e) { }
+        } else {
+            // 2. No status file? Create a START REQUEST for the background service
+            const requestFile = path.join(requestDir, `${userId}.json`);
+            if (!fs.existsSync(requestFile)) {
+                fs.writeFileSync(requestFile, JSON.stringify({ userId, userEmail }));
+            }
+            status = 'STARTING_SERVICE';
         }
 
-        // If service is connected but to DIFFERENT user, show NOT_LINKED for this user
-        // (This allows multiple users to see the service as available for them to scan)
-        const isActuallyConnectedForThisUser = (status === 'CONNECTED' && owner === userEmail);
-
-        // Check for QR file
+        // 3. Check for QR file
         if (fs.existsSync(qrFilePath)) {
             qr = fs.readFileSync(qrFilePath, 'utf8');
         }
 
         return NextResponse.json({
             success: true,
-            status: isActuallyConnectedForThisUser ? 'CONNECTED' : (status === 'CONNECTED' ? 'NOT_LINKED' : status),
+            status,
             qr,
-            owner,
-            connected: isActuallyConnectedForThisUser,
-            isOtherUserConnected: status === 'CONNECTED' && owner !== userEmail
+            connected: status === 'CONNECTED',
+            userId
         });
 
     } catch (error) {

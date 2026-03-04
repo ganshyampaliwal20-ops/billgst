@@ -7,101 +7,147 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT = process.cwd(); // Better for Windows
+const ROOT = process.cwd();
 const TMP = path.join(ROOT, 'tmp');
-const QR_FILE = path.join(TMP, 'whatsapp-qr.txt');
-const STATUS_FILE = path.join(TMP, 'whatsapp-status.json');
+const AUTH_ROOT = path.join(ROOT, '.wwebjs_auth');
+const REQUEST_DIR = path.join(TMP, 'requests');
 
-console.log('--- SYSTEM STARTUP ---');
-console.log('Work Dir:', ROOT);
-console.log('Tmp Dir:', TMP);
+// Map to store active clients: userId -> client
+const activeClients = new Map();
 
-// Ensure tmp exists
-if (!fs.existsSync(TMP)) {
-    console.log('Creating tmp directory...');
-    fs.mkdirSync(TMP, { recursive: true });
-}
+console.log('--- MULTI-USER WHATSAPP SERVICE STARTING ---');
 
-fs.writeFileSync(STATUS_FILE, JSON.stringify({ status: 'STARTING', lastUpdate: Date.now() }));
-console.log('✅ Status initialized to STARTING');
-
-// Helper to find Chrome on Windows
-const getChromePath = () => {
-    const paths = [
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-    ];
-    for (const p of paths) {
-        if (fs.existsSync(p)) return p;
-    }
-    return undefined;
-};
-
-const client = new Client({
-    authStrategy: new LocalAuth({
-        clientId: "billgst-main", // Fresh ID
-        dataPath: path.join(ROOT, '.wwebjs_auth')
-    }),
-    puppeteer: {
-        headless: false, // BROWSER DIKHEGA AB! 
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-blink-features=AutomationControlled'
-        ]
-    }
+// Ensure directories exist
+[TMP, AUTH_ROOT, REQUEST_DIR].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
-console.log('--- SYSTEM CHECK ---');
-console.log('Directory:', ROOT);
-console.log('Status File:', STATUS_FILE);
+/**
+ * Initialize a WhatsApp client for a specific user
+ */
+async function createClient(userId, userEmail) {
+    if (activeClients.has(userId)) {
+        console.log(`[${userId}] Client already active.`);
+        return activeClients.get(userId);
+    }
 
-client.on('qr', (qr) => {
-    console.log('\n✅ [EVENT] QR Received! Generating terminal QR...');
-    qrcode.generate(qr, { small: true });
+    console.log(`[${userId}] Initializing client for ${userEmail}...`);
+
+    const userTmp = path.join(TMP, `user-${userId}`);
+    if (!fs.existsSync(userTmp)) fs.mkdirSync(userTmp, { recursive: true });
+
+    const QR_FILE = path.join(userTmp, 'qr.txt');
+    const STATUS_FILE = path.join(userTmp, 'status.json');
+
+    const updateStatus = (status, extra = {}) => {
+        fs.writeFileSync(STATUS_FILE, JSON.stringify({
+            status,
+            userId,
+            userEmail,
+            lastUpdate: Date.now(),
+            ...extra
+        }));
+    };
+
+    updateStatus('STARTING');
+
+    const client = new Client({
+        authStrategy: new LocalAuth({
+            clientId: `user-${userId}`,
+            dataPath: AUTH_ROOT
+        }),
+        puppeteer: {
+            headless: 'new',
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-blink-features=AutomationControlled'
+            ]
+        }
+    });
+
+    client.on('qr', (qr) => {
+        console.log(`[${userId}] NEW QR RECEIVED`);
+        // qrcode.generate(qr, { small: true }); // Removed terminal QR for multi-user clarity
+        fs.writeFileSync(QR_FILE, qr);
+        updateStatus('QR_READY', { qr });
+    });
+
+    client.on('ready', () => {
+        console.log(`[${userId}] ✅ READY! Connected as: ${userEmail}`);
+        if (fs.existsSync(QR_FILE)) fs.unlinkSync(QR_FILE);
+        updateStatus('CONNECTED', { owner: userEmail });
+    });
+
+    client.on('auth_failure', (msg) => {
+        console.error(`[${userId}] AUTH FAILURE:`, msg);
+        updateStatus('AUTH_FAILED', { message: msg });
+    });
+
+    client.on('disconnected', (reason) => {
+        console.log(`[${userId}] DISCONNECTED:`, reason);
+        updateStatus('DISCONNECTED');
+        activeClients.delete(userId);
+    });
+
+    client.on('message', async (msg) => {
+        const content = msg.body.toLowerCase();
+        if (content.includes('billgst') || content.includes('hi') || content.includes('hello')) {
+            msg.reply(`Namaste! I am the AI assistant for ${userEmail}. How can I help you today? (Multi-User Bot Active ✅)`);
+        }
+    });
 
     try {
-        fs.writeFileSync(QR_FILE, qr);
-        fs.writeFileSync(STATUS_FILE, JSON.stringify({ status: 'QR_READY', lastUpdate: Date.now() }));
-        console.log('💾 QR code written to tmp/whatsapp-qr.txt');
+        await client.initialize();
+        activeClients.set(userId, client);
     } catch (e) {
-        console.error('❌ Error writing files:', e.message);
+        console.error(`[${userId}] Failed to initialize:`, e.message);
+        updateStatus('ERROR', { error: e.message });
     }
-});
 
-client.on('ready', () => {
-    console.log('✅ BillGST WhatsApp AI Bot is READY!');
-    fs.unlinkSync(QR_FILE); // Remove QR as it's no longer needed
-    fs.writeFileSync(STATUS_FILE, JSON.stringify({ status: 'CONNECTED', lastUpdate: Date.now() }));
-});
+    return client;
+}
 
-client.on('authenticated', () => {
-    console.log('Authenticated! Generating Session...');
-});
+/**
+ * Periodically check for new "Start Requests"
+ */
+async function pollRequests() {
+    try {
+        const files = fs.readdirSync(REQUEST_DIR);
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                const filePath = path.join(REQUEST_DIR, file);
+                try {
+                    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                    await createClient(data.userId, data.userEmail);
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error('Error processing request file:', file, err.message);
+                }
+            }
+        }
+    } catch (e) { }
+}
 
-client.on('auth_failure', (msg) => {
-    console.error('AUTHENTICATION FAILURE', msg);
-    fs.writeFileSync(STATUS_FILE, JSON.stringify({ status: 'AUTH_FAILED', lastUpdate: Date.now() }));
-});
+/**
+ * Startup: Resume all existing sessions
+ */
+async function resumeSessions() {
+    console.log('--- RESUMING EXISTING SESSIONS ---');
+    if (!fs.existsSync(AUTH_ROOT)) return;
 
-client.on('disconnected', (reason) => {
-    console.log('Client was logged out', reason);
-    fs.writeFileSync(STATUS_FILE, JSON.stringify({ status: 'DISCONNECTED', lastUpdate: Date.now() }));
-});
-
-// Incoming Message Handler (AI Logic)
-client.on('message', async (msg) => {
-    const from = msg.from;
-    const content = msg.body.toLowerCase();
-
-    // We already have the logic in app/api/public/whatsapp/webhook/route.ts
-    // For now, let's keep a simple reply or we could call our own local API
-    // (In production, usually you'd trigger a webhook here)
-    if (content.includes('billgst') || content.includes('hi') || content.includes('hello')) {
-        msg.reply("Namaste! BillGST AI Assistant is connecting your message... (Live AI Active ✅)");
+    const folders = fs.readdirSync(AUTH_ROOT);
+    for (const folder of folders) {
+        if (folder.startsWith('session-user-')) {
+            const userId = folder.replace('session-user-', '');
+            // We don't have the userEmail easily here, 
+            // but for resumes we can just use the session ID
+            await createClient(userId, `Restored Session (${userId})`);
+        }
     }
-});
+}
 
-console.log('Starting WhatsApp AI Bot Support Service...');
-client.initialize();
+console.log('--- SYSTEM READY: Watching for user link requests ---');
+resumeSessions().then(() => {
+    setInterval(pollRequests, 3000); // Check every 3 seconds
+});
