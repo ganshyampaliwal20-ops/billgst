@@ -33,7 +33,7 @@ if (connectionString) {
 }
 
 if (!connectionString) {
-  console.error('CRITICAL: DATABASE_URL is missing or invalid!');
+  console.warn('WARNING: DATABASE_URL is missing or invalid! Connection might fail later.');
   // Mock pool that throws clear error
   pool = {
     connect: async () => {
