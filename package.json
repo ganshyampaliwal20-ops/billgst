@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "setup": "node setup.js",
-    "whatsapp": "node scripts/whatsapp-service.js"
+    "whatsapp": "node scripts/whatsapp-service.js",
+    "start:all": "node scripts/start-all.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.2",
