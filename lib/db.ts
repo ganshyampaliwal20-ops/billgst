@@ -6,8 +6,12 @@ let pool: any;
 let rawConnectionString = process.env.DATABASE_URL;
 let connectionString: string | undefined = undefined;
 
-console.log(`DB Init: Environment Variable Type: ${typeof rawConnectionString}`);
-console.log(`DB Init: Environment Variable Length: ${rawConnectionString ? rawConnectionString.length : 'NULL'}`);
+console.log(`--- DB DEBUG START ---`);
+console.log(`DB Init: DATABASE_URL exists: ${!!rawConnectionString}`);
+if (rawConnectionString) {
+  console.log(`DB Init: URL Length: ${rawConnectionString.length}`);
+  console.log(`DB Init: URL First 10 chars: ${rawConnectionString.substring(0, 10)}`);
+}
 
 // 1. Sanitize
 if (rawConnectionString && typeof rawConnectionString === 'string') {
@@ -16,10 +20,9 @@ if (rawConnectionString && typeof rawConnectionString === 'string') {
   if (sanitized.startsWith('"') && sanitized.endsWith('"')) sanitized = sanitized.slice(1, -1);
   if (sanitized.startsWith("'") && sanitized.endsWith("'")) sanitized = sanitized.slice(1, -1);
 
-  // Remove query parameters (like ?sslmode=require) to prevent conflicts with manual SSL config
-  if (sanitized.includes('?')) {
-    sanitized = sanitized.split('?')[0];
-  }
+  // Note: We used to strip '?' here, but some providers (Supabase) need the query params
+  // Let's keep the full string but trim again to be sure
+  sanitized = sanitized.trim();
 
   if (sanitized.length > 0) {
     connectionString = sanitized;
@@ -27,10 +30,11 @@ if (rawConnectionString && typeof rawConnectionString === 'string') {
 }
 
 if (connectionString) {
-  console.log(`DB Init: Connection String seems valid (starts with ${connectionString.substring(0, 10)}...)`);
+  console.log(`DB Init: Final Connection String set (length: ${connectionString.length})`);
 } else {
-  console.error(`DB Init: Connection String is INVALID or EMPTY after sanitization.`);
+  console.error(`DB Init: Connection String is EMPTY after sanitization logic.`);
 }
+console.log(`--- DB DEBUG END ---`);
 
 if (!connectionString) {
   console.warn('WARNING: DATABASE_URL is missing or invalid! Connection might fail later.');
