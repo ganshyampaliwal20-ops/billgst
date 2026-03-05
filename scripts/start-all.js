@@ -5,7 +5,8 @@ console.log('--- STARTING ALL SERVICES (WEB + WHATSAPP) ---');
 // 1. Start WhatsApp Service
 const whatsapp = spawn('node', ['scripts/whatsapp-service.js'], {
     stdio: 'inherit',
-    shell: true
+    shell: true,
+    env: process.env
 });
 
 whatsapp.on('error', (err) => {
@@ -15,7 +16,8 @@ whatsapp.on('error', (err) => {
 // 2. Start Next.js App
 const web = spawn('npm', ['start'], {
     stdio: 'inherit',
-    shell: true
+    shell: true,
+    env: process.env
 });
 
 web.on('error', (err) => {
