@@ -110,9 +110,9 @@ export default function DashboardLayout({
             >
                 <div className="h-full flex flex-col">
                     {/* Logo Section */}
-                    <div className="p-6 flex items-center justify-between">
-                        <Link href="/dashboard" className="flex items-center gap-3 group" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
+                    <div className="p-4 flex items-center justify-between">
+                        <Link href="/dashboard" className="flex items-center gap-2 group" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
                                 {businessProfile.logo ? (
                                     <Image
                                         src={businessProfile.logo}
@@ -122,34 +122,34 @@ export default function DashboardLayout({
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                        <FaStore className="text-white text-lg" />
+                                        <FaStore className="text-white text-sm" />
                                     </div>
                                 )}
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                                     BillGST
                                 </h1>
-                                <p className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Professional Billing</p>
+                                <p className="text-[8px] text-slate-500 font-semibold tracking-wider uppercase">Professional Billing</p>
                             </div>
                         </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden p-2 text-slate-400 hover:text-red-500 transition-colors"
+                            className="md:hidden p-1.5 text-slate-400 hover:text-red-500 transition-colors"
                         >
-                            <FaTimes size={20} />
+                            <FaTimes size={18} />
                         </button>
                     </div>
 
                     {/* Navigation - Distributed evenly to fit layout */}
-                    <nav className="flex-1 px-3 py-1 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
+                    <nav className="flex-1 px-2 py-2 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
                         {/* Language Toggle */}
                         <div className="flex px-1 shrink-0 mb-1">
                             <LanguageSelector showLabel={true} />
                         </div>
 
-                        {/* Menu Items Container shifted to bottom */}
-                        <div className="flex flex-col gap-3 mt-auto mb-2">
+                        {/* Menu Items Container */}
+                        <div className="flex flex-col gap-1.5">
                             {menuItems.filter(item => !item.isAuth).map((item) => {
                                 const Icon = item.icon;
                                 const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
@@ -161,8 +161,8 @@ export default function DashboardLayout({
                                             <button
                                                 onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
                                                 className={`
-                                                    flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                                    border relative overflow-hidden flex-1 min-h-[52px] w-full text-left
+                                                    flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                                    border relative overflow-hidden flex-1 min-h-[40px] w-full text-left
                                                     bg-blue-600 text-white font-bold border-blue-700 shadow-lg
                                                 `}
                                             >
@@ -173,21 +173,21 @@ export default function DashboardLayout({
                                                         : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                                     }
                                                 `}>
-                                                    <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                                    <Icon className={`text-base transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
                                                 </div>
-                                                <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
-                                                {isInvoiceOpen ? <FaChevronUp className="text-xs" /> : <FaChevronDown className="text-xs" />}
+                                                <span className="text-xs tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
+                                                {isInvoiceOpen ? <FaChevronUp className="text-[10px]" /> : <FaChevronDown className="text-[10px]" />}
                                             </button>
 
                                             {isInvoiceOpen && (
-                                                <div className="flex flex-col gap-2 mt-2 px-1">
+                                                <div className="flex flex-col gap-1.5 mt-1.5 px-1">
                                                     {item.subItems?.map((sub) => (
                                                         <Link
                                                             key={sub.href}
                                                             href={sub.href}
                                                             onClick={() => setIsSidebarOpen(false)}
                                                             className={`
-                                                                flex items-center justify-center p-3 rounded-xl text-sm font-bold transition-all border-2
+                                                                flex items-center justify-center p-2 rounded-xl text-xs font-bold transition-all border-2
                                                                 bg-orange-500 text-white border-orange-600 shadow-md hover:bg-orange-600 hover:scale-[1.02] active:scale-95
                                                             `}
                                                         >
@@ -213,8 +213,8 @@ export default function DashboardLayout({
                                             }
                                         }}
                                         className={`
-                                            flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                            border relative overflow-hidden flex-shrink-0 min-h-[52px]
+                                            flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                            border relative overflow-hidden flex-shrink-0 min-h-[40px]
                                             ${isActive
                                                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
                                                 : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
@@ -228,9 +228,9 @@ export default function DashboardLayout({
                                                 : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                             }
                                         `}>
-                                            <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                            <Icon className={`text-base transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
                                         </div>
-                                        <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
+                                        <span className="text-xs tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
 
                                         {isActive && (
                                             <>
@@ -253,8 +253,8 @@ export default function DashboardLayout({
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
-                                        flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                        border relative overflow-hidden flex-shrink-0 min-h-[52px]
+                                        flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                        border relative overflow-hidden flex-shrink-0 min-h-[40px]
                                         ${isActive
                                             ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-sm'
                                             : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
@@ -268,20 +268,20 @@ export default function DashboardLayout({
                                             : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                         }
                                     `}>
-                                        <Icon className={`text-lg transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                        <Icon className={`text-base transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
                                     </div>
-                                    <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
+                                    <span className="text-xs tracking-wide flex-1 relative z-10 truncate">{item.label}</span>
                                 </Link>
                             );
                         })}
 
-                        {/* Settings Button - Manually placed at the VERY bottom */}
+                        {/* Settings Button */}
                         <Link
                             href="/dashboard/settings"
                             onClick={() => setIsSidebarOpen(false)}
                             className={`
-                                flex items-center gap-3 px-4 rounded-xl transition-all duration-300 group 
-                                border relative overflow-hidden flex-shrink-0 min-h-[52px] mt-1
+                                flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                border relative overflow-hidden flex-shrink-0 min-h-[40px] mt-0.5
                                 ${pathname === '/dashboard/settings'
                                     ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold border-slate-900 shadow-sm'
                                     : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
@@ -295,31 +295,31 @@ export default function DashboardLayout({
                                     : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                 }
                             `}>
-                                <FaCog className={`text-lg transition-transform duration-300 ${pathname === '/dashboard/settings' ? 'spin-slow' : 'group-hover:rotate-90'}`} />
+                                <FaCog className={`text-base transition-transform duration-300 ${pathname === '/dashboard/settings' ? 'spin-slow' : 'group-hover:rotate-90'}`} />
                             </div>
-                            <span className="text-sm tracking-wide flex-1 relative z-10 truncate">{t.settings}</span>
+                            <span className="text-xs tracking-wide flex-1 relative z-10 truncate">{t.settings}</span>
                         </Link>
                     </nav>
 
                     {/* User Profile / Business Info */}
-                    <div className="p-6 pb-20 md:pb-8 border-t border-slate-200 bg-white/90 backdrop-blur-md sticky bottom-0 mt-auto">
-                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
+                    <div className="p-4 pb-16 md:pb-6 border-t border-slate-200 bg-white/90 backdrop-blur-md sticky bottom-0 mt-auto">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                                 {businessProfile.logo ? (
                                     <Image
                                         src={businessProfile.logo}
                                         alt="Business Logo"
-                                        width={48}
-                                        height={48}
+                                        width={40}
+                                        height={40}
                                         className="object-cover w-full h-full"
                                     />
                                 ) : (
-                                    <span className="text-lg">{businessProfile.name?.charAt(0) || 'B'}</span>
+                                    <span className="text-base">{businessProfile.name?.charAt(0) || 'B'}</span>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-slate-800 truncate">{businessProfile.name || 'Your Business'}</p>
-                                <p className="text-xs text-slate-500 truncate font-medium bg-slate-100 inline-block px-2 py-0.5 rounded-full mt-1">
+                                <p className="text-xs font-bold text-slate-800 truncate">{businessProfile.name || 'Your Business'}</p>
+                                <p className="text-[10px] text-slate-500 truncate font-medium bg-slate-100 inline-block px-2 py-0.5 rounded-full mt-0.5">
                                     {businessProfile.gstin || t.setupBusiness}
                                 </p>
                             </div>
@@ -327,10 +327,10 @@ export default function DashboardLayout({
 
                         <button
                             onClick={handleLogout}
-                            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
+                            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
                         >
                             <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
-                            <span>{t.welcome === 'स्वागत है' ? 'सुरक्षित लॉगआउट' : 'Logout Safe'}</span>
+                            <span>Logout Safe</span>
                         </button>
                     </div>
                 </div>

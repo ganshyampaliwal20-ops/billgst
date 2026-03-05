@@ -61,8 +61,15 @@ async function createClient(userId, userEmail) {
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process', // Standard for Cloud/Docker
+                '--disable-gpu',
                 '--disable-blink-features=AutomationControlled'
-            ]
+            ],
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null // Required for Render/Cloud Chrome
         }
     });
 

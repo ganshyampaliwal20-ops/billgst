@@ -14,6 +14,7 @@ const THEMES = {
     TEMPLATE_3: { accent: '#334155', title: '#64748b' }, // Slate Gray
     TEMPLATE_4: { accent: '#c2410c', title: '#f97316' }, // Energetic Orange
     TEMPLATE_5: { accent: '#059669', title: '#10b981' }, // Classic Green
+    TEMPLATE_6: { accent: '#be123c', title: '#e11d48' }, // Rose Pink
 };
 
 export default function SettingsPage() {
@@ -353,13 +354,14 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800">Invoice Color Theme</h2>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-3 gap-3 md:gap-4">
                         {[
                             { id: 'TEMPLATE_1', name: 'Modern Purple', color: 'bg-purple-600' },
                             { id: 'TEMPLATE_2', name: 'Royal Blue', color: 'bg-blue-600' },
                             { id: 'TEMPLATE_3', name: 'Slate Gray', color: 'bg-slate-600' },
                             { id: 'TEMPLATE_4', name: 'Energetic Orange', color: 'bg-orange-600' },
                             { id: 'TEMPLATE_5', name: 'Classic Green', color: 'bg-green-600' },
+                            { id: 'TEMPLATE_6', name: 'Rose Pink', color: 'bg-rose-600' },
                         ].map((tpl) => (
                             <button
                                 key={tpl.id}
@@ -370,11 +372,11 @@ export default function SettingsPage() {
                                     : 'border-gray-100 hover:border-gray-300'
                                     }`}
                             >
-                                <div className={`w-12 h-16 rounded shadow-inner ${tpl.color} relative`}>
+                                <div className={`w-full h-12 rounded-lg shadow-inner ${tpl.color} relative`}>
                                     <div className="absolute top-1 left-1 right-1 h-1 bg-white/20 rounded-full" />
                                     <div className="absolute top-3 left-1 right-3 h-1 bg-white/10 rounded-full" />
                                 </div>
-                                <span className={`text-[10px] font-bold ${formData.invoice_template === tpl.id ? 'text-blue-700' : 'text-gray-500'}`}>
+                                <span className={`text-[11px] font-bold ${formData.invoice_template === tpl.id ? 'text-blue-700' : 'text-gray-500'}`}>
                                     {tpl.name}
                                 </span>
                             </button>
@@ -464,108 +466,110 @@ export default function SettingsPage() {
                         </div>
 
                         {/* THE PREVIEW PAPER */}
-                        <div className={`bg-white shadow-2xl rounded-sm mx-auto overflow-hidden transition-all duration-500 border border-slate-200 w-full max-w-[500px] min-h-[400px] select-none scale-[0.95] sm:scale-100`}
+                        <div className={`bg-white shadow-2xl rounded-sm mx-auto overflow-hidden transition-all duration-500 border border-slate-200 w-full md:max-w-full min-h-[500px] select-none scale-[0.95] sm:scale-100 p-[8px]`}
                             style={{ fontFamily: formData.invoice_template === 'TEMPLATE_3' ? 'serif' : 'sans-serif' }}>
+                            <div className="border border-slate-100 h-full w-full bg-white">
 
-                            {/* Header Section */}
-                            <div className={`p-6 border-b flex ${formData.logo_position === 'CENTER'
-                                ? 'flex-col items-center text-center'
-                                : formData.logo_position === 'LEFT'
-                                    ? 'flex-row-reverse justify-between items-start text-left'
-                                    : 'flex-row justify-between items-start text-left'
-                                }`}>
-                                {formData.logo_position === 'CENTER' && (
-                                    <div className="text-[10px] font-bold uppercase mb-2" style={{ color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>TAX INVOICE</div>
-                                )}
-                                <div className={formData.logo_position === 'CENTER' ? 'order-2' : 'flex-1'}>
-                                    <h4 className="text-lg font-black uppercase text-slate-800 leading-tight">{formData.name || 'YOUR BUSINESS NAME'}</h4>
-                                    <p className="text-[9px] text-slate-500 mt-1 max-w-[200px] mx-auto uppercase font-bold">{formData.address || 'Street Name, City, State - 000000'}</p>
-                                    <p className="text-[9px] text-slate-400 font-bold">Mob: {formData.phone || '+91 0000000000'}</p>
-                                </div>
-
-                                {formData.logo ? (
-                                    <img src={formData.logo} alt="Logo" className={`w-12 h-12 object-contain ${formData.logo_position === 'CENTER' ? 'order-1 mb-2' : ''}`} />
-                                ) : (
-                                    <div className={`w-12 h-12 bg-slate-100 rounded flex items-center justify-center text-[8px] text-slate-300 font-bold border-2 border-dashed border-slate-200 ${formData.logo_position === 'CENTER' ? 'order-1 mb-2' : ''}`}>LOGO</div>
-                                )}
-
-                                {formData.logo_position !== 'CENTER' && (
-                                    <div className={`text-right ${formData.logo_position === 'LEFT' ? 'order-3' : ''}`}>
-                                        <h4 className="text-lg font-black italic tracking-tight" style={{ color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>TAX INVOICE</h4>
+                                {/* Header Section */}
+                                <div className={`px-[8px] py-4 border-b flex ${formData.logo_position === 'CENTER'
+                                    ? 'flex-col items-center text-center'
+                                    : formData.logo_position === 'LEFT'
+                                        ? 'flex-row-reverse justify-between items-start text-left'
+                                        : 'flex-row justify-between items-start text-left'
+                                    }`}>
+                                    {formData.logo_position === 'CENTER' && (
+                                        <div className="text-[10px] font-bold uppercase mb-2" style={{ color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>TAX INVOICE</div>
+                                    )}
+                                    <div className={formData.logo_position === 'CENTER' ? 'order-2' : 'flex-1'}>
+                                        <h4 className="text-lg font-black uppercase text-slate-800 leading-tight">{formData.name || 'YOUR BUSINESS NAME'}</h4>
+                                        <p className="text-[9px] text-slate-500 mt-1 max-w-[200px] mx-auto uppercase font-bold">{formData.address || 'Street Name, City, State - 000000'}</p>
+                                        <p className="text-[9px] text-slate-400 font-bold">Mob: {formData.phone || '+91 0000000000'}</p>
                                     </div>
-                                )}
-                            </div>
 
-                            {/* Client Section & Info */}
-                            <div className="p-6 flex justify-between text-[9px]">
-                                <div>
-                                    <p className="font-bold text-slate-400 uppercase tracking-tighter mb-1">Bill To:</p>
-                                    <p className="text-[12px] font-black text-slate-800">Ramesh Kumar</p>
-                                    <p className="text-slate-500 font-medium">South Extension Part I, Delhi</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-bold text-slate-800">Inv #: <span className="text-slate-500">IV-101</span></p>
-                                    <p className="font-bold text-slate-800">Date: <span className="text-slate-500">24-01-2026</span></p>
-                                </div>
-                            </div>
+                                    {formData.logo ? (
+                                        <img src={formData.logo} alt="Logo" className={`w-12 h-12 object-contain ${formData.logo_position === 'CENTER' ? 'order-1 mb-2' : ''}`} />
+                                    ) : (
+                                        <div className={`w-12 h-12 bg-slate-100 rounded flex items-center justify-center text-[8px] text-slate-300 font-bold border-2 border-dashed border-slate-200 ${formData.logo_position === 'CENTER' ? 'order-1 mb-2' : ''}`}>LOGO</div>
+                                    )}
 
-                            {/* TABLE PREVIEW */}
-                            <div className="px-6 pb-6 mt-2">
-                                <table className={`w-full text-left text-[9px] border-collapse ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>
-                                    <thead style={{
-                                        backgroundColor: formData.invoice_table_format === 'FORMAT_3' ? 'transparent' : (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088'),
-                                        color: formData.invoice_table_format === 'FORMAT_3' ? (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088') : '#fff'
-                                    }}>
-                                        <tr className={formData.invoice_table_format === 'FORMAT_3' ? 'border-b-2' : ''} style={{ borderColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent }}>
-                                            <th className={`p-2 font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>#</th>
-                                            <th className={`p-2 font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Item Name</th>
-                                            <th className={`p-2 font-black text-center ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Qty</th>
-                                            <th className={`p-2 font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Price</th>
-                                            <th className={`p-2 font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {[
-                                            { n: 'Premium Cotton Shirt', q: 2, p: 1200 },
-                                            { n: 'Office Table Lamp', q: 1, p: 850 },
-                                        ].map((it, i) => (
-                                            <tr key={i} className={`
-                                                ${formData.invoice_table_format === 'FORMAT_4' && i % 2 !== 0 ? 'bg-slate-50' : ''}
-                                                ${formData.invoice_table_format === 'FORMAT_3' || formData.invoice_table_format === 'FORMAT_2' ? 'border-b' : ''}
-                                            `}>
-                                                <td className={`p-2 font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{i + 1}</td>
-                                                <td className={`p-2 font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.n}</td>
-                                                <td className={`p-2 text-center font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.q}</td>
-                                                <td className={`p-2 text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{it.p.toFixed(2)}</td>
-                                                <td className={`p-2 text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{(it.q * it.p).toFixed(2)}</td>
+                                    {formData.logo_position !== 'CENTER' && (
+                                        <div className={`text-right ${formData.logo_position === 'LEFT' ? 'order-3' : ''}`}>
+                                            <h4 className="text-lg font-black italic tracking-tight" style={{ color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>TAX INVOICE</h4>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Client Section & Info */}
+                                <div className="px-[8px] py-4 flex justify-between text-[9px]">
+                                    <div>
+                                        <p className="font-bold text-slate-400 uppercase tracking-tighter mb-1">Bill To:</p>
+                                        <p className="text-[12px] font-black text-slate-800">Ramesh Kumar</p>
+                                        <p className="text-slate-500 font-medium">South Extension Part I, Delhi</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-slate-800">Inv #: <span className="text-slate-500">IV-101</span></p>
+                                        <p className="font-bold text-slate-800">Date: <span className="text-slate-500">24-01-2026</span></p>
+                                    </div>
+                                </div>
+
+                                {/* TABLE PREVIEW */}
+                                <div className="px-[8px] pb-6 mt-2">
+                                    <table className={`w-full text-left text-[9px] border-collapse ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>
+                                        <thead style={{
+                                            backgroundColor: formData.invoice_table_format === 'FORMAT_3' ? 'transparent' : (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088'),
+                                            color: formData.invoice_table_format === 'FORMAT_3' ? (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088') : '#fff'
+                                        }}>
+                                            <tr className={formData.invoice_table_format === 'FORMAT_3' ? 'border-b-2' : ''} style={{ borderColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent }}>
+                                                <th className={`p-[8px] font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>#</th>
+                                                <th className={`p-[8px] font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Item Name</th>
+                                                <th className={`p-[8px] font-black text-center ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Qty</th>
+                                                <th className={`p-[8px] font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Price</th>
+                                                <th className={`p-[8px] font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Amount</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {[
+                                                { n: 'Premium Cotton Shirt', q: 2, p: 1200 },
+                                                { n: 'Office Table Lamp', q: 1, p: 850 },
+                                            ].map((it, i) => (
+                                                <tr key={i} className={`
+                                                    ${formData.invoice_table_format === 'FORMAT_4' && i % 2 !== 0 ? 'bg-slate-50' : ''}
+                                                    ${formData.invoice_table_format === 'FORMAT_3' || formData.invoice_table_format === 'FORMAT_2' ? 'border-b' : ''}
+                                                `}>
+                                                    <td className={`p-[8px] font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{i + 1}</td>
+                                                    <td className={`p-[8px] font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.n}</td>
+                                                    <td className={`p-[8px] text-center font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.q}</td>
+                                                    <td className={`p-[8px] text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{it.p.toFixed(2)}</td>
+                                                    <td className={`p-[8px] text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{(it.q * it.p).toFixed(2)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
 
-                                {/* Totals Preview */}
-                                <div className="mt-8 flex justify-end">
-                                    <div className="w-[120px] space-y-2">
-                                        <div className="flex justify-between text-[10px] text-slate-500 font-bold">
-                                            <span>Subtotal:</span>
-                                            <span>₹3250.00</span>
-                                        </div>
-                                        <div className="flex justify-between p-2 rounded text-[12px] font-black text-white shadow-lg" style={{ backgroundColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>
-                                            <span>Total:</span>
-                                            <span>₹3250.00</span>
+                                    {/* Totals Preview */}
+                                    <div className="mt-8 flex justify-end">
+                                        <div className="w-[120px] space-y-2">
+                                            <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+                                                <span>Subtotal:</span>
+                                                <span>₹3250.00</span>
+                                            </div>
+                                            <div className="flex justify-between p-2 rounded text-[12px] font-black text-white shadow-lg" style={{ backgroundColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088' }}>
+                                                <span>Total:</span>
+                                                <span>₹3250.00</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Footer Mock */}
-                            <div className="p-6 pt-0 flex justify-between items-end">
-                                <div className="w-16 h-16 bg-slate-100 rounded border-2 border-dashed border-slate-300 flex items-center justify-center text-[7px] font-black opacity-30">UPI QR</div>
-                                <div className="text-right">
-                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">For {formData.name || 'YOUR BUSINESS'}</p>
+                                {/* Footer Mock */}
+                                <div className="px-[8px] pb-6 pt-0 flex justify-between items-end">
+                                    <div className="w-16 h-16 bg-slate-100 rounded border-2 border-dashed border-slate-300 flex items-center justify-center text-[7px] font-black opacity-30">UPI QR</div>
+                                    <div className="text-right">
+                                        <p className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter">For {formData.name || 'YOUR BUSINESS'}</p>
 
-                                    <div className="w-24 h-px bg-slate-400 mb-1 ml-auto"></div>
-                                    <p className="text-[8px] font-black uppercase text-slate-800">Authorized Signatory</p>
+                                        <div className="w-24 h-px bg-slate-400 mb-1 ml-auto"></div>
+                                        <p className="text-[8px] font-black uppercase text-slate-800">Authorized Signatory</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
