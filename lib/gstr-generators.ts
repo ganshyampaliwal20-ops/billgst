@@ -47,6 +47,8 @@ interface B2BInvoice {
     igst_amount: number;
     cgst_amount: number;
     sgst_amount: number;
+    paid_amount: number;
+    address: string;
 }
 
 interface B2CLInvoice {
@@ -57,6 +59,8 @@ interface B2CLInvoice {
     rate: number;
     taxable_value: number;
     igst_amount: number;
+    paid_amount: number;
+    address: string;
 }
 
 interface B2CSInvoice {
@@ -207,6 +211,8 @@ export function generateGSTR1(
                 igst_amount: Number(invoice.igst_amount) || 0,
                 cgst_amount: Number(invoice.cgst_amount) || 0,
                 sgst_amount: Number(invoice.sgst_amount) || 0,
+                paid_amount: Number((invoice as any).paid_amount) || 0,
+                address: invoice.customer?.address || '',
             });
         }
         // B2CL: Large invoices (> 2.5 lakh) without GSTIN
@@ -219,6 +225,8 @@ export function generateGSTR1(
                 rate: Number(invoice.items[0]?.gst_rate) || 0,
                 taxable_value: Number(invoice.subtotal) || 0,
                 igst_amount: Number(invoice.igst_amount) || 0,
+                paid_amount: Number((invoice as any).paid_amount) || 0,
+                address: invoice.customer?.address || '',
             });
         }
         // B2CS: Small invoices aggregated by state and rate

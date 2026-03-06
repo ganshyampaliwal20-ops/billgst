@@ -82,6 +82,7 @@ export default function NewInvoicePage() {
     const [newCustomerName, setNewCustomerName] = useState('');
     const [newCustomerPhone, setNewCustomerPhone] = useState('');
     const [newCustomerGstin, setNewCustomerGstin] = useState('');
+    const [newCustomerAddress, setNewCustomerAddress] = useState('');
 
     // CRITICAL: All useState hooks MUST be above any conditional returns
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -427,6 +428,7 @@ export default function NewInvoicePage() {
             name: newCustomerName,
             phone: newCustomerPhone,
             gstin: newCustomerGstin,
+            address: newCustomerAddress,
             created_at: new Date().toISOString()
         });
 
@@ -435,6 +437,7 @@ export default function NewInvoicePage() {
         setNewCustomerName('');
         setNewCustomerPhone('');
         setNewCustomerGstin('');
+        setNewCustomerAddress('');
         toast.success('Customer added & selected');
     };
 
@@ -1055,6 +1058,16 @@ export default function NewInvoicePage() {
                                     onChange={e => setNewCustomerGstin(e.target.value)}
                                     placeholder="Enter GST number (Optional)"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Address</label>
+                                <textarea
+                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50 resize-y"
+                                    rows={2}
+                                    value={newCustomerAddress}
+                                    onChange={e => setNewCustomerAddress(e.target.value)}
+                                    placeholder="Enter customer address (Optional)"
+                                ></textarea>
                             </div>
                             <div className="flex gap-3 pt-4">
                                 <button
