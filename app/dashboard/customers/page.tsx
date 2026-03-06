@@ -21,7 +21,9 @@ export default function CustomersPage() {
         name: '',
         phone: '',
         gstin: '',
-        address: ''
+        address: '',
+        partyType: '',
+        openingBalance: ''
     });
 
     useEffect(() => {
@@ -67,7 +69,7 @@ export default function CustomersPage() {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', phone: '', gstin: '', address: '' });
+        setFormData({ name: '', phone: '', gstin: '', address: '', partyType: '', openingBalance: '' });
         setEditingId(null);
         setShowModal(false);
     };
@@ -201,7 +203,7 @@ export default function CustomersPage() {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setEditingId(party.id);
-                                                setFormData({ name: party.name, phone: party.phone || '', gstin: party.gstin || '', address: party.address || '' });
+                                                setFormData({ name: party.name, phone: party.phone || '', gstin: party.gstin || '', address: party.address || '', partyType: party.partyType || '', openingBalance: party.openingBalance || '' });
                                                 setShowModal(true);
                                             }}
                                             className="p-2 bg-white text-slate-400 border border-slate-100 rounded-xl hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"
@@ -226,69 +228,277 @@ export default function CustomersPage() {
             </button>
 
             {/* Add/Edit Modal */}
-            {
-                showModal && (
-                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-5xl w-full max-w-md p-16 shadow-2xl">
-                            <h2 className="text-xl font-bold mb-6 text-[#0e7490]">{editingId ? 'Edit Party' : 'Add New Party'}</h2>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-800 uppercase mb-1">Party Name *</label>
+            {showModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-5 bg-[#020817b3] backdrop-blur-[8px] animate-in fade-in duration-200">
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+                        
+                        .anp-popup * { box-sizing: border-box; }
+                        .anp-popup {
+                            font-family: 'Plus Jakarta Sans', sans-serif;
+                            background: #ffffff;
+                            border-radius: 20px;
+                            width: 100%;
+                            max-width: 480px;
+                            overflow: hidden;
+                            animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+                            box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+                            text-align: left;
+                        }
+                        @keyframes slideUp {
+                            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+                            to   { opacity: 1; transform: translateY(0) scale(1); }
+                        }
+                        .anp-popup-header {
+                            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%);
+                            padding: 26px 28px 22px;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        .anp-popup-header::before {
+                            content: ''; position: absolute; width: 180px; height: 180px;
+                            background: rgba(255,255,255,0.06); border-radius: 50%;
+                            top: -70px; right: -40px; pointer-events: none;
+                        }
+                        .anp-popup-header::after {
+                            content: ''; position: absolute; width: 100px; height: 100px;
+                            background: rgba(255,255,255,0.04); border-radius: 50%;
+                            bottom: -40px; left: 30px; pointer-events: none;
+                        }
+                        .anp-header-top { display: flex; align-items: flex-start; justify-content: space-between; }
+                        .anp-header-left { position: relative; z-index: 1; }
+                        .anp-header-icon-wrap {
+                            width: 44px; height: 44px; background: rgba(255,255,255,0.15);
+                            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+                            font-size: 20px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.2);
+                        }
+                        .anp-popup-header h2 {
+                            font-size: 22px; font-weight: 800; color: #fff;
+                            letter-spacing: -0.4px; margin: 0; line-height: 1.2;
+                        }
+                        .anp-popup-header p {
+                            font-size: 12.5px; color: rgba(255,255,255,0.65);
+                            font-weight: 400; margin-top: 2px; margin-bottom: 0;
+                        }
+                        .anp-close-btn {
+                            width: 32px; height: 32px; background: rgba(255,255,255,0.12);
+                            border: 1px solid rgba(255,255,255,0.18); border-radius: 50%;
+                            color: rgba(255,255,255,0.85); font-size: 16px; cursor: pointer;
+                            display: flex; align-items: center; justify-content: center;
+                            transition: all 0.2s ease; position: relative; z-index: 2;
+                            flex-shrink: 0; margin-top: 2px; outline: none; padding: 0;
+                        }
+                        .anp-close-btn:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
+                        .anp-accent-line {
+                            height: 3px; background: linear-gradient(90deg, #f59e0b, #ef4444, #8b5cf6, #14b8a6);
+                            background-size: 300% 100%; animation: gradientMove 3s ease infinite;
+                        }
+                        @keyframes gradientMove {
+                            0% { background-position: 0% 0; }
+                            50% { background-position: 100% 0; }
+                            100% { background-position: 0% 0; }
+                        }
+                        .anp-popup-body { padding: 24px 28px 8px; }
+                        .anp-step-label { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+                        .anp-step-dot { width: 8px; height: 8px; border-radius: 50%; background: #14b8a6; }
+                        .anp-step-text {
+                            font-size: 11px; font-weight: 600; text-transform: uppercase;
+                            letter-spacing: 1px; color: #94a3b8;
+                        }
+                        .anp-form-group { margin-bottom: 16px; }
+                        .anp-form-group.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+                        .anp-form-group label {
+                            display: flex; align-items: center; gap: 5px; font-size: 11px;
+                            font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px;
+                            color: #64748b; margin-bottom: 7px;
+                        }
+                        .anp-form-group label .req { color: #ef4444; font-size: 13px; line-height: 1; text-transform: none; }
+                        .anp-form-group label .opt-tag {
+                            font-size: 9.5px; background: #f1f5f9; color: #94a3b8;
+                            border: 1px solid #e2e8f0; padding: 1px 7px; border-radius: 20px;
+                            font-weight: 500; text-transform: none; letter-spacing: 0;
+                        }
+                        .anp-input-wrap { position: relative; }
+                        .anp-input-icon {
+                            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+                            font-size: 14px; pointer-events: none; z-index: 10; transition: all 0.2s;
+                            margin: 0; padding: 0;
+                        }
+                        .anp-input-wrap textarea ~ .anp-input-icon { top: 14px; transform: none; }
+                        .anp-popup input, .anp-popup textarea, .anp-popup select {
+                            width: 100%; padding: 11px 14px 11px 38px; border: 1.5px solid #e2e8f0;
+                            border-radius: 11px; font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-size: 13.5px; font-weight: 500; color: #1e293b; background: #f8fafc;
+                            transition: all 0.2s ease; outline: none; box-sizing: border-box; -webkit-appearance: none;
+                        }
+                        .anp-popup textarea { height: 80px; resize: none; padding-top: 12px; line-height: 1.5; }
+                        .anp-popup select { cursor: pointer; }
+                        .anp-popup input:focus, .anp-popup textarea:focus, .anp-popup select:focus {
+                            border-color: #14b8a6; background: #fff; box-shadow: 0 0 0 3.5px rgba(20,184,166,0.1);
+                        }
+                        .anp-popup input::placeholder, .anp-popup textarea::placeholder { color: #cbd5e1; font-weight: 400; }
+                        .anp-section-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0 16px; }
+                        .anp-section-divider span {
+                            font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px;
+                            text-transform: uppercase; color: #cbd5e1; white-space: nowrap;
+                        }
+                        .anp-section-divider::before, .anp-section-divider::after {
+                            content: ''; flex: 1; height: 1px; background: #f1f5f9;
+                        }
+                        .anp-info-card {
+                            background: linear-gradient(135deg, #f0fdfa, #f0fdf4);
+                            border: 1px solid #ccfbf1; border-radius: 10px; padding: 10px 14px;
+                            display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px;
+                        }
+                        .anp-info-card .info-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+                        .anp-info-card p { font-size: 11.5px; color: #0f766e; font-weight: 500; line-height: 1.5; margin: 0; }
+                        .anp-popup-footer { padding: 16px 28px 24px; display: flex; gap: 10px; }
+                        .anp-btn {
+                            flex: 1; padding: 13px 20px; border-radius: 12px; font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-size: 14px; font-weight: 700; cursor: pointer; border: none;
+                            transition: all 0.2s ease; letter-spacing: 0.2px; outline: none;
+                        }
+                        .anp-btn-cancel { background: #f8fafc; color: #94a3b8; border: 1.5px solid #e2e8f0; flex: 0.7; }
+                        .anp-btn-cancel:hover { background: #fef2f2; border-color: #fca5a5; color: #ef4444; }
+                        .anp-btn-save {
+                            background: linear-gradient(135deg, #0d9488, #14b8a6); color: #fff;
+                            box-shadow: 0 6px 20px rgba(20,184,166,0.35); display: flex; align-items: center; justify-content: center; gap: 7px;
+                        }
+                        .anp-btn-save:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(20,184,166,0.45); }
+                        .anp-btn-save:active:not(:disabled) { transform: translateY(0); }
+                        .anp-btn-save:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none; }
+                    `}} />
+
+                    <div className="anp-popup">
+                        <div className="anp-popup-header">
+                            <div className="anp-header-top">
+                                <div className="anp-header-left">
+                                    <div className="anp-header-icon-wrap">🤝</div>
+                                    <h2>{editingId ? 'Edit Party' : 'Add New Party'}</h2>
+                                    <p>Supplier ya customer ki details bharein</p>
+                                </div>
+                                <button type="button" className="anp-close-btn" onClick={resetForm}>✕</button>
+                            </div>
+                        </div>
+                        <div className="anp-accent-line"></div>
+
+                        <form onSubmit={handleSubmit} className="anp-popup-body m-0">
+                            <div className="anp-step-label">
+                                <div className="anp-step-dot"></div>
+                                <span className="anp-step-text">Basic Information</span>
+                            </div>
+
+                            <div className="anp-form-group">
+                                <label>Party Name <span className="req">*</span></label>
+                                <div className="anp-input-wrap">
                                     <input
+                                        type="text"
+                                        placeholder="Enter party name"
                                         required
-                                        className="w-full p-3 border border-gray-500 rounded-xl outline-none focus:border-[#0e7490]"
+                                        autoFocus
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
+                                    <span className="anp-input-icon">🏷️</span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-800 uppercase mb-1">Phone Number</label>
+                            </div>
+
+                            <div className="anp-form-group row">
+                                <div>
+                                    <label>Phone Number <span className="req">*</span></label>
+                                    <div className="anp-input-wrap">
                                         <input
-                                            className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
-                                            value={formData.phone}
-                                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                            type="tel"
                                             placeholder="Mobile No."
+                                            maxLength={10}
+                                            required
+                                            value={formData.phone}
+                                            onChange={e => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
                                         />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-800 uppercase mb-1">GSTIN</label>
-                                        <input
-                                            className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490]"
-                                            value={formData.gstin}
-                                            onChange={e => setFormData({ ...formData, gstin: e.target.value })}
-                                            placeholder="Optional"
-                                        />
+                                        <span className="anp-input-icon">📱</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Address</label>
+                                    <label>GSTIN <span className="opt-tag">Optional</span></label>
+                                    <div className="anp-input-wrap">
+                                        <input
+                                            type="text"
+                                            placeholder="GST NUMBER"
+                                            maxLength={15}
+                                            style={{ textTransform: 'uppercase' }}
+                                            value={formData.gstin}
+                                            onChange={e => setFormData({ ...formData, gstin: e.target.value })}
+                                        />
+                                        <span className="anp-input-icon">🧾</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="anp-section-divider"><span>Additional</span></div>
+
+                            <div className="anp-form-group row">
+                                <div>
+                                    <label>Party Type</label>
+                                    <div className="anp-input-wrap">
+                                        <select
+                                            value={formData.partyType}
+                                            onChange={e => setFormData({ ...formData, partyType: e.target.value })}
+                                        >
+                                            <option value="">Select</option>
+                                            <option value="Customer">Customer</option>
+                                            <option value="Supplier">Supplier</option>
+                                            <option value="Both">Both</option>
+                                        </select>
+                                        <span className="anp-input-icon">⚙️</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Opening Balance</label>
+                                    <div className="anp-input-wrap">
+                                        <input
+                                            type="number"
+                                            placeholder="0.00"
+                                            min="0"
+                                            value={formData.openingBalance}
+                                            onChange={e => setFormData({ ...formData, openingBalance: e.target.value })}
+                                        />
+                                        <span className="anp-input-icon">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="anp-form-group">
+                                <label>Address <span className="opt-tag">Optional</span></label>
+                                <div className="anp-input-wrap">
                                     <textarea
-                                        className="w-full p-3 border border-gray-200 rounded-xl outline-none focus:border-[#0e7490] h-24 resize-none"
+                                        placeholder="Shop No., Street, City..."
                                         value={formData.address}
                                         onChange={e => setFormData({ ...formData, address: e.target.value })}
                                     ></textarea>
+                                    <span className="anp-input-icon textarea-icon">📍</span>
                                 </div>
-                                <div className="flex gap-4 pt-4">
-                                    <button
-                                        type="button"
-                                        onClick={resetForm}
-                                        className="flex-1 py-3 border-2 border-rose-400 text-rose-600 rounded-xl font-bold hover:bg-rose-50 hover:border-rose-600 transition"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 py-3 bg-[#0e7490] text-white rounded-xl font-bold hover:bg-[#0891b2] transition"
-                                    >
-                                        {editingId ? 'Update Party' : 'Save Party'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+
+                            <div className="anp-info-card">
+                                <span className="info-icon">💡</span>
+                                <p>Party add hone ke baad aap isko ledger mein track kar sakte hain aur transactions attach kar sakte hain.</p>
+                            </div>
+
+                            <div className="anp-popup-footer !px-0 !pb-0 !pt-2">
+                                <button type="button" className="anp-btn anp-btn-cancel" onClick={resetForm}>Cancel</button>
+                                <button
+                                    type="submit"
+                                    className="anp-btn anp-btn-save"
+                                    disabled={formData.name.trim().length < 2 || formData.phone.length !== 10}
+                                >
+                                    {editingId ? '✓ Update Party' : '✓ Save Party'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                )
-            }
-        </div >
+                </div>
+            )}
+        </div>
     );
 }
