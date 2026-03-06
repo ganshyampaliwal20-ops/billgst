@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { FaDownload, FaFileExcel, FaFilePdf, FaCalendarAlt, FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 type ReturnType = 'GSTR1' | 'GSTR3B' | 'GSTR4';
 type FilingFrequency = 'MONTHLY' | 'QUARTERLY';
@@ -25,8 +26,12 @@ export default function GSTReturnsPage() {
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-        setPeriodFrom(firstDay.toISOString().split('T')[0]);
-        setPeriodTo(lastDay.toISOString().split('T')[0]);
+        const formatDateLocal = (d: Date) => {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        };
+
+        setPeriodFrom(formatDateLocal(firstDay));
+        setPeriodTo(formatDateLocal(lastDay));
 
         fetchSavedReturns();
     }, []);
@@ -138,6 +143,61 @@ export default function GSTReturnsPage() {
         toast.success('JSON downloaded!');
     };
 
+    const handleDownloadExcel = () => {
+        if (!generatedData) return;
+
+        try {
+            const wb = XLSX.utils.book_new();
+
+            if (returnType === 'GSTR1') {
+                if (generatedData.b2b?.length) {
+                    const ws = XLSX.utils.json_to_sheet(generatedData.b2b);
+                    XLSX.utils.book_append_sheet(wb, ws, 'B2B');
+                }
+                if (generatedData.b2cl?.length) {
+                    const ws = XLSX.utils.json_to_sheet(generatedData.b2cl);
+                    XLSX.utils.book_append_sheet(wb, ws, 'B2CL');
+                }
+                if (generatedData.b2cs?.length) {
+                    const ws = XLSX.utils.json_to_sheet(generatedData.b2cs);
+                    XLSX.utils.book_append_sheet(wb, ws, 'B2CS');
+                }
+                if (generatedData.hsn?.length) {
+                    const ws = XLSX.utils.json_to_sheet(generatedData.hsn);
+                    XLSX.utils.book_append_sheet(wb, ws, 'HSN');
+                }
+            } else if (returnType === 'GSTR3B') {
+                if (generatedData.outward_supplies) {
+                    const ws = XLSX.utils.json_to_sheet([generatedData.outward_supplies]);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Outward Supplies');
+                }
+            } else if (returnType === 'GSTR4') {
+                if (generatedData.supplies_made) {
+                    const ws = XLSX.utils.json_to_sheet([
+                        {
+                            "Total Turnover": generatedData.total_turnover || 0,
+                            "Total Tax Paid": generatedData.total_tax_paid || 0,
+                            "Intra-State Supplies": generatedData.supplies_made.intra_state || 0,
+                            "Inter-State Supplies": generatedData.supplies_made.inter_state || 0
+                        }
+                    ]);
+                    XLSX.utils.book_append_sheet(wb, ws, 'Composition Summary');
+                }
+            }
+
+            if (wb.SheetNames.length === 0) {
+                const ws = XLSX.utils.json_to_sheet([{ message: "No data available" }]);
+                XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            }
+
+            XLSX.writeFile(wb, `${returnType}_${periodFrom}_to_${periodTo}.xlsx`);
+            toast.success('Excel downloaded successfully!');
+        } catch (error) {
+            console.error('Error downloading excel:', error);
+            toast.error('Failed to download Excel file');
+        }
+    };
+
     const setQuickPeriod = (type: 'current_month' | 'last_month' | 'current_quarter') => {
         const now = new Date();
         let from, to;
@@ -155,8 +215,12 @@ export default function GSTReturnsPage() {
             to = new Date(now.getFullYear(), (currentQuarter + 1) * 3, 0);
         }
 
-        setPeriodFrom(from.toISOString().split('T')[0]);
-        setPeriodTo(to.toISOString().split('T')[0]);
+        const formatDateLocal = (d: Date) => {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        };
+
+        setPeriodFrom(formatDateLocal(from));
+        setPeriodTo(formatDateLocal(to));
     };
 
     return (
@@ -313,6 +377,13 @@ export default function GSTReturnsPage() {
                                 >
                                     <FaDownload />
                                     Download JSON
+                                </button>
+                                <button
+                                    onClick={handleDownloadExcel}
+                                    className="px-6 py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                                >
+                                    <FaFileExcel />
+                                    Download Excel
                                 </button>
                             </div>
                         </div>
