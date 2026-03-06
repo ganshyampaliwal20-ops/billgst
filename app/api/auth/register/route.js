@@ -5,6 +5,7 @@ import pool from '@/lib/db';
 export async function POST(request) {
     try {
         const { name, email, password } = await request.json();
+        console.log('Reg Debug: Registering', email);
 
         // Validate input
         if (!name || !email || !password) {
@@ -54,9 +55,9 @@ export async function POST(request) {
         }, { status: 201 });
 
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Registration error details:', error);
         return NextResponse.json(
-            { error: 'Internal server error' },
+            { error: 'Internal server error: ' + error.message, stack: error.stack },
             { status: 500 }
         );
     }
