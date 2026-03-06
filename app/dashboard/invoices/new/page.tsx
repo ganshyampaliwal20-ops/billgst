@@ -1026,65 +1026,199 @@ export default function NewInvoicePage() {
 
             {/* Quick Add Customer Modal */}
             {showCustomerModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-4xl p-8 md:p-14 shadow-2xl animate-in zoom-in-95 duration-200 border-2 border-indigo-100">
-                        <h3 className="text-3xl font-black mb-8 text-center text-indigo-900 border-b-2 border-indigo-50 pb-4">Quick Add Customer</h3>
-                        <form onSubmit={handleAddCustomer} className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Name *</label>
-                                <input
-                                    autoFocus
-                                    required
-                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
-                                    value={newCustomerName}
-                                    onChange={e => setNewCustomerName(e.target.value)}
-                                    placeholder="Enter customer name"
-                                />
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in duration-300">
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Baloo+2:wght@700;800&display=swap');
+                        
+                        .qac-popup * { box-sizing: border-box; }
+                        .qac-popup {
+                            font-family: 'Poppins', sans-serif;
+                            background: #fff;
+                            border-radius: 24px;
+                            width: 100%;
+                            max-width: 460px;
+                            margin: 20px;
+                            overflow: hidden;
+                            box-shadow: 0 40px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+                            position: relative;
+                            z-index: 101;
+                            text-align: left;
+                            animation: popupIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+                        }
+                        @keyframes popupIn {
+                            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+                            to   { opacity: 1; transform: scale(1) translateY(0); }
+                        }
+                        .qac-popup-header {
+                            background: linear-gradient(135deg, #6d28d9, #4f46e5, #2563eb);
+                            padding: 28px 32px 24px;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        .qac-popup-header::before {
+                            content: ''; position: absolute; width: 200px; height: 200px;
+                            background: rgba(255,255,255,0.07); border-radius: 50%;
+                            top: -60px; right: -40px; pointer-events: none;
+                        }
+                        .qac-popup-header::after {
+                            content: ''; position: absolute; width: 120px; height: 120px;
+                            background: rgba(255,255,255,0.05); border-radius: 50%;
+                            bottom: -40px; left: 20px; pointer-events: none;
+                        }
+                        .qac-header-icon {
+                            width: 48px; height: 48px; background: rgba(255,255,255,0.15);
+                            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+                            margin-bottom: 12px; font-size: 22px; position: relative; z-index: 1;
+                        }
+                        .qac-popup-header h2 {
+                            font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 800;
+                            color: #fff; letter-spacing: -0.3px; position: relative; z-index: 1; margin: 0; line-height: 1.2;
+                        }
+                        .qac-popup-header p {
+                            color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 300;
+                            margin-top: 3px; margin-bottom: 0; position: relative; z-index: 1;
+                        }
+                        .qac-close-btn {
+                            position: absolute; top: 18px; right: 20px; width: 34px; height: 34px;
+                            background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+                            color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+                            transition: all 0.2s ease; z-index: 2; padding: 0; margin: 0; outline: none;
+                        }
+                        .qac-close-btn:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+                        .qac-progress-bar {
+                            height: 4px; background: linear-gradient(90deg, #6d28d9, #2563eb, #06b6d4);
+                            background-size: 200% 100%; animation: shimmer 2s infinite;
+                        }
+                        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+                        .qac-popup-body { padding: 28px 32px 24px; }
+                        .qac-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+                        .qac-form-group { margin-bottom: 18px; }
+                        .qac-form-group label {
+                            display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600;
+                            text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; margin-bottom: 7px;
+                        }
+                        .qac-form-group label .required { color: #ef4444; font-size: 13px; font-weight: 400; text-transform: none; }
+                        .qac-form-group label .badge {
+                            font-size: 9px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;
+                            padding: 1px 6px; border-radius: 20px; font-weight: 500; text-transform: none; letter-spacing: 0;
+                        }
+                        .qac-input-wrap { position: relative; }
+                        .qac-input-wrap .icon {
+                            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+                            font-size: 15px; color: #9ca3af; pointer-events: none; transition: color 0.2s; z-index: 10; padding: 0; margin: 0;
+                        }
+                        .qac-input-wrap textarea ~ .icon { top: 16px; transform: none; }
+                        .qac-popup input, .qac-popup textarea, .qac-popup select {
+                            width: 100%; padding: 12px 14px 12px 40px; border: 1.5px solid #e5e7eb;
+                            border-radius: 12px; font-family: 'Poppins', sans-serif; font-size: 14px;
+                            color: #1f2937; background: #f9fafb; transition: all 0.25s ease; outline: none; box-sizing: border-box;
+                        }
+                        .qac-popup textarea { resize: none; height: 80px; padding-top: 12px; }
+                        .qac-popup select { cursor: pointer; appearance: none; }
+                        .qac-popup input:focus, .qac-popup textarea:focus, .qac-popup select:focus {
+                            border-color: #6d28d9; background: #fff; box-shadow: 0 0 0 4px rgba(109,40,217,0.08);
+                        }
+                        .qac-popup input:focus ~ .icon, .qac-popup textarea:focus ~ .icon, .qac-popup select:focus ~ .icon { color: #6d28d9; }
+                        .qac-popup input::placeholder, .qac-popup textarea::placeholder { color: #c4c9d4; }
+                        .qac-divider { display: flex; align-items: center; gap: 12px; margin: 4px 0 20px; }
+                        .qac-divider span { font-size: 11px; color: #d1d5db; white-space: nowrap; font-weight: 500; }
+                        .qac-divider::before, .qac-divider::after { content: ''; flex: 1; height: 1px; background: #f3f4f6; }
+                        .qac-popup-footer { padding: 0 32px 28px; display: flex; gap: 12px; }
+                        .qac-btn {
+                            flex: 1; padding: 14px; border-radius: 14px; font-family: 'Poppins', sans-serif;
+                            font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.25s ease; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; outline: none;
+                        }
+                        .qac-btn-cancel { background: #f3f4f6; color: #6b7280; border: 1.5px solid #e5e7eb; }
+                        .qac-btn-cancel:hover { background: #fef2f2; border-color: #fca5a5; color: #ef4444; }
+                        .qac-btn-save { background: linear-gradient(135deg, #6d28d9, #4f46e5); color: #fff; box-shadow: 0 6px 20px rgba(109,40,217,0.35); }
+                        .qac-btn-save:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(109,40,217,0.45); }
+                        .qac-btn-save:active:not(:disabled) { transform: translateY(0); }
+                        .qac-btn-save:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+                        .qac-char-count { text-align: right; font-size: 11px; color: #d1d5db; margin-top: 4px; }
+                    `}} />
+
+                    <div className="qac-popup">
+                        <div className="qac-popup-header">
+                            <button type="button" className="qac-close-btn" onClick={() => setShowCustomerModal(false)}>✕</button>
+                            <div className="qac-header-icon">👤</div>
+                            <h2>Quick Add Customer</h2>
+                            <p>Nayi customer ki jankari bharein</p>
+                        </div>
+                        <div className="qac-progress-bar"></div>
+
+                        <div className="qac-popup-body">
+                            <div className="qac-form-row">
+                                <div className="qac-form-group">
+                                    <label>Name <span className="required">*</span></label>
+                                    <div className="qac-input-wrap">
+                                        <input type="text" placeholder="Customer name" autoFocus required value={newCustomerName} onChange={e => setNewCustomerName(e.target.value)} />
+                                        <span className="icon">👤</span>
+                                    </div>
+                                </div>
+                                <div className="qac-form-group">
+                                    <label>Phone <span className="required">*</span></label>
+                                    <div className="qac-input-wrap">
+                                        <input type="tel" placeholder="Phone number" maxLength={10} required value={newCustomerPhone} onChange={e => setNewCustomerPhone(e.target.value)} />
+                                        <span className="icon">📱</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Phone</label>
-                                <input
-                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
-                                    value={newCustomerPhone}
-                                    onChange={e => setNewCustomerPhone(e.target.value)}
-                                    placeholder="Enter phone number"
-                                />
+
+                            <div className="qac-form-group">
+                                <label>Email <span className="badge">Optional</span></label>
+                                <div className="qac-input-wrap">
+                                    <input type="email" placeholder="example@email.com" />
+                                    <span className="icon">✉️</span>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">GSTIN</label>
-                                <input
-                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50"
-                                    value={newCustomerGstin}
-                                    onChange={e => setNewCustomerGstin(e.target.value)}
-                                    placeholder="Enter GST number (Optional)"
-                                />
+
+                            <div className="qac-form-row">
+                                <div className="qac-form-group">
+                                    <label>GSTIN <span className="badge">Optional</span></label>
+                                    <div className="qac-input-wrap">
+                                        <input type="text" placeholder="GST Number" maxLength={15} style={{ textTransform: 'uppercase' }} value={newCustomerGstin} onChange={e => setNewCustomerGstin(e.target.value)} />
+                                        <span className="icon">🏢</span>
+                                    </div>
+                                </div>
+                                <div className="qac-form-group">
+                                    <label>Type</label>
+                                    <div className="qac-input-wrap">
+                                        <select>
+                                            <option value="">Select Type</option>
+                                            <option>Retail</option>
+                                            <option>Wholesale</option>
+                                            <option>Corporate</option>
+                                            <option>VIP</option>
+                                        </select>
+                                        <span className="icon">🏷️</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Address</label>
-                                <textarea
-                                    className="w-full p-4 pl-12 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-gray-50/50 resize-y"
-                                    rows={2}
-                                    value={newCustomerAddress}
-                                    onChange={e => setNewCustomerAddress(e.target.value)}
-                                    placeholder="Enter customer address (Optional)"
-                                ></textarea>
+
+                            <div className="qac-divider"><span>Address Details</span></div>
+
+                            <div className="qac-form-group">
+                                <label>Address <span className="badge">Optional</span></label>
+                                <div className="qac-input-wrap">
+                                    <textarea placeholder="Shop / Area / City..." maxLength={200} value={newCustomerAddress} onChange={e => setNewCustomerAddress(e.target.value)}></textarea>
+                                    <span className="icon">📍</span>
+                                </div>
+                                <div className="qac-char-count">{newCustomerAddress.length} / 200</div>
                             </div>
-                            <div className="flex gap-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowCustomerModal(false)}
-                                    className="flex-1 py-3 border-2 border-rose-400 text-rose-600 rounded-xl font-bold hover:bg-rose-50 hover:border-rose-600 transition-colors"
-                                >
-                                    {t.cancel}
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-black border-b-4 border-indigo-800 transition-all hover:-translate-y-0.5 active:translate-y-[2px] active:border-b-0 shadow-lg shadow-indigo-500/20 uppercase text-xs tracking-widest"
-                                >
-                                    {t.save} Customer
-                                </button>
-                            </div>
-                        </form>
+                        </div>
+
+                        <div className="qac-popup-footer">
+                            <button type="button" className="qac-btn qac-btn-cancel" onClick={() => setShowCustomerModal(false)}>✕ Cancel</button>
+                            <button
+                                type="button"
+                                className="qac-btn qac-btn-save"
+                                disabled={newCustomerName.trim().length < 2 || newCustomerPhone.trim().length < 10}
+                                onClick={handleAddCustomer}
+                            >
+                                💾 Save Customer
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
