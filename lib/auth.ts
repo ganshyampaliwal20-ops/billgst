@@ -1,4 +1,21 @@
 
+import NextAuth, { DefaultSession } from "next-auth";
+
+// Extending NextAuth types to include 'id' and 'role'
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id: string;
+            role: string;
+        } & DefaultSession["user"]
+    }
+
+    interface User {
+        id: string;
+        role: string;
+    }
+}
+
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
@@ -62,17 +79,17 @@ export const authOptions: AuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        async jwt({ token, user }: { token: any, user?: any }) {
+        async jwt({ token, user }) {
             if (user) {
-                token.role = user.role;
+                token.role = (user as any).role;
                 token.id = user.id;
             }
             return token;
         },
-        async session({ session, token }: { session: any, token: any }) {
+        async session({ session, token }) {
             if (session?.user) {
-                session.user.role = token.role;
-                session.user.id = token.id;
+                session.user.role = token.role as string;
+                session.user.id = token.id as string;
             }
             return session;
         }
