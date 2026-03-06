@@ -127,7 +127,7 @@ export default function LandingPage() {
             {/* NAV */}
             <nav className="landing-nav" id="nav" style={{ background: scrolled ? 'rgba(6,8,15,0.97)' : 'rgba(6,8,15,0.8)' }}>
                 <a href="#" className="logo">
-                    <img src="https://img.icons8.com/clouds/100/invoice.png" alt="BillGST Logo" />
+                    <img src="/logo.png" alt="BillGST Logo" />
                     <span className="logo-name">BillGST</span>
                 </a>
                 <ul className="nav-links">
@@ -328,6 +328,34 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* CORE FEATURES */}
+            <section className="sec" id="core-features">
+                <div className="sec-in">
+                    <div className="tc">
+                        <div className="tag">Powerful Tools</div>
+                        <h2 className="sec-h fi">Everything you need to manage your business</h2>
+                        <p className="sec-p fi">All the features to make your shop smart and digital.</p>
+                    </div>
+                    <div className="core-grid">
+                        <div className="core-card fi">
+                            <div className="c-icon blue">🧾</div>
+                            <h4>GST & Non-GST Billing</h4>
+                            <p>Create professional GST compliant invoices in seconds with our easy-to-use interface. Support for all thermal and regular printers.</p>
+                        </div>
+                        <div className="core-card fi">
+                            <div className="c-icon green">📦</div>
+                            <h4>Inventory Management</h4>
+                            <p>Track stock levels in real-time, get low-stock alerts, and manage product variants effortlessly.</p>
+                        </div>
+                        <div className="core-card fi">
+                            <div className="c-icon purple">💬</div>
+                            <h4>WhatsApp Integration</h4>
+                            <p>Automate your business on WhatsApp. Send invoices, payment reminders, and status updates instantly to your customers.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* WHO SECTION */}
             <section className="sec" id="features">
                 <div className="sec-in">
@@ -390,7 +418,7 @@ export default function LandingPage() {
                     <div className="foot-top">
                         <div className="f-brand">
                             <div className="fl">
-                                <img src="https://img.icons8.com/clouds/100/invoice.png" alt="" />
+                                <img src="/logo.png" alt="BillGST Logo" />
                                 <span>BillGST</span>
                             </div>
                             <p>India का #1 billing & GST software। हर दुकानदार के लिए, हर भाषा में।</p>
