@@ -246,6 +246,88 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* HOW IT WORKS / GUIDE */}
+            <section className="sec" id="guide">
+                <div className="sec-in">
+                    <div className="tc">
+                        <div className="tag">Quick Guide</div>
+                        <h2 className="sec-h fi">BillGST का उपयोग करना बहुत आसान है</h2>
+                        <p className="sec-p fi">सिर्फ 3 आसान स्टेप्स में अपनी दुकान डिजिटल बनाएं।</p>
+                    </div>
+                    <div className="step-grid">
+                        <div className="step-card fi">
+                            <div className="s-num">1</div>
+                            <div className="s-icon">📦</div>
+                            <h4>Product Add करें</h4>
+                            <p>बस "Add Product" पर क्लिक करें, नाम और रेट डालें। आपका Stock तैयार है!</p>
+                        </div>
+                        <div className="step-card fi">
+                            <div className="s-num">2</div>
+                            <div className="s-icon">📝</div>
+                            <h4>Invoice बनाएं</h4>
+                            <p>Customer और Items चुनें। GST अपने आप कैलकुलेट हो जाएगा।</p>
+                        </div>
+                        <div className="step-card fi">
+                            <div className="s-num">3</div>
+                            <div className="s-icon">📲</div>
+                            <h4>WhatsApp भेजें</h4>
+                            <p>एक क्लिक में बिल सीधे कस्टमर के WhatsApp पर भेजें।</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* MAGIC FEATURES SHOWCASE */}
+            <section className="sec magic-sec">
+                <div className="sec-in">
+                    <div className="magic-flex">
+                        <div className="magic-content">
+                            <div className="tag magic-tag">AI Powered</div>
+                            <h2 className="sec-h fi">BillGST AI — बोलकर बिल बनाएं</h2>
+                            <p className="magic-p fi">टाइप करने की कोई ज़रूरत नहीं! हमारी AI तकनीक से आप वैसे ही बिल बना सकते हैं जैसे आप किसी से बात करते हैं।</p>
+
+                            <div className="magic-features-list">
+                                <div className="mf-item fi">
+                                    <div className="mf-icon">🎙️</div>
+                                    <div className="mf-text">
+                                        <h4>Voice Billing</h4>
+                                        <p>"1 किलो चीनी और 2 पैकेट बिस्किट" बोलें, और बिल अपने आप बन जाएगा।</p>
+                                    </div>
+                                </div>
+                                <div className="mf-item fi">
+                                    <div className="mf-icon">🪄</div>
+                                    <div className="mf-text">
+                                        <h4>Magic Invoice</h4>
+                                        <p>किसी भी पुराने बिल या फोटो से डेटा अपने आप खींचकर डिजिटल इनवॉइस बनाएं।</p>
+                                    </div>
+                                </div>
+                                <div className="mf-item fi">
+                                    <div className="mf-icon">📊</div>
+                                    <div className="mf-text">
+                                        <h4>Smart Insights</h4>
+                                        <p>AI आपको बताएगा कि कौन सा माल सबसे ज़्यादा बिक रहा है और कब स्टॉक मंगाना है।</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="magic-visual fi">
+                            <div className="v-card">
+                                <div className="v-shimmer"></div>
+                                <div className="v-mic">🎙️</div>
+                                <div className="v-wave">
+                                    <span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                                <p className="v-msg">"Do kilo Chini add karo..."</p>
+                                <div className="v-rows">
+                                    <div className="v-row"><span>Chini (2kg)</span> <span>₹88</span></div>
+                                    <div className="v-row pulse"><span>Adding Items...</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* WHO SECTION */}
             <section className="sec" id="features">
                 <div className="sec-in">
