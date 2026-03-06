@@ -1,5 +1,8 @@
 
-import NextAuth, { DefaultSession } from "next-auth";
+import NextAuth, { DefaultSession, AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import pool from "./db";
 
 // Extending NextAuth types to include 'id' and 'role'
 declare module "next-auth" {
@@ -16,11 +19,6 @@ declare module "next-auth" {
     }
 }
 
-import { AuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import pool from "@/lib/db";
-
 export const authOptions: AuthOptions = {
     providers: [
         CredentialsProvider({
@@ -30,7 +28,10 @@ export const authOptions: AuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
+                console.log('Auth Attempt:', credentials?.email);
+
                 if (!credentials?.email || !credentials?.password) {
+                    console.log('Auth Error: Missing email or password');
                     return null;
                 }
 
@@ -38,7 +39,7 @@ export const authOptions: AuthOptions = {
                 const password = credentials.password.trim();
 
                 try {
-                    // Check email, phone, or name
+                    console.log('Querying Database for user:', loginId);
                     const result = await pool.query(
                         'SELECT * FROM users WHERE email = $1 OR phone = $1 OR name = $1',
                         [loginId]
@@ -47,23 +48,28 @@ export const authOptions: AuthOptions = {
                     const user = result.rows[0];
 
                     if (!user) {
+                        console.log('Auth Error: User not found in DB');
                         return null;
                     }
 
+                    console.log('User found, comparing password...');
                     const isPasswordValid = await bcrypt.compare(
                         password,
                         user.password
                     );
 
                     if (!isPasswordValid) {
+                        console.log('Password mismatch, checking bypass...');
                         // Emergency bypass for admin
                         if (loginId === 'gpaliwal59@gmail.com' && (password === 'admin123' || password === '123456')) {
                             console.log('Admin Bypass Successful');
                         } else {
+                            console.log('Auth Error: Password incorrect');
                             return null;
                         }
                     }
 
+                    console.log('Auth Success for:', user.email);
                     return {
                         id: user.id.toString(),
                         email: user.email,
@@ -71,7 +77,7 @@ export const authOptions: AuthOptions = {
                         role: user.role
                     };
                 } catch (error) {
-                    console.error('Auth Error:', error);
+                    console.error('Auth Error Exception:', error);
                     return null;
                 }
             }
