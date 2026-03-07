@@ -380,13 +380,23 @@ export default function CustomersPage() {
                         .anp-btn-save:active:not(:disabled) { transform: translateY(0); }
                         .anp-btn-save:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none; }
                         @media (max-width: 600px) {
-                            .anp-popup-header { padding: 16px 20px 12px; }
-                            .anp-header-icon-wrap { width: 36px; height: 36px; font-size: 16px; margin-bottom: 6px; }
-                            .anp-popup-header h2 { font-size: 18px; }
-                            .anp-popup-header p { font-size: 11px; }
-                            .anp-popup-body { padding: 16px 20px 8px; }
-                            .anp-close-btn { width: 28px; height: 28px; font-size: 14px; }
-                            .anp-popup-footer { padding: 12px 20px 16px; }
+                            .anp-popup { margin: 10px; border-radius: 16px; }
+                            .anp-popup-header { padding: 12px 16px 8px; }
+                            .anp-header-icon-wrap { width: 32px; height: 32px; font-size: 14px; margin-bottom: 4px; }
+                            .anp-popup-header h2 { font-size: 16px; }
+                            .anp-popup-header p { font-size: 10px; }
+                            .anp-popup-body { padding: 12px 16px 8px; }
+                            .anp-close-btn { width: 24px; height: 24px; font-size: 12px; }
+                            .anp-popup-footer { padding: 8px 16px 12px; }
+                            .anp-form-group { margin-bottom: 10px; }
+                            .anp-form-group label { font-size: 9.5px; margin-bottom: 4px; }
+                            .anp-popup input, .anp-popup textarea, .anp-popup select { padding: 8px 10px 8px 30px; font-size: 12px; border-radius: 8px; }
+                            .anp-popup textarea { height: 50px; }
+                            .anp-input-icon { left: 10px; font-size: 12px; }
+                            .anp-btn { padding: 10px 14px; font-size: 12px; border-radius: 8px; }
+                            .anp-step-label { margin-bottom: 12px; }
+                            .anp-info-card { padding: 8px 10px; margin-bottom: 12px; }
+                            .anp-info-card p { font-size: 10px; }
                         }
                     `}} />
 

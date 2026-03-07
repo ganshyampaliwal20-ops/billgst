@@ -1147,13 +1147,22 @@ export default function NewInvoicePage() {
                         .qac-btn-save:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
                         .qac-char-count { text-align: right; font-size: 11px; color: #d1d5db; margin-top: 4px; }
                         @media (max-width: 600px) {
-                            .qac-popup-header { padding: 16px 20px 12px; }
-                            .qac-header-icon { width: 36px; height: 36px; font-size: 18px; margin-bottom: 8px; }
-                            .qac-popup-header h2 { font-size: 20px; }
-                            .qac-popup-header p { font-size: 11.5px; }
-                            .qac-close-btn { top: 12px; right: 16px; width: 28px; height: 28px; font-size: 15px; }
-                            .qac-popup-body { padding: 16px 20px 12px; }
-                            .qac-popup-footer { padding: 0 20px 16px; }
+                            .qac-popup { margin: 10px; border-radius: 16px; }
+                            .qac-popup-header { padding: 12px 16px 8px; }
+                            .qac-header-icon { width: 32px; height: 32px; font-size: 14px; margin-bottom: 4px; }
+                            .qac-popup-header h2 { font-size: 16px; }
+                            .qac-popup-header p { font-size: 10px; }
+                            .qac-close-btn { top: 10px; right: 10px; width: 24px; height: 24px; font-size: 12px; }
+                            .qac-popup-body { padding: 12px 16px 8px; }
+                            .qac-popup-footer { padding: 0 16px 12px; }
+                            .qac-form-group { margin-bottom: 10px; }
+                            .qac-form-group label { font-size: 10px; margin-bottom: 4px; }
+                            .qac-popup input, .qac-popup textarea, .qac-popup select { padding: 8px 10px 8px 32px; font-size: 12px; border-radius: 8px; }
+                            .qac-popup textarea { height: 50px; }
+                            .qac-input-wrap .icon { left: 10px; font-size: 12px; }
+                            .qac-btn { padding: 10px 12px; font-size: 12px; border-radius: 8px; }
+                            .qac-form-row { gap: 8px; }
+                            .qac-divider { margin: 2px 0 10px; }
                         }
                     `}} />
 
