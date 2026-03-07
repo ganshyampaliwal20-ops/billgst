@@ -362,25 +362,17 @@ export default function DashboardLayout({
                                             }}
                                         />
                                     </div>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-row items-baseline gap-2">
                                         <h2 className="text-sm md:text-lg font-bold text-white tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm">
                                             {businessProfile.name || 'BillGST'}
                                         </h2>
-                                        <p className="text-xs text-indigo-100/90 font-medium hidden md:block">Professional Billing</p>
+                                        <p className="text-[10px] text-indigo-100/70 font-medium hidden md:block">Professional Billing</p>
                                     </div>
                                 </Link>
                             </div>
 
-                            {/* Center: Time & Date */}
-                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1 md:py-1.5 bg-white/10 text-white rounded-full text-[9px] md:text-xs font-semibold border border-white/20 backdrop-blur-md shadow-sm pointer-events-none whitespace-nowrap">
-                                <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-400 animate-pulse shadow-green-400/50 shadow-lg"></span>
-                                <span suppressHydrationWarning className="">
-                                    {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} ·
-                                </span>
-                                <span suppressHydrationWarning>
-                                    {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                                </span>
-                            </div>
+                            {/* Center: Removed Time & Date based on user request */}
+                            <div className="flex-1"></div>
 
                             {/* Right Side: Menu */}
                             <div className="flex items-center gap-2 md:gap-4">

@@ -241,13 +241,12 @@ export default function DashboardPage() {
 .content { padding: 24px 28px 40px; flex: 1; min-width: 0; }
 .greeting-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
 .greeting-time { font-size: 11.5px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.greeting-h1 { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.5px; }
+.greeting-h1 { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.5px; white-space: nowrap; }
 .greeting-h1 span { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.greeting-right { display: flex; gap: 8px; }
-.search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 16px; box-shadow: var(--shadow); min-width: 220px; transition: all .2s; }
-.search-box:focus-within { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
-.search-box input { border: none; outline: none; font-family: 'Sora', sans-serif; font-size: 13px; color: var(--ink); background: transparent; flex: 1; font-weight: 500; }
-.search-box input::placeholder { color: #c0c8da; font-weight: 400; }
+.greeting-right { display: flex; align-items: center; gap: 8px; }
+.time-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 18px; box-shadow: var(--shadow); font-size: 13px; font-weight: 700; color: var(--slate); }
+.time-badge .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: .7; } 100% { transform: scale(1); opacity: 1; } }
 
 .qa-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
 .qa-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: none; text-decoration: none; animation: fadeUp .4s ease both; }
@@ -369,12 +368,19 @@ export default function DashboardPage() {
 
             <div className="content">
                 <div className="greeting-row">
-                    <div>
-                        <div className="greeting-h1">{getGreeting()}, <span>{businessProfile.name || 'Business'}</span>! 👋</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="greeting-h1" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {getGreeting()}, <span style={{ whiteSpace: 'nowrap' }}>{businessProfile.name || 'Business'}</span>! 👋
+                        </div>
                     </div>
-                    <div className="search-box">
-                        <span style={{ fontSize: "15px", color: "#c0c8da" }}>🔍</span>
-                        <input type="text" placeholder="Quick Search…" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    <div className="greeting-right">
+                        <div className="time-badge">
+                            <span className="dot"></span>
+                            <span suppressHydrationWarning>
+                                {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} · {' '}
+                                {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                            </span>
+                        </div>
                     </div>
                 </div>
 

@@ -1,611 +1,446 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
-import { useStore } from '@/lib/store';
-import { FaFilePdf, FaWhatsapp, FaTrash, FaPlus, FaSearch, FaFileInvoiceDollar, FaRupeeSign } from 'react-icons/fa';
-import Link from 'next/link';
-import { generateInvoicePDF } from '@/lib/pdf-generator';
+import { useStore } from '../../../lib/store';
+import {
+    FaFilePdf, FaWhatsapp, FaTrash, FaPlus, FaSearch,
+    FaFileInvoiceDollar, FaRupeeSign, FaEllipsisV,
+    FaCopy, FaShareAlt, FaCalendarAlt, FaChevronRight
+} from 'react-icons/fa';
+import { generateInvoicePDF } from '../../../lib/pdf-generator';
 import { toast } from 'react-hot-toast';
-import { DOC_LABELS, DOC_TYPES } from '@/lib/constants';
-import { formatCurrency, formatCompactNumber } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
-
-interface InvoiceItem {
-    product_name: string;
-    quantity: number;
-    unit_price: number;
-}
-
-interface Invoice {
-    id: string;
-    invoice_number: string;
-    invoice_date: string | Date;
-    created_at?: string;
-    customer: {
-        name: string;
-        phone?: string;
-    };
-    total_amount: number;
-    status: string;
-    paid_amount: number;
-    items: InvoiceItem[];
-    type?: string;
-}
+import { DOC_LABELS } from '../../../lib/constants';
+import { formatCurrency, formatCompactNumber } from '../../../lib/utils';
+import { useRouter, useSearchParams } from 'next/navigation';
+import QRCode from 'qrcode';
 
 export default function InvoicesPage() {
-    // Select state individually for safety
-    const invoices = useStore((state: any) => state.invoices);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Global Store
+    const invoices = useStore((state: any) => state.invoices) || [];
     const deleteInvoice = useStore((state: any) => state.deleteInvoice);
-    const businessProfile = useStore((state: any) => state.businessProfile);
+    const businessProfile = useStore((state: any) => state.businessProfile) || {};
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
 
-    const searchParams = useSearchParams();
-    const initialSearch = searchParams.get('search') || '';
-
-    const [searchTerm, setSearchTerm] = useState(initialSearch);
+    // Local State
     const [isClient, setIsClient] = useState(false);
-    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-    const [showShareSheet, setShowShareSheet] = useState<Invoice | null>(null);
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || "");
+    const [activeTab, setActiveTab] = useState("all");
+    const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+    const [showShareSheet, setShowShareSheet] = useState<any>(null);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+    const [isExporting, setIsExporting] = useState(false);
 
-    // Update search term if URL params change
     useEffect(() => {
-        const query = searchParams.get('search');
-        if (query) {
-            setSearchTerm(query);
-        }
-    }, [searchParams]);
+        setIsClient(true);
+        if (fetchInvoices) fetchInvoices();
+    }, [fetchInvoices]);
 
-    // Generate QR Code when invoice is selected
+    // Generate QR Code safely
     useEffect(() => {
-        if (selectedInvoice && businessProfile.upi_id && selectedInvoice.total_amount > 0) {
+        if (selectedInvoice && businessProfile?.upi_id && selectedInvoice.total_amount > 0) {
             const upiLink = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${selectedInvoice.total_amount}&cu=INR`;
-            import('qrcode').then(QRCode => {
-                QRCode.toDataURL(upiLink, { margin: 1 })
-                    .then(url => setQrCodeUrl(url))
-                    .catch(err => console.error('QR Gen Error:', err));
-            });
+            QRCode.toDataURL(upiLink, { margin: 1 })
+                .then(setQrCodeUrl)
+                .catch(err => console.error('QR Error:', err));
         } else {
             setQrCodeUrl('');
         }
     }, [selectedInvoice, businessProfile]);
 
-    useEffect(() => {
-        setIsClient(true);
-        fetchInvoices();
-    }, [fetchInvoices]);
+    if (!isClient) return <div style={{ background: '#f8fafc', minHeight: '100vh' }} />;
 
-    // Re-fetch when component becomes visible (user navigates back)
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                fetchInvoices();
-            }
-        };
+    const safeInvoices = Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [];
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, [fetchInvoices]);
+    // Safe Formatting Functions
+    const safeDate = (dateStr: any) => {
+        try {
+            if (!dateStr) return 'N/A';
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN');
+        } catch (e) { return 'N/A'; }
+    };
 
-    if (!isClient) return null;
+    const safeAmt = (amt: any) => {
+        const val = Number(amt);
+        return isNaN(val) ? 0 : val;
+    };
 
-    const safeInvoices = (Array.isArray(invoices) ? invoices : []).filter(i => i && typeof i === 'object');
+    // Filtering Logic
+    const filteredInvoices = safeInvoices.filter((inv: any) => {
+        const customerName = (inv?.customer?.name || '').toLowerCase();
+        const invoiceNumber = (inv?.invoice_number || '').toLowerCase();
+        const term = searchTerm.toLowerCase();
 
-    const filteredInvoices = safeInvoices.filter((inv: Invoice) => {
-        // Aggressive null checks for every field accessed
-        const customerName = inv?.customer?.name || '';
-        const invoiceNumber = inv?.invoice_number || '';
-        const itemsMatch = (inv?.items || []).some(item =>
-            String(item.product_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+        const itemsMatch = (inv?.items || []).some((item: any) =>
+            String(item.product_name || '').toLowerCase().includes(term)
         );
 
-        // Ensure strings before calling toLowerCase
-        return (
-            String(customerName).toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(invoiceNumber).toLowerCase().includes(searchTerm.toLowerCase()) ||
-            itemsMatch
-        );
+        const matchesSearch = customerName.includes(term) || invoiceNumber.includes(term) || itemsMatch;
+
+        if (!matchesSearch) return false;
+
+        const type = (inv.type || '').toLowerCase();
+        if (activeTab === 'tax' && (type && type !== 'tax_invoice')) return false;
+        if (activeTab === 'tax' && !type) return true; // Default is tax
+        if (activeTab === 'delivery' && type !== 'delivery_challan') return false;
+        if (activeTab === 'eway' && type !== 'eway_bill') return false;
+
+        if (['paid', 'unpaid', 'partial'].includes(activeTab)) {
+            const status = (inv.status || 'UNPAID').toLowerCase();
+            if (status !== activeTab) return false;
+        }
+
+        return true;
     });
 
-    const handleDuplicate = (e: React.MouseEvent, invoice: Invoice) => {
-        e.stopPropagation();
-        window.location.href = `/dashboard/invoices/new?duplicateId=${invoice.id}`;
+    // KPI Counters
+    const kpiData = {
+        total: safeInvoices.length,
+        paid: safeInvoices.filter(i => (i.status || '').toUpperCase() === 'PAID').length,
+        unpaid: safeInvoices.filter(i => (i.status || 'UNPAID').toUpperCase() === 'UNPAID').length,
+        partial: safeInvoices.filter(i => (i.status || '').toUpperCase() === 'PARTIAL').length,
+        totalValue: safeInvoices.reduce((acc, i) => acc + safeAmt(i.total_amount), 0)
     };
 
-    const handleDownload = async (e: React.MouseEvent | null, invoice: Invoice) => {
+    // Handlers
+    const handleDelete = async (e: any, invoice: any) => {
         e?.stopPropagation();
+        if (!invoice?.id) return;
+        if (window.confirm(`Delete Invoice #${invoice.invoice_number}? Stock will be restored.`)) {
+            try {
+                const res = await deleteInvoice(invoice.id);
+                if (res?.success !== false) {
+                    toast.success('Invoice deleted');
+                    setShowShareSheet(null);
+                    setSelectedInvoice(null);
+                }
+            } catch (err) { toast.error('Delete failed'); }
+        }
+    };
+
+    const handleDownload = async (e: any, invoice: any) => {
+        e?.stopPropagation();
+        if (!invoice) return;
+        const toastId = toast.loading('Generating PDF...');
         try {
-            if (!invoice) return;
             await generateInvoicePDF(invoice, businessProfile);
-            toast.success('Invoice downloaded!');
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to generate PDF');
-        }
+            toast.success('PDF Downloaded', { id: toastId });
+        } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
-    const handleShareWhatsApp = async (invoice: Invoice) => {
+    const handleWhatsApp = (e: any, invoice: any) => {
+        e?.stopPropagation();
         if (!invoice) return;
-
-        const fileName = `Invoice-${invoice.invoice_number || 'Bill'}.pdf`;
-        let doc = null;
-
-        try {
-            doc = await generateInvoicePDF(invoice, businessProfile, false);
-            if (!doc) throw new Error('PDF Generation Failed');
-
-            // Try native file sharing first (Mobile Apps)
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: `Invoice ${invoice.invoice_number}`,
-                    text: `Invoice from ${businessProfile.name || 'Our Business'}`
-                });
-                return; // Success!
-            }
-            throw new Error('Native file sharing not supported');
-
-        } catch (e: any) {
-            console.log('Native sharing failed, falling back to download + web share', e);
-            // Debugging: Alert the user on mobile if sharing fails so we know WHY
-            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                // Only alert if it's NOT just "not supported" to avoid annoyance
-                if (e.message !== 'Native file sharing not supported' && !e.message.includes('abort')) {
-                    alert(`Share Error: ${e.message}. Downloading file instead.`);
-                }
-            }
-
-            // Fallback: Download PDF & Open WhatsApp
-            if (doc) {
-                doc.save(fileName);
-                toast.success('PDF Downloaded! Please attach file in WhatsApp', { duration: 5000, icon: '📎' });
-            }
-
-            // Open WhatsApp with a prompt to attach
-            const text = `Please find the attached invoice ${invoice.invoice_number} from ${businessProfile.name || 'Business'}.`;
-            const phone = invoice.customer?.phone?.replace(/\D/g, '') || '';
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-            // If phone exists, use direct chat link, else use generic share link
-            const whatsappUrl = phone
-                ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}`
-                : `https://wa.me/?text=${encodeURIComponent(text)}`;
-
-            // Use window.open with a slight delay to ensure toast is seen/download starts
-            setTimeout(() => {
-                window.open(whatsappUrl, '_blank');
-            }, 1000);
-        }
+        const total = safeAmt(invoice.total_amount);
+        const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${total}* from *${businessProfile.name || 'Business'}* is ready.\n\nRegards,\n${businessProfile.name || 'Business'}`;
+        const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
+        const url = phone ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
     };
 
-    const handleDelete = async (e: React.MouseEvent, invoice: Invoice) => {
-        e.stopPropagation();
-        if (window.confirm(`Are you sure you want to delete Invoice #${invoice.invoice_number}? This will also restore stock levels.`)) {
-            const res = await deleteInvoice(invoice.id);
-            if (res.success) {
-                setShowShareSheet(null);
-                setSelectedInvoice(null);
-            }
-        }
+    const handleDuplicate = (e: any, invoice: any) => {
+        e?.stopPropagation();
+        if (invoice?.id) router.push(`/dashboard/invoices/new?duplicateId=${invoice.id}`);
     };
 
-    const handleShareMore = async (invoice: Invoice) => {
-        if (!invoice) return;
-        try {
-            const doc = await generateInvoicePDF(invoice, businessProfile, false);
-            if (!doc) throw new Error('PDF Generation Failed');
-
-            const pdfBlob = doc.output('blob');
-            const fileName = `Invoice-${invoice.invoice_number || 'Bill'}.pdf`;
-            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-            if (navigator.share) {
-                const shareData: any = {
-                    title: `Invoice ${invoice.invoice_number}`,
-                    text: `Please find the invoice attached from ${businessProfile.name || 'Our Business'}`,
-                };
-
-                // Add file if supported
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    shareData.files = [file];
-                }
-
-                await navigator.share(shareData);
-            } else {
-                handleDownload(null, invoice);
-                toast.error('Share not supported. PDF downloaded.');
-            }
-        } catch (e) {
-            console.error('Share error:', e);
-            toast.error('Sharing failed');
-        }
-    };
-
-    const handleShareSMS = (invoice: Invoice) => {
-        if (!invoice) return;
-        const total = formatCurrency(Number(invoice.total_amount) || 0);
-        const text = `Invoice ${invoice.invoice_number || 'N/A'} for Rs. ${total} from ${businessProfile?.name || 'Our Business'}. Powered by BillGST.in`;
+    const handleSMS = (invoice: any) => {
+        const text = `Invoice #${invoice.invoice_number} for Rs. ${safeAmt(invoice.total_amount)} from ${businessProfile.name}. BillGST.in`;
         window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
 
-    const handleSharePaymentLink = (invoice: Invoice) => {
-        if (!invoice || !businessProfile.upi_id) {
-            toast.error('Please set UPI ID in settings first');
-            return;
-        }
-        const upiLink = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${Number(invoice.total_amount).toFixed(2)}&cu=INR`;
-        const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nYou can pay quickly using this link: ${upiLink}\n\nRegards,\n${businessProfile.name}`;
-        const phone = invoice.customer?.phone?.replace(/\D/g, '') || '';
-        const whatsappUrl = phone
-            ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}`
-            : `https://wa.me/?text=${encodeURIComponent(text)}`;
-        window.open(whatsappUrl, '_blank');
+    const handlePaymentLink = (invoice: any) => {
+        if (!businessProfile.upi_id) return toast.error('Set UPI ID in settings');
+        const upi = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${safeAmt(invoice.total_amount)}&cu=INR`;
+        const text = `Payment link for invoice #${invoice.invoice_number}: ${upi}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    const createInvoice = () => router.push('/dashboard/invoices/new');
+
+    const getAvatarColor = (name: string) => {
+        const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#8b5cf6', '#f97316'];
+        if (!name) return colors[0];
+        let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % colors.length;
+        return colors[h];
     };
 
     return (
-        <div className="space-y-6 px-4 md:px-8 pb-10" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" style={{ paddingLeft: '5px', paddingRight: '5px' }}>
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Invoices</h1>
-                    <p className="text-gray-500 text-sm mt-1">Manage and track all your bills</p>
-                </div>
+        <div className="modern-billing-page">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .modern-billing-page {
+                    --primary: #4f46e5; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+                    --slate-900: #0f172a; --slate-600: #475569; --slate-400: #94a3b8;
+                    --bg: #f8fafc; --white: #ffffff; --border: #e2e8f0;
+                    font-family: 'Sora', sans-serif; background: var(--bg); min-height: 100vh;
+                }
+                .hero-strip { background: var(--slate-900); padding: 40px 32px 80px; color: white; }
+                .hero-flex { display: flex; justify-content: space-between; align-items: flex-start; }
+                .hero-title h1 { font-size: 32px; font-weight: 800; margin: 0; }
+                .hero-title p { color: var(--slate-400); margin: 5px 0 0; font-size: 14px; }
+                
+                .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: -40px 32px 32px; }
+                .kpi-box { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+                .kpi-lbl { font-size: 11px; font-weight: 800; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; }
+                .kpi-val { font-size: 24px; font-weight: 800; color: var(--slate-900); font-family: 'JetBrains Mono', monospace; margin: 4px 0; }
 
+                .content-box { padding: 0 32px 100px; }
+                .action-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+                .search-box { flex: 1; position: relative; }
+                .search-box input { width: 100%; height: 52px; background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 0 20px 0 48px; font-size: 14px; outline: none; transition: 0.2s; }
+                .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+                .search-icon { position: absolute; left: 18px; top: 18px; color: var(--slate-400); }
+
+                .tab-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 20px; }
+                .tab-row::-webkit-scrollbar { display: none; }
+                .tab-btn { padding: 10px 20px; border-radius: 12px; background: white; border: 1px solid var(--border); font-size: 13px; font-weight: 700; color: var(--slate-600); cursor: pointer; white-space: nowrap; transition: 0.2s; }
+                .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+
+                .table-container { background: white; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.03); overflow: hidden; }
+                .billing-table { width: 100%; border-collapse: collapse; }
+                .billing-table th { background: #f1f5f9; text-align: left; padding: 16px 24px; font-size: 11px; font-weight: 800; color: var(--slate-600); text-transform: uppercase; }
+                .billing-table tr { border-bottom: 1px solid #f8fafc; cursor: pointer; }
+                .billing-table tr:hover { background: #f8fafc; }
+                .billing-table td { padding: 16px 24px; font-size: 14px; color: var(--slate-900); }
+                
+                .status-chip { padding: 4px 12px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+                .status-paid { background: #dcfce7; color: #166534; }
+                .status-unpaid { background: #fee2e2; color: #991b1b; }
+                .status-partial { background: #fef3c7; color: #92400e; }
+
+                .icon-btn { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: white; margin-left: 6px; cursor: pointer; transition: 0.2s; color: var(--slate-600); }
+                .icon-btn:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); }
+                .icon-btn.del:hover { background: var(--danger); border-color: var(--danger); }
+
+                /* Overlays */
+                .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+                .modal-card { background: white; border-radius: 28px; width: 100%; max-width: 480px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; animation: slideUp 0.3s ease; }
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+                .qr-wrap { background: #f8fafc; border-radius: 20px; padding: 24px; text-align: center; margin: 20px 0; border: 2px dashed var(--border); }
+                .qr-img-box { width: 140px; height: 140px; margin: 0 auto 12px; background: white; padding: 10px; border-radius: 12px; }
+
+                .floating-add { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: white; padding: 16px 32px; border-radius: 50px; font-weight: 800; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(79,70,229,0.4); border: none; cursor: pointer; transition: 0.3s; z-index: 900; }
+                .floating-add:hover { transform: scale(1.05) translateY(-5px); box-shadow: 0 15px 35px rgba(79,70,229,0.5); }
+
+                @media (max-width: 900px) {
+                    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+                    .billing-table { display: block; overflow-x: auto; }
+                    .hero-strip, .kpi-row, .content-box { padding: 20px; }
+                }
+            `}} />
+
+            <div className="hero-strip">
+                <div className="hero-flex">
+                    <div className="hero-title">
+                        <h1>Manage Invoices 🧾</h1>
+                        <p>Track payments, send reminders, and analyze sales</p>
+                    </div>
+                    <button className="floating-add" style={{ position: 'static' }} onClick={createInvoice}>
+                        <FaPlus /> <span>New Invoice</span>
+                    </button>
+                </div>
             </div>
 
-            {/* Search */}
-            <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
-                <div className="relative" style={{ paddingTop: '8px' }}
-                >
-                    <input
-                        type="text"
-                        placeholder="Search by customer name or invoice number..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                        <FaSearch />
+            <div className="kpi-row">
+                <div className="kpi-box" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('all')}>
+                    <div className="kpi-lbl">Total Invoices</div>
+                    <div className="kpi-val">{kpiData.total}</div>
+                </div>
+                <div className="kpi-box" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('paid')}>
+                    <div className="kpi-lbl">Paid Full</div>
+                    <div className="kpi-val" style={{ color: 'var(--success)' }}>{kpiData.paid}</div>
+                </div>
+                <div className="kpi-box" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('unpaid')}>
+                    <div className="kpi-lbl">Unpaid Count</div>
+                    <div className="kpi-val" style={{ color: 'var(--danger)' }}>{kpiData.unpaid}</div>
+                </div>
+                <div className="kpi-box" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('partial')}>
+                    <div className="kpi-lbl">Partially Received</div>
+                    <div className="kpi-val" style={{ color: 'var(--warning)' }}>{kpiData.partial}</div>
+                </div>
+                <div className="kpi-box">
+                    <div className="kpi-lbl">Total Receivable</div>
+                    <div className="kpi-val" style={{ fontSize: '20px' }} onClick={() => setIsExporting(!isExporting)}>
+                        {formatCompactNumber(kpiData.totalValue)}
                     </div>
                 </div>
             </div>
 
-            {/* Invoices List - Desktop Table & Mobile Cards */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
-                {filteredInvoices.length === 0 ? (
-                    <div className="py-16 text-center">
-                        <div className="flex flex-col items-center gap-3">
-                            <div className="p-4 bg-gray-100 rounded-full text-gray-400">
-                                <FaFileInvoiceDollar className="text-3xl" />
-                            </div>
-                            <p className="text-gray-500 font-medium">No invoices found</p>
-                            <Link href="/dashboard/invoices/new" className="text-blue-600 hover:underline text-sm font-medium">
-                                Create your first invoice
-                            </Link>
-                        </div>
+            <div className="content-box">
+                <div className="action-bar">
+                    <div className="search-box">
+                        <FaSearch className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search customer, invoice # or products..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                ) : (
-                    <>
-                        {/* Desktop Table */}
-                        <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-gray-50/50 border-b border-gray-100">
-                                    <tr>
-                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                            <span className="opacity-0">#</span> Invoice No
-                                        </th>
+                    <button className="tab-btn" style={{ height: '52px' }} onClick={() => toast('Exporting CSV...')}>Export Data</button>
+                </div>
 
-                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th className="text-left py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Customer</th>
-                                        <th className="text-right py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th className="text-center py-5 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    {filteredInvoices.map((invoice) => (
-                                        <tr
-                                            key={invoice.id}
-                                            onClick={() => setSelectedInvoice(invoice)}
-                                            className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
-                                        >
-                                            <td className="py-4 px-6 text-sm font-bold text-blue-600">
-                                                <div className="flex flex-col">
-                                                    <span className="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg w-fit text-xs font-bold mb-1 shadow-sm">
-                                                        <span className="opacity-0">#</span>{invoice.invoice_number || 'N/A'}
-                                                    </span>
+                <div className="tab-row">
+                    <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>All Transactions</button>
+                    <button className={`tab-btn ${activeTab === 'unpaid' ? 'active' : ''}`} onClick={() => setActiveTab('unpaid')}>🔴 Unpaid</button>
+                    <button className={`tab-btn ${activeTab === 'partial' ? 'active' : ''}`} onClick={() => setActiveTab('partial')}>🟡 Partial</button>
+                    <button className={`tab-btn ${activeTab === 'paid' ? 'active' : ''}`} onClick={() => setActiveTab('paid')}>🟢 Paid</button>
+                    <button className={`tab-btn ${activeTab === 'tax' ? 'active' : ''}`} onClick={() => setActiveTab('tax')}>Tax Invoices</button>
+                    <button className={`tab-btn ${activeTab === 'delivery' ? 'active' : ''}`} onClick={() => setActiveTab('delivery')}>Delivery Challan</button>
+                </div>
 
-                                                    <span className="text-[10px] text-gray-400 font-medium px-1.5 py-0.5 bg-gray-100 rounded-md w-fit">
-                                                        {DOC_LABELS[invoice.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6 text-sm text-gray-600">
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium">
-                                                        {(() => {
-                                                            try {
-                                                                const d = new Date(invoice?.invoice_date);
-                                                                return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN');
-                                                            } catch (e) { return 'N/A'; }
-                                                        })()}
-                                                    </span>
-                                                    <span className="text-xs text-gray-400">
-                                                        {(() => {
-                                                            try {
-                                                                const d = new Date(invoice?.created_at || invoice?.invoice_date);
-                                                                return isNaN(d.getTime()) ? '' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                                            } catch (e) { return ''; }
-                                                        })()}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6 text-sm text-gray-800 font-semibold">
-                                                {invoice.customer?.name || 'Unknown'}
-                                            </td>
-                                            <td className="py-4 px-6 text-right">
-                                                <div className="flex flex-col items-end gap-1">
-                                                    <span className="text-sm font-bold text-gray-900">{formatCompactNumber(Number(invoice.total_amount) || 0)}</span>
-                                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                                        invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
-                                                        }`}>
-                                                        {invoice.status || 'UNPAID'}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); handleDownload(null, invoice); }}
-                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                                        title="Download PDF"
-                                                    >
-                                                        <FaFilePdf className="text-lg" />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setShowShareSheet(invoice); }}
-                                                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
-                                                        title="Share"
-                                                    >
-                                                        <FaWhatsapp className="text-lg" />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => handleDuplicate(e, invoice)}
-                                                        className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition"
-                                                        title="Duplicate"
-                                                    >
-                                                        <FaPlus className="text-lg" />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => handleDelete(e, invoice)}
-                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                                                        title="Delete"
-                                                    >
-                                                        <FaTrash className="text-lg" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                <div className="table-container">
+                    {filteredInvoices.length === 0 ? (
+                        <div style={{ padding: '50px', textAlign: 'center', color: 'var(--slate-400)' }}>
+                            <FaFileInvoiceDollar style={{ fontSize: '50px', marginBottom: '10px' }} />
+                            <p>No invoices found matching your criteria</p>
                         </div>
-
-                        {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-gray-100">
-                            {filteredInvoices.map((invoice) => (
-                                <div
-                                    key={invoice.id}
-                                    onClick={() => setSelectedInvoice(invoice)}
-                                    className="p-4 active:bg-gray-50 transition-colors cursor-pointer"
-                                >
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h3 className="font-bold text-gray-800 text-lg">{invoice.customer?.name || 'Unknown'}</h3>
-                                            <div className="flex items-center gap-2">
-                                                <span className="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">
-                                                    <span className="opacity-0">#</span>{invoice.invoice_number || 'N/A'}
-                                                </span>
-                                                <span className="text-[10px] text-indigo-500 font-bold bg-indigo-50 px-2 rounded-full">
-                                                    {DOC_LABELS[invoice.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
-                                                </span>
+                    ) : (
+                        <table className="billing-table">
+                            <thead>
+                                <tr>
+                                    <th># Invoice</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Final Amount</th>
+                                    <th>Status</th>
+                                    <th style={{ textAlign: 'right' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredInvoices.map((inv: any) => (
+                                    <tr key={inv.id} onClick={() => setSelectedInvoice(inv)}>
+                                        <td style={{ fontWeight: 700, color: 'var(--primary)' }}>#{inv.invoice_number}</td>
+                                        <td>
+                                            <div style={{ fontWeight: 600 }}>{safeDate(inv.invoice_date || inv.created_at)}</div>
+                                            <div style={{ fontSize: '10px', color: 'var(--slate-400)' }}>
+                                                {DOC_LABELS[inv.type as keyof typeof DOC_LABELS] || 'Tax Invoice'}
                                             </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-lg font-bold text-gray-900">{formatCompactNumber(Number(invoice.total_amount) || 0)}</p>
-                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${invoice.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                                invoice.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-red-100 text-red-700'
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div
+                                                    style={{ width: '32px', height: '32px', borderRadius: '8px', background: getAvatarColor(inv.customer?.name), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}
+                                                >
+                                                    {inv.customer?.name?.charAt(0) || 'C'}
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontWeight: 700 }}>{inv.customer?.name || 'Local Sale'}</div>
+                                                    <div style={{ fontSize: '11px', color: 'var(--slate-400)' }}>{inv.customer?.phone || 'No phone'}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style={{ fontWeight: 800, fontFamily: 'JetBrains Mono' }}>{formatCurrency(safeAmt(inv.total_amount))}</td>
+                                        <td>
+                                            <span className={`status-chip ${(inv.status || 'UNPAID').toUpperCase() === 'PAID' ? 'status-paid' :
+                                                    (inv.status || 'UNPAID').toUpperCase() === 'PARTIAL' ? 'status-partial' : 'status-unpaid'
                                                 }`}>
-                                                {invoice.status || 'UNPAID'}
+                                                {inv.status || 'UNPAID'}
                                             </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center mt-3">
-                                        <p className="text-xs text-gray-400">
-                                            {(() => {
-                                                try {
-                                                    const d = new Date(invoice?.invoice_date);
-                                                    return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN');
-                                                } catch (e) { return 'N/A'; }
-                                            })()}
-                                        </p>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); setShowShareSheet(invoice); }}
-                                                className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
-                                            >
-                                                <FaWhatsapp /> Share
-                                            </button>
-                                            <button
-                                                onClick={(e) => handleDuplicate(e, invoice)}
-                                                className="px-3 py-1.5 bg-orange-100 text-orange-600 rounded-lg text-xs font-bold"
-                                            >
-                                                Duplicate
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                )}
+                                        </td>
+                                        <td style={{ textAlign: 'right' }} onClick={e => e.stopPropagation()}>
+                                            <div className="icon-btn" onClick={(e) => handleWhatsApp(e, inv)}><FaWhatsapp /></div>
+                                            <div className="icon-btn" onClick={(e) => handleDownload(e, inv)}><FaFilePdf /></div>
+                                            <div className="icon-btn del" onClick={(e) => handleDelete(e, inv)}><FaTrash /></div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
 
-            {/* Invoice Detail Modal */}
+            {/* Modal */}
             {selectedInvoice && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 shadow-2xl backdrop-blur-sm" onClick={() => setSelectedInvoice(null)}>
-                    <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-                        <div className="p-6 border-b border-gray-100 flex items-center justify-center relative bg-gray-50">
-                            <div className="text-center">
-                                <h2 className="text-xl font-bold text-gray-800">Invoice Details</h2>
-                                <p className="text-sm text-gray-500">{selectedInvoice.invoice_number || 'N/A'}</p>
-                            </div>
-                            <button onClick={() => setSelectedInvoice(null)} className="absolute right-6 text-gray-400 hover:text-gray-600 p-2">✕</button>
+                <div className="modal-overlay" onClick={() => setSelectedInvoice(null)}>
+                    <div className="modal-card" onClick={e => e.stopPropagation()}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, fontWeight: 800 }}>Invoice Details</h3>
+                            <button onClick={() => setSelectedInvoice(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
                         </div>
-
-                        <div className="p-6 space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-center flex flex-col items-center justify-center">
-                                    <p className="text-xs font-bold text-blue-600 uppercase mb-1">Total Amount</p>
-                                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(Number(selectedInvoice.total_amount) || 0)}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-center flex flex-col items-center justify-center">
-                                    <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>
-                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${selectedInvoice.status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                        {selectedInvoice.status || 'UNPAID'}
-                                    </span>
-                                </div>
+                        <div style={{ padding: '24px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                <div style={{ fontWeight: 800, color: 'var(--primary)' }}>#{selectedInvoice.invoice_number}</div>
+                                <div style={{ fontWeight: 900, fontSize: '24px' }}>{formatCurrency(safeAmt(selectedInvoice.total_amount))}</div>
                             </div>
 
-                            {/* UPI QR Code Section */}
-                            {qrCodeUrl && selectedInvoice.status !== 'PAID' && (
-                                <div className="p-4 bg-white border-2 border-dashed border-indigo-200 rounded-xl flex items-center justify-between gap-4">
-                                    <div>
-                                        <p className="font-bold text-gray-800">Scan to Pay</p>
-                                        <p className="text-xs text-gray-500">Pay exactly {formatCurrency(Number(selectedInvoice.total_amount) || 0)}</p>
-                                        <p className="text-[10px] text-indigo-500 font-bold mt-1 bg-indigo-50 px-2 py-0.5 rounded w-fit">{businessProfile.upi_id}</p>
+                            {qrCodeUrl && (selectedInvoice.status || 'UNPAID').toUpperCase() !== 'PAID' && (
+                                <div className="qr-wrap">
+                                    <div className="qr-img-box">
+                                        <img src={qrCodeUrl} alt="QR" style={{ width: '100%', height: '100%' }} />
                                     </div>
-                                    <div className="w-20 h-20 bg-white p-1 rounded-lg border border-gray-100 shadow-sm shrink-0">
-                                        <img src={qrCodeUrl} alt="UPI QR" className="w-full h-full object-contain" />
-                                    </div>
+                                    <p style={{ fontSize: '12px', fontWeight: 700, margin: '8px 0 0' }}>Scan to Pay UPI</p>
+                                    <p style={{ fontSize: '10px', color: 'var(--slate-400)' }}>{businessProfile.upi_id}</p>
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-3 gap-3">
-                                <button onClick={() => handleDownload(null, selectedInvoice)} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
-                                    <FaFilePdf className="text-2xl text-red-500" />
-                                    <span className="text-[10px] font-bold uppercase">PDF</span>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                                <button className="icon-btn" style={{ width: '100%', height: '60px', flexDirection: 'column', gap: '5px' }} onClick={(e) => handleWhatsApp(e, selectedInvoice)}>
+                                    <FaWhatsapp size={20} /> <span style={{ fontSize: '9px', fontWeight: 800 }}>WA</span>
                                 </button>
-                                <button onClick={() => { setShowShareSheet(selectedInvoice); setSelectedInvoice(null); }} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
-                                    <FaWhatsapp className="text-2xl text-green-500" />
-                                    <span className="text-[10px] font-bold uppercase">Share</span>
+                                <button className="icon-btn" style={{ width: '100%', height: '60px', flexDirection: 'column', gap: '5px' }} onClick={(e) => handleDownload(e, selectedInvoice)}>
+                                    <FaFilePdf size={20} /> <span style={{ fontSize: '9px', fontWeight: 800 }}>PDF</span>
                                 </button>
-                                <button onClick={() => window.location.href = `/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`} className="flex flex-col items-center gap-2 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition">
-                                    <FaPlus className="text-2xl text-orange-500" />
-                                    <span className="text-[10px] font-bold uppercase">Duplicate</span>
+                                <button className="icon-btn" style={{ width: '100%', height: '60px', flexDirection: 'column', gap: '5px' }} onClick={(e) => handleDuplicate(e, selectedInvoice)}>
+                                    <FaCopy size={20} /> <span style={{ fontSize: '9px', fontWeight: 800 }}>COPY</span>
+                                </button>
+                                <button className="icon-btn" style={{ width: '100%', height: '60px', flexDirection: 'column', gap: '5px' }} onClick={() => { setShowShareSheet(selectedInvoice); setSelectedInvoice(null); }}>
+                                    <FaShareAlt size={20} /> <span style={{ fontSize: '9px', fontWeight: 800 }}>MORE</span>
                                 </button>
                             </div>
+
+                            <button
+                                style={{ width: '100%', height: '54px', borderRadius: '14px', background: 'var(--slate-900)', color: 'white', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+                                onClick={() => handlePaymentLink(selectedInvoice)}
+                            >
+                                <FaShareAlt /> Send Payment Link
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Vyapar Style Share Sheet */}
+            {/* Share Sheet */}
             {showShareSheet && (
-                <div className="fixed inset-0 bg-black/40 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4 animate-in fade-in duration-300" onClick={() => setShowShareSheet(null)}>
-                    <div
-                        className="bg-white rounded-t-[32px] sm:rounded-3xl w-full max-w-md overflow-hidden animate-in slide-in-from-bottom duration-500 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.3)]"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 sm:hidden" />
-
-                        <div className="p-6">
-                            <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-2xl font-black text-slate-800 tracking-tight">Share Transaction</h2>
-                                <button onClick={() => setShowShareSheet(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">✕</button>
+                <div className="modal-overlay" style={{ alignItems: 'flex-end' }} onClick={() => setShowShareSheet(null)}>
+                    <div className="modal-card" style={{ borderRadius: '32px 32px 0 0' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ padding: '30px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+                                <h3 style={{ margin: 0, fontWeight: 900 }}>Quick Actions</h3>
+                                <button onClick={() => setShowShareSheet(null)} style={{ background: 'none', border: 'none', fontSize: '20px' }}>✕</button>
                             </div>
-
-                            <div className="grid grid-cols-4 gap-4 mb-8">
-                                <button onClick={() => handleShareWhatsApp(showShareSheet)} className="flex flex-col items-center gap-3 group">
-                                    <div className="w-16 h-16 bg-[#25D366]/10 rounded-2xl flex items-center justify-center group-hover:bg-[#25D366]/20 transition-all border border-[#25D366]/20">
-                                        <FaWhatsapp className="text-3xl text-[#25D366]" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase">WhatsApp</span>
-                                </button>
-
-                                <button onClick={() => handleShareSMS(showShareSheet)} className="flex flex-col items-center gap-3 group">
-                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center group-hover:bg-blue-500/20 transition-all border border-blue-500/20">
-                                        <FaFileInvoiceDollar className="text-3xl text-blue-500" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase">SMS</span>
-                                </button>
-
-                                <button onClick={() => handleDownload(null, showShareSheet)} className="flex flex-col items-center gap-3 group">
-                                    <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center group-hover:bg-red-500/20 transition-all border border-red-500/20">
-                                        <FaFilePdf className="text-3xl text-red-500" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase">PDF</span>
-                                </button>
-
-                                <button onClick={() => handleShareMore(showShareSheet)} className="flex flex-col items-center gap-3 group">
-                                    <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center hover:bg-slate-200 transition-all border border-slate-200">
-                                        <span className="text-2xl font-bold">...</span>
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase">More</span>
-                                </button>
-
-                                <button onClick={(e) => handleDelete(e, showShareSheet)} className="flex flex-col items-center gap-3 group">
-                                    <div className="w-16 h-16 bg-red-100/50 rounded-2xl flex items-center justify-center hover:bg-red-100 transition-all border border-red-200">
-                                        <FaTrash className="text-2xl text-red-600" />
-                                    </div>
-                                    <span className="text-[10px] font-bold text-red-600 uppercase">Delete</span>
-                                </button>
-                            </div>
-
-                            <div className="mb-6 px-2">
-                                <button
-                                    onClick={() => handleSharePaymentLink(showShareSheet)}
-                                    className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all"
-                                >
-                                    <FaRupeeSign /> SEND PAYMENT LINK (WA)
-                                </button>
-                            </div>
-
-                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Amount</p>
-                                        <p className="text-xl font-black text-slate-800 italic tracking-tight">{formatCurrency(Number(showShareSheet.total_amount) || 0)}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Invoice No</p>
-                                        <p className="text-sm font-black text-indigo-600 italic">{showShareSheet.invoice_number || 'N/A'}</p>
-                                    </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '24px' }}>
+                                <div style={{ textAlign: 'center' }} onClick={() => handleSMS(showShareSheet)}>
+                                    <div className="icon-btn" style={{ width: '50px', height: '50px', background: '#e0f2fe', color: '#0369a1' }}><FaFileInvoiceDollar size={20} /></div>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, marginTop: '8px' }}>SMS</p>
+                                </div>
+                                <div style={{ textAlign: 'center' }} onClick={() => handlePaymentLink(showShareSheet)}>
+                                    <div className="icon-btn" style={{ width: '50px', height: '50px', background: '#f5f3ff', color: '#6d28d9' }}><FaRupeeSign size={20} /></div>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, marginTop: '8px' }}>UPI Link</p>
+                                </div>
+                                <div style={{ textAlign: 'center' }} onClick={(e) => handleDelete(e, showShareSheet)}>
+                                    <div className="icon-btn" style={{ width: '50px', height: '50px', background: '#fef2f2', color: '#b91c1c' }}><FaTrash size={20} /></div>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, marginTop: '8px' }}>Delete</p>
+                                </div>
+                                <div style={{ textAlign: 'center' }} onClick={() => window.print()}>
+                                    <div className="icon-btn" style={{ width: '50px', height: '50px', background: '#f8fafc', color: '#64748b' }}><FaEllipsisV size={20} /></div>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, marginTop: '8px' }}>Print</p>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="p-4 bg-gradient-to-r from-indigo-500 to-violet-600 text-center">
-                            <p className="text-white text-[10px] font-bold tracking-[0.2em] uppercase">Powered by BillGST.in</p>
-                        </div>
+                        <div style={{ background: 'var(--primary)', padding: '12px', textAlign: 'center', color: 'white', fontSize: '10px', fontWeight: 800 }}>POWERED BY BILLGST.IN</div>
                     </div>
                 </div>
             )}
-            {/* Floating Create Button */}
-            <div className="fixed bottom-6 left-0 right-0 flex justify-center z-40 pointer-events-none">
-                <Link
-                    href="/dashboard/invoices/new"
-                    className="pointer-events-auto bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-2xl hover:bg-blue-700 hover:scale-105 transition-all flex items-center gap-2 ring-4 ring-white"
-                >
-                    <FaPlus className="text-lg" />
-                    CREATE INVOICE
-                </Link>
-            </div>
+
+            <button className="floating-add" onClick={createInvoice}>
+                <FaPlus /> <span>Create Invoice</span>
+            </button>
         </div>
     );
 }

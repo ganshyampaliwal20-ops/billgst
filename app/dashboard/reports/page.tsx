@@ -295,12 +295,17 @@ function ReportsContent() {
 
 .topbar {
   background: linear-gradient(135deg, #0b0f1e 0%, #1c2340 60%, #2d3561 100%);
-  padding: 18px 28px;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky; top: 0; z-index: 50;
   box-shadow: 0 4px 24px rgba(11,15,30,0.3);
+}
+@media(max-width: 768px) {
+  .topbar { flex-direction: column; align-items: flex-start; gap: 12px; padding: 12px 16px; }
+  .topbar-right { width: 100%; justify-content: space-between; overflow-x: auto; padding-bottom: 4px; }
+  .topbar-right::-webkit-scrollbar { display: none; }
 }
 .topbar-left { display: flex; align-items: center; gap: 14px; }
 .back-btn {
@@ -345,12 +350,16 @@ function ReportsContent() {
 .btn-tally { background: linear-gradient(135deg, #dc4a1a, #f97316); color: #fff; box-shadow: 0 4px 14px rgba(249,115,22,0.35); }
 .btn-excel { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
 .export-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+@media(max-width: 500px) {
+  .export-btn { padding: 8px 12px; font-size: 11px; gap: 4px; }
+  .period-select { padding: 8px 10px; font-size: 11px; }
+}
 
 .advisory {
-  margin: 18px 24px 0;
+  margin: 14px 16px 0;
   background: linear-gradient(135deg, #312e81, #4338ca, #4f46e5);
-  border-radius: 14px;
-  padding: 14px 20px;
+  border-radius: 12px;
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -358,11 +367,19 @@ function ReportsContent() {
   box-shadow: 0 4px 20px rgba(79,70,229,0.3);
   animation: slideIn 0.5s ease both;
 }
+@media(max-width: 768px) {
+  .advisory { margin: 10px 12px 0; padding: 6px 12px; gap: 8px; }
+}
 @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-.advisory-left { display: flex; align-items: center; gap: 12px; }
-.advisory-icon { font-size: 22px; flex-shrink: 0; }
-.advisory-text p { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.6); margin: 0; }
-.advisory-text h3 { font-size: 13.5px; font-weight: 600; color: #fff; margin-top: 2px; margin-bottom: 0; }
+.advisory-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.advisory-icon { font-size: 18px; flex-shrink: 0; }
+.advisory-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.advisory-text p { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.6); margin: 0; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+.advisory-text h3 { font-size: 12px; font-weight: 500; color: #fff; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media(max-width: 600px) {
+  .advisory-icon { display: none; }
+  .advisory-text h3 { font-size: 11px; }
+}
 .advisory-badge {
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.2);
@@ -371,8 +388,10 @@ function ReportsContent() {
   transition: all 0.2s; flex-shrink: 0;
 }
 .advisory-badge:hover { background: rgba(255,255,255,0.25); }
-
-.page-content-box { padding: 20px 24px 40px; }
+.page-content-box { padding: 14px 16px 40px; }
+@media(min-width: 769px) {
+  .page-content-box { padding: 20px 24px 40px; }
+}
 
 .kpi-grid {
   display: grid;
@@ -402,12 +421,12 @@ function ReportsContent() {
   height: 3px;
   border-radius: 16px 16px 0 0;
 }
-.kpi-card.indigo::before { background: linear-gradient(90deg, #4f46e5, #818cf8); }
-.kpi-card.teal::before   { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-.kpi-card.green::before  { background: linear-gradient(90deg, #10b981, #34d399); }
-.kpi-card.amber::before  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.kpi-card.red::before    { background: linear-gradient(90deg, #ef4444, #f87171); }
 .kpi-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+@media(max-width: 500px) {
+  .kpi-card { padding: 14px 12px; }
+  .kpi-value { font-size: 18px; }
+  .kpi-icon { width: 34px; height: 34px; font-size: 16px; }
+}
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 .kpi-card:nth-child(1){animation-delay:.05s}
@@ -514,8 +533,12 @@ function ReportsContent() {
 .dl-btn.csv   { --hc: #4f46e5; }
 .dl-btn:hover { background: color-mix(in srgb, var(--hc) 8%, white); border-color: color-mix(in srgb, var(--hc) 30%, white); }
 .dl-icon { font-size: 28px; }
-.dl-name { font-size: 12px; font-weight: 700; color: var(--ink); }
-.dl-desc { font-size: 10px; color: var(--muted); font-weight: 400; text-align: center; }
+.dl-name { font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.dl-desc { font-size: 9px; color: var(--muted); font-weight: 400; text-align: center; line-height: 1.2; }
+@media(max-width: 400px) {
+  .dl-btn { padding: 12px 6px; }
+  .dl-name { font-size: 10.5px; }
+}
 
 .bottom-grid {
   display: grid;
@@ -599,7 +622,7 @@ function ReportsContent() {
                     <div className="advisory-left">
                         <span className="advisory-icon">💡</span>
                         <div className="advisory-text">
-                            <p>Smart Advisory</p>
+                            <p>Advisory</p>
                             <h3>Aapki HSN compliance 92% hai. Penalties se bachne ke liye missing codes add karein.</h3>
                         </div>
                     </div>
@@ -759,7 +782,12 @@ function ReportsContent() {
                                     <div className="chart-title">Top Customers</div>
                                     <div className="chart-sub">By transaction value</div>
                                 </div>
-                                <div style={{ fontSize: "11px", fontWeight: 600, color: "var(--indigo)", cursor: "pointer" }}>View All →</div>
+                                <div
+                                    style={{ fontSize: "11px", fontWeight: 600, color: "var(--indigo)", cursor: "pointer" }}
+                                    onClick={() => router.push('/dashboard/customers')}
+                                >
+                                    View All →
+                                </div>
                             </div>
                             <div>
                                 {customersWithTotals.map((c: any, i: number) => (

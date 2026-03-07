@@ -264,7 +264,7 @@ export default function InventoryPage() {
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
         .prod-img-wrap { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1.5px solid var(--border); overflow:hidden; }
-        .prod-name { font-size:13.5px; font-weight:700; color:var(--ink); }
+        .prod-name { font-size:13.5px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px; }
         .prod-hsn { font-size:11px; color:var(--muted); font-weight:500; font-family:'JetBrains Mono',monospace; margin-top:2px; }
         .prod-tags { display:flex; gap:5px; margin-top:4px; flex-wrap:wrap; }
         .ptag { font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:5px; text-transform:uppercase; }
@@ -343,7 +343,31 @@ export default function InventoryPage() {
         .fab:hover { transform:scale(1.08) rotate(10deg); box-shadow:0 12px 36px rgba(16,185,129,.6); }
 
         @media(max-width:1100px){ .table-head,.prod-row{grid-template-columns:60px 1fr 100px 100px 120px 160px;} .th:nth-child(5),.prod-row>*:nth-child(5){display:none;} }
-        @media(max-width:900px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+        @media(max-width:900px){ 
+          .kpi-strip{grid-template-columns:repeat(2,1fr);} 
+          .search-filter-row { flex-wrap:wrap; }
+          .search-wrap { width:100%; order:1; }
+          .filter-btn { flex:1; order:2; padding:10px; font-size:12px; }
+        }
+        @media(max-width:600px){ 
+          .table-head { display:none; }
+          .prod-row { grid-template-columns:50px 1fr 70px; gap:8px; padding:12px 14px; position:relative; align-items:flex-start; }
+          .price-cell, .value-cell, .prod-row>div:nth-child(6) { display:none; }
+          .prod-img-wrap { width:44px; height:44px; font-size:20px; }
+          .prod-name { font-size:12px; max-width:140px; }
+          .prod-hsn { font-size:9px; }
+          .stock-val { font-size:11px; }
+          .actions-cell { position:absolute; right:10px; bottom:10px; gap:6px; }
+          .act-btn { width:28px; height:28px; font-size:12px; }
+          .ph-left h1 { font-size:20px; }
+          .ph-row { flex-direction:column; gap:12px; align-items:flex-start; }
+          .add-btn { width:100%; justify-content:center; }
+          .tab-row { margin-bottom:10px; }
+          .ctab { padding:7px 14px; font-size:11px; }
+          .modal-header { padding:14px 18px; }
+          .modal-close { width:28px; height:28px; font-size:14px; }
+          .modal-header h3 { font-size:15px; }
+        }
         `}} />
 
             <div className="inv-main">
@@ -378,17 +402,7 @@ export default function InventoryPage() {
 
                 {/* Content */}
                 <div className="content">
-                    {/* Low stock alert */}
-                    {lowStockCount > 0 && (
-                        <div className="alert-bar">
-                            <span className="alert-icon">🔴</span>
-                            <div className="alert-text">
-                                <h3>{lowStockCount} Products Low Stock!</h3>
-                                <p>Kuch products restock karne ki zaroorat hai, list check karein.</p>
-                            </div>
-                            <button className="alert-btn" onClick={() => setActiveTab("low")}>📦 View Low Stock</button>
-                        </div>
-                    )}
+                    {/* Low stock alert bar removed as requested. User can use the "Low Stock" button at the top instead. */}
 
                     {/* Search + Filter */}
                     <div className="search-filter-row">
