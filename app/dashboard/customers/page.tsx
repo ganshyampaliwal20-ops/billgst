@@ -235,7 +235,7 @@ export default function CustomersPage() {
                         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
                         
                         .anp-popup * { box-sizing: border-box; }
-                        .anp-popup {
+                        .anp-popup { /* MODIFIED BY PYTHON SCRIPT*/
                             font-family: 'Plus Jakarta Sans', sans-serif;
                             background: #ffffff;
                             border-radius: 20px;
@@ -253,7 +253,7 @@ export default function CustomersPage() {
                             display: none;
                         }
                         /* Hide scrollbar for IE, Edge and Firefox */
-                        .anp-popup {
+                        .anp-popup { /* MODIFIED BY PYTHON SCRIPT*/
                             -ms-overflow-style: none; /* IE and Edge */
                             scrollbar-width: none; /* Firefox */
                         }
@@ -380,7 +380,7 @@ export default function CustomersPage() {
                         .anp-btn-save:active:not(:disabled) { transform: translateY(0); }
                         .anp-btn-save:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none; }
                         @media (max-width: 600px) {
-                            .anp-popup { margin: 10px; border-radius: 16px; }
+                            .anp-popup { /* MODIFIED BY PYTHON SCRIPT*/ margin: 10px; border-radius: 16px; }
                             .anp-popup-header { padding: 12px 16px 8px; }
                             .anp-header-icon-wrap { width: 32px; height: 32px; font-size: 14px; margin-bottom: 4px; }
                             .anp-popup-header h2 { font-size: 16px; }
