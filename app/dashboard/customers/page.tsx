@@ -241,10 +241,21 @@ export default function CustomersPage() {
                             border-radius: 20px;
                             width: 100%;
                             max-width: 480px;
-                            overflow: hidden;
+                            max-height: 85vh;
+                            overflow-y: auto;
+                            margin: 15px;
                             animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
                             box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
                             text-align: left;
+                        }
+                        /* Hide scrollbar for Chrome, Safari and Opera */
+                        .anp-popup::-webkit-scrollbar {
+                            display: none;
+                        }
+                        /* Hide scrollbar for IE, Edge and Firefox */
+                        .anp-popup {
+                            -ms-overflow-style: none; /* IE and Edge */
+                            scrollbar-width: none; /* Firefox */
                         }
                         @keyframes slideUp {
                             from { opacity: 0; transform: translateY(30px) scale(0.96); }
@@ -368,6 +379,15 @@ export default function CustomersPage() {
                         .anp-btn-save:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(20,184,166,0.45); }
                         .anp-btn-save:active:not(:disabled) { transform: translateY(0); }
                         .anp-btn-save:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; box-shadow: none; }
+                        @media (max-width: 600px) {
+                            .anp-popup-header { padding: 16px 20px 12px; }
+                            .anp-header-icon-wrap { width: 36px; height: 36px; font-size: 16px; margin-bottom: 6px; }
+                            .anp-popup-header h2 { font-size: 18px; }
+                            .anp-popup-header p { font-size: 11px; }
+                            .anp-popup-body { padding: 16px 20px 8px; }
+                            .anp-close-btn { width: 28px; height: 28px; font-size: 14px; }
+                            .anp-popup-footer { padding: 12px 20px 16px; }
+                        }
                     `}} />
 
                     <div className="anp-popup">

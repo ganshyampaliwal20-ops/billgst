@@ -1038,13 +1038,23 @@ export default function NewInvoicePage() {
                             border-radius: 24px;
                             width: 100%;
                             max-width: 460px;
-                            margin: 20px;
-                            overflow: hidden;
+                            margin: 15px;
+                            max-height: 85vh;
+                            overflow-y: auto;
                             box-shadow: 0 40px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
                             position: relative;
                             z-index: 101;
                             text-align: left;
                             animation: popupIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+                        }
+                        /* Hide scrollbar for Chrome, Safari and Opera */
+                        .qac-popup::-webkit-scrollbar {
+                            display: none;
+                        }
+                        /* Hide scrollbar for IE, Edge and Firefox */
+                        .qac-popup {
+                            -ms-overflow-style: none; /* IE and Edge */
+                            scrollbar-width: none; /* Firefox */
                         }
                         @keyframes popupIn {
                             from { opacity: 0; transform: scale(0.8) translateY(20px); }
@@ -1136,6 +1146,15 @@ export default function NewInvoicePage() {
                         .qac-btn-save:active:not(:disabled) { transform: translateY(0); }
                         .qac-btn-save:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
                         .qac-char-count { text-align: right; font-size: 11px; color: #d1d5db; margin-top: 4px; }
+                        @media (max-width: 600px) {
+                            .qac-popup-header { padding: 16px 20px 12px; }
+                            .qac-header-icon { width: 36px; height: 36px; font-size: 18px; margin-bottom: 8px; }
+                            .qac-popup-header h2 { font-size: 20px; }
+                            .qac-popup-header p { font-size: 11.5px; }
+                            .qac-close-btn { top: 12px; right: 16px; width: 28px; height: 28px; font-size: 15px; }
+                            .qac-popup-body { padding: 16px 20px 12px; }
+                            .qac-popup-footer { padding: 0 20px 16px; }
+                        }
                     `}} />
 
                     <div className="qac-popup">
