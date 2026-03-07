@@ -47,6 +47,12 @@ export default function DashboardLayout({
         }
     }, [fetchBusinessProfile, status, pathname, router]);
 
+    const [currentTime, setCurrentTime] = useState(new Date());
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     if (!isMounted || status === 'loading') return null;
     if (status === 'unauthenticated') return null;
 
@@ -341,7 +347,7 @@ export default function DashboardLayout({
                 {/* Header - Sticky on top */}
                 <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
                     <div className="px-8 sm:px-6 lg:px-8 w-full" style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '0px' }}>
-                        <div className="flex items-center justify-between h-12 md:h-16">
+                        <div className="flex items-center justify-between h-12 md:h-16 relative">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
                                 <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
@@ -365,16 +371,26 @@ export default function DashboardLayout({
                                 </Link>
                             </div>
 
-                            {/* Right Side: Date + Menu */}
-                            <div className="flex items-center gap-3 md:gap-4">
-                                <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white rounded-full text-xs font-semibold border border-white/20 backdrop-blur-md shadow-sm">
-                                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-green-400/50 shadow-lg"></span>
-                                    {/* Fix Hydration Error: Only render date on client using check or simpler generic date initially */}
-                                    <span suppressHydrationWarning>
-                                        {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                                    </span>
-                                </div>
+                            {/* Center: Time & Date */}
+                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1 md:py-1.5 bg-white/10 text-white rounded-full text-[9px] md:text-xs font-semibold border border-white/20 backdrop-blur-md shadow-sm pointer-events-none whitespace-nowrap">
+                                <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-400 animate-pulse shadow-green-400/50 shadow-lg"></span>
+                                <span suppressHydrationWarning className="">
+                                    {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} ·
+                                </span>
+                                <span suppressHydrationWarning>
+                                    {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                </span>
+                            </div>
 
+                            {/* Right Side: Menu */}
+                            <div className="flex items-center gap-2 md:gap-4">
+                                <Link
+                                    href="/dashboard/settings"
+                                    className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"
+                                    title="Business Settings"
+                                >
+                                    <FaCog size={16} />
+                                </Link>
                                 <button
                                     onClick={handleLogout}
                                     className="hidden md:flex items-center justify-center w-10 h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"

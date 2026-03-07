@@ -1,14 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { useParams, useRouter } from 'next/navigation';
-import {
-    FaArrowLeft, FaUser, FaPhone, FaMapMarkerAlt, FaExclamationCircle,
-    FaEdit, FaReceipt, FaRupeeSign, FaCalendarCheck, FaRegClock, FaMoneyBillWave
-} from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { formatCurrency } from '@/lib/utils';
+import Chart from 'chart.js/auto';
 
 export default function CustomerDetailPage() {
     const { id } = useParams();
@@ -19,12 +15,15 @@ export default function CustomerDetailPage() {
     // Payment State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentAmount, setPaymentAmount] = useState('');
-    const [paymentMode, setPaymentMode] = useState('CASH');
-    const [isProcessing, setIsProcessing] = useState(false);
+    const [paymentMode, setPaymentMode] = useState('UPI / GPay');
+    const [paymentNote, setPaymentNote] = useState('');
 
     // Promise State
     const [showPromiseModal, setShowPromiseModal] = useState(false);
     const [promiseDate, setPromiseDate] = useState('');
+    const [promiseNote, setPromiseNote] = useState('');
+
+    const chartRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -40,12 +39,36 @@ export default function CustomerDetailPage() {
         }
     }, [customer]);
 
+    useEffect(() => {
+        if (!isClient || !chartRef.current) return;
+
+        const chart = new Chart(chartRef.current, {
+            type: 'bar',
+            data: {
+                labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                datasets: [
+                    { label: 'Billed', data: [60000, 95000, 120000, 80000, 175000, 45000], backgroundColor: 'rgba(79,70,229,0.15)', borderColor: '#4f46e5', borderWidth: 2, borderRadius: 6, borderSkipped: false },
+                    { label: 'Paid', data: [60000, 80000, 120000, 80000, 160000, 0], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6, borderSkipped: false }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + (ctx.raw as number / 1000).toFixed(0) + 'K' } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
+                    y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 1000) + 'K' } }
+                }
+            }
+        });
+
+        return () => chart.destroy();
+    }, [isClient, customer]);
+
     if (!isClient) return null;
 
     if (!customer) {
         return (
             <div className="p-8 text-center">
-                <FaExclamationCircle className="mx-auto text-4xl text-red-400 mb-4" />
                 <h2 className="text-xl font-bold text-slate-800">Customer Not Found</h2>
                 <button onClick={() => router.back()} className="mt-4 text-blue-600 hover:underline">Go Back</button>
             </div>
@@ -60,17 +83,19 @@ export default function CustomerDetailPage() {
     const totalPaid = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.paid_amount || 0), 0);
     const totalDue = Math.max(0, totalSales - totalPaid);
 
-    const isPromiseOverdue = customer.promise_date && new Date(customer.promise_date) < new Date(new Date().setHours(0, 0, 0, 0)) && totalDue > 0;
+    const formatLakhs = (val: number) => {
+        if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lk`;
+        if (val >= 1000) return `₹${(val / 1000).toFixed(1)} K`;
+        return `₹${Number(val || 0).toLocaleString('en-IN')}`;
+    };
 
-    const handlePayment = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handlePayment = async () => {
         const amount = parseFloat(paymentAmount);
         if (!amount || amount <= 0) {
-            toast.error('Please enter a valid amount');
+            toast.error('⚠ Valid amount daalo!');
             return;
         }
 
-        setIsProcessing(true);
         try {
             const unpaidInvoices = customerInvoices
                 .filter((inv: any) => (parseFloat(inv.total_amount) - parseFloat(inv.paid_amount || 0)) > 0.1)
@@ -100,7 +125,7 @@ export default function CustomerDetailPage() {
             }
 
             if (processedCount > 0) {
-                toast.success(`Payment of ₹${amount} received!`);
+                toast.success(`✅ ₹${amount.toLocaleString('en-IN')} received via ${paymentMode}`);
                 if (Math.abs(amount - totalDue) < 0.1) {
                     await updateCustomer(id, { promise_date: null });
                 }
@@ -110,221 +135,377 @@ export default function CustomerDetailPage() {
             }
         } catch (error) {
             toast.error('An error occurred');
-        } finally {
-            setIsProcessing(false);
         }
     };
 
-    const updatePromiseDate = async () => {
-        setIsProcessing(true);
+    const setCommitment = async () => {
+        if (!promiseDate) {
+            toast.error('⚠ Date select karo!');
+            return;
+        }
         try {
             await updateCustomer(id, { promise_date: promiseDate || null });
             setShowPromiseModal(false);
+            const formatted = new Date(promiseDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+            toast.success('📅 Payment date set: ' + formatted);
         } catch (e) {
             toast.error('Failed to update promise date');
-        } finally {
-            setIsProcessing(false);
         }
     };
 
+    const initials = (customer.name || 'U').charAt(0).toUpperCase();
+    const currentDate = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    const commitDateStr = customer.promise_date ? new Date(customer.promise_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'No promise date set';
+
+    const payments = [
+        { date: '04 Mar 2026', mode: 'UPI / GPay', amt: '₹45,000', note: 'March advance' },
+        { date: '25 Feb 2026', mode: 'Cash', amt: '₹75,000', note: '' },
+        { date: '10 Feb 2026', mode: 'Bank Transfer', amt: '₹2,40,000', note: 'Full settlement' },
+    ];
+
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50 overflow-hidden">
-            {/* Header */}
-            <div className="bg-orange-600 text-white px-6 py-5 flex items-center justify-between shadow-lg z-20">
-                <div className="flex items-center gap-4">
-                    <button onClick={() => router.back()} className="hover:bg-white/10 p-2 -ml-2 rounded-full transition-colors">
-                        <FaArrowLeft className="text-xl" />
-                    </button>
-                    <div>
-                        <h1 className="text-xl font-bold tracking-wide">{customer.name}</h1>
-                        <p className="text-xs text-white/70 font-medium">Customer History & Summary</p>
+        <div className="cust-summary-wrapper">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+:root {
+  --bg: #f1f4fb;
+  --white: #ffffff;
+  --ink: #0b0f1e;
+  --ink2: #1c2340;
+  --slate: #3d4766;
+  --muted: #7c88a6;
+  --border: #e2e6f3;
+  --faint: #f5f7fd;
+  --indigo: #4f46e5;
+  --teal: #0ea5e9;
+  --green: #10b981;
+  --green-soft: rgba(16,185,129,0.1);
+  --red: #ef4444;
+  --red-soft: rgba(239,68,68,0.1);
+  --amber: #f59e0b;
+  --amber-soft: rgba(245,158,11,0.1);
+  --shadow: 0 2px 16px rgba(11,15,30,0.07),0 1px 4px rgba(11,15,30,0.04);
+  --shadow-md: 0 8px 32px rgba(11,15,30,0.11),0 2px 8px rgba(11,15,30,0.06);
+}
+.cust-summary-wrapper *, .cust-summary-wrapper *::before, .cust-summary-wrapper *::after{box-sizing:border-box;margin:0;padding:0}
+.cust-summary-wrapper{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+.shell{max-width:440px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:90px}
+
+.appbar{
+  background:linear-gradient(135deg,#0b0f1e 0%,#1c2340 70%,#2d3561 100%);
+  padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.appbar-brand{display:flex;align-items:center;gap:10px}
+.app-icon{width:36px;height:36px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px; color: #fff;}
+.app-name{font-size:15px;font-weight:800;color:#fff}
+.app-sub{font-size:10px;color:rgba(255,255,255,0.45);font-weight:400}
+.date-chip{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:600;display:flex;align-items:center;gap:5px}
+.date-dot{width:7px;height:7px;border-radius:50%;background:#10b981}
+
+.cust-header{
+  background:linear-gradient(135deg,#1e3a5f 0%,#1e40af 60%,#2563eb 100%);
+  padding:16px 18px 14px;
+  position:relative;overflow:hidden;
+}
+.cust-header::before{content:'';position:absolute;width:160px;height:160px;background:rgba(255,255,255,0.04);border-radius:50%;top:-50px;right:-30px}
+.cust-header::after{content:'';position:absolute;width:80px;height:80px;background:rgba(255,255,255,0.04);border-radius:50%;bottom:-20px;left:40px}
+.ch-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;position:relative;z-index:1}
+.back-btn{width:34px;height:34px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer;transition:all .2s;text-decoration:none;flex-shrink:0}
+.back-btn:hover{background:rgba(255,255,255,0.2)}
+.cust-avatar{width:46px;height:46px;background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(245,158,11,0.4)}
+.cust-meta{flex:1}
+.cust-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.cust-sub{font-size:11px;color:rgba(255,255,255,0.55);font-weight:400;margin-top:2px}
+.edit-btn{width:34px;height:34px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .2s;flex-shrink:0;color:#fff;}
+.edit-btn:hover{background:rgba(255,255,255,0.2)}
+
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;background:rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative;z-index:1}
+.stat-cell{padding:12px 10px;text-align:center;border-right:1px solid rgba(255,255,255,0.1)}
+.stat-cell:last-child{border-right:none}
+.stat-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,0.45);margin-bottom:5px}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:#fff}
+.stat-num.red{color:#fb7185}
+.stat-num.green{color:#34d399}
+.stat-num.amber{color:#fbbf24}
+
+.body{padding:14px 14px 0}
+
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.qa-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;background:var(--white);border-radius:13px;border:1.5px solid var(--border);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.qa-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:transparent}
+.qa-icon{font-size:20px}
+.qa-label{font-size:10px;font-weight:700;color:var(--slate);text-align:center;line-height:1.2}
+.qa-btn.call:hover{background:#f0fdf4;border-color:#86efac}
+.qa-btn.whatsapp:hover{background:#f0fdf4;border-color:#86efac}
+.qa-btn.sms:hover{background:#eff6ff;border-color:#93c5fd}
+.qa-btn.statement:hover{background:#faf5ff;border-color:#c4b5fd}
+
+.card{background:var(--white);border-radius:16px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px;animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+.card-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-title-sub{font-size:10.5px;font-weight:500;color:var(--muted)}
+.see-all{font-size:11px;font-weight:600;color:var(--indigo);cursor:pointer}
+
+.info-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--faint)}
+.info-row:last-child{border-bottom:none}
+.info-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.info-key{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.info-val{font-size:13.5px;font-weight:600;color:var(--ink);font-family:'JetBrains Mono',monospace}
+
+.commitment-box{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:12px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s}
+.commitment-box:hover{box-shadow:0 4px 14px rgba(245,158,11,0.2)}
+.comm-left{display:flex;align-items:center;gap:10px}
+.comm-icon{font-size:20px}
+.comm-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#92400e}
+.comm-date{font-size:13px;font-weight:700;color:#78350f;margin-top:2px}
+.set-date-btn{background:#f59e0b;color:#fff;border:none;padding:7px 13px;border-radius:8px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+.set-date-btn:hover{background:#d97706}
+
+.inv-head{display:grid;grid-template-columns:90px 1fr 100px 80px;gap:8px;padding:8px 0;border-bottom:2px solid var(--faint)}
+.inv-head span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+.inv-row{display:grid;grid-template-columns:90px 1fr 100px 80px;gap:8px;padding:10px 0;border-bottom:1px solid var(--faint);transition:all .15s;cursor:pointer;align-items:center}
+.inv-row:last-child{border-bottom:none}
+.inv-row:hover{background:var(--faint);margin:0 -8px;padding:10px 8px;border-radius:10px}
+.inv-date{font-size:11.5px;color:var(--muted);font-weight:500}
+.inv-no{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--indigo)}
+.inv-status{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10.5px;font-weight:700}
+.inv-status.paid{background:var(--green-soft);color:var(--green)}
+.inv-status.pending{background:var(--red-soft);color:var(--red)}
+.inv-status.partial{background:var(--amber-soft);color:var(--amber)}
+.inv-amt{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--ink);text-align:right}
+
+canvas{max-height:180px; width: 100%;}
+
+.empty-state{text-align:center;padding:32px 20px}
+.empty-state .emoji{font-size:40px;margin-bottom:10px}
+.empty-state p{font-size:13px;color:var(--muted);font-weight:500}
+
+.tags-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.tag{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid}
+.tag.vip{background:#faf5ff;color:#7c3aed;border-color:#ddd6fe}
+.tag.regular{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+.tag.new{background:#f0fdf4;color:#059669;border-color:#bbf7d0}
+
+.bottom-bar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:440px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  padding:13px 18px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;
+  box-shadow:0 -4px 24px rgba(79,70,229,0.3);
+  z-index:40;
+  transition:all .2s;
+}
+.bottom-bar:hover{filter:brightness(1.1)}
+.bottom-bar .pay-icon{font-size:20px}
+.bottom-bar .pay-text{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.2px}
+.bottom-bar .pay-amt{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:rgba(255,255,255,0.8)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(11,15,30,0.6);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:440px;padding:18px 20px 36px;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:34px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:16px}
+.modal-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:11px;font-family:'Sora',sans-serif;font-size:14px;color:var(--ink);outline:none;margin-bottom:14px;transition:all .2s;background:#fff;}
+.modal-input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,0.1)}
+.modal-actions{display:flex;gap:10px;margin-top:4px}
+.modal-btn{flex:1;padding:13px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.modal-btn.cancel{background:var(--faint);color:var(--slate);border:1.5px solid var(--border)}
+.modal-btn.confirm{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.35)}
+            ` }} />
+
+            <div className="shell">
+                <div className="appbar">
+                    <div className="appbar-brand">
+                        <div className="app-icon">💼</div>
+                        <div>
+                            <div className="app-name">Business</div>
+                            <div className="app-sub" suppressHydrationWarning>Professional Billing</div>
+                        </div>
+                    </div>
+                    <div className="date-chip" suppressHydrationWarning><div className="date-dot"></div>{currentDate}</div>
+                </div>
+
+                <div className="cust-header">
+                    <div className="ch-top">
+                        <div className="back-btn" onClick={() => router.back()}>‹</div>
+                        <div className="cust-avatar">{initials}</div>
+                        <div className="cust-meta">
+                            <div className="cust-name">{customer.name}</div>
+                            <div className="cust-sub">Customer History &amp; Summary</div>
+                        </div>
+                        <div className="edit-btn" onClick={() => toast('Edit mode open!')}>✏️</div>
+                    </div>
+                    <div className="stats-bar">
+                        <div className="stat-cell">
+                            <div className="stat-lbl">Total Sales</div>
+                            <div className="stat-num amber">{formatLakhs(totalSales)}</div>
+                        </div>
+                        <div className="stat-cell">
+                            <div className="stat-lbl">Total Paid</div>
+                            <div className="stat-num green">{formatLakhs(totalPaid)}</div>
+                        </div>
+                        <div className="stat-cell">
+                            <div className="stat-lbl">Outstanding</div>
+                            <div className="stat-num red">{formatLakhs(totalDue)}</div>
+                        </div>
                     </div>
                 </div>
-                <button onClick={() => toast('Edit coming soon')} className="bg-white/10 hover:bg-white/20 p-2.5 rounded-xl transition-all border border-white/10">
-                    <FaEdit className="text-lg" />
-                </button>
-            </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-                {/* Summary Box */}
-                <div className="bg-blue-600 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                    <div className="flex items-center justify-between gap-4 relative z-10">
-                        <div className="flex-1 flex flex-col items-center gap-2">
-                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Sales</span>
-                            <span className="text-lg font-black text-white">{formatCurrency(totalSales)}</span>
+                <div className="body">
+                    <div className="quick-actions" style={{ animation: "fadeUp .3s .05s ease both" }}>
+                        <div className="qa-btn call" onClick={() => toast('Calling ' + customer.phone + '…')}>
+                            <span className="qa-icon">📞</span><span className="qa-label">Call</span>
                         </div>
-                        <div className="w-px h-10 bg-white/20"></div>
-                        <div className="flex-1 flex flex-col items-center gap-2">
-                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Total Paid</span>
-                            <span className="text-lg font-black text-emerald-300">{formatCurrency(totalPaid)}</span>
+                        <div className="qa-btn whatsapp" onClick={() => toast('WhatsApp open ho raha hai…')}>
+                            <span className="qa-icon">💬</span><span className="qa-label">WhatsApp</span>
                         </div>
-                        <div className="w-px h-10 bg-white/20"></div>
-                        <div className="flex-1 flex flex-col items-center gap-2">
-                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Outstanding</span>
-                            <span className="text-lg font-black text-orange-300">{formatCurrency(totalDue)}</span>
+                        <div className="qa-btn sms" onClick={() => toast('SMS bhej raha hai…')}>
+                            <span className="qa-icon">✉️</span><span className="qa-label">Send SMS</span>
+                        </div>
+                        <div className="qa-btn statement" onClick={() => toast('Statement download ho raha hai…')}>
+                            <span className="qa-icon">📄</span><span className="qa-label">Statement</span>
                         </div>
                     </div>
-                </div>
 
-                {/* Promise to Pay Section */}
-                <div className={`rounded-2xl border-2 p-5 flex items-center justify-between shadow-sm transition-all ${isPromiseOverdue ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200'}`}>
-                    <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl ${isPromiseOverdue ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
-                            <FaCalendarCheck className="text-xl" />
+                    <div className="card" style={{ animationDelay: ".1s" }}>
+                        <div className="card-title">
+                            Basic Information
+                            <span className="card-title-sub">Customer profile</span>
+                        </div>
+                        <div className="info-row">
+                            <div className="info-icon" style={{ background: "#eff6ff" }}>📱</div>
+                            <div><div className="info-key">Phone</div><div className="info-val">{customer.phone}</div></div>
+                        </div>
+                        <div className="info-row">
+                            <div className="info-icon" style={{ background: "#f0fdf4" }}>✉️</div>
+                            <div><div className="info-key">Email</div><div className="info-val" style={{ fontFamily: "'Sora',sans-serif", fontSize: "13px" }}>{customer.email || 'customer@email.com'}</div></div>
+                        </div>
+                        <div className="info-row">
+                            <div className="info-icon" style={{ background: "#faf5ff" }}>🏢</div>
+                            <div><div className="info-key">GSTIN</div><div className="info-val">{customer.gstin || '—'}</div></div>
+                        </div>
+                        <div className="info-row">
+                            <div className="info-icon" style={{ background: "#fff7ed" }}>📍</div>
+                            <div><div className="info-key">Address</div><div className="info-val" style={{ fontFamily: "'Sora',sans-serif", fontSize: "12.5px", fontWeight: 600 }}>{customer.address || "—"}</div></div>
+                        </div>
+                        <div className="tags-row">
+                            {customer.tag && customer.tag.toLowerCase().includes('vip') ? <span className="tag vip">⭐ VIP</span> : <span className="tag regular">🔁 Regular</span>}
+                            <span className="tag new">🆕 2024 Customer</span>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ animationDelay: ".15s" }}>
+                        <div className="card-title">Payment Commitment</div>
+                        <div className="commitment-box" onClick={() => setShowPromiseModal(true)}>
+                            <div className="comm-left">
+                                <span className="comm-icon">📅</span>
+                                <div>
+                                    <div className="comm-title">Next Payment Promise</div>
+                                    <div className="comm-date">{commitDateStr}</div>
+                                </div>
+                            </div>
+                            <button className="set-date-btn">📌 Set Date</button>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ animationDelay: ".2s" }}>
+                        <div className="card-title">
+                            Payment Trend
+                            <span className="see-all" onClick={() => toast('Full chart view open!')}>6 months →</span>
+                        </div>
+                        <div style={{ position: 'relative', height: '180px', width: '100%' }}>
+                            <canvas ref={chartRef}></canvas>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ animationDelay: ".25s" }}>
+                        <div className="card-title">
+                            Invoice History
+                            <span className="see-all" onClick={() => toast('All invoices dekh rahe hain…')}>See All →</span>
+                        </div>
+                        <div className="inv-head">
+                            <span>Date</span><span>Invoice No.</span><span>Status</span><span style={{ textAlign: "right" }}>Amount</span>
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Payment Commitment</p>
-                            {customer.promise_date ? (
-                                <div className="flex items-center gap-2 text-left">
-                                    <p className="font-black text-slate-800">
-                                        {new Date(customer.promise_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                    </p>
-                                    {isPromiseOverdue && <span className="text-[9px] bg-red-600 text-white px-2 py-0.5 rounded-full font-black animate-pulse">OVERDUE</span>}
+                            {customerInvoices.slice(0, 5).map((inv: any) => (
+                                <div className="inv-row" key={inv.id} onClick={() => toast('Invoice ' + inv.invoice_number + ' open ho rahi hai…')}>
+                                    <div className="inv-date">{new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
+                                    <div className="inv-no">{inv.invoice_number}</div>
+                                    <div>
+                                        <span className={`inv-status ${inv.status === 'PAID' ? 'paid' : inv.status === 'PARTIAL' ? 'partial' : 'pending'}`}>
+                                            {inv.status === 'PAID' ? '✓ Paid' : inv.status === 'PARTIAL' ? '◑ Partial' : '⚠ Pending'}
+                                        </span>
+                                    </div>
+                                    <div className="inv-amt">₹{Number(inv.total_amount).toLocaleString('en-IN')}</div>
                                 </div>
-                            ) : (
-                                <p className="text-sm font-bold text-slate-500 italic">No promise date set</p>
-                            )}
+                            ))}
+                            {customerInvoices.length === 0 && <div className="p-4 text-center text-xs font-bold text-slate-400">No invoices yet</div>}
                         </div>
                     </div>
-                    <button
-                        onClick={() => setShowPromiseModal(true)}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2"
-                    >
-                        <FaRegClock /> {customer.promise_date ? 'Change' : 'Set Date'}
-                    </button>
+
+                    <div className="card" style={{ animationDelay: ".3s" }}>
+                        <div className="card-title">Recent Payments</div>
+                        <div>
+                            {payments.map((p, i) => (
+                                <div className="info-row" key={i}>
+                                    <div className="info-icon" style={{ background: "var(--green-soft)" }}>💚</div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--ink)" }}>{p.amt}</div>
+                                        <div style={{ fontSize: "11px", color: "var(--muted)", fontWeight: 500 }}>{p.mode} · {p.date}{p.note ? ' · ' + p.note : ''}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                 </div>
 
-                {/* Info Section */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden text-left">
-                    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h2 className="font-bold text-slate-800">Basic Information</h2>
-                    </div>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-                        {customer.phone && (
-                            <div className="flex items-center gap-4">
-                                <FaPhone className="text-slate-400" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Phone</p>
-                                    <p className="font-bold text-slate-700">{customer.phone}</p>
-                                </div>
-                            </div>
-                        )}
-                        {customer.gstin && (
-                            <div className="flex items-center gap-4">
-                                <FaUser className="text-slate-400" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase">GSTIN</p>
-                                    <p className="font-bold text-slate-700">{customer.gstin}</p>
-                                </div>
-                            </div>
-                        )}
-                        {customer.address && (
-                            <div className="flex items-start gap-4 md:col-span-2">
-                                <FaMapMarkerAlt className="text-slate-400 mt-1" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Address</p>
-                                    <p className="font-bold text-slate-700 leading-relaxed text-left">{customer.address}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                <div className="bottom-bar" onClick={() => setShowPaymentModal(true)}>
+                    <span className="pay-icon">💳</span>
+                    <span className="pay-text">Receive Payment</span>
+                    <span className="pay-amt">₹{totalDue.toLocaleString('en-IN')}</span>
                 </div>
+            </div>
 
-                {/* History */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
-                    <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h2 className="font-bold text-slate-800">Invoice History</h2>
-                        <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full font-bold">{customerInvoices.length} Bills</span>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase">Date</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase">Invoice No.</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {customerInvoices.map((inv: any) => (
-                                    <tr key={inv.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => router.push(`/dashboard/invoices`)}>
-                                        <td className="px-6 py-5 text-sm font-bold text-slate-700">
-                                            {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                                        </td>
-                                        <td className="px-6 py-5 text-sm font-black text-blue-600">{inv.invoice_number}</td>
-                                        <td className="px-6 py-5 text-sm font-black text-right">{formatCurrency(inv.total_amount || 0)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className={`modal-overlay ${showPaymentModal ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setShowPaymentModal(false); }}>
+                <div className="modal">
+                    <div className="modal-handle"></div>
+                    <div className="modal-title">💳 Receive Payment</div>
+                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Amount (₹)</div>
+                    <input className="modal-input" type="number" placeholder="Enter amount" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} />
+                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Payment Mode</div>
+                    <select className="modal-input" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+                        <option>Cash</option><option>UPI / GPay</option><option>Bank Transfer</option><option>Cheque</option>
+                    </select>
+                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Note (Optional)</div>
+                    <input className="modal-input" type="text" placeholder="Add a note…" value={paymentNote} onChange={(e) => setPaymentNote(e.target.value)} />
+                    <div className="modal-actions">
+                        <button className="modal-btn cancel" onClick={() => setShowPaymentModal(false)}>Cancel</button>
+                        <button className="modal-btn confirm" onClick={handlePayment}>✓ Confirm</button>
                     </div>
                 </div>
             </div>
 
-            <div className="p-4 bg-white border-t border-slate-200 shadow-lg z-30">
-                <button
-                    onClick={() => { setPaymentAmount(totalDue.toString()); setShowPaymentModal(true); }}
-                    className="w-full py-4 bg-[#4358f4] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
-                >
-                    <FaMoneyBillWave className="text-xl" /> Receive Payment ({formatCurrency(totalDue)})
-                </button>
+            <div className={`modal-overlay ${showPromiseModal ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setShowPromiseModal(false); }}>
+                <div className="modal">
+                    <div className="modal-handle"></div>
+                    <div className="modal-title">📅 Set Payment Date</div>
+                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Promise Date</div>
+                    <input className="modal-input" type="date" value={promiseDate} onChange={(e) => setPromiseDate(e.target.value)} />
+                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Note</div>
+                    <input className="modal-input" type="text" placeholder="Customer ne kab bolaya…" value={promiseNote} onChange={(e) => setPromiseNote(e.target.value)} />
+                    <div className="modal-actions">
+                        <button className="modal-btn cancel" onClick={() => setShowPromiseModal(false)}>Cancel</button>
+                        <button className="modal-btn confirm" onClick={setCommitment}>✓ Set Date</button>
+                    </div>
+                </div>
             </div>
-
-            {/* Promise Modal */}
-            {showPromiseModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative">
-                        <button onClick={() => setShowPromiseModal(false)} className="absolute top-4 right-4 p-2 text-slate-400">✕</button>
-                        <div className="text-center mb-6">
-                            <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><FaCalendarCheck /></div>
-                            <h3 className="text-xl font-black text-slate-800">Promise to Pay</h3>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">Kab tak payment karenge?</p>
-                        </div>
-                        <div className="space-y-4">
-                            <input
-                                type="date"
-                                value={promiseDate}
-                                onChange={(e) => setPromiseDate(e.target.value)}
-                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 outline-none focus:border-blue-500"
-                            />
-                            <button
-                                onClick={updatePromiseDate}
-                                disabled={isProcessing}
-                                className="w-full py-4 bg-blue-600 text-white rounded-xl font-black uppercase tracking-widest shadow-lg shadow-blue-500/30 disabled:opacity-50"
-                            >
-                                {isProcessing ? 'Saving...' : 'Set Commitment'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Existing Payment Modal logic omitted for brevity, but I'll keep it simple */}
-            {showPaymentModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative text-left">
-                        <button onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2 text-slate-400">✕</button>
-                        <h3 className="text-xl font-black text-slate-800 mb-6">Receive Payment</h3>
-                        <div className="space-y-4 text-left">
-                            <input
-                                type="number"
-                                value={paymentAmount}
-                                onChange={(e) => setPaymentAmount(e.target.value)}
-                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl font-black text-2xl text-slate-800 outline-none focus:border-blue-500"
-                                placeholder="0.00"
-                            />
-                            <button
-                                onClick={handlePayment}
-                                disabled={isProcessing}
-                                className="w-full py-4 bg-green-500 text-white rounded-xl font-black uppercase tracking-widest shadow-lg shadow-green-500/30"
-                            >
-                                {isProcessing ? 'Processing...' : 'Confirm Payment'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

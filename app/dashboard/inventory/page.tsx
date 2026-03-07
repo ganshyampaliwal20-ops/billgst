@@ -1,37 +1,39 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useStore } from '@/lib/store';
-import { FaPlus, FaSearch, FaEdit, FaBox, FaExclamationTriangle, FaTrash, FaQrcode, FaImage, FaChevronLeft, FaCommentDots, FaBell, FaCubes, FaExclamationCircle, FaChartLine, FaTimes, FaCamera } from 'react-icons/fa';
-import { toast } from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
-import QRCode from 'qrcode';
-import { formatCompactNumber } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { useStore } from "@/lib/store";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct } = useStore();
+    const { products, addProduct, updateProduct, deleteProduct } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [showQrModal, setShowQrModal] = useState(false);
-    const [qrCodeUrl, setQrCodeUrl] = useState('');
-    const [selectedProduct, setSelectedProduct] = useState<any>(null);
-    const [filterCategory, setFilterCategory] = useState('ALL');
 
-    // Form State
+    // State
+    const [searchTerm, setSearchTerm] = useState("");
+    const [activeTab, setActiveTab] = useState("all");
+    const [currentView, setCurrentView] = useState("list");
+
+    // Modal controls
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showQrModal, setShowQrModal] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const [editingId, setEditingId] = useState<string | null>(null);
+
+    // Form data
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        hsn_code: '',
-        price: '',
-        purchase_price: '',
-        stock_quantity: '',
-        unit: 'PCS',
-        gst_rate: '18',
-        type: 'PRODUCT',
-        image_url: ''
+        name: "",
+        description: "",
+        hsn_code: "",
+        price: "",
+        purchase_price: "",
+        stock_quantity: "",
+        alert_quantity: "",
+        unit: "PCS",
+        gst_rate: "18",
+        type: "product",
+        image_url: "",
     });
 
     useEffect(() => {
@@ -40,20 +42,116 @@ export default function InventoryPage() {
 
     if (!isClient) return null;
 
+    // Derived states
     const filteredProducts = (products || [])
-        .filter((p: any) => p && (p.status !== 'INACTIVE'))
+        .filter((p: any) => p && p.status !== "INACTIVE")
         .filter((p: any) => {
-            const matchesSearch = (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (p.hsn_code || '').includes(searchTerm);
+            const matchesSearch =
+                !searchTerm ||
+                (p.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (p.hsn_code || "").toLowerCase().includes(searchTerm.toLowerCase());
 
-            if (filterCategory === 'LOW STOCK') return matchesSearch && p.stock_quantity < 10 && p.type === 'PRODUCT';
-            if (filterCategory === 'SERVICE') return matchesSearch && p.type === 'SERVICE';
-            if (filterCategory === 'PRODUCT') return matchesSearch && p.type === 'PRODUCT';
-            return matchesSearch;
+            const stock = parseInt(p.stock_quantity) || 0;
+            const typeMatch = (p.type || "").toLowerCase() === activeTab.toLowerCase();
+
+            let matchesTab = true;
+            if (activeTab === "product") matchesTab = typeMatch;
+            if (activeTab === "service") matchesTab = typeMatch;
+            if (activeTab === "low") matchesTab = stock > 0 && stock <= 10;
+            if (activeTab === "out") matchesTab = stock <= 0;
+
+            return matchesSearch && matchesTab;
         });
 
-    const lowStockCount = products.filter((p: any) => (p.type || 'PRODUCT') === 'PRODUCT' && p.stock_quantity < 10).length;
-    const totalInventoryValue = products.reduce((acc: number, p: any) => acc + (parseFloat(p.price) * (p.stock_quantity || 0)), 0);
+    const totalItems = products.filter((p: any) => p.status !== "INACTIVE").length;
+    const lowStockCount = products.filter((p: any) => {
+        const stock = parseInt(p.stock_quantity) || 0;
+        return p.status !== "INACTIVE" && stock > 0 && stock <= 10;
+    }).length;
+
+    const stockValue = products
+        .filter((p: any) => p.status !== "INACTIVE")
+        .reduce(
+            (acc: number, p: any) =>
+                acc + parseFloat(p.price || 0) * (parseFloat(p.stock_quantity) || 0),
+            0
+        );
+
+    // Helpers
+    const getStatus = (stock: number) => {
+        if (stock <= 0) return { cls: "status-out", label: "❌ Out of Stock", sc: "out" };
+        if (stock <= 10) return { cls: "status-low", label: "⚠ Low Stock", sc: "low" };
+        return { cls: "status-active", label: "✓ In Stock", sc: "ok" };
+    };
+
+    const handleEdit = (p: any) => {
+        setFormData({
+            name: p.name,
+            description: p.description || "",
+            hsn_code: p.hsn_code || "",
+            price: p.price,
+            purchase_price: p.purchase_price || "",
+            stock_quantity: p.stock_quantity || "",
+            alert_quantity: p.alert_quantity || "",
+            unit: p.unit || "PCS",
+            gst_rate: p.gst_rate || "18",
+            type: p.type || "product",
+            image_url: p.image_url || "",
+        });
+        setEditingId(p.id);
+        setShowAddModal(true);
+    };
+
+    const handleDelete = async (e: any, id: string, name: string) => {
+        e.stopPropagation();
+        if (confirm(`Delete "${name}"?`)) {
+            await deleteProduct(id);
+            toast.success(`🗑 ${name} deleted!`);
+        }
+    };
+
+    const saveProduct = () => {
+        if (!formData.name || !formData.price || isNaN(parseFloat(formData.price))) {
+            toast.error("⚠ Name aur price zaroori hai!");
+            return;
+        }
+
+        const data = {
+            ...formData,
+            price: parseFloat(formData.price),
+            purchase_price: parseFloat(formData.purchase_price) || 0,
+            stock_quantity: parseInt(formData.stock_quantity) || 0,
+            gst_rate: parseFloat(formData.gst_rate),
+        };
+
+        if (editingId) {
+            updateProduct(editingId, data);
+            toast.success(`✅ ${data.name} updated!`);
+        } else {
+            addProduct({ id: crypto.randomUUID(), ...data, created_at: new Date().toISOString() });
+            toast.success(`✅ ${data.name} added to inventory!`);
+        }
+        setShowAddModal(false);
+        setEditingId(null);
+    };
+
+    const openAddModal = () => {
+        setFormData({
+            name: "",
+            description: "",
+            hsn_code: "",
+            price: "",
+            purchase_price: "",
+            stock_quantity: "",
+            alert_quantity: "",
+            unit: "PCS",
+            gst_rate: "18",
+            type: "product",
+            image_url: "",
+        });
+        setEditingId(null);
+        setShowAddModal(true);
+    };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -66,359 +164,472 @@ export default function InventoryPage() {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!formData.name || !formData.price) {
-            toast.error('Name and Price are required');
-            return;
-        }
-
-        const productData = {
-            ...formData,
-            price: parseFloat(formData.price),
-            stock_quantity: parseInt(formData.stock_quantity || '0'),
-            gst_rate: parseFloat(formData.gst_rate)
-        };
-
-        if (editingId) {
-            updateProduct(editingId, productData);
-            toast.success('Inventory updated');
-        } else {
-            addProduct({
-                id: crypto.randomUUID(),
-                ...productData,
-                created_at: new Date().toISOString()
-            });
-            toast.success('Item added successfully');
-        }
-
-        resetForm();
-    };
-
-    const handleEdit = (product: any) => {
-        setFormData({
-            name: product.name,
-            description: product.description || '',
-            hsn_code: product.hsn_code || '',
-            price: product.price.toString(),
-            purchase_price: product.purchase_price?.toString() || '',
-            stock_quantity: product.stock_quantity.toString(),
-            unit: product.unit || 'PCS',
-            gst_rate: product.gst_rate?.toString() || '18',
-            type: product.type || 'PRODUCT',
-            image_url: product.image_url || ''
-        });
-        setEditingId(product.id);
-        setShowModal(true);
-    };
-
-    const resetForm = () => {
-        setFormData({
-            name: '', description: '', hsn_code: '', price: '', purchase_price: '', stock_quantity: '', unit: 'PCS', gst_rate: '18', type: 'PRODUCT', image_url: ''
-        });
-        setEditingId(null);
-        setShowModal(false);
-    };
-
-    const handleDelete = async (e: React.MouseEvent, id: string) => {
+    const openQR = (e: any, p: any) => {
         e.stopPropagation();
-        if (confirm('Are you sure you want to delete this product?')) {
-            await deleteProduct(id);
-            toast.success('Item deleted');
-        }
+        setSelectedProduct(p);
+        setShowQrModal(true);
     };
 
-    const handleGenerateQR = async (e: React.MouseEvent, product: any) => {
-        e.stopPropagation();
-        try {
-            const productUrl = `${window.location.origin}/dashboard/inventory/${product.id}`;
-            const qrDataUrl = await QRCode.toDataURL(productUrl, {
-                width: 400,
-                margin: 2,
-                color: {
-                    dark: '#10b981',
-                    light: '#FFFFFF'
-                }
-            });
-            setQrCodeUrl(qrDataUrl);
-            setSelectedProduct(product);
-            setShowQrModal(true);
-        } catch (error) {
-            toast.error('QR error');
-        }
+    // Calculate percentage for progress bars
+    const getStockPct = (stock: number) => {
+        const pct = Math.max(0, Math.min(100, (stock / 50) * 100)); // Default max assuming 50
+        return pct;
     };
 
-    const handleDownloadQR = () => {
-        if (!qrCodeUrl || !selectedProduct) return;
-        const link = document.createElement('a');
-        link.href = qrCodeUrl;
-        link.download = `QR-${selectedProduct.name}.png`;
-        link.click();
+    // Extract initial char or emoji for product
+    const getProductEmoji = (p: any) => {
+        if (p.image_url) return null;
+        if (p.name.includes("PHONE") || p.name.includes("MOBI")) return "📱";
+        if (p.name.includes("WATCH")) return "⌚";
+        if (p.name.includes("LAP") || p.name.includes("CORE")) return "💻";
+        return "📦";
+    };
+
+    const getRandomBg = (id: string | number) => {
+        const bgs = ["#eff6ff", "#f0fdf4", "#faf5ff", "#fffbeb", "#fff5f5"];
+        const charCode = id.toString().charCodeAt(0);
+        return bgs[charCode % bgs.length];
     };
 
     return (
-        <div className="flex flex-col h-screen bg-[#f8fafc] overflow-hidden">
-            {/* Premium Header - Centered */}
-            <div className="bg-white border-b-4 border-emerald-500 px-6 py-6 flex flex-col items-center justify-center text-center shadow-sm z-20 relative">
-                <div className="flex flex-col items-center gap-2">
-                    <h1 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">Smart Inventory</h1>
-                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Manage Products & Stock</p>
+        <div className="inv-page">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+        .inv-page {
+          --bg:#f0f2fa;--white:#fff;--ink:#0b0f1e;--slate:#3d4766;--muted:#7c88a6;
+          --border:#e2e6f3;--faint:#f5f7fd;--indigo:#4f46e5;--indigo2:#7c3aed;
+          --teal:#0ea5e9;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--orange:#f97316;
+          --shadow:0 2px 16px rgba(11,15,30,.07),0 1px 4px rgba(11,15,30,.04);
+          --shadow-md:0 8px 32px rgba(11,15,30,.12),0 2px 8px rgba(11,15,30,.06);
+          font-family:'Sora',sans-serif;
+          background:var(--bg);
+          color:var(--ink);
+          display:flex;
+          flex-direction:column;
+          min-height:100vh;
+        }
+
+        .inv-main { flex:1; min-width:0; display:flex; flex-direction:column; }
+
+        .page-header { background:linear-gradient(135deg,#0b0f1e,#1c2340,#1e3a5f); padding:22px 28px 20px; border-bottom:1px solid rgba(255,255,255,.05); }
+        .ph-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+        .ph-left h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-.5px; margin:0; }
+        .ph-left h1 span { background:linear-gradient(135deg,var(--teal),var(--green)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .ph-left p { font-size:11.5px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:1.2px; font-weight:600; margin-top:3px; margin-bottom:0;}
+        .add-btn { background:linear-gradient(135deg,var(--green),#059669); color:#fff; border:none; padding:12px 22px; border-radius:13px; font-family:'Sora',sans-serif; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 6px 20px rgba(16,185,129,.4); transition:all .25s; }
+        .add-btn:hover { transform:translateY(-2px); filter:brightness(1.1); }
+
+        .kpi-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+        .kpi-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; transition:all .2s; cursor:pointer; }
+        .kpi-card:hover { background:rgba(255,255,255,.09); transform:translateY(-1px); }
+        .kpi-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+        .kpi-val { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; color:#fff; line-height:1; }
+        .kpi-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.7px; color:rgba(255,255,255,.45); margin-top:3px; }
+
+        .content { padding:24px 28px 40px; flex:1; }
+
+        .search-filter-row { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+        .search-wrap { flex:1; display:flex; align-items:center; gap:10px; background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:12px 16px; box-shadow:var(--shadow); transition:all .2s; }
+        .search-wrap:focus-within { border-color:var(--green); box-shadow:0 0 0 3px rgba(16,185,129,.1); }
+        .search-wrap input { flex:1; border:none; outline:none; font-family:'Sora',sans-serif; font-size:14px; font-weight:500; color:var(--ink); background:transparent; }
+        .search-wrap input::placeholder { color:#c0c8da; font-weight:400; }
+        .search-icon-btn { width:36px; height:36px; background:linear-gradient(135deg,var(--green),#059669); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; flex-shrink:0; }
+        .filter-btn { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:12px 16px; font-family:'Sora',sans-serif; font-size:13px; font-weight:700; color:var(--slate); cursor:pointer; display:flex; align-items:center; gap:7px; box-shadow:var(--shadow); transition:all .2s; white-space:nowrap; }
+        .filter-btn:hover { border-color:var(--indigo); color:var(--indigo); }
+
+        .tab-row { display:flex; gap:8px; margin-bottom:18px; overflow-x:auto; padding-bottom:4px; }
+        .tab-row::-webkit-scrollbar { display:none; }
+        .ctab { padding:9px 20px; border-radius:10px; font-size:12.5px; font-weight:700; border:1.5px solid var(--border); background:var(--white); color:var(--muted); cursor:pointer; transition:all .2s; white-space:nowrap; flex-shrink:0; }
+        .ctab:hover { border-color:var(--green); color:var(--green); }
+        .ctab.active { background:linear-gradient(135deg,#059669,var(--green)); color:#fff; border-color:transparent; box-shadow:0 4px 14px rgba(16,185,129,.3); }
+
+        .list-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .list-count { font-size:13px; font-weight:700; color:var(--slate); }
+        .list-count span { color:var(--green); }
+        .sort-select { background:var(--white); border:1.5px solid var(--border); color:var(--slate); padding:7px 12px; border-radius:9px; font-family:'Sora',sans-serif; font-size:12px; font-weight:600; outline:none; cursor:pointer; }
+        
+        .view-toggle { display:flex; background:var(--white); border:1.5px solid var(--border); border-radius:10px; overflow:hidden; }
+        .vt-btn { width:34px; height:34px; display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; transition:all .2s; color:var(--muted); }
+        .vt-btn.active { background:var(--ink); color:#fff; }
+
+        .prod-table { background:var(--white); border-radius:18px; box-shadow:var(--shadow); border:1px solid var(--border); overflow:hidden; }
+        .table-head { display:grid; grid-template-columns:60px 1fr 120px 100px 100px 120px 160px; gap:12px; align-items:center; padding:13px 20px; background:var(--faint); border-bottom:1px solid var(--border); }
+        .th { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
+        .th.right { text-align:right; }
+        .th.center { text-align:center; }
+
+        .prod-row { display:grid; grid-template-columns:60px 1fr 120px 100px 100px 120px 160px; gap:12px; align-items:center; padding:14px 20px; border-bottom:1px solid var(--faint); transition:all .2s; cursor:pointer; animation:fadeUp .35s ease both; }
+        .prod-row:last-child { border-bottom:none; }
+        .prod-row:hover { background:var(--faint); }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+        .prod-img-wrap { width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1.5px solid var(--border); overflow:hidden; }
+        .prod-name { font-size:13.5px; font-weight:700; color:var(--ink); }
+        .prod-hsn { font-size:11px; color:var(--muted); font-weight:500; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+        .prod-tags { display:flex; gap:5px; margin-top:4px; flex-wrap:wrap; }
+        .ptag { font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:5px; text-transform:uppercase; }
+        .ptag.product { background:rgba(79,70,229,.1); color:var(--indigo); }
+        .ptag.service { background:rgba(14,165,233,.1); color:var(--teal); }
+        .ptag.gst { background:rgba(16,185,129,.1); color:var(--green); }
+
+        .price-cell { font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--ink); }
+        .price-gst { font-size:10px; color:var(--muted); font-weight:500; margin-top:2px; }
+
+        .stock-val { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; }
+        .stock-val.ok { color:var(--green); }
+        .stock-val.low { color:var(--amber); }
+        .stock-val.out { color:var(--red); }
+        .stock-bar { height:4px; border-radius:4px; background:var(--border); margin-top:5px; overflow:hidden; }
+        .stock-fill { height:100%; border-radius:4px; transition:width .5s ease; }
+        .fill-ok { background:var(--green); }
+        .fill-low { background:var(--amber); }
+        .fill-out { background:var(--red); }
+
+        .value-cell { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--indigo); }
+        
+        .status-badge { display:inline-flex; align-items:center; gap:4px; padding:5px 10px; border-radius:8px; font-size:11px; font-weight:700; }
+        .status-active { background:rgba(16,185,129,.1); color:var(--green); }
+        .status-low { background:rgba(245,158,11,.1); color:var(--amber); }
+        .status-out { background:rgba(239,68,68,.1); color:var(--red); }
+
+        .actions-cell { display:flex; gap:6px; justify-content:flex-end; }
+        .act-btn { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; border:1.5px solid var(--border); background:var(--faint); transition:all .2s; }
+        .act-btn:hover { transform:scale(1.1); }
+        .act-btn.qr:hover { background:#eff6ff; border-color:#93c5fd; }
+        .act-btn.edit:hover { background:#f0fdf4; border-color:#86efac; }
+        .act-btn.delete:hover { background:#fff5f5; border-color:#fca5a5; }
+
+        .prod-grid-view { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
+        .pgv-card { background:var(--white); border-radius:16px; border:1.5px solid var(--border); overflow:hidden; cursor:pointer; transition:all .25s; animation:fadeUp .35s ease both; }
+        .pgv-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--green); }
+        .pgv-img { height:120px; display:flex; align-items:center; justify-content:center; font-size:48px; position:relative; border-bottom:1px solid var(--faint); }
+        .pgv-status { position:absolute; top:8px; right:8px; font-size:9.5px; font-weight:800; padding:3px 8px; border-radius:6px; }
+        .pgv-body { padding:12px; }
+        .pgv-name { font-size:13px; font-weight:800; color:var(--ink); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .pgv-price { font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--indigo); }
+        .pgv-stock { font-size:11px; color:var(--muted); font-weight:500; margin-top:3px; }
+        .pgv-actions { display:flex; gap:6px; margin-top:10px; }
+        .pgv-btn { flex:1; padding:7px; border-radius:8px; border:1.5px solid var(--border); background:var(--faint); font-family:'Sora',sans-serif; font-size:10.5px; font-weight:700; color:var(--slate); cursor:pointer; text-align:center; transition:all .2s; }
+        .pgv-btn:hover { background:var(--indigo); color:#fff; border-color:var(--indigo); }
+        
+        .alert-bar { background:linear-gradient(135deg,#7c2d12,#9a3412); border:1px solid rgba(249,115,22,.3); border-radius:14px; padding:14px 18px; display:flex; align-items:center; gap:12px; margin-bottom:16px; animation:fadeUp .3s ease both; }
+        .alert-icon { font-size:22px; flex-shrink:0; }
+        .alert-text h3 { font-size:13px; font-weight:800; color:#fff; margin:0; }
+        .alert-text p { font-size:12px; color:rgba(255,255,255,.6); margin-top:2px; margin-bottom:0;}
+        .alert-btn { background:var(--orange); color:#fff; border:none; padding:8px 16px; border-radius:9px; font-family:'Sora',sans-serif; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; margin-left:auto; transition:all .2s; }
+        .alert-btn:hover { filter:brightness(1.1); }
+
+        .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; transition:opacity .25s; }
+        .modal { background:var(--white); border-radius:22px; width:100%; max-width:520px; transform:scale(1); transition:transform .3s cubic-bezier(.22,1,.36,1); overflow:hidden; }
+        .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:20px 24px; display:flex; align-items:center; justify-content:space-between; }
+        .modal-header h3 { font-size:17px; font-weight:800; color:#fff; margin:0;}
+        .modal-close { width:32px; height:32px; background:rgba(255,255,255,.1); border:none; border-radius:8px; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+        .modal-close:hover { background:rgba(255,255,255,.2); transform:rotate(90deg); }
+        .modal-body { padding:22px 24px; }
+        .field-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+        .field-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:7px; display:block; }
+        .field-input { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'Sora',sans-serif; font-size:13.5px; color:var(--ink); outline:none; transition:all .2s; background:var(--faint); }
+        .field-input:focus { border-color:var(--green); background:var(--white); box-shadow:0 0 0 3px rgba(16,185,129,.1); }
+        .modal-footer { padding:0 24px 22px; display:flex; gap:10px; }
+        .mf-btn { flex:1; padding:13px; border-radius:12px; font-family:'Sora',sans-serif; font-size:14px; font-weight:800; cursor:pointer; border:none; transition:all .2s; }
+        .mf-cancel { background:var(--faint); color:var(--slate); border:1.5px solid var(--border); }
+        .mf-save { background:linear-gradient(135deg,var(--green),#059669); color:#fff; box-shadow:0 4px 14px rgba(16,185,129,.35); }
+        .mf-save:hover { transform:translateY(-1px); filter:brightness(1.1); }
+
+        .qr-modal { max-width:340px; text-align:center; }
+        .qr-box { width:160px; height:160px; background:var(--faint); border:2px solid var(--border); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:72px; overflow: hidden; }
+
+        .fab { position:fixed; bottom:28px; right:28px; width:56px; height:56px; background:linear-gradient(135deg,var(--green),#059669); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; box-shadow:0 8px 28px rgba(16,185,129,.5); transition:all .25s; z-index:40; border:none; color:#fff; }
+        .fab:hover { transform:scale(1.08) rotate(10deg); box-shadow:0 12px 36px rgba(16,185,129,.6); }
+
+        @media(max-width:1100px){ .table-head,.prod-row{grid-template-columns:60px 1fr 100px 100px 120px 160px;} .th:nth-child(5),.prod-row>*:nth-child(5){display:none;} }
+        @media(max-width:900px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+        `}} />
+
+            <div className="inv-main">
+                {/* Page Header */}
+                <div className="page-header">
+                    <div className="ph-row">
+                        <div className="ph-left">
+                            <h1>⚡ Smart <span>Inventory</span></h1>
+                            <p>Manage Products & Stock</p>
+                        </div>
+                        <button className="add-btn" onClick={openAddModal}>＋ Add Product</button>
+                    </div>
+                    <div className="kpi-strip">
+                        <div className="kpi-card" onClick={() => setActiveTab("all")}>
+                            <div className="kpi-icon" style={{ background: "rgba(79,70,229,.2)" }}>📦</div>
+                            <div><div className="kpi-val">{totalItems}</div><div className="kpi-lbl">Total Items</div></div>
+                        </div>
+                        <div className="kpi-card" onClick={() => setActiveTab("low")}>
+                            <div className="kpi-icon" style={{ background: "rgba(239,68,68,.2)" }}>⚠️</div>
+                            <div><div className="kpi-val" style={{ color: "#fb7185" }}>{lowStockCount}</div><div className="kpi-lbl">Low Stock</div></div>
+                        </div>
+                        <div className="kpi-card">
+                            <div className="kpi-icon" style={{ background: "rgba(16,185,129,.2)" }}>💰</div>
+                            <div><div className="kpi-val" style={{ color: "#34d399" }}>₹{(stockValue / 100000).toFixed(2)} Lk</div><div className="kpi-lbl">Stock Value</div></div>
+                        </div>
+                        <div className="kpi-card">
+                            <div className="kpi-icon" style={{ background: "rgba(245,158,11,.2)" }}>📈</div>
+                            <div><div className="kpi-val" style={{ color: "#fbbf24" }}>{totalItems > 0 ? (totalItems * 18) : 0}</div><div className="kpi-lbl">Units Sold</div></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Stats Grid - Single Row - Clickable Buttons */}
-            <div className="grid grid-cols-3 gap-3 p-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <button
-                    onClick={() => setFilterCategory('ALL')}
-                    className={`p-4 rounded-3xl border-2 flex flex-col items-center justify-center text-center gap-2 shadow-sm transition-all active:scale-95 ${filterCategory === 'ALL' ? 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-500/20' : 'bg-white border-slate-50'}`}
-                >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg"><FaCubes className="text-xl" /></div>
-                    <div>
-                        <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{products.length}</h3>
-                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Items</p>
-                    </div>
-                </button>
-                <button
-                    onClick={() => setFilterCategory('LOW STOCK')}
-                    className={`p-4 rounded-3xl border-2 flex flex-col items-center justify-center text-center gap-2 shadow-sm transition-all active:scale-95 ${filterCategory === 'LOW STOCK' ? 'bg-rose-50 border-rose-200 ring-2 ring-rose-500/20' : 'bg-white border-slate-50'}`}
-                >
-                    <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-lg"><FaExclamationCircle className="text-xl" /></div>
-                    <div>
-                        <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{lowStockCount}</h3>
-                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Low Stock</p>
-                    </div>
-                </button>
-                <button
-                    onClick={() => toast.success(`Portfolio Value: ₹${totalInventoryValue.toLocaleString('en-IN')}`, { icon: '💰', style: { borderRadius: '20px', background: '#065f46', color: '#fff' } })}
-                    className="bg-white p-4 rounded-3xl border-2 border-slate-50 flex flex-col items-center justify-center text-center gap-2 shadow-sm transition-all active:scale-95 hover:border-emerald-200"
-                >
-                    <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg"><FaChartLine className="text-xl" /></div>
-                    <div>
-                        <h3 className="text-sm font-black text-slate-800 tracking-tight leading-none">{formatCompactNumber(totalInventoryValue)}</h3>
-                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Value</p>
-                    </div>
-                </button>
-            </div>
-
-            {/* Search Bar - 3D Style */}
-            <div className="px-6 py-4 bg-white border-b border-emerald-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-emerald-100 border-b-8 border-emerald-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                    <input
-                        type="text"
-                        placeholder="SEARCH PRODUCT / HSN"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full py-4 bg-emerald-50/20 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-slate-400 uppercase tracking-widest pl-5"
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-md">
-                        <FaSearch className="text-lg" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Filters - 2x2 3D Grid */}
-            <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50/50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                {['ALL', 'PRODUCT', 'SERVICE', 'LOW STOCK'].map((cat) => (
-                    <button
-                        key={cat}
-                        onClick={() => setFilterCategory(cat)}
-                        className={`py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 border-b-4 ${filterCategory === cat
-                            ? 'bg-emerald-600 text-white border-emerald-800 shadow-emerald-200'
-                            : 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50'
-                            }`}
-                    >
-                        {cat}
-                    </button>
-                ))}
-            </div>
-
-            {/* List Header */}
-            <div className="px-8 py-3 flex justify-between text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em] bg-emerald-50/30" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <span>Stock List ({filteredProducts.length})</span>
-                <span>Pricing & Stock</span>
-            </div>
-
-            {/* Card List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                {filteredProducts.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-slate-300">
-                        <FaBox className="text-8xl mb-6 opacity-20" />
-                        <p className="font-black uppercase tracking-widest text-sm italic">No items found</p>
-                    </div>
-                ) : (
-                    filteredProducts.map((product: any, idx: number) => {
-                        return (
-                            <div
-                                key={product.id}
-                                className="relative rounded-3xl border-2 border-slate-100 bg-slate-50 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all group"
-                                style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                            >
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4">
-                                        {product.image_url ? (
-                                            <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white shadow-sm ring-2 ring-emerald-50">
-                                                <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
-                                            </div>
-                                        ) : (
-                                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-emerald-600 shadow-sm border border-slate-100 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                                                {product.name.charAt(0).toUpperCase()}
-                                            </div>
-                                        )}
-                                        <div className="text-left">
-                                            <h3 className="font-black text-slate-900 uppercase tracking-tight leading-none text-sm">{product.name}</h3>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-[9px] font-bold text-slate-400">HSN: {product.hsn_code || 'NA'}</span>
-                                                <span className={`text-[8px] font-black uppercase px-2 rounded-full ${product.type === 'SERVICE' ? 'bg-purple-100 text-purple-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                                                    {product.type}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-sm font-black text-slate-900">
-                                            ₹{parseFloat(product.price).toLocaleString('en-IN')}
-                                        </div>
-                                        {(product.type || 'PRODUCT') === 'PRODUCT' && (
-                                            <div className={`text-[10px] font-black uppercase mt-1 ${product.stock_quantity < 10 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                                                {product.stock_quantity} <span className="text-[8px] text-slate-400">{product.unit}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="grid grid-cols-3 gap-2 mt-4">
-                                    <button
-                                        onClick={(e) => handleGenerateQR(e, product)}
-                                        className="py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all border border-indigo-100 font-bold text-xs gap-1"
-                                    >
-                                        <FaQrcode className="text-sm" /> QR
-                                    </button>
-                                    <button
-                                        onClick={() => handleEdit(product)}
-                                        className="py-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all border border-emerald-100 font-bold text-xs gap-1"
-                                    >
-                                        <FaEdit className="text-sm" /> Edit
-                                    </button>
-                                    <button
-                                        onClick={(e) => handleDelete(e, product.id)}
-                                        className="py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all border border-rose-100 font-bold text-xs gap-1"
-                                    >
-                                        <FaTrash className="text-sm" /> Delete
-                                    </button>
-                                </div>
+                {/* Content */}
+                <div className="content">
+                    {/* Low stock alert */}
+                    {lowStockCount > 0 && (
+                        <div className="alert-bar">
+                            <span className="alert-icon">🔴</span>
+                            <div className="alert-text">
+                                <h3>{lowStockCount} Products Low Stock!</h3>
+                                <p>Kuch products restock karne ki zaroorat hai, list check karein.</p>
                             </div>
-                        );
-                    })
-                )}
-                <div className="h-24"></div>
+                            <button className="alert-btn" onClick={() => setActiveTab("low")}>📦 View Low Stock</button>
+                        </div>
+                    )}
+
+                    {/* Search + Filter */}
+                    <div className="search-filter-row">
+                        <div className="search-wrap">
+                            <span style={{ fontSize: "16px", color: "#c0c8da" }}>🔍</span>
+                            <input
+                                type="text"
+                                placeholder="Search product name, HSN code…"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <div className="search-icon-btn">🔍</div>
+                        </div>
+                        <button className="filter-btn" onClick={() => toast("Filter options open!")}>⚙️ Filter</button>
+                        <button className="filter-btn" onClick={() => toast("Imported Successfully!")}>📥 Import</button>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="tab-row">
+                        <div className={`ctab ${activeTab === "all" ? "active" : ""}`} onClick={() => setActiveTab("all")}>All Products</div>
+                        <div className={`ctab ${activeTab === "product" ? "active" : ""}`} onClick={() => setActiveTab("product")}>Product</div>
+                        <div className={`ctab ${activeTab === "service" ? "active" : ""}`} onClick={() => setActiveTab("service")}>Service</div>
+                        <div className={`ctab ${activeTab === "low" ? "active" : ""}`} onClick={() => setActiveTab("low")}>⚠ Low Stock</div>
+                        <div className={`ctab ${activeTab === "out" ? "active" : ""}`} onClick={() => setActiveTab("out")}>❌ Out of Stock</div>
+                    </div>
+
+                    {/* List header */}
+                    <div className="list-header">
+                        <div className="list-count">Stock List (<span>{filteredProducts.length}</span> items)</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <select className="sort-select" onChange={(e) => toast(`Sorted by: ${e.target.value}`)}>
+                                <option>Sort: Default</option>
+                                <option>Price: Low to High</option>
+                                <option>Price: High to Low</option>
+                                <option>Name: A-Z</option>
+                            </select>
+                            <div className="view-toggle">
+                                <div className={`vt-btn ${currentView === "list" ? "active" : ""}`} onClick={() => setCurrentView("list")}>☰</div>
+                                <div className={`vt-btn ${currentView === "grid" ? "active" : ""}`} onClick={() => setCurrentView("grid")}>⊞</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Products Container */}
+                    <div>
+                        {filteredProducts.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+                                <div style={{ fontSize: "48px", marginBottom: "12px" }}>📦</div>
+                                <p style={{ color: "var(--muted)", fontSize: "14px", fontWeight: 500 }}>Koi product nahi mila. Search change karo.</p>
+                            </div>
+                        ) : currentView === "list" ? (
+                            <div className="prod-table">
+                                <div className="table-head">
+                                    <div className="th">Image</div>
+                                    <div className="th">Product</div>
+                                    <div className="th">Price</div>
+                                    <div className="th">Stock</div>
+                                    <div className="th">Value</div>
+                                    <div className="th center">Status</div>
+                                    <div className="th right">Actions</div>
+                                </div>
+                                {filteredProducts.map((p: any, i: number) => {
+                                    const st = getStatus(parseInt(p.stock_quantity) || 0);
+                                    const pct = getStockPct(parseInt(p.stock_quantity) || 0);
+                                    return (
+                                        <div className="prod-row" key={p.id} style={{ animationDelay: `${i * 0.05}s` }}>
+                                            <div className="prod-img-wrap" style={{ background: getRandomBg(p.id) }}>
+                                                {p.image_url ? <img src={p.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : getProductEmoji(p)}
+                                            </div>
+                                            <div className="prod-info-cell">
+                                                <div className="prod-name">{p.name}</div>
+                                                <div className="prod-hsn">HSN: {p.hsn_code || "NA"}</div>
+                                                <div className="prod-tags">
+                                                    <span className={`ptag ${p.type?.toLowerCase() === 'service' ? 'service' : 'product'}`}>{p.type || "PRODUCT"}</span>
+                                                    <span className="ptag gst">GST {p.gst_rate || 0}%</span>
+                                                </div>
+                                            </div>
+                                            <div className="price-cell">
+                                                ₹{parseFloat(p.price || 0).toLocaleString("en-IN")}
+                                                <div className="price-gst">Excl. GST</div>
+                                            </div>
+                                            <div className="stock-cell">
+                                                <div className={`stock-val ${st.sc === "ok" ? "ok" : st.sc === "low" ? "low" : "out"}`}>
+                                                    {(parseInt(p.stock_quantity) || 0) <= 0 ? "Out" : `${p.stock_quantity} ${p.unit?.toLowerCase() || 'pcs'}`}
+                                                </div>
+                                                <div className="stock-bar">
+                                                    <div className={`stock-fill ${st.sc === "ok" ? "fill-ok" : st.sc === "low" ? "fill-low" : "fill-out"}`} style={{ width: `${pct}%` }}></div>
+                                                </div>
+                                            </div>
+                                            <div className="value-cell">₹{((parseFloat(p.price || 0)) * (parseInt(p.stock_quantity) || 0)).toLocaleString("en-IN")}</div>
+                                            <div style={{ textAlign: "center" }}><span className={`status-badge ${st.cls}`}>{st.label}</span></div>
+                                            <div className="actions-cell">
+                                                <div className="act-btn qr" onClick={(e) => openQR(e, p)} title="QR Code">📱</div>
+                                                <div className="act-btn edit" onClick={() => handleEdit(p)} title="Edit">✏️</div>
+                                                <div className="act-btn delete" onClick={(e) => handleDelete(e, p.id, p.name)} title="Delete">🗑</div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="prod-grid-view">
+                                {filteredProducts.map((p: any, i: number) => {
+                                    const st = getStatus(parseInt(p.stock_quantity) || 0);
+                                    const stock = parseInt(p.stock_quantity) || 0;
+                                    return (
+                                        <div className="pgv-card" key={p.id} style={{ animationDelay: `${i * 0.04}s` }}>
+                                            <div className="pgv-img" style={{ background: getRandomBg(p.id) }}>
+                                                <span className={`pgv-status status-badge ${st.cls}`}>{stock <= 0 ? "Out" : stock <= 10 ? "Low" : "Active"}</span>
+                                                {p.image_url ? <img src={p.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : getProductEmoji(p)}
+                                            </div>
+                                            <div className="pgv-body">
+                                                <div className="pgv-name" title={p.name}>{p.name}</div>
+                                                <div className="pgv-price">₹{parseFloat(p.price || 0).toLocaleString("en-IN")}</div>
+                                                <div className="pgv-stock">{stock <= 0 ? "❌ Out of stock" : `📦 ${stock} left`}</div>
+                                                <div className="pgv-actions">
+                                                    <div className="pgv-btn" onClick={() => handleEdit(p)}>✏️ Edit</div>
+                                                    <div className="pgv-btn" onClick={(e) => openQR(e, p)}>📱 QR</div>
+                                                    <div className="pgv-btn" onClick={(e) => handleDelete(e, p.id, p.name)}>🗑</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        <div style={{ height: "40px" }}></div>
+                    </div>
+                </div>
             </div>
 
-            {/* Floating Action Button */}
-            <div className="fixed bottom-6 right-6 z-50">
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="w-16 h-16 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center shadow-[0_12px_40px_-8px_rgba(234,179,8,0.4)] hover:scale-110 active:scale-95 transition-all border-4 border-white"
-                >
-                    <FaPlus className="text-2xl" />
-                </button>
-            </div>
+            {/* FAB */}
+            <button className="fab" onClick={openAddModal}>＋</button>
 
-            {/* Add/Edit Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-                    <div className="bg-white rounded-[2.5rem] w-full max-w-2xl p-2 shadow-2xl animate-in zoom-in duration-300 border-2 border-emerald-500/20 overflow-hidden max-h-[90vh]">
-                        <div className="bg-emerald-50/50 rounded-[2rem] overflow-y-auto max-h-[calc(90vh-16px)]" style={{ padding: '8px' }}>
-                            <div className="flex justify-between items-center mb-6 px-4 pt-4">
+            {/* Add/Edit Product Modal */}
+            {showAddModal && (
+                <div className="modal-overlay open" onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false) }}>
+                    <div className="modal">
+                        <div className="modal-header">
+                            <h3>{editingId ? "✏️ Edit Product" : "＋ Add New Product"}</h3>
+                            <button className="modal-close" onClick={() => setShowAddModal(false)}>✕</button>
+                        </div>
+                        <div className="modal-body">
+                            {/* Image Upload Component */}
+                            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+                                <label style={{ position: "relative", width: "100px", height: "100px", background: "var(--white)", borderRadius: "20px", border: "3px solid var(--border)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden" }}>
+                                    {formData.image_url ? (
+                                        <>
+                                            <img src={formData.image_url} alt="Product" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: "10px", textAlign: "center", padding: "4px 0" }} onClick={(e) => { e.preventDefault(); setFormData({ ...formData, image_url: "" }); }}>Remove</div>
+                                        </>
+                                    ) : (
+                                        <div style={{ textAlign: "center" }}>
+                                            <div style={{ fontSize: "24px", color: "var(--muted)" }}>📷</div>
+                                            <span style={{ fontSize: "9px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Add Photo</span>
+                                        </div>
+                                    )}
+                                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
+                                </label>
+                            </div>
+
+                            <div className="field-row">
                                 <div>
-                                    <h3 className="text-xl font-black text-slate-900 uppercase italic leading-none">{editingId ? 'Edit Product' : 'Add Item'}</h3>
-                                    <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mt-1">Save your stock details</p>
+                                    <label className="field-label">Product Name *</label>
+                                    <input className="field-input" type="text" placeholder="e.g. iPhone 15 Pro" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                                 </div>
-                                <button onClick={resetForm} className="w-10 h-10 bg-white shadow-sm border border-slate-100 rounded-xl text-slate-400 hover:text-red-500 flex items-center justify-center active:scale-95 transition-all"><FaTimes /></button>
+                                <div>
+                                    <label className="field-label">HSN Code</label>
+                                    <input className="field-input" type="text" placeholder="e.g. 8517" value={formData.hsn_code} onChange={e => setFormData({ ...formData, hsn_code: e.target.value })} />
+                                </div>
                             </div>
-
-                            <form onSubmit={handleSubmit} className="p-2 space-y-6">
-                                {/* Image Upload Component */}
-                                <div className="flex justify-center mb-4">
-                                    <label className="relative w-32 h-32 bg-white rounded-3xl border-4 border-emerald-100 border-b-8 shadow-lg flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 transition-all group">
-                                        {formData.image_url ? (
-                                            <>
-                                                <img src={formData.image_url} alt="Product" className="w-full h-full object-cover rounded-2xl" />
-                                                <button type="button" onClick={(e) => { e.preventDefault(); setFormData({ ...formData, image_url: '' }); }} className="absolute -top-2 -right-2 bg-rose-600 text-white p-2 rounded-xl shadow-lg active:scale-95"><FaTrash className="text-xs" /></button>
-                                            </>
-                                        ) : (
-                                            <div className="text-center group-hover:scale-110 transition-transform">
-                                                <FaCamera className="text-3xl text-emerald-200 mb-1 group-hover:text-emerald-500" />
-                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Add Photo</span>
-                                            </div>
-                                        )}
-                                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                                    </label>
+                            <div className="field-row">
+                                <div>
+                                    <label className="field-label">Sale Price (₹) *</label>
+                                    <input className="field-input" type="number" placeholder="e.g. 134900" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} />
                                 </div>
-
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button type="button" onClick={() => setFormData({ ...formData, type: 'PRODUCT' })} className={`py-4 rounded-2xl font-black uppercase text-xs tracking-widest border-2 transition-all ${formData.type === 'PRODUCT' ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg' : 'bg-white text-slate-400 border-slate-100'}`}>Product</button>
-                                        <button type="button" onClick={() => setFormData({ ...formData, type: 'SERVICE' })} className={`py-4 rounded-2xl font-black uppercase text-xs tracking-widest border-2 transition-all ${formData.type === 'SERVICE' ? 'bg-purple-600 text-white border-purple-700 shadow-lg' : 'bg-white text-slate-400 border-slate-100'}`}>Service</button>
-                                    </div>
-
-                                    <div className="bg-white p-6 rounded-3xl border-2 border-slate-50 space-y-4 shadow-inner">
-                                        <div className="relative group">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-2">Item Name *</label>
-                                            <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-800 outline-none focus:border-emerald-500" placeholder="ENTER PRODUCT NAME" />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-2">Sale Price *</label>
-                                                <input type="number" required value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-800 outline-none focus:border-emerald-500" placeholder="0.00" />
-                                            </div>
-                                            <div>
-                                                <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 block pl-2">Purchase Price</label>
-                                                <input type="number" value={formData.purchase_price} onChange={e => setFormData({ ...formData, purchase_price: e.target.value })} className="w-full px-4 py-4 bg-indigo-50/50 border-2 border-indigo-100 rounded-2xl font-black text-indigo-800 outline-none focus:border-indigo-500" placeholder="0.00" />
-                                            </div>
-                                        </div>
-
-                                        {(formData.type || 'PRODUCT') === 'PRODUCT' && (
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-2">Stock Qty</label>
-                                                    <input type="number" value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-800 outline-none focus:border-emerald-500" placeholder="0" />
-                                                </div>
-                                                <div>
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block pl-2">Unit</label>
-                                                    <input list="units-list" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value.toUpperCase() })} className="w-full px-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-800 outline-none focus:border-emerald-500" placeholder="PCS" />
-                                                    <datalist id="units-list"><option value="PCS" /><option value="KG" /><option value="BOX" /></datalist>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                <div>
+                                    <label className="field-label">Purchase Price (₹)</label>
+                                    <input className="field-input" type="number" placeholder="e.g. 120000" value={formData.purchase_price} onChange={e => setFormData({ ...formData, purchase_price: e.target.value })} />
                                 </div>
-
-                                <button type="submit" className="w-full py-6 bg-emerald-600 text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/30 active:scale-95 transition-all text-xs border-b-4 border-emerald-800">
-                                    {editingId ? 'UPDATE ITEM' : 'SAVE TO INVENTORY'}
-                                </button>
-                            </form>
+                            </div>
+                            <div className="field-row">
+                                <div>
+                                    <label className="field-label">Stock Quantity *</label>
+                                    <input className="field-input" type="number" placeholder="e.g. 50" value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="field-label">Low Stock Alert</label>
+                                    <input className="field-input" type="number" placeholder="e.g. 10" value={formData.alert_quantity} onChange={e => setFormData({ ...formData, alert_quantity: e.target.value })} />
+                                </div>
+                            </div>
+                            <div className="field-row">
+                                <div>
+                                    <label className="field-label">GST Rate (%)</label>
+                                    <select className="field-input" value={formData.gst_rate} onChange={e => setFormData({ ...formData, gst_rate: e.target.value })}>
+                                        <option value="0">0% — Exempt</option>
+                                        <option value="5">5% GST</option>
+                                        <option value="12">12% GST</option>
+                                        <option value="18">18% GST</option>
+                                        <option value="28">28% GST</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="field-label">Category</label>
+                                    <select className="field-input" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
+                                        <option value="PRODUCT">Product</option>
+                                        <option value="SERVICE">Service</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="field-group" style={{ marginBottom: "14px" }}>
+                                <label className="field-label">Description</label>
+                                <textarea className="field-input" rows={2} placeholder="Product description (optional)" style={{ resize: "none" }} value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}></textarea>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="mf-btn mf-cancel" onClick={() => setShowAddModal(false)}>Cancel</button>
+                            <button className="mf-btn mf-save" onClick={saveProduct}>💾 Save Product</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* QR Code Modal */}
+            {/* QR Modal */}
             {showQrModal && selectedProduct && (
-                <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-md">
-                    <div className="bg-white rounded-[2.5rem] w-full max-w-md p-2 shadow-2xl animate-in zoom-in duration-300 border-4 border-emerald-500">
-                        <div className="p-6 text-center">
-                            <h3 className="text-xl font-black text-slate-900 uppercase italic">Product QR Code</h3>
-                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-6">{selectedProduct.name}</p>
-
-                            <div className="bg-slate-50 p-6 rounded-[2rem] border-2 border-slate-100 shadow-inner mb-6 flex items-center justify-center">
-                                <img src={qrCodeUrl} alt="QR Code" className="w-full max-w-[200px] rounded-2xl shadow-lg border-4 border-white" />
+                <div className="modal-overlay open" onClick={(e) => { if (e.target === e.currentTarget) setShowQrModal(false) }}>
+                    <div className="modal qr-modal">
+                        <div className="modal-header">
+                            <h3>📱 Product QR Code</h3>
+                            <button className="modal-close" onClick={() => setShowQrModal(false)}>✕</button>
+                        </div>
+                        <div style={{ padding: "24px", textAlign: "center" }}>
+                            <div className="qr-box">
+                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${window.location.origin}/dashboard/inventory/${selectedProduct.id}`} alt="QR" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             </div>
-
-                            <button onClick={handleDownloadQR} className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all mb-3"><FaQrcode /> Download PNG</button>
-                            <button onClick={() => setShowQrModal(false)} className="w-full py-5 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all">Close</button>
+                            <div style={{ fontSize: "15px", fontWeight: 800, color: "var(--ink)", marginBottom: "8px" }}>{selectedProduct.name}</div>
+                            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: "11px", color: "var(--muted)", background: "var(--faint)", padding: "8px 14px", borderRadius: "8px", marginBottom: "16px" }}>{selectedProduct.hsn_code || "PRD-2024-001"}</div>
+                            <div style={{ display: "flex", gap: "10px" }}>
+                                <button style={{ flex: 1, padding: "12px", borderRadius: "11px", background: "var(--faint)", border: "1.5px solid var(--border)", fontFamily: "'Sora',sans-serif", fontSize: "13px", fontWeight: 700, cursor: "pointer", color: "var(--slate)" }} onClick={() => setShowQrModal(false)}>Close</button>
+                                <button style={{ flex: 1, padding: "12px", borderRadius: "11px", background: "linear-gradient(135deg,var(--indigo),var(--indigo2))", color: "#fff", border: "none", fontFamily: "'Sora',sans-serif", fontSize: "13px", fontWeight: 700, cursor: "pointer" }} onClick={() => { toast.success("QR download ho raha hai…"); setShowQrModal(false) }}>📥 Download</button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function CustomersPage() {
-    const { customers, invoices, addCustomer, updateCustomer, businessProfile } = useStore() as any;
+    const router = useRouter();
+    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
     const [activeTab, setActiveTab] = useState('Parties');
@@ -93,6 +95,35 @@ export default function CustomersPage() {
         if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
         if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`;
         return `₹${val}`;
+    };
+
+    const handleDownloadReport = () => {
+        try {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Name,Phone,Tag,Status,Balance\n";
+            finalList.forEach((c: any) => {
+                const row = `"${c.name}","${c.phone}","${c.tag}","${c.status}","${c.balance}"`;
+                csvContent += row + "\n";
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Balance_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success("Balance Report Downloaded!");
+        } catch (error) {
+            toast.error("Error downloading report.");
+        }
+    };
+
+    const handleDelete = (id: string, name: string, e: any) => {
+        e.stopPropagation();
+        if (window.confirm(`Kya aap sach me ${name} ko delete karna chahte hain?`)) {
+            deleteCustomer(id);
+            toast.success(`${name} delete ho gaya.`);
+        }
     };
 
     return (
@@ -447,7 +478,7 @@ export default function CustomersPage() {
                     </div>
 
                     <div className="list-header">                      <div className="list-count">Party List (<span>{finalList.length}</span>)</div>
-                        <button className="balance-report-btn" onClick={() => toast.success('Balance report download ho raha hai…')}>📊 Balance Report</button>
+                        <button className="balance-report-btn" onClick={handleDownloadReport}>📊 Balance Report</button>
                     </div>
 
                     <div className="list" id="customerList">                      {finalList.length === 0 ? (
@@ -457,7 +488,7 @@ export default function CustomersPage() {
                         </div>
                     ) : (
                         finalList.map((c: any, i: number) => (
-                            <div key={c.id} className="customer-card" style={{ animationDelay: `${i * 0.04}s` }} onClick={() => { setSelectedCustomer(c); setShowDetailModal(true); }}>
+                            <div key={c.id} className="customer-card" style={{ animationDelay: `${i * 0.04}s` }} onClick={() => router.push('/dashboard/customers/' + c.id)}>
                                 <div className="card-top">
                                     <div className="avatar" style={{ background: getColor(i) }}>
                                         {getInitials(c.name)}                                          <div className="num">{i + 1}</div>
@@ -479,7 +510,7 @@ export default function CustomersPage() {
                                 <div className="card-bottom">
                                     <button className="action-btn" onClick={(e) => handleWhatsApp(c, e)}>💬 WhatsApp</button>
                                     <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 Call</a>
-                                    <button className="action-btn" onClick={(e) => { e.stopPropagation(); toast('Edit: ' + c.name); }}>✏️ Edit</button>
+                                    <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ Delete</button>
                                     <span className="view-label">View →</span>                                  </div>
                             </div>
                         ))
@@ -502,7 +533,11 @@ export default function CustomersPage() {
 
                 <div className={`modal-overlay ${showAddModal ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}>
                     <div className="modal">
-                        <div className="modal-handle"></div>                      <div className="modal-title">➕ Add New Customer</div>
+                        <div className="modal-handle"></div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <div className="modal-title" style={{ marginBottom: 0 }}>➕ Add New Customer</div>
+                            <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--muted)' }}>×</button>
+                        </div>
                         <div style={{ display: 'grid', gap: '12px' }}>
                             <div>
                                 <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>Name *</label>                              <input type="text" placeholder="Customer name" style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newName} onChange={e => setNewName(e.target.value)} />

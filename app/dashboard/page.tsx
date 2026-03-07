@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
 import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaShareAlt, FaGlobe, FaBrain, FaBolt, FaWhatsapp, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ComposedChart, Cell } from 'recharts';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { translations } from '@/lib/translations';
 import { formatCurrency, formatCompactNumber } from '@/lib/utils';
 import FreePlanPopup from './FreePlanPopup';
 import RegistrationPopup from './RegistrationPopup';
+import Chart from 'chart.js/auto';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
     const {
@@ -22,7 +23,7 @@ export default function DashboardPage() {
     const [customRange, setCustomRange] = useState({ start: '', end: '' });
     const [showSetupBanner, setShowSetupBanner] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
-    const [chartView, setChartView] = useState('area'); // 'area' or 'candle'
+    const [chartView, setChartView] = useState('area');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
     const [showAllCollection, setShowAllCollection] = useState(false);
@@ -31,6 +32,8 @@ export default function DashboardPage() {
     const [collectionSearch, setCollectionSearch] = useState('');
     const [showAllTopProducts, setShowAllTopProducts] = useState(false);
 
+    const router = useRouter();
+    const miniChartRef = useRef<HTMLCanvasElement>(null);
     const t = translations[settings.language as keyof typeof translations] || translations.en;
 
     const handleShareStore = () => {
@@ -56,7 +59,7 @@ export default function DashboardPage() {
         const amount = customer.totalPending;
         const businessName = businessProfile.name || 'Our Business';
         const message = `Namaste ${customerName} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ${formatCurrency(amount)} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
-        const phone = customer.phone?.replace(/\D/g, '') || '';
+        const phone = customer.phone?.replace(/\\D/g, '') || '';
         if (!phone) {
             toast.error('Customer phone number missing!');
             return;
@@ -84,7 +87,7 @@ export default function DashboardPage() {
                 const amount = cust.totalPending || cust.pending_amount;
                 const businessName = businessProfile.name || 'Our Business';
                 const message = cust.message || `Namaste ${customerName} ji, this is a reminder for your total pending balance of ${formatCurrency(amount)} with ${businessName}. Thank you!`;
-                const phone = cust.phone?.replace(/\D/g, '') || cust.customer_phone?.replace(/\D/g, '') || '';
+                const phone = cust.phone?.replace(/\\D/g, '') || cust.customer_phone?.replace(/\\D/g, '') || '';
 
                 if (phone) {
                     const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
@@ -130,6 +133,32 @@ export default function DashboardPage() {
         }
     }, [businessProfile.id]);
 
+    useEffect(() => {
+        if (!isClient || !miniChartRef.current) return;
+        const chart = new Chart(miniChartRef.current, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    data: [32000, 58000, 45000, 71000, 63000, 88000, 47250],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79,70,229,0.06)',
+                    borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4f46e5',
+                    fill: true, tension: .45
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: true,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + ((ctx.raw as number) / 1000).toFixed(0) + 'K' } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#7c88a6' } },
+                    y: { display: false }
+                }
+            }
+        });
+        return () => chart.destroy();
+    }, [isClient]);
+
     if (!isClient) return null;
 
     const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
@@ -137,23 +166,16 @@ export default function DashboardPage() {
     const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
 
     const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return t.goodMorning;
-        if (hour < 17) return t.goodAfternoon;
-        return t.goodEvening;
+        const hour = currentTime.getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 17) return 'Good Afternoon';
+        return 'Good Evening';
     };
 
     const today = new Date().toDateString();
     const todaySales = invoices
         .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
         .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
-
-    const stats = [
-        { icon: FaRupeeSign, label: t.todaysSales, value: todaySales, formattedValue: formatCompactNumber(todaySales), subtext: 'vs Yesterday', color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/20', trend: 'Now', trendUp: true, href: '/dashboard/reports?period=daily' },
-        { icon: FaChartLine, label: t.totalRevenue, value: totalSales, formattedValue: formatCompactNumber(totalSales), subtext: `${period} Sales`, color: 'from-violet-500 to-purple-600', shadow: 'shadow-violet-500/20', trend: '+12%', trendUp: true, href: '/dashboard/reports' },
-        { icon: FaFileInvoice, label: t.invoices, value: invoiceCount, formattedValue: invoiceCount.toString(), subtext: 'Generated', color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/20', trend: '+5', trendUp: true, href: '/dashboard/invoices' },
-        { icon: FaBox, label: t.lowStock, value: lowStockItems, formattedValue: lowStockItems.toString(), subtext: 'Items Alert', color: lowStockItems > 0 ? 'from-red-500 to-rose-600' : 'from-emerald-500 to-teal-600', shadow: lowStockItems > 0 ? 'shadow-red-500/20' : 'shadow-emerald-500/20', trend: lowStockItems > 0 ? '⚠️' : '✓', trendUp: lowStockItems === 0, href: '/dashboard/inventory' },
-    ];
 
     const pendingInvoices = (invoices || []).filter((inv: any) => inv.status !== 'PAID');
     const pendingByCustomer = pendingInvoices.reduce((acc: any, inv: any) => {
@@ -178,477 +200,370 @@ export default function DashboardPage() {
         .filter((c: any) => c.name.toLowerCase().includes(collectionSearch.toLowerCase()))
         .sort((a: any, b: any) => b.totalPending - a.totalPending);
 
+    const formatLakhs = (val: number) => {
+        if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
+        if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lk`;
+        if (val >= 1000) return `₹${(val / 1000).toFixed(1)} K`;
+        return `₹${Number(val || 0).toLocaleString('en-IN')}`;
+    };
+
     const totalOverallPending = pendingCustomersList.reduce((acc: number, c: any) => acc + c.totalPending, 0);
 
+    const recentInvoices = invoices.slice(0, 5);
+
     return (
-        <div className="space-y-6 pb-20 px-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-                <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <FaClock className="text-amber-500 text-sm" />
-                        <span className="text-xs md:text-sm text-gray-500 font-bold bg-white px-5 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
-                            {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                            {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                        </span>
+        <div className="db-wrapper">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+:root {
+  --bg: #f0f2fa;
+  --white: #fff;
+  --ink: #0b0f1e;
+  --ink2: #1c2340;
+  --slate: #3d4766;
+  --muted: #7c88a6;
+  --border: #e2e6f3;
+  --faint: #f5f7fd;
+  --indigo: #4f46e5;
+  --indigo2: #7c3aed;
+  --teal: #0ea5e9;
+  --green: #10b981;
+  --green2: #059669;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --orange: #f97316;
+  --shadow: 0 2px 16px rgba(11,15,30,.07),0 1px 4px rgba(11,15,30,.04);
+  --shadow-md: 0 8px 32px rgba(11,15,30,.11),0 2px 8px rgba(11,15,30,.06);
+}
+.db-wrapper { font-family: 'Sora', sans-serif; color: var(--ink); width: 100%; }
+.db-wrapper * { box-sizing: border-box; }
+
+.content { padding: 24px 28px 40px; flex: 1; min-width: 0; }
+.greeting-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.greeting-time { font-size: 11.5px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.greeting-h1 { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.5px; }
+.greeting-h1 span { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.greeting-right { display: flex; gap: 8px; }
+.search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 16px; box-shadow: var(--shadow); min-width: 220px; transition: all .2s; }
+.search-box:focus-within { border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+.search-box input { border: none; outline: none; font-family: 'Sora', sans-serif; font-size: 13px; color: var(--ink); background: transparent; flex: 1; font-weight: 500; }
+.search-box input::placeholder { color: #c0c8da; font-weight: 400; }
+
+.qa-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
+.qa-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: none; text-decoration: none; animation: fadeUp .4s ease both; }
+.qa-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.qa-card .qa-icon { font-size: 26px; }
+.qa-card .qa-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #fff; text-align: center; line-height: 1.3; }
+.qa-card.c1 { background: linear-gradient(135deg, #4338ca, #4f46e5); box-shadow: 0 6px 20px rgba(79,70,229,0.35); }
+.qa-card.c2 { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
+.qa-card.c3 { background: linear-gradient(135deg, #7c3aed, #9333ea); box-shadow: 0 6px 20px rgba(147,51,234,0.35); }
+.qa-card.c4 { background: linear-gradient(135deg, #1d4ed8, #2563eb); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
+.qa-card.c5 { background: linear-gradient(135deg, #047857, #059669); box-shadow: 0 6px 20px rgba(5,150,105,0.35); }
+.qa-card.c6 { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 6px 20px rgba(109,40,217,0.35); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+.period-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.period-tabs { display: flex; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px; gap: 2px; box-shadow: var(--shadow); overflow-x: auto;}
+.ptab { padding: 7px 18px; border-radius: 9px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all .2s; white-space: nowrap; }
+.ptab.active { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; box-shadow: 0 3px 10px rgba(79,70,229,0.35); }
+.section-title { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
+.section-sub { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.kpi-card { background: var(--white); border-radius: 16px; padding: 18px 16px; box-shadow: var(--shadow); border: 1px solid var(--border); transition: all .25s; animation: fadeUp .4s ease both; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+.kpi-card.k1::before { background: linear-gradient(90deg, #4f46e5, #818cf8); }
+.kpi-card.k2::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.kpi-card.k3::before { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+.kpi-card.k4::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kpi-ico { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; }
+.kpi-trend { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+.trend-up { background: rgba(16,185,129,0.1); color: var(--green); }
+.trend-down { background: rgba(239,68,68,0.1); color: var(--red); }
+.kpi-val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; letter-spacing: -.5px; margin-bottom: 4px; }
+.kpi-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); }
+
+.main-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; margin-bottom: 20px; }
+.card { background: var(--white); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); animation: fadeUp .5s ease both; }
+.card-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
+.card-sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.see-all { font-size: 11.5px; font-weight: 700; color: var(--indigo); cursor: pointer; white-space: nowrap; }
+.see-all:hover { text-decoration: underline; }
+
+.inv-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--faint); cursor: pointer; transition: all .15s; }
+.inv-row:last-child { border-bottom: none; }
+.inv-row:hover { background: var(--faint); margin: 0 -8px; padding: 10px 8px; border-radius: 10px; }
+.inv-av { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.inv-info { flex: 1; min-width: 0; }
+.inv-name { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.inv-meta { font-size: 11px; color: var(--muted); font-weight: 400; font-family: 'JetBrains Mono', monospace; margin-top: 1px; }
+.inv-right { text-align: right; flex-shrink: 0; }
+.inv-amt { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.inv-status { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-top: 3px; }
+.s-unpaid { background: rgba(239,68,68,0.1); color: var(--red); }
+.s-paid { background: rgba(16,185,129,0.1); color: var(--green); }
+.s-partial { background: rgba(245,158,11,0.1); color: var(--amber); }
+
+.coll-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.coll-card { background: var(--faint); border: 1.5px solid var(--border); border-radius: 13px; padding: 12px; cursor: pointer; transition: all .2s; }
+.coll-card:hover { border-color: var(--indigo); background: #fff; transform: translateY(-1px); box-shadow: var(--shadow); }
+.coll-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.coll-num { width: 24px; height: 24px; background: var(--slate); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
+.coll-bills { font-size: 10.5px; font-weight: 700; color: var(--teal); }
+.coll-name { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
+.coll-last { font-size: 10.5px; color: var(--muted); font-weight: 400; }
+.coll-amt { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--red); margin-top: 4px; }
+.coll-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.wa-btn { width: 28px; height: 28px; background: rgba(16,185,129,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: all .2s; border: none; }
+.wa-btn:hover { background: rgba(16,185,129,0.25); }
+.select-box { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; transition: all .2s; background: var(--white); }
+
+.action-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+.action-bar-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all .2s; }
+.btn-remind { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+.btn-due { background: linear-gradient(135deg, #1d4ed8, #4f46e5); color: #fff; box-shadow: 0 4px 14px rgba(79,70,229,0.35); }
+.action-bar-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+.prod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.prod-card { background: var(--faint); border: 1.5px solid var(--border); border-radius: 13px; padding: 12px; position: relative; cursor: pointer; transition: all .2s; }
+.prod-card:hover { border-color: var(--amber); background: #fff; transform: translateY(-2px); box-shadow: var(--shadow); }
+.prod-rank { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.rank-1 { background: linear-gradient(135deg, #f59e0b, #f97316); }
+.rank-2 { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+.rank-3 { background: linear-gradient(135deg, #92400e, #b45309); }
+.rank-other { background: var(--slate); }
+.prod-badge { position: absolute; top: 10px; right: 10px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
+.badge-best { background: rgba(245,158,11,0.15); color: var(--amber); }
+.badge-top { background: rgba(14,165,233,0.12); color: var(--teal); }
+.prod-name { font-size: 12.5px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
+.prod-sold { font-size: 10.5px; color: var(--muted); font-weight: 500; }
+.prod-amt { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--indigo); margin-top: 4px; }
+
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 20px; }
+.store-card { background: linear-gradient(135deg, #0f172a, #1e3a5f); border-radius: 18px; padding: 20px; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .2s; }
+.store-card:hover { transform: translateY(-2px); }
+.store-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.store-info .store-title { font-size: 15px; font-weight: 800; color: #fff; }
+.store-info .store-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+.store-btns { display: flex; gap: 8px; margin-top: 12px; }
+.store-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; }
+.btn-open { background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; }
+.btn-share { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+
+.gst-quick { background: var(--white); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.gst-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--faint); font-size: 13px; }
+.gst-row:last-child { border-bottom: none; }
+.gst-key { color: var(--muted); font-weight: 500; }
+.gst-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
+
+.support-btn { width: 100%; margin-top: 20px; padding: 16px; background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(79,70,229,0.35); transition: all .2s; }
+.support-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(79,70,229,0.45); }
+
+@media(max-width:1024px) { .qa-grid { grid-template-columns: repeat(3, 1fr); } .kpi-strip { grid-template-columns: repeat(2, 1fr); } .main-grid { grid-template-columns: 1fr; } .bottom-grid { grid-template-columns: 1fr; } }
+@media(max-width:768px) { .qa-grid { grid-template-columns: repeat(3, 1fr); } .content { padding: 16px; } .prod-grid { grid-template-columns: 1fr 1fr; } .coll-grid { grid-template-columns: 1fr; } }
+          `}} />
+
+            <div className="content">
+                <div className="greeting-row">
+                    <div>
+                        <div className="greeting-h1">{getGreeting()}, <span>{businessProfile.name || 'Business'}</span>! 👋</div>
                     </div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                        {getGreeting()}, <span className="text-blue-600">{businessProfile.name || 'Owner'}</span>! 👋
-                    </h1>
+                    <div className="search-box">
+                        <span style={{ fontSize: "15px", color: "#c0c8da" }}>🔍</span>
+                        <input type="text" placeholder="Quick Search…" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    </div>
                 </div>
-            </div>
 
-            {/* Smart Search */}
-            <div className="relative group">
-                <div className="absolute inset-y-0 left-75 pl-4 flex items-center pointer-events-none">
-                    <FaSearch className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <div className="qa-grid">
+                    <Link href="/dashboard/invoices/new" className="qa-card c1" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">New Invoice</span></Link>
+                    <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">Add Customer</span></Link>
+                    <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">Add Product</span></Link>
+                    <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">View Reports</span></Link>
+                    <Link href="/dashboard/quotations" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">📋</span><span className="qa-label">Quotations</span></Link>
+                    <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">Expenses</span></Link>
                 </div>
-                <input
-                    type="text"
-                    placeholder="Quick Search: " style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700 shadow-sm"
-                />
 
-                {searchTerm && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 z-[100] max-h-[400px] overflow-y-auto p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-3">
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Customers</h4>
-                                {customers.filter((c: any) => c.name.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
-                                    <p className="text-xs text-slate-400 italic px-2">No customers found</p>
-                                ) : (
-                                    customers.filter((c: any) => c.name.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 5).map((cust: any) => (
-                                        <Link key={cust.id} href={`/dashboard/customers/${cust.id}`} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-2xl transition-all group">
-                                            <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-sm">{cust.name[0]}</div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-800 group-hover:text-blue-600 truncate uppercase">{cust.name}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold">{cust.phone}</p>
-                                            </div>
-                                        </Link>
-                                    ))
-                                )}
+                <div className="period-row">
+                    <div>
+                        <div className="section-title">Business Overview</div>
+                        <div className="section-sub">Real-time performance metrics</div>
+                    </div>
+                    <div className="period-tabs">
+                        <div className={`ptab ${period === 'daily' ? 'active' : ''}`} onClick={() => setPeriod('daily')}>Daily</div>
+                        <div className={`ptab ${period === 'weekly' ? 'active' : ''}`} onClick={() => setPeriod('weekly')}>Weekly</div>
+                        <div className={`ptab ${period === 'monthly' ? 'active' : ''}`} onClick={() => setPeriod('monthly')}>Monthly</div>
+                        <div className={`ptab ${period === 'yearly' ? 'active' : ''}`} onClick={() => setPeriod('yearly')}>Yearly</div>
+                        <div className={`ptab ${period === 'custom' ? 'active' : ''}`} onClick={() => setPeriod('custom')}>Custom</div>
+                    </div>
+                </div>
+
+                <div className="kpi-strip">
+                    <div className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer" }} onClick={() => router.push('/dashboard/reports?period=daily')}>
+                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(79,70,229,0.1)" }}>💰</div><div className="kpi-trend trend-up">Now</div></div>
+                        <div className="kpi-val" style={{ color: "var(--indigo)" }}>{formatCompactNumber(todaySales)}</div>
+                        <div className="kpi-lbl">Today's Sales</div>
+                    </div>
+                    <div className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer" }} onClick={() => router.push('/dashboard/reports')}>
+                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(16,185,129,0.1)" }}>📈</div><div className="kpi-trend trend-up">Total</div></div>
+                        <div className="kpi-val" style={{ color: "var(--green)" }}>{formatCompactNumber(totalSales)}</div>
+                        <div className="kpi-lbl">Total Revenue</div>
+                    </div>
+                    <div className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer" }} onClick={() => router.push('/dashboard/invoices')}>
+                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(14,165,233,0.1)" }}>🧾</div><div className="kpi-trend trend-up">All</div></div>
+                        <div className="kpi-val" style={{ color: "var(--teal)" }}>{formatCompactNumber(invoiceCount)}</div>
+                        <div className="kpi-lbl">Total Invoices</div>
+                    </div>
+                    <div className="kpi-card k4" style={{ animationDelay: ".22s", cursor: "pointer" }} onClick={() => router.push('/dashboard/inventory')}>
+                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(239,68,68,0.1)" }}>⚠️</div>{lowStockItems > 0 ? <div className="kpi-trend trend-down">Act</div> : <div className="kpi-trend trend-up">OK</div>}</div>
+                        <div className="kpi-val" style={{ color: "var(--red)" }}>{lowStockItems}</div>
+                        <div className="kpi-lbl">Low Stock Items</div>
+                    </div>
+                </div>
+
+                <div className="main-grid">
+                    <div className="card" style={{ animationDelay: ".2s" }}>
+                        <div className="card-hdr">
+                            <div>
+                                <div className="card-title">Recent Invoices</div>
+                                <div className="card-sub">Latest billing activity</div>
                             </div>
-                            <div className="space-y-3">
-                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Invoices</h4>
-                                {invoices.filter((inv: any) => inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
-                                    <p className="text-xs text-slate-400 italic px-2">No invoices found</p>
-                                ) : (
-                                    invoices.filter((inv: any) => inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 5).map((inv: any) => (
-                                        <Link key={inv.id} href={`/dashboard/invoices`} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-2xl transition-all group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">#</div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-slate-800 group-hover:text-emerald-600 truncate uppercase">Inv #{inv.invoice_number}</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold">{inv.customer?.name}</p>
-                                                </div>
-                                            </div>
-                                            <p className="font-black text-slate-800 text-xs text-right italic">{formatCurrency(parseFloat(inv.total_amount))}</p>
-                                        </Link>
-                                    ))
-                                )}
-                            </div>
+                            <span className="see-all" onClick={() => router.push('/dashboard/invoices')}>View All →</span>
                         </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '6px' }}>
-                <Link href="/dashboard/invoices/new" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-indigo-800" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' }}>
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
-                    <FaFileInvoice className="text-2xl relative z-10 drop-shadow" />
-                    <span className="relative z-10">{t.newInvoice}</span>
-                </Link>
-                <Link href="/dashboard/customers" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-emerald-800" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
-                    <FaUsers className="text-2xl relative z-10 drop-shadow" />
-                    <span className="relative z-10">{t.addCustomer}</span>
-                </Link>
-                <Link href="/dashboard/inventory" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-violet-800" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
-                    <FaBox className="text-2xl relative z-10 drop-shadow" />
-                    <span className="relative z-10">{t.addProduct}</span>
-                </Link>
-                <Link href="/dashboard/reports" className="relative overflow-hidden h-28 md:h-36 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl font-black uppercase text-xs tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-indigo-900" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)' }}>
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-6 -mt-6 blur-xl"></div>
-                    <FaChartLine className="text-2xl relative z-10 drop-shadow" />
-                    <span className="relative z-10">{t.viewReports}</span>
-                </Link>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '6px', paddingBottom: '10px' }}>
-                <Link href="/dashboard/quotations" className="relative overflow-hidden h-20 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-emerald-900" style={{ background: 'linear-gradient(135deg, #059669 0%, #047857 100%)' }}>
-                    <FaReceipt className="text-xl" />
-                    <span>Quotations</span>
-                </Link>
-                <Link href="/dashboard/expenses" className="relative overflow-hidden h-20 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-[10px] tracking-widest gap-2 active:scale-95 transition-all border-b-4 border-violet-900" style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' }}>
-                    <FaRupeeSign className="text-xl" />
-                    <span>Expenses</span>
-                </Link>
-            </div>
-
-            {/* Time Period Selector */}
-            <div className="space-y-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-                <div className="flex bg-white p-1 rounded-2xl border-2 border-slate-100 shadow-sm overflow-x-auto no-scrollbar">
-                    {['daily', 'weekly', 'monthly', 'yearly', 'custom'].map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPeriod(p)}
-                            className={`flex-1 min-w-[80px] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-400 hover:text-slate-600'}`}
-                        >
-                            {t[p as keyof typeof t] || (p.charAt(0).toUpperCase() + p.slice(1))}
-                        </button>
-                    ))}
-                </div>
-
-                {period === 'custom' && (
-                    <div className="flex gap-4 p-4 bg-white rounded-2xl border-2 border-slate-100">
-                        <div className="flex-1">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Start Date</label>
-                            <input
-                                type="date"
-                                value={customRange.start}
-                                onChange={(e) => setCustomRange({ ...customRange, start: e.target.value })}
-                                className="w-full bg-slate-50 border-none rounded-xl py-2 px-3 text-sm font-bold text-slate-700 outline-none"
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">End Date</label>
-                            <input
-                                type="date"
-                                value={customRange.end}
-                                onChange={(e) => setCustomRange({ ...customRange, end: e.target.value })}
-                                className="w-full bg-slate-50 border-none rounded-xl py-2 px-3 text-sm font-bold text-slate-700 outline-none"
-                            />
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-                {stats.map((stat, index) => (
-                    <Link key={index} href={stat.href} className="bg-white p-6 rounded-[2rem] border-2 border-slate-50 text-center flex flex-col items-center justify-center gap-3 shadow-sm hover:border-blue-100 transition-all active:scale-95">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg flex items-center justify-center`}><stat.icon className="text-xl" /></div>
                         <div>
-                            <h3 className="text-xl font-black text-slate-800 tracking-tight">
-                                {stat.label === t.invoices || stat.label === t.lowStock ? stat.value.toLocaleString() : formatCompactNumber(stat.value)}
-                            </h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
-                        </div>
-                    </Link>
-                ))}
-            </div>
-
-            {/* Recent Invoices */}
-            <div className="space-y-3 mt-6" style={{ paddingLeft: '5px', paddingRight: '5px' }}>
-                {/* Header — simple, no italic */}
-                <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-md">
-                            <FaFileInvoice className="text-sm" />
-                        </div>
-                        <div>
-                            <h2 className="text-base font-black text-slate-900 leading-none">Recent Invoices</h2>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Latest Billing Activity</p>
-                        </div>
-                    </div>
-                    <Link href="/dashboard/invoices" className="px-3 py-2 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 shadow-sm">
-                        View All
-                    </Link>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    {(invoices || []).slice(0, 5).map((invoice: any, index: number) => (
-                        <div
-                            key={index}
-                            className={`bg-white rounded-2xl border-l-4 border-r border-t border-b px-4 py-3 flex items-center justify-between shadow-sm active:scale-[0.98] transition-all ${invoice.status === 'PAID' ? 'border-l-emerald-500 border-slate-100' : 'border-l-rose-500 border-slate-100'}`}
-                        >
-                            {/* Left: Customer + Invoice details */}
-                            <div className="flex-1 min-w-0" style={{ paddingLeft: '5px', paddingRight: '5px' }}>
-                                <p className="text-sm font-black text-slate-800 leading-none truncate">
-                                    {invoice.customer?.name || 'Unknown Client'}
-                                </p>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[9px] font-bold text-slate-400">#{invoice.invoice_number}</span>
-                                    <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-                                    <span className="text-[9px] font-bold text-slate-400">
-                                        {new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                                    </span>
-                                </div>
-                                {/* Total Amount — clearly labeled */}
-                                <p className="text-sm font-black mt-1.5 text-slate-900">
-                                    ₹{parseFloat(invoice.total_amount).toLocaleString('en-IN')}
-                                    <span className="text-[9px] font-bold text-slate-400 ml-1">(GST incl.)</span>
-                                </p>
-                            </div>
-
-                            {/* Right: Status badge + actions */}
-                            <div className="flex flex-col items-end gap-2 ml-3 flex-shrink-0">
-                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${invoice.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : invoice.status === 'PARTIAL' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
-                                    {invoice.status}
-                                </span>
-                                <div className="flex gap-1.5">
-                                    <button
-                                        onClick={() => handleSendReminder(invoice.customer || invoice)}
-                                        className="w-7 h-7 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all active:scale-95"
-                                    >
-                                        <FaWhatsapp className="text-xs" />
-                                    </button>
-                                    <Link
-                                        href="/dashboard/invoices"
-                                        className="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
-                                    >
-                                        <FaSearch className="text-xs" />
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    {(!invoices || invoices.length === 0) && (
-                        <div className="bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-100 p-12 text-center">
-                            <FaFileInvoice className="text-4xl text-slate-200 mx-auto mb-4" />
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Recent Invoices Found</p>
-                            <Link href="/dashboard/invoices/new" className="inline-block mt-4 px-6 py-2 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-200">Create New Bill</Link>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-
-            {/* AI Auto-Reminders Smart Card */}
-            {autoReminders.length > 0 && (
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl mt-8">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                    <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-3xl shadow-2xl border border-white/30">
-                                <FaBolt className="text-yellow-300 animate-pulse" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="text-2xl font-black italic uppercase tracking-tighter">AI Auto-Reminders</h3>
-                                <p className="text-blue-100 text-xs font-bold uppercase tracking-widest leading-none mt-1">
-                                    {autoReminders.length} Customers are due for a reminder today
-                                </p>
-                            </div>
-                        </div>
-                        <button onClick={() => handleBulkReminder(autoReminders)} className="w-full md:w-auto px-10 py-4 bg-white text-blue-700 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3">
-                            <FaWhatsapp className="text-lg" /> Send All Reminders
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Collection Center */}
-            <div className="bg-white rounded-[2rem] border-2 border-emerald-100 overflow-hidden mt-8 shadow-sm">
-                <div className="p-6 border-b flex flex-col md:flex-row items-center justify-between gap-4 bg-emerald-50/50" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-sm"><FaWhatsapp /></div>
-                        <div className="text-left">
-                            <h3 className="text-lg font-black text-slate-800 uppercase italic">Collection Center</h3>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manage Pending Payments</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Full Width 3D Search Bar */}
-                <div className="px-6 py-5 bg-white border-b border-emerald-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                    <div className="relative w-full group transition-all bg-white p-1 rounded-2xl border-4 border-emerald-100 border-b-8 border-emerald-200 shadow-lg" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                        <input
-                            type="text"
-                            placeholder="SEARCH"
-                            value={collectionSearch}
-                            onChange={(e) => setCollectionSearch(e.target.value)}
-                            className="w-full py-4 bg-emerald-50/30 border-none rounded-xl outline-none text-base font-black text-black placeholder:text-black uppercase tracking-widest"
-                            style={{ paddingLeft: '5px', paddingRight: '5px' }}
-                        />
-                        <div className="absolute left-65 top-1/2 -translate-y-1/2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                            <FaSearch className="text-xl text-black transition-all group-hover:scale-110" />
-                        </div>
-                    </div>
-                </div>
-
-                {pendingCustomersList.length > 0 && (
-                    <div className="px-6 py-3 bg-white border-b flex justify-between items-center text-[10px] font-black uppercase text-slate-400 tracking-widest" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                        <button onClick={() => selectedCustomers.length === pendingCustomersList.length ? setSelectedCustomers([]) : setSelectedCustomers(pendingCustomersList.map((c: any) => c.id))} className="text-indigo-600 hover:text-indigo-800">
-                            {selectedCustomers.length === pendingCustomersList.length ? 'Deselect All' : 'Select All'}
-                        </button>
-                        <span>Selected Customers: {selectedCustomers.length}</span>
-                    </div>
-                )}
-
-                <div className={`transition-all duration-500 overflow-hidden ${showAllCollection ? 'max-h-none' : 'max-h-[600px]'}`} style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {pendingCustomersList.length === 0 ? (
-                            <div className="col-span-full py-10 text-center text-slate-400 italic">No pending payments! 🎉</div>
-                        ) : (
-                            (showAllCollection ? pendingCustomersList : pendingCustomersList.slice(0, 6)).map((cust: any, idx) => {
-                                const isSelected = selectedCustomers.includes(cust.id);
-                                const isToday = cust.promise_date && new Date(cust.promise_date).toDateString() === new Date().toDateString();
-                                const isOverdue = cust.promise_date && new Date(cust.promise_date) < new Date(new Date().setHours(0, 0, 0, 0));
+                            {recentInvoices.map((inv: any, idx: number) => {
+                                const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
+                                const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
                                 return (
-                                    <div
-                                        key={idx}
-                                        className={`relative rounded-3xl border-2 transition-all cursor-pointer flex flex-col justify-between ${isSelected ? 'border-emerald-600 bg-emerald-50/30' : 'bg-slate-50 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50/20'}`}
-                                        style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                                        onClick={() => isSelected ? setSelectedCustomers(selectedCustomers.filter(id => id !== cust.id)) : setSelectedCustomers([...selectedCustomers, cust.id])}
-                                    >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${isSelected ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-200 text-slate-600'}`} style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                                                {idx + 1}
-                                            </div>
-                                            <div className="flex gap-1" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                                                {isToday && <span className="bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-sm">PROMISED</span>}
-                                                {isOverdue && <span className="bg-rose-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-sm">OVERDUE</span>}
-                                                <span className="text-[10px] font-black italic text-emerald-600 uppercase tracking-widest">{cust.invoiceCount} Bills</span>
-                                            </div>
+                                    <div className="inv-row" key={inv.id} onClick={() => router.push('/dashboard/invoices')}>
+                                        <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
+                                        <div className="inv-info">
+                                            <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
+                                            <div className="inv-meta">{inv.invoice_number} · {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
                                         </div>
-
-                                        <div style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                                            <h4 className="font-bold text-slate-800 mb-1 uppercase truncate text-sm hover:text-emerald-600 transition-colors">{cust.name}</h4>
-                                            <div className="flex justify-between items-end mt-2">
-                                                <p className="text-slate-400 text-[10px] font-bold uppercase">Last: {new Date(cust.lastInvoiceDate).toLocaleDateString()}</p>
-                                                <p className="text-lg font-black text-rose-600 italic">{formatCompactNumber(cust.totalPending)}</p>
-                                            </div>
+                                        <div className="inv-right">
+                                            <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
+                                            <div className={`inv-status ${sClass}`}>{inv.status}</div>
                                         </div>
-
-                                        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                                            <div className="flex gap-2">
-                                                <button onClick={(e) => { e.stopPropagation(); handleSendReminder(cust); }} className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors">
-                                                    <FaWhatsapp />
-                                                </button>
-                                            </div>
-                                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-200 bg-white'}`}>
-                                                {isSelected && <FaBolt className="text-[10px]" />}
-                                            </div>
-                                        </div>
+                                        <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
                                     </div>
                                 );
-                            })
-                        )}
-                    </div>
-                </div>
-
-                <div className="p-6 bg-slate-50 border-t space-y-4">
-                    {pendingCustomersList.length > 6 && (
-                        <div className="text-center">
-                            <button
-                                onClick={() => setShowAllCollection(!showAllCollection)}
-                                className="w-full py-4 bg-yellow-400 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow-500/20 transition-all hover:scale-[1.02] active:scale-95"
-                            >
-                                {showAllCollection ? 'Show Less' : `View All ${pendingCustomersList.length} Customers`}
-                            </button>
+                            })}
+                            {recentInvoices.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold">No Invoices</div>}
                         </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-2 w-full" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                        <button
-                            onClick={() => handleBulkReminder(pendingCustomersList)}
-                            className={`py-6 rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 ${selectedCustomers.length > 0 ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-emerald-500 text-white shadow-emerald-500/10'}`}
-                            style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                        >
-                            <FaWhatsapp className="text-2xl shrink-0" /> <span className="truncate">{selectedCustomers.length > 0 ? `REMIND (${selectedCustomers.length})` : 'REMIND ALL'}</span>
-                        </button>
-                        <button
-                            onClick={() => toast.success(`Total Pending Amount: ${formatCurrency(totalOverallPending)}`, { icon: '💰', duration: 5000, style: { borderRadius: '20px', background: '#1e293b', color: '#fff', fontWeight: 'bold' } })}
-                            className="py-6 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl shadow-blue-500/20 transition-all flex items-center justify-center gap-2 active:scale-95"
-                            style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                        >
-                            <FaRupeeSign className="text-2xl shrink-0" /> <span className="truncate">TOTAL DUE</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Top Selling Products - White & Bhagwa Mix */}
-            <div className="bg-white rounded-[2.5rem] border-4 border-[#FF9933] p-8 mt-8 shadow-2xl relative overflow-hidden group" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF9933]/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-[#FF9933]/20 transition-all duration-700"></div>
-                <div className="relative z-10" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-[#FF9933] text-white rounded-2xl flex items-center justify-center text-2xl shadow-xl shadow-[#FF9933]/30 border-2 border-orange-200">
-                            <FaChartLine className="animate-pulse" />
-                        </div>
-                        <div className="text-left">
-                            <h3 className="text-xl font-black italic uppercase tracking-tighter text-slate-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>Top Selling Product</h3>
-                            <p className="text-[#FF9933] text-[10px] font-black uppercase tracking-widest" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>Your Best Sellers</p>
+                        <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--faint)" }}>
+                            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>Revenue This Week</div>
+                            <canvas ref={miniChartRef} style={{ maxHeight: "90px" }}></canvas>
                         </div>
                     </div>
 
-                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-500 ${showAllTopProducts ? 'max-h-none' : 'max-h-[600px] overflow-hidden'}`} style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                        {(showAllTopProducts ? topProducts : topProducts.slice(0, 5)).map((item: any, idx: number) => (
-                            <Link
-                                key={idx}
-                                href={`/dashboard/invoices?search=${encodeURIComponent(item.name)}`}
-                                className="bg-slate-50 rounded-3xl p-6 border-2 border-slate-100 hover:border-[#FF9933] hover:bg-orange-50/50 transition-all group/card flex flex-col justify-between" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}
-                            >
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${idx === 0 ? 'bg-[#FF9933] text-white shadow-lg shadow-orange-500/20' : 'bg-slate-200 text-slate-600'}`} style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                                        {idx + 1}
-                                    </div>
-                                    <span className={`text-[10px] font-black italic uppercase tracking-widest ${idx === 0 ? 'text-[#FF9933]' : 'text-emerald-500'}`} style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                                        {idx === 0 ? 'Best Seller' : 'Top Product'}
-                                    </span>
-                                </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                        <div className="card" style={{ animationDelay: ".25s" }}>
+                            <div className="card-hdr">
                                 <div>
-                                    <h4 className="font-bold text-slate-800 mb-1 uppercase tracking-tight truncate text-sm group-hover/card:text-[#FF9933] transition-colors">{item.name}</h4>
-                                    <div className="flex justify-between items-end mt-2">
-                                        <p className="text-slate-400 text-[10px] font-bold uppercase">{Math.round(item.quantity)} Sold</p>
-                                        <p className="text-lg font-black text-slate-900 italic">{formatCompactNumber(item.sales || 0)}</p>
+                                    <div className="card-title">💚 Collection Center</div>
+                                    <div className="card-sub">Manage pending payments</div>
+                                </div>
+                                <span className="see-all" onClick={() => router.push('/dashboard/customers')}>{pendingCustomersList.length} →</span>
+                            </div>
+                            <div style={{ marginBottom: "10px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--faint)", border: "1.5px solid var(--border)", borderRadius: "10px", padding: "9px 12px" }}>
+                                    <span style={{ color: "var(--muted)" }}>🔍</span>
+                                    <input type="text" placeholder="Search party…" value={collectionSearch} onChange={(e) => setCollectionSearch(e.target.value)} style={{ border: "none", outline: "none", fontFamily: "'Sora',sans-serif", fontSize: "13px", background: "transparent", flex: 1, color: "var(--ink)" }} />
+                                </div>
+                            </div>
+                            <div className="coll-grid">
+                                {pendingCustomersList.slice(0, 4).map((c: any, i: number) => (
+                                    <div className="coll-card" key={c.id} onClick={() => router.push('/dashboard/customers/' + c.id)}>
+                                        <div className="coll-top">
+                                            <div className="coll-num">{i + 1}</div>
+                                            <div className="coll-bills">{c.invoiceCount} BILLS</div>
+                                        </div>
+                                        <div className="coll-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                                        <div className="coll-last">Last: {new Date(c.lastInvoiceDate).toLocaleDateString()}</div>
+                                        <div className="coll-amt">{formatCompactNumber(c.totalPending)}</div>
+                                        <div className="coll-bottom">
+                                            <button className="wa-btn" onClick={(e) => { e.stopPropagation(); handleSendReminder(c); }}>💬</button>
+                                            <input type="checkbox" className="select-box" checked={selectedCustomers.includes(c.id)} onChange={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedCustomers(prev => e.target.checked ? [...prev, c.id] : prev.filter(id => id !== c.id));
+                                            }} onClick={(e) => e.stopPropagation()} />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between opacity-0 group-hover/card:opacity-100 transition-opacity">
-                                    <span className="text-[8px] font-black text-[#FF9933] uppercase">Click to View Bills</span>
-                                    <FaSearch className="text-xs text-[#FF9933]" />
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-
-                    {topProducts.length > 5 && (
-                        <div className="mt-8 text-center border-t border-slate-100 pt-8" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                            <button
-                                onClick={() => setShowAllTopProducts(!showAllTopProducts)}
-                                className="w-full py-4 bg-yellow-400 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow-500/20 transition-all hover:scale-[1.02] active:scale-95"
-                            >
-                                {showAllTopProducts ? 'Show Less' : `View All ${topProducts.length} Products`}
-                            </button>
+                                ))}
+                                {pendingCustomersList.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>No Pending Collections</div>}
+                            </div>
+                            <div className="action-bar">
+                                <button className="action-bar-btn btn-remind" onClick={() => handleBulkReminder(pendingCustomersList)}>💬 Remind All</button>
+                                <button className="action-bar-btn btn-due" onClick={() => toast.success('Total due: ' + formatLakhs(totalOverallPending))}>₹ Total Due</button>
+                            </div>
                         </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Online Store Card */}
-            <div className="bg-white rounded-[2rem] p-6 border-2 border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4 mt-8 shadow-2xl" style={{ paddingLeft: '10px', paddingRight: '10px', paddingTop: '10px', paddingBottom: '10px' }}>
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-sm"><FaGlobe /></div>
-                    <div className="text-left">
-                        <h3 className="text-lg font-black text-slate-800 uppercase italic">Your Online Store</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Share link with customers</p>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 w-full mt-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                    <Link href={`/s/${businessProfile.id}`} target="_blank" className="py-6 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                        <FaGlobe className="text-2xl" /> <span>Open</span>
-                    </Link>
-                    <button onClick={handleShareStore} className="py-6 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                        <FaShareAlt className="text-2xl" /> <span>Share</span>
-                    </button>
+
+                <div className="card" style={{ animationDelay: ".3s", marginBottom: "0" }}>
+                    <div className="card-hdr">
+                        <div>
+                            <div className="card-title">🏆 Top Selling Products</div>
+                            <div className="card-sub">Your best sellers this month</div>
+                        </div>
+                        <span className="see-all" onClick={() => router.push('/dashboard/inventory')}>View All {topProducts.length} →</span>
+                    </div>
+                    <div className="prod-grid">
+                        {topProducts.slice(0, 6).map((p: any, i: number) => {
+                            const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+                            const badge = i === 0 ? 'BEST SELLER' : 'TOP PRODUCT';
+                            const bc = i === 0 ? 'badge-best' : 'badge-top';
+                            return (
+                                <div className="prod-card" key={i} onClick={() => router.push('/dashboard/inventory')}>
+                                    <div className={`prod-rank ${rankClass}`}>{i + 1}</div>
+                                    <span className={`prod-badge ${bc}`}>{badge}</span>
+                                    <div className="prod-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                                    <div className="prod-sold">{Math.round(p.quantity)} SOLD</div>
+                                    <div className="prod-amt">{formatLakhs(p.sales)}</div>
+                                </div>
+                            );
+                        })}
+                        {topProducts.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>No Products Sold</div>}
+                    </div>
                 </div>
+
+                <div className="bottom-grid">
+                    <div style={{ animation: "fadeUp .5s .35s ease both", cursor: "pointer" }} onClick={() => router.push('/dashboard/store')}>
+                        <div className="store-card">
+                            <div className="store-icon">🌐</div>
+                            <div className="store-info" style={{ flex: 1 }}>
+                                <div className="store-title">Your Online Store</div>
+                                <div className="store-sub">Manage and share online store</div>
+                                <div className="store-btns">
+                                    <button className="store-btn btn-open" onClick={(e) => { e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ Manage</button>
+                                    <button className="store-btn btn-share" onClick={(e) => { e.stopPropagation(); handleShareStore() }}>📤 Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="gst-quick" style={{ animation: "fadeUp .5s .4s ease both" }}>
+                        <div className="card-hdr">
+                            <div>
+                                <div className="card-title">🏛️ GST Quick Summary</div>
+                                <div className="card-sub">Current period</div>
+                            </div>
+                            <span className="see-all" onClick={() => router.push('/dashboard/gst-returns')}>File →</span>
+                        </div>
+                        <div className="gst-row"><span className="gst-key">Taxable Amount</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
+                        <div className="gst-row"><span className="gst-key">Total Tax</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
+                        <div className="gst-row"><span className="gst-key">Due Date</span><span className="gst-val" style={{ color: "var(--red)" }}>20 Mar 2026</span></div>
+                        <div className="gst-row"><span className="gst-key">Status</span><span className="gst-val" style={{ color: "var(--amber)" }}>⏳ Pending</span></div>
+                    </div>
+                </div>
+
+                <button className="support-btn" onClick={() => router.push('/dashboard/help')}>👥 Support — Help chahiye? Contact karo</button>
             </div>
 
-            {/* Support Button */}
-            <div className="mt-8 px-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <Link href="/dashboard/help" className="w-full bg-blue-600 py-5 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-lg font-black uppercase text-xs tracking-widest gap-2 hover:bg-blue-700 transition-colors">
-                    <FaUsers className="text-2xl" />
-                    <span>Support</span>
-                </Link>
-            </div>
-
-            {/* Promotional Popups */}
             <FreePlanPopup />
             <RegistrationPopup />
         </div>
