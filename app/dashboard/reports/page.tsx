@@ -224,6 +224,36 @@ function ReportsContent() {
         }
     };
 
+    const handleGSTExcel = () => {
+        try {
+            if (!invoices || invoices.length === 0) {
+                toast.error('No data to export');
+                return;
+            }
+            const gstData = invoices.map((inv: any) => ({
+                'Date': new Date(inv.invoice_date).toLocaleDateString('en-IN'),
+                'Invoice No': inv.invoice_number,
+                'Customer Name': inv.customer?.name || 'Unknown',
+                'GSTIN': inv.customer?.gstin || 'N/A',
+                'Taxable Value': inv.subtotal || 0,
+                'CGST': inv.cgst_amount || 0,
+                'SGST': inv.sgst_amount || 0,
+                'IGST': inv.igst_amount || 0,
+                'Cess': inv.cess_amount || 0,
+                'Total GST': (inv.cgst_amount || 0) + (inv.sgst_amount || 0) + (inv.igst_amount || 0),
+                'Total Value': inv.total_amount || 0
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(gstData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
+            XLSX.writeFile(wb, `GST_Report_${period}.xlsx`);
+            toast.success('GST report downloaded!');
+        } catch (error) {
+            toast.error('Failed to download GST Excel');
+        }
+    };
+
     const handleTallyXML = () => {
         if (!invoices || invoices.length === 0) {
             toast.error('No data to export');
@@ -810,7 +840,7 @@ function ReportsContent() {
                                     <div className="chart-title">GST Summary</div>
                                     <div className="chart-sub">Current month</div>
                                 </div>
-                                <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--green)", cursor: "pointer" }} onClick={() => toast.success('GST Report download ho raha hai…')}>📥 Download</span>
+                                <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--green)", cursor: "pointer" }} onClick={handleGSTExcel}>📥 Download</span>
                             </div>
                             <div className="gst-row"><span className="gst-key">Taxable Amount</span><span className="gst-val">{formatLakhs(totalTaxable)}</span></div>
                             <div className="gst-row"><span className="gst-key">CGST (9%)</span><span className="gst-val">{formatLakhs(totalCGST)}</span></div>
