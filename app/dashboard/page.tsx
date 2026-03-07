@@ -239,14 +239,20 @@ export default function DashboardPage() {
 .db-wrapper * { box-sizing: border-box; }
 
 .content { padding: 24px 28px 40px; flex: 1; min-width: 0; }
-.greeting-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-.greeting-time { font-size: 11.5px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.greeting-h1 { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.5px; white-space: nowrap; }
-.greeting-h1 span { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.greeting-right { display: flex; align-items: center; gap: 8px; }
-.time-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 18px; box-shadow: var(--shadow); font-size: 13px; font-weight: 700; color: var(--slate); }
-.time-badge .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: .7; } 100% { transform: scale(1); opacity: 1; } }
+.greeting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+.greeting-h1 { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.6px; margin: 0; display: flex; align-items: center; gap: 8px; }
+.greeting-h1 span { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.greeting-right { display: flex; align-items: center; flex-shrink: 0; }
+.time-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 8px 16px; box-shadow: var(--shadow); font-size: 12.5px; font-weight: 700; color: var(--slate); white-space: nowrap; }
+.time-badge .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 8px var(--green); }
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: .6; } 100% { transform: scale(1); opacity: 1; } }
+@media(max-width: 640px) {
+  .greeting-row { gap: 10px; margin-bottom: 20px; flex-direction: row; align-items: center; }
+  .greeting-h1 { font-size: 16px; }
+  .greeting-h1 span { max-width: 120px; }
+  .time-badge { padding: 6px 12px; font-size: 11px; }
+  .greeting-right { margin-left: auto; }
+}
 
 .qa-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
 .qa-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: none; text-decoration: none; animation: fadeUp .4s ease both; }
@@ -368,11 +374,9 @@ export default function DashboardPage() {
 
             <div className="content">
                 <div className="greeting-row">
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="greeting-h1" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {getGreeting()}, <span style={{ whiteSpace: 'nowrap' }}>{businessProfile.name || 'Business'}</span>! 👋
-                        </div>
-                    </div>
+                    <h1 className="greeting-h1">
+                        {getGreeting()}, <span>{businessProfile.name || 'Business'}</span>! 👋
+                    </h1>
                     <div className="greeting-right">
                         <div className="time-badge">
                             <span className="dot"></span>

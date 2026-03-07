@@ -161,6 +161,12 @@ export default function StoreManagerPage() {
             .tb-btn.publish{background:linear-gradient(135deg,var(--green),#059669);color:#fff;box-shadow:0 4px 14px rgba(16,185,129,.35)}
             .tb-btn.publish:hover{transform:translateY(-1px);filter:brightness(1.1)}
             
+            @media(max-width: 600px) {
+              .store-topbar { padding: 12px; }
+              .topbar-title h2 { font-size: 15px; }
+              .tb-btn { padding: 6px 10px; font-size: 11px; }
+            }
+            
             /* Page layout */
             .spage{display:grid;grid-template-columns:1fr 360px;gap:20px;padding:22px 24px;max-width:1300px;margin:0 auto}
             @media(max-width:900px){.spage{grid-template-columns:1fr}}
@@ -201,14 +207,15 @@ export default function StoreManagerPage() {
             .logo-edit{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;background:var(--indigo);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;cursor:pointer;border:2px solid #fff}
             
             .store-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+            @media(max-width: 500px) { .store-name-row { flex-direction: column; gap: 8px; } }
             .store-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.4px}
             .store-tagline{font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}
             .store-status{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#34d399;padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:700;flex-shrink:0}
             .status-dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:spulse 2s infinite}
             @keyframes spulse{0%,100%{opacity:1}50%{opacity:.4}}
             
-            .store-url-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 14px;margin-top:12px}
-            .store-url{font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,.7);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+            .store-url-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 14px;margin-top:12px; overflow: hidden;}
+            .store-url{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.7);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; min-width: 0;}
             .url-copy-btn{background:var(--indigo);color:#fff;border:none;padding:6px 12px;border-radius:7px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
             .url-copy-btn:hover{background:var(--indigo2)}
             
@@ -216,6 +223,16 @@ export default function StoreManagerPage() {
             .h-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:10px;text-align:center}
             .h-stat-val{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;color:#fff}
             .h-stat-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+            
+            @media(max-width: 600px) {
+              .spage { padding: 12px; }
+              .hero-banner { height: 110px; }
+              .store-name { font-size: 18px; }
+              .store-url-row { flex-direction: column; align-items: stretch; }
+              .url-copy-btn { width: 100%; text-align: center; }
+              .hero-stats { grid-template-columns: 1fr 1fr; }
+              .hero-stats > div:last-child { grid-column: span 2; }
+            }
             
             /* Share section */
             .share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -227,6 +244,10 @@ export default function StoreManagerPage() {
             .share-btn.copy:hover{background:#eff6ff;border-color:#93c5fd}
             .share-btn.qr:hover{background:#faf5ff;border-color:#c4b5fd}
             .share-btn.email:hover{background:#fff7ed;border-color:#fed7aa}
+            
+            @media(max-width: 500px) {
+              .share-grid { grid-template-columns: repeat(2, 1fr); }
+            }
             
             /* Products section */
             .prod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -248,6 +269,17 @@ export default function StoreManagerPage() {
             .sprod-actions{display:flex;gap:6px;margin-top:8px}
             .sprod-act-btn{flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--border);background:var(--faint);font-family:'Sora',sans-serif;font-size:10.5px;font-weight:700;color:var(--slate);cursor:pointer;transition:all .2s;text-align:center}
             .sprod-act-btn:hover{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+            
+            @media(max-width: 480px) {
+              .prod-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+              .add-prod-btn { width: 100%; justify-content: center; }
+              .sprod-card { display: flex; align-items: center; }
+              .sprod-img { width: 80px; height: 80px; flex-shrink: 0; font-size: 32px; border-bottom: none; border-right: 1px solid var(--faint); }
+              .sprod-info { flex: 1; padding: 10px; }
+              .sprod-name { font-size: 12px; }
+              .sprod-price { font-size: 13px; }
+              .sprod-actions { flex-direction: row; }
+            }
             
             /* Store settings */
             .ssetting-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--faint)}
