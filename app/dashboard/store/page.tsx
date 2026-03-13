@@ -35,7 +35,25 @@ export default function StoreManagerPage() {
     const [enquiryModalOpen, setEnquiryModalOpen] = useState(false);
     const [selectedEnquiry, setSelectedEnquiry] = useState<any>(null);
 
-    useEffect(() => { setIsClient(true); }, []);
+    // Analytics State
+    const [analytics, setAnalytics] = useState({ views: 0, clicks: 0, enquiries: 0, recentEnquiries: [] });
+
+    useEffect(() => {
+        setIsClient(true);
+        fetchAnalytics();
+    }, []);
+
+    const fetchAnalytics = async () => {
+        try {
+            const res = await fetch('/api/dashboard/analytics/store');
+            const data = await res.json();
+            if (data && !data.error) {
+                setAnalytics(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch analytics:', error);
+        }
+    };
 
     if (!isClient) return null;
 
@@ -138,7 +156,7 @@ export default function StoreManagerPage() {
               --shadow:0 2px 16px rgba(11,15,30,.07),0 1px 4px rgba(11,15,30,.04);
               --shadow-md:0 8px 32px rgba(11,15,30,.12),0 2px 8px rgba(11,15,30,.06);
             }
-            .store-page { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--ink); padding-bottom: 40px; }
+            .store-page { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--ink); padding-bottom: 40px; overflow-x: hidden; }
             .store-page * { box-sizing: border-box; }
             
             /* Top bar */
@@ -162,9 +180,14 @@ export default function StoreManagerPage() {
             .tb-btn.publish:hover{transform:translateY(-1px);filter:brightness(1.1)}
             
             @media(max-width: 600px) {
-              .store-topbar { padding: 12px; }
-              .topbar-title h2 { font-size: 15px; }
-              .tb-btn { padding: 6px 10px; font-size: 11px; }
+              .store-topbar { padding: 10px; }
+              .topbar-title h2 { font-size: 14px; }
+              .topbar-title p { display: none; }
+              .tb-btn { padding: 7px 10px; font-size: 11px; gap: 4px; }
+              .tb-btn.preview { font-size: 0; padding: 8px; }
+              .tb-btn.preview::before { content: '👁'; font-size: 14px; }
+              .tb-btn.publish { font-size: 0; padding: 8px; }
+              .tb-btn.publish::before { content: '🚀'; font-size: 14px; }
             }
             
             /* Page layout */
@@ -225,12 +248,13 @@ export default function StoreManagerPage() {
             .h-stat-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
             
             @media(max-width: 600px) {
-              .spage { padding: 12px; }
+              .spage { padding: 10px; }
+              .scard { padding: 15px; border-radius: 14px; }
               .hero-banner { height: 110px; }
               .store-name { font-size: 18px; }
-              .store-url-row { flex-direction: column; align-items: stretch; }
+              .store-url-row { flex-direction: column; align-items: stretch; gap: 6px; }
               .url-copy-btn { width: 100%; text-align: center; }
-              .hero-stats { grid-template-columns: 1fr 1fr; }
+              .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
               .hero-stats > div:last-child { grid-column: span 2; }
             }
             
@@ -258,7 +282,7 @@ export default function StoreManagerPage() {
             @media(max-width:600px){.sprod-grid{grid-template-columns:1fr}}
             .sprod-card{border:1.5px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;background:var(--white)}
             .sprod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--indigo)}
-            .sprod-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative}
+            .sprod-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;background: var(--white); border-bottom: 1px solid var(--border); padding: 4px;}
             .sprod-badge{position:absolute;top:8px;left:8px;font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:6px;text-transform:uppercase}
             .sbadge-active{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
             .sbadge-out{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
@@ -321,7 +345,7 @@ export default function StoreManagerPage() {
             .qrmodal-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:6px}
             .qrmodal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
             .qr-box{width:180px;height:180px;background:var(--faint);border:2px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:80px; overflow:hidden}
-            .qrmodal-url{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);background:var(--faint);padding:8px 14px;border-radius:8px;margin-bottom:16px;word-break:break-all}
+            .qrmodal-url{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);background:var(--faint);padding:8px;border-radius:8px;margin-bottom:16px;word-break:break-all}
             .qrmodal-actions{display:flex;gap:10px}
             .qrmodal-btn{flex:1;padding:12px;border-radius:12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
             .qrmodal-btn.cancel{background:var(--faint);color:var(--slate);border:1.5px solid var(--border)}
@@ -381,8 +405,8 @@ export default function StoreManagerPage() {
                                     <button className="url-copy-btn" onClick={copyUrl}>📋 Copy Link</button>
                                 </div>
                                 <div className="hero-stats">
-                                    <div className="h-stat"><div className="h-stat-val">1,248</div><div className="h-stat-lbl">Total Views</div></div>
-                                    <div className="h-stat"><div className="h-stat-val">43</div><div className="h-stat-lbl">Enquiries</div></div>
+                                    <div className="h-stat"><div className="h-stat-val">{analytics.views.toLocaleString()}</div><div className="h-stat-lbl">Total Views</div></div>
+                                    <div className="h-stat"><div className="h-stat-val">{analytics.enquiries.toLocaleString()}</div><div className="h-stat-lbl">Enquiries</div></div>
                                     <div className="h-stat"><div className="h-stat-val">{displayProducts.length}</div><div className="h-stat-lbl">Products</div></div>
                                 </div>
                             </div>
@@ -430,7 +454,7 @@ export default function StoreManagerPage() {
                                                 {p.status === 'out' ? 'Out of Stock' : 'Active'}
                                             </span>
                                             {p.image_url ? (
-                                                <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                             ) : p.emoji}
                                         </div>
                                         <div className="sprod-info">
@@ -474,10 +498,10 @@ export default function StoreManagerPage() {
                             <div className="scard-title"><span>📊</span> Store Analytics</div>
                             <div>
                                 {[
-                                    { icon: '👁', bg: '#eff6ff', name: 'Total Views', val: (displayProducts.length * 105).toLocaleString(), trend: '↑ ' + Math.floor(Math.random() * 20 + 10) + '%', up: true },
-                                    { icon: '🛒', bg: '#f0fdf4', name: 'Product Clicks', val: (displayProducts.length * 42).toLocaleString(), trend: '↑ ' + Math.floor(Math.random() * 15 + 5) + '%', up: true },
-                                    { icon: '📩', bg: '#faf5ff', name: 'Enquiries', val: '4', trend: '↓ 2%', up: false },
-                                    { icon: '⏱', bg: '#fffbeb', name: 'Avg Session', val: '2m 14s', trend: '↑ 8%', up: true },
+                                    { icon: '👁', bg: '#eff6ff', name: 'Total Views', val: analytics.views.toLocaleString(), trend: 'Real-time', up: true },
+                                    { icon: '🛒', bg: '#f0fdf4', name: 'Product Clicks', val: analytics.clicks.toLocaleString(), trend: 'Real-time', up: true },
+                                    { icon: '📩', bg: '#faf5ff', name: 'Enquiries', val: analytics.enquiries.toLocaleString(), trend: 'Real-time', up: true },
+                                    { icon: '⏱', bg: '#fffbeb', name: 'Avg Session', val: 'Active', trend: 'Live', up: true },
                                 ].map((a, i) => (
                                     <div className="analytics-row" key={i}>
                                         <div className="an-icon" style={{ background: a.bg }}>{a.icon}</div>
@@ -497,12 +521,7 @@ export default function StoreManagerPage() {
                                 <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--indigo)", cursor: "pointer" }} onClick={() => setEnquiryModalOpen(true)}>View All →</span>
                             </div>
                             <div>
-                                {[
-                                    { name: 'Ramesh Sharma', phone: '9876543210', msg: 'iPhone 15 Pro ki price aur discount details bataiye?', time: '5m', color: '#4f46e5', isNew: true },
-                                    { name: 'Priya Mehta', phone: '9123456780', msg: 'Samsung S4 available hai kya abhi?', time: '18m', color: '#10b981', isNew: true },
-                                    { name: 'Amit Joshi', phone: '9988776655', msg: 'Bulk order ke liye koi special discount milega?', time: '1h', color: '#f59e0b', isNew: false },
-                                    { name: 'Sunita Agrawal', phone: '9456123450', msg: 'Out of state delivery charges kya hai?', time: '3h', color: '#0ea5e9', isNew: false },
-                                ].slice(0, 3).map((e, i) => (
+                                {analytics.recentEnquiries.length > 0 ? analytics.recentEnquiries.map((e: any, i: number) => (
                                     <div className="enquiry-item" onClick={() => openEnquiry(e)} key={i}>
                                         <div className="enq-av" style={{ background: e.color }}>{e.name[0]}</div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -514,7 +533,9 @@ export default function StoreManagerPage() {
                                             {e.isNew && <div className="enq-new"></div>}
                                         </div>
                                     </div>
-                                ))}
+                                )) : (
+                                    <div style={{ textAlign: "center", padding: "20px", color: "var(--muted)", fontSize: "12px" }}>Koi enquiry nahi mili.</div>
+                                )}
                             </div>
                         </div>
 

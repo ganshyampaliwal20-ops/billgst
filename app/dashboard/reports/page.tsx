@@ -48,10 +48,10 @@ function ReportsContent() {
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lk' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lac' } } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000) + 'L' } }
+                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000) + ' Lac' } }
                     }
                 }
             });
@@ -70,10 +70,10 @@ function ReportsContent() {
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lk' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lac' } } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000) + 'L' } }
+                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000) + ' Lac' } }
                     }
                 }
             });
@@ -93,10 +93,10 @@ function ReportsContent() {
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lk' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lac' } } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 12 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000).toFixed(0) + 'L' } }
+                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000).toFixed(0) + ' Lac' } }
                     }
                 }
             });
@@ -136,7 +136,7 @@ function ReportsContent() {
     if (itemsSold < 234) itemsSold = 234;
 
     const formatLakhs = (val: number) => {
-        if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lk`;
+        if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lac`;
         if (val >= 1000) return `₹${(val / 1000).toFixed(2)} K`;
         return `₹${(val || 0).toFixed(0)}`;
     };

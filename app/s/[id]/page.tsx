@@ -26,6 +26,11 @@ export default function PublicStorePage() {
                     toast.error(data.error);
                 } else {
                     setStoreData(data);
+                    // Track Store View
+                    fetch('/api/public/store/track', {
+                        method: 'POST',
+                        body: JSON.stringify({ businessId: id, eventType: 'view' })
+                    }).catch(console.error);
                 }
             } catch (e) {
                 toast.error('Failed to load store');
@@ -37,6 +42,12 @@ export default function PublicStorePage() {
     }, [id]);
 
     const addToCart = (product: any) => {
+        // Track Product Click
+        fetch('/api/public/store/track', {
+            method: 'POST',
+            body: JSON.stringify({ businessId: id, eventType: 'click', productId: product.id })
+        }).catch(console.error);
+
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
@@ -205,9 +216,9 @@ export default function PublicStorePage() {
                 <div className="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {filteredProducts.map((p: any) => (
                         <div key={p.id} className="bg-white rounded-[2rem] p-3 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col">
-                            <div className="aspect-[4/3] bg-slate-100 rounded-xl mb-2 overflow-hidden relative">
+                            <div className="aspect-[4/3] bg-white rounded-xl mb-2 overflow-hidden relative border border-slate-100 p-1">
                                 {p.image_url ? (
-                                    <Image src={p.image_url} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <Image src={p.image_url} alt={p.name} fill className="object-contain transition-transform duration-500" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <p className="text-2xl font-black text-slate-300">{p.name.charAt(0)}</p>

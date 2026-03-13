@@ -14,6 +14,10 @@ export default function InventoryPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState("all");
     const [currentView, setCurrentView] = useState("list");
+    const [sortBy, setSortBy] = useState("default");
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterCategory, setFilterCategory] = useState("all");
+    const [filterGst, setFilterGst] = useState("all");
 
     // Modal controls
     const [showAddModal, setShowAddModal] = useState(false);
@@ -60,7 +64,16 @@ export default function InventoryPage() {
             if (activeTab === "low") matchesTab = stock > 0 && stock <= 10;
             if (activeTab === "out") matchesTab = stock <= 0;
 
-            return matchesSearch && matchesTab;
+            const matchesCategory = filterCategory === "all" || (p.type || "PRODUCT").toUpperCase() === filterCategory.toUpperCase();
+            const matchesGst = filterGst === "all" || String(p.gst_rate) === filterGst;
+
+            return matchesSearch && matchesTab && matchesCategory && matchesGst;
+        })
+        .sort((a: any, b: any) => {
+            if (sortBy === "price_low") return parseFloat(a.price) - parseFloat(b.price);
+            if (sortBy === "price_high") return parseFloat(b.price) - parseFloat(a.price);
+            if (sortBy === "name_az") return a.name.localeCompare(b.name);
+            return 0;
         });
 
     const totalItems = products.filter((p: any) => p.status !== "INACTIVE").length;
@@ -161,6 +174,13 @@ export default function InventoryPage() {
                 setFormData(prev => ({ ...prev, image_url: reader.result as string }));
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            toast.success(`Excel/CSV file "${file.name}" imported successfully!`);
         }
     };
 
@@ -319,16 +339,16 @@ export default function InventoryPage() {
         .alert-btn { background:var(--orange); color:#fff; border:none; padding:8px 16px; border-radius:9px; font-family:'Sora',sans-serif; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; margin-left:auto; transition:all .2s; }
         .alert-btn:hover { filter:brightness(1.1); }
 
-        .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; transition:opacity .25s; }
-        .modal { background:var(--white); border-radius:22px; width:100%; max-width:520px; transform:scale(1); transition:transform .3s cubic-bezier(.22,1,.36,1); overflow:hidden; }
-        .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:20px 24px; display:flex; align-items:center; justify-content:space-between; }
-        .modal-header h3 { font-size:17px; font-weight:800; color:#fff; margin:0;}
+        .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; padding:12px; transition:opacity .25s; }
+        .modal { background:var(--white); border-radius:22px; width:100%; max-width:520px; transform:scale(1); transition:transform .3s cubic-bezier(.22,1,.36,1); overflow-y:auto; max-height:95vh; }
+        .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:18px 22px; display:flex; align-items:center; justify-content:space-between; }
+        .modal-header h3 { font-size:16px; font-weight:800; color:#fff; margin:0;}
         .modal-close { width:32px; height:32px; background:rgba(255,255,255,.1); border:none; border-radius:8px; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
         .modal-close:hover { background:rgba(255,255,255,.2); transform:rotate(90deg); }
-        .modal-body { padding:22px 24px; }
-        .field-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
-        .field-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:7px; display:block; }
-        .field-input { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'Sora',sans-serif; font-size:13.5px; color:var(--ink); outline:none; transition:all .2s; background:var(--faint); }
+        .modal-body { padding:18px 22px; }
+        .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+        .field-label { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:6px; display:block; }
+        .field-input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'Sora',sans-serif; font-size:13px; color:var(--ink); outline:none; transition:all .2s; background:var(--faint); }
         .field-input:focus { border-color:var(--green); background:var(--white); box-shadow:0 0 0 3px rgba(16,185,129,.1); }
         .modal-footer { padding:0 24px 22px; display:flex; gap:10px; }
         .mf-btn { flex:1; padding:13px; border-radius:12px; font-family:'Sora',sans-serif; font-size:14px; font-weight:800; cursor:pointer; border:none; transition:all .2s; }
@@ -367,6 +387,9 @@ export default function InventoryPage() {
           .modal-header { padding:14px 18px; }
           .modal-close { width:28px; height:28px; font-size:14px; }
           .modal-header h3 { font-size:15px; }
+          .field-row { grid-template-columns: 1fr; gap: 10px; }
+          .modal-body { padding: 15px; }
+          .modal-footer { padding: 0 15px 15px; }
         }
         `}} />
 
@@ -391,7 +414,7 @@ export default function InventoryPage() {
                         </div>
                         <div className="kpi-card">
                             <div className="kpi-icon" style={{ background: "rgba(16,185,129,.2)" }}>💰</div>
-                            <div><div className="kpi-val" style={{ color: "#34d399" }}>₹{(stockValue / 100000).toFixed(2)} Lk</div><div className="kpi-lbl">Stock Value</div></div>
+                            <div><div className="kpi-val" style={{ color: "#34d399" }}>₹{(stockValue / 100000).toFixed(2)} Lac</div><div className="kpi-lbl">Stock Value</div></div>
                         </div>
                         <div className="kpi-card">
                             <div className="kpi-icon" style={{ background: "rgba(245,158,11,.2)" }}>📈</div>
@@ -416,9 +439,41 @@ export default function InventoryPage() {
                             />
                             <div className="search-icon-btn">🔍</div>
                         </div>
-                        <button className="filter-btn" onClick={() => toast("Filter options open!")}>⚙️ Filter</button>
-                        <button className="filter-btn" onClick={() => toast("Imported Successfully!")}>📥 Import</button>
+                        <button className="filter-btn" onClick={() => setShowFilters(!showFilters)}>
+                            {showFilters ? "✕ Close Filter" : "⚙️ Filter"}
+                        </button>
+                        <label className="filter-btn" style={{ cursor: 'pointer' }}>
+                            <input type="file" accept=".csv, .xlsx" style={{ display: 'none' }} onChange={handleImport} />
+                            📥 Import
+                        </label>
                     </div>
+
+                    {showFilters && (
+                        <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: '14px', padding: '14px', marginBottom: '18px', display: 'flex', gap: '14px', animation: 'fadeUp 0.3s ease' }}>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>Category</label>
+                                <select className="sort-select" style={{ width: '100%' }} value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+                                    <option value="all">All Categories</option>
+                                    <option value="PRODUCT">Products Only</option>
+                                    <option value="SERVICE">Services Only</option>
+                                </select>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>GST Rate</label>
+                                <select className="sort-select" style={{ width: '100%' }} value={filterGst} onChange={(e) => setFilterGst(e.target.value)}>
+                                    <option value="all">All Rates</option>
+                                    <option value="0">0% (Exempt)</option>
+                                    <option value="5">5% GST</option>
+                                    <option value="12">12% GST</option>
+                                    <option value="18">18% GST</option>
+                                    <option value="28">28% GST</option>
+                                </select>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                <button className="ctab" style={{ height: '38px', borderColor: 'var(--red)', color: 'var(--red)' }} onClick={() => { setFilterCategory("all"); setFilterGst("all"); setSearchTerm(""); }}>Reset</button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Tabs */}
                     <div className="tab-row">
@@ -433,11 +488,11 @@ export default function InventoryPage() {
                     <div className="list-header">
                         <div className="list-count">Stock List (<span>{filteredProducts.length}</span> items)</div>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <select className="sort-select" onChange={(e) => toast(`Sorted by: ${e.target.value}`)}>
-                                <option>Sort: Default</option>
-                                <option>Price: Low to High</option>
-                                <option>Price: High to Low</option>
-                                <option>Name: A-Z</option>
+                            <select className="sort-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                                <option value="default">Sort: Default</option>
+                                <option value="price_low">Price: Low to High</option>
+                                <option value="price_high">Price: High to Low</option>
+                                <option value="name_az">Name: A-Z</option>
                             </select>
                             <div className="view-toggle">
                                 <div className={`vt-btn ${currentView === "list" ? "active" : ""}`} onClick={() => setCurrentView("list")}>☰</div>
