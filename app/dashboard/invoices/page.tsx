@@ -13,6 +13,7 @@ import { DOC_LABELS } from '../../../lib/constants';
 import { formatCurrency, formatCompactNumber } from '../../../lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import QRCode from 'qrcode';
+import * as XLSX from 'xlsx';
 
 export default function InvoicesPage() {
     const router = useRouter();
@@ -158,6 +159,27 @@ export default function InvoicesPage() {
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     };
 
+    const handleExportCSV = () => {
+        try {
+            if (filteredInvoices.length === 0) return toast.error('Koi data nahi hai export karne ke liye');
+            const data = filteredInvoices.map((inv: any) => ({
+                'Invoice #': inv.invoice_number,
+                'Date': safeDate(inv.invoice_date),
+                'Customer': inv.customer?.name || 'Local Sale',
+                'Amount': safeAmt(inv.total_amount),
+                'Status': inv.status || 'UNPAID',
+                'Type': inv.type || 'Tax Invoice'
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Invoices");
+            XLSX.writeFile(wb, "Invoices_Report.xlsx");
+            toast.success('Excel report download ho gayi!');
+        } catch (e) {
+            toast.error('Export fail ho gaya');
+        }
+    };
+
     const createInvoice = () => router.push('/dashboard/invoices/new');
 
     const getAvatarColor = (name: string) => {
@@ -177,22 +199,22 @@ export default function InvoicesPage() {
                     --bg: #f8fafc; --white: #ffffff; --border: #e2e8f0;
                     font-family: 'Sora', sans-serif; background: var(--bg); min-height: 100vh;
                 }
-                .hero-strip { background: var(--slate-900); padding: 40px 32px 80px; color: white; }
-                .hero-flex { display: flex; justify-content: space-between; align-items: flex-start; }
-                .hero-title h1 { font-size: 32px; font-weight: 800; margin: 0; }
-                .hero-title p { color: var(--slate-400); margin: 5px 0 0; font-size: 14px; }
+                .hero-strip { background: var(--slate-900); padding: 20px 32px 50px; color: white; }
+                .hero-flex { display: flex; justify-content: space-between; align-items: center; }
+                .hero-title h1 { font-size: 22px; font-weight: 800; margin: 0; }
+                .hero-title p { color: var(--slate-400); margin: 2px 0 0; font-size: 11px; }
                 
-                .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: -40px 32px 32px; }
-                .kpi-box { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-                .kpi-lbl { font-size: 11px; font-weight: 800; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; }
-                .kpi-val { font-size: 24px; font-weight: 800; color: var(--slate-900); font-family: 'JetBrains Mono', monospace; margin: 4px 0; }
-
-                .content-box { padding: 0 32px 100px; }
+                .kpi-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: -25px 20px 5px; padding: 0 12px; }
+                .kpi-box { background: white; border-radius: 16px; padding: 12px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+                .kpi-lbl { font-size: 10px; font-weight: 800; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; }
+                .kpi-val { font-size: 18px; font-weight: 800; color: var(--slate-900); font-family: 'JetBrains Mono', monospace; margin: 2px 0; }
+                
+                .content-box { padding: 10px 32px 100px; }
                 .action-bar { display: flex; gap: 12px; margin-bottom: 24px; }
                 .search-box { flex: 1; position: relative; }
-                .search-box input { width: 100%; height: 52px; background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 0 20px 0 48px; font-size: 14px; outline: none; transition: 0.2s; }
+                .search-box input { width: 100%; height: 44px; background: white; border: 1.5px solid var(--border); border-radius: 12px; padding: 0 16px 0 42px; font-size: 13px; outline: none; transition: 0.2s; }
                 .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
-                .search-icon { position: absolute; left: 18px; top: 18px; color: var(--slate-400); }
+                .search-icon { position: absolute; left: 16px; top: 15px; color: var(--slate-400); font-size: 14px; }
 
                 .tab-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 20px; }
                 .tab-row::-webkit-scrollbar { display: none; }
@@ -239,9 +261,6 @@ export default function InvoicesPage() {
                         <h1>Manage Invoices 🧾</h1>
                         <p>Track payments, send reminders, and analyze sales</p>
                     </div>
-                    <button className="floating-add" style={{ position: 'static' }} onClick={createInvoice}>
-                        <FaPlus /> <span>New Invoice</span>
-                    </button>
                 </div>
             </div>
 
@@ -262,9 +281,9 @@ export default function InvoicesPage() {
                     <div className="kpi-lbl">Partially Received</div>
                     <div className="kpi-val" style={{ color: 'var(--warning)' }}>{kpiData.partial}</div>
                 </div>
-                <div className="kpi-box">
+                <div className="kpi-box" style={{ gridColumn: 'span 2' }}>
                     <div className="kpi-lbl">Total Receivable</div>
-                    <div className="kpi-val" style={{ fontSize: '20px' }} onClick={() => setIsExporting(!isExporting)}>
+                    <div className="kpi-val" style={{ fontSize: '24px', display: 'flex', justifyContent: 'center' }}>
                         {formatCompactNumber(kpiData.totalValue)}
                     </div>
                 </div>
@@ -281,7 +300,7 @@ export default function InvoicesPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="tab-btn" style={{ height: '52px' }} onClick={() => toast('Exporting CSV...')}>Export Data</button>
+                    <button className="tab-btn" style={{ height: '44px' }} onClick={handleExportCSV}>Export Data</button>
                 </div>
 
                 <div className="tab-row">
@@ -337,7 +356,7 @@ export default function InvoicesPage() {
                                         <td style={{ fontWeight: 800, fontFamily: 'JetBrains Mono' }}>{formatCurrency(safeAmt(inv.total_amount))}</td>
                                         <td>
                                             <span className={`status-chip ${(inv.status || 'UNPAID').toUpperCase() === 'PAID' ? 'status-paid' :
-                                                    (inv.status || 'UNPAID').toUpperCase() === 'PARTIAL' ? 'status-partial' : 'status-unpaid'
+                                                (inv.status || 'UNPAID').toUpperCase() === 'PARTIAL' ? 'status-partial' : 'status-unpaid'
                                                 }`}>
                                                 {inv.status || 'UNPAID'}
                                             </span>

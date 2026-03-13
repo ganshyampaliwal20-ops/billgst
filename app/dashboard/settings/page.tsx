@@ -230,6 +230,30 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
+                {/* Terms & Conditions Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px' }}>
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-slate-100 text-slate-600 rounded-lg">
+                            <FaPenNib className="text-xl" />
+                        </div>
+                        <h2 className="text-lg font-bold text-gray-800">Default Terms & Conditions</h2>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Default Terms (will appear on every new invoice)</label>
+                        <textarea
+                            rows={4}
+                            value={formData.terms_and_conditions || ''}
+                            onChange={(e) => setFormData({ ...formData, terms_and_conditions: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                            placeholder="1. Goods once sold will not be taken back.
+2. Interest @18% will be charged if payment is not made within 15 days.
+3. Subject to local jurisdiction."
+                            style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '4px' }}
+                        />
+                        <p className="text-[10px] text-slate-400 mt-1 italic" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Yeh terms aapke har naye bill par apne aap likh kar aayenge.</p>
+                    </div>
+                </div>
+
                 {/* Bank Details Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center justify-between mb-6">

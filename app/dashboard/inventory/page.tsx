@@ -24,6 +24,7 @@ export default function InventoryPage() {
     const [showQrModal, setShowQrModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [showCustomGst, setShowCustomGst] = useState(false);
 
     // Form data
     const [formData, setFormData] = useState({
@@ -112,6 +113,8 @@ export default function InventoryPage() {
             image_url: p.image_url || "",
         });
         setEditingId(p.id);
+        const commonRates = ["0", "5", "12", "18", "28"];
+        setShowCustomGst(!commonRates.includes(String(p.gst_rate)));
         setShowAddModal(true);
     };
 
@@ -163,6 +166,7 @@ export default function InventoryPage() {
             image_url: "",
         });
         setEditingId(null);
+        setShowCustomGst(false);
         setShowAddModal(true);
     };
 
@@ -652,13 +656,39 @@ export default function InventoryPage() {
                             <div className="field-row">
                                 <div>
                                     <label className="field-label">GST Rate (%)</label>
-                                    <select className="field-input" value={formData.gst_rate} onChange={e => setFormData({ ...formData, gst_rate: e.target.value })}>
-                                        <option value="0">0% — Exempt</option>
-                                        <option value="5">5% GST</option>
-                                        <option value="12">12% GST</option>
-                                        <option value="18">18% GST</option>
-                                        <option value="28">28% GST</option>
-                                    </select>
+                                    {!showCustomGst ? (
+                                        <select className="field-input" value={formData.gst_rate} onChange={e => {
+                                            if (e.target.value === 'custom') {
+                                                setShowCustomGst(true);
+                                            } else {
+                                                setFormData({ ...formData, gst_rate: e.target.value });
+                                            }
+                                        }}>
+                                            <option value="0">0% — Exempt</option>
+                                            <option value="5">5% GST</option>
+                                            <option value="12">12% GST</option>
+                                            <option value="18">18% GST</option>
+                                            <option value="28">28% GST</option>
+                                            <option value="custom">✍️ Custom %</option>
+                                        </select>
+                                    ) : (
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <input
+                                                className="field-input"
+                                                type="number"
+                                                placeholder="e.g. 15"
+                                                value={formData.gst_rate}
+                                                onChange={e => setFormData({ ...formData, gst_rate: e.target.value })}
+                                                autoFocus
+                                            />
+                                            <button
+                                                className="act-btn"
+                                                onClick={() => setShowCustomGst(false)}
+                                                style={{ border: '1px solid var(--border)', background: 'var(--white)', padding: '0 8px', borderRadius: '8px' }}
+                                                title="Choose from list"
+                                            >✕</button>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="field-label">Category</label>
