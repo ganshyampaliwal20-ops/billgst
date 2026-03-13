@@ -195,7 +195,7 @@ export default function StoreManagerPage() {
             @media(max-width:900px){.spage{grid-template-columns:1fr}}
             
             /* Cards */
-            .scard{background:var(--white);border-radius:18px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;animation:sfadeUp .4s ease both}
+            .scard{background:var(--white);border-radius:18px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;animation:sfadeUp .4s ease both; overflow: hidden;}
             @keyframes sfadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
             .scard-title{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
             .scard-title span{font-size:18px}
@@ -212,7 +212,7 @@ export default function StoreManagerPage() {
               position:relative;
             }
             .hero-banner{
-              height:140px;
+              height:120px;
               background:linear-gradient(135deg,#6d28d9,#4f46e5,#0ea5e9);
               position:relative;
               overflow:hidden;
@@ -226,7 +226,7 @@ export default function StoreManagerPage() {
             
             .hero-body{padding:0 20px 20px;position:relative}
             .logo-wrap{position:relative;display:inline-block;margin-top:-28px;margin-bottom:10px}
-            .store-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--amber),#f97316);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid var(--white);box-shadow:0 4px 16px rgba(0,0,0,.2);cursor:pointer}
+            .store-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--amber),#f97316);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid var(--white);box-shadow:0 10px 28px rgba(0,0,0,.3);cursor:pointer}
             .logo-edit{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;background:var(--indigo);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;cursor:pointer;border:2px solid #fff}
             
             .store-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -237,7 +237,7 @@ export default function StoreManagerPage() {
             .status-dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:spulse 2s infinite}
             @keyframes spulse{0%,100%{opacity:1}50%{opacity:.4}}
             
-            .store-url-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 14px;margin-top:12px; overflow: hidden;}
+            .store-url-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 14px;margin-top:12px; width: 100%; box-sizing: border-box; overflow: hidden;}
             .store-url{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.7);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; min-width: 0;}
             .url-copy-btn{background:var(--indigo);color:#fff;border:none;padding:6px 12px;border-radius:7px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
             .url-copy-btn:hover{background:var(--indigo2)}
@@ -248,19 +248,23 @@ export default function StoreManagerPage() {
             .h-stat-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
             
             @media(max-width: 600px) {
-              .spage { padding: 10px; }
-              .scard { padding: 15px; border-radius: 14px; }
-              .hero-banner { height: 110px; }
-              .store-name { font-size: 18px; }
-              .store-url-row { flex-direction: column; align-items: stretch; gap: 6px; }
-              .url-copy-btn { width: 100%; text-align: center; }
+              .spage { padding: 12px 10px; width: 100%; box-sizing: border-box; }
+              .scard { padding: 15px; border-radius: 14px; width: 100%; box-sizing: border-box; }
+              .hero-banner { height: 90px; }
+              .hero-body { padding: 0 15px 15px; }
+              .store-name { font-size: 16px; }
+              .store-url-row { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+              .url-copy-btn { width: 100%; padding: 10px; text-align: center; }
               .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
               .hero-stats > div:last-child { grid-column: span 2; }
+              .share-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+              .ssetting-name { font-size: 12px; }
+              .ssetting-sub { font-size: 10px; }
             }
             
             /* Share section */
             .share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-            .share-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:13px;border:1.5px solid var(--border);background:var(--faint);cursor:pointer;transition:all .2s}
+            .share-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:13px;border:1.5px solid var(--border);background:var(--faint);cursor:pointer;transition:all .2s; min-width: 0;}
             .share-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:transparent}
             .share-btn .s-icon{font-size:24px}
             .share-btn .s-label{font-size:11px;font-weight:700;color:var(--slate)}
