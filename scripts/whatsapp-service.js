@@ -1,6 +1,6 @@
 import qrcode from 'qrcode-terminal';
 import pkg from 'whatsapp-web.js';
-const { Client, LocalAuth } = pkg;
+const { Client, LocalAuth, MessageMedia } = pkg;
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,6 +11,7 @@ const ROOT = process.cwd();
 const TMP = path.join(ROOT, 'tmp');
 const AUTH_ROOT = path.join(ROOT, '.wwebjs_auth');
 const REQUEST_DIR = path.join(TMP, 'requests');
+const MEDIA_DIR = path.join(TMP, 'media-requests');
 
 // Map to store active clients: userId -> client
 const activeClients = new Map();
@@ -18,7 +19,7 @@ const activeClients = new Map();
 console.log('--- MULTI-USER WHATSAPP SERVICE STARTING ---');
 
 // Ensure directories exist
-[TMP, AUTH_ROOT, REQUEST_DIR].forEach(dir => {
+[TMP, AUTH_ROOT, REQUEST_DIR, MEDIA_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
@@ -137,6 +138,43 @@ async function pollRequests() {
 }
 
 /**
+ * Periodically check for new "Media/Message Requests"
+ */
+async function pollMediaRequests() {
+    try {
+        const files = fs.readdirSync(MEDIA_DIR);
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                const filePath = path.join(MEDIA_DIR, file);
+                try {
+                    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                    const { userId, phone, message, mediaPath } = data;
+
+                    const client = activeClients.get(userId);
+                    if (client) {
+                        const chatId = `${phone.replace(/\D/g, '')}@c.us`.replace(/^0+/, ''); // Clean phone
+                        const jid = chatId.length === 10 ? `91${chatId}@c.us` : chatId;
+
+                        if (mediaPath && fs.existsSync(mediaPath)) {
+                            console.log(`[${userId}] Sending media to ${jid}...`);
+                            const media = MessageMedia.fromFilePath(mediaPath);
+                            await client.sendMessage(jid, media, { caption: message, sendMediaAsDocument: true });
+                            fs.unlinkSync(mediaPath);
+                        } else {
+                            console.log(`[${userId}] Sending message to ${jid}...`);
+                            await client.sendMessage(jid, message);
+                        }
+                    }
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error('Error processing media request:', err.message);
+                }
+            }
+        }
+    } catch (e) { }
+}
+
+/**
  * Startup: Resume all existing sessions
  */
 async function resumeSessions() {
@@ -156,5 +194,6 @@ async function resumeSessions() {
 
 console.log('--- SYSTEM READY: Watching for user link requests ---');
 resumeSessions().then(() => {
-    setInterval(pollRequests, 3000); // Check every 3 seconds
+    setInterval(pollRequests, 3000);
+    setInterval(pollMediaRequests, 2000); // Check media every 2 seconds
 });

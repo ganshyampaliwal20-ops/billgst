@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
     FaPlus, FaTrash, FaSave, FaArrowLeft, FaMicrophone, FaMagic,
     FaRobot, FaCheck, FaTimes, FaCamera, FaUserPlus, FaFileInvoice,
-    FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaSignature, FaChevronLeft
+    FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaChevronLeft
 } from 'react-icons/fa';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -17,6 +17,7 @@ import { useSession } from 'next-auth/react';
 import { calculateInvoiceTotal } from '@/lib/gst-calculator';
 import { DOC_TYPES, DOC_LABELS } from '@/lib/constants';
 import Tesseract from 'tesseract.js';
+import { generateInvoicePDF } from '@/lib/pdf-generator';
 
 // Proper UUID v4 generator
 function generateId() {
@@ -373,12 +374,41 @@ export default function NewInvoicePage() {
             if (result?.success || result?.id) {
                 toast.success('Invoice Saved!');
 
-                // Handle WhatsApp Auto-share
+                // Handle WhatsApp Auto-share PDF Background
                 if (options.whatsappShare) {
-                    const phone = customer?.phone?.replace(/\D/g, '');
-                    const text = `Hi ${customer?.name}, your invoice #${invoiceNumber} for ₹${totals.grandTotal.toFixed(2)} is ready. View it here: ${window.location.origin}/view/${result.id || invoice.id}`;
-                    const url = phone ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
-                    window.open(url, '_blank');
+                    toast.loading('Sharing PDF on WhatsApp...');
+                    try {
+                        const doc = await generateInvoicePDF(invoice, businessProfile, false);
+                        if (doc) {
+                            const pdfBlob = doc.output('blob');
+                            const pdfFile = new File([pdfBlob], `Invoice-${invoiceNumber}.pdf`, { type: 'application/pdf' });
+
+                            const formData = new FormData();
+                            formData.append('file', pdfFile);
+                            formData.append('phone', customer?.phone || '');
+                            formData.append('message', `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`);
+
+                            const sendRes = await fetch('/api/whatsapp/send-media', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (sendRes.ok) {
+                                toast.dismiss();
+                                toast.success('PDF sent on WhatsApp! ✅');
+                            } else {
+                                throw new Error('Failed to send');
+                            }
+                        }
+                    } catch (err) {
+                        toast.dismiss();
+                        console.error('Bot share failed:', err);
+                        toast.error('WhatsApp Bot link fail, manual share opening...');
+                        const phone = customer?.phone?.replace(/\D/g, '');
+                        const text = `Hi ${customer?.name}, your invoice #${invoiceNumber} for ₹${totals.grandTotal.toFixed(2)} is ready.`;
+                        const url = phone ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+                        window.open(url, '_blank');
+                    }
                 }
 
                 router.push('/dashboard/invoices');
@@ -724,11 +754,6 @@ export default function NewInvoicePage() {
                         </div>
                     </div>
 
-                    {/* Digital Signature */}
-                    <div className="card">
-                        <div className="c-title"><div className="c-icon" style={{ background: '#fdf4ff', color: '#a21caf' }}><FaSignature /></div> Digital Signature</div>
-                        <div className="w-full h-24 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 text-[10px] font-bold uppercase tracking-widest cursor-pointer hover:border-indigo-300 transition-all">Sign or upload here</div>
-                    </div>
                 </div>
             </form>
 
