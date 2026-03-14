@@ -116,8 +116,10 @@ export default function DashboardPage() {
 
     useEffect(() => {
         setIsClient(true);
-        const bannerDismissed = localStorage.getItem('setupBannerDismissed');
-        if (bannerDismissed) setShowSetupBanner(false);
+        try {
+            const bannerDismissed = localStorage.getItem('setupBannerDismissed');
+            if (bannerDismissed) setShowSetupBanner(false);
+        } catch (e) { /* ignore */ }
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         fetchCustomers();
         fetchProducts();

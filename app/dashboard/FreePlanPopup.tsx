@@ -11,7 +11,11 @@ export default function FreePlanPopup() {
 
     useEffect(() => {
         // Check if user already saw/closed it in this session
-        const dismissed = sessionStorage.getItem('free_plan_popup_dismissed');
+        let dismissed = false;
+        try {
+            dismissed = !!sessionStorage.getItem('free_plan_popup_dismissed');
+        } catch (e) { /* ignore */ }
+
         if (dismissed) return;
 
         // Show after a short delay
@@ -24,7 +28,9 @@ export default function FreePlanPopup() {
 
     const handleClose = () => {
         setIsVisible(false);
-        sessionStorage.setItem('free_plan_popup_dismissed', 'true');
+        try {
+            sessionStorage.setItem('free_plan_popup_dismissed', 'true');
+        } catch (e) { /* ignore */ }
     };
 
     const handleCopy = () => {

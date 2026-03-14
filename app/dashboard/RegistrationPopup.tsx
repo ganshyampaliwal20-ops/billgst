@@ -14,7 +14,11 @@ export default function RegistrationPopup() {
         // Hide if authenticated
         if (status === 'authenticated') return;
         // Check if user previously closed it in this session
-        const closed = sessionStorage.getItem('register_popup_closed');
+        let closed = false;
+        try {
+            closed = !!sessionStorage.getItem('register_popup_closed');
+        } catch (e) { /* ignore */ }
+
         if (closed) {
             setHasClosed(true);
             return;
@@ -32,7 +36,9 @@ export default function RegistrationPopup() {
     const handleClose = () => {
         setIsVisible(false);
         setHasClosed(true);
-        sessionStorage.setItem('register_popup_closed', 'true');
+        try {
+            sessionStorage.setItem('register_popup_closed', 'true');
+        } catch (e) { /* ignore */ }
     };
 
     if (!isVisible || status === 'authenticated') return null;
