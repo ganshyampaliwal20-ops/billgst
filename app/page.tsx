@@ -33,11 +33,11 @@ export default function LandingPage() {
         }
 
         // Open modal based on URL query parameter
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('login') === 'true') {
+        if (typeof window !== 'undefined' && window.location.search) {
+            const searchStr = window.location.search;
+            if (searchStr.includes('login=true')) {
                 setIsLoginOpen(true);
-            } else if (params.get('signup') === 'true') {
+            } else if (searchStr.includes('signup=true')) {
                 setIsSignupOpen(true);
             }
         }
@@ -54,20 +54,26 @@ export default function LandingPage() {
         let observer: IntersectionObserver | null = null;
         if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
             observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('v');
-                });
+                for (let i = 0; i < entries.length; i++) {
+                    if (entries[i].isIntersecting) entries[i].target.classList.add('v');
+                }
             }, { threshold: 0.1 });
 
-            elements.forEach(el => observer?.observe(el));
+            for (let i = 0; i < elements.length; i++) {
+                if (observer) observer.observe(elements[i]);
+            }
         } else {
             // Fallback for older browsers: show all elements immediately
-            elements.forEach(el => el.classList.add('v'));
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].classList.add('v');
+            }
         }
 
-        // Failsafe for mobile: 2 seconds later force show everything in case observer failed
+        // Failsafe for mobile: 1.5 seconds later force show everything in case observer failed
         const failsafe = setTimeout(() => {
-            elements.forEach(el => el.classList.add('v'));
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].classList.add('v');
+            }
         }, 1500);
 
         return () => {
