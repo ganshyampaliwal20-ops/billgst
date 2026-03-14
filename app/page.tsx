@@ -63,6 +63,11 @@ function LandingPageContent() {
             elements.forEach(el => el.classList.add('v'));
         }
 
+        // Failsafe for mobile: 2 seconds later force show everything in case observer failed
+        const failsafe = setTimeout(() => {
+            elements.forEach(el => el.classList.add('v'));
+        }, 2000);
+
         return () => {
             window.removeEventListener('scroll', handleScroll);
             if (observer) observer.disconnect();
