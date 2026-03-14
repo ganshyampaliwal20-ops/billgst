@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import './landing.css';
 
-function LandingPageContent() {
+export default function LandingPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     // States for Modals and Interactivity
     const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -34,10 +33,13 @@ function LandingPageContent() {
         }
 
         // Open modal based on URL query parameter
-        if (searchParams.get('login') === 'true') {
-            setIsLoginOpen(true);
-        } else if (searchParams.get('signup') === 'true') {
-            setIsSignupOpen(true);
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('login') === 'true') {
+                setIsLoginOpen(true);
+            } else if (params.get('signup') === 'true') {
+                setIsSignupOpen(true);
+            }
         }
 
         // Scroll listener for navbar
@@ -73,7 +75,7 @@ function LandingPageContent() {
             if (observer) observer.disconnect();
             clearTimeout(failsafe);
         };
-    }, [status, router, searchParams]);
+    }, [status, router]);
 
     const openM = (t: string) => {
         if (t === 'login') setIsLoginOpen(true);
@@ -536,17 +538,5 @@ function LandingPageContent() {
 
             <div id="toast"></div>
         </div>
-    );
-}
-
-export default function LandingPage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-[#06080F]">
-                <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent flex items-center justify-center rounded-full animate-spin"></div>
-            </div>
-        }>
-            <LandingPageContent />
-        </Suspense>
     );
 }
