@@ -48,17 +48,24 @@ function LandingPageContent() {
 
         // Initial animations (IntersectionObserver replacement)
         const elements = document.querySelectorAll('.fi');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('v');
-            });
-        }, { threshold: 0.1 });
 
-        elements.forEach(el => observer.observe(el));
+        let observer: IntersectionObserver | null = null;
+        if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('v');
+                });
+            }, { threshold: 0.1 });
+
+            elements.forEach(el => observer?.observe(el));
+        } else {
+            // Fallback for older browsers: show all elements immediately
+            elements.forEach(el => el.classList.add('v'));
+        }
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
-            observer.disconnect();
+            if (observer) observer.disconnect();
         };
     }, [status, router, searchParams]);
 
