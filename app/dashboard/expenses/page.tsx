@@ -230,6 +230,32 @@ export default function BusinessExpensesPage() {
         toast('🗑', 'Customer delete ho gaya!');
     };
 
+    const shareHisaab = (cid: number) => {
+        const c = getCust(cid);
+        if (!c || !c.phone) {
+            toast('❌', 'Customer ka phone number nahi hai!');
+            return;
+        }
+        const bal = calcBal(cid);
+        const tHistory = getTxns(cid).map(t => ({
+            d: t.date,
+            a: t.amt,
+            t: t.type === 'credit' ? 'c' : 'd',
+            m: t.desc || ''
+        }));
+        const dataObj = {
+            b: 'Hisaab Pro Partner',
+            n: c.name,
+            c: c.limit || 0,
+            t: tHistory
+        };
+        const encodedData = btoa(unescape(encodeURIComponent(JSON.stringify(dataObj))));
+        const link = `${window.location.origin}/hisaab/view?d=${encodedData}`;
+        const msg = `Namaste *${c.name}*,\nAapka naya hisaab update hua hai.\n\n*Net Balance:* ₹${Math.abs(bal.net).toLocaleString('en-IN')} ${bal.net >= 0 ? '(Aapka Baaki Hai)' : '(Aapko Dena Hai)'}\n\nApna pura hisaab-kitab yahan click karke dekhein:\n${link}\n\n_Powered by BillGST 🚀_`;
+        window.open(`https://wa.me/91${c.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`);
+    };
+
+
     // Rendering bits
     const curBal = curCid ? calcBal(curCid) : null;
     const cCust = curCid ? getCust(curCid) : null;
@@ -385,6 +411,7 @@ export default function BusinessExpensesPage() {
                                             <div>
                                                 <div className="ch-net" style={{ color: curBal.net >= 0 ? 'var(--G)' : 'var(--R)' }}>{ff(Math.abs(curBal.net))}</div>
                                                 <div className="ch-net-lbl" style={{ marginBottom: '6px' }}>Net Balance</div>
+                                                <button onClick={() => shareHisaab(cCust.id)} style={{ width: '100%', fontSize: '10.5px', background: '#0ecf7c', color: '#000', border: 'none', padding: '3px 0', borderRadius: '5px', cursor: 'pointer', fontWeight: 800, marginBottom: '6px', transition: 'all 0.15s' }}>📱 WA Hisaab</button>
                                                 <button onClick={() => delCustomer(cCust.id)} style={{ width: '100%', fontSize: '10px', background: 'rgba(255,61,92,0.1)', color: 'var(--R)', border: '1px solid rgba(255,61,92,0.2)', padding: '3px 0', borderRadius: '5px', cursor: 'pointer', fontWeight: 800, transition: 'all 0.15s' }}>🗑 Delete</button>
                                             </div>
                                         </div>
