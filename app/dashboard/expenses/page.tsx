@@ -34,6 +34,7 @@ export default function BusinessExpensesPage() {
 
     const [nCid, setNCid] = useState(5);
     const [nTid, setNTid] = useState(9);
+    const [editingTxnId, setEditingTxnId] = useState<number | null>(null);
 
     const [selColor, setSelColor] = useState('av-lime');
     const [curCid, setCurCid] = useState<number | null>(null);
@@ -63,6 +64,7 @@ export default function BusinessExpensesPage() {
     const [qDesc, setQDesc] = useState('');
     const [qAmt, setQAmt] = useState('');
     const [qPickedAmt, setQPickedAmt] = useState<number | null>(null);
+    const [qDate, setQDate] = useState(new Date().toISOString().split('T')[0]);
 
     // Load Persistence
     useEffect(() => {
@@ -167,15 +169,21 @@ export default function BusinessExpensesPage() {
         if (!cid || !amt || !dDate) { toast('❌', 'Customer, raqam aur tarikh bharo!'); return; }
         const desc = dDesc.trim() || (drawerType === 'credit' ? 'Credit' : 'Debit');
         const nt = {
-            id: nTid, cid, type: drawerType, desc, amt, date: dDate,
+            id: editingTxnId !== null ? editingTxnId : nTid, cid, type: drawerType, desc, amt, date: dDate,
             cat: dCat, note: dNote.trim()
         };
-        setTxns([nt, ...txns]);
-        setNTid(nTid + 1);
+        if (editingTxnId !== null) {
+            setTxns(txns.map(t => t.id === editingTxnId ? nt : t));
+            setEditingTxnId(null);
+            toast('✅', 'Entry update ho gayi!');
+        } else {
+            setTxns([nt, ...txns]);
+            setNTid(nTid + 1);
+            toast('✅', 'Entry save ho gayi!');
+        }
         setActiveDrawer('none');
         setDDesc(''); setDNote(''); setDAmt('');
         if (curCid === cid) handleOpenCust(cid);
-        toast('✅', 'Entry save ho gayi!');
     };
 
     const quickSave = () => {
@@ -185,7 +193,7 @@ export default function BusinessExpensesPage() {
         if (!amt || amt <= 0) { toast('❌', 'Raqam likho!'); return; }
         const nt = {
             id: nTid, cid: curCid, type: qMode, desc, amt,
-            date: new Date().toISOString().split('T')[0], cat: 'General', note: ''
+            date: qDate || new Date().toISOString().split('T')[0], cat: 'General', note: ''
         };
         setTxns([nt, ...txns]);
         setNTid(nTid + 1);
@@ -193,10 +201,33 @@ export default function BusinessExpensesPage() {
         toast(qMode === 'credit' ? '✅' : '❌', `${ff(amt)} ${qMode === 'credit' ? 'jama hua' : 'katwa diya'}!`);
     };
 
+    const startEditTxn = (t: any) => {
+        setEditingTxnId(t.id);
+        setDrawerType(t.type);
+        setDCust(t.cid.toString());
+        setDDesc(t.desc);
+        setDAmt(t.amt.toString());
+        setDDate(t.date);
+        setDCat(t.cat);
+        setDNote(t.note || '');
+        setActiveDrawer('addTxn');
+    };
+
     const delTxn = (id: number) => {
         if (!confirm('Ye entry delete karein?')) return;
         setTxns(txns.filter(t => t.id !== id));
         toast('🗑', 'Delete ho gaya');
+    };
+
+    const delCustomer = (id: number) => {
+        if (!confirm('Kya aap is customer aur inke sabhi transactions ko delete karna chahte hain?')) return;
+        setTxns(txns.filter(t => t.cid !== id));
+        setCustomers(customers.filter(c => c.id !== id));
+        if (curCid === id) {
+            setCurCid(null);
+            setShowMobileList(true);
+        }
+        toast('🗑', 'Customer delete ho gaya!');
     };
 
     // Rendering bits
@@ -217,7 +248,7 @@ export default function BusinessExpensesPage() {
     const dates = Object.keys(groupedTxns).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
     return (
-        <div className="hisaab-root">
+        <div className="hisaab-root" style={{ paddingTop: '8px' }}>
             {/* TOPBAR */}
             <div className="topbar">
                 {!showMobileList && (
@@ -353,7 +384,8 @@ export default function BusinessExpensesPage() {
                                             </div>
                                             <div>
                                                 <div className="ch-net" style={{ color: curBal.net >= 0 ? 'var(--G)' : 'var(--R)' }}>{ff(Math.abs(curBal.net))}</div>
-                                                <div className="ch-net-lbl">Net Balance</div>
+                                                <div className="ch-net-lbl" style={{ marginBottom: '6px' }}>Net Balance</div>
+                                                <button onClick={() => delCustomer(cCust.id)} style={{ width: '100%', fontSize: '10px', background: 'rgba(255,61,92,0.1)', color: 'var(--R)', border: '1px solid rgba(255,61,92,0.2)', padding: '3px 0', borderRadius: '5px', cursor: 'pointer', fontWeight: 800, transition: 'all 0.15s' }}>🗑 Delete</button>
                                             </div>
                                         </div>
                                         <div className="stat-strip">
@@ -409,7 +441,10 @@ export default function BusinessExpensesPage() {
                                                                         </div>
                                                                     </div>
                                                                     <div className="t-amt" style={{ color: isC ? 'var(--G)' : 'var(--R)' }}>{isC ? '+' : '-'}{ff(t.amt)}</div>
-                                                                    <div className="del-btn" onClick={() => delTxn(t.id)} title="Delete">🗑</div>
+                                                                    <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                                                                        <div className="del-btn" style={{ background: 'rgba(72,153,255,0.1)', color: 'var(--B)', border: '1px solid rgba(72,153,255,0.2)' }} onClick={() => startEditTxn(t)} title="Edit">✏️</div>
+                                                                        <div className="del-btn" onClick={() => delTxn(t.id)} title="Delete">🗑</div>
+                                                                    </div>
                                                                 </div>
                                                             );
                                                         })}
@@ -442,7 +477,8 @@ export default function BusinessExpensesPage() {
                                             ))}
                                         </div>
                                         <div className="qb-inputs">
-                                            <input className="qb-desc" type="text" id="qDesc" placeholder="Kya ke liye... (optional)" value={qDesc} onChange={e => setQDesc(e.target.value)} onKeyDown={e => e.key === 'Enter' && document.getElementById('qAmt')?.focus()} />
+                                            <input type="date" className="qb-desc" style={{ flex: 'none', width: '130px', padding: '0 8px' }} value={qDate} onChange={e => setQDate(e.target.value)} title="Tarikh" />
+                                            <input className="qb-desc" type="text" id="qDesc" placeholder="Kya ke liye..." value={qDesc} onChange={e => setQDesc(e.target.value)} onKeyDown={e => e.key === 'Enter' && document.getElementById('qAmt')?.focus()} />
                                             <input className="qb-amt" type="number" id="qAmt" placeholder="₹0" inputMode="numeric" value={qAmt} onChange={e => setQAmt(e.target.value)} onKeyDown={e => e.key === 'Enter' && quickSave()} />
                                             <button className={`qb-go ${qMode === 'credit' ? 'credit-go' : 'debit-go'}`} onClick={quickSave}>↑</button>
                                         </div>
@@ -482,10 +518,10 @@ export default function BusinessExpensesPage() {
                 </div>
             </div>
 
-            <div className={`overlay ${activeDrawer === 'addTxn' ? 'on' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setActiveDrawer('none'); }}>
+            <div className={`overlay ${activeDrawer === 'addTxn' ? 'on' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) { setActiveDrawer('none'); setEditingTxnId(null); } }}>
                 <div className="drawer">
                     <div className="dh"></div>
-                    <div className="dtitle">💰 Transaction</div>
+                    <div className="dtitle">💰 {editingTxnId !== null ? 'Edit Transaction' : 'Transaction'}</div>
                     <div className="dbody">
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
                             <button className={`qbb credit-btn ${drawerType === 'credit' ? 'active' : ''}`} style={{ height: 40, borderRadius: 11, fontSize: 14 }} onClick={() => setDrawerType('credit')}>✅ Credit (Jama)</button>
