@@ -110,7 +110,7 @@ export default function PublicStorePage() {
     });
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-32">
+        <div className="min-h-screen bg-slate-50 pb-32 overflow-x-clip w-full">
             <Toaster position="top-center" />
 
             {/* Header */}
@@ -153,18 +153,18 @@ export default function PublicStorePage() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
                     <div className="relative z-10">
                         <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Digital Storefront</p>
-                        <h2 className="text-xl font-bold mb-3 tracking-tight">Order from our latest collection</h2>
+                        <h2 className="text-xl font-bold mb-3 tracking-tight break-words">Order from our latest collection</h2>
                         <div className="flex flex-wrap gap-4 text-sm mt-4">
                             {storeData.business.business_phone && (
-                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
-                                    <FaPhone className="text-xs" />
-                                    <span>{storeData.business.business_phone}</span>
+                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm max-w-full" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
+                                    <FaPhone className="text-xs shrink-0" />
+                                    <span className="truncate">{storeData.business.business_phone}</span>
                                 </div>
                             )}
                             {storeData.business.business_address && (
-                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm max-w-[200px] truncate">
-                                    <FaMapMarkerAlt className="text-xs" />
-                                    <span>{storeData.business.business_address}</span>
+                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm max-w-full" style={{ paddingLeft: '15px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
+                                    <FaMapMarkerAlt className="text-xs shrink-0" />
+                                    <span className="truncate">{storeData.business.business_address}</span>
                                 </div>
                             )}
                         </div>
@@ -175,7 +175,7 @@ export default function PublicStorePage() {
             {/* Search & Categories */}
             <div className="max-w-7xl mx-auto mt-8 px-4 space-y-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '5px', paddingBottom: '5px' }}>
                 <div className="relative">
-                    <FaSearch className="absolute left-75 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search for items..."
@@ -205,11 +205,11 @@ export default function PublicStorePage() {
             <div className="max-w-7xl mx-auto mt-8 px-4" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px' }}>
                 {/* Demo Mode Banner */}
                 {isDemoMode && (
-                    <div className="mb-4 bg-amber-50 border-2 border-amber-200 rounded-2xl px-4 py-3 flex items-center gap-3">
-                        <span className="text-xl">🛒</span>
-                        <div>
-                            <p className="text-xs font-black text-amber-700 uppercase tracking-widest">Demo Store</p>
-                            <p className="text-[10px] text-amber-600 font-bold">यह एक demo है – असली products dashboard में जोड़ें!</p>
+                    <div className="mb-4 bg-amber-50 border-2 border-amber-200 rounded-2xl px-4 py-3 flex items-center gap-3 w-full">
+                        <span className="text-xl shrink-0">🛒</span>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-black text-amber-700 uppercase tracking-widest truncate">Demo Store</p>
+                            <p className="text-[10px] text-amber-600 font-bold leading-tight flex-wrap break-words">यह एक demo है – असली products dashboard में जोड़ें!</p>
                         </div>
                     </div>
                 )}
