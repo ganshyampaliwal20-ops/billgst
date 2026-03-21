@@ -191,8 +191,8 @@ export default function StoreManagerPage() {
             }
             
             /* Page layout */
-            .spage{display:grid;grid-template-columns:1fr 360px;gap:20px;padding:22px 24px;max-width:1300px;margin:0 auto;width:100%;box-sizing:border-box}
-            @media(max-width:900px){.spage{grid-template-columns:1fr}}
+            .spage{display:grid;grid-template-columns:1fr 360px;gap:20px;padding:22px 24px;max-width:1300px;margin:0 auto;width:100%;box-sizing:border-box;overflow:hidden;}
+            @media(max-width:900px){.spage{display:flex;flex-direction:column;padding:16px;}}
             
             /* Cards */
             .scard{background:var(--white);border-radius:18px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:16px;animation:sfadeUp .4s ease both; overflow: hidden;}
@@ -248,20 +248,23 @@ export default function StoreManagerPage() {
             .h-stat-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
             
             @media(max-width: 600px) {
-              .spage { padding: 12px 10px; width: 100%; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
-              .scard { padding: 12px; border-radius: 12px; width: 100%; box-sizing: border-box; }
-              .store-hero { width: 100%; box-sizing: border-box; }
-              .hero-banner { height: 90px; }
-              .hero-body { padding: 0 12px 12px; }
-              .store-name { font-size: 16px; }
-              .store-url-row { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+              .spage { padding: 10px; overflow-x: hidden; display: block; width: 100%; box-sizing: border-box; }
+              .left-col, .right-col { width: 100%; max-width: 100%; overflow: hidden; box-sizing: border-box; }
+              .scard { padding: 14px; border-radius: 14px; overflow: hidden; width: 100%; box-sizing: border-box; }
+              .store-hero { width: 100%; box-sizing: border-box; overflow: hidden; max-width: 100%; }
+              .hero-banner { height: 80px; width: 100%; }
+              .hero-body { padding: 0 14px 14px; width: 100%; box-sizing: border-box; }
+              .store-name { font-size: 16px; word-wrap: break-word; max-width: 100%; }
+              .store-name-row { width: 100%; flex-wrap: wrap; }
+              .store-url-row { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; width: 100%; box-sizing: border-box; overflow: hidden; }
+              .store-url { width: 100%; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
               .url-copy-btn { width: 100%; padding: 10px; text-align: center; }
-              .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+              .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
               .hero-stats > div:last-child { grid-column: span 2; }
-              .share-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
-              .share-btn { padding: 8px 4px; border-radius: 10px; }
-              .share-btn .s-icon { font-size: 18px; }
-              .share-btn .s-label { font-size: 9px; }
+              .share-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+              .share-btn { padding: 12px 8px; border-radius: 12px; }
+              .share-btn .s-icon { font-size: 22px; }
+              .share-btn .s-label { font-size: 11px; }
               .ssetting-name { font-size: 12px; }
               .ssetting-sub { font-size: 10px; }
             }
@@ -303,13 +306,13 @@ export default function StoreManagerPage() {
             @media(max-width: 480px) {
               .prod-header { flex-direction: column; align-items: flex-start; gap: 10px; }
               .add-prod-btn { width: 100%; justify-content: center; }
-              .sprod-card { display: flex; align-items: center; width: 100%; box-sizing: border-box; }
+              .sprod-card { display: flex; align-items: center; width: 100%; box-sizing: border-box; overflow: hidden; }
               .sprod-img { width: 70px; height: 70px; flex-shrink: 0; font-size: 26px; border-bottom: none; border-right: 1px solid var(--faint); }
-              .sprod-info { flex: 1; padding: 10px; min-width: 0; }
-              .sprod-name { font-size: 12px; }
+              .sprod-info { flex: 1; padding: 10px; min-width: 0; width: 100%; overflow: hidden; }
+              .sprod-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
               .sprod-price { font-size: 13px; }
-              .sprod-actions { flex-direction: row; gap: 4px; }
-              .sprod-act-btn { font-size: 9.5px; padding: 5px; }
+              .sprod-actions { flex-direction: row; gap: 4px; flex-wrap: wrap; }
+              .sprod-act-btn { font-size: 9.5px; padding: 5px; flex: 1; min-width: 60px; white-space: nowrap; }
             }
             
             /* Store settings */
@@ -548,7 +551,7 @@ export default function StoreManagerPage() {
 
                         <div className="scard" style={{ animationDelay: ".2s" }}>
                             <div className="scard-title"><span>🎨</span> Store Theme</div>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "4px", marginBottom: "14px", width: "100%", boxSizing: "border-box" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "8px", marginBottom: "14px", width: "100%", boxSizing: "border-box" }}>
                                 <div onClick={() => handleThemeChange('#4f46e5', '#7c3aed')} style={{ height: "38px", borderRadius: "10px", background: "linear-gradient(135deg,#4f46e5,#7c3aed)", cursor: "pointer", border: activeTheme.primary === '#4f46e5' ? "2px solid #fff" : "2px solid transparent", outline: activeTheme.primary === '#4f46e5' ? "2px solid var(--indigo)" : "none", position: "relative" }}>
                                     {activeTheme.primary === '#4f46e5' && <div style={{ position: "absolute", bottom: "-6px", left: "50%", transform: "translateX(-50%)", width: "8px", height: "8px", background: "var(--indigo)", borderRadius: "50%", border: "2px solid #fff" }}></div>}
                                 </div>
