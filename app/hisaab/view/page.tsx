@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Head from 'next/head';
 
-export default function HisaabViewer() {
+function HisaabViewerContent() {
     const searchParams = useSearchParams();
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState(false);
@@ -163,5 +163,18 @@ export default function HisaabViewer() {
                 </a>
             </div>
         </div>
+    );
+}
+
+export default function HisaabViewer() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#0d0d15] flex flex-col items-center justify-center">
+                <div className="w-8 h-8 rounded-full border-4 border-[#0ecf7c] border-t-transparent animate-spin"></div>
+                <p className="text-[#8888aa] mt-4 font-bold">Loading Hisaab...</p>
+            </div>
+        }>
+            <HisaabViewerContent />
+        </Suspense>
     );
 }
