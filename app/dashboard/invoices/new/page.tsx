@@ -512,29 +512,35 @@ export default function NewInvoicePage() {
 
                 /* Mobile Responsiveness Fixes */
                 @media (max-width: 992px) {
-                  .form-outer { grid-template-columns: 1fr; padding: 0 15px 120px; gap: 15px; }
-                  .page-hdr { padding: 20px 15px; margin-bottom: 1rem; }
-                  .ph-title { font-size: 20px; }
-                  .ph-sub { font-size: 11px; }
-                  .stepper { overflow-x: auto; padding-bottom: 10px; margin-top: 15px; }
-                  .s-line { min-width: 30px; }
-                  .card { padding: 15px; border-radius: 16px; }
-                  .bottom-bar { padding: 10px 15px; height: auto; flex-direction: column; gap: 10px; }
-                  .bb-save { width: 100%; justify-content: center; padding: 12px; font-size: 14px; }
-                  .doc-tabs { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-                  .dtab { padding: 10px 5px; }
-                  .item-card { padding: 12px; }
-                  .i-num { left: 5px; top: -15px; }
-                  .grand-total { font-size: 24px; }
-                  .fbadge { padding: 8px 12px; font-size: 11px; flex: 1; justify-content: center; }
-                  .fi { padding: 10px 12px; font-size: 13px; }
+                  .form-outer { grid-template-columns: 1fr; padding: 0 10px 100px; gap: 10px; }
+                  .page-hdr { padding: 15px 10px; margin-bottom: 0.5rem; }
+                  .ph-title { font-size: 18px; }
+                  .ph-sub { font-size: 10px; }
+                  .stepper { overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
+                  .s-line { min-width: 20px; }
+                  .card { padding: 12px; border-radius: 12px; margin-bottom: 10px; }
+                  .c-title { margin-bottom: 12px; }
+                  .bottom-bar { padding: 10px 15px; height: auto; flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; }
+                  .bb-save { justify-content: center; padding: 10px 20px; font-size: 13px; }
+                  .doc-tabs { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+                  .dtab { padding: 8px 4px; }
+                  .dt-icon { font-size: 14px; }
+                  .dt-label { font-size: 8px; }
+                  .item-card { padding: 10px; }
+                  .i-num { left: 5px; top: -10px; }
+                  .grand-total { font-size: 20px; }
+                  .fbadge { padding: 6px 10px; font-size: 10px; flex: 1; justify-content: center; }
+                  .fi { padding: 8px 10px; font-size: 12px; }
+                  .fg { margin-bottom: 12px; }
+                  .pay-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+                  .p-mode { padding: 8px 4px; font-size: 10px; }
                 }
 
                 @media (max-width: 480px) {
-                  .doc-tabs { grid-template-columns: repeat(2, 1fr); }
-                  .pay-grid { grid-template-columns: 1fr; }
+                  .doc-tabs { grid-template-columns: repeat(4, 1fr); }
+                  .pay-grid { grid-template-columns: repeat(4, 1fr); }
                   .inv-pill { padding: 10px; }
-                  .ip-num { font-size: 12px; }
+                  .ip-num { font-size: 11px; }
                 }
             `}} />
 
@@ -674,15 +680,6 @@ export default function NewInvoicePage() {
                         </button>
                     </div>
 
-                    {/* Notes & Terms */}
-                    <div className="card">
-                        <div className="c-title"><div className="c-icon" style={{ background: '#f1f5f9', color: '#64748b' }}><FaReceipt /></div> {t.termsNotes}</div>
-                        <textarea className="fi min-h-[100px] bg-slate-50 border-dashed" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Terms & conditions or personal message..."></textarea>
-                    </div>
-                </div>
-
-                {/* Right Column */}
-                <div className="right-col">
                     {/* Totals Summary */}
                     <div className="totals-box mb-6">
                         <div className="space-y-4">
@@ -695,6 +692,16 @@ export default function NewInvoicePage() {
                                 <span className="grand-total">₹{totals.grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Extra Charges */}
+                    <div className="card">
+                        <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> Discount & Shipping</div>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div><label className="fl">Discount (%)</label><input type="number" className="fi" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
+                            <div><label className="fl">Extra Fee (₹)</label><input type="number" className="fi" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
+                        </div>
+                        <div><label className="fl">Shipping (₹)</label><input type="number" className="fi" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
                     </div>
 
                     {/* Payment Info */}
@@ -714,16 +721,15 @@ export default function NewInvoicePage() {
                         )}
                     </div>
 
-                    {/* Extra Charges */}
+                    {/* Notes & Terms */}
                     <div className="card">
-                        <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> Discount & Shipping</div>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div><label className="fl">Discount (%)</label><input type="number" className="fi" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
-                            <div><label className="fl">Extra Fee (₹)</label><input type="number" className="fi" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
-                        </div>
-                        <div><label className="fl">Shipping (₹)</label><input type="number" className="fi" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
+                        <div className="c-title"><div className="c-icon" style={{ background: '#f1f5f9', color: '#64748b' }}><FaReceipt /></div> {t.termsNotes}</div>
+                        <textarea className="fi min-h-[100px] bg-slate-50 border-dashed" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Terms & conditions or personal message..."></textarea>
                     </div>
+                </div>
 
+                {/* Right Column */}
+                <div className="right-col">
                     {/* Advanced Options */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>⚙️</div> Options</div>

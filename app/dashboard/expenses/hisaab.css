@@ -1104,7 +1104,7 @@
     border: 1px solid var(--border);
     border-radius: 11px;
     padding: 0 14px;
-    color: var(--text);
+    color: #ffffff !important;
     font-family: var(--fn);
     font-size: 14px;
     outline: none;
