@@ -7,10 +7,11 @@ import { toast } from 'react-hot-toast';
 export default function FreePlanPopup() {
     const [isVisible, setIsVisible] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [remaining, setRemaining] = useState(100);
     const couponCode = 'BILLGST';
 
     useEffect(() => {
-        // Check if user already saw/closed it in this session
         let dismissed = false;
         try {
             dismissed = !!sessionStorage.getItem('free_plan_popup_dismissed');
@@ -18,12 +19,26 @@ export default function FreePlanPopup() {
 
         if (dismissed) return;
 
-        // Show after a short delay
-        const timer = setTimeout(() => {
-            setIsVisible(true);
-        }, 3000); // 3 seconds delay
-
-        return () => clearTimeout(timer);
+        const checkStatus = async () => {
+            try {
+                const res = await fetch('/api/subscription/free-plan');
+                const data = await res.json();
+                
+                if (data.userClaimed || data.remaining <= 0) {
+                    return; // Don't show
+                }
+                
+                setRemaining(data.remaining);
+                
+                // Show after a short delay
+                setTimeout(() => {
+                    setIsVisible(true);
+                }, 3000); // 3 seconds delay
+            } catch (err) {
+                console.error("Failed to check free plan status by API", err);
+            }
+        };
+        checkStatus();
     }, []);
 
     const handleClose = () => {
@@ -38,6 +53,28 @@ export default function FreePlanPopup() {
         setCopied(true);
         toast.success('Coupon Code Copied!');
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleClaim = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/subscription/free-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast.success('🎉 Free Plan Activated! You now have 1 Month of Premium for Free.');
+                setIsVisible(false);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                toast.error(data.error || 'Failed to claim free plan.');
+            }
+        } catch (err) {
+            toast.error('Network Error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (!isVisible) return null;
@@ -72,7 +109,7 @@ export default function FreePlanPopup() {
                             FREE PLAN <br /> FOR YOU!
                         </h2>
                         <p className="text-sm font-bold text-slate-500 leading-relaxed px-4">
-                            Pehle <span className="text-indigo-600 font-black">100 users</span> ke liye humara premium plan bilkul free hai! claim karein abhi.
+                            Pehle 100 users ke liye premium plan bilkul free hai! Sirf <span className="text-indigo-600 font-black">{remaining} spots left</span>, claim karein abhi.
                         </p>
                     </div>
 
@@ -93,14 +130,16 @@ export default function FreePlanPopup() {
 
                     {/* Claim Button */}
                     <button
-                        onClick={handleClose}
-                        className="
-                            w-full py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl shadow-indigo-200
-                            transition-all hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 border-b-8 border-indigo-900
-                        "
+                        onClick={handleClaim}
+                        disabled={loading}
+                        className={`
+                            w-full py-5 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl transition-all 
+                            flex items-center justify-center gap-3 border-b-8 
+                            ${loading ? 'bg-indigo-400 border-indigo-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 border-indigo-900 shadow-indigo-200'}
+                        `}
                     >
-                        <FaRocket />
-                        Claim My Free Plan
+                        <FaRocket className={loading ? 'animate-bounce' : ''} />
+                        {loading ? 'Activating...' : 'Claim My Free Plan'}
                     </button>
 
                     <p className="mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
