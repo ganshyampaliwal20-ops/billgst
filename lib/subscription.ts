@@ -9,7 +9,7 @@
 import pool from '@/lib/db';
 import { startOfMonth, endOfMonth, isAfter } from 'date-fns';
 
-export type PlanType = 'FREE' | 'LIFETIME' | 'BASIC_30' | 'PREMIUM_99' | 'YEARLY_999';
+export type PlanType = 'FREE' | 'LIFETIME' | 'BASIC_30' | 'PREMIUM_99' | 'YEARLY_299';
 export type FeatureType = 'INVOICE' | 'QUOTATION' | 'GST_RETURN' | 'QR_CODE';
 
 interface LimitCheckResult {
@@ -46,11 +46,11 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
         }
 
         // 3. Unlimited Plans
-        if (status === 'ACTIVE' && (plan === 'LIFETIME' || plan === 'PREMIUM_99' || plan === 'YEARLY_999')) {
+        if (status === 'ACTIVE' && (plan === 'LIFETIME' || plan === 'PREMIUM_99' || plan === 'YEARLY_299')) {
             return { allowed: true, plan };
         }
 
-        // 4. QR Code Logic (First 10 Free trial, then Premium Only)
+        // 4. QR Code Logic (First 10 Free trial, then Basic or Premium)
         if (feature === 'QR_CODE') {
             const totalInvoicesRes = await client.query(
                 `SELECT COUNT(*) FROM invoices WHERE created_by = $1`,
@@ -62,25 +62,22 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
                 return { allowed: true, plan };
             }
 
-            if (plan === 'FREE' || plan === 'BASIC_30' || status === 'EXPIRED') {
-                return { allowed: false, reason: 'Requires Premium Plan (99) after 10 trial invoices', plan };
+            if (plan === 'FREE' || status === 'EXPIRED') {
+                return { allowed: false, reason: 'Requires Basic (30) or Premium Plan after 10 trial invoices', plan };
+            }
+            // Basic plan is allowed QR Code now
+            if (plan === 'BASIC_30') {
+                 return { allowed: true, plan };
             }
         }
 
-        // 5. Basic Plan (30 Rs)
-        if (status === 'ACTIVE' && plan === 'BASIC_30') {
-            if (feature === 'INVOICE' || feature === 'QUOTATION') {
-                return { allowed: true, plan };
-            }
-        }
-
-        // 6. Monthly Limits for FREE tier
+        // 5. Monthly Limits setup
         const now = new Date();
         const start = startOfMonth(now).toISOString();
         const end = endOfMonth(now).toISOString();
 
         let count = 0;
-        let limit = 5; // Default Invoice Limit
+        let limit = plan === 'BASIC_30' ? 100 : 30; // Invoice limits
 
         if (feature === 'INVOICE') {
             const countRes = await client.query(
@@ -88,21 +85,24 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
                 [userId, start, end]
             );
             count = parseInt(countRes.rows[0].count);
-            limit = 5;
         } else if (feature === 'QUOTATION') {
+            if (plan === 'BASIC_30') return { allowed: true, plan }; // Unlimited for Basic
+            
             const countRes = await client.query(
                 `SELECT COUNT(*) FROM quotations WHERE created_by = $1 AND created_at >= $2 AND created_at <= $3`,
                 [userId, start, end]
             );
             count = parseInt(countRes.rows[0].count);
-            limit = 30;
+            limit = 30; // limit for Free
         } else if (feature === 'GST_RETURN') {
+            if (plan === 'BASIC_30') return { allowed: true, plan }; // Unlimited for Basic
+            
             const countRes = await client.query(
                 `SELECT COUNT(*) FROM gst_returns WHERE created_by = $1 AND created_at >= $2 AND created_at <= $3`,
                 [userId, start, end]
             );
             count = parseInt(countRes.rows[0].count);
-            limit = 30;
+            limit = 30; // limit for Free
         }
 
         if (count >= limit) {

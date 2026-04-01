@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         console.log(`User ${session.user.id} upgrading to ${planType} with TXN: ${transactionId}`);
 
         // Validation
-        const validPlans = ['BASIC_30', 'PREMIUM_99', 'YEARLY_999'];
+        const validPlans = ['BASIC_30', 'PREMIUM_99', 'YEARLY_299'];
         if (!validPlans.includes(planType)) {
             return NextResponse.json({ error: 'Invalid Plan Type' }, { status: 400 });
         }
@@ -27,8 +27,10 @@ export async function POST(request: Request) {
         const now = new Date();
         let expiryDate = new Date();
 
-        if (planType === 'YEARLY_999') {
+        if (planType === 'YEARLY_299') {
             expiryDate = addYears(now, 1);
+        } else if (planType === 'PREMIUM_99') {
+            expiryDate = addDays(now, 90);
         } else {
             expiryDate = addDays(now, 30);
         }

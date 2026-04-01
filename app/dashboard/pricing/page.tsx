@@ -6,7 +6,7 @@ import { FaCheck, FaTimes, FaQrcode } from 'react-icons/fa';
 import QRCode from 'qrcode';
 import toast from 'react-hot-toast';
 
-type PlanType = 'FREE' | 'BASIC_30' | 'PREMIUM_99' | 'YEARLY_999' | 'LIFETIME';
+type PlanType = 'FREE' | 'BASIC_30' | 'PREMIUM_99' | 'YEARLY_299' | 'LIFETIME';
 
 export default function PricingPage() {
     const [currentPlan, setCurrentPlan] = useState<PlanType>('FREE');
@@ -39,40 +39,40 @@ export default function PricingPage() {
             price: 0,
             type: 'FREE',
             features: [
-                '5 Invoices / Month',
-                '30 Quotations / Month',
-                'GST Returns',
-                'No Invoice QR Code',
-                'Basic Support'
+                '30 Invoices & 30 Quotations / Month',
+                'Basic Customer Ledger (Hisaab)',
+                'Manage Single Business',
+                'No Automated UPI QR Code',
+                'Standard Email Support'
             ],
             color: 'bg-gray-100 border-gray-200'
         },
         {
-            name: 'Basic',
+            name: 'Basic Starter',
             price: 30,
             type: 'BASIC_30',
             duration: '1 Month',
             features: [
-                'Unlimited Invoices',
+                'Upto 100 Invoices / Month',
                 'Unlimited Quotations',
-                'GST Returns',
-                'No Invoice QR Code',
-                'Priority Support'
+                'Invoice UPI QR Code Payment',
+                'Basic Inventory Management',
+                'Priority WhatsApp Support'
             ],
             color: 'bg-blue-50 border-blue-200',
             btnColor: 'bg-blue-600 hover:bg-blue-700'
         },
         {
-            name: 'Premium',
+            name: 'Premium Growth',
             price: 99,
             type: 'PREMIUM_99',
-            duration: '1 Month',
+            duration: '3 Months',
             features: [
-                'Unlimited Invoices',
-                'Unlimited Quotations',
-                'Unlimited GST Returns',
-                'Automated Invoice QR Code',
-                'Priority Support'
+                'Unlimited Invoices & Quotations',
+                'Customer Hisaab & Unlimited Ledger',
+                'Advanced Inventory Control',
+                'Automated QR Code & WhatsApp Export',
+                'Dedicated Priority Support'
             ],
             color: 'bg-purple-50 border-purple-200',
             btnColor: 'bg-purple-600 hover:bg-purple-700',
@@ -80,14 +80,15 @@ export default function PricingPage() {
         },
         {
             name: 'Yearly Pro',
-            price: 999,
-            type: 'YEARLY_999',
+            price: 299,
+            type: 'YEARLY_299',
             duration: '1 Year',
             features: [
-                'All Premium Features',
-                'Valid for 365 Days',
-                'Save ~18%',
-                'VIP Support'
+                'All Premium Features for 365 Days',
+                'Fully Unlimited Billing & Inventory',
+                'Custom Invoice Themes & Branding',
+                'Cloud Auto-Backup & Reports',
+                'VIP 24/7 Developer Support'
             ],
             color: 'bg-amber-50 border-amber-200',
             btnColor: 'bg-amber-600 hover:bg-amber-700'
