@@ -376,38 +376,42 @@ export default function NewInvoicePage() {
 
                 // Handle WhatsApp Auto-share PDF Background
                 if (options.whatsappShare) {
-                    toast.loading('Sharing PDF on WhatsApp...');
-                    try {
-                        const doc = await generateInvoicePDF(invoice, businessProfile, false);
-                        if (doc) {
-                            const pdfBlob = doc.output('blob');
-                            const pdfFile = new File([pdfBlob], `Invoice-${invoiceNumber}.pdf`, { type: 'application/pdf' });
+                    if (!customer?.phone) {
+                        toast.error('Customer ka phone number missing hai, PDF auto-share cancel hua.');
+                    } else {
+                        toast.loading('Sharing PDF on WhatsApp...');
+                        try {
+                            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+                            if (doc) {
+                                const pdfBlob = doc.output('blob');
+                                const pdfFile = new File([pdfBlob], `Invoice-${invoiceNumber}.pdf`, { type: 'application/pdf' });
 
-                            const formData = new FormData();
-                            formData.append('file', pdfFile);
-                            formData.append('phone', customer?.phone || '');
-                            formData.append('message', `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`);
+                                const formData = new FormData();
+                                formData.append('file', pdfFile);
+                                formData.append('phone', customer.phone);
+                                formData.append('message', `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`);
 
-                            const sendRes = await fetch('/api/whatsapp/send-media', {
-                                method: 'POST',
-                                body: formData
-                            });
+                                const sendRes = await fetch('/api/whatsapp/send-media', {
+                                    method: 'POST',
+                                    body: formData
+                                });
 
-                            if (sendRes.ok) {
-                                toast.dismiss();
-                                toast.success('PDF sent on WhatsApp! ✅');
+                                if (sendRes.ok) {
+                                    toast.dismiss();
+                                    toast.success('PDF sent on WhatsApp! ✅');
+                                } else {
+                                    const errorText = await sendRes.text();
+                                    console.error('API Error:', sendRes.status, errorText);
+                                    throw new Error(`Failed to send: ${errorText}`);
+                                }
                             } else {
-                                throw new Error('Failed to send');
+                                throw new Error('PDF Generation Failed');
                             }
+                        } catch (err) {
+                            toast.dismiss();
+                            console.error('Bot share failed:', err);
+                            toast.error('WhatsApp Bot fail: Make sure whatsapp-service.js is running and phone is correct.');
                         }
-                    } catch (err) {
-                        toast.dismiss();
-                        console.error('Bot share failed:', err);
-                        toast.error('WhatsApp Bot link fail, manual share opening...');
-                        const phone = customer?.phone?.replace(/\D/g, '');
-                        const text = `Hi ${customer?.name}, your invoice #${invoiceNumber} for ₹${totals.grandTotal.toFixed(2)} is ready.`;
-                        const url = phone ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
-                        window.open(url, '_blank');
                     }
                 }
 

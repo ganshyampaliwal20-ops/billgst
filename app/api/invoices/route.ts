@@ -408,8 +408,7 @@ export async function DELETE(request: Request) {
         // 3. Delete invoice items (Foreign key should handle this if ON DELETE CASCADE, but being explicit is safer)
         await client.query('DELETE FROM invoice_items WHERE invoice_id = $1', [id]);
 
-        // 4. Delete invoice payments
-        await client.query('DELETE FROM payments WHERE invoice_id = $1', [id]);
+        // 4. Delete invoice payments (removed because table does not exist and fails transaction)
 
         // 5. Delete the invoice
         const deleteResult = await client.query(`

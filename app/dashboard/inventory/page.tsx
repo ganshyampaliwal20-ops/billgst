@@ -644,9 +644,24 @@ export default function InventoryPage() {
                                 </div>
                             </div>
                             <div className="field-row">
-                                <div>
-                                    <label className="field-label">Stock Quantity *</label>
-                                    <input className="field-input" type="number" placeholder="e.g. 50" value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} />
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <div style={{ flex: '1.5' }}>
+                                        <label className="field-label">Stock Quantity *</label>
+                                        <input className="field-input" type="number" placeholder="e.g. 50" value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} />
+                                    </div>
+                                    <div style={{ flex: '1' }}>
+                                        <label className="field-label">Unit</label>
+                                        <input className="field-input" type="text" list="unitList" placeholder="PCS" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} />
+                                        <datalist id="unitList">
+                                            <option value="PCS" />
+                                            <option value="KG" />
+                                            <option value="Gram" />
+                                            <option value="Ltr" />
+                                            <option value="Mtr" />
+                                            <option value="Box" />
+                                            <option value="Pk" />
+                                        </datalist>
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="field-label">Low Stock Alert</label>
