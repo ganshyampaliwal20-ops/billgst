@@ -175,7 +175,7 @@ export default function PricingPage() {
                             <h3 className="text-xl font-bold mb-5 text-center">{plan.name}</h3>
                             <div className="mt-5 flex items-end justify-center gap-1 mb-5">
                                 <span className="text-3xl font-bold">₹{plan.price}</span>
-                                {plan.price > 0 && <span className="text-gray-500 mb-1">/{plan.duration === '1 Year' ? 'year' : 'mo'}</span>}
+                                {plan.price > 0 && <span className="text-gray-500 mb-1">/{plan.duration === '1 Year' ? 'year' : plan.duration === '3 Months' ? '3 mo' : 'mo'}</span>}
                             </div>
 
                             <ul className="mt-8 space-y-3 flex-1">

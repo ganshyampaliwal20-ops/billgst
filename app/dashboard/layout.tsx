@@ -17,6 +17,7 @@ import LanguageSelector from '@/app/components/LanguageSelector';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from './RegistrationPopup';
 import AIChat from '@/app/components/AIChat';
+import UpgradeModal from '@/app/components/UpgradeModal';
 
 export default function DashboardLayout({
     children,
@@ -421,6 +422,7 @@ export default function DashboardLayout({
             )}
             <RegistrationPopup />
             <AIChat />
+            <UpgradeModal />
         </div>
     );
 }
