@@ -66,7 +66,7 @@ export default function NewInvoicePage() {
     // Dynamic Options State
     const [options, setOptions] = useState({
         showGstBreakup: true,
-        whatsappShare: true,
+        whatsappShare: false,
         eInvoice: false,
         emailInvoice: false,
         recurring: false
