@@ -84,6 +84,7 @@ export default function CustomerDetailPage() {
     const totalDue = Math.max(0, totalSales - totalPaid);
 
     const formatLakhs = (val: number) => {
+        if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
         if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lk`;
         if (val >= 1000) return `₹${(val / 1000).toFixed(1)} K`;
         return `₹${Number(val || 0).toLocaleString('en-IN')}`;
@@ -427,7 +428,7 @@ canvas{max-height:140px; width: 100%;}
                         </div>
                         <div>
                             {customerInvoices.slice(0, 5).map((inv: any) => (
-                                <div className="inv-row" key={inv.id} onClick={() => toast('Invoice ' + inv.invoice_number + ' open ho rahi hai…')}>
+                                <div className="inv-row" key={inv.id} onClick={() => router.push(`/dashboard/invoices?search=${inv.invoice_number}`)}>
                                     <div className="inv-date">{new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
                                     <div className="inv-no">{inv.invoice_number}</div>
                                     <div>

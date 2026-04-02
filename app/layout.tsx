@@ -68,6 +68,8 @@ export const metadata: Metadata = {
   },
 };
 
+import InstallAppBanner from "@/app/components/InstallAppBanner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -101,6 +103,7 @@ export default function RootLayout({
         <SessionWrapper>
           {children}
         </SessionWrapper>
+        <InstallAppBanner />
         <Toaster position="top-right" />
       </body>
     </html>

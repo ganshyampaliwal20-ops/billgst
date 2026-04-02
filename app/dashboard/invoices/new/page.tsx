@@ -384,10 +384,9 @@ export default function NewInvoicePage() {
                             const doc = await generateInvoicePDF(invoice, businessProfile, false);
                             if (doc) {
                                 const pdfBlob = doc.output('blob');
-                                const pdfFile = new File([pdfBlob], `Invoice-${invoiceNumber}.pdf`, { type: 'application/pdf' });
-
+                                
                                 const formData = new FormData();
-                                formData.append('file', pdfFile);
+                                formData.append('file', pdfBlob, `Invoice-${invoiceNumber}.pdf`);
                                 formData.append('phone', customer.phone);
                                 formData.append('message', `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`);
 

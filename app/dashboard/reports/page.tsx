@@ -136,6 +136,7 @@ function ReportsContent() {
     if (itemsSold < 234) itemsSold = 234;
 
     const formatLakhs = (val: number) => {
+        if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
         if (val >= 100000) return `₹${(val / 100000).toFixed(2)} Lac`;
         if (val >= 1000) return `₹${(val / 1000).toFixed(2)} K`;
         return `₹${(val || 0).toFixed(0)}`;
