@@ -633,7 +633,7 @@
 .txn-list {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 120px;
+  padding-bottom: 300px;
 }
 
 .date-header {
