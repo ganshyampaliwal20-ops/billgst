@@ -88,7 +88,8 @@ export default function BusinessExpensesPage() {
     const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0]);
     const [entryNote, setEntryNote] = useState('');
     const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
-    
+    const [editTxnId, setEditTxnId] = useState<number | null>(null);
+
     // Expand toggle state per transaction ID
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
 
@@ -160,6 +161,7 @@ export default function BusinessExpensesPage() {
 
     // Entry Sheet Handlers
     const openAddEntry = (type: 'credit' | 'debit' | 'advance', prepopulateAmt?: string) => {
+        setEditTxnId(null);
         setEntryType(type);
         setAmtInp(prepopulateAmt || '');
         setEntryName('');
@@ -184,6 +186,34 @@ export default function BusinessExpensesPage() {
         setPendingPhotos(prev => prev.filter((_, i) => i !== idx));
     };
 
+    const openEditEntry = (txn: any) => {
+        setEditTxnId(txn.id);
+        setEntryType(txn.type);
+        setAmtInp(txn.amt.toString());
+        setEntryName(txn.name || '');
+        setEntryNote(txn.note || '');
+        setEntryDate(txn.date.split('T')[0]);
+        setPendingPhotos([...(txn.photos || [])]);
+        setIsAddEntryOpen(true);
+    };
+
+    const deleteTxn = (txnId: number, txnAmt: number, txnType: string) => {
+        if (!window.confirm('Pukka delete karna hai?')) return;
+        setCustomers(customers.map(c => {
+            if (c.id === curCid) {
+                const isDebit = txnType !== 'credit';
+                const balChange = isDebit ? txnAmt : -txnAmt; // reverse the effect
+                return {
+                    ...c,
+                    txns: c.txns.filter((t: any) => t.id !== txnId),
+                    balance: c.balance + balChange
+                };
+            }
+            return c;
+        }));
+        showToast('🗑 Entry delete ho gayi!');
+    };
+
     const saveEntry = () => {
         const amt = parseFloat(amtInp);
         if (!amt) { showToast('⚠️ Amount daalo!'); return; }
@@ -191,19 +221,38 @@ export default function BusinessExpensesPage() {
         const note = entryNote.trim();
         const date = entryDate ? new Date(entryDate).toISOString() : new Date().toISOString();
 
-        const newTxn = { id: Date.now(), type: entryType, name, note, date, amt, photos: [...pendingPhotos] };
-        
         setCustomers(customers.map(c => {
             if (c.id === curCid) {
-                const isDebit = entryType !== 'credit';
-                const balChange = isDebit ? -amt : amt;
-                return { ...c, txns: [newTxn, ...c.txns], balance: c.balance + balChange };
+                let newTxns = [...c.txns];
+                let newBalance = c.balance;
+
+                if (editTxnId) {
+                    const oldTxn = newTxns.find((t: any) => t.id === editTxnId);
+                    if (oldTxn) {
+                        const oldIsDebit = oldTxn.type !== 'credit';
+                        const oldBalChange = oldIsDebit ? -oldTxn.amt : oldTxn.amt;
+                        newBalance -= oldBalChange;
+                    }
+                    newTxns = newTxns.map((t: any) => t.id === editTxnId ? { ...t, type: entryType, name, note, date, amt, photos: [...pendingPhotos] } : t);
+                    const isDebit = entryType !== 'credit';
+                    const balChange = isDebit ? -amt : amt;
+                    newBalance += balChange;
+                } else {
+                    const newTxn = { id: Date.now(), type: entryType, name, note, date, amt, photos: [...pendingPhotos] };
+                    newTxns = [newTxn, ...newTxns];
+                    const isDebit = entryType !== 'credit';
+                    const balChange = isDebit ? -amt : amt;
+                    newBalance += balChange;
+                }
+
+                return { ...c, txns: newTxns, balance: newBalance };
             }
             return c;
         }));
 
         setIsAddEntryOpen(false);
-        showToast('✅ Entry save ho gayi!');
+        setEditTxnId(null);
+        showToast(editTxnId ? '✅ Entry update ho gayi!' : '✅ Entry save ho gayi!');
     };
 
     // Customer Sheet Handlers
@@ -211,7 +260,7 @@ export default function BusinessExpensesPage() {
         const limit = parseFloat(acLimit) || 20000;
         const opening = parseFloat(acOpening) || 0;
         if (!acName.trim() || !acPhone.trim()) { showToast('⚠️ Naam aur phone zaroori hai!'); return; }
-        
+
         const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim(), type: acType, limit, balance: opening, txns: [] };
         setCustomers([...customers, nc]);
         setIsAddCustOpen(false);
@@ -227,7 +276,7 @@ export default function BusinessExpensesPage() {
     const handleTxnPhoto = (e: React.ChangeEvent<HTMLInputElement>, txnId: number) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-        
+
         files.forEach(f => {
             const reader = new FileReader();
             reader.onload = ev => {
@@ -313,7 +362,7 @@ export default function BusinessExpensesPage() {
                             const isNeg = c.balance < 0;
                             const bal = Math.abs(c.balance);
                             const fmtBal = bal >= 1000 ? '₹' + (bal / 1000).toFixed(1) + 'K' : '₹' + bal;
-                            const sortedTxns = [...c.txns].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                            const sortedTxns = [...c.txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                             const lastTxn = sortedTxns[0];
                             const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
                             return (
@@ -374,8 +423,6 @@ export default function BusinessExpensesPage() {
                         </div>
                         <div className="nh-action-btns">
                             <button className="nab nab-wa" onClick={() => window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=Namaste!`, '_blank')}>📲 WA Hisaab</button>
-                            <button className="nab nab-edit" onClick={() => showToast('✏️ Edit karo!')}>✏️ Edit</button>
-                            <button className="nab nab-del" onClick={() => { setCustomers(customers.filter(c => c.id !== curCid)); handleBack(); showToast('🗑 Delete hogaya'); }}>🗑 Delete</button>
                         </div>
                     </div>
 
@@ -399,7 +446,7 @@ export default function BusinessExpensesPage() {
                     </div>
 
                     <div className="filter-tabs">
-                        {[{ id: 'all', l: '⚡ Sab' }, { id: 'credit', l: '✅ Credit' }, { id: 'debit', l: '❌ Debit' }, { id: 'advance', l: '⚡ Advance' }].map(f => (
+                        {[{ id: 'all', l: '📋 All' }, { id: 'credit', l: '✅ Received' }, { id: 'debit', l: '❌ Given' }, { id: 'advance', l: '⚡ Advance' }].map(f => (
                             <div key={f.id} className={`ftab ${currentFilter === f.id ? 'active' : ''}`} onClick={() => setCurrentFilter(f.id)}>{f.l}</div>
                         ))}
                     </div>
@@ -454,6 +501,10 @@ export default function BusinessExpensesPage() {
                                                         <div className="txn-right">
                                                             <div className="txn-amt" style={{ color: amtColor }}>{amtSign}{fmt(t.amt)}</div>
                                                             <div className="txn-time">{formatTime(t.date)}</div>
+                                                            <div style={{ display: 'flex', gap: '8px', marginTop: '4px', justifyContent: 'flex-end' }}>
+                                                                <button onClick={(e) => { e.stopPropagation(); openEditEntry(t); }} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer' }}>✏️</button>
+                                                                <button onClick={(e) => { e.stopPropagation(); deleteTxn(t.id, t.amt, t.type); }} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer' }}>🗑</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="txn-expand" onClick={() => toggleExpand(t.id)}>
@@ -509,21 +560,21 @@ export default function BusinessExpensesPage() {
                             ))}
                         </div>
                         <div className="bbar-btns">
-                            <button className="bbar-btn bbar-credit" onClick={() => openAddEntry('credit')}>✅ Credit (Jama)</button>
-                            <button className="bbar-btn bbar-debit" onClick={() => openAddEntry('debit')}>❌ Debit (Kharch)</button>
+                            <button className="bbar-btn bbar-credit" onClick={() => openAddEntry('credit')}>✅ Received</button>
+                            <button className="bbar-btn bbar-debit" onClick={() => openAddEntry('debit')}>❌ Given</button>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* ════════ SHEETS & MODALS ════════ */}
-            
+
             {/* Add Entry Sheet */}
             <div className={`sheet-overlay ${isAddEntryOpen ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setIsAddEntryOpen(false); }}>
                 <div className="sheet">
                     <div className="sheet-handle"></div>
                     <div className="sheet-hdr">
-                        <div className="sheet-title">💰 Entry Add Karo</div>
+                        <div className="sheet-title">{editTxnId ? '✏️ Entry Edit Karo' : '💰 Entry Add Karo'}</div>
                         <div className="sheet-close" onClick={() => setIsAddEntryOpen(false)}>✕</div>
                     </div>
                     <div className="sheet-body">
@@ -558,7 +609,7 @@ export default function BusinessExpensesPage() {
                                 <div className="buz-sub">JPG, PNG • Max 5MB</div>
                             </div>
                             <input type="file" id="billFileInpMaster" className="hidden-file" accept="image/*" multiple onChange={handlePhotoUpload} />
-                            
+
                             {pendingPhotos.length > 0 && (
                                 <div className="bill-previews-grid">
                                     {pendingPhotos.map((p, idx) => (
