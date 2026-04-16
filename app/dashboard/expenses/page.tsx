@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './hisaab.css';
+import { generateHisaabPDF } from '../../../lib/pdf-generator';
 
 // ─── HELPERS ───
 const COLORS = ['#7c83ff', '#00c853', '#e53935', '#f9a825', '#0091ea', '#00bcd4', '#8e24aa'];
@@ -612,21 +613,37 @@ export default function BusinessExpensesPage() {
 
                         <div style={{ padding: '16px 14px 40px' }}>
                             <div className="nh-action-btns" style={{ marginTop: 0 }}>
-                                <button className="nab nab-wa" style={{ gridColumn: '1 / -1', padding: '14px', fontSize: '14.5px' }} onClick={() => {
-                                    let msg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab niche diya gaya hai:\n\n`;
-                                    msg += `*Total Balance:* ${fmt(custStats.net)} ${custStats.isNeg ? '(Dena Hai)' : '(Lena Hai)'}\n\n`;
-                                    if (currentCust.txns.length > 0) {
-                                        msg += `*Recent Entries:*\n`;
-                                        const recentTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
-                                        recentTxns.forEach((t: any) => {
-                                            const isCr = t.type === 'credit';
-                                            const sign = isCr ? '+' : '-';
-                                            msg += `• ${formatDateShort(t.date)}: ${sign}${fmt(t.amt)} (${t.name || t.type})\n`;
-                                        });
+                                <button className="nab nab-wa" style={{ gridColumn: '1 / -1', padding: '14px', fontSize: '14.5px' }} onClick={async () => {
+                                    showToast('⏳ PDF ban raha hai...');
+                                    try {
+                                        let textMsg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab PDF report attach kar diya gaya hai.\n\n*Total Balance:* ${fmt(custStats.net)} ${custStats.isNeg ? '(Dena Hai)' : '(Lena Hai)'}\n\nYeh message *BillGST* se bheja gaya hai.\nApna business aasan banayein:\nhttps://billgst.com`;
+                                        
+                                        const doc = await generateHisaabPDF(currentCust, { name: 'Hisaab Pro' }, custStats, false);
+                                        if (doc) {
+                                            const pdfBlob = doc.output('blob');
+                                            const formData = new FormData();
+                                            formData.append('file', pdfBlob, `Hisaab_${currentCust.name}.pdf`);
+                                            formData.append('phone', currentCust.phone);
+                                            formData.append('message', textMsg);
+                                            
+                                            // Sending via backend bot
+                                            showToast('⏳ WhatsApp pe send ho raha hai...');
+                                            const sendRes = await fetch('/api/whatsapp/send-media', {
+                                                method: 'POST',
+                                                body: formData
+                                            });
+                                            if (sendRes.ok) {
+                                                showToast('✅ Report WhatsApp pe chali gayi!');
+                                            } else {
+                                                // Fallback
+                                                doc.save(`Hisaab_${currentCust.name}.pdf`);
+                                                showToast('✅ PDF Download ho gaya! Ise WhatsApp pe attach karein.');
+                                                window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(textMsg)}`, '_blank');
+                                            }
+                                        }
+                                    } catch (err) {
+                                        showToast('❌ Error in sending report!');
                                     }
-                                    msg += `\n-----------------------\n`;
-                                    msg += `Yeh message *BillGST* se bheja gaya hai.\nApna business aasan banayein:\nhttps://billgst.com`;
-                                    window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
                                 }}>📲 WhatsApp</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={downloadCustomerExcel}>📊 Excel</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#ffeeee', color: '#e53935', border: '1px solid #ffcdcd', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={deleteCustomer}>🗑 Delete</button>

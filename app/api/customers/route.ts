@@ -43,7 +43,7 @@ export async function POST(request: Request) {
                 `INSERT INTO customers (id, name, email, phone, gstin, address, promise_date, created_by, created_at) 
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.email, data.phone, data.gstin, data.address, data.promise_date || null, userId]
+                [data.id, data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, userId]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
                     `INSERT INTO customers (id, name, email, phone, gstin, address, promise_date, created_by, created_at) 
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.email, data.phone, data.gstin, data.address, data.promise_date || null, userId]
+                    [data.id, data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, userId]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
@@ -87,7 +87,7 @@ export async function PUT(request: Request) {
                  SET name = $1, email = $2, phone = $3, gstin = $4, address = $5, promise_date = $6
                  WHERE id = $7 AND created_by = $8
                  RETURNING *`,
-                [data.name, data.email, data.phone, data.gstin, data.address, data.promise_date || null, data.id, session.user.id]
+                [data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.id, session.user.id]
             );
             client.release();
             return NextResponse.json({ success: true, data: result.rows[0] });
@@ -99,7 +99,7 @@ export async function PUT(request: Request) {
                      SET name = $1, email = $2, phone = $3, gstin = $4, address = $5, promise_date = $6
                      WHERE id = $7 AND created_by = $8
                      RETURNING *`,
-                    [data.name, data.email, data.phone, data.gstin, data.address, data.promise_date || null, data.id, session.user.id]
+                    [data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.id, session.user.id]
                 );
                 client.release();
                 return NextResponse.json({ success: true, data: result.rows[0] });

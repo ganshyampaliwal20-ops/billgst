@@ -22,6 +22,7 @@ export default function CustomerDetailPage() {
     const [showPromiseModal, setShowPromiseModal] = useState(false);
     const [promiseDate, setPromiseDate] = useState('');
     const [promiseNote, setPromiseNote] = useState('');
+    const [fetchedPayments, setFetchedPayments] = useState<any[]>([]);
 
     const chartRef = useRef<HTMLCanvasElement>(null);
 
@@ -38,6 +39,20 @@ export default function CustomerDetailPage() {
             setPromiseDate(customer.promise_date.split('T')[0]);
         }
     }, [customer]);
+
+    useEffect(() => {
+        if (!isClient) return;
+        const fetchCustPayments = async () => {
+            try {
+                const res = await fetch(`/api/payments?customer_id=${id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) setFetchedPayments(data);
+                }
+            } catch (e) {}
+        };
+        fetchCustPayments();
+    }, [isClient, id]);
 
     useEffect(() => {
         if (!isClient || !chartRef.current) return;
@@ -125,15 +140,34 @@ export default function CustomerDetailPage() {
                 processedCount++;
             }
 
-            if (processedCount > 0) {
-                toast.success(`✅ ₹${amount.toLocaleString('en-IN')} received via ${paymentMode}`);
-                if (Math.abs(amount - totalDue) < 0.1) {
-                    await updateCustomer(id, { promise_date: null });
+            // Record as explicit payment history
+            try {
+                await fetch('/api/payments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_id: id,
+                        amount: amount,
+                        payment_mode: paymentMode,
+                        payment_note: paymentNote
+                    })
+                });
+
+                // Refresh payments
+                const payRes = await fetch(`/api/payments?customer_id=${id}`);
+                if (payRes.ok) {
+                    const payData = await payRes.json();
+                    if (Array.isArray(payData)) setFetchedPayments(payData);
                 }
-                await fetchInvoices();
-                setShowPaymentModal(false);
-                setPaymentAmount('');
+            } catch(e) {}
+
+            toast.success(`✅ ₹${amount.toLocaleString('en-IN')} received via ${paymentMode}`);
+            if (Math.abs(amount - Math.max(0, totalSales - totalPaid)) < 0.1) {
+                await updateCustomer(id, { promise_date: null });
             }
+            await fetchInvoices();
+            setShowPaymentModal(false);
+            setPaymentAmount('');
         } catch (error) {
             toast.error('An error occurred');
         }
@@ -158,15 +192,32 @@ export default function CustomerDetailPage() {
     const currentDate = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
     const commitDateStr = customer.promise_date ? new Date(customer.promise_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'No promise date set';
 
-    const payments = customerInvoices
-        .filter((inv: any) => parseFloat(inv.paid_amount || 0) > 0)
-        .slice(0, 5)
-        .map((inv: any) => ({
-            date: new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-            mode: 'Invoice Payment',
-            amt: '₹' + Number(inv.paid_amount).toLocaleString('en-IN'),
-            note: 'Inv. ' + inv.invoice_number
-        }));
+    const combinedPayments = (() => {
+        const list: any[] = [];
+        fetchedPayments.forEach((p: any) => {
+             list.push({
+                 rawDate: new Date(p.payment_date).getTime(),
+                 date: new Date(p.payment_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+                 mode: p.payment_mode || 'Cash',
+                 amt: '₹' + Number(p.amount).toLocaleString('en-IN'),
+                 note: p.payment_note ? `Note: ${p.payment_note}` : 'Payment Received'
+             });
+        });
+        
+        customerInvoices.forEach((inv: any) => {
+             if (parseFloat(inv.paid_amount || 0) > 0) {
+                 list.push({
+                     rawDate: new Date(inv.invoice_date).getTime(),
+                     date: new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+                     mode: 'Invoice Advance',
+                     amt: '₹' + Number(inv.paid_amount).toLocaleString('en-IN'),
+                     note: 'Inv. ' + inv.invoice_number
+                 });
+             }
+        });
+        
+        return list.sort((a,b) => b.rawDate - a.rawDate).slice(0, 10);
+    })();
 
     return (
         <div className="cust-summary-wrapper">
@@ -446,8 +497,8 @@ canvas{max-height:140px; width: 100%;}
                     <div className="card" style={{ animationDelay: ".3s" }}>
                         <div className="card-title">Recent Payments</div>
                         <div>
-                            {payments.length === 0 && <div className="p-4 text-center text-xs font-bold text-slate-400">No recent payments</div>}
-                            {payments.map((p: any, i: number) => (
+                            {combinedPayments.length === 0 && <div className="p-4 text-center text-xs font-bold text-slate-400">No recent payments</div>}
+                            {combinedPayments.map((p: any, i: number) => (
                                 <div className="info-row" key={i}>
                                     <div className="info-icon" style={{ background: "var(--green-soft)" }}>💚</div>
                                     <div style={{ flex: 1 }}>
