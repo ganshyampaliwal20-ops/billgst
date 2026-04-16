@@ -116,6 +116,17 @@ export default function BusinessExpensesPage() {
         }
     }, [customers, isMounted]);
 
+    useEffect(() => {
+        const handlePopState = () => {
+            if (activeScreen === 'detail') {
+                setActiveScreen('list');
+                setCurCid(null);
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [activeScreen]);
+
     const showToast = (msg: string) => {
         setToastMsg(msg);
         if (toastTimeout.current) clearTimeout(toastTimeout.current);
@@ -151,12 +162,17 @@ export default function BusinessExpensesPage() {
         setCurCid(id);
         setCurrentFilter('all');
         setActiveScreen('detail');
+        window.history.pushState({ screen: 'detail' }, '', window.location.pathname + '#detail');
         window.scrollTo(0, 0);
     };
 
     const handleBack = () => {
-        setActiveScreen('list');
-        setCurCid(null);
+        if (window.location.hash.includes('detail')) {
+            window.history.back();
+        } else {
+            setActiveScreen('list');
+            setCurCid(null);
+        }
     };
 
     // Entry Sheet Handlers
@@ -262,10 +278,72 @@ export default function BusinessExpensesPage() {
         if (!acName.trim() || !acPhone.trim()) { showToast('⚠️ Naam aur phone zaroori hai!'); return; }
 
         const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim(), type: acType, limit, balance: opening, txns: [] };
-        setCustomers([...customers, nc]);
+        setCustomers([{ ...nc }, ...customers]);
         setIsAddCustOpen(false);
         setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening('');
         showToast('✅ Customer add ho gaya!');
+    };
+
+    const deleteCustomer = () => {
+        if (!currentCust) return;
+        if (!window.confirm(`Kya aap sach mein ${currentCust.name} ko delete karna chahte hain? Unka poora hisaab hamesha ke liye delete ho jayega.`)) return;
+
+        setCustomers(customers.filter(c => c.id !== curCid));
+        handleBack();
+        showToast(`🗑 ${currentCust.name} delete ho gaye!`);
+    };
+
+    // Excel Export Handlers
+    const downloadAllExcel = () => {
+        let csv = "Customer Name,Phone,Type,Total Received (Credit),Total Given (Debit),Net Balance,Status\n";
+        customers.forEach(c => {
+            let cr = 0, db = 0;
+            c.txns.forEach((t: any) => { if (t.type === 'credit') cr += t.amt; else db += t.amt; });
+            const isNeg = c.balance < 0;
+            const status = isNeg ? 'Dena Hai' : 'Lena Hai';
+            csv += `"${c.name}","${c.phone}",${c.type},${cr},${db},${Math.abs(c.balance)},${status}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        showToast('📊 All Excel Download Started!');
+    };
+
+    const downloadCustomerExcel = () => {
+        if (!currentCust) return;
+        let csv = "Date,Description,Type,Credit (Received),Debit (Given)\n";
+        const sortedTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        sortedTxns.forEach(t => {
+            const isCr = t.type === 'credit';
+            const crAmt = isCr ? t.amt : 0;
+            const dbAmt = !isCr ? t.amt : 0;
+            const date = new Date(t.date).toLocaleDateString();
+            csv += `${date},"${t.name || t.type}",${t.type},${crAmt},${dbAmt}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        showToast('📊 Customer Excel Downloaded!');
+    };
+
+    const handleCustPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const url = ev.target?.result as string;
+            setCustomers(customers.map(c => c.id === curCid ? { ...c, photo: url } : c));
+            showToast('📸 Profile photo lag gayi!');
+        };
+        reader.readAsDataURL(file);
     };
 
     // Txn Photo attach
@@ -311,8 +389,7 @@ export default function BusinessExpensesPage() {
                         <div><div className="tb-name">Hisaab Pro</div></div>
                     </div>
                     <div className="tb-acts">
-                        <div className="tb-btn" onClick={() => showToast('Settings open!')}>⚙️</div>
-                        <div className="tb-btn" onClick={() => showToast('Menu open!')}>☰</div>
+                        <div className="tb-btn" onClick={downloadAllExcel}>📊</div>
                     </div>
                 </div>
 
@@ -323,7 +400,6 @@ export default function BusinessExpensesPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '7px' }}>
                         <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>
-                        <div className="tb-btn" onClick={() => showToast('Calendar!')}>📅</div>
                     </div>
                 </div>
 
@@ -367,7 +443,9 @@ export default function BusinessExpensesPage() {
                             const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
                             return (
                                 <div className="cust-item" key={c.id} onClick={() => handleOpenDetail(c.id)}>
-                                    <div className="cust-av" style={{ background: getColor(c.name) }}>{initials(c.name)}</div>
+                                    <div className="cust-av" style={{ background: c.photo ? 'transparent' : getColor(c.name) }}>
+                                        {c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)}
+                                    </div>
                                     <div className="cust-mid">
                                         <div className="cust-name">{c.name}</div>
                                         <div className="cust-meta">
@@ -392,23 +470,24 @@ export default function BusinessExpensesPage() {
                 <div className={`screen ${activeScreen === 'detail' ? 'active' : ''}`} id="screen-detail">
                     <div className="dtopbar">
                         <div className="back-btn" onClick={handleBack}>‹</div>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0, background: getColor(currentCust.name) }}>{initials(currentCust.name)}</div>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0, background: currentCust.photo ? 'transparent' : getColor(currentCust.name), position: 'relative', cursor: 'pointer' }} onClick={() => document.getElementById('cust-photo-upload')?.click()}>
+                            {currentCust.photo ? <img src={currentCust.photo} style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }} alt="" /> : initials(currentCust.name)}
+                            <div style={{ position: 'absolute', bottom: -5, right: -5, background: 'rgba(0,0,0,0.6)', borderRadius: '50%', padding: '2px', fontSize: '10px', color: '#fff' }}>📷</div>
+                            <input type="file" id="cust-photo-upload" className="hidden-file" accept="image/*" onChange={handleCustPhoto} />
+                        </div>
                         <div className="dtb-info">
                             <div className="dtb-name">{currentCust.name}</div>
                             <div className="dtb-sub">{currentCust.type} · {currentCust.txns.length} entries</div>
                         </div>
                         <div className="dtb-acts">
                             <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>
-                            <div className="tb-btn" onClick={() => showToast('Calendar!')}>📅</div>
                         </div>
                     </div>
 
                     <div className="net-hero">
-                        <div className="nh-top">
-                            <div className="nh-av" style={{ background: getColor(currentCust.name) }}>{initials(currentCust.name)}</div>
+                        <div className="nh-top" style={{ alignItems: 'flex-start' }}>
                             <div className="nh-info">
-                                <div className="nh-name">{currentCust.name}</div>
-                                <div className="nh-phone">📞 {currentCust.phone} &nbsp;·&nbsp; {currentCust.type}</div>
+                                <div className="nh-phone" style={{ marginTop: 0 }}>📞 {currentCust.phone} &nbsp;·&nbsp; {currentCust.type}</div>
                                 <div className="nh-badges">
                                     <span className="nh-badge badge-service">{currentCust.type}</span>
                                     <span className={`nh-badge ${custStats.isNeg ? 'badge-dena' : 'badge-lena'}`}>{custStats.isNeg ? 'DENA HAI' : 'LENA HAI'}</span>
@@ -420,9 +499,6 @@ export default function BusinessExpensesPage() {
                                 </div>
                                 <div className="nh-bal-lbl">Net Balance</div>
                             </div>
-                        </div>
-                        <div className="nh-action-btns">
-                            <button className="nab nab-wa" onClick={() => window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=Namaste!`, '_blank')}>📲 WA Hisaab</button>
                         </div>
                     </div>
 
@@ -533,6 +609,29 @@ export default function BusinessExpensesPage() {
                                 );
                             });
                         })()}
+
+                        <div style={{ padding: '16px 14px 40px' }}>
+                            <div className="nh-action-btns" style={{ marginTop: 0 }}>
+                                <button className="nab nab-wa" style={{ gridColumn: '1 / -1', padding: '14px', fontSize: '14.5px' }} onClick={() => {
+                                    let msg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab niche diya gaya hai:\n\n`;
+                                    msg += `*Total Balance:* ${fmt(custStats.net)} ${custStats.isNeg ? '(Dena Hai)' : '(Lena Hai)'}\n\n`;
+                                    if (currentCust.txns.length > 0) {
+                                        msg += `*Recent Entries:*\n`;
+                                        const recentTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+                                        recentTxns.forEach((t: any) => {
+                                            const isCr = t.type === 'credit';
+                                            const sign = isCr ? '+' : '-';
+                                            msg += `• ${formatDateShort(t.date)}: ${sign}${fmt(t.amt)} (${t.name || t.type})\n`;
+                                        });
+                                    }
+                                    msg += `\n-----------------------\n`;
+                                    msg += `Yeh message *BillGST* se bheja gaya hai.\nApna business aasan banayein:\nhttps://billgst.com`;
+                                    window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                                }}>📲 WhatsApp</button>
+                                <button className="nab" style={{ gridColumn: 'auto', background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={downloadCustomerExcel}>📊 Excel</button>
+                                <button className="nab" style={{ gridColumn: 'auto', background: '#ffeeee', color: '#e53935', border: '1px solid #ffcdcd', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={deleteCustomer}>🗑 Delete</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="bottom-bar">
