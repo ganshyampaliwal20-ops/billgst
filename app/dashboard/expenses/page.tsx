@@ -614,35 +614,40 @@ export default function BusinessExpensesPage() {
                         <div style={{ padding: '16px 14px 40px' }}>
                             <div className="nh-action-btns" style={{ marginTop: 0 }}>
                                 <button className="nab nab-wa" style={{ gridColumn: '1 / -1', padding: '14px', fontSize: '14.5px' }} onClick={async () => {
-                                    showToast('⏳ PDF ban raha hai...');
+                                    showToast('⏳ WhatsApp message ban raha hai...');
                                     try {
-                                        let textMsg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab PDF report attach kar diya gaya hai.\n\n*Total Balance:* ${fmt(custStats.net)} ${custStats.isNeg ? '(Dena Hai)' : '(Lena Hai)'}\n\nYeh message *BillGST* se bheja gaya hai.\nApna business aasan banayein:\nhttps://billgst.com`;
+                                        const shareData = {
+                                            c: { n: currentCust.name, p: currentCust.phone, t: currentCust.type },
+                                            s: { net: custStats.net, neg: custStats.isNeg, r: custStats.credit, g: custStats.debit },
+                                            t: currentCust.txns.map((t: any) => ({
+                                                d: t.date.split('T')[0],
+                                                a: t.amt,
+                                                y: t.type[0], // c,d,a
+                                                n: t.name || ''
+                                            }))
+                                        };
+                                        const encodedUrlData = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
+                                        const shareUrl = `${window.location.origin}/hisaab/v?d=${encodedUrlData}`;
+
+                                        let textMsg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab ready hai. Yahaan click karke apna poora hisaab dekhein: 👇\n\n${shareUrl}`;
                                         
-                                        const doc = await generateHisaabPDF(currentCust, { name: 'Hisaab Pro' }, custStats, false);
-                                        if (doc) {
-                                            const pdfBlob = doc.output('blob');
-                                            const formData = new FormData();
-                                            formData.append('file', pdfBlob, `Hisaab_${currentCust.name}.pdf`);
-                                            formData.append('phone', currentCust.phone);
-                                            formData.append('message', textMsg);
-                                            
-                                            // Sending via backend bot
-                                            showToast('⏳ WhatsApp pe send ho raha hai...');
-                                            const sendRes = await fetch('/api/whatsapp/send-media', {
-                                                method: 'POST',
-                                                body: formData
-                                            });
-                                            if (sendRes.ok) {
-                                                showToast('✅ Report WhatsApp pe chali gayi!');
-                                            } else {
-                                                // Fallback
-                                                doc.save(`Hisaab_${currentCust.name}.pdf`);
-                                                showToast('✅ PDF Download ho gaya! Ise WhatsApp pe attach karein.');
-                                                window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(textMsg)}`, '_blank');
-                                            }
+                                        const formData = new FormData();
+                                        formData.append('phone', currentCust.phone);
+                                        formData.append('message', textMsg);
+                                        
+                                        showToast('⏳ WhatsApp pe send ho raha hai...');
+                                        const sendRes = await fetch('/api/whatsapp/send-media', {
+                                            method: 'POST',
+                                            body: formData
+                                        });
+
+                                        if (sendRes.ok) {
+                                            showToast('✅ WhatsApp pe Link chala gaya!');
+                                        } else {
+                                            window.open(`https://wa.me/91${currentCust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(textMsg)}`, '_blank');
                                         }
                                     } catch (err) {
-                                        showToast('❌ Error in sending report!');
+                                        showToast('❌ Error in sending request!');
                                     }
                                 }}>📲 WhatsApp</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={downloadCustomerExcel}>📊 Excel</button>

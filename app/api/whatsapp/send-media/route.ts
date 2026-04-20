@@ -13,12 +13,12 @@ export async function POST(req: Request) {
         }
 
         const formData = await req.formData();
-        const file = formData.get('file') as File;
+        const file = formData.get('file') as File | null;
         const phone = formData.get('phone') as string;
         const message = formData.get('message') as string;
 
-        if (!file || !phone) {
-            return NextResponse.json({ error: 'Missing file or phone' }, { status: 400 });
+        if (!phone) {
+            return NextResponse.json({ error: 'Missing phone number' }, { status: 400 });
         }
 
         const ROOT = process.cwd();
@@ -31,11 +31,15 @@ export async function POST(req: Request) {
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         });
 
-        // Save the file
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const filename = `${uuidv4()}-${file.name}`;
-        const filePath = path.join(UPLOADS_DIR, filename);
-        fs.writeFileSync(filePath, buffer);
+        let filePath = null;
+        let filename = null;
+
+        if (file) {
+            const buffer = Buffer.from(await file.arrayBuffer());
+            filename = `${uuidv4()}-${file.name}`;
+            filePath = path.join(UPLOADS_DIR, filename);
+            fs.writeFileSync(filePath, buffer);
+        }
 
         // Create the request
         const requestId = uuidv4();
@@ -44,7 +48,7 @@ export async function POST(req: Request) {
             phone,
             message: message || '',
             mediaPath: filePath,
-            filename: file.name,
+            filename: file ? file.name : null,
             timestamp: Date.now()
         };
 
