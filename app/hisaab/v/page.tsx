@@ -17,7 +17,7 @@ function formatDateFull(d: string) {
     return dt.getDate() + ' ' + months[dt.getMonth()] + ' ' + dt.getFullYear();
 }
 
-export default function HisaabViewer() {
+function HisaabViewer() {
     const searchParams = useSearchParams();
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState(false);
