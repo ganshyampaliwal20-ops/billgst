@@ -114,17 +114,17 @@ export default function BusinessExpensesPage() {
     useEffect(() => {
         if (isMounted) {
             localStorage.setItem('hisaab_pro_data', JSON.stringify(customers));
-            
+
             // Background Live Sync: update cloud DB so Live Links always show latest data
-            if(curCid) {
-               const c = customers.find((x: any) => x.id === curCid);
-               if(c) {
-                   fetch('/api/hisaab/sync', {
-                       method: 'POST',
-                       headers: { 'Content-Type': 'application/json' },
-                       body: JSON.stringify(c)
-                   }).catch(e => console.error("Sync failed", e));
-               }
+            if (curCid) {
+                const c = customers.find((x: any) => x.id === curCid);
+                if (c) {
+                    fetch('/api/hisaab/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(c)
+                    }).catch(e => console.error("Sync failed", e));
+                }
             }
         }
     }, [customers, isMounted, curCid]);
@@ -632,11 +632,11 @@ export default function BusinessExpensesPage() {
                                         const shareUrl = `${window.location.origin}/hisaab/v?id=${currentCust.id}`;
 
                                         let textMsg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab ready hai. Yahaan click karke apna poora hisaab dekhein: 👇\n\n${shareUrl}`;
-                                        
+
                                         const formData = new FormData();
                                         formData.append('phone', currentCust.phone);
                                         formData.append('message', textMsg);
-                                        
+
                                         showToast('⏳ WhatsApp pe send ho raha hai...');
                                         const sendRes = await fetch('/api/whatsapp/send-media', {
                                             method: 'POST',
@@ -652,6 +652,10 @@ export default function BusinessExpensesPage() {
                                         showToast('❌ Error in sending request!');
                                     }
                                 }}>📲 WhatsApp</button>
+                                <button className="nab" style={{ gridColumn: 'auto', background: '#ffebee', color: '#d32f2f', border: '1px solid #ffcdd2', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={() => {
+                                    showToast('⏳ PDF ban raha hai...');
+                                    generateHisaabPDF(currentCust, { name: 'Hisaab Pro - Ledger' }, custStats);
+                                }}>📄 PDF</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={downloadCustomerExcel}>📊 Excel</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#ffeeee', color: '#e53935', border: '1px solid #ffcdcd', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={deleteCustomer}>🗑 Delete</button>
                             </div>
