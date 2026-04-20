@@ -43,7 +43,7 @@ function formatTime(d: string) {
 
 const DEFAULT_DATA = [
     {
-        id: 1, name: 'Band Baja Group', phone: '98765 44444', type: 'Service', limit: 20000, balance: 2500, txns: [
+        id: 1, name: 'Band Baja Group', phone: '98765 44444', type: 'Service', limit: 20000, balance: -2500, txns: [
             { id: 101, type: 'advance', name: 'Band baja booking advance', note: 'Advance payment', date: '2026-03-14T10:00:00', amt: 2500, photos: [] }
         ]
     },
@@ -55,13 +55,13 @@ const DEFAULT_DATA = [
         ]
     },
     {
-        id: 3, name: 'Suresh Tent House', phone: '76543 22222', type: 'Supplier', limit: 30000, balance: 4500, txns: [
+        id: 3, name: 'Suresh Tent House', phone: '76543 22222', type: 'Supplier', limit: 30000, balance: -4500, txns: [
             { id: 301, type: 'advance', name: 'Tent booking advance', note: 'Wedding event', date: '2026-03-15T10:00:00', amt: 2000, photos: [] },
             { id: 302, type: 'debit', name: 'Extra items', note: 'Chairs, tables', date: '2026-03-18T10:00:00', amt: 2500, photos: [] },
         ]
     },
     {
-        id: 4, name: 'Tarun', phone: '65432 11111', type: 'Worker', limit: 10000, balance: 2600, txns: [
+        id: 4, name: 'Tarun', phone: '65432 11111', type: 'Worker', limit: 10000, balance: -2600, txns: [
             { id: 401, type: 'credit', name: 'Salary advance', note: 'March', date: '2026-03-16T10:00:00', amt: 1500, photos: [] },
             { id: 402, type: 'advance', name: 'Kharcha advance', note: 'Petrol', date: '2026-03-16T10:00:00', amt: 1100, photos: [] },
         ]
@@ -107,27 +107,7 @@ export default function BusinessExpensesPage() {
         setIsMounted(true);
         const saved = localStorage.getItem('hisaab_pro_data');
         if (saved) {
-            try { 
-                let data = JSON.parse(saved);
-                const isFixed = localStorage.getItem('hisaab_fixed_v1');
-                if (!isFixed) {
-                    data = data.map((c: any) => {
-                        let sumOld = 0;
-                        let sumNew = 0;
-                        c.txns.forEach((t: any) => {
-                            const isDebit = t.type !== 'credit';
-                            sumOld += isDebit ? -t.amt : t.amt;
-                            sumNew += isDebit ? t.amt : -t.amt;
-                        });
-                        const openingBalance = c.balance - sumOld;
-                        c.balance = openingBalance + sumNew;
-                        return c;
-                    });
-                    localStorage.setItem('hisaab_fixed_v1', 'true');
-                    localStorage.setItem('hisaab_pro_data', JSON.stringify(data));
-                }
-                setCustomers(data); 
-            } catch (e) { }
+            try { setCustomers(JSON.parse(saved)); } catch (e) { }
         }
     }, []);
 
@@ -239,7 +219,7 @@ export default function BusinessExpensesPage() {
         setCustomers(customers.map(c => {
             if (c.id === curCid) {
                 const isDebit = txnType !== 'credit';
-                const balChange = isDebit ? -txnAmt : txnAmt; // reverse the effect
+                const balChange = isDebit ? txnAmt : -txnAmt; // reverse the effect
                 return {
                     ...c,
                     txns: c.txns.filter((t: any) => t.id !== txnId),
@@ -267,18 +247,18 @@ export default function BusinessExpensesPage() {
                     const oldTxn = newTxns.find((t: any) => t.id === editTxnId);
                     if (oldTxn) {
                         const oldIsDebit = oldTxn.type !== 'credit';
-                        const oldBalChange = oldIsDebit ? oldTxn.amt : -oldTxn.amt;
+                        const oldBalChange = oldIsDebit ? -oldTxn.amt : oldTxn.amt;
                         newBalance -= oldBalChange;
                     }
                     newTxns = newTxns.map((t: any) => t.id === editTxnId ? { ...t, type: entryType, name, note, date, amt, photos: [...pendingPhotos] } : t);
                     const isDebit = entryType !== 'credit';
-                    const balChange = isDebit ? amt : -amt;
+                    const balChange = isDebit ? -amt : amt;
                     newBalance += balChange;
                 } else {
                     const newTxn = { id: Date.now(), type: entryType, name, note, date, amt, photos: [...pendingPhotos] };
                     newTxns = [newTxn, ...newTxns];
                     const isDebit = entryType !== 'credit';
-                    const balChange = isDebit ? amt : -amt;
+                    const balChange = isDebit ? -amt : amt;
                     newBalance += balChange;
                 }
 
