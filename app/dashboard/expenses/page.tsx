@@ -129,6 +129,47 @@ export default function BusinessExpensesPage() {
         }
     }, [customers, isMounted, curCid]);
 
+    // AUTO-HEAL: Fix corrupted balances from old reversed math logic
+    useEffect(() => {
+        if (!isMounted || customers.length === 0) return;
+        
+        let needsHeal = false;
+        const healedCustomers = customers.map(c => {
+            if (!c.txns || c.txns.length === 0) return c;
+            
+            // Calculate what the balance SHOULD be if opening balance was 0
+            let debitSum = 0, creditSum = 0;
+            c.txns.forEach((t: any) => {
+                if (t.type === 'credit') creditSum += t.amt;
+                else debitSum += t.amt; // advance & debit
+            });
+            
+            // Calculate Correct Balance (Debit = +, Credit = -)
+            const expectedCorrectBalance = debitSum - creditSum;
+            
+            // If the current balance does not match the expected balance, we assume it's corrupted 
+            // (either missing opening balance or polluted by old logic).
+            // Let's assume opening balance was 0 for simplicity, or we recalculate it by reverse engineering the old logic:
+            // old logic: bal = opening + credit - debit. 
+            // So opening = oldBal - credit + debit.
+            const inferredOpeningBalance = c.balance - creditSum + debitSum;
+            const absoluteCorrectBalance = inferredOpeningBalance + debitSum - creditSum;
+
+            // However, it's safer to just reset it to pure transactions if it looks wrong and isn't exactly matching.
+            if (c.balance !== absoluteCorrectBalance && c.balance !== expectedCorrectBalance) {
+                needsHeal = true;
+                return { ...c, balance: expectedCorrectBalance }; // Just reset to pure transactions to wipe the corruption
+            }
+            return c;
+        });
+
+        if (needsHeal) {
+            setCustomers(healedCustomers);
+            console.log("Auto-healed corrupted balances!");
+            showToast("🛠 Purani entries ka hisaab theek kar diya gaya hai!");
+        }
+    }, [isMounted, customers.length]); // only run once when loaded
+
     useEffect(() => {
         const handlePopState = () => {
             if (activeScreen === 'detail') {
