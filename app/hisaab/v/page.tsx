@@ -58,11 +58,11 @@ function HisaabViewer() {
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
                 
-                body { background: #f0f2f5; margin: 0; padding: 0; }
-                .h-container { background: #f0f2f5; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; font-family: 'Poppins', sans-serif; }
-                .card { background: #fff; border-radius: 20px; border: 0.5px solid #e0e0e0; overflow: hidden; max-width: 360px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.10); margin: 0 auto; }
+                body { background: #fff; margin: 0; padding: 0; }
+                .h-container { background: #f0f2f5; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 0; font-family: 'Poppins', sans-serif; }
+                .card { background: #fff; border-radius: 0; border: none; overflow: hidden; max-width: 480px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.05); margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
 
-                .header { background: linear-gradient(135deg, #1a1f6e 0%, #2d35b5 60%, #4a55e8 100%); padding: 18px 20px 14px; }
+                .header { background: linear-gradient(135deg, #1a1f6e 0%, #2d35b5 60%, #4a55e8 100%); padding: 18px 20px 20px; }
 
                 .logo-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
                 .logo-box { display: flex; align-items: center; gap: 7px; }
@@ -132,7 +132,7 @@ function HisaabViewer() {
                     {/* Header with Logo & Party Info */}
                     <div className="header">
                         <div className="logo-row">
-                            <div className="logo-box">
+                            <div className="logo-box" onClick={() => { window.location.href = 'https://billgst.com'; }} style={{ cursor: 'pointer' }}>
                                 <div className="logo-icon">
                                     <Image src="/logo.png" alt="BillGST" width={26} height={26} style={{ objectFit: 'contain' }} />
                                 </div>
@@ -221,7 +221,7 @@ function HisaabViewer() {
                     </div>
 
                     {/* CTA Box */}
-                    <div className="cta-box" onClick={() => window.open('https://billgst.com', '_blank')}>
+                    <a href="https://billgst.com" className="cta-box" style={{ textDecoration: 'none' }}>
                         <div className="cta-icon">
                             <svg viewBox="0 0 24 24" fill="none">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.31 15.14v-1.67c-1.5-.31-2.86-1.27-2.86-2.97h1.72c.09.92.72 1.64 2.32 1.64 1.71 0 2.1-.86 2.1-1.39 0-.71-.39-1.4-2.34-1.86-2.17-.52-3.66-1.42-3.66-3.21 0-1.51 1.21-2.49 2.72-2.81V5h2.34v1.69c1.62.4 2.44 1.63 2.49 2.97h-1.71c-.04-.98-.56-1.64-1.94-1.64-1.31 0-2.1.59-2.1 1.43 0 .73.57 1.22 2.34 1.67 1.76.46 3.65 1.22 3.66 3.42-.01 1.61-1.21 2.48-2.73 2.77V19H12.3v-1.86z" fill="#fff"/>
@@ -231,10 +231,10 @@ function HisaabViewer() {
                             <div className="cta-head">Aap bhi free account banayein</div>
                             <div className="cta-sub">billgst.com — Free Business Hisaab App</div>
                         </div>
-                    </div>
+                    </a>
 
                     {/* Footer */}
-                    <div className="footer" onClick={() => window.open('https://billgst.com', '_blank')}>
+                    <a href="https://billgst.com" className="footer" style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div className="footer-left">Powered by BillGST</div>
                         <div className="footer-link">
                             Visit billgst.com
@@ -242,9 +242,9 @@ function HisaabViewer() {
                                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke="#2d35b5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </div>
-                    </div>
+                    </a>
 
-                    <div className="generated-on">Generated on {formatDateShort(new Date().toISOString())} via BillGST App</div>
+                    <div className="generated-on">Generated at {formatDateShort(new Date().toISOString())} via BillGST App</div>
                 </div>
             </div>
         </>
