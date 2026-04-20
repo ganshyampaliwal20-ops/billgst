@@ -625,7 +625,7 @@ export default function BusinessExpensesPage() {
 
                         <div style={{ padding: '16px 14px 40px' }}>
                             <div className="nh-action-btns" style={{ marginTop: 0 }}>
-                                <button className="nab nab-wa" style={{ gridColumn: '1 / -1', padding: '14px', fontSize: '14.5px' }} onClick={async () => {
+                                <button className="nab nab-wa" style={{ gridColumn: 'auto', padding: '14px', fontSize: '14.5px' }} onClick={async () => {
                                     showToast('⏳ WhatsApp message ban raha hai...');
                                     try {
                                         // Live Link using Database ID!

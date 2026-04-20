@@ -489,7 +489,7 @@
 }
 
 .nab-wa {
-  grid-column: 1 / -1;
+  grid-column: auto;
   background: linear-gradient(135deg, #00c853, #00e676);
   color: #000;
   padding: 14px;
