@@ -23,19 +23,53 @@ function HisaabViewer() {
 
     useEffect(() => {
         setMounted(true);
-        const dataStr = searchParams?.get('d');
-        if (dataStr) {
-            try {
-                const decoded = atob(dataStr);
-                const decodedURIComponent = decodeURIComponent(escape(decoded));
-                const json = JSON.parse(decodedURIComponent);
-                setData(json);
-            } catch (e) {
+        const fetchData = async () => {
+            const dataStr = searchParams?.get('d');
+            const idStr = searchParams?.get('id');
+
+            if (idStr) {
+                // Fetch from cloud DB for completely LIVE links
+                try {
+                    const res = await fetch(`/api/hisaab/share/${idStr}`);
+                    if(!res.ok) throw new Error('Not found');
+                    const json = await res.json();
+                    
+                    // The json here is the RAW customer object from LocalStorage.
+                    // We need to shape it the way the UI expects it (c: {...}, s: {...}, t: [...])
+                    let c = 0, d = 0;
+                    json.txns.forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
+                    const isNeg = json.balance < 0;
+                    const net = Math.abs(json.balance);
+                    
+                    const shapedData = {
+                        c: { n: json.name, p: json.phone, t: json.type },
+                        s: { net, neg: isNeg, r: c, g: d },
+                        t: json.txns.map((t: any) => ({
+                            d: t.date.split('T')[0],
+                            a: t.amt,
+                            y: t.type[0], // c, d, a
+                            n: t.name || ''
+                        }))
+                    };
+                    setData(shapedData);
+                } catch (e) {
+                    setError(true);
+                }
+            } else if (dataStr) {
+                // Fallback for old offline base64 links
+                try {
+                    const decoded = atob(dataStr);
+                    const decodedURIComponent = decodeURIComponent(escape(decoded));
+                    const json = JSON.parse(decodedURIComponent);
+                    setData(json);
+                } catch (e) {
+                    setError(true);
+                }
+            } else {
                 setError(true);
             }
-        } else {
-            setError(true);
-        }
+        };
+        fetchData();
     }, [searchParams]);
 
     if (!mounted) return null;

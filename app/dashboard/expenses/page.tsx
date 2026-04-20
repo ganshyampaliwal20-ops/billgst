@@ -114,8 +114,20 @@ export default function BusinessExpensesPage() {
     useEffect(() => {
         if (isMounted) {
             localStorage.setItem('hisaab_pro_data', JSON.stringify(customers));
+            
+            // Background Live Sync: update cloud DB so Live Links always show latest data
+            if(curCid) {
+               const c = customers.find((x: any) => x.id === curCid);
+               if(c) {
+                   fetch('/api/hisaab/sync', {
+                       method: 'POST',
+                       headers: { 'Content-Type': 'application/json' },
+                       body: JSON.stringify(c)
+                   }).catch(e => console.error("Sync failed", e));
+               }
+            }
         }
-    }, [customers, isMounted]);
+    }, [customers, isMounted, curCid]);
 
     useEffect(() => {
         const handlePopState = () => {
@@ -616,18 +628,8 @@ export default function BusinessExpensesPage() {
                                 <button className="nab nab-wa" style={{ gridColumn: '1 / -1', padding: '14px', fontSize: '14.5px' }} onClick={async () => {
                                     showToast('⏳ WhatsApp message ban raha hai...');
                                     try {
-                                        const shareData = {
-                                            c: { n: currentCust.name, p: currentCust.phone, t: currentCust.type },
-                                            s: { net: custStats.net, neg: custStats.isNeg, r: custStats.credit, g: custStats.debit },
-                                            t: currentCust.txns.map((t: any) => ({
-                                                d: t.date.split('T')[0],
-                                                a: t.amt,
-                                                y: t.type[0], // c,d,a
-                                                n: t.name || ''
-                                            }))
-                                        };
-                                        const encodedUrlData = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
-                                        const shareUrl = `${window.location.origin}/hisaab/v?d=${encodedUrlData}`;
+                                        // Live Link using Database ID!
+                                        const shareUrl = `${window.location.origin}/hisaab/v?id=${currentCust.id}`;
 
                                         let textMsg = `*Namaste ${currentCust.name}*,\n\nAapka Hisaab-Kitab ready hai. Yahaan click karke apna poora hisaab dekhein: 👇\n\n${shareUrl}`;
                                         
