@@ -5,6 +5,32 @@ import './hisaab.css';
 import { generateHisaabPDF } from '../../../lib/pdf-generator';
 
 // ─── HELPERS ───
+async function compressImage(dataUrl: string, maxWidth = 800): Promise<string> {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.6));
+            } else {
+                resolve(dataUrl);
+            }
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+    });
+}
+
 const COLORS = ['#7c83ff', '#00c853', '#e53935', '#f9a825', '#0091ea', '#00bcd4', '#8e24aa'];
 function getColor(name: string) {
     let h = 0;
@@ -90,6 +116,8 @@ export default function BusinessExpensesPage() {
     const [entryNote, setEntryNote] = useState('');
     const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
     const [editTxnId, setEditTxnId] = useState<number | null>(null);
+    const [isScanning, setIsScanning] = useState(false);
+    const [autoAiScan, setAutoAiScan] = useState(true);
 
     // Expand toggle state per transaction ID
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
@@ -113,7 +141,12 @@ export default function BusinessExpensesPage() {
 
     useEffect(() => {
         if (isMounted) {
-            localStorage.setItem('hisaab_pro_data', JSON.stringify(customers));
+            try {
+                localStorage.setItem('hisaab_pro_data', JSON.stringify(customers));
+            } catch (err) {
+                console.error("Storage limit exceeded:", err);
+                showToast("⚠️ Storage full! Photo ko delete karein.");
+            }
 
             // Background Live Sync: update cloud DB so Live Links always show latest data
             if (curCid) {
@@ -243,13 +276,148 @@ export default function BusinessExpensesPage() {
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
+        if (files.length > 0) showToast('⏳ Photo load ho rahi hai...');
+        const targetInput = e.target;
+
         files.forEach(f => {
             const reader = new FileReader();
-            reader.onload = ev => {
-                if (ev.target?.result) setPendingPhotos(prev => [...prev, ev.target!.result as string]);
+            reader.onload = async ev => {
+                if (ev.target?.result) {
+                    try {
+                        const compressedUrl = await compressImage(ev.target.result as string);
+                        setPendingPhotos(prev => [...prev, compressedUrl]);
+
+                        if (!autoAiScan) return; // Skip AI if user turned it off
+                        
+                        setIsScanning(true);
+                        showToast('🔍 AI Bill padh raha hai...');
+                        
+                        // Try Advanced Cloud Vision API first
+                        try {
+                            const res = await fetch('/api/vision', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ imageBase64: compressedUrl })
+                            });
+
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data.amount && !isNaN(parseFloat(data.amount))) setAmtInp(prev => prev || data.amount);
+                                if (data.material) setEntryName(prev => prev || data.material);
+                                if (data.date) setEntryDate(data.date);
+                                showToast('🤖 Super AI ne bill scan kar liya!');
+                                setIsScanning(false);
+                                return;
+                            } else {
+                                const errData = await res.json();
+                                if (errData.error === 'GEMINI_API_KEY is missing') {
+                                    console.log('Gemini skipped - No API Key. Falling back to offline Tesseract.');
+                                } else {
+                                    showToast('⚠️ AI Error: ' + errData.error);
+                                }
+                            }
+                        } catch(apiErr) {
+                            console.error("Vision API error", apiErr);
+                        }
+
+                        // Fallback to Offline Tesseract AI
+                        import('tesseract.js').then(async (tesseract) => {
+                            try {
+                                const result = await tesseract.default.recognize(compressedUrl, 'eng');
+                                const text = result.data.text;
+                                
+                                // ======== ADVANCED AI PARSER ========
+                                let extAmt = 0;
+                                let extName = '';
+                                let extDate = '';
+                                
+                                // 1. DATE EXTRACTION (Finds DD-MM-YYYY, DD/MM/YY, etc.)
+                                const dateMatch = text.match(/\b([0-3]?\d)[\/\-\.]([01]?\d)[\/\-\.]((?:19|20)?\d{2})\b/);
+                                if (dateMatch) {
+                                    let [_, d, m, y] = dateMatch;
+                                    if (y.length === 2) y = '20' + y;
+                                    d = d.padStart(2, '0');
+                                    m = m.padStart(2, '0');
+                                    if (parseInt(m) <= 12 && parseInt(d) <= 31) {
+                                        extDate = `${y}-${m}-${d}`;
+                                    }
+                                }
+
+                                // 2. AMOUNT EXTRACTION (Aggressive for Handwriting)
+                                const rawNumMatches = [...text.matchAll(/(?:Rs|Total|Amt|₹|Amount)?\s*?([\d,]{1,7}(?:\.\d{1,2})?)/gi)];
+                                let amounts = rawNumMatches.map(m => parseFloat(m[1].replace(/,/g, ''))).filter(n => !isNaN(n));
+                                const validAmounts = amounts.filter(n => n > 1 && n < 500000 && n !== 400000 && n.toString().length !== 10 && n.toString().length !== 6);
+                                
+                                if (validAmounts.length > 0) {
+                                    extAmt = Math.max(...validAmounts);
+                                } else {
+                                    // Super fallback for bad handwritten OCR (e.g. Total l5OO)
+                                    const totMatch = text.toLowerCase().match(/total[^\d\n]*?([\do0s5l1]+)/i);
+                                    if (totMatch) {
+                                        const fixed = totMatch[1].replace(/o/g, '0').replace(/s/g, '5').replace(/l/g, '1');
+                                        const pt = parseFloat(fixed);
+                                        if (!isNaN(pt) && pt < 500000) extAmt = pt;
+                                    }
+                                }
+                                
+                                // 3. MATERIAL / ITEM EXTRACTION
+                                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+                                const materials = ['cement', 'bajri', 'reti', ' ईंट', 'brick', 'sand', 'pipe', 'booking', 'petrol', 'diesel', 'tent', 'salary', 'kharcha', 'chai', 'tea', 'food', 'snack', 'water', 'cable', 'wire', 'rod', 'sariya', 'iron', 'steel', 'hardware', 'paint', 'labor', 'rent', 'bill'];
+                                
+                                for (let l of lines) {
+                                    if (materials.some(m => l.toLowerCase().includes(m))) {
+                                        extName = l.replace(/[^a-zA-Z0-9\s&()\-]/g, '').trim();
+                                        break;
+                                    }
+                                }
+
+                                if (!extName) {
+                                    for (let i = 0; i < lines.length; i++) {
+                                        if (/particular|description|item|product|qty|rate|m\/s/i.test(lines[i])) {
+                                            if (i + 1 < lines.length) {
+                                                const nextLine = lines[i+1].replace(/[^a-zA-Z0-9\s&]/g, '').trim();
+                                                if (!/^\d+$/.test(nextLine) && nextLine.length > 2) {
+                                                    extName = nextLine;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (extName) {
+                                    extName = extName.replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
+                                    if (extName.length > 25) extName = extName.substring(0, 25).trim();
+                                } else {
+                                    extName = "Manual Expense";
+                                }
+
+                                setAmtInp(prev => prev || (extAmt > 0 ? extAmt.toString() : ''));
+                                setEntryName(prev => prev || extName);
+                                if (extDate) setEntryDate(extDate);
+
+                                showToast('🤖 AI ne details auto-fill kar di hain!');
+                            } catch (e) {
+                                console.error(e);
+                                showToast('⚠️ AI padh nahi paya, manual daalein.');
+                            } finally {
+                                setIsScanning(false);
+                            }
+                        }).catch(err => {
+                            console.error('Tesseract load err:', err);
+                            setIsScanning(false);
+                        });
+                    } catch (err) {
+                        console.error('Image compression failed', err);
+                        showToast('❌ Photo me error');
+                    }
+                }
             };
             reader.readAsDataURL(f);
         });
+        
+        // Timeout to safely reset file value without breaking reader
+        setTimeout(() => { if (targetInput) targetInput.value = ''; }, 1000);
     };
 
     const removePendingPhoto = (idx: number) => {
@@ -326,12 +494,36 @@ export default function BusinessExpensesPage() {
     };
 
     // Customer Sheet Handlers
-    const saveCustomer = () => {
-        const limit = parseFloat(acLimit) || 20000;
-        const opening = parseFloat(acOpening) || 0;
-        if (!acName.trim() || !acPhone.trim()) { showToast('⚠️ Naam aur phone zaroori hai!'); return; }
+    const importContact = async () => {
+        try {
+            if ('contacts' in navigator && 'ContactsManager' in window) {
+                const props = ['name', 'tel'];
+                const opts = { multiple: false };
+                const contacts = await (navigator as any).contacts.select(props, opts);
+                if (contacts && contacts.length > 0) {
+                    const contact = contacts[0];
+                    if (contact.name && contact.name[0]) setAcName(contact.name[0]);
+                    if (contact.tel && contact.tel[0]) {
+                        const num = contact.tel[0].replace(/[^\d+]/g, '');
+                        setAcPhone(num);
+                    }
+                    showToast('✅ Contact select ho gaya!');
+                }
+            } else {
+                showToast('⚠️ Aapke browser me auto-contact ka option support nahi karta.');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('❌ Contact open karne me error aaya.');
+        }
+    };
 
-        const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim(), type: acType, limit, balance: opening, txns: [] };
+    const saveCustomer = () => {
+        const limit = parseFloat(acLimit) || 0;
+        const opening = parseFloat(acOpening) || 0;
+        if (!acName.trim()) { showToast('⚠️ Naam zaroori hai!'); return; }
+
+        const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening, txns: [] };
         setCustomers([{ ...nc }, ...customers]);
         setIsAddCustOpen(false);
         setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening('');
@@ -392,10 +584,13 @@ export default function BusinessExpensesPage() {
         const file = e.target.files?.[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = ev => {
+        reader.onload = async ev => {
             const url = ev.target?.result as string;
-            setCustomers(customers.map(c => c.id === curCid ? { ...c, photo: url } : c));
-            showToast('📸 Profile photo lag gayi!');
+            if (url) {
+                const compressedUrl = await compressImage(url);
+                setCustomers(prev => prev.map(c => c.id === curCid ? { ...c, photo: compressedUrl } : c));
+                showToast('📸 Profile photo lag gayi!');
+            }
         };
         reader.readAsDataURL(file);
     };
@@ -408,23 +603,33 @@ export default function BusinessExpensesPage() {
     const handleTxnPhoto = (e: React.ChangeEvent<HTMLInputElement>, txnId: number) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
+        showToast('⏳ Photo load ho rahi hai...');
+        const targetInput = e.target;
 
         files.forEach(f => {
             const reader = new FileReader();
-            reader.onload = ev => {
+            reader.onload = async ev => {
                 const url = ev.target?.result as string;
                 if (!url) return;
-                setCustomers(customers.map(c => {
-                    if (c.id !== curCid) return c;
-                    return {
-                        ...c,
-                        txns: c.txns.map((t: any) => t.id === txnId ? { ...t, photos: [...(t.photos || []), url] } : t)
-                    };
-                }));
-                showToast('📸 Photo add ho gaya!');
+                try {
+                    const compressedUrl = await compressImage(url);
+                    setCustomers(prev => prev.map(c => {
+                        if (c.id !== curCid) return c;
+                        return {
+                            ...c,
+                            txns: c.txns.map((t: any) => t.id === txnId ? { ...t, photos: [...(t.photos || []), compressedUrl] } : t)
+                        };
+                    }));
+                    showToast('📸 Photo add ho gaya!');
+                } catch(err) {
+                    console.error(err);
+                    showToast('❌ Photo process me error');
+                }
             };
             reader.readAsDataURL(f);
         });
+        
+        setTimeout(() => { if (targetInput) targetInput.value = ''; }, 1000);
     };
 
     const toggleExpand = (id: number) => {
@@ -648,11 +853,16 @@ export default function BusinessExpensesPage() {
                                                                 {hasPhotos && t.photos.map((p: string, pIdx: number) => (
                                                                     <img key={pIdx} className="bp-thumb" src={p} onClick={() => setLightboxImg(p)} alt="Bill" />
                                                                 ))}
-                                                                <div className="bp-add" onClick={() => addPhotoToTxn(t.id)}>
-                                                                    <div className="bp-add-ico">📷</div>
-                                                                    <div className="bp-add-lbl">Add</div>
-                                                                    <input type="file" className="hidden-file" id={`file-${t.id}`} accept="image/*" multiple onChange={(e) => handleTxnPhoto(e, t.id)} />
-                                                                </div>
+                                                                <label htmlFor={`file-cam-${t.id}`} className="bp-add" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', margin: 0 }}>
+                                                                    <div className="bp-add-ico" style={{ fontSize: '20px' }}>📸</div>
+                                                                    <div className="bp-add-lbl">Camera</div>
+                                                                    <input type="file" style={{ display: 'none' }} id={`file-cam-${t.id}`} accept="image/*" capture="environment" onChange={(e) => handleTxnPhoto(e, t.id)} />
+                                                                </label>
+                                                                <label htmlFor={`file-gal-${t.id}`} className="bp-add" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', margin: 0 }}>
+                                                                    <div className="bp-add-ico" style={{ fontSize: '20px' }}>🖼️</div>
+                                                                    <div className="bp-add-lbl">Gallery</div>
+                                                                    <input type="file" style={{ display: 'none' }} id={`file-gal-${t.id}`} accept="image/*" multiple onChange={(e) => handleTxnPhoto(e, t.id)} />
+                                                                </label>
                                                             </div>
                                                         </div>
                                                     )}
@@ -770,15 +980,27 @@ export default function BusinessExpensesPage() {
                             <input className="fi" placeholder="Koi note likho..." value={entryNote} onChange={e => setEntryNote(e.target.value)} />
                         </div>
                         <div className="fg">
-                            <label className="fl">📸 Bill / Receipt photo</label>
-                            <div className="bill-upload-zone" onClick={() => document.getElementById('billFileInpMaster')?.click()}>
-                                <div className="buz-ico">📷</div>
-                                <div className="buz-text">Click karo ya photo kheencho</div>
-                                <div className="buz-sub">JPG, PNG • Max 5MB</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <label className="fl" style={{ margin: 0 }}>📸 Bill / Receipt photo</label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: autoAiScan ? 'var(--blue)' : '#777', cursor: 'pointer', background: autoAiScan ? '#e3f2fd' : '#f0f0f0', padding: '5px 10px', borderRadius: '20px', border: autoAiScan ? '1px solid #bbdefb' : '1px solid #ddd', transition: 'all 0.2s' }}>
+                                    <input type="checkbox" checked={autoAiScan} onChange={(e) => setAutoAiScan(e.target.checked)} style={{ width: '15px', height: '15px', accentColor: 'var(--blue)', cursor: 'pointer' }} />
+                                    {autoAiScan ? '🤖 AI Auto Scan : ON' : '🤖 AI Scan : OFF'}
+                                </label>
                             </div>
-                            <input type="file" id="billFileInpMaster" className="hidden-file" accept="image/*" multiple onChange={handlePhotoUpload} />
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                                <label htmlFor="billFileCam" className="bill-upload-zone" style={{ flex: 1, padding: '15px 5px', minHeight: 'auto', margin: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <div className="buz-ico" style={{ fontSize: '24px', marginBottom: '4px' }}>📸</div>
+                                    <div className="buz-text" style={{ fontSize: '13px' }}>Camera se kheencho</div>
+                                    <input type="file" id="billFileCam" style={{ display: 'none' }} accept="image/*" capture="environment" onChange={handlePhotoUpload} />
+                                </label>
+                                <label htmlFor="billFileGal" className="bill-upload-zone" style={{ flex: 1, padding: '15px 5px', minHeight: 'auto', margin: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <div className="buz-ico" style={{ fontSize: '24px', marginBottom: '4px' }}>🖼️</div>
+                                    <div className="buz-text" style={{ fontSize: '13px' }}>Gallery se chuno</div>
+                                    <input type="file" id="billFileGal" style={{ display: 'none' }} accept="image/*" multiple onChange={handlePhotoUpload} />
+                                </label>
+                            </div>
 
-                            {pendingPhotos.length > 0 && (
+                            {(pendingPhotos.length > 0 || isScanning) && (
                                 <div className="bill-previews-grid">
                                     {pendingPhotos.map((p, idx) => (
                                         <div className="bp-preview-wrap" key={idx}>
@@ -786,6 +1008,7 @@ export default function BusinessExpensesPage() {
                                             <div className="bp-remove" onClick={() => removePendingPhoto(idx)}>✕</div>
                                         </div>
                                     ))}
+                                    {isScanning && <div style={{ fontSize: '12px', fontStyle: 'italic', color: '#666', padding: '10px' }}>🔍 AI Scan chal raha hai...</div>}
                                 </div>
                             )}
                         </div>
@@ -805,8 +1028,13 @@ export default function BusinessExpensesPage() {
                         <div className="sheet-close" onClick={() => setIsAddCustOpen(false)}>✕</div>
                     </div>
                     <div className="add-cust-body">
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                            <button onClick={importContact} style={{ background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, display: 'flex', gap: '6px', alignItems: 'center', cursor: 'pointer' }}>
+                                <span>📱</span> Phonebook se uthao
+                            </button>
+                        </div>
                         <div className="fg"><label className="fl">Naam *</label><input className="fi" placeholder="Customer ka naam" value={acName} onChange={e => setAcName(e.target.value)} /></div>
-                        <div className="fg"><label className="fl">Phone *</label><input className="fi" type="tel" placeholder="98765 44444" value={acPhone} onChange={e => setAcPhone(e.target.value)} /></div>
+                        <div className="fg"><label className="fl">Phone</label><input className="fi" type="tel" placeholder="98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} /></div>
                         <div className="f2">
                             <div className="fg" style={{ margin: 0 }}>
                                 <label className="fl">Type</label>
