@@ -302,7 +302,12 @@ export default function BusinessExpensesPage() {
 
                             if (res.ok) {
                                 const data = await res.json();
-                                if (data.amount && !isNaN(parseFloat(data.amount))) setAmtInp(prev => prev || data.amount);
+                                if (data.amount) {
+                                    const cleanAmt = data.amount.toString().replace(/,/g, '').replace(/[^0-9.]/g, '');
+                                    if (cleanAmt && !isNaN(parseFloat(cleanAmt))) {
+                                        setAmtInp(prev => prev || cleanAmt);
+                                    }
+                                }
                                 if (data.material) setEntryName(prev => prev || data.material);
                                 if (data.date) setEntryDate(data.date);
                                 showToast('🤖 Super AI ne bill scan kar liya!');

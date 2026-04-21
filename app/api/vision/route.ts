@@ -21,15 +21,24 @@ export async function POST(req: Request) {
         const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
 
         const prompt = `
-Analyze this bill/receipt (could be printed or handwritten in Hindi/English).
-Extract the following information:
-1. "amount": The grand total monetary amount on the bill (just the pure number). If not found, output "". 
-2. "date": The date of the bill in standard "YYYY-MM-DD" format. If not found, output "".
-3. "material": The primary material or item name sold/billed (e.g. "Cement", "Sand", "Service", "Labor", "Pipe", "Tent"). Do NOT give the shop's name. Look at the description/particulars. If completely unidentifiable, output "".
+You are an expert OCR and data extraction AI explicitly built for Indian shop bills, invoices, and handwritten receipts.
+Analyze this receipt (which may be printed, poorly handwritten, or mixed language Hindi/English).
+Extract the following information carefully:
+
+1. "amount": Find the FINAL GRAND TOTAL monetary amount. Look for "Grand Total", "Total Amt", "Rs", "Payable". Exclude Subtotals, Phone numbers, or GST %. 
+   CRITICAL: Output ONLY digits and decimals. NO commas, NO currency symbols, no spaces (Example: "1500" or "340.50"). If none found, output "".
+
+2. "date": The date written on the bill. Convert it strictly to "YYYY-MM-DD" format. If no date is found, output "".
+
+3. "material": The primary material, item, or general purpose of the expense. 
+   - Look in the 'Particulars', 'Description', or 'Items' table. 
+   - If handwritten, it might say things like "Cement", "Kharcha", "Petrol", "Chai", "Labor", "Advance", "Food". 
+   - DO NOT output the shop's name. If no items are listed, infer from the shop name (e.g. "Verma Sweets" -> "Sweets", "Sharma Hardware" -> "Hardware", "Pooja Travels" -> "Travel"). 
+   - Make it a short, clean name (1-3 words). If completely unidentifiable, output "".
 
 Output EXACTLY AND ONLY valid JSON in this structure:
 {
-    "amount": "150",
+    "amount": "1500",
     "date": "2026-03-12",
     "material": "Cement"
 }
