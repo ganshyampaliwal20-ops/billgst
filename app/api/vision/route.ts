@@ -21,28 +21,19 @@ export async function POST(req: Request) {
         const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
 
         const prompt = `
-You are an expert OCR and data extraction AI explicitly built for Indian shop bills, invoices, and handwritten receipts.
-Analyze this receipt (which may be printed, poorly handwritten, or mixed language Hindi/English).
-Extract the following information carefully:
+You are an expert OCR AI specialized in unstructured Indian handwritten receipts, faded shop bills, and standard invoices.
+Carefully extract three specific fields. Be incredibly smart about context.
 
-1. "amount": Find the FINAL GRAND TOTAL monetary amount. Look for "Grand Total", "Total Amt", "Rs", "Payable". Exclude Subtotals, Phone numbers, or GST %. 
-   CRITICAL: Output ONLY digits and decimals. NO commas, NO currency symbols, no spaces (Example: "1500" or "340.50"). If none found, output "".
+1. "amount": The FINAL grand total to be paid. Must be a clean number (e.g. "500", "1540.50"). Do NOT add words, commas, or currency symbols. Ignore sub-totals, phone numbers, or GST percentages.
+2. "date": The date of the transaction. Convert it strictly to "YYYY-MM-DD". If none, output "".
+3. "material": What is this bill for? 
+   - If not explicitly written, INFER IT logically from the shop's name or context (e.g., "M/s Sharma Hardware" -> "Hardware", "Jio" -> "Recharge", "Garg Sweets" -> "Food", "Balaji Travels" -> "Travel").
+   - Limit to 1 to 3 simple summary words.
+   - If absolutely unrecognizable, output "Expense".
 
-2. "date": The date written on the bill. Convert it strictly to "YYYY-MM-DD" format. If no date is found, output "".
-
-3. "material": The primary material, item, or general purpose of the expense. 
-   - Look in the 'Particulars', 'Description', or 'Items' table. 
-   - If handwritten, it might say things like "Cement", "Kharcha", "Petrol", "Chai", "Labor", "Advance", "Food". 
-   - DO NOT output the shop's name. If no items are listed, infer from the shop name (e.g. "Verma Sweets" -> "Sweets", "Sharma Hardware" -> "Hardware", "Pooja Travels" -> "Travel"). 
-   - Make it a short, clean name (1-3 words). If completely unidentifiable, output "".
-
-Output EXACTLY AND ONLY valid JSON in this structure:
-{
-    "amount": "1500",
-    "date": "2026-03-12",
-    "material": "Cement"
-}
-Do not wrap it in markdown. Do not include any other text. Only JSON.`;
+Output ONLY valid JSON representing those exact 3 keys. No markdown.
+{ "amount": "...", "date": "...", "material": "..." }
+`;
 
         const imageParts = [
             {

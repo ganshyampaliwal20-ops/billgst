@@ -305,10 +305,10 @@ export default function BusinessExpensesPage() {
                                 if (data.amount) {
                                     const cleanAmt = data.amount.toString().replace(/,/g, '').replace(/[^0-9.]/g, '');
                                     if (cleanAmt && !isNaN(parseFloat(cleanAmt))) {
-                                        setAmtInp(prev => prev || cleanAmt);
+                                        setAmtInp(cleanAmt);
                                     }
                                 }
-                                if (data.material) setEntryName(prev => prev || data.material);
+                                if (data.material) setEntryName(data.material);
                                 if (data.date) setEntryDate(data.date);
                                 showToast('🤖 Super AI ne bill scan kar liya!');
                                 setIsScanning(false);
@@ -397,8 +397,8 @@ export default function BusinessExpensesPage() {
                                     extName = "Manual Expense";
                                 }
 
-                                setAmtInp(prev => prev || (extAmt > 0 ? extAmt.toString() : ''));
-                                setEntryName(prev => prev || extName);
+                                setAmtInp(extAmt > 0 ? extAmt.toString() : '');
+                                setEntryName(extName);
                                 if (extDate) setEntryDate(extDate);
 
                                 showToast('🤖 AI ne details auto-fill kar di hain!');
