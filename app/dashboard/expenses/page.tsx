@@ -139,10 +139,13 @@ export default function BusinessExpensesPage() {
         
         let loadedData = null;
         const possibleKeys = [
-            `hisaab_pro_data_${session?.user?.id}`,
-            `hisaab_pro_data_${session?.user?.email}`,
-            'hisaab_pro_data'
+            `hisaab_pro_data_${session?.user?.id}`
         ];
+        
+        // If email is present, check that too
+        if (session?.user?.email) {
+            possibleKeys.push(`hisaab_pro_data_${session.user.email}`);
+        }
 
         // Search through all possible keys for the user
         for (const k of possibleKeys) {
@@ -166,33 +169,6 @@ export default function BusinessExpensesPage() {
         setIsMounted(true);
         setTimeout(() => setCanSave(true), 1000); // Wait 1s before allowing any overwrites
     }, [status, session?.user?.id, session?.user?.email]);
-
-    const findAvailableBackups = () => {
-        const backups = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('hisaab_pro_data')) {
-                try {
-                    const strVal = localStorage.getItem(k) || '[]';
-                    const parsed = JSON.parse(strVal);
-                    if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-                        backups.push({ key: k, count: parsed.length, data: parsed, rawStr: strVal });
-                    }
-                } catch (e) { }
-            }
-        }
-        return backups;
-    };
-
-    const runRestore = (dataBackup: any) => {
-        if (window.confirm('Kya aap sach mein ye data is ID me lana chahte hain?')) {
-            setCustomers(dataBackup.data);
-            const userIdentifier = session?.user?.id || session?.user?.email;
-            const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
-            localStorage.setItem(storageKey, dataBackup.rawStr);
-            showToast('✅ Data Pakka Save Ho Gaya!');
-        }
-    };
 
     useEffect(() => {
         if (canSave && customers && customers.length > 0) {
@@ -718,16 +694,6 @@ export default function BusinessExpensesPage() {
                     <div>
                         <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Hisaab Pro</div>
                         <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Customer Ledger</div>
-
-                        <div style={{ marginTop: '10px', background: '#e3f2fd', padding: '10px', borderRadius: '8px', border: '1px solid #90caf9' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#1565c0' }}>🚑 Data Recovery Menu:</div>
-                            {findAvailableBackups().map((b, idx) => (
-                                <button key={idx} onClick={() => runRestore(b)} style={{ display: 'block', marginTop: '5px', background: '#1565c0', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>
-                                    Recover ({b.count} Customers)
-                                </button>
-                            ))}
-                            {findAvailableBackups().length === 0 && <span style={{ fontSize: '11px', color: 'gray' }}>Koi data nahi mila</span>}
-                        </div>
                     </div>
                     <div style={{ display: 'flex', gap: '7px' }}>
                         <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>
