@@ -97,7 +97,7 @@ const DEFAULT_DATA = [
 
 export default function BusinessExpensesPage() {
     const [isMounted, setIsMounted] = useState(false);
-    const [customers, setCustomers] = useState<any[]>(DEFAULT_DATA);
+    const [customers, setCustomers] = useState<any[]>([]);
     const [activeScreen, setActiveScreen] = useState<'list' | 'detail'>('list');
     const [curCid, setCurCid] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -136,27 +136,23 @@ export default function BusinessExpensesPage() {
     useEffect(() => {
         if (status === 'loading') return;
         
-        const storageKey = session?.user?.email ? `hisaab_pro_data_${session.user.email}` : 'hisaab_pro_data';
+        const userIdentifier = session?.user?.id || session?.user?.email;
+        const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
         const saved = localStorage.getItem(storageKey);
         
         if (saved) {
             try { setCustomers(JSON.parse(saved)); } catch (e) { }
-        } else if (storageKey !== 'hisaab_pro_data') {
-            const oldSaved = localStorage.getItem('hisaab_pro_data');
-            if (oldSaved) {
-                try { 
-                    setCustomers(JSON.parse(oldSaved)); 
-                    localStorage.setItem(storageKey, oldSaved); 
-                } catch (e) { }
-            }
+        } else {
+            setCustomers([]);
         }
         
         setIsMounted(true);
-    }, [status, session?.user?.email]);
+    }, [status, session?.user?.id, session?.user?.email]);
 
     useEffect(() => {
         if (isMounted) {
-            const storageKey = session?.user?.email ? `hisaab_pro_data_${session.user.email}` : 'hisaab_pro_data';
+            const userIdentifier = session?.user?.id || session?.user?.email;
+            const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
             try {
                 localStorage.setItem(storageKey, JSON.stringify(customers));
             } catch (err) {
