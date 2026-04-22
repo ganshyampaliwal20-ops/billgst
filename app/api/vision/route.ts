@@ -18,28 +18,42 @@ export async function POST(req: Request) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ 
+            // Upgraded to pro for vastly superior OCR reasoning on messy Indian bills
+            model: "gemini-2.5-pro",
+            generationConfig: { responseMimeType: "application/json" }
+        });
 
         const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
 
         const prompt = `
-You are an expert OCR AI specialized in analyzing Indian unstructured handwritten receipts, faded shop bills, and standard invoices in both English and Hindi.
-Carefully extract three specific fields. Be incredibly smart about context.
+You are an advanced AI Data Extractor specifically trained for Indian Expense Receipts, Shop Bills, and messy handwritten notes.
+Analyze this image and extract exactly 3 fields: amount, date, and material.
+Return ONLY a valid JSON object.
 
-1. "amount": The FINAL grand total to be paid. Must be a clean number (e.g. "500", "1540.50"). Do NOT add words, commas, or currency symbols. Ignore sub-totals, discounts, phone numbers, or GST percentages.
-2. "date": The date of the transaction. Convert it strictly to "YYYY-MM-DD". If you see "Aaj" or no date is present, guess based on context or leave empty "". Check carefully for dates handwritten in Indian formats (DD/MM/YYYY).
-3. "material": What is this bill for? 
-   - If not explicitly written, INFER IT logically from the shop's name or items listed (e.g., "M/s Sharma Hardware" -> "Hardware", "Jio" -> "Recharge", "Garg Sweets" -> "Food", "Balaji Travels" -> "Travel", "Doodh" -> "Milk").
-   - Read Hindi texts well (e.g., "किराना" -> "Kirana").
-   - Limit to 1 to 3 simple summary words.
-   - If absolutely unrecognizable, output "Expense".
+Strict Rules for Indian Contexts:
+1. "amount": Find the Final Total, Grand Total, or the largest highlighted number at the VERY BOTTOM right of the bill.
+   - Do NOT select 'Rate' or 'Quantity' (like 23.84 or 280.00). Pick the final calculated amount (like 6675.20).
+   - Strip all currency symbols (Rs, ₹, /, /-, =, ,). 
+   - VERY IMPORTANT: Remove all commas from the number! '6,675.20' MUST become '6675.20'.
+   - Output as a clean number string (e.g., "500", "6675.20", "1540.50").
 
-Output ONLY valid JSON representing those exact 3 keys. No markdown, no extra text.
-{ "amount": "...", "date": "...", "material": "..." }
+2. "date": Find the transaction date (Date, Dt, Dated:). 
+   - Understand formats like '31-Jan-26' and convert them perfectly to YYYY-MM-DD (e.g. '2026-01-31').
+   - Convert DD/MM/YYYY or DD-MM-YYYY strictly to "YYYY-MM-DD" (e.g. "05/11/24" is Nov 5th, 2024).
+   - If you cannot find any date, output today's date in YYYY-MM-DD.
+
+3. "material": What is this expense for? Look at 'Description of Goods' or Shop details at the top.
+   - For example, if it says "Granite Slab" or shop says "Marble & Floor Tiles", output "Granite" or "Tiles".
+   - Provide a 1-3 word summary.
+   - If items are listed (e.g., Dal, Rice), output "Groceries" or "Kirana".
+   - If a shop name strongly hints at the item (e.g., "Apollo Pharmacy" -> "Medicine", "HP Petrol Pump" -> "Petrol").
+   - If completely ambiguous, just output the Shop's Name or "Expense".
+
+Output Format: { "amount": "...", "date": "...", "material": "..." }
 `;
 
-        const imageParts = [
-            {
+        const imageParts = [{
                 inlineData: {
                     data: base64Data,
                     mimeType: "image/jpeg"
