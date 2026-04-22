@@ -147,6 +147,11 @@ export default function BusinessExpensesPage() {
             possibleKeys.push(`hisaab_pro_data_${session.user.email}`);
         }
 
+        // EMERGENCY OWNER RECOVERY: Only the main owner can recover the old global data
+        if (session?.user?.email === 'gpaliwal59@gmail.com') {
+            possibleKeys.push('hisaab_pro_data');
+        }
+
         // Search through all possible keys for the user
         for (const k of possibleKeys) {
             if (!k || k === 'hisaab_pro_data_undefined') continue;
