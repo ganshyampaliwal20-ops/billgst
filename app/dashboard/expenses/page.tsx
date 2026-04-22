@@ -136,15 +136,15 @@ export default function BusinessExpensesPage() {
 
     useEffect(() => {
         if (status === 'loading') return;
-        
+
         const userIdentifier = session?.user?.id || session?.user?.email;
         const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
         const saved = localStorage.getItem(storageKey);
-        
+
         if (saved && saved !== '[]') {
             try { setCustomers(JSON.parse(saved)); } catch (e) { }
         }
-        
+
         setIsMounted(true);
         setTimeout(() => setCanSave(true), 1000); // Wait 1s before allowing any overwrites
     }, [status, session?.user?.id, session?.user?.email]);
@@ -160,7 +160,7 @@ export default function BusinessExpensesPage() {
                     if (parsed && Array.isArray(parsed) && parsed.length > 0) {
                         backups.push({ key: k, count: parsed.length, data: parsed, rawStr: strVal });
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
         }
         return backups;
@@ -177,7 +177,7 @@ export default function BusinessExpensesPage() {
     };
 
     useEffect(() => {
-        if (canSave) {
+        if (canSave && customers && customers.length > 0) {
             const userIdentifier = session?.user?.id || session?.user?.email;
             const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
             try {
@@ -199,26 +199,26 @@ export default function BusinessExpensesPage() {
                 }
             }
         }
-    }, [customers, isMounted, curCid]);
+    }, [customers, canSave, curCid, session]);
 
     // AUTO-HEAL: Fix corrupted balances from old reversed math logic
     useEffect(() => {
         if (!isMounted || customers.length === 0) return;
-        
+
         let needsHeal = false;
         const healedCustomers = customers.map(c => {
             if (!c.txns || c.txns.length === 0) return c;
-            
+
             // Calculate what the balance SHOULD be if opening balance was 0
             let debitSum = 0, creditSum = 0;
             c.txns.forEach((t: any) => {
                 if (t.type === 'credit') creditSum += t.amt;
                 else debitSum += t.amt; // advance & debit
             });
-            
+
             // Calculate Correct Balance (Debit = +, Credit = -)
             const expectedCorrectBalance = debitSum - creditSum;
-            
+
             // If the current balance does not match the expected balance, we assume it's corrupted 
             // (either missing opening balance or polluted by old logic).
             // Let's assume opening balance was 0 for simplicity, or we recalculate it by reverse engineering the old logic:
@@ -327,10 +327,10 @@ export default function BusinessExpensesPage() {
                         setPendingPhotos(prev => [...prev, compressedUrl]);
 
                         if (!autoAiScan) return; // Skip AI if user turned it off
-                        
+
                         setIsScanning(true);
                         showToast('🔍 AI Bill padh raha hai...');
-                        
+
                         // Try Advanced Cloud Vision API first
                         try {
                             const res = await fetch('/api/vision', {
@@ -360,7 +360,7 @@ export default function BusinessExpensesPage() {
                                     showToast('⚠️ AI Error: ' + errData.error);
                                 }
                             }
-                        } catch(apiErr) {
+                        } catch (apiErr) {
                             console.error("Vision API error", apiErr);
                         }
 
@@ -369,12 +369,12 @@ export default function BusinessExpensesPage() {
                             try {
                                 const result = await tesseract.default.recognize(compressedUrl, 'eng');
                                 const text = result.data.text;
-                                
+
                                 // ======== ADVANCED AI PARSER ========
                                 let extAmt = 0;
                                 let extName = '';
                                 let extDate = '';
-                                
+
                                 // 1. DATE EXTRACTION (Finds DD-MM-YYYY, DD/MM/YY, etc.)
                                 const dateMatch = text.match(/\b([0-3]?\d)[\/\-\.]([01]?\d)[\/\-\.]((?:19|20)?\d{2})\b/);
                                 if (dateMatch) {
@@ -391,7 +391,7 @@ export default function BusinessExpensesPage() {
                                 const rawNumMatches = [...text.matchAll(/(?:Rs|Total|Amt|₹|Amount)?\s*?([\d,]{1,7}(?:\.\d{1,2})?)/gi)];
                                 let amounts = rawNumMatches.map(m => parseFloat(m[1].replace(/,/g, ''))).filter(n => !isNaN(n));
                                 const validAmounts = amounts.filter(n => n > 1 && n < 500000 && n !== 400000 && n.toString().length !== 10 && n.toString().length !== 6);
-                                
+
                                 if (validAmounts.length > 0) {
                                     extAmt = Math.max(...validAmounts);
                                 } else {
@@ -403,11 +403,11 @@ export default function BusinessExpensesPage() {
                                         if (!isNaN(pt) && pt < 500000) extAmt = pt;
                                     }
                                 }
-                                
+
                                 // 3. MATERIAL / ITEM EXTRACTION
                                 const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
                                 const materials = ['cement', 'bajri', 'reti', ' ईंट', 'brick', 'sand', 'pipe', 'booking', 'petrol', 'diesel', 'tent', 'salary', 'kharcha', 'chai', 'tea', 'food', 'snack', 'water', 'cable', 'wire', 'rod', 'sariya', 'iron', 'steel', 'hardware', 'paint', 'labor', 'rent', 'bill'];
-                                
+
                                 for (let l of lines) {
                                     if (materials.some(m => l.toLowerCase().includes(m))) {
                                         extName = l.replace(/[^a-zA-Z0-9\s&()\-]/g, '').trim();
@@ -419,7 +419,7 @@ export default function BusinessExpensesPage() {
                                     for (let i = 0; i < lines.length; i++) {
                                         if (/particular|description|item|product|qty|rate|m\/s/i.test(lines[i])) {
                                             if (i + 1 < lines.length) {
-                                                const nextLine = lines[i+1].replace(/[^a-zA-Z0-9\s&]/g, '').trim();
+                                                const nextLine = lines[i + 1].replace(/[^a-zA-Z0-9\s&]/g, '').trim();
                                                 if (!/^\d+$/.test(nextLine) && nextLine.length > 2) {
                                                     extName = nextLine;
                                                     break;
@@ -459,7 +459,7 @@ export default function BusinessExpensesPage() {
             };
             reader.readAsDataURL(f);
         });
-        
+
         // Timeout to safely reset file value without breaking reader
         setTimeout(() => { if (targetInput) targetInput.value = ''; }, 1000);
     };
@@ -665,14 +665,14 @@ export default function BusinessExpensesPage() {
                         };
                     }));
                     showToast('📸 Photo add ho gaya!');
-                } catch(err) {
+                } catch (err) {
                     console.error(err);
                     showToast('❌ Photo process me error');
                 }
             };
             reader.readAsDataURL(f);
         });
-        
+
         setTimeout(() => { if (targetInput) targetInput.value = ''; }, 1000);
     };
 
@@ -700,15 +700,15 @@ export default function BusinessExpensesPage() {
                     <div>
                         <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Hisaab Pro</div>
                         <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Customer Ledger</div>
-                        
-                        <div style={{marginTop: '10px', background: '#e3f2fd', padding: '10px', borderRadius: '8px', border: '1px solid #90caf9'}}>
-                            <div style={{fontSize: '12px', fontWeight: 'bold', color: '#1565c0'}}>🚑 Data Recovery Menu:</div>
+
+                        <div style={{ marginTop: '10px', background: '#e3f2fd', padding: '10px', borderRadius: '8px', border: '1px solid #90caf9' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#1565c0' }}>🚑 Data Recovery Menu:</div>
                             {findAvailableBackups().map((b, idx) => (
                                 <button key={idx} onClick={() => runRestore(b)} style={{ display: 'block', marginTop: '5px', background: '#1565c0', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>
                                     Recover ({b.count} Customers)
                                 </button>
                             ))}
-                            {findAvailableBackups().length === 0 && <span style={{fontSize: '11px', color:'gray'}}>Koi data nahi mila</span>}
+                            {findAvailableBackups().length === 0 && <span style={{ fontSize: '11px', color: 'gray' }}>Koi data nahi mila</span>}
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: '7px' }}>
