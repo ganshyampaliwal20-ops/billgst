@@ -136,15 +136,33 @@ export default function BusinessExpensesPage() {
 
     useEffect(() => {
         if (status === 'loading') return;
+        
+        let loadedData = null;
+        const possibleKeys = [
+            `hisaab_pro_data_${session?.user?.id}`,
+            `hisaab_pro_data_${session?.user?.email}`,
+            'hisaab_pro_data'
+        ];
 
-        const userIdentifier = session?.user?.id || session?.user?.email;
-        const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
-        const saved = localStorage.getItem(storageKey);
-
-        if (saved && saved !== '[]') {
-            try { setCustomers(JSON.parse(saved)); } catch (e) { }
+        // Search through all possible keys for the user
+        for (const k of possibleKeys) {
+            if (!k || k === 'hisaab_pro_data_undefined') continue;
+            const saved = localStorage.getItem(k);
+            if (saved && saved !== '[]') {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.length > 0) {
+                        loadedData = parsed;
+                        break; // Found the data!
+                    }
+                } catch (e) {}
+            }
         }
 
+        if (loadedData) {
+            setCustomers(loadedData);
+        }
+        
         setIsMounted(true);
         setTimeout(() => setCanSave(true), 1000); // Wait 1s before allowing any overwrites
     }, [status, session?.user?.id, session?.user?.email]);
