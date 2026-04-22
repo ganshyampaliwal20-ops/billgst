@@ -149,29 +149,6 @@ export default function BusinessExpensesPage() {
         setIsMounted(true);
     }, [status, session?.user?.id, session?.user?.email]);
 
-    const findAvailableBackups = () => {
-        const backups = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('hisaab_pro_data')) {
-                try {
-                    const parsed = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-                        backups.push({ key: k, count: parsed.length, data: parsed });
-                    }
-                } catch(e) {}
-            }
-        }
-        return backups;
-    };
-
-    const runRestore = (dataBackup: any) => {
-        if (window.confirm('Kya aap sach mein ye data is ID me lana chahte hain?')) {
-            setCustomers(dataBackup.data);
-            showToast('✅ Data Wapas Aa Gaya!');
-        }
-    };
-
     useEffect(() => {
         if (isMounted) {
             const userIdentifier = session?.user?.id || session?.user?.email;
@@ -696,16 +673,6 @@ export default function BusinessExpensesPage() {
                     <div>
                         <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Hisaab Pro</div>
                         <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Customer Ledger</div>
-                        
-                        <div style={{marginTop: '10px', background: '#ffebee', padding: '10px', borderRadius: '8px', border: '1px solid #ffcdd2'}}>
-                            <div style={{fontSize: '12px', fontWeight: 'bold', color: '#d32f2f'}}>🚑 Data Recovery Menu:</div>
-                            {findAvailableBackups().map((b, idx) => (
-                                <button key={idx} onClick={() => runRestore(b)} style={{ display: 'block', marginTop: '5px', background: '#d32f2f', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}>
-                                    Recover ({b.count} Customers)
-                                </button>
-                            ))}
-                            {findAvailableBackups().length === 0 && <span style={{fontSize: '11px', color:'gray'}}>Koi data nahi mila</span>}
-                        </div>
                     </div>
                     <div style={{ display: 'flex', gap: '7px' }}>
                         <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>
