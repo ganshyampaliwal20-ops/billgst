@@ -140,10 +140,22 @@ export default function BusinessExpensesPage() {
         const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
         const saved = localStorage.getItem(storageKey);
         
-        if (saved) {
+        if (saved && saved !== '[]') {
             try { setCustomers(JSON.parse(saved)); } catch (e) { }
         } else {
-            setCustomers([]);
+            // Restore user's old data once, then delete it so it won't bleed to other users
+            const oldSaved = localStorage.getItem('hisaab_pro_data');
+            if (oldSaved && oldSaved !== '[]') {
+                try {
+                    setCustomers(JSON.parse(oldSaved));
+                    localStorage.setItem(storageKey, oldSaved);
+                    localStorage.removeItem('hisaab_pro_data'); // Prevent bleeding
+                } catch (e) {
+                    setCustomers([]);
+                }
+            } else {
+                setCustomers([]);
+            }
         }
         
         setIsMounted(true);
