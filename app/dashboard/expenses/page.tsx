@@ -161,35 +161,6 @@ export default function BusinessExpensesPage() {
         setIsMounted(true);
     }, [status, session?.user?.id, session?.user?.email]);
 
-    const handleEmergencyRecovery = () => {
-        let maxLen = 0;
-        let recoveredData = null;
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && k.startsWith('hisaab_pro_data')) {
-                const val = localStorage.getItem(k);
-                if (val && val.length > maxLen && val !== '[]') {
-                    maxLen = val.length;
-                    recoveredData = val;
-                }
-            }
-        }
-        if (recoveredData && window.confirm("Aapka purana bada data mil gaya hai! Kya aap ise wapas lana chahte hain?")) {
-            try {
-                const parsed = JSON.parse(recoveredData);
-                setCustomers(parsed);
-                const userIdentifier = session?.user?.id || session?.user?.email;
-                const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
-                localStorage.setItem(storageKey, recoveredData);
-                showToast("✅ Purana Data Recover Ho Gaya!");
-            } catch (e) {
-                showToast("❌ Data Error");
-            }
-        } else if (!recoveredData) {
-            showToast("⚠️ Koi purana data nahi mila.");
-        }
-    };
-
     useEffect(() => {
         if (isMounted) {
             const userIdentifier = session?.user?.id || session?.user?.email;
@@ -714,7 +685,6 @@ export default function BusinessExpensesPage() {
                     <div>
                         <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Hisaab Pro</div>
                         <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Customer Ledger</div>
-                        <button onClick={handleEmergencyRecovery} style={{ marginTop: '5px', background: 'red', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '10px' }}>🚨 Recover Data</button>
                     </div>
                     <div style={{ display: 'flex', gap: '7px' }}>
                         <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>
