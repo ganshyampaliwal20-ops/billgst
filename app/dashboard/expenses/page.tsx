@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './hisaab.css';
 import { generateHisaabPDF } from '../../../lib/pdf-generator';
+import { useSession } from 'next-auth/react';
 
 // ─── HELPERS ───
 async function compressImage(dataUrl: string, maxWidth = 800): Promise<string> {
@@ -101,6 +102,7 @@ export default function BusinessExpensesPage() {
     const [curCid, setCurCid] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentFilter, setCurrentFilter] = useState('all');
+    const { data: session, status } = useSession();
 
     // Drawer / Modals
     const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
@@ -132,17 +134,31 @@ export default function BusinessExpensesPage() {
     const toastTimeout = useRef<any>(null);
 
     useEffect(() => {
-        setIsMounted(true);
-        const saved = localStorage.getItem('hisaab_pro_data');
+        if (status === 'loading') return;
+        
+        const storageKey = session?.user?.email ? `hisaab_pro_data_${session.user.email}` : 'hisaab_pro_data';
+        const saved = localStorage.getItem(storageKey);
+        
         if (saved) {
             try { setCustomers(JSON.parse(saved)); } catch (e) { }
+        } else if (storageKey !== 'hisaab_pro_data') {
+            const oldSaved = localStorage.getItem('hisaab_pro_data');
+            if (oldSaved) {
+                try { 
+                    setCustomers(JSON.parse(oldSaved)); 
+                    localStorage.setItem(storageKey, oldSaved); 
+                } catch (e) { }
+            }
         }
-    }, []);
+        
+        setIsMounted(true);
+    }, [status, session?.user?.email]);
 
     useEffect(() => {
         if (isMounted) {
+            const storageKey = session?.user?.email ? `hisaab_pro_data_${session.user.email}` : 'hisaab_pro_data';
             try {
-                localStorage.setItem('hisaab_pro_data', JSON.stringify(customers));
+                localStorage.setItem(storageKey, JSON.stringify(customers));
             } catch (err) {
                 console.error("Storage limit exceeded:", err);
                 showToast("⚠️ Storage full! Photo ko delete karein.");
