@@ -97,6 +97,7 @@ const DEFAULT_DATA = [
 
 export default function BusinessExpensesPage() {
     const [isMounted, setIsMounted] = useState(false);
+    const [canSave, setCanSave] = useState(false);
     const [customers, setCustomers] = useState<any[]>([]);
     const [activeScreen, setActiveScreen] = useState<'list' | 'detail'>('list');
     const [curCid, setCurCid] = useState<number | null>(null);
@@ -142,11 +143,10 @@ export default function BusinessExpensesPage() {
         
         if (saved && saved !== '[]') {
             try { setCustomers(JSON.parse(saved)); } catch (e) { }
-        } else {
-            setCustomers([]);
         }
         
         setIsMounted(true);
+        setTimeout(() => setCanSave(true), 1000); // Wait 1s before allowing any overwrites
     }, [status, session?.user?.id, session?.user?.email]);
 
     const findAvailableBackups = () => {
@@ -177,7 +177,7 @@ export default function BusinessExpensesPage() {
     };
 
     useEffect(() => {
-        if (isMounted) {
+        if (canSave) {
             const userIdentifier = session?.user?.id || session?.user?.email;
             const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
             try {
