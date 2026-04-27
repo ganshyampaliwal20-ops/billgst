@@ -132,12 +132,42 @@ export default function InvoicesPage() {
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
-    const handleWhatsApp = (e: any, invoice: any) => {
+    const handleWhatsApp = async (e: any, invoice: any) => {
         e?.stopPropagation();
         if (!invoice) return;
         const total = safeAmt(invoice.total_amount);
         const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${total}* from *${businessProfile.name || 'Business'}* is ready.\n\nRegards,\n${businessProfile.name || 'Business'}`;
         const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
+        
+        const toastId = toast.loading('⏳ Preparing PDF for WhatsApp...');
+        try {
+            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+            if (doc && phone) {
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], `Invoice-${invoice.invoice_number}.pdf`, { type: 'application/pdf' });
+                
+                const formData = new FormData();
+                formData.append('phone', phone);
+                formData.append('message', text);
+                formData.append('file', file);
+                
+                toast.loading('⏳ Sending via WhatsApp Bot...', { id: toastId });
+                const sendRes = await fetch('/api/whatsapp/send-media', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (sendRes.ok) {
+                    toast.success('✅ PDF sent on WhatsApp!', { id: toastId });
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        
+        // Fallback
+        toast.dismiss(toastId);
         const url = phone ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
     };
@@ -152,11 +182,42 @@ export default function InvoicesPage() {
         window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
 
-    const handlePaymentLink = (invoice: any) => {
+    const handlePaymentLink = async (invoice: any) => {
         if (!businessProfile.upi_id) return toast.error('Set UPI ID in settings');
         const upi = `upi://pay?pa=${businessProfile.upi_id}&pn=${encodeURIComponent(businessProfile.name)}&am=${safeAmt(invoice.total_amount)}&cu=INR`;
-        const text = `Payment link for invoice #${invoice.invoice_number}: ${upi}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        const text = `Payment link for invoice #${invoice.invoice_number}:\n${upi}\n\nScan the attached QR code to pay via any UPI app.`;
+        const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
+        
+        if (qrCodeUrl && phone) {
+            const toastId = toast.loading('⏳ Sending QR Code via WhatsApp...');
+            try {
+                const res = await fetch(qrCodeUrl);
+                const blob = await res.blob();
+                const file = new File([blob], 'QR-Code.png', { type: 'image/png' });
+                
+                const formData = new FormData();
+                formData.append('phone', phone);
+                formData.append('message', text);
+                formData.append('file', file);
+                
+                const sendRes = await fetch('/api/whatsapp/send-media', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (sendRes.ok) {
+                    toast.success('✅ QR Code sent on WhatsApp!', { id: toastId });
+                    return;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+            toast.dismiss(toastId);
+        }
+
+        // Fallback
+        const waText = `Payment link for invoice #${invoice.invoice_number}: ${upi}`;
+        window.open(`https://wa.me/${phone ? (phone.startsWith('91') ? phone : '91'+phone) : ''}?text=${encodeURIComponent(waText)}`, '_blank');
     };
 
     const handleExportCSV = () => {
