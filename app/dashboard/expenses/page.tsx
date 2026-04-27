@@ -6,28 +6,45 @@ import { generateHisaabPDF } from '../../../lib/pdf-generator';
 import { useSession } from 'next-auth/react';
 
 // ─── HELPERS ───
-async function compressImage(dataUrl: string, maxWidth = 800): Promise<string> {
+async function compressImage(dataUrl: string, maxWidth = 800, quality = 0.6): Promise<string> {
     return new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            if (width > maxWidth) {
-                height = Math.round((height * maxWidth) / width);
-                width = maxWidth;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.6));
-            } else {
-                resolve(dataUrl);
+            try {
+                let width = img.width;
+                let height = img.height;
+                
+                // Extra safety for extremely large photos
+                if (width > 4000 || height > 4000) {
+                    maxWidth = 1000; 
+                }
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.drawImage(img, 0, 0, width, height);
+                    // Compress to JPEG
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                } else {
+                    resolve(dataUrl);
+                }
+            } catch (err) {
+                console.error("Canvas compression error:", err);
+                resolve(dataUrl); // Return original if compression fails
             }
         };
-        img.onerror = () => resolve(dataUrl);
+        img.onerror = () => {
+            console.error("Image load error");
+            resolve(dataUrl);
+        };
         img.src = dataUrl;
     });
 }
@@ -325,153 +342,24 @@ export default function BusinessExpensesPage() {
                         const compressedUrl = await compressImage(ev.target.result as string);
                         setPendingPhotos(prev => [...prev, compressedUrl]);
 
-                        if (!autoAiScan) return; // Skip AI if user turned it off
-
-                        setIsScanning(true);
-                        showToast('🔍 AI Bill padh raha hai...');
-
-                        // Try Advanced Cloud Vision API first
-                        try {
-                            const res = await fetch('/api/vision', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ imageBase64: compressedUrl })
-                            });
-
-                            if (res.ok) {
-                                const responseText = await res.text();
-                                try {
-                                    const data = JSON.parse(responseText);
-                                    if (data.amount) {
-                                        const cleanAmt = data.amount.toString().replace(/,/g, '').replace(/[^0-9.]/g, '');
-                                        if (cleanAmt && !isNaN(parseFloat(cleanAmt))) {
-                                            setAmtInp(cleanAmt);
-                                        }
-                                    }
-                                    if (data.material) setEntryName(data.material);
-                                    if (data.date) setEntryDate(data.date);
-                                    showToast('🤖 Super AI ne bill scan kar liya!');
-                                } catch(e) {
-                                    showToast('⚠️ AI ne galat format return kiya.');
-                                }
-                                setIsScanning(false);
-                                return;
-                            } else {
-                                const errorText = await res.text();
-                                let errData = { error: errorText };
-                                try { errData = JSON.parse(errorText); } catch(e) {}
-                                
-                                if (errData.error === 'GEMINI_API_KEY is missing') {
-                                    window.alert("ATTENTION! Vercel par GEMINI_API_KEY nahi hai! \nAapne jo key Vercel mein daali thi wo theek se save nahi hui ya Redeploy nahi hua. \nIsiliye AI kaam nahi kar raha!");
-                                    setIsScanning(false);
-                                    return; // DO NOT RUN TESSERACT
-                                } else {
-                                    window.alert('⚠️ AI Error: ' + errData.error);
-                                    setIsScanning(false);
-                                    return; // STOP HERE so we see the error!
-                                }
-                            }
-                        } catch (apiErr: any) {
-                            console.error("Vision API error", apiErr);
-                            showToast('⚠️ Vercel Live Error: Connection toot gayi.');
-                            setIsScanning(false);
-                            return; // STOP HERE so we see the error!
-                        }
-
-                        // Fallback to Offline Tesseract AI
-                        import('tesseract.js').then(async (tesseract) => {
-                            try {
-                                const result = await tesseract.default.recognize(compressedUrl, 'eng');
-                                const text = result.data.text;
-
-                                // ======== ADVANCED AI PARSER ========
-                                let extAmt = 0;
-                                let extName = '';
-                                let extDate = '';
-
-                                // 1. DATE EXTRACTION (Finds DD-MM-YYYY, DD/MM/YY, etc.)
-                                const dateMatch = text.match(/\b([0-3]?\d)[\/\-\.]([01]?\d)[\/\-\.]((?:19|20)?\d{2})\b/);
-                                if (dateMatch) {
-                                    let [_, d, m, y] = dateMatch;
-                                    if (y.length === 2) y = '20' + y;
-                                    d = d.padStart(2, '0');
-                                    m = m.padStart(2, '0');
-                                    if (parseInt(m) <= 12 && parseInt(d) <= 31) {
-                                        extDate = `${y}-${m}-${d}`;
-                                    }
-                                }
-
-                                // 2. AMOUNT EXTRACTION (Aggressive for Handwriting)
-                                const rawNumMatches = [...text.matchAll(/(?:Rs|Total|Amt|₹|Amount)?\s*?([\d,]{1,7}(?:\.\d{1,2})?)/gi)];
-                                let amounts = rawNumMatches.map(m => parseFloat(m[1].replace(/,/g, ''))).filter(n => !isNaN(n));
-                                const validAmounts = amounts.filter(n => n > 1 && n < 500000 && n !== 400000 && n.toString().length !== 10 && n.toString().length !== 6);
-
-                                if (validAmounts.length > 0) {
-                                    extAmt = Math.max(...validAmounts);
-                                } else {
-                                    // Super fallback for bad handwritten OCR (e.g. Total l5OO)
-                                    const totMatch = text.toLowerCase().match(/total[^\d\n]*?([\do0s5l1]+)/i);
-                                    if (totMatch) {
-                                        const fixed = totMatch[1].replace(/o/g, '0').replace(/s/g, '5').replace(/l/g, '1');
-                                        const pt = parseFloat(fixed);
-                                        if (!isNaN(pt) && pt < 500000) extAmt = pt;
-                                    }
-                                }
-
-                                // 3. MATERIAL / ITEM EXTRACTION
-                                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
-                                const materials = ['cement', 'bajri', 'reti', ' ईंट', 'brick', 'sand', 'pipe', 'booking', 'petrol', 'diesel', 'tent', 'salary', 'kharcha', 'chai', 'tea', 'food', 'snack', 'water', 'cable', 'wire', 'rod', 'sariya', 'iron', 'steel', 'hardware', 'paint', 'labor', 'rent', 'bill'];
-
-                                for (let l of lines) {
-                                    if (materials.some(m => l.toLowerCase().includes(m))) {
-                                        extName = l.replace(/[^a-zA-Z0-9\s&()\-]/g, '').trim();
-                                        break;
-                                    }
-                                }
-
-                                if (!extName) {
-                                    for (let i = 0; i < lines.length; i++) {
-                                        if (/particular|description|item|product|qty|rate|m\/s/i.test(lines[i])) {
-                                            if (i + 1 < lines.length) {
-                                                const nextLine = lines[i + 1].replace(/[^a-zA-Z0-9\s&]/g, '').trim();
-                                                if (!/^\d+$/.test(nextLine) && nextLine.length > 2) {
-                                                    extName = nextLine;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (extName) {
-                                    extName = extName.replace(/\w\S*/g, (w) => w.replace(/^\w/, (c) => c.toUpperCase()));
-                                    if (extName.length > 25) extName = extName.substring(0, 25).trim();
-                                } else {
-                                    extName = "Manual Expense";
-                                }
-
-                                setAmtInp(extAmt > 0 ? extAmt.toString() : '');
-                                setEntryName(extName);
-                                if (extDate) setEntryDate(extDate);
-
-                                showToast('🤖 AI ne details auto-fill kar di hain!');
-                            } catch (e) {
-                                console.error(e);
-                                showToast('⚠️ AI padh nahi paya, manual daalein.');
-                            } finally {
-                                setIsScanning(false);
-                            }
-                        }).catch(err => {
-                            console.error('Tesseract load err:', err);
-                            setIsScanning(false);
-                        });
+                        // AI Scan feature temporarily removed as per user request.
+                        // We just save the photo now.
+                        showToast('📸 Photo add ho gayi!');
                     } catch (err) {
                         console.error('Image compression failed', err);
-                        showToast('❌ Photo me error');
+                        showToast('❌ Photo size bohot bada hai ya error aaya!');
                     }
                 }
             };
-            reader.readAsDataURL(f);
+            reader.onerror = () => {
+                console.error("FileReader error on upload");
+                showToast('❌ Photo read karne mein problem aayi!');
+            };
+            try {
+                reader.readAsDataURL(f);
+            } catch (err) {
+                showToast('❌ Photo select karne me error');
+            }
         });
 
         // Timeout to safely reset file value without breaking reader
@@ -684,7 +572,14 @@ export default function BusinessExpensesPage() {
                     showToast('❌ Photo process me error');
                 }
             };
-            reader.readAsDataURL(f);
+            reader.onerror = () => {
+                showToast('❌ Photo read karne mein error');
+            };
+            try {
+                reader.readAsDataURL(f);
+            } catch (err) {
+                showToast('❌ Photo select karne me error');
+            }
         });
 
         setTimeout(() => { if (targetInput) targetInput.value = ''; }, 1000);
@@ -1048,10 +943,6 @@ export default function BusinessExpensesPage() {
                         <div className="fg">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                 <label className="fl" style={{ margin: 0 }}>📸 Bill / Receipt photo</label>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: autoAiScan ? 'var(--blue)' : '#777', cursor: 'pointer', background: autoAiScan ? '#e3f2fd' : '#f0f0f0', padding: '5px 10px', borderRadius: '20px', border: autoAiScan ? '1px solid #bbdefb' : '1px solid #ddd', transition: 'all 0.2s' }}>
-                                    <input type="checkbox" checked={autoAiScan} onChange={(e) => setAutoAiScan(e.target.checked)} style={{ width: '15px', height: '15px', accentColor: 'var(--blue)', cursor: 'pointer' }} />
-                                    {autoAiScan ? '🤖 AI Auto Scan : ON' : '🤖 AI Scan : OFF'}
-                                </label>
                             </div>
                             <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
                                 <label htmlFor="billFileCam" className="bill-upload-zone" style={{ flex: 1, padding: '15px 5px', minHeight: 'auto', margin: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -1066,7 +957,7 @@ export default function BusinessExpensesPage() {
                                 </label>
                             </div>
 
-                            {(pendingPhotos.length > 0 || isScanning) && (
+                            {pendingPhotos.length > 0 && (
                                 <div className="bill-previews-grid">
                                     {pendingPhotos.map((p, idx) => (
                                         <div className="bp-preview-wrap" key={idx}>
@@ -1074,7 +965,6 @@ export default function BusinessExpensesPage() {
                                             <div className="bp-remove" onClick={() => removePendingPhoto(idx)}>✕</div>
                                         </div>
                                     ))}
-                                    {isScanning && <div style={{ fontSize: '12px', fontStyle: 'italic', color: '#666', padding: '10px' }}>🔍 AI Scan chal raha hai...</div>}
                                 </div>
                             )}
                         </div>
