@@ -20,8 +20,8 @@ export async function POST(req: Request) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
-            // Back to Pro model for high accuracy. Using Edge runtime prevents the 10s timeout.
-            model: "gemini-2.5-pro",
+            // Using standard reliable Pro model (1.5-pro) to avoid timeouts on edge
+            model: "gemini-1.5-pro",
             generationConfig: { responseMimeType: "application/json" }
         });
 

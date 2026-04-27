@@ -339,32 +339,40 @@ export default function BusinessExpensesPage() {
                             });
 
                             if (res.ok) {
-                                const data = await res.json();
-                                if (data.amount) {
-                                    const cleanAmt = data.amount.toString().replace(/,/g, '').replace(/[^0-9.]/g, '');
-                                    if (cleanAmt && !isNaN(parseFloat(cleanAmt))) {
-                                        setAmtInp(cleanAmt);
+                                const responseText = await res.text();
+                                try {
+                                    const data = JSON.parse(responseText);
+                                    if (data.amount) {
+                                        const cleanAmt = data.amount.toString().replace(/,/g, '').replace(/[^0-9.]/g, '');
+                                        if (cleanAmt && !isNaN(parseFloat(cleanAmt))) {
+                                            setAmtInp(cleanAmt);
+                                        }
                                     }
+                                    if (data.material) setEntryName(data.material);
+                                    if (data.date) setEntryDate(data.date);
+                                    showToast('🤖 Super AI ne bill scan kar liya!');
+                                } catch(e) {
+                                    showToast('⚠️ AI ne galat format return kiya.');
                                 }
-                                if (data.material) setEntryName(data.material);
-                                if (data.date) setEntryDate(data.date);
-                                showToast('🤖 Super AI ne bill scan kar liya!');
                                 setIsScanning(false);
                                 return;
                             } else {
-                                const errData = await res.json();
+                                const errorText = await res.text();
+                                let errData = { error: errorText };
+                                try { errData = JSON.parse(errorText); } catch(e) {}
+                                
                                 if (errData.error === 'GEMINI_API_KEY is missing') {
                                     console.log('Gemini skipped - No API Key. Falling back to offline Tesseract.');
                                     showToast('⚠️ Live Server par Gemini API Key nahi hai! Basic Scanner use ho raha hai.');
                                 } else {
-                                    showToast('⚠️ AI Error: ' + JSON.stringify(errData));
+                                    showToast('⚠️ AI Error: Server Timeout ya Error aaya.');
                                     setIsScanning(false);
                                     return; // STOP HERE so we see the error!
                                 }
                             }
                         } catch (apiErr: any) {
                             console.error("Vision API error", apiErr);
-                            showToast('⚠️ Vercel Live Error: ' + apiErr.message);
+                            showToast('⚠️ Vercel Live Error: Connection toot gayi.');
                             setIsScanning(false);
                             return; // STOP HERE so we see the error!
                         }
@@ -774,7 +782,7 @@ export default function BusinessExpensesPage() {
             </div>
 
             {/* ════════ SCREEN 2: DETAIL ════════ */}
-            {currentCust && (
+            {currentCust ? (
                 <div className={`screen ${activeScreen === 'detail' ? 'active' : ''}`} id="screen-detail">
                     <div className="dtopbar">
                         <div className="back-btn" onClick={handleBack}>‹</div>
@@ -990,6 +998,14 @@ export default function BusinessExpensesPage() {
                             <button className="bbar-btn bbar-credit" onClick={() => openAddEntry('credit')}>✅ Received</button>
                             <button className="bbar-btn bbar-debit" onClick={() => openAddEntry('debit')}>❌ Given</button>
                         </div>
+                    </div>
+                </div>
+            ) : (
+                <div className={`screen pc-empty-state-container ${activeScreen === 'detail' ? 'active' : ''}`} id="screen-detail">
+                    <div className="empty-state" style={{ height: '100%', justifyContent: 'center' }}>
+                        <div className="empty-ico" style={{ fontSize: '64px', marginBottom: '20px' }}>👈</div>
+                        <div className="empty-title" style={{ fontSize: '20px' }}>Customer Select Karein</div>
+                        <div className="empty-sub" style={{ fontSize: '14px', maxWidth: '300px', margin: '0 auto' }}>Left side list me se kisi customer par click karke unka poora hisaab dekhein.</div>
                     </div>
                 </div>
             )}
