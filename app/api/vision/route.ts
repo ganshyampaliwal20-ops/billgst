@@ -20,8 +20,8 @@ export async function POST(req: Request) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
-            // Using standard reliable Pro model (1.5-pro) to avoid timeouts on edge
-            model: "gemini-1.5-pro",
+            // 1.5 models are deprecated. Use the working 2.5-pro model.
+            model: "gemini-2.5-pro",
             generationConfig: { responseMimeType: "application/json" }
         });
 
