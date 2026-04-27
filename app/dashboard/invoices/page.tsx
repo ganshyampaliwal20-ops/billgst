@@ -139,35 +139,34 @@ export default function InvoicesPage() {
         const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${total}* from *${businessProfile.name || 'Business'}* is ready.\n\nRegards,\n${businessProfile.name || 'Business'}`;
         const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
         
-        const toastId = toast.loading('⏳ Preparing PDF for WhatsApp...');
+        const toastId = toast.loading('⏳ Preparing PDF for sharing...');
         try {
             const doc = await generateInvoicePDF(invoice, businessProfile, false);
-            if (doc && phone) {
+            if (doc) {
                 const pdfBlob = doc.output('blob');
                 const file = new File([pdfBlob], `Invoice-${invoice.invoice_number}.pdf`, { type: 'application/pdf' });
                 
-                const formData = new FormData();
-                formData.append('phone', phone);
-                formData.append('message', text);
-                formData.append('file', file);
-                
-                toast.loading('⏳ Sending via WhatsApp Bot...', { id: toastId });
-                const sendRes = await fetch('/api/whatsapp/send-media', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (sendRes.ok) {
-                    toast.success('✅ PDF sent on WhatsApp!', { id: toastId });
+                // Try Native Web Share API (works on Mobile and modern PC)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    toast.dismiss(toastId);
+                    await navigator.share({
+                        title: `Invoice #${invoice.invoice_number}`,
+                        text: text,
+                        files: [file]
+                    });
                     return;
+                } else {
+                    // Fallback: Download PDF and open WhatsApp Text
+                    toast.success('Downloading PDF... Please attach it manually in WhatsApp.', { id: toastId });
+                    doc.save(`Invoice-${invoice.invoice_number}.pdf`);
                 }
             }
         } catch (err) {
             console.error(err);
+            toast.dismiss(toastId);
         }
         
-        // Fallback
-        toast.dismiss(toastId);
+        // Open WhatsApp Text
         const url = phone ? `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
     };
@@ -188,31 +187,29 @@ export default function InvoicesPage() {
         const text = `Payment link for invoice #${invoice.invoice_number}:\n${upi}\n\nScan the attached QR code to pay via any UPI app.`;
         const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
         
-        if (qrCodeUrl && phone) {
-            const toastId = toast.loading('⏳ Sending QR Code via WhatsApp...');
+        if (qrCodeUrl) {
+            const toastId = toast.loading('⏳ Preparing QR Code for sharing...');
             try {
                 const res = await fetch(qrCodeUrl);
                 const blob = await res.blob();
                 const file = new File([blob], 'QR-Code.png', { type: 'image/png' });
                 
-                const formData = new FormData();
-                formData.append('phone', phone);
-                formData.append('message', text);
-                formData.append('file', file);
-                
-                const sendRes = await fetch('/api/whatsapp/send-media', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (sendRes.ok) {
-                    toast.success('✅ QR Code sent on WhatsApp!', { id: toastId });
+                // Try Native Web Share API
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    toast.dismiss(toastId);
+                    await navigator.share({
+                        title: 'Payment QR Code',
+                        text: text,
+                        files: [file]
+                    });
                     return;
+                } else {
+                    toast.success('Please share the text link below.', { id: toastId });
                 }
             } catch (err) {
                 console.error(err);
+                toast.dismiss(toastId);
             }
-            toast.dismiss(toastId);
         }
 
         // Fallback
