@@ -362,10 +362,11 @@ export default function BusinessExpensesPage() {
                                 try { errData = JSON.parse(errorText); } catch(e) {}
                                 
                                 if (errData.error === 'GEMINI_API_KEY is missing') {
-                                    console.log('Gemini skipped - No API Key. Falling back to offline Tesseract.');
-                                    showToast('⚠️ Live Server par Gemini API Key nahi hai! Basic Scanner use ho raha hai.');
+                                    window.alert("ATTENTION! Vercel par GEMINI_API_KEY nahi hai! \nAapne jo key Vercel mein daali thi wo theek se save nahi hui ya Redeploy nahi hua. \nIsiliye AI kaam nahi kar raha!");
+                                    setIsScanning(false);
+                                    return; // DO NOT RUN TESSERACT
                                 } else {
-                                    showToast('⚠️ AI Error: Server Timeout ya Error aaya.');
+                                    window.alert('⚠️ AI Error: ' + errData.error);
                                     setIsScanning(false);
                                     return; // STOP HERE so we see the error!
                                 }
