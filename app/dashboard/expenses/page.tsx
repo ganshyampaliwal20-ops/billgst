@@ -355,12 +355,18 @@ export default function BusinessExpensesPage() {
                                 const errData = await res.json();
                                 if (errData.error === 'GEMINI_API_KEY is missing') {
                                     console.log('Gemini skipped - No API Key. Falling back to offline Tesseract.');
+                                    showToast('⚠️ Live Server par Gemini API Key nahi hai! Basic Scanner use ho raha hai.');
                                 } else {
-                                    showToast('⚠️ AI Error: ' + errData.error);
+                                    showToast('⚠️ AI Error: ' + JSON.stringify(errData));
+                                    setIsScanning(false);
+                                    return; // STOP HERE so we see the error!
                                 }
                             }
-                        } catch (apiErr) {
+                        } catch (apiErr: any) {
                             console.error("Vision API error", apiErr);
+                            showToast('⚠️ Vercel Live Error: ' + apiErr.message);
+                            setIsScanning(false);
+                            return; // STOP HERE so we see the error!
                         }
 
                         // Fallback to Offline Tesseract AI

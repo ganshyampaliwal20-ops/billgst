@@ -19,8 +19,8 @@ export async function POST(req: Request) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
-            // Upgraded to pro for vastly superior OCR reasoning on messy Indian bills
-            model: "gemini-2.5-pro",
+            // Vercel Hobby plan has a strict 10-second timeout. We MUST use 'flash' instead of 'pro' so it finishes in time.
+            model: "gemini-1.5-flash",
             generationConfig: { responseMimeType: "application/json" }
         });
 
