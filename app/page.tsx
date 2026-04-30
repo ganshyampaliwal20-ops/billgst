@@ -162,8 +162,8 @@ export default function LandingPage() {
                 <ul className="nav-links">
                     <li><a href="#features">Features</a></li>
                     <li><a href="#pricing">Pricing</a></li>
-                    <li><a href="#reviews">Reviews</a></li>
-                    <li><a href="#faq">Support</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
                 </ul>
                 <div className="nav-end">
                     <div className="lang-wrap">
@@ -183,7 +183,8 @@ export default function LandingPage() {
             <div className={`mob-menu ${isMobMenuOpen ? 'open' : ''}`}>
                 <a href="#features" onClick={() => setIsMobMenuOpen(false)}>Features</a>
                 <a href="#pricing" onClick={() => setIsMobMenuOpen(false)}>Pricing</a>
-                <a href="#reviews" onClick={() => setIsMobMenuOpen(false)}>Reviews</a>
+                <a href="/about" onClick={() => setIsMobMenuOpen(false)}>About Us</a>
+                <a href="/privacy" onClick={() => setIsMobMenuOpen(false)}>Privacy Policy</a>
                 <button className="btn-hero" onClick={() => openM('signup')} style={{ marginTop: '10px' }}>Sign Up</button>
             </div>
 
@@ -453,8 +454,8 @@ export default function LandingPage() {
                             <p>India का #1 billing & GST software। हर दुकानदार के लिए, हर भाषा में।</p>
                         </div>
                         <div className="f-col"><h5>Product</h5><ul><li><a href="#">Invoicing</a></li><li><a href="#">Stock</a></li></ul></div>
-                        <div className="f-col"><h5>Company</h5><ul><li><a href="#">About</a></li><li><a href="#">Blog</a></li></ul></div>
-                        <div className="f-col"><h5>Support</h5><ul><li><a href="#">Help</a></li><li><a href="privacy">Privacy</a></li></ul></div>
+                        <div className="f-col"><h5>Company</h5><ul><li><a href="/about">About Us</a></li><li><a href="/blog">Blog</a></li></ul></div>
+                        <div className="f-col"><h5>Support</h5><ul><li><a href="#">Help</a></li><li><a href="/privacy">Privacy Policy</a></li></ul></div>
                     </div>
                     <div className="foot-btm">
                         <span>© {new Date().getFullYear()} BillGST · All rights reserved</span>

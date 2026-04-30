@@ -1162,7 +1162,7 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 38px;
   font-weight: 600;
-  color: var(--text);
+  color: #ffffff !important;
   background: transparent;
   border: none;
   outline: none;
@@ -1193,7 +1193,7 @@
   font-family: 'Nunito', sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: #ffffff !important;
   background: var(--bg3);
   outline: none;
   transition: all .2s;
