@@ -25,7 +25,8 @@ export async function GET() {
 
             const user = result.rows[0];
             return NextResponse.json({
-                plan: user.plan_type || 'FREE',
+                plan: user.subscription_status === 'PENDING' ? 'FREE' : (user.plan_type || 'FREE'),
+                pendingPlan: user.subscription_status === 'PENDING' ? user.plan_type : null,
                 expiry: user.plan_expiry,
                 status: user.subscription_status || 'ACTIVE'
             });

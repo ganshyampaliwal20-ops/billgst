@@ -25,6 +25,10 @@ export default function PricingPage() {
                 if (res.ok) {
                     const data = await res.json();
                     setCurrentPlan(data.plan);
+                    if (data.status === 'PENDING') {
+                        setTransactionId('PENDING_REVIEW'); // Flag for UI
+                        toast.loading('Your previous payment is still under review.', { duration: 4000 });
+                    }
                 }
             } catch (err) {
                 console.error("Failed to fetch plan status", err);
@@ -191,10 +195,10 @@ export default function PricingPage() {
 
                             <button
                                 onClick={() => handleUpgrade(plan)}
-                                disabled={isActive}
-                                className={`mt-6 w-full py-2 rounded-lg font-medium text-white transition-colors ${isActive ? 'bg-green-600 cursor-default' : plan.btnColor}`}
+                                disabled={isActive || transactionId === 'PENDING_REVIEW'}
+                                className={`mt-6 w-full py-2 rounded-lg font-medium text-white transition-colors ${isActive ? 'bg-green-600 cursor-default' : transactionId === 'PENDING_REVIEW' ? 'bg-slate-400 cursor-not-allowed' : plan.btnColor}`}
                             >
-                                {isActive ? 'Active' : 'Upgrade Now'}
+                                {isActive ? 'Active' : transactionId === 'PENDING_REVIEW' ? 'Review Pending ⏳' : 'Upgrade Now'}
                             </button>
                         </div>
                     );
