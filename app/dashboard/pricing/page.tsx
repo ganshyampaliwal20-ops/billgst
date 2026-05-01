@@ -138,9 +138,9 @@ export default function PricingPage() {
                 });
 
                 if (res.ok) {
-                    toast.success('Payment Verified! Plan activated successfully 🎉');
+                    toast.success('Payment details submitted! Your plan will activate within 1-2 hours after verification. ⏳', { duration: 5000 });
                     setShowPaymentModal(false);
-                    setTimeout(() => window.location.reload(), 1500);
+                    setTimeout(() => window.location.reload(), 3000);
                 } else {
                     toast.error('Failed to verify payment. Please try again.');
                     setLoading(false);

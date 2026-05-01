@@ -50,7 +50,7 @@ export async function POST(request: Request) {
             UPDATE users 
             SET plan_type = $1, 
                 plan_expiry = $2, 
-                subscription_status = 'ACTIVE'
+                subscription_status = 'PENDING'
             WHERE id = $3
         `, [planType, expiryDate, session.user.id]);
 
