@@ -48,10 +48,13 @@ export async function POST(request) {
         let referrerId = null;
 
         if (refCode) {
-            const referrerRes = await pool.query('SELECT user_id FROM referral_codes WHERE code = $1', [refCode]);
+            const cleanRefCode = refCode.trim().toUpperCase();
+            const referrerRes = await pool.query('SELECT user_id FROM referral_codes WHERE UPPER(code) = $1', [cleanRefCode]);
             if (referrerRes.rows.length > 0) {
                 referrerId = referrerRes.rows[0].user_id;
                 initialFreeInvoices = 20;
+            } else {
+                console.log('Reg Debug: Ref code not found:', cleanRefCode);
             }
         }
 

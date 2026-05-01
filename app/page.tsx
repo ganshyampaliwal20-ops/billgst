@@ -601,6 +601,15 @@ export default function LandingPage() {
                                 onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                             />
                         </div>
+                        <div className="fg">
+                            <label>Referral Code (Optional)</label>
+                            <input
+                                type="text"
+                                placeholder="Enter code if you have one"
+                                value={signupData.refCode}
+                                onChange={(e) => setSignupData({ ...signupData, refCode: e.target.value })}
+                            />
+                        </div>
                         <button type="submit" className="btn-mf" disabled={isLoading}>
                             {isLoading ? 'Creating account...' : 'मुफ्त Account बनाएं →'}
                         </button>
