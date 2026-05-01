@@ -21,10 +21,10 @@ export default function LandingPage() {
 
     // Form States
     const [loginData, setLoginData] = useState({ email: '', password: '' });
-    const [signupData, setSignupData] = useState({ name: '', email: '', password: '' });
+    const [signupData, setSignupData] = useState({ name: '', email: '', password: '', refCode: '' });
 
     // Prices Data
-    const prices = [{ m: 30, y: 21 }, { m: 299, y: 209 }, { m: 999, y: 699 }];
+    const prices = [{ m: 0, y: 0 }, { m: 99, y: 99 }, { m: 299, y: 299 }];
 
     useEffect(() => {
         // Redirect if authenticated
@@ -34,10 +34,15 @@ export default function LandingPage() {
 
         // Open modal based on URL query parameter
         if (typeof window !== 'undefined' && window.location.search) {
-            const searchStr = window.location.search;
-            if (searchStr.includes('login=true')) {
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.get('login') === 'true') {
                 setIsLoginOpen(true);
-            } else if (searchStr.includes('signup=true')) {
+            } else if (searchParams.get('signup') === 'true') {
+                setIsSignupOpen(true);
+            }
+            const ref = searchParams.get('ref');
+            if (ref) {
+                setSignupData(prev => ({ ...prev, refCode: ref }));
                 setIsSignupOpen(true);
             }
         }
@@ -422,10 +427,10 @@ export default function LandingPage() {
                         {prices.map((p, i) => (
                             <div key={i} className={`p-card ${i === 1 ? 'pop' : ''} fi`}>
                                 {i === 1 && <div className="pp-badge">⭐ Most Popular</div>}
-                                <div className="p-name">{i === 0 ? 'Free Plan' : i === 1 ? 'Professional' : 'Enterprise'}</div>
+                                <div className="p-name">{i === 0 ? 'Free Plan' : i === 1 ? 'Premium Growth' : 'Yearly Pro'}</div>
                                 <div className="p-amount">₹<span>{yearly ? p.y : p.m}</span></div>
-                                <div className="p-per">per month {yearly ? '· billed yearly' : ''}</div>
-                                <div className="p-save">{yearly ? `₹${(p.m - p.y) * 12} saved per year` : ''}</div>
+                                <div className="p-per">{i === 2 ? 'per year' : i === 1 ? 'for 3 months' : 'per month'}</div>
+                                <div className="p-save">{yearly && p.m > p.y ? `₹${(p.m - p.y) * 12} saved per year` : ''}</div>
                                 <div className="p-divider"></div>
                                 <ul className="p-features">
                                     <li className="yes">{i === 0 ? '30 Invoices / month' : 'Unlimited Bills'}</li>
@@ -444,6 +449,67 @@ export default function LandingPage() {
 
             {/* FOOTER */}
             <footer className="landing-footer">
+                <style dangerouslySetInnerHTML={{__html: `
+                    .landing-follow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 0 auto 30px; max-width: 900px; padding: 20px; }
+                    .lf-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 12px; border-radius: 12px; text-decoration: none; border: 0.5px solid rgba(255,255,255,0.09); transition: transform 0.18s ease; text-align: center; color: white; }
+                    .lf-card:hover { transform: translateY(-3px); }
+                    .lf-card.card-wide { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 12px; padding: 12px 16px; text-align: left; }
+                    .lfc-ig { background: linear-gradient(135deg,#6a11cb,#c0392b,#f7971e); box-shadow: 0 4px 14px rgba(192,57,43,0.25); }
+                    .lfc-fb { background: linear-gradient(135deg,#1565c0,#1976d2,#42a5f5); box-shadow: 0 4px 14px rgba(21,101,192,0.25); }
+                    .lfc-yt { background: linear-gradient(135deg,#7b0000,#c62828,#f44336); box-shadow: 0 4px 14px rgba(198,40,40,0.25); }
+                    .lfc-wa { background: linear-gradient(135deg,#1b5e20,#2e7d32,#43a047); box-shadow: 0 4px 14px rgba(46,125,50,0.25); }
+                    .lfc-web { background: linear-gradient(135deg,#0f1260,#1e28c8,#4a55e8); box-shadow: 0 4px 14px rgba(74,85,232,0.25); }
+                    .lfc-icon { width: 36px; height: 36px; flex-shrink: 0; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+                    .lfc-icon svg { width: 18px; height: 18px; fill: #fff; }
+                    .lfc-label { font-size: 13px; font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -0.2px; font-family: 'Syne', sans-serif; }
+                    .lfc-sub { font-size: 10px; color: rgba(255,255,255,0.75); line-height: 1.3; margin-top: 2px; font-weight: 500; }
+                    .lfc-arrow { width: 24px; height: 24px; flex-shrink: 0; background: rgba(255,255,255,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+                    .lf-card:hover .lfc-arrow { transform: translateX(3px); background: rgba(255,255,255,0.22); }
+                    .lfc-arrow svg { width: 12px; height: 12px; stroke: #fff; }
+                `}} />
+
+                <div className="landing-follow-grid">
+                    <a className="lf-card lfc-ig" href="https://www.instagram.com/billgst" target="_blank" rel="noopener">
+                        <div className="lfc-icon"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+                        <div className="lfc-label">Instagram</div>
+                        <div className="lfc-sub">@billgst</div>
+                    </a>
+
+                    <a className="lf-card lfc-fb" href="https://www.facebook.com/billgst" target="_blank" rel="noopener">
+                        <div className="lfc-icon"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+                        <div className="lfc-label">Facebook</div>
+                        <div className="lfc-sub">BillGST Page</div>
+                    </a>
+
+                    <a className="lf-card lfc-yt" href="https://www.youtube.com/@billgstapp" target="_blank" rel="noopener">
+                        <div className="lfc-icon"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+                        <div className="lfc-label">YouTube</div>
+                        <div className="lfc-sub">Tutorials</div>
+                    </a>
+
+                    <a className="lf-card lfc-wa" href="https://wa.me/917498571873" target="_blank" rel="noopener">
+                        <div className="lfc-icon"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.486 2 2 6.486 2 12c0 1.73.445 3.397 1.293 4.875L2.05 21.95l5.19-1.232A9.948 9.948 0 0012 22c5.514 0 10-4.486 10-10S17.514 2 12 2zm0 18a7.951 7.951 0 01-4.063-1.117l-.289-.172-3.082.731.776-2.999-.188-.307A7.946 7.946 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg></div>
+                        <div className="lfc-label">WhatsApp</div>
+                        <div className="lfc-sub">Chat & Support</div>
+                    </a>
+
+                    <a className="lf-card card-wide lfc-web" href="https://billgst.in" target="_blank" rel="noopener">
+                        <div className="lfc-icon">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
+                                <path d="M2 12h20M12 2c-2.5 3-4 6-4 10s1.5 7 4 10M12 2c2.5 3 4 6 4 10s-1.5 7-4 10" stroke="white" strokeWidth="2"/>
+                            </svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: "14px", fontWeight: 700, color: "#fff", fontFamily: "'Syne', sans-serif" }}>billgst.in — Free account banao abhi</div>
+                            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Invoice, hisaab, GST — sab kuch ek jagah</div>
+                        </div>
+                        <div className="lfc-arrow">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                    </a>
+                </div>
+
                 <div className="foot-in">
                     <div className="foot-top">
                         <div className="f-brand">
@@ -455,7 +521,7 @@ export default function LandingPage() {
                         </div>
                         <div className="f-col"><h5>Product</h5><ul><li><a href="#">Invoicing</a></li><li><a href="#">Stock</a></li></ul></div>
                         <div className="f-col"><h5>Company</h5><ul><li><a href="/about">About Us</a></li><li><a href="/blog">Blog</a></li></ul></div>
-                        <div className="f-col"><h5>Support</h5><ul><li><a href="#">Help</a></li><li><a href="/privacy">Privacy Policy</a></li></ul></div>
+                        <div className="f-col"><h5>Support</h5><ul><li><a href="/dashboard/referral">Refer & Earn</a></li><li><a href="#">Help</a></li><li><a href="/privacy">Privacy Policy</a></li></ul></div>
                     </div>
                     <div className="foot-btm">
                         <span>© {new Date().getFullYear()} BillGST · All rights reserved</span>

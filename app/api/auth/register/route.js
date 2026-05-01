@@ -4,8 +4,8 @@ import pool from '@/lib/db';
 
 export async function POST(request) {
     try {
-        const { name, email, password } = await request.json();
-        console.log('Reg Debug: Registering', email);
+        const { name, email, password, refCode } = await request.json();
+        console.log('Reg Debug: Registering', email, 'Ref:', refCode);
 
         // Validate input
         if (!name || !email || !password) {
@@ -43,11 +43,38 @@ export async function POST(request) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Check referral
+        let initialFreeInvoices = 0;
+        let referrerId = null;
+
+        if (refCode) {
+            const referrerRes = await pool.query('SELECT user_id FROM referral_codes WHERE code = $1', [refCode]);
+            if (referrerRes.rows.length > 0) {
+                referrerId = referrerRes.rows[0].user_id;
+                initialFreeInvoices = 20;
+            }
+        }
+
         // Create user
         const result = await pool.query(
-            'INSERT INTO users (name, email, password, role, plan_type, subscription_status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, role, plan_type',
-            [name, email, hashedPassword, 'USER', planType, subStatus]
+            'INSERT INTO users (name, email, password, role, plan_type, subscription_status, free_invoices_balance) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, email, role, plan_type',
+            [name, email, hashedPassword, 'USER', planType, subStatus, initialFreeInvoices]
         );
+
+        const newUserId = result.rows[0].id;
+
+        // Generate and insert unique referral code for the new user
+        const safeName = name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') || 'USR';
+        const newRefCode = safeName + Math.floor(1000 + Math.random() * 9000);
+        await pool.query('INSERT INTO referral_codes (user_id, code) VALUES ($1, $2)', [newUserId, newRefCode]);
+
+        // Process referral rewards if applicable
+        if (referrerId) {
+            // Give referrer 20 invoices
+            await pool.query('UPDATE users SET free_invoices_balance = COALESCE(free_invoices_balance, 0) + 20 WHERE id = $1', [referrerId]);
+            // Insert reward record
+            await pool.query('INSERT INTO referral_rewards (referrer_id, referred_id, reward_amount) VALUES ($1, $2, 20)', [referrerId, newUserId]);
+        }
 
         return NextResponse.json({
             message: 'User created successfully',

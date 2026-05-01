@@ -25,7 +25,7 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
     try {
         // 1. Get User Plan
         const userRes = await client.query(
-            `SELECT plan_type, plan_expiry, subscription_status, created_at FROM users WHERE id = $1`,
+            `SELECT plan_type, plan_expiry, subscription_status, created_at, free_invoices_balance FROM users WHERE id = $1`,
             [userId]
         );
 
@@ -106,6 +106,15 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
         }
 
         if (count >= limit) {
+            if (feature === 'INVOICE' && user.free_invoices_balance > 0) {
+                return {
+                    allowed: true,
+                    currentCount: count,
+                    maxLimit: limit,
+                    plan,
+                    reason: 'USED_FREE_BALANCE'
+                };
+            }
             return {
                 allowed: false,
                 reason: `Monthly limit of ${limit} reached. Upgrade to continue.`,

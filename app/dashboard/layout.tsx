@@ -98,6 +98,7 @@ export default function DashboardLayout({
             }
         },
         { icon: FaStar, label: 'Subscription', href: '/dashboard/pricing' },
+        { icon: FaUsers, label: 'Refer & Earn', href: '/dashboard/referral' },
         { icon: FaInfoCircle, label: 'About Us', href: '/about' },
         { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
         // Settings moved to bottom manually

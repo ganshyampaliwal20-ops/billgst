@@ -114,6 +114,10 @@ export async function POST(request: Request) {
         // Start Transaction
         await client.query('BEGIN');
 
+        if (limitCheck.reason === 'USED_FREE_BALANCE') {
+            await client.query('UPDATE users SET free_invoices_balance = free_invoices_balance - 1 WHERE id = $1', [userId]);
+        }
+
         const invoiceResult = await client.query(`
         INSERT INTO invoices (
             id, invoice_number, customer_id, invoice_date, due_date, 
@@ -212,6 +216,9 @@ export async function POST(request: Request) {
 
                 // Retry Insertion
                 await client.query('BEGIN');
+                if (limitCheck.reason === 'USED_FREE_BALANCE') {
+                    await client.query('UPDATE users SET free_invoices_balance = free_invoices_balance - 1 WHERE id = $1', [userId]);
+                }
                 const invoiceResult = await client.query(`
                     INSERT INTO invoices (
                         id, invoice_number, customer_id, invoice_date, due_date, 
