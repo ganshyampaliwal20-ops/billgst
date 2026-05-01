@@ -119,6 +119,11 @@ export default function PricingPage() {
     };
 
     const verifyPayment = async () => {
+        if (!transactionId || transactionId.length !== 12) {
+            toast.error('Please enter a valid 12-digit UTR Number');
+            return;
+        }
+
         setLoading(true);
         // Simulate a professional verification delay
         setTimeout(async () => {
@@ -128,7 +133,7 @@ export default function PricingPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         planType: selectedPlan?.type,
-                        transactionId: 'AUTO_VERIFIED_' + Date.now()
+                        transactionId: transactionId
                     })
                 });
 
@@ -137,7 +142,7 @@ export default function PricingPage() {
                     setShowPaymentModal(false);
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    toast.error('Failed to verify payment.');
+                    toast.error('Failed to verify payment. Please try again.');
                     setLoading(false);
                 }
             } catch (err) {
@@ -241,11 +246,35 @@ export default function PricingPage() {
                             </div>
                         </div>
 
+                        {/* Professional UTR Input */}
+                        <div className="mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
+                            <label className="block text-sm font-bold text-slate-700 mb-2 text-left flex items-center gap-2">
+                                <span className="bg-blue-100 text-blue-600 p-1 rounded-md text-[10px]">VERIFY</span>
+                                Enter 12-Digit UTR / Ref. Number
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    #
+                                </span>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. 308947281234"
+                                    maxLength={12}
+                                    value={transactionId}
+                                    onChange={(e) => setTransactionId(e.target.value.replace(/[^0-9]/g, ''))}
+                                    className="w-full border-2 border-slate-200 rounded-lg pl-8 pr-3 py-2.5 text-sm font-bold tracking-widest focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:font-normal placeholder:tracking-normal"
+                                />
+                            </div>
+                            <p className="text-[10px] text-slate-500 mt-2 text-left">
+                                Found in your UPI app's transaction history after payment.
+                            </p>
+                        </div>
+
                         <button
                             onClick={verifyPayment}
-                            disabled={loading}
-                            className={`w-full py-3.5 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2 ${loading
-                                ? 'bg-slate-100 text-slate-500 cursor-wait'
+                            disabled={loading || transactionId.length !== 12}
+                            className={`w-full py-3.5 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2 ${loading || transactionId.length !== 12
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                                 : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transform hover:-translate-y-0.5'
                                 }`}
                         >
@@ -257,7 +286,7 @@ export default function PricingPage() {
                                     </svg>
                                     Verifying Payment...
                                 </>
-                            ) : 'I Have Paid ✅'}
+                            ) : 'Verify & Activate Plan ✅'}
                         </button>
                     </div>
                 </div>
