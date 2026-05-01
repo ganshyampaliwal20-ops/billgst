@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const maxDuration = 60; // Allow enough time for AI response without Vercel timeout
-export const runtime = 'edge'; // Vercel Edge Runtime allows up to 30s on Hobby plan (Node.js is limited to 10s)
-
 export async function POST(req: Request) {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
