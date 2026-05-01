@@ -239,7 +239,7 @@
   font-family: 'Nunito', sans-serif;
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--text);
+  color: #ffffff !important;
   background: transparent;
 }
 
@@ -1449,3 +1449,6 @@
     display: flex !important;
   }
 }
+
+input, textarea, select { color: #ffffff !important; }
+option { color: #000000 !important; background: #ffffff !important; }

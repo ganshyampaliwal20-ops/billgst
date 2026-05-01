@@ -37,6 +37,14 @@ export async function POST(request: Request) {
 
         const client = await pool.connect();
 
+        // Auto migrate table columns if not exists
+        await client.query(`
+            ALTER TABLE users 
+            ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS plan_expiry TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50);
+        `);
+
         // Update User Plan
         await client.query(`
             UPDATE users 

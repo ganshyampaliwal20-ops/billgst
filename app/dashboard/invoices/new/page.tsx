@@ -472,7 +472,7 @@ export default function NewInvoicePage() {
                 
                 .fg { margin-bottom: 20px; }
                 .fl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
-                .fi { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; transition: 0.2s; background: var(--faint); outline: none; color: var(--ink); }
+                .fi { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; transition: 0.2s; background: var(--faint); outline: none; color: #000 !important; }
                 .fi:focus { border-color: var(--indigo); background: white; box-shadow: 0 0 0 4px var(--iglow); }
                 
                 .inv-pill { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
