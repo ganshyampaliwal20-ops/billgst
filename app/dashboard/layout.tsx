@@ -101,6 +101,7 @@ export default function DashboardLayout({
         { icon: FaUsers, label: 'Refer & Earn', href: '/dashboard/referral' },
         { icon: FaInfoCircle, label: 'About Us', href: '/about' },
         { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
+        { icon: FaShieldAlt, label: 'Admin Panel', href: '/dashboard/admin' },
         // Settings moved to bottom manually
     ];
 
