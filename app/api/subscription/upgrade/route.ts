@@ -42,7 +42,8 @@ export async function POST(request: Request) {
             ALTER TABLE users 
             ADD COLUMN IF NOT EXISTS plan_type VARCHAR(50),
             ADD COLUMN IF NOT EXISTS plan_expiry TIMESTAMP,
-            ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50);
+            ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS last_payment_utr VARCHAR(100);
         `);
 
         // Update User Plan
@@ -50,9 +51,10 @@ export async function POST(request: Request) {
             UPDATE users 
             SET plan_type = $1, 
                 plan_expiry = $2, 
-                subscription_status = 'PENDING'
+                subscription_status = 'PENDING',
+                last_payment_utr = $4
             WHERE id = $3
-        `, [planType, expiryDate, session.user.id]);
+        `, [planType, expiryDate, session.user.id, transactionId]);
 
         client.release();
 
