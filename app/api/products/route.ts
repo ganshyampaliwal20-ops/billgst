@@ -60,10 +60,10 @@ export async function POST(request: Request) {
         try {
             const productType = data.type || 'PRODUCT';
             const result = await client.query(
-                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()) 
+                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url]
+                [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url, data.expiry_date || null, data.expiry_alert_days || 10]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -81,10 +81,10 @@ export async function POST(request: Request) {
                 // Retry
                 const productType = data.type || 'PRODUCT';
                 const result = await client.query(
-                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, created_at) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()) 
+                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url]
+                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url, data.expiry_date || null, data.expiry_alert_days || 10]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
@@ -127,10 +127,10 @@ export async function PUT(request: Request) {
 
         const result = await client.query(
             `UPDATE products 
-             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, image_url = $10, updated_at = NOW()
-             WHERE id = $11 AND created_by = $12
+             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, image_url = $10, expiry_date = $11, expiry_alert_days = $12, updated_at = NOW()
+             WHERE id = $13 AND created_by = $14
              RETURNING *`,
-            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', image_url, id, userId]
+            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', image_url, data.expiry_date || null, data.expiry_alert_days || 10, id, userId]
         );
         client.release();
 

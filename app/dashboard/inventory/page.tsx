@@ -39,6 +39,8 @@ export default function InventoryPage() {
         gst_rate: "18",
         type: "product",
         image_url: "",
+        expiry_date: "",
+        expiry_alert_days: "10",
     });
 
     useEffect(() => {
@@ -111,6 +113,8 @@ export default function InventoryPage() {
             gst_rate: p.gst_rate || "18",
             type: p.type || "product",
             image_url: p.image_url || "",
+            expiry_date: p.expiry_date ? new Date(p.expiry_date).toISOString().split('T')[0] : "",
+            expiry_alert_days: p.expiry_alert_days || "10",
         });
         setEditingId(p.id);
         const commonRates = ["0", "5", "12", "18", "28"];
@@ -138,6 +142,8 @@ export default function InventoryPage() {
             purchase_price: parseFloat(formData.purchase_price) || 0,
             stock_quantity: parseInt(formData.stock_quantity) || 0,
             gst_rate: parseFloat(formData.gst_rate),
+            expiry_date: formData.expiry_date || null,
+            expiry_alert_days: parseInt(formData.expiry_alert_days) || 10,
         };
 
         if (editingId) {
@@ -164,6 +170,8 @@ export default function InventoryPage() {
             gst_rate: "18",
             type: "product",
             image_url: "",
+            expiry_date: "",
+            expiry_alert_days: "10",
         });
         setEditingId(null);
         setShowCustomGst(false);
@@ -213,6 +221,17 @@ export default function InventoryPage() {
         const bgs = ["#eff6ff", "#f0fdf4", "#faf5ff", "#fffbeb", "#fff5f5"];
         const charCode = id.toString().charCodeAt(0);
         return bgs[charCode % bgs.length];
+    };
+
+    const getExpiryStatus = (p: any) => {
+        if (!p.expiry_date) return null;
+        const exp = new Date(p.expiry_date);
+        const now = new Date();
+        const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return { expired: true, text: 'Expired', color: 'var(--red)' };
+        const alertDays = p.expiry_alert_days || 10;
+        if (diffDays <= alertDays) return { expired: false, text: `Expiring in ${diffDays} days`, color: 'var(--amber)' };
+        return null;
     };
 
     return (
@@ -537,6 +556,9 @@ export default function InventoryPage() {
                                                 <div className="prod-tags">
                                                     <span className={`ptag ${p.type?.toLowerCase() === 'service' ? 'service' : 'product'}`}>{p.type || "PRODUCT"}</span>
                                                     <span className="ptag gst">GST {p.gst_rate || 0}%</span>
+                                                    {getExpiryStatus(p) && (
+                                                        <span className="ptag" style={{ background: 'rgba(239,68,68,.1)', color: getExpiryStatus(p)?.color }}>⚠ {getExpiryStatus(p)?.text}</span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="price-cell">
@@ -577,6 +599,9 @@ export default function InventoryPage() {
                                                 <div className="pgv-name" title={p.name}>{p.name}</div>
                                                 <div className="pgv-price">₹{parseFloat(p.price || 0).toLocaleString("en-IN")}</div>
                                                 <div className="pgv-stock">{stock <= 0 ? "❌ Out of stock" : `📦 ${stock} left`}</div>
+                                                {getExpiryStatus(p) && (
+                                                    <div style={{ fontSize: '10px', fontWeight: 700, color: getExpiryStatus(p)?.color, marginTop: '2px' }}>⚠ {getExpiryStatus(p)?.text}</div>
+                                                )}
                                                 <div className="pgv-actions">
                                                     <div className="pgv-btn" onClick={() => handleEdit(p)}>✏️ Edit</div>
                                                     <div className="pgv-btn" onClick={(e) => openQR(e, p)}>📱 QR</div>
@@ -711,6 +736,16 @@ export default function InventoryPage() {
                                         <option value="PRODUCT">Product</option>
                                         <option value="SERVICE">Service</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div className="field-row">
+                                <div>
+                                    <label className="field-label">Expiry Date (Optional)</label>
+                                    <input className="field-input" type="date" value={formData.expiry_date || ""} onChange={e => setFormData({ ...formData, expiry_date: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="field-label">Expiry Alert (Days Before)</label>
+                                    <input className="field-input" type="number" placeholder="e.g. 10" value={formData.expiry_alert_days || ""} onChange={e => setFormData({ ...formData, expiry_alert_days: e.target.value })} />
                                 </div>
                             </div>
                             <div className="field-group" style={{ marginBottom: "14px" }}>

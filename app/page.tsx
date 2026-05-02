@@ -556,6 +556,9 @@ export default function LandingPage() {
                                 value={loginData.password}
                                 onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                             />
+                            <div style={{ textAlign: 'right', marginTop: '8px' }}>
+                                <a href="/forgot-password" style={{ fontSize: '13px', color: '#4F8EF7', textDecoration: 'none', fontWeight: 500, cursor: 'pointer' }}>Forgot password?</a>
+                            </div>
                         </div>
                         <button type="submit" className="btn-mf" disabled={isLoading}>
                             {isLoading ? 'Signing in...' : 'Login →'}
