@@ -3,9 +3,22 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+import { useSession } from 'next-auth/react';
+
 export default function AdminPaymentsPage() {
+    const { data: session, status } = useSession();
     const [pending, setPending] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    if (status === 'loading') return <div>Loading...</div>;
+    if (session?.user?.email !== 'ganshyampaliwal20@gmail.com') {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[50vh]">
+                <h1 className="text-3xl font-black text-rose-600 mb-2">Access Denied ❌</h1>
+                <p className="text-slate-500">You must be the administrator to view this page.</p>
+            </div>
+        );
+    }
 
     const fetchPending = async () => {
         try {

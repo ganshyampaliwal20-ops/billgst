@@ -7,8 +7,7 @@ export async function GET(request: Request) {
     try {
         const session: any = await getServerSession(authOptions as any);
         
-        // Simple role check - in a real app, ensure session.user.role === 'ADMIN'
-        if (!session?.user?.id) {
+        if (!session?.user?.email || session.user.email !== 'ganshyampaliwal20@gmail.com') {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -41,7 +40,7 @@ export async function POST(request: Request) {
     try {
         const session: any = await getServerSession(authOptions as any);
         
-        if (!session?.user?.id) {
+        if (!session?.user?.email || session.user.email !== 'ganshyampaliwal20@gmail.com') {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
