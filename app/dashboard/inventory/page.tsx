@@ -274,7 +274,7 @@ export default function InventoryPage() {
         .search-filter-row { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
         .search-wrap { flex:1; display:flex; align-items:center; gap:10px; background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:12px 16px; box-shadow:var(--shadow); transition:all .2s; }
         .search-wrap:focus-within { border-color:var(--green); box-shadow:0 0 0 3px rgba(16,185,129,.1); }
-        .search-wrap input { flex:1; border:none; outline:none; font-family:'Sora',sans-serif; font-size:14px; font-weight:500; color:var(--ink); background:transparent; }
+        .search-wrap input { flex:1; border:none; outline:none; font-family:'Sora',sans-serif; font-size:14px; font-weight:500; color:#000 !important; background:transparent; }
         .search-wrap input::placeholder { color:#c0c8da; font-weight:400; }
         .search-icon-btn { width:36px; height:36px; background:linear-gradient(135deg,var(--green),#059669); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; flex-shrink:0; }
         .filter-btn { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:12px 16px; font-family:'Sora',sans-serif; font-size:13px; font-weight:700; color:var(--slate); cursor:pointer; display:flex; align-items:center; gap:7px; box-shadow:var(--shadow); transition:all .2s; white-space:nowrap; }
@@ -371,8 +371,8 @@ export default function InventoryPage() {
         .modal-body { padding:18px 22px; }
         .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
         .field-label { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:6px; display:block; }
-        .field-input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'Sora',sans-serif; font-size:13px; color:var(--ink); outline:none; transition:all .2s; background:var(--faint); }
-        .field-input:focus { border-color:var(--green); background:var(--white); box-shadow:0 0 0 3px rgba(16,185,129,.1); }
+        .field-input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'Sora',sans-serif; font-size:13px; color:#000 !important; outline:none; transition:all .2s; background:var(--faint); }
+        .field-input:focus { border-color:var(--green); background:var(--white); box-shadow:0 0 0 3px rgba(16,185,129,.1); color:#000 !important; }
         .modal-footer { padding:0 24px 22px; display:flex; gap:10px; }
         .mf-btn { flex:1; padding:13px; border-radius:12px; font-family:'Sora',sans-serif; font-size:14px; font-weight:800; cursor:pointer; border:none; transition:all .2s; }
         .mf-cancel { background:var(--faint); color:var(--slate); border:1.5px solid var(--border); }

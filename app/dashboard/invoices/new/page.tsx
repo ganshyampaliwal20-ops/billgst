@@ -430,7 +430,7 @@ export default function NewInvoicePage() {
     const selectedCustomer = safeCustomers.find(c => c.id === customerId);
 
     return (
-        <div className="new-invoice-page">
+        <div className="new-invoice-page text-slate-900">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
@@ -472,7 +472,7 @@ export default function NewInvoicePage() {
                 
                 .fg { margin-bottom: 20px; }
                 .fl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
-                .fi { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; transition: 0.2s; background: var(--faint); outline: none; color: #000 !important; }
+                .fi { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; transition: 0.2s; background: var(--faint); outline: none; color: #0f172a !important; }
                 .fi:focus { border-color: var(--indigo); background: white; box-shadow: 0 0 0 4px var(--iglow); }
                 
                 .inv-pill { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -600,7 +600,7 @@ export default function NewInvoicePage() {
                             <div className="flex gap-2">
                                 <div className="flex-1">
                                     <label className="fl">{t.customer} *</label>
-                                    <select className="fi" value={customerId} onChange={e => setCustomerId(e.target.value)}>
+                                    <select className="fi text-slate-900" value={customerId} onChange={e => setCustomerId(e.target.value)}>
                                         <option value="">Select Customer</option>
                                         {safeCustomers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </select>
@@ -621,8 +621,8 @@ export default function NewInvoicePage() {
                         )}
 
                         <div className="grid grid-cols-2 gap-6 mt-6">
-                            <div className="fg"><label className="fl">Invoice Date</label><input type="date" className="fi" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} /></div>
-                            <div className="fg"><label className="fl">Due Date</label><input type="date" className="fi" value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
+                            <div className="fg"><label className="fl">Invoice Date</label><input type="date" className="fi text-slate-900" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} /></div>
+                            <div className="fg"><label className="fl">Due Date</label><input type="date" className="fi text-slate-900" value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
                         </div>
                     </div>
 
@@ -641,7 +641,7 @@ export default function NewInvoicePage() {
                                         <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-4 gap-4">
                                             <div className="md:col-span-1">
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Product Name</label>
-                                                <select className="fi" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)}>
+                                                <select className="fi text-slate-900" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)}>
                                                     <option value="">Select Product</option>
                                                     {safeProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                                 </select>
@@ -649,19 +649,19 @@ export default function NewInvoicePage() {
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Qty & Unit</label>
                                                 <div className="flex gap-1">
-                                                    <input type="number" className="fi" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
-                                                    <select className="fi px-2" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value)}>
+                                                    <input type="number" className="fi text-slate-900" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
+                                                    <select className="fi px-2 text-slate-900" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value)}>
                                                         <option>PCS</option><option>KG</option><option>BOX</option><option>MTR</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Price (₹)</label>
-                                                <input type="number" className="fi" value={item.unit_price} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
+                                                <input type="number" className="fi text-slate-900" value={item.unit_price} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">GST %</label>
-                                                <select className="fi" value={item.gst_rate} onChange={e => updateItem(idx, 'gst_rate', e.target.value)}>
+                                                <select className="fi text-slate-900" value={item.gst_rate} onChange={e => updateItem(idx, 'gst_rate', e.target.value)}>
                                                     {[0, 5, 12, 18, 28].map(r => <option key={r} value={r}>{r}%</option>)}
                                                 </select>
                                             </div>
@@ -701,10 +701,10 @@ export default function NewInvoicePage() {
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> Discount & Shipping</div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div><label className="fl">Discount (%)</label><input type="number" className="fi" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
-                            <div><label className="fl">Extra Fee (₹)</label><input type="number" className="fi" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
+                            <div><label className="fl">Discount (%)</label><input type="number" className="fi text-slate-900" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
+                            <div><label className="fl">Extra Fee (₹)</label><input type="number" className="fi text-slate-900" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
                         </div>
-                        <div><label className="fl">Shipping (₹)</label><input type="number" className="fi" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
+                        <div><label className="fl">Shipping (₹)</label><input type="number" className="fi text-slate-900" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
                     </div>
 
                     {/* Payment Info */}
@@ -727,7 +727,7 @@ export default function NewInvoicePage() {
                     {/* Notes & Terms */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#f1f5f9', color: '#64748b' }}><FaReceipt /></div> {t.termsNotes}</div>
-                        <textarea className="fi min-h-[100px] bg-slate-50 border-dashed" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Terms & conditions or personal message..."></textarea>
+                        <textarea className="fi min-h-[100px] bg-slate-50 border-dashed text-slate-900" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Terms & conditions or personal message..."></textarea>
                     </div>
                 </div>
 
