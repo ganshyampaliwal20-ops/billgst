@@ -170,6 +170,7 @@ export default function BusinessExpensesPage() {
         }
 
         // Search through all possible keys for the user
+        let loadedKey = null;
         for (const k of possibleKeys) {
             if (!k || k === 'hisaab_pro_data_undefined') continue;
             const saved = localStorage.getItem(k);
@@ -178,10 +179,33 @@ export default function BusinessExpensesPage() {
                     const parsed = JSON.parse(saved);
                     if (parsed.length > 0) {
                         loadedData = parsed;
+                        loadedKey = k;
                         break; // Found the data!
                     }
                 } catch (e) {}
             }
+        }
+
+        // Clean up duplicated keys to free up 5MB local storage quota limit!
+        if (loadedData && loadedKey) {
+            for (const k of possibleKeys) {
+                if (!k || k === 'hisaab_pro_data_undefined') continue;
+                // If user is admin, the target key to use forever is 'hisaab_pro_data'.
+                // So if loadedKey is something else, we will still migrate to 'hisaab_pro_data'.
+                // If we are NOT admin, the target key is 'hisaab_pro_data_<ID>'.
+                
+                const targetKey = session?.user?.email === 'gpaliwal59@gmail.com' 
+                    ? 'hisaab_pro_data' 
+                    : `hisaab_pro_data_${session?.user?.id}`;
+
+                // We want to remove all keys EXCEPT the targetKey, to save space!
+                if (k !== targetKey) {
+                    try { localStorage.removeItem(k); } catch(e) {}
+                }
+            }
+            
+            // If the data we loaded wasn't from the target key, it will be saved to targetKey 
+            // when `canSave` becomes true. We just deleted the old keys to make room!
         }
 
         if (loadedData) {
@@ -194,13 +218,20 @@ export default function BusinessExpensesPage() {
 
     useEffect(() => {
         if (canSave && customers && customers.length > 0) {
-            const userIdentifier = session?.user?.id || session?.user?.email;
-            const storageKey = userIdentifier ? `hisaab_pro_data_${userIdentifier}` : 'hisaab_pro_data';
+            let storageKey = 'hisaab_pro_data';
+            if (session?.user?.email !== 'gpaliwal59@gmail.com') {
+                if (session?.user?.id) {
+                    storageKey = `hisaab_pro_data_${session.user.id}`;
+                } else if (session?.user?.email) {
+                    storageKey = `hisaab_pro_data_${session.user.email}`;
+                }
+            }
+
             try {
                 localStorage.setItem(storageKey, JSON.stringify(customers));
             } catch (err) {
                 console.error("Storage limit exceeded:", err);
-                showToast("⚠️ Storage full! Photo ko delete karein.");
+                showToast("⚠️ Storage full! Purane photos delete karein ya system clear karein.");
             }
 
             // Background Live Sync: update cloud DB so Live Links always show latest data
