@@ -154,97 +154,103 @@ export default function BusinessExpensesPage() {
     useEffect(() => {
         if (status === 'loading') return;
         
-        let loadedData = null;
-        const possibleKeys = [
-            `hisaab_pro_data_${session?.user?.id}`
-        ];
-        
-        // If email is present, check that too
-        if (session?.user?.email) {
-            possibleKeys.push(`hisaab_pro_data_${session.user.email}`);
-        }
-
-        // EMERGENCY OWNER RECOVERY: Only the main owner can recover the old global data
-        if (session?.user?.email === 'gpaliwal59@gmail.com') {
-            possibleKeys.push('hisaab_pro_data');
-        }
-
-        // Search through all possible keys for the user
-        let loadedKey = null;
-        for (const k of possibleKeys) {
-            if (!k || k === 'hisaab_pro_data_undefined') continue;
-            const saved = localStorage.getItem(k);
-            if (saved && saved !== '[]') {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.length > 0) {
-                        loadedData = parsed;
-                        loadedKey = k;
-                        break; // Found the data!
-                    }
-                } catch (e) {}
-            }
-        }
-
-        // Clean up duplicated keys to free up 5MB local storage quota limit!
-        if (loadedData && loadedKey) {
-            for (const k of possibleKeys) {
-                if (!k || k === 'hisaab_pro_data_undefined') continue;
-                // If user is admin, the target key to use forever is 'hisaab_pro_data'.
-                // So if loadedKey is something else, we will still migrate to 'hisaab_pro_data'.
-                // If we are NOT admin, the target key is 'hisaab_pro_data_<ID>'.
+        const loadData = async () => {
+            try {
+                const { idb } = await import('../../../lib/idb');
                 
-                const targetKey = session?.user?.email === 'gpaliwal59@gmail.com' 
-                    ? 'hisaab_pro_data' 
-                    : `hisaab_pro_data_${session?.user?.id}`;
-
-                // We want to remove all keys EXCEPT the targetKey, to save space!
-                if (k !== targetKey) {
-                    try { localStorage.removeItem(k); } catch(e) {}
+                const possibleKeys = [
+                    `hisaab_pro_data_${session?.user?.id}`
+                ];
+                if (session?.user?.email) {
+                    possibleKeys.push(`hisaab_pro_data_${session.user.email}`);
                 }
-            }
-            
-            // If the data we loaded wasn't from the target key, it will be saved to targetKey 
-            // when `canSave` becomes true. We just deleted the old keys to make room!
-        }
+                if (session?.user?.email === 'gpaliwal59@gmail.com') {
+                    possibleKeys.push('hisaab_pro_data');
+                }
 
-        if (loadedData) {
-            setCustomers(loadedData);
-        }
-        
-        setIsMounted(true);
-        setTimeout(() => setCanSave(true), 1000); // Wait 1s before allowing any overwrites
+                let loadedData = null;
+                let loadedKey = null;
+
+                // 1. Try to load from IndexedDB first (Primary Storage now)
+                for (const k of possibleKeys) {
+                    if (!k || k === 'hisaab_pro_data_undefined') continue;
+                    try {
+                        const savedIdb = await idb.get(k);
+                        if (savedIdb && Array.isArray(savedIdb) && savedIdb.length > 0) {
+                            loadedData = savedIdb;
+                            loadedKey = k;
+                            break;
+                        }
+                    } catch (e) {}
+                }
+
+                // 2. Fallback to localStorage if IDB is empty (Migration phase)
+                if (!loadedData) {
+                    for (const k of possibleKeys) {
+                        if (!k || k === 'hisaab_pro_data_undefined') continue;
+                        const saved = localStorage.getItem(k);
+                        if (saved && saved !== '[]') {
+                            try {
+                                const parsed = JSON.parse(saved);
+                                if (parsed.length > 0) {
+                                    loadedData = parsed;
+                                    loadedKey = k;
+                                    break;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                if (loadedData) {
+                    setCustomers(loadedData);
+                }
+                
+                setIsMounted(true);
+                setTimeout(() => setCanSave(true), 1000);
+            } catch (e) {
+                console.error("Storage init error", e);
+                setIsMounted(true);
+            }
+        };
+
+        loadData();
     }, [status, session?.user?.id, session?.user?.email]);
 
     useEffect(() => {
         if (canSave && customers && customers.length > 0) {
-            let storageKey = 'hisaab_pro_data';
-            if (session?.user?.email !== 'gpaliwal59@gmail.com') {
-                if (session?.user?.id) {
-                    storageKey = `hisaab_pro_data_${session.user.id}`;
-                } else if (session?.user?.email) {
-                    storageKey = `hisaab_pro_data_${session.user.email}`;
+            const saveData = async () => {
+                let storageKey = 'hisaab_pro_data';
+                if (session?.user?.email !== 'gpaliwal59@gmail.com') {
+                    if (session?.user?.id) {
+                        storageKey = `hisaab_pro_data_${session.user.id}`;
+                    } else if (session?.user?.email) {
+                        storageKey = `hisaab_pro_data_${session.user.email}`;
+                    }
                 }
-            }
 
-            try {
-                localStorage.setItem(storageKey, JSON.stringify(customers));
-            } catch (err) {
-                console.error("Storage limit exceeded:", err);
-                showToast("⚠️ Storage full! Purane photos delete karein ya system clear karein.");
-            }
-
-            // Background Live Sync: update cloud DB so Live Links always show latest data
-            if (curCid) {
-                const c = customers.find((x: any) => x.id === curCid);
-                if (c) {
-                    fetch('/api/hisaab/sync', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(c)
-                    }).catch(e => console.error("Sync failed", e));
+                try {
+                    const { idb } = await import('../../../lib/idb');
+                    await idb.set(storageKey, customers);
+                    // Also clear localStorage to free up the 5MB browser quota!
+                    try { localStorage.removeItem(storageKey); } catch(e) {}
+                } catch (err) {
+                    console.error("IDB Storage error:", err);
+                    showToast("⚠️ Storage error! Puraane data issue.");
                 }
-            }
+
+                if (curCid) {
+                    const c = customers.find((x: any) => x.id === curCid);
+                    if (c) {
+                        fetch('/api/hisaab/sync', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(c)
+                        }).catch(e => console.error("Sync failed", e));
+                    }
+                }
+            };
+            saveData();
         }
     }, [customers, canSave, curCid, session]);
 
