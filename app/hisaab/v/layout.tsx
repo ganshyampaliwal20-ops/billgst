@@ -6,11 +6,11 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Hisaab Pro Statement',
         description: 'Yahaan click karke apna poora hisaab dekhein',
-        url: 'https://billgst.com',
+        url: 'https://billgst.in',
         siteName: 'BillGST Hisaab Pro',
         images: [
             {
-                url: 'https://billgst.com/logo.png',
+                url: 'https://billgst.in/logo.png',
                 width: 512,
                 height: 512,
                 alt: 'BillGST Logo'

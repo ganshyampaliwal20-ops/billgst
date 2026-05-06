@@ -158,7 +158,7 @@ function HisaabViewerContent() {
 
             {/* Bottom Sticky Promotion */}
             <div className="fixed bottom-0 left-0 right-0 bg-indigo-600 text-white p-3 text-center text-sm font-bold shadow-[0_-10px_30px_rgba(79,70,229,0.3)] z-20">
-                <a href="https://billgst.com" className="w-full block">
+                <a href="https://billgst.in" className="w-full block">
                     🚀 Build your free store or hisaab on BillGST! Click here.
                 </a>
             </div>

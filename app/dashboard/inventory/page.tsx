@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { generateCatalogPDF } from "@/lib/pdf-generator";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct } = useStore() as any;
+    const { products, addProduct, updateProduct, deleteProduct, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
     // State
@@ -200,6 +201,22 @@ export default function InventoryPage() {
         e.stopPropagation();
         setSelectedProduct(p);
         setShowQrModal(true);
+    };
+
+    const downloadPdf = async () => {
+        if (!products || products.length === 0) {
+            toast.error("Inventory me koi product nahi hai!");
+            return;
+        }
+        toast.loading("PDF catalog generate ho raha hai...");
+        try {
+            await generateCatalogPDF(products, businessProfile);
+            toast.dismiss();
+            toast.success("✅ Product Catalog download ho gaya!");
+        } catch (e) {
+            toast.dismiss();
+            toast.error("❌ PDF banane me galti hui!");
+        }
     };
 
     // Calculate percentage for progress bars
@@ -404,6 +421,7 @@ export default function InventoryPage() {
           .act-btn { width:28px; height:28px; font-size:12px; }
           .ph-left h1 { font-size:20px; }
           .ph-row { flex-direction:column; gap:12px; align-items:flex-start; }
+          .ph-actions { width: 100%; }
           .add-btn { width:100%; justify-content:center; }
           .tab-row { margin-bottom:10px; }
           .ctab { padding:7px 14px; font-size:11px; }
@@ -424,7 +442,20 @@ export default function InventoryPage() {
                             <h1>⚡ Smart <span>Inventory</span></h1>
                             <p>Manage Products & Stock</p>
                         </div>
-                        <button className="add-btn" onClick={openAddModal}>＋ Add Product</button>
+                        <div className="ph-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <button 
+                                className="add-btn" 
+                                style={{ 
+                                    background: 'linear-gradient(135deg, #6366f1, #a855f7)', 
+                                    boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                                    border: '1px solid rgba(255,255,255,0.2)'
+                                }} 
+                                onClick={downloadPdf}
+                            >
+                                📥 PDF Catalog
+                            </button>
+                            <button className="add-btn" onClick={openAddModal}>＋ Add Product</button>
+                        </div>
                     </div>
                     <div className="kpi-strip">
                         <div className="kpi-card" onClick={() => setActiveTab("all")}>

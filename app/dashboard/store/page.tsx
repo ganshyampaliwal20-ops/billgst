@@ -57,7 +57,7 @@ export default function StoreManagerPage() {
 
     if (!isClient) return null;
 
-    const storeUrl = `billgst.com/store/${businessProfile.id || 'business-1234'}`;
+    const storeUrl = `billgst.in/s/${businessProfile.id || 'business-1234'}`;
     const mappedProducts = products || [];
 
     // Sample Products fallback if none or low in actual database

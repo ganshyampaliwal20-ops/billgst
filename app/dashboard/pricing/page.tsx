@@ -759,7 +759,7 @@ export default function PricingPage() {
                         </div>
                     </div>
                     <p className="footer-note">
-                        Questions hain? <a href="https://wa.me/919930205159">WhatsApp karein</a> · <a href="https://billgst.com">billgst.com</a> · &copy; 2026 BillGST
+                        Questions hain? <a href="https://wa.me/919930205159">WhatsApp karein</a> · <a href="https://billgst.in">billgst.in</a> · &copy; 2026 BillGST
                     </p>
                 </div>
             </div>
