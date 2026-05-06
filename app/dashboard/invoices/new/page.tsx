@@ -359,6 +359,9 @@ export default function NewInvoicePage() {
                 due_date: dueDate,
                 items: selectedItems,
                 subtotal: totals.subtotal,
+                cgst_amount: breakdown.cgst_amount,
+                sgst_amount: breakdown.sgst_amount,
+                igst_amount: breakdown.igst_amount,
                 total_amount: totals.grandTotal,
                 paid_amount: parseFloat(paidAmount) || 0,
                 status: parseFloat(paidAmount) >= totals.grandTotal ? 'PAID' : (parseFloat(paidAmount) > 0 ? 'PARTIAL' : 'UNPAID'),
@@ -406,10 +409,10 @@ export default function NewInvoicePage() {
                             } else {
                                 throw new Error('PDF Generation Failed');
                             }
-                        } catch (err) {
+                        } catch (err: any) {
                             toast.dismiss();
                             console.error('Bot share failed:', err);
-                            toast.error('WhatsApp Bot fail: Make sure whatsapp-service.js is running and phone is correct.');
+                            toast.error(`WhatsApp Bot fail: ${err.message || 'Make sure whatsapp-service.js is running and phone is correct.'}`);
                         }
                     }
                 }

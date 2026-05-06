@@ -39,15 +39,24 @@ export async function POST(request: Request) {
     const userId = session.user.id;
     const client = await pool.connect();
 
+    let data: any = {};
     try {
-        const data = await request.json();
+        data = await request.json();
+    } catch (e) {
+        client.release();
+        return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
+    }
+
+    try {
+        const expenseId = uuidv4();
 
         const result = await client.query(`
             INSERT INTO expenses (
-                category, description, expense_date, amount, payment_method, created_by
-            ) VALUES ($1, $2, $3, $4, $5, $6)
+                id, category, description, expense_date, amount, payment_method, created_by, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
             RETURNING id
         `, [
+            expenseId,
             data.category,
             data.description,
             data.date,
@@ -60,6 +69,43 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, id: result.rows[0].id });
 
     } catch (error: any) {
+        if (error?.code === '42P01') { // relation "expenses" does not exist
+            try {
+                await client.query(`
+                    CREATE TABLE IF NOT EXISTS expenses (
+                        id UUID PRIMARY KEY,
+                        category VARCHAR(100),
+                        description TEXT,
+                        expense_date DATE,
+                        amount DECIMAL(15,2),
+                        payment_method VARCHAR(50),
+                        created_by VARCHAR(255) NOT NULL,
+                        created_at TIMESTAMP DEFAULT NOW()
+                    )
+                `);
+                
+                const expenseId = uuidv4();
+                const retryResult = await client.query(`
+                    INSERT INTO expenses (
+                        id, category, description, expense_date, amount, payment_method, created_by, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                    RETURNING id
+                `, [
+                    expenseId,
+                    data.category,
+                    data.description,
+                    data.date,
+                    data.amount,
+                    data.paymentMethod,
+                    userId
+                ]);
+
+                client.release();
+                return NextResponse.json({ success: true, id: retryResult.rows[0].id });
+            } catch (createErr) {
+                console.error('Failed to create expenses table:', createErr);
+            }
+        }
         client.release();
         console.error('Expense POST Error:', error);
         return NextResponse.json({ error: 'Failed to save expense' }, { status: 500 });

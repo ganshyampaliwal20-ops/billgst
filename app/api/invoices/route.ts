@@ -123,8 +123,9 @@ export async function POST(request: Request) {
             id, invoice_number, customer_id, invoice_date, due_date, 
             subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
             paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
-            transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, NOW())
+            transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type,
+            discount_pct, extra_charges, shipping_charges, payment_mode, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, NOW())
         RETURNING id
     `, [
             data.id,
@@ -152,7 +153,11 @@ export async function POST(request: Request) {
             data.ack_no || null,
             data.ack_date || null,
             data.signed_qrcode || null,
-            data.type || 'TAX_INVOICE'
+            data.type || 'TAX_INVOICE',
+            data.discount_pct || 0,
+            data.extra_charges || 0,
+            data.shipping_charges || 0,
+            data.payment_mode || 'Cash'
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
@@ -211,6 +216,10 @@ export async function POST(request: Request) {
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sgst_amount DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS igst_amount DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS type VARCHAR(50) DEFAULT 'TAX_INVOICE';
+                    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS discount_pct DECIMAL(10,2) DEFAULT 0;
+                    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS extra_charges DECIMAL(10,2) DEFAULT 0;
+                    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipping_charges DECIMAL(10,2) DEFAULT 0;
+                    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_mode VARCHAR(50) DEFAULT 'Cash';
                 `);
                 console.log('Invoice API: Auto-migration successful. Retrying insertion...');
 
@@ -224,8 +233,9 @@ export async function POST(request: Request) {
                         id, invoice_number, customer_id, invoice_date, due_date, 
                         subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
                         paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
-                        transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, NOW())
+                        transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type,
+                        discount_pct, extra_charges, shipping_charges, payment_mode, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, NOW())
                     RETURNING id
                 `, [
                     data.id,
@@ -253,7 +263,11 @@ export async function POST(request: Request) {
                     data.ack_no || null,
                     data.ack_date || null,
                     data.signed_qrcode || null,
-                    data.type || 'TAX_INVOICE'
+                    data.type || 'TAX_INVOICE',
+                    data.discount_pct || 0,
+                    data.extra_charges || 0,
+                    data.shipping_charges || 0,
+                    data.payment_mode || 'Cash'
                 ]);
 
                 const invoiceId = invoiceResult.rows[0].id;
