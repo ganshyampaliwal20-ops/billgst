@@ -59,9 +59,7 @@ function initials(name: string) {
     return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 function fmt(n: number) {
-    if (n >= 100000) return '₹' + (n / 100000).toFixed(1) + 'L';
-    if (n >= 1000) return '₹' + (n / 1000).toFixed(1) + 'K';
-    return '₹' + n;
+    return '₹' + new Intl.NumberFormat('en-IN').format(Math.round(n));
 }
 function formatDateShort(d: string) {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
