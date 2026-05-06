@@ -22,7 +22,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
+.hisaab-root {
   font-family: 'Noto Sans', 'Bricolage Grotesque', sans-serif;
   background: var(--bg);
   min-height: 100vh;
@@ -590,3 +590,57 @@ body {
 .ac-btn { flex: 1; padding: 12px; border-radius: var(--radius-sm); border: none; font-weight: 600; cursor: pointer; }
 .ac-btn.cancel { background: var(--bg); color: var(--ink2); }
 .ac-btn.save { background: var(--blue); color: #fff; }
+
+/* ════════ PC RESPONSIVE (DUAL PANE) ════════ */
+@media (min-width: 768px) {
+  .hisaab-root {
+    display: flex;
+    flex-direction: row;
+    max-width: 1200px;
+    height: 100vh;
+    margin: 0 auto;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  
+  .hisaab-root > .screen {
+    display: flex !important; /* Force show both */
+    width: 50%;
+    max-width: none;
+    height: 100%;
+    position: relative;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+  }
+
+  .hisaab-root > .screen:last-child {
+    border-right: none;
+  }
+
+  .add-panel {
+    position: sticky; /* Make it stick to the bottom of the scroll container */
+    bottom: 0; left: 0; right: 0;
+    max-width: none;
+    width: 100%;
+  }
+
+  .topbar, .search-row, .kpi-strip {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .pc-empty-state-container {
+    background: var(--bg);
+  }
+
+  .ac-box, .photo-modal {
+    max-width: 500px;
+  }
+
+  .sheet-overlay .sheet {
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 20px 20px 0 0;
+  }
+}
