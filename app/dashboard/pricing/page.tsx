@@ -126,7 +126,7 @@ export default function PricingPage() {
 
                 .hero {
                   position: relative; z-index: 1;
-                  padding: 64px 24px 48px;
+                  padding: 40px 24px 0px;
                   text-align: center;
                   max-width: 700px;
                   margin: 0 auto;
@@ -217,7 +217,7 @@ export default function PricingPage() {
                   position: relative; z-index: 1;
                   max-width: 1080px;
                   margin: 0 auto;
-                  padding: 8px 24px 80px;
+                  padding: 5px 24px 80px;
                 }
 
                 .plans-grid {
@@ -449,8 +449,8 @@ export default function PricingPage() {
                 }
                 @media (max-width: 480px) {
                   .plans-grid { grid-template-columns: 1fr; }
-                  .plans-section { padding: 8px 16px 60px; }
-                  .hero { padding: 40px 16px 32px; }
+                  .plans-section { padding: 5px 16px 60px; margin-top: 0; }
+                  .hero { padding: 20px 16px 0px; }
                 }
             ` }} />
 
@@ -481,7 +481,7 @@ export default function PricingPage() {
 
                 <div className="plans-section">
                     <div className="plans-grid">
-                        {/* FREE PLAN */}
+                        {/* FREE PLAN  */}
                         <div className="plan">
                             <div className="plan-header">
                                 <div className="plan-icon-wrap" style={{ background: '#f5f5f5' }}>

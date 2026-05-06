@@ -185,6 +185,10 @@ export default function NewQuotationPage() {
   margin: -2rem; /* Negate the dashboard padding if needed */
 }
 
+.quotation-page-wrapper * {
+  box-sizing: border-box;
+}
+
 /* ── TOP NAV ── */
 .quotation-page-wrapper .topbar {
   background: var(--ink);
@@ -606,14 +610,24 @@ export default function NewQuotationPage() {
   font-size: 14px; font-weight: 600;
   cursor: pointer;
   transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; text-align: center;
 }
 .quotation-page-wrapper .btn-danger:hover { background: #fff0f0; border-color: var(--red); }
+.quotation-page-wrapper .btn-primary, .quotation-page-wrapper .btn-secondary {
+  box-sizing: border-box;
+  text-align: center;
+}
 
 /* Mobile */
 @media(max-width:768px){
-  .quotation-page-wrapper .main { grid-template-columns: 1fr; padding: 20px 16px 80px; }
-  .quotation-page-wrapper .topbar { padding: 0 16px; }
+  .quotation-page-wrapper { margin: 0; width: 100%; overflow-x: hidden; }
+  .quotation-page-wrapper .main { grid-template-columns: 1fr; padding: 16px 16px 80px; width: 100%; box-sizing: border-box; }
+  .quotation-page-wrapper .card { width: 100%; box-sizing: border-box; }
+  .quotation-page-wrapper .topbar { padding: 0 16px; width: 100%; box-sizing: border-box; }
   .quotation-page-wrapper .topbar-sub { display: none; }
+  .quotation-page-wrapper .form-grid-2 { grid-template-columns: 1fr; width: 100%; }
+  .quotation-page-wrapper .items-table { min-width: 600px; }
+  .quotation-page-wrapper .quot-meta { flex-direction: column; align-items: flex-start; gap: 4px; }
 }
                 `
             }} />

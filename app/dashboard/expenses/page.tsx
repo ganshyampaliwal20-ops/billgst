@@ -858,7 +858,7 @@ export default function BusinessExpensesPage() {
                                 }}>📲 WhatsApp</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#ffebee', color: '#d32f2f', border: '1px solid #ffcdd2', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={() => {
                                     showToast('⏳ PDF ban raha hai...');
-                                    generateHisaabPDF(currentCust, { name: 'Hisaab Pro - Ledger' }, custStats);
+                                    generateHisaabPDF(currentCust, { name: 'BillGST Pro - Ledger' }, custStats);
                                 }}>📄 PDF</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={downloadCustomerExcel}>📊 Excel</button>
                                 <button className="nab" style={{ gridColumn: 'auto', background: '#ffeeee', color: '#e53935', border: '1px solid #ffcdcd', padding: '14px', fontSize: '14.5px', fontWeight: 700 }} onClick={deleteCustomer}>🗑 Delete</button>
