@@ -129,8 +129,10 @@ export default function BusinessExpensesPage() {
     // Add Entry Form state
     const [entryType, setEntryType] = useState<'credit' | 'debit' | 'advance'>('credit');
     const [amtInp, setAmtInp] = useState('');
+    const [entryDate, setEntryDate] = useState('');
+    const [entryDueDate, setEntryDueDate] = useState('');
+    const [showInterestModal, setShowInterestModal] = useState(false);
     const [entryName, setEntryName] = useState('');
-    const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0]);
     const [entryNote, setEntryNote] = useState('');
     const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
     const [editTxnId, setEditTxnId] = useState<number | null>(null);
@@ -139,6 +141,8 @@ export default function BusinessExpensesPage() {
 
     // Expand toggle state per transaction ID
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
+    const [hideZeroBalance, setHideZeroBalance] = useState(false);
+    const [entryCategory, setEntryCategory] = useState('General');
 
     // Add Cust Form state
     const [acName, setAcName] = useState('');
@@ -322,6 +326,18 @@ export default function BusinessExpensesPage() {
         return { received, given, net: received - given };
     }, [customers]);
 
+    const criticalDues = useMemo(() => {
+        return customers
+            .filter((c: any) => c.balance < 0)
+            .map((c: any) => {
+                const lastTxn = c.txns[0]; // txns are sorted newest first
+                const days = lastTxn ? Math.floor((new Date().getTime() - new Date(lastTxn.date).getTime()) / (1000 * 3600 * 24)) : 0;
+                return { ...c, dueDays: days };
+            })
+            .filter((c: any) => c.dueDays > 7 || Math.abs(c.balance) > 5000)
+            .sort((a: any, b: any) => b.dueDays - a.dueDays);
+    }, [customers]);
+
     const custStats = useMemo(() => {
         if (!currentCust) return { credit: 0, debit: 0, net: 0, entries: 0 };
         let c = 0, d = 0;
@@ -482,6 +498,8 @@ export default function BusinessExpensesPage() {
         setEntryName(txn.name || '');
         setEntryNote(txn.note || '');
         setEntryDate(txn.date.split('T')[0]);
+        setEntryDueDate(txn.dueDate || '');
+        setEntryCategory(txn.category || 'General');
         setPendingPhotos([...(txn.photos || [])]);
         setIsAddEntryOpen(true);
     };
@@ -522,12 +540,12 @@ export default function BusinessExpensesPage() {
                         const oldBalChange = oldIsDebit ? oldTxn.amt : -oldTxn.amt;
                         newBalance -= oldBalChange;
                     }
-                    newTxns = newTxns.map((t: any) => t.id === editTxnId ? { ...t, type: entryType, name, note, date, amt, photos: [...pendingPhotos] } : t);
+                    newTxns = newTxns.map((t: any) => t.id === editTxnId ? { ...t, type: entryType, name, note, date, dueDate: entryDueDate, amt, photos: [...pendingPhotos] } : t);
                     const isDebit = entryType !== 'credit';
                     const balChange = isDebit ? amt : -amt;
                     newBalance += balChange;
                 } else {
-                    const newTxn = { id: Date.now(), type: entryType, name, note, date, amt, photos: [...pendingPhotos] };
+                    const newTxn = { id: Date.now(), type: entryType, name, note, date, dueDate: entryDueDate, amt, category: entryCategory, photos: [...pendingPhotos] };
                     newTxns = [newTxn, ...newTxns];
                     const isDebit = entryType !== 'credit';
                     const balChange = isDebit ? amt : -amt;
@@ -648,7 +666,7 @@ export default function BusinessExpensesPage() {
 
     // Txn Photo attach
     const addPhotoToTxn = (txnId: number) => {
-        document.getElementById(`file-${txnId}`)?.click();
+        document.getElementById(`file-cam-${txnId}`)?.click();
     };
 
     const handleTxnPhoto = (e: React.ChangeEvent<HTMLInputElement>, txnId: number) => {
@@ -734,12 +752,36 @@ export default function BusinessExpensesPage() {
                     </div>
                 </div>
 
+                {criticalDues.length > 0 && (
+                    <div className="alerts-container">
+                        <div className="alerts-header">
+                            <span>🚨 {criticalDues.length} Pending Payments</span>
+                        </div>
+                        <div className="alerts-scroll">
+                            {criticalDues.slice(0, 3).map((c: any) => (
+                                <div key={c.id} className="alert-card-mini">
+                                    <div className="acm-info">
+                                        <div className="acm-name">{c.name}</div>
+                                        <div className="acm-amt">₹{fmt(Math.abs(c.balance))} • {c.dueDays} days old</div>
+                                    </div>
+                                    <button className="acm-btn" onClick={() => sendWhatsAppRemind(c, c.balance)}>
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.116 1.523 5.845L.057 23.057l5.33-1.397A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" /></svg>
+                                        Remind
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="search-row">
                     <div className="search-box">
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
                         <input type="text" placeholder="Customer dhundho..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
-                    <button className="sort-btn" onClick={() => showToast('A→Z sort!')}>A→Z</button>
+                    <button className={`sort-btn ${hideZeroBalance ? 'active' : ''}`} onClick={() => setHideZeroBalance(!hideZeroBalance)} style={{ background: hideZeroBalance ? 'var(--ink)' : 'transparent', color: hideZeroBalance ? '#fff' : 'inherit' }}>
+                        {hideZeroBalance ? 'Show All' : 'Hide 0'}
+                    </button>
                 </div>
 
                 <div className="cust-list">
@@ -750,33 +792,35 @@ export default function BusinessExpensesPage() {
                             <div className="empty-sub">Search change karo</div>
                         </div>
                     ) : (
-                        displayList.map(c => {
-                            const isNeg = c.balance < 0;
-                            const bal = Math.abs(c.balance);
-                            const fmtBal = bal >= 1000 ? '₹' + (bal / 1000).toFixed(1) + 'K' : '₹' + bal;
-                            const sortedTxns = [...c.txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                            const lastTxn = sortedTxns[0];
-                            const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
-                            return (
-                                <div className="cust-item" key={c.id} onClick={() => handleOpenDetail(c.id)}>
-                                    <div className="cust-av" style={{ background: c.photo ? 'transparent' : getColor(c.name) }}>
-                                        {c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)}
-                                    </div>
-                                    <div className="cust-mid">
-                                        <div className="cust-name">{c.name}</div>
-                                        <div className="cust-meta">
-                                            <span className="cust-tag">{c.txns.length} entry</span>
-                                            <span className="cust-tag">{c.type}</span>
-                                            <span className="cust-date">{lastDate}</span>
+                        displayList
+                            .filter(c => hideZeroBalance ? Math.abs(c.balance) > 0 : true)
+                            .map(c => {
+                                const isNeg = c.balance < 0;
+                                const bal = Math.abs(c.balance);
+                                const fmtBal = bal >= 1000 ? '₹' + (bal / 1000).toFixed(1) + 'K' : '₹' + bal;
+                                const sortedTxns = [...c.txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                                const lastTxn = sortedTxns[0];
+                                const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
+                                return (
+                                    <div className="cust-item" key={c.id} onClick={() => handleOpenDetail(c.id)}>
+                                        <div className="cust-av" style={{ background: c.photo ? 'transparent' : getColor(c.name) }}>
+                                            {c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)}
+                                        </div>
+                                        <div className="cust-mid">
+                                            <div className="cust-name">{c.name}</div>
+                                            <div className="cust-meta">
+                                                <span className="cust-tag">{c.txns.length} entry</span>
+                                                <span className="cust-tag">{c.type}</span>
+                                                <span className="cust-date">{lastDate}</span>
+                                            </div>
+                                        </div>
+                                        <div className="cust-right">
+                                            <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
+                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? 'Dena Hai' : 'Baki Hai'}</div>
                                         </div>
                                     </div>
-                                    <div className="cust-right">
-                                        <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
-                                        <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? 'Dena Hai' : 'Baki Hai'}</div>
-                                    </div>
-                                </div>
-                            );
-                        })
+                                );
+                            })
                     )}
                 </div>
             </div>
@@ -845,6 +889,16 @@ export default function BusinessExpensesPage() {
                                 Call
                             </button>
                         </div>
+                        
+                        {custStats.net < 0 && (
+                            <div className="pending-status-box">
+                                <div className="psb-icon">⏳</div>
+                                <div className="psb-text">
+                                    <strong>₹{fmt(Math.abs(custStats.net))}</strong> abhi paka hai.
+                                    <span>Last payment {formatDateShort(currentCust.txns[0]?.date || '')} ko hui thi.</span>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="filter-bar">
                             {[{ id: 'all', l: 'All' }, { id: 'debit', l: 'Given' }, { id: 'credit', l: 'Received' }, { id: 'advance', l: 'Advance' }].map(f => (
@@ -909,7 +963,15 @@ export default function BusinessExpensesPage() {
                                                                         </label>
                                                                     )}
                                                                 </div>
-                                                                <div className="txn-note">{t.note || t.name}</div>
+                                                                <div className="txn-note">
+                                                                    {t.category && <span style={{ fontSize: '9px', background: 'var(--bg2)', padding: '2px 6px', borderRadius: '4px', marginRight: '6px', fontWeight: 700, color: 'var(--ink3)' }}>{t.category.toUpperCase()}</span>}
+                                                                    {t.dueDate && t.type !== 'credit' && (
+                                                                        <span className={`due-date-pill ${new Date(t.dueDate) < new Date() ? 'overdue' : ''}`}>
+                                                                            ⌛ Due: {formatDateShort(t.dueDate)}
+                                                                        </span>
+                                                                    )}
+                                                                    {t.note || t.name}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div className="txn-footer">
@@ -920,7 +982,7 @@ export default function BusinessExpensesPage() {
                                                                     <button onClick={() => deleteTxn(t.id, t.amt, t.type)} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: 'var(--red)' }}>🗑 Delete</button>
                                                                 </div>
                                                             </div>
-                                                            <div className={`txn-attachment ${hasPhotos ? 'has-bill' : ''}`} onClick={() => setLightboxImg(hasPhotos ? t.photos[0] : null)}>
+                                                            <div className={`txn-attachment ${hasPhotos ? 'has-bill' : ''}`} onClick={() => hasPhotos ? setLightboxImg(t.photos[0]) : addPhotoToTxn(t.id)}>
                                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
                                                                 {hasPhotos ? 'Bill Added ✓' : 'Add Bill'}
                                                             </div>
@@ -932,6 +994,27 @@ export default function BusinessExpensesPage() {
                                     );
                                 });
                             })()}
+
+                            <div className="grand-total-card">
+                                <div className="gt-title">Total Hisaab Summary</div>
+                                <div className="gt-grid">
+                                    <div className="gt-item">
+                                        <div className="gt-lbl">Total Given</div>
+                                        <div className="gt-val red">₹{fmt(Math.abs(custStats.debit))}</div>
+                                    </div>
+                                    <div className="gt-item">
+                                        <div className="gt-lbl">Total Received</div>
+                                        <div className="gt-val green">₹{fmt(Math.abs(custStats.credit))}</div>
+                                    </div>
+                                </div>
+                                <div className="gt-final">
+                                    <div className="gt-lbl">Final Net Balance</div>
+                                    <div className={`gt-amt ${custStats.isNeg ? 'red' : 'green'}`}>
+                                        ₹{fmt(Math.abs(custStats.net))}
+                                        <span>{custStats.isNeg ? 'You Will Get' : 'You Will Give'}</span>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div className="export-actions">
                                 <button className="qa-btn pdf" onClick={exportPDF}>📄 PDF Download</button>
@@ -952,6 +1035,18 @@ export default function BusinessExpensesPage() {
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                                         <input type="text" placeholder="Add note (optional)" value={entryNote} onChange={e => setEntryNote(e.target.value)} />
                                     </div>
+                                    <div className="extra-field-row" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', paddingLeft: '32px' }}>
+                                        {['General', 'Goods', 'Salary', 'Rent', 'Food', 'Transport'].map(cat => (
+                                            <span
+                                                key={cat}
+                                                className={`category-tag-option ${entryCategory === cat ? 'active' : ''}`}
+                                                onClick={() => setEntryCategory(cat)}
+                                                style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '20px', background: entryCategory === cat ? 'var(--ink)' : 'var(--bg2)', color: entryCategory === cat ? '#fff' : 'var(--ink3)', cursor: 'pointer', border: '1px solid var(--border)' }}
+                                            >
+                                                {cat}
+                                            </span>
+                                        ))}
+                                    </div>
                                     <label htmlFor="billFileCamNew" className="extra-field-row">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
                                         <span style={{ color: pendingPhotos.length ? 'var(--green)' : 'var(--ink3)' }}>{pendingPhotos.length ? '✓ Bill Photo Added' : 'Add Bill Photo'}</span>
@@ -959,7 +1054,16 @@ export default function BusinessExpensesPage() {
                                     </label>
                                     <div className="extra-field-row">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-                                        <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: '13px', color: 'var(--ink)' }} />
+                                        <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontSize: '9px', color: 'var(--ink4)' }}>Entry Date</div>
+                                                <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: '13px', color: 'var(--ink)' }} />
+                                            </div>
+                                            <div style={{ flex: 1, borderLeft: '1px solid var(--border)', paddingLeft: '10px' }}>
+                                                <div style={{ fontSize: '9px', color: 'var(--red)' }}>Due Date (Optional)</div>
+                                                <input type="date" value={entryDueDate} onChange={e => setEntryDueDate(e.target.value)} style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: '13px', color: 'var(--red)' }} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

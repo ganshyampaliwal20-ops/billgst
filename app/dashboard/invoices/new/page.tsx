@@ -488,7 +488,7 @@ export default function NewInvoicePage() {
 
                 .item-card { background: var(--faint); border: 2px solid var(--border); border-radius: 16px; padding: 20px; position: relative; margin-bottom: 12px; }
                 .i-num { width: 30px; height: 30px; background: var(--indigo); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; position: absolute; left: -10px; top: -10px; box-shadow: 0 4px 10px rgba(91,94,244,0.3); }
-                .add-item-btn { width: 100%; padding: 15px; border: 2px dashed var(--indigo); border-radius: 15px; color: var(--indigo); font-weight: 800; background: #eef2ff; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+                .add-item-btn { padding: 8px 16px; border: 2px dashed var(--indigo); border-radius: 12px; color: var(--indigo); font-weight: 700; background: #eef2ff; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
                 .add-item-btn:hover { background: #e0e7ff; }
 
                 .totals-box { background: linear-gradient(135deg,#0b0f1e,#1c2340,#2d2f6b); padding: 25px; border-radius: 20px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
@@ -681,9 +681,20 @@ export default function NewInvoicePage() {
                             ))}
                         </div>
 
-                        <button type="button" onClick={addItem} className="add-item-btn mt-6">
-                            <FaPlus /> {t.addNewItem}
-                        </button>
+                        <div className="flex gap-2 mt-4">
+                            <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[42px]">
+                                <FaPlus /> {t.addNewItem}
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={startVoiceBilling} 
+                                className={`add-item-btn w-[42px] h-[42px] flex-shrink-0 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
+                                title="Add by Voice"
+                                style={{ padding: 0 }}
+                            >
+                                <FaMicrophone />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Totals Summary */}
