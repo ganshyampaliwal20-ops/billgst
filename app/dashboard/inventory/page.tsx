@@ -11,6 +11,7 @@ export default function InventoryPage() {
     const router = useRouter();
     const { products, addProduct, updateProduct, deleteProduct, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
+    const [showProfit, setShowProfit] = useState(true);
 
     // State
     const [searchTerm, setSearchTerm] = useState("");
@@ -703,6 +704,9 @@ export default function InventoryPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    <button className={`ctrl-btn ${!showProfit ? 'active' : ''}`} onClick={() => setShowProfit(!showProfit)} title={showProfit ? "Hide Profit" : "Show Profit"}>
+                        {showProfit ? '👁️' : '🙈'}
+                    </button>
                     <button className="ctrl-btn" onClick={() => setShowFilters(!showFilters)}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
                         Filter
@@ -757,7 +761,7 @@ export default function InventoryPage() {
                                         <span className={`tag ${p.type?.toLowerCase() === 'service' ? 'service' : 'product'}`}>{p.type || "PRODUCT"}</span>
                                         <span className="tag gst">GST {p.gst_rate || 0}%</span>
                                     </div>
-                                    {p.price && p.purchase_price && parseFloat(p.price) > parseFloat(p.purchase_price) && (
+                                    {showProfit && p.price && p.purchase_price && parseFloat(p.price) > parseFloat(p.purchase_price) && (
                                         <div className="profit-tag">
                                             📈 Profit: {(((parseFloat(p.price) - parseFloat(p.purchase_price)) / parseFloat(p.purchase_price)) * 100).toFixed(0)}%
                                         </div>
@@ -812,10 +816,6 @@ export default function InventoryPage() {
                 <button className="hero-btn whatsapp" onClick={shareLowStockOnWhatsApp}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
                     Alert
-                </button>
-                <button className="hero-btn scanner" onClick={startScanner}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/></svg>
-                    Scan
                 </button>
                 <button className="hero-btn add" onClick={openAddModal}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
