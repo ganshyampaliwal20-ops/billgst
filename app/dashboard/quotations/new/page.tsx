@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
-import { FaArrowLeft, FaSave, FaPlus, FaTrash, FaFileInvoice, FaCalculator, FaUser, FaPhone, FaCalendarAlt, FaMapMarkerAlt, FaIdCard, FaEnvelope, FaCheckCircle, FaTimes, FaCog, FaBars, FaFileAlt } from 'react-icons/fa';
+import { generateQuotationPDF } from '@/lib/pdf-generator';
+import { FaArrowLeft, FaSave, FaPlus, FaTrash, FaFileInvoice, FaCalculator, FaUser, FaPhone, FaCalendarAlt, FaMapMarkerAlt, FaIdCard, FaEnvelope, FaCheckCircle, FaTimes, FaCog, FaBars, FaFileAlt, FaEye } from 'react-icons/fa';
 
 export default function NewQuotationPage() {
     const router = useRouter();
@@ -124,12 +125,66 @@ export default function NewQuotationPage() {
         }
     };
 
+    const handlePreview = async () => {
+        if (!customer) {
+            toast.error('Please enter customer name to preview');
+            return;
+        }
+
+        try {
+            const itemsWithAmount = items.map(item => ({
+                ...item,
+                amount: item.quantity * item.rate,
+                product_name: item.product,
+                unit_price: item.rate,
+                gst_rate: item.gst
+            }));
+
+            const quotationData = {
+                quotation_number: quoNumber,
+                customer: { 
+                    name: customer, 
+                    phone: phone, 
+                    address: address,
+                    gstin: gstNumber 
+                },
+                invoice_number: quoNumber, // pdf generator uses invoice_number label
+                invoice_date: date,
+                total_amount: totalAmount,
+                subtotal: subtotal,
+                notes: notes,
+                discount_pct: discountPct,
+                items: itemsWithAmount.filter(item => item.product && item.quantity > 0),
+                type: 'QUOTATION'
+            };
+
+            const doc = await generateQuotationPDF(quotationData, businessProfile, false);
+            if (doc) {
+                const pdfBlob = doc.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                window.open(pdfUrl, '_blank');
+                toast.success('Preview generated! ✓');
+            }
+        } catch (e) {
+            toast.error('Failed to generate preview');
+            console.error(e);
+        }
+    };
+
     return (
         <div className="quotation-premium-wrapper">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
                 
+                * { box-sizing: border-box; }
+                
+                input, select, textarea {
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    opacity: 1 !important;
+                }
+
                 .quotation-premium-wrapper {
                     font-family: 'Inter', sans-serif;
                     background: #f1f5f9;
@@ -137,14 +192,17 @@ export default function NewQuotationPage() {
                     padding: 0;
                     margin: -2rem; /* Negate default dashboard padding */
                     color: #1e293b;
+                    overflow-x: hidden;
                 }
                 
                 .quotation-container {
                     max-width: 1000px;
+                    width: 100%;
                     margin: 0 auto;
                     background: white;
                     min-height: 100vh;
                     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                    position: relative;
                 }
                 
                 /* Header */
@@ -288,13 +346,14 @@ export default function NewQuotationPage() {
                 .p-input {
                     width: 100%;
                     padding: 12px 16px 12px 45px;
-                    border: 2px solid #f1f5f9;
+                    border: 2px solid #e2e8f0;
                     border-radius: 12px;
-                    font-size: 14px;
-                    background: #f8fafc;
+                    font-size: 16px;
+                    background: #ffffff !important;
                     transition: all 0.2s;
-                    color: #0f172a;
-                    font-weight: 500;
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    font-weight: 600;
                 }
                 .p-input:focus {
                     outline: none;
@@ -318,12 +377,23 @@ export default function NewQuotationPage() {
                 
                 .p-row-input {
                     width: 100%;
-                    padding: 10px 14px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 10px;
-                    font-size: 13px;
-                    background: white;
-                    transition: border-color 0.2s;
+                    padding: 10px 12px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    background: #ffffff !important;
+                    color: #000000 !important;
+                    -webkit-text-fill-color: #000000 !important;
+                    font-weight: 700;
+                    display: block;
+                    line-height: 1.4;
+                    height: 40px;
+                }
+                
+                /* Specific fix for number inputs */
+                input[type=number].p-row-input {
+                    text-align: center;
+                    padding-right: 2px;
                 }
                 .p-row-input:focus { outline: none; border-color: #4f46e5; }
                 
@@ -371,7 +441,8 @@ export default function NewQuotationPage() {
                 .p-notes-area {
                     width: 100%; height: 120px;
                     border: none; resize: none;
-                    font-size: 14px; color: #475569;
+                    font-size: 14px; color: #000 !important;
+                    font-weight: 500;
                 }
                 .p-notes-area:focus { outline: none; }
                 
@@ -424,6 +495,16 @@ export default function NewQuotationPage() {
                 }
                 .p-btn-main:hover { transform: translateY(-2px); box-shadow: 0 15px 25px -5px rgba(16, 185, 129, 0.5); }
                 
+                .p-btn-preview {
+                    background: #f8fafc;
+                    color: #4f46e5;
+                    padding: 15px 30px;
+                    border-radius: 12px;
+                    font-weight: 700;
+                    border: 1px solid #e2e8f0;
+                }
+                .p-btn-preview:hover { background: #f1f5f9; border-color: #4f46e5; }
+                
                 @media (max-width: 768px) {
                     .quotation-premium-wrapper { padding: 10px 15px; }
                     .p-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -441,6 +522,21 @@ export default function NewQuotationPage() {
                     .p-btn-add { padding: 12px 20px; margin: 0 5px; }
                     .p-footer { padding: 20px 0; flex-direction: column; gap: 12px; }
                     .p-btn-bill, .p-btn-main { width: 100%; justify-content: center; }
+                    
+                    /* Make table columns wider on mobile for better input size */
+                    .p-table th, .p-table td { 
+                        min-width: 90px; 
+                        padding: 10px 5px; 
+                    }
+                    .p-table th:first-child, .p-table td:first-child { min-width: 40px; }
+                    .p-table th:nth-child(2), .p-table td:nth-child(2) { min-width: 180px; }
+                    .p-table th:nth-child(3), .p-table td:nth-child(3) { min-width: 60px; } /* Qty smaller on mobile */
+                    
+                    .p-row-input {
+                        padding: 10px 8px;
+                        font-size: 14px;
+                        height: 42px;
+                    }
                 }
                 
                 @keyframes slideUp {
@@ -623,10 +719,10 @@ export default function NewQuotationPage() {
                                     <thead>
                                         <tr>
                                             <th>Description</th>
-                                            <th style={{ width: '80px' }}>Qty</th>
-                                            <th style={{ width: '120px' }}>Rate</th>
-                                            <th style={{ width: '100px' }}>GST %</th>
-                                            <th style={{ width: '120px' }}>Amount</th>
+                                            <th style={{ width: '100px' }}>Qty</th>
+                                            <th style={{ width: '160px' }}>Rate</th>
+                                            <th style={{ width: '120px' }}>GST %</th>
+                                            <th style={{ width: '140px' }}>Amount</th>
                                             <th style={{ width: '50px' }}></th>
                                         </tr>
                                     </thead>
@@ -746,6 +842,9 @@ export default function NewQuotationPage() {
 
                     {/* Footer Actions */}
                     <div className="p-footer">
+                        <button className="p-btn p-btn-preview" onClick={handlePreview}>
+                            <FaEye /> Preview PDF
+                        </button>
                         <button className="p-btn p-btn-bill" onClick={() => handleSave(true)} disabled={loading}>
                             <FaFileInvoice /> {loading ? 'Processing...' : 'Create & To Bill'}
                         </button>
