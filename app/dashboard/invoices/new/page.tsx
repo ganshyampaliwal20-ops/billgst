@@ -157,6 +157,9 @@ export default function NewInvoicePage() {
             if (sourceQuotation) {
                 setIsDuplicating(true);
                 setCustomerId(sourceQuotation.customer_id || '');
+                setNewCustName(sourceQuotation.customer_name || '');
+                setNewCustPhone(sourceQuotation.phone || '');
+                setNewCustAddress(sourceQuotation.address || '');
                 setNotes(sourceQuotation.notes || sourceQuotation.terms || '');
                 setSelectedItems((sourceQuotation.items || []).map((item: any) => ({
                     ...item,
@@ -387,7 +390,7 @@ export default function NewInvoicePage() {
                             const doc = await generateInvoicePDF(invoice, businessProfile, false);
                             if (doc) {
                                 const pdfBlob = doc.output('blob');
-                                
+
                                 const formData = new FormData();
                                 formData.append('file', pdfBlob, `Invoice-${invoiceNumber}.pdf`);
                                 formData.append('phone', customer.phone);
@@ -603,10 +606,25 @@ export default function NewInvoicePage() {
                             <div className="flex gap-2">
                                 <div className="flex-1">
                                     <label className="fl">{t.customer} *</label>
-                                    <select className="fi text-slate-900" value={customerId} onChange={e => setCustomerId(e.target.value)}>
-                                        <option value="">Select Customer</option>
-                                        {safeCustomers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
+                                    <input 
+                                        className="fi text-slate-900" 
+                                        list="customer-list"
+                                        placeholder="Enter or select customer"
+                                        value={customers.find((c: any) => c.id === customerId)?.name || newCustName}
+                                        onChange={e => {
+                                            const found = customers.find((c: any) => c.name === e.target.value);
+                                            if (found) {
+                                                setCustomerId(found.id);
+                                                setNewCustName(found.name);
+                                            } else {
+                                                setCustomerId('');
+                                                setNewCustName(e.target.value);
+                                            }
+                                        }}
+                                    />
+                                    <datalist id="customer-list">
+                                        {safeCustomers.map(c => <option key={c.id} value={c.name} />)}
+                                    </datalist>
                                 </div>
                                 <button type="button" onClick={() => setShowCustomerModal(true)} className="new-btn mt-6 flex items-center justify-center h-[52px]"><FaPlus /></button>
                             </div>
@@ -644,10 +662,23 @@ export default function NewInvoicePage() {
                                         <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-4 gap-4">
                                             <div className="md:col-span-1">
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Product Name</label>
-                                                <select className="fi text-slate-900" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)}>
-                                                    <option value="">Select Product</option>
-                                                    {safeProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                                </select>
+                                                <input 
+                                                    className="fi text-slate-900" 
+                                                    list="product-list"
+                                                    placeholder="Enter or select product"
+                                                    value={item.product_name}
+                                                    onChange={e => {
+                                                        const prod = products.find((p: any) => p.name === e.target.value);
+                                                        if (prod) {
+                                                            updateItem(idx, 'product_id', prod.id);
+                                                        } else {
+                                                            updateItem(idx, 'product_name', e.target.value);
+                                                        }
+                                                    }}
+                                                />
+                                                <datalist id="product-list">
+                                                    {safeProducts.map(p => <option key={p.id} value={p.name} />)}
+                                                </datalist>
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Qty & Unit</label>
@@ -685,9 +716,9 @@ export default function NewInvoicePage() {
                             <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[42px]">
                                 <FaPlus /> {t.addNewItem}
                             </button>
-                            <button 
-                                type="button" 
-                                onClick={startVoiceBilling} 
+                            <button
+                                type="button"
+                                onClick={startVoiceBilling}
                                 className={`add-item-btn w-[42px] h-[42px] flex-shrink-0 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
                                 title="Add by Voice"
                                 style={{ padding: 0 }}
