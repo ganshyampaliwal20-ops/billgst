@@ -253,6 +253,7 @@ export default function NewInvoicePage() {
             recognition.onerror = (e: any) => {
                 console.error('Speech Error:', e.error);
                 setIsListening(false);
+                if (e.error === 'no-speech') return; // Silence no-speech errors
                 if (e.error === 'not-allowed') toast.error('Microphone permission denied');
                 else toast.error('Voice error: ' + e.error);
             };
