@@ -202,7 +202,7 @@ export default function NewInvoicePage() {
 
     // Handlers
     const addItem = () => {
-        setSelectedItems([...selectedItems, { product_id: '', quantity: 1, unit_price: 0, gst_rate: 18, hsn_code: '', unit: 'PCS' }]);
+        setSelectedItems([...selectedItems, { product_id: '', product_name: '', quantity: 1, unit_price: 0, gst_rate: 18, hsn_code: '', unit: 'PCS' }]);
     };
 
     const updateItem = (index: number, field: string, value: any) => {
@@ -232,20 +232,41 @@ export default function NewInvoicePage() {
 
     const startVoiceBilling = () => {
         const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SR) return toast.error('Voice perception not supported');
-        const recognition = new SR();
-        recognition.lang = settings.language === 'hi' ? 'hi-IN' : 'en-IN';
-        recognition.onstart = () => setIsListening(true);
-        recognition.onresult = (e: any) => {
-            const transcript = e.results[0][0].transcript.toLowerCase();
-            processAICommand(transcript);
-        };
-        recognition.onend = () => setIsListening(false);
-        recognition.start();
+        if (!SR) return toast.error('Browser does not support Voice Billing. Use Chrome.');
+        
+        try {
+            const recognition = new SR();
+            recognition.lang = settings.language === 'hi' ? 'hi-IN' : 'en-IN';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                setIsListening(true);
+                toast('Listening... Speak product name and quantity', { icon: '🎙️' });
+            };
+
+            recognition.onresult = (e: any) => {
+                const transcript = e.results[0][0].transcript.toLowerCase();
+                processAICommand(transcript);
+            };
+
+            recognition.onerror = (e: any) => {
+                console.error('Speech Error:', e.error);
+                setIsListening(false);
+                if (e.error === 'not-allowed') toast.error('Microphone permission denied');
+                else toast.error('Voice error: ' + e.error);
+            };
+
+            recognition.onend = () => setIsListening(false);
+            recognition.start();
+        } catch (err) {
+            toast.error('Could not start voice recognition');
+            setIsListening(false);
+        }
     };
 
     const processAICommand = (text: string) => {
-        const words = text.toLowerCase();
+        const words = text.toLowerCase().trim();
         let qty = 1;
         const qtyMatch = words.match(/\d+/);
         if (qtyMatch) qty = parseInt(qtyMatch[0]);
@@ -257,18 +278,18 @@ export default function NewInvoicePage() {
             const pName = p.name.toLowerCase();
             let score = 0;
 
-            if (words.includes(pName)) {
+            if (words.includes(pName) || pName.includes(words.replace(/\d+/g, '').trim())) {
                 score = 100;
             } else {
                 // Fuzzy match: check if common words exist
-                const pWords = pName.split(' ').filter((w: string) => w.length > 2);
+                const pWords = pName.split(' ').filter((w: string) => w.length > 1);
                 const matchCount = pWords.filter((w: string) => words.includes(w)).length;
                 if (matchCount > 0) {
                     score = (matchCount / pWords.length) * 80;
                 }
             }
 
-            if (score > maxScore && score > 30) {
+            if (score > maxScore && score > 20) {
                 maxScore = score;
                 bestMatch = p;
             }
@@ -666,7 +687,7 @@ export default function NewInvoicePage() {
                                                     className="fi text-slate-900" 
                                                     list="product-list"
                                                     placeholder="Enter or select product"
-                                                    value={item.product_name}
+                                                    value={item.product_name || ''}
                                                     onChange={e => {
                                                         const prod = products.find((p: any) => p.name === e.target.value);
                                                         if (prod) {
@@ -691,7 +712,7 @@ export default function NewInvoicePage() {
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Price (₹)</label>
-                                                <input type="number" className="fi text-slate-900" value={item.unit_price} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
+                                                <input type="number" className="fi text-slate-900" value={item.unit_price || 0} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">GST %</label>

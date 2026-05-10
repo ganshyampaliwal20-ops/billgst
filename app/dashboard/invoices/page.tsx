@@ -54,13 +54,14 @@ export default function InvoicesPage() {
         return true;
     });
 
-    // Grouping by Customer
     const grouped = useMemo(() => {
         const groups: Record<string, any[]> = {};
         filteredInvoices.forEach(inv => {
-            const cid = String(inv.customer?.id || 'local');
-            if (!groups[cid]) groups[cid] = [];
-            groups[cid].push(inv);
+            const name = (inv.customer?.name || 'Local Sale').trim();
+            const phone = (inv.customer?.phone || 'No Phone').trim();
+            const key = `${name}_${phone}`; // Unique key based on Name and Phone
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(inv);
         });
         return groups;
     }, [filteredInvoices]);
@@ -223,20 +224,20 @@ export default function InvoicesPage() {
             </div>
 
             <div className="invoice-list">
-                {Object.entries(grouped).map(([cid, invs]: [string, any]) => (
-                    <div key={cid} className="cust-group">
-                        <div className="cust-hdr" onClick={() => setExpandedCustomers(prev => ({ ...prev, [cid]: !prev[cid] }))}>
+                {Object.entries(grouped).map(([key, invs]: [string, any]) => (
+                    <div key={key} className="cust-group">
+                        <div className="cust-hdr" onClick={() => setExpandedCustomers(prev => ({ ...prev, [key]: !prev[key] }))}>
                             <div className="avatar" style={{ color: 'var(--indigo)' }}>{invs[0]?.customer?.name?.charAt(0) || 'C'}</div>
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontSize: '14px', fontWeight: 700 }}>{invs[0]?.customer?.name || 'Local Sale'}</div>
-                                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{invs.length} Invoices &middot; {invs[0]?.customer?.phone}</div>
+                                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{invs.length} Invoices &middot; {invs[0]?.customer?.phone || 'No Phone'}</div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ fontSize: '14px', fontWeight: 800 }}>{formatCurrency(invs.reduce((s: any, i: any) => s + Number(i.total_amount), 0))}</div>
-                                {expandedCustomers[cid] ? <FaChevronDown size={12} color="var(--muted)" /> : <FaChevronRight size={12} color="var(--muted)" />}
+                                {expandedCustomers[key] ? <FaChevronDown size={12} color="var(--muted)" /> : <FaChevronRight size={12} color="var(--muted)" />}
                             </div>
                         </div>
-                        {expandedCustomers[cid] && (
+                        {expandedCustomers[key] && (
                             <div className="cust-details">
                                 {invs.map((inv: any) => (
                                     <div key={inv.id} className="invoice-row" onClick={() => setSelectedInvoice(inv)}>
