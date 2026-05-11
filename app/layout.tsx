@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import SessionWrapper from "@/app/components/SessionWrapper";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -105,6 +106,7 @@ export default function RootLayout({
         </SessionWrapper>
         <InstallAppBanner />
         <Toaster position="top-right" />
+        <SpeedInsights />
       </body>
     </html>
   );
