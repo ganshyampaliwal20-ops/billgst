@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export default function StoreManagerPage() {
     const router = useRouter();
-    const { businessProfile, products, updateProduct } = useStore() as any;
+    const { businessProfile, products, updateProduct, fetchBusinessProfile, fetchProducts } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
     // States for Store Settings
@@ -41,6 +41,8 @@ export default function StoreManagerPage() {
     useEffect(() => {
         setIsClient(true);
         fetchAnalytics();
+        if (!businessProfile.id) fetchBusinessProfile();
+        if (!products || products.length === 0) fetchProducts();
     }, []);
 
     const fetchAnalytics = async () => {
@@ -57,31 +59,19 @@ export default function StoreManagerPage() {
 
     if (!isClient) return null;
 
-    const storeUrl = `billgst.in/s/${businessProfile.id || 'business-1234'}`;
+    const storeUrl = businessProfile.id ? `billgst.in/s/${businessProfile.id}` : 'Store not ready...';
     const mappedProducts = products || [];
 
-    // Sample Products fallback if none or low in actual database
-    const initialProds = [
-        { emoji: '📱', name: 'iPhone 15 Pro', price: '₹1,34,900', stock: 12, status: 'active', bg: '#eff6ff' },
-        { emoji: '💻', name: 'Lenovo Core i7', price: '₹89,990', stock: 5, status: 'active', bg: '#f0fdf4' },
-        { emoji: '⌚', name: 'Rolex Watch', price: '₹4,50,000', stock: 2, status: 'active', bg: '#faf5ff' },
-        { emoji: '📱', name: 'Samsung Galaxy S4', price: '₹29,999', stock: 0, status: 'out', bg: '#fff5f5' },
-        { emoji: '📱', name: 'Vivo T4 12/256GB', price: '₹24,999', stock: 18, status: 'active', bg: '#fffbeb' },
-        { emoji: '🎧', name: 'Mi Earbuds Pro', price: '₹3,499', stock: 45, status: 'active', bg: '#f0f9ff' },
-    ];
-
-    // Merge actual products or use dummy
-    const displayProducts = mappedProducts.length > 0
-        ? mappedProducts.map((p: any) => ({
-            ...p,
-            emoji: '📦',
-            bg: '#f0fdf4',
-            status: Number(p.stock_quantity) > 0 ? 'active' : 'out',
-            price: `₹${p.price || 0}`,
-            stock: Number(p.stock_quantity) || 0,
-            image_url: p.image_url || null,
-        }))
-        : initialProds;
+    // Merge actual products
+    const displayProducts = mappedProducts.map((p: any) => ({
+        ...p,
+        emoji: '📦',
+        bg: '#f0fdf4',
+        status: Number(p.stock_quantity) > 0 ? 'active' : 'out',
+        price: `₹${p.price || 0}`,
+        stock: Number(p.stock_quantity) || 0,
+        image_url: p.image_url || null,
+    }));
 
     const filteredProducts = activeFilter === 'all'
         ? displayProducts

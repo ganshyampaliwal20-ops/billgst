@@ -160,7 +160,7 @@ export default function InventoryPage() {
         }
     };
 
-    const saveProduct = () => {
+    const saveProduct = async () => {
         if (!formData.name || !formData.price || isNaN(parseFloat(formData.price))) {
             toast.error("⚠ Name aur price zaroori hai!");
             return;
@@ -176,15 +176,20 @@ export default function InventoryPage() {
             expiry_alert_days: parseInt(formData.expiry_alert_days) || 10,
         };
 
-        if (editingId) {
-            updateProduct(editingId, data);
-            toast.success(`✅ ${data.name} updated!`);
-        } else {
-            addProduct({ id: crypto.randomUUID(), ...data, created_at: new Date().toISOString() });
-            toast.success(`✅ ${data.name} added to inventory!`);
+        try {
+            if (editingId) {
+                await updateProduct(editingId, data);
+                toast.success(`✅ ${data.name} updated!`);
+            } else {
+                await addProduct({ id: crypto.randomUUID(), ...data, created_at: new Date().toISOString() });
+                toast.success(`✅ ${data.name} added to inventory!`);
+            }
+            setShowAddModal(false);
+            setEditingId(null);
+        } catch (err) {
+            console.error("Failed to save product", err);
+            // toast.error is already handled in the store
         }
-        setShowAddModal(false);
-        setEditingId(null);
     };
 
     const openAddModal = () => {

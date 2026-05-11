@@ -122,16 +122,7 @@ export default function PublicStorePage() {
         );
     }
 
-    const DEMO_PRODUCTS = [
-        { id: 'd1', name: 'Tata Salt', price: 24, unit: 'KG', category: 'Grocery', placeholder: '🧂', bg: '#fef3c7', fg: '#92400e' },
-        { id: 'd2', name: 'Amul Butter', price: 55, unit: 'PCS', category: 'Dairy', placeholder: '🧈', bg: '#fef9c3', fg: '#854d0e' },
-        { id: 'd3', name: 'Atta Bag', price: 245, unit: 'PCS', category: 'Grocery', placeholder: '🌾', bg: '#ecfdf5', fg: '#065f46' },
-        { id: 'd4', name: 'iPhone 15', price: 72000, unit: 'PCS', category: 'Mobiles', placeholder: '📱', bg: '#eff6ff', fg: '#1e40af' },
-        { id: 'd5', name: 'Rolex Watch', price: 450000, unit: 'PCS', category: 'Watches', placeholder: '⌚', bg: '#fff7ed', fg: '#9a3412' },
-    ];
-
-    const isDemoMode = storeData.products.length === 0;
-    const rawProducts = isDemoMode ? DEMO_PRODUCTS : storeData.products;
+    const rawProducts = storeData.products || [];
     
     // Filter & Sort Logic
     let filteredProducts = rawProducts.filter((p: any) => {
