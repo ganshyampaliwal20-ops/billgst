@@ -530,7 +530,7 @@ export default function BusinessExpensesPage() {
     const saveEntry = () => {
         const amt = parseFloat(amtInp);
         if (!amt) { showToast('⚠️ Amount daalo!'); return; }
-        const name = entryName.trim() || (entryType === 'credit' ? 'Credit' : 'Debit');
+        const name = entryName.trim() || (entryType === 'credit' ? 'Received' : 'Given');
         const note = entryNote.trim();
         const date = entryDate ? new Date(entryDate).toISOString() : new Date().toISOString();
 
@@ -556,6 +556,10 @@ export default function BusinessExpensesPage() {
                     const isDebit = entryType !== 'credit';
                     const balChange = isDebit ? amt : -amt;
                     newBalance += balChange;
+                }
+
+                if (c.limit > 0 && newBalance > c.limit) {
+                    setTimeout(() => showToast(`⚠️ Credit Limit (₹${c.limit}) cross ho gayi hai! Current: ₹${newBalance}`), 500);
                 }
 
                 return { ...c, txns: newTxns, balance: newBalance };

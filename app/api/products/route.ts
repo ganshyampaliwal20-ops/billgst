@@ -12,13 +12,33 @@ export async function GET() {
         }
 
         const client = await pool.connect();
-        const result = await client.query(`
-            SELECT * FROM products 
-            WHERE created_by = $1 AND (status IS NULL OR status != 'INACTIVE')
-            ORDER BY created_at DESC
-        `, [session.user.id]);
-        client.release();
-        return NextResponse.json(result.rows);
+        try {
+            const result = await client.query(`
+                SELECT * FROM products 
+                WHERE created_by = $1 AND (status IS NULL OR status != 'INACTIVE')
+                ORDER BY created_at DESC
+            `, [session.user.id]);
+            client.release();
+            return NextResponse.json(result.rows);
+        } catch (dbError: any) {
+            if (dbError?.code === '42703') {
+                console.log('Product GET API: Missing columns. Migrating...');
+                await client.query(`
+                    ALTER TABLE products 
+                    ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
+                    ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE';
+                `);
+                const result = await client.query(`
+                    SELECT * FROM products 
+                    WHERE created_by = $1 AND (status IS NULL OR status != 'INACTIVE')
+                    ORDER BY created_at DESC
+                `, [session.user.id]);
+                client.release();
+                return NextResponse.json(result.rows);
+            }
+            client.release();
+            throw dbError;
+        }
     } catch (error) {
         console.error('Error fetching products:', error);
         return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
@@ -76,7 +96,10 @@ export async function POST(request: Request) {
                     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
                     ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'PRODUCT',
                     ADD COLUMN IF NOT EXISTS purchase_price DECIMAL(15, 2) DEFAULT 0,
-                    ADD COLUMN IF NOT EXISTS image_url TEXT;
+                    ADD COLUMN IF NOT EXISTS image_url TEXT,
+                    ADD COLUMN IF NOT EXISTS expiry_date DATE,
+                    ADD COLUMN IF NOT EXISTS expiry_alert_days INTEGER DEFAULT 10,
+                    ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE';
                 `);
                 // Retry
                 const productType = data.type || 'PRODUCT';
