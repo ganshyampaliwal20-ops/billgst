@@ -9,7 +9,7 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct, businessProfile } = useStore() as any;
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [showProfit, setShowProfit] = useState(true);
 
@@ -49,6 +49,7 @@ export default function InventoryPage() {
 
     useEffect(() => {
         setIsClient(true);
+        if (fetchProducts) fetchProducts();
     }, []);
 
     // ── HELPER FUNCTIONS ──
@@ -739,72 +740,86 @@ export default function InventoryPage() {
 
             {/* ══ PRODUCTS ══ */}
             <div className="products-list">
-                {filteredProducts.map((p: any, i: number) => {
-                    const stock = parseInt(p.stock_quantity) || 0;
-                    const st = getStatusInfo(stock);
-                    const exp = getExpiryStatus(p);
-                    return (
-                        <div className="product-card" key={p.id} style={{ animationDelay: `${i * 0.05}s` }}>
-                            <div className="card-main">
-                                <div className="prod-img">
-                                    {p.image_url ? (
-                                        <img src={p.image_url} alt={p.name} />
-                                    ) : (
-                                        <div className="prod-img-placeholder">{getProductEmoji(p)}</div>
-                                    )}
-                                    <span className={`stock-dot ${st.sc}`}></span>
-                                </div>
-                                <div className="prod-info">
-                                    <div className="prod-name">{p.name}</div>
-                                    <div className="prod-hsn">HSN: {p.hsn_code || "NA"} &nbsp;·&nbsp; ₹{parseFloat(p.price).toLocaleString("en-IN")}/{p.unit || 'pcs'}</div>
-                                    <div className="tags-row">
-                                        <span className={`tag ${p.type?.toLowerCase() === 'service' ? 'service' : 'product'}`}>{p.type || "PRODUCT"}</span>
-                                        <span className="tag gst">GST {p.gst_rate || 0}%</span>
+                {filteredProducts.length > 0 ? (
+                    filteredProducts.map((p: any, i: number) => {
+                        const stock = parseInt(p.stock_quantity) || 0;
+                        const st = getStatusInfo(stock);
+                        const exp = getExpiryStatus(p);
+                        return (
+                            <div className="product-card" key={p.id} style={{ animationDelay: `${i * 0.05}s` }}>
+                                <div className="card-main">
+                                    <div className="prod-img">
+                                        {p.image_url ? (
+                                            <img src={p.image_url} alt={p.name} />
+                                        ) : (
+                                            <div className="prod-img-placeholder">{getProductEmoji(p)}</div>
+                                        )}
+                                        <span className={`stock-dot ${st.sc}`}></span>
                                     </div>
-                                    {showProfit && p.price && p.purchase_price && parseFloat(p.price) > parseFloat(p.purchase_price) && (
-                                        <div className="profit-tag">
-                                            📈 Profit: {(((parseFloat(p.price) - parseFloat(p.purchase_price)) / parseFloat(p.purchase_price)) * 100).toFixed(0)}%
+                                    <div className="prod-info">
+                                        <div className="prod-name">{p.name}</div>
+                                        <div className="prod-hsn">HSN: {p.hsn_code || "NA"} &nbsp;·&nbsp; ₹{parseFloat(p.price).toLocaleString("en-IN")}/{p.unit || 'pcs'}</div>
+                                        <div className="tags-row">
+                                            <span className={`tag ${p.type?.toLowerCase() === 'service' ? 'service' : 'product'}`}>{p.type || "PRODUCT"}</span>
+                                            <span className="tag gst">GST {p.gst_rate || 0}%</span>
                                         </div>
-                                    )}
-                                    {exp && (
-                                        <div className="expiry-warn" style={{ color: exp.color, borderColor: exp.color + '44' }}>
-                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-                                            {exp.text}
-                                        </div>
-                                    )}
+                                        {showProfit && p.price && p.purchase_price && parseFloat(p.price) > parseFloat(p.purchase_price) && (
+                                            <div className="profit-tag">
+                                                📈 Profit: {(((parseFloat(p.price) - parseFloat(p.purchase_price)) / parseFloat(p.purchase_price)) * 100).toFixed(0)}%
+                                            </div>
+                                        )}
+                                        {exp && (
+                                            <div className="expiry-warn" style={{ color: exp.color, borderColor: exp.color + '44' }}>
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                                                {exp.text}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="prod-right">
+                                        <span className={`prod-qty ${st.sc}`}>{stock}</span>
+                                        <span className="prod-qty-unit">{p.unit || 'pcs'}</span>
+                                        <span className="prod-price">₹{(parseFloat(p.price) * stock).toLocaleString("en-IN")}</span>
+                                    </div>
                                 </div>
-                                <div className="prod-right">
-                                    <span className={`prod-qty ${st.sc}`}>{stock}</span>
-                                    <span className="prod-qty-unit">{p.unit || 'pcs'}</span>
-                                    <span className="prod-price">₹{(parseFloat(p.price) * stock).toLocaleString("en-IN")}</span>
+                                <div className="stock-bar-wrap">
+                                    <div className="stock-bar-info">
+                                        <span className="stock-bar-label">Stock level</span>
+                                        <span className="stock-bar-pct" style={{ color: st.color }}>{st.label}</span>
+                                    </div>
+                                    <div className="stock-bar-track">
+                                        <div className={`stock-bar-fill fill-${st.sc}`} style={{ width: `${st.pct}%` }}></div>
+                                    </div>
+                                </div>
+                                <div className="card-actions">
+                                    <button className="action-btn edit" onClick={() => handleEdit(p)}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        Edit
+                                    </button>
+                                    <button className="action-btn qr" onClick={(e) => openQR(e, p)}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><rect x="7" y="7" width="3" height="3" /><rect x="14" y="7" width="3" height="3" /><rect x="7" y="14" width="3" height="3" /><rect x="14" y="14" width="3" height="3" /></svg>
+                                        QR Code
+                                    </button>
+                                    <button className="action-btn del" onClick={(e) => handleDelete(e, p.id, p.name)}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
-                            <div className="stock-bar-wrap">
-                                <div className="stock-bar-info">
-                                    <span className="stock-bar-label">Stock level</span>
-                                    <span className="stock-bar-pct" style={{ color: st.color }}>{st.label}</span>
-                                </div>
-                                <div className="stock-bar-track">
-                                    <div className={`stock-bar-fill fill-${st.sc}`} style={{ width: `${st.pct}%` }}></div>
-                                </div>
-                            </div>
-                            <div className="card-actions">
-                                <button className="action-btn edit" onClick={() => handleEdit(p)}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                    Edit
-                                </button>
-                                <button className="action-btn qr" onClick={(e) => openQR(e, p)}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><rect x="7" y="7" width="3" height="3" /><rect x="14" y="7" width="3" height="3" /><rect x="7" y="14" width="3" height="3" /><rect x="14" y="14" width="3" height="3" /></svg>
-                                    QR Code
-                                </button>
-                                <button className="action-btn del" onClick={(e) => handleDelete(e, p.id, p.name)}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" /></svg>
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink3)' }}>
+                        <div style={{ fontSize: '40px', marginBottom: '15px' }}>📦</div>
+                        <div style={{ fontWeight: '700', fontSize: '16px' }}>No products found</div>
+                        <div style={{ fontSize: '12px', marginTop: '5px' }}>Try searching something else or add a new product.</div>
+                        <button 
+                            onClick={openAddModal}
+                            style={{ marginTop: '20px', background: 'var(--ink)', color: '#fff', padding: '10px 20px', borderRadius: '10px', border: 'none', fontWeight: '700' }}
+                        >
+                            + Add First Product
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* ══ ACTIONS AT BOTTOM (As requested) ══ */}

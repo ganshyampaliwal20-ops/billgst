@@ -7,13 +7,22 @@ export default function InstallAppBanner() {
     const [showBanner, setShowBanner] = useState(false);
 
     useEffect(() => {
-        // Show by default on mobile dimensions or user agent
+        // 1. Check if running in standalone mode (already installed and opened as app)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+        
+        // 2. Check localStorage for previous installation or dismissal
+        const isAlreadyInstalled = localStorage.getItem('billgst_pwa_installed') === 'true';
+        const isDismissed = localStorage.getItem('billgst_pwa_dismissed') === 'true';
+
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
-        // Hide if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+        if (isStandalone || isAlreadyInstalled) {
             setShowBanner(false);
-        } else if (isMobile) {
+            localStorage.setItem('billgst_pwa_installed', 'true');
+        } else if (isMobile && !isDismissed) {
+            // We show it on mobile if not dismissed, but ideally wait for beforeinstallprompt
+            // However, some browsers don't fire it reliably, so we can keep a soft reminder
+            // unless the user explicitly closes it.
             setShowBanner(true);
         }
 
@@ -23,9 +32,19 @@ export default function InstallAppBanner() {
             setShowBanner(true);
         };
 
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        const handleAppInstalled = () => {
+            setShowBanner(false);
+            setDeferredPrompt(null);
+            localStorage.setItem('billgst_pwa_installed', 'true');
+        };
 
-        return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener('appinstalled', handleAppInstalled);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            window.removeEventListener('appinstalled', handleAppInstalled);
+        };
     }, []);
 
     const handleInstallClick = async () => {
@@ -41,6 +60,7 @@ export default function InstallAppBanner() {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
             console.log('User accepted the install prompt');
+            localStorage.setItem('billgst_pwa_installed', 'true');
             setShowBanner(false);
         } else {
             console.log('User dismissed the install prompt');
@@ -79,7 +99,10 @@ export default function InstallAppBanner() {
                     <FaDownload size={12} /> Install
                 </button>
                 <button
-                    onClick={() => setShowBanner(false)}
+                    onClick={() => {
+                        setShowBanner(false);
+                        localStorage.setItem('billgst_pwa_dismissed', 'true');
+                    }}
                     className="text-indigo-200 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors ml-1"
                 >
                     <FaTimes size={16} />
