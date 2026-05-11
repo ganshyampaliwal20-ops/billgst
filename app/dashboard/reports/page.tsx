@@ -118,22 +118,13 @@ function ReportsContent() {
 
     let { totalSales, totalProfit, invoiceCount } = getAnalytics(mappedPeriod, null);
 
-    if (totalSales === 0) totalSales = 8738000;
-    if (totalProfit === 0) totalProfit = 1401000;
-    if (invoiceCount === 0) invoiceCount = 8;
-
     let avgOrderValue = invoiceCount > 0 ? (totalSales / invoiceCount) : 0;
-    if (avgOrderValue === 0) avgOrderValue = 1092000;
-
     let activeCustomers = customers?.length || 0;
-    if (activeCustomers < 48) activeCustomers = 48;
 
     let paymentPending = invoices?.filter((inv: any) => inv.status !== 'PAID')
         .reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0) - (parseFloat(inv.paid_amount) || 0), 0) || 0;
-    if (paymentPending === 0) paymentPending = 642000;
 
     let itemsSold = invoices?.reduce((sum: number, inv: any) => sum + (inv.items?.length || 1), 0) || 0;
-    if (itemsSold < 234) itemsSold = 234;
 
     const formatLakhs = (val: number) => {
         if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
@@ -272,24 +263,11 @@ function ReportsContent() {
         return { ...c, total, phone: c.phone || 'N/A' };
     }).sort((a: any, b: any) => b.total - a.total).slice(0, 5);
 
-    if (customersWithTotals.length === 0) {
-        customersWithTotals = [
-            { name: "BHARAT", phone: "9413626260", total: 126000 },
-            { name: "SURYA", phone: "9549355681", total: 1181000 },
-            { name: "GANSHYAM PALIWAL", phone: "09549355681", total: 47300 },
-            { name: "SUNITA AGRAWAL", phone: "6543210987", total: 105000 },
-            { name: "DEEPAK VERMA", phone: "9988776655", total: 18400 },
-        ];
-    }
 
     let totalTaxable = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.subtotal) || 0), 0) || 0;
     let totalCGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.cgst_amount) || 0), 0) || 0;
     let totalSGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.sgst_amount) || 0), 0) || 0;
     let totalIGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.igst_amount) || 0), 0) || 0;
-
-    if (totalTaxable === 0) totalTaxable = 7337000;
-    if (totalCGST === 0) totalCGST = 660000;
-    if (totalSGST === 0) totalSGST = 660000;
 
     const totalTax = totalCGST + totalSGST + totalIGST;
 
@@ -321,7 +299,7 @@ function ReportsContent() {
   --shadow-md: 0 8px 32px rgba(11,15,30,0.1), 0 2px 8px rgba(11,15,30,0.06);
 }
 
-.report-wrapper { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+.report-wrapper { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--ink); min-height: 100dvh; overflow-y: visible; }
 .report-wrapper * { box-sizing: border-box; }
 
 .topbar {

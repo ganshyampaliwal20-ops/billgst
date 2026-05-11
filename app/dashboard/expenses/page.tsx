@@ -356,7 +356,13 @@ export default function BusinessExpensesPage() {
         setCurrentFilter('all');
         setActiveScreen('detail');
         window.history.pushState({ screen: 'detail' }, '', window.location.pathname + '#detail');
-        window.scrollTo(0, 0);
+        // Small timeout ensures the new screen is rendered before we scroll
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            // Force a layout recalculation for some mobile browsers
+            document.body.style.display = 'inline-block';
+            setTimeout(() => { document.body.style.display = ''; }, 0);
+        }, 50);
     };
 
 

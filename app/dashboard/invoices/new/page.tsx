@@ -43,6 +43,8 @@ export default function NewInvoicePage() {
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const quotations = useStore((state: any) => state.quotations) || [];
     const fetchQuotations = useStore((state: any) => state.fetchQuotations);
+    const fetchProducts = useStore((state: any) => state.fetchProducts);
+    const fetchCustomers = useStore((state: any) => state.fetchCustomers);
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
 
     const [isClient, setIsClient] = useState(false);
@@ -74,6 +76,9 @@ export default function NewInvoicePage() {
 
     // UI States
     const [isListening, setIsListening] = useState(false);
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
+    const [quickSearch, setQuickSearch] = useState('');
+    const [quickQty, setQuickQty] = useState(1);
     const [isScanning, setIsScanning] = useState(false);
     const [scanProgress, setScanProgress] = useState(0);
     const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -113,6 +118,9 @@ export default function NewInvoicePage() {
 
     useEffect(() => {
         setIsClient(true);
+        if (fetchProducts) fetchProducts();
+        if (fetchCustomers) fetchCustomers();
+
         const today = new Date().toISOString().split('T')[0];
         setInvoiceDate(today);
         setInvoiceNumber(`INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`);
@@ -231,90 +239,146 @@ export default function NewInvoicePage() {
     };
 
     const startVoiceBilling = () => {
+        if (typeof window === 'undefined') return;
         const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SR) return toast.error('Browser does not support Voice Billing. Use Chrome.');
-        
+        if (!SR) return toast.error('Browser support missing. Use Chrome.');
+
+        if (isListening) return;
+
         try {
-            const recognition = new SR();
-            recognition.lang = settings.language === 'hi' ? 'hi-IN' : 'en-IN';
-            recognition.continuous = false;
-            recognition.interimResults = false;
+            const rec = new SR();
+            rec.lang = 'hi-IN';
+            rec.continuous = false;
+            rec.interimResults = false;
+            rec.maxAlternatives = 10;
 
-            recognition.onstart = () => {
+            rec.onstart = () => {
                 setIsListening(true);
-                toast('Listening... Speak product name and quantity', { icon: '🎙️' });
+                toast('🎙️ Listening... Bolye', { id: 'voice-toast' });
             };
 
-            recognition.onresult = (e: any) => {
-                const transcript = e.results[0][0].transcript.toLowerCase();
-                processAICommand(transcript);
+            rec.onresult = (e: any) => {
+                const results = e.results[0];
+                const transcripts = [];
+                for (let i = 0; i < results.length; i++) {
+                    transcripts.push(results[i].transcript.toLowerCase().trim());
+                }
+                processVoiceTranscripts(transcripts);
             };
 
-            recognition.onerror = (e: any) => {
-                console.error('Speech Error:', e.error);
+            rec.onerror = (e: any) => {
                 setIsListening(false);
-                if (e.error === 'no-speech') return; // Silence no-speech errors
-                if (e.error === 'not-allowed') toast.error('Microphone permission denied');
-                else toast.error('Voice error: ' + e.error);
+                if (e.error === 'network') toast.error('Network problem.');
+                else if (e.error === 'no-speech') toast.error('Kuch nahi suna.');
             };
 
-            recognition.onend = () => setIsListening(false);
-            recognition.start();
+            rec.onend = () => setIsListening(false);
+            rec.start();
         } catch (err) {
-            toast.error('Could not start voice recognition');
             setIsListening(false);
         }
     };
 
-    const processAICommand = (text: string) => {
-        const words = text.toLowerCase().trim();
-        let qty = 1;
-        const qtyMatch = words.match(/\d+/);
-        if (qtyMatch) qty = parseInt(qtyMatch[0]);
+    const processVoiceTranscripts = (transcripts: string[]) => {
+        const storeProducts = (useStore.getState() as any).products || [];
+        const liveProducts = storeProducts.filter((p: any) => p?.id && p?.name && p?.status !== 'INACTIVE');
+        
+        if (liveProducts.length === 0) return toast.error('Inventory khali hai.');
 
-        let bestMatch = null;
+        const heard = transcripts[0];
+        toast(`Suna: "${heard}"`, { icon: '👂' });
+
+        let bestMatch: any = null;
         let maxScore = 0;
+        let bestQty = 1;
 
-        safeProducts.forEach((p: any) => {
-            const pName = p.name.toLowerCase();
-            let score = 0;
+        const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s]/gi, '').trim();
 
-            if (words.includes(pName) || pName.includes(words.replace(/\d+/g, '').trim())) {
-                score = 100;
-            } else {
-                // Fuzzy match: check if common words exist
-                const pWords = pName.split(' ').filter((w: string) => w.length > 1);
-                const matchCount = pWords.filter((w: string) => words.includes(w)).length;
-                if (matchCount > 0) {
-                    score = (matchCount / pWords.length) * 80;
+        for (const raw of transcripts) {
+            const text = raw.toLowerCase();
+            let qty = 1;
+            const numMatch = text.match(/\d+/);
+            if (numMatch) qty = parseInt(numMatch[0]);
+
+            const voiceName = clean(text.replace(/\d+/g, ''));
+            if (!voiceName) continue;
+
+            liveProducts.forEach((p: any) => {
+                const pName = clean(p.name);
+                let score = 0;
+
+                if (pName === voiceName) score = 2000;
+                else if (pName.includes(voiceName) || voiceName.includes(pName)) score = 1000;
+                else {
+                    const parts = voiceName.split(' ').filter(w => w.length > 2);
+                    parts.forEach(w => { if (pName.includes(w)) score += 500; });
                 }
-            }
 
-            if (score > maxScore && score > 20) {
-                maxScore = score;
-                bestMatch = p;
-            }
-        });
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMatch = p;
+                    bestQty = qty;
+                }
+            });
+            if (maxScore >= 2000) break;
+        }
 
-        if (bestMatch) {
-            const p = bestMatch as any;
-            // Check if already exists to avoid duplicates or just append
-            setSelectedItems(prev => [...prev, {
-                product_id: p.id,
-                product_name: p.name,
-                quantity: qty,
-                unit_price: p.price,
-                gst_rate: p.gst_rate || 18,
-                hsn_code: p.hsn_code,
-                unit: p.unit || 'PCS'
-            }]);
-            toast.success(`Added ${qty} ${p.name}`);
+        if (bestMatch && maxScore > 200) {
+            const p = bestMatch;
+            const price = p.price || p.sale_price || p.unit_price || 0;
+            setSelectedItems(prev => {
+                const idx = prev.findIndex(item => item.product_id === p.id);
+                if (idx > -1) {
+                    const next = [...prev];
+                    next[idx].quantity = (Number(next[idx].quantity) || 0) + bestQty;
+                    return next;
+                }
+                return [...prev, {
+                    product_id: p.id,
+                    product_name: p.name,
+                    quantity: bestQty,
+                    unit_price: price,
+                    gst_rate: p.gst_rate || 18,
+                    hsn_code: p.hsn_code || '',
+                    unit: p.unit || 'PCS'
+                }];
+            });
+            toast.success(`✅ ${p.name} added`);
         } else {
-            toast.error(`नहीं मिला: ${text}`);
+            toast.error(`Nahi mila: "${heard}"`);
         }
     };
 
     const handleMagicScan = () => fileInputRef.current?.click();
+    
+    const quickAddProduct = (name: string, qty: number) => {
+        const prod = safeProducts.find((p: any) => p.name === name);
+        if (prod) {
+            const price = prod.price || prod.sale_price || prod.unit_price || 0;
+            setSelectedItems(prev => {
+                const idx = prev.findIndex(item => item.product_id === prod.id);
+                if (idx > -1) {
+                    const next = [...prev];
+                    next[idx].quantity = (Number(next[idx].quantity) || 0) + qty;
+                    return next;
+                }
+                return [...prev, {
+                    product_id: prod.id,
+                    product_name: prod.name,
+                    quantity: qty,
+                    unit_price: price,
+                    gst_rate: prod.gst_rate || 18,
+                    hsn_code: prod.hsn_code || '',
+                    unit: prod.unit || 'PCS'
+                }];
+            });
+            toast.success(`✅ ${prod.name} added`);
+            setShowQuickAdd(false);
+            setQuickSearch('');
+        } else {
+            toast.error('Product nahi mila inventory me');
+        }
+    };
 
     const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -628,8 +692,8 @@ export default function NewInvoicePage() {
                             <div className="flex gap-2">
                                 <div className="flex-1">
                                     <label className="fl">{t.customer} *</label>
-                                    <input 
-                                        className="fi text-slate-900" 
+                                    <input
+                                        className="fi text-slate-900"
                                         list="customer-list"
                                         placeholder="Enter or select customer"
                                         value={customers.find((c: any) => c.id === customerId)?.name || newCustName}
@@ -684,23 +748,26 @@ export default function NewInvoicePage() {
                                         <div className="md:col-span-11 grid grid-cols-1 md:grid-cols-4 gap-4">
                                             <div className="md:col-span-1">
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Product Name</label>
-                                                <input 
-                                                    className="fi text-slate-900" 
-                                                    list="product-list"
-                                                    placeholder="Enter or select product"
-                                                    value={item.product_name || ''}
-                                                    onChange={e => {
-                                                        const prod = products.find((p: any) => p.name === e.target.value);
-                                                        if (prod) {
-                                                            updateItem(idx, 'product_id', prod.id);
-                                                        } else {
-                                                            updateItem(idx, 'product_name', e.target.value);
-                                                        }
-                                                    }}
-                                                />
-                                                <datalist id="product-list">
-                                                    {safeProducts.map(p => <option key={p.id} value={p.name} />)}
-                                                </datalist>
+                                                <div className="relative">
+                                                    <input
+                                                        className="fi text-slate-900 pr-10"
+                                                        list="product-list"
+                                                        placeholder="Type product name..."
+                                                        value={item.product_name || ''}
+                                                        onChange={e => {
+                                                            const val = e.target.value;
+                                                            const prod = safeProducts.find((p: any) => p.name === val);
+                                                            if (prod) {
+                                                                updateItem(idx, 'product_id', prod.id);
+                                                            } else {
+                                                                updateItem(idx, 'product_name', val);
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">
+                                                        <FaBox size={12} />
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Qty & Unit</label>
@@ -733,15 +800,22 @@ export default function NewInvoicePage() {
                                 </div>
                             ))}
                         </div>
+                        
+                        <datalist id="product-list">
+                            {safeProducts.map(p => <option key={p.id} value={p.name}>{p.price ? `₹${p.price}` : ''}</option>)}
+                        </datalist>
 
-                        <div className="flex gap-2 mt-4">
-                            <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[42px]">
+                        <div className="flex flex-col md:flex-row gap-3 mt-6">
+                            <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[48px]">
                                 <FaPlus /> {t.addNewItem}
+                            </button>
+                            <button type="button" onClick={() => setShowQuickAdd(true)} className="add-item-btn flex-1 h-[48px] bg-amber-50 border-amber-200 text-amber-600">
+                                <FaBox /> Browse Inventory
                             </button>
                             <button
                                 type="button"
                                 onClick={startVoiceBilling}
-                                className={`add-item-btn w-[42px] h-[42px] flex-shrink-0 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
+                                className={`add-item-btn w-[48px] h-[48px] flex-shrink-0 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
                                 title="Add by Voice"
                                 style={{ padding: 0 }}
                             >
@@ -842,6 +916,71 @@ export default function NewInvoicePage() {
                     </button>
                 </div>
             </div>
+
+            {/* Quick Add Panel - Voice + Type */}
+            {showQuickAdd && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-end justify-center p-0">
+                    <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-2xl p-6 animate-in slide-in-from-bottom">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900">⚡ Quick Add Product</h3>
+                                <p className="text-xs text-slate-400">{isListening ? '🎙️ Listening...' : 'Type ya voice se product add karo'}</p>
+                            </div>
+                            <button onClick={() => { setShowQuickAdd(false); setIsListening(false); }} className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">✕</button>
+                        </div>
+
+                        <div className="flex gap-2 mb-4">
+                            <input
+                                autoFocus
+                                className="fi flex-1 text-slate-900 border-2 border-indigo-300 focus:border-indigo-500"
+                                placeholder="Product ka naam type karo..."
+                                value={quickSearch}
+                                onChange={e => setQuickSearch(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter' && quickSearch.trim()) quickAddProduct(quickSearch.trim(), quickQty); }}
+                            />
+                            <input
+                                type="number"
+                                min={1}
+                                className="fi w-20 text-slate-900 text-center border-2 border-indigo-300"
+                                value={quickQty}
+                                onChange={e => setQuickQty(Number(e.target.value) || 1)}
+                            />
+                        </div>
+
+                        {/* Filtered Product List */}
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {(useStore.getState().products || [])
+                                .filter((p: any) => p?.id && p?.name && p?.status !== 'INACTIVE')
+                                .filter((p: any) => !quickSearch || p.name.toLowerCase().includes(quickSearch.toLowerCase()))
+                                .slice(0, 10)
+                                .map((p: any) => (
+                                    <div
+                                        key={p.id}
+                                        onClick={() => quickAddProduct(p.name, quickQty)}
+                                        className="flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-transparent rounded-xl cursor-pointer transition-all"
+                                    >
+                                        <div>
+                                            <div className="font-bold text-slate-800 text-sm">{p.name}</div>
+                                            <div className="text-xs text-slate-400">₹{p.price} · {p.unit || 'PCS'} · GST {p.gst_rate || 18}%</div>
+                                        </div>
+                                        <span className="text-indigo-500 font-black text-lg">+</span>
+                                    </div>
+                                ))
+                            }
+                            {quickSearch && (useStore.getState().products || []).filter((p: any) => p?.name?.toLowerCase().includes(quickSearch.toLowerCase())).length === 0 && (
+                                <div className="text-center text-slate-400 py-6 text-sm">No product found for "{quickSearch}"</div>
+                            )}
+                        </div>
+
+                        <button
+                            onClick={() => quickSearch.trim() && quickAddProduct(quickSearch.trim(), quickQty)}
+                            className="mt-4 w-full py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all"
+                        >
+                            ✅ Add Product
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Quick Add Modal, AI Scanning Portal, etc. */}
             {isScanning && (

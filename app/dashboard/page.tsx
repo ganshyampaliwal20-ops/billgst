@@ -142,7 +142,7 @@ export default function DashboardPage() {
             data: {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
-                    data: [32000, 58000, 45000, 71000, 63000, 88000, 47250],
+                    data: [0, 0, 0, 0, 0, 0, 0],
                     borderColor: '#4f46e5',
                     backgroundColor: 'rgba(79,70,229,0.06)',
                     borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4f46e5',

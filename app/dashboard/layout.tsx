@@ -408,7 +408,7 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 scroll-smooth overflow-auto flex flex-col items-center relative">
+                <main className="flex-1 scroll-smooth overflow-auto flex flex-col relative">
                     <div className="max-w-[1600px] mx-auto w-full animate-fadeIn">
                         {children}
                     </div>
