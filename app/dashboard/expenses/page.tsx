@@ -157,6 +157,7 @@ export default function BusinessExpensesPage() {
         if (status === 'loading') return;
 
         const loadData = async () => {
+            setCustomers([]); // Reset immediately to prevent ghosting from previous session
             try {
                 const { idb } = await import('../../../lib/idb');
 
@@ -235,42 +236,55 @@ export default function BusinessExpensesPage() {
         loadData();
     }, [status, session?.user?.id, session?.user?.email]);
 
+    // --- SAVING LOGIC ---
     useEffect(() => {
-        if (canSave && customers && customers.length > 0) {
-            const saveData = async () => {
-                let storageKey = 'hisaab_pro_data';
-                if (session?.user?.email !== 'gpaliwal59@gmail.com') {
-                    if (session?.user?.id) {
-                        storageKey = `hisaab_pro_data_${session.user.id}`;
-                    } else if (session?.user?.email) {
-                        storageKey = `hisaab_pro_data_${session.user.email}`;
-                    }
-                }
+        // Critical: Only save if we have explicitly finished loading and have valid state
+        if (!isMounted || !canSave || !customers) return;
 
-                try {
-                    const { idb } = await import('../../../lib/idb');
-                    await idb.set(storageKey, customers);
-                    // Also clear localStorage to free up the 5MB browser quota!
-                    try { localStorage.removeItem(storageKey); } catch (e) { }
-                } catch (err) {
-                    console.error("IDB Storage error:", err);
-                    showToast("⚠️ Storage error! Puraane data issue.");
-                }
+        const saveData = async () => {
+            let storageKey = null;
 
-                if (curCid) {
-                    const c = customers.find((x: any) => x.id === curCid);
-                    if (c) {
-                        fetch('/api/hisaab/sync', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(c)
-                        }).catch(e => console.error("Sync failed", e));
-                    }
+            if (session?.user?.id) {
+                // Strictly use user-specific key if logged in
+                storageKey = `hisaab_pro_data_${session.user.id}`;
+            } else if (!session) {
+                // ONLY use legacy key if explicitly NOT logged in (Guest Mode)
+                storageKey = 'hisaab_pro_data';
+            }
+
+            if (!storageKey) return;
+
+            try {
+                const { idb } = await import('../../../lib/idb');
+                await idb.set(storageKey, customers);
+                
+                // Cleanup: If we just saved to a user-specific key, 
+                // we should NOT have that same data in the legacy global key anymore
+                // to prevent it leaking when we logout.
+                if (session?.user?.id) {
+                    try { localStorage.removeItem('hisaab_pro_data'); } catch (e) { }
                 }
-            };
-            saveData();
-        }
-    }, [customers, canSave, curCid, session]);
+            } catch (err) {
+                console.error("IDB Storage error:", err);
+            }
+
+            // Sync with Server if applicable
+            if (curCid && session?.user?.id) {
+                const c = customers.find((x: any) => x.id === curCid);
+                if (c) {
+                    fetch('/api/hisaab/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(c)
+                    }).catch(e => console.error("Sync failed", e));
+                }
+            }
+        };
+
+        // Debounce saving slightly to avoid excessive writes
+        const timer = setTimeout(saveData, 500);
+        return () => clearTimeout(timer);
+    }, [customers, canSave, isMounted, session?.user?.id]);
 
     // AUTO-HEAL: Fix corrupted balances from old reversed math logic
     useEffect(() => {
