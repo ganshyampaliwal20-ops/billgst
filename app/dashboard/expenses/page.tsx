@@ -161,49 +161,75 @@ export default function BusinessExpensesPage() {
                 const { idb } = await import('../../../lib/idb');
 
                 const possibleKeys = [
-                    `hisaab_pro_data_${session?.user?.id}`,
+                    'hisaab_pro_data',
                     `hisaab_pro_data_${session?.user?.email}`,
-                    'hisaab_pro_data' // Global legacy fallback
+                    `hisaab_pro_data_${session?.user?.id}`
                 ];
 
-                let loadedData = null;
-                let loadedKey = null;
+                const mergedCustomers = new Map<number, any>();
 
-                // 1. Try to load from IndexedDB first (Primary Storage now)
+                // Helper to merge data into our map
+                const mergeIntoMap = (dataArray: any[]) => {
+                    if (!Array.isArray(dataArray)) return;
+                    dataArray.forEach(cust => {
+                        if (!cust.id) return;
+                        const existing = mergedCustomers.get(cust.id);
+                        if (!existing) {
+                            mergedCustomers.set(cust.id, cust);
+                        } else {
+                            // Merge transactions, avoid duplicates
+                            const existingTxnIds = new Set(existing.txns.map((t: any) => t.id));
+                            const newTxns = (cust.txns || []).filter((t: any) => !existingTxnIds.has(t.id));
+                            
+                            const mergedTxns = [...existing.txns, ...newTxns].sort((a: any, b: any) => 
+                                new Date(b.date).getTime() - new Date(a.date).getTime()
+                            );
+
+                            // Keep the latest profile info but combined transactions
+                            mergedCustomers.set(cust.id, {
+                                ...existing,
+                                ...cust,
+                                txns: mergedTxns,
+                                balance: existing.balance // We will re-calculate balance to be sure
+                            });
+                        }
+                    });
+                };
+
+                // 1. Load from all keys in both IndexedDB and localStorage
                 for (const k of possibleKeys) {
                     if (!k || k.includes('undefined')) continue;
+                    
+                    // Try IDB
                     try {
                         const savedIdb = await idb.get(k);
-                        if (savedIdb && Array.isArray(savedIdb) && savedIdb.length > 0) {
-                            loadedData = savedIdb;
-                            loadedKey = k;
-                            break;
+                        if (savedIdb) mergeIntoMap(savedIdb);
+                    } catch (e) { }
+
+                    // Try LocalStorage
+                    try {
+                        const savedLs = localStorage.getItem(k);
+                        if (savedLs) {
+                            const parsed = JSON.parse(savedLs);
+                            mergeIntoMap(parsed);
                         }
                     } catch (e) { }
                 }
 
-                // 2. Fallback to localStorage if IDB is empty (Migration phase)
-                if (!loadedData) {
-                    for (const k of possibleKeys) {
-                        if (!k || k.includes('undefined')) continue;
-                        const saved = localStorage.getItem(k);
-                        if (saved && saved !== '[]') {
-                            try {
-                                const parsed = JSON.parse(saved);
-                                if (parsed.length > 0) {
-                                    loadedData = parsed;
-                                    loadedKey = k;
-                                    break;
-                                }
-                            } catch (e) { }
-                        }
-                    }
-                }
+                const finalData = Array.from(mergedCustomers.values());
 
-                if (loadedData) {
-                    setCustomers(loadedData);
+                if (finalData.length > 0) {
+                    // Final safety: Re-calculate balances based on transactions
+                    const balancedData = finalData.map(c => {
+                        let debitSum = 0, creditSum = 0;
+                        (c.txns || []).forEach((t: any) => {
+                            if (t.type === 'credit') creditSum += t.amt;
+                            else debitSum += t.amt;
+                        });
+                        return { ...c, balance: debitSum - creditSum };
+                    });
+                    setCustomers(balancedData);
                 } else {
-                    // If absolutely no data found, use DEFAULT_DATA to show sample
                     setCustomers(DEFAULT_DATA);
                 }
 
