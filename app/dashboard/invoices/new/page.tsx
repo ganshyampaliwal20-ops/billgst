@@ -103,11 +103,9 @@ export default function NewInvoicePage() {
         vehicleNo: ''
     });
     const [eInvoice, setEInvoice] = useState({
-        irn: '',
-        ackNo: '',
-        ackDate: '',
         qrCode: ''
     });
+    const [isInterState, setIsInterState] = useState(false);
 
     // Reference
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -184,26 +182,20 @@ export default function NewInvoicePage() {
         } else if (businessProfile?.terms_and_conditions && !notes) {
             setNotes(businessProfile.terms_and_conditions);
         }
+
+        // Add 1 empty row if none
+        if (selectedItems.length === 0) addItem();
     }, [isDuplicating, quotations, businessProfile]);
 
     // Totals Calculation
     const calculateTotals = () => {
-        let subtotal = 0;
-        let gst = 0;
-
-        selectedItems.forEach(item => {
-            const qty = Number(item.quantity) || 0;
-            const price = Number(item.unit_price) || 0;
-            const rate = Number(item.gst_rate) || 0;
-            const base = qty * price;
-            subtotal += base;
-            gst += (base * rate) / 100;
-        });
-
+        const isInclusive = settings.taxType === 'INCLUSIVE';
+        const breakdown = calculateInvoiceTotal(selectedItems, isInterState, isInclusive);
+        const subtotal = breakdown.subtotal;
         const discountAmt = subtotal * (discountPct / 100);
-        const grandTotal = subtotal - discountAmt + gst + Number(extraCharge) + Number(shippingCharge);
+        const grandTotal = breakdown.total_amount - discountAmt + Number(extraCharge) + Number(shippingCharge);
 
-        return { subtotal, gst, discountAmt, grandTotal };
+        return { subtotal, gst: breakdown.cgst_amount + breakdown.sgst_amount + breakdown.igst_amount, discountAmt, grandTotal, breakdown };
     };
 
     const totals = calculateTotals();
@@ -431,15 +423,16 @@ export default function NewInvoicePage() {
 
         setIsSubmitting(true);
         try {
+            const isInclusive = settings.taxType === 'INCLUSIVE';
             const customer = safeCustomers.find(c => c.id === customerId);
-            const breakdown = calculateInvoiceTotal(selectedItems, false);
+            const breakdown = calculateInvoiceTotal(selectedItems, isInterState, isInclusive);
 
             const invoice = {
                 id: generateId(),
                 invoice_number: invoiceNumber,
                 customer: {
-                    id: customerId,
-                    name: customer?.name || 'Local Sale',
+                    id: customerId || 'CASH',
+                    name: customer?.name || newCustName || 'Cash Sale',
                     gstin: customer?.gstin || '',
                     phone: customer?.phone || '',
                     address: customer?.address || ''
@@ -649,10 +642,14 @@ export default function NewInvoicePage() {
                         </div>
                         <p className="ph-sub">Generate a digital GST bill in seconds</p>
                     </div>
-                    <div className="flex flex-row w-full md:w-auto gap-2 overflow-x-auto pb-1 no-scrollbar">
-                        <button type="button" onClick={startVoiceBilling} className={`fbadge fb-voice whitespace-nowrap ${isListening ? 'animate-pulse' : ''}`}><FaMicrophone /> {isListening ? 'Listening...' : 'Voice Bill'}</button>
-                        <button type="button" onClick={handleMagicScan} className="fbadge fb-scan whitespace-nowrap"><FaMagic /> Magic Scan</button>
-                        <button type="button" onClick={() => toast('AI Assistant coming soon')} className="fbadge fb-ai whitespace-nowrap"><FaRobot /> AI Assist</button>
+                    <div className="flex flex-col items-end gap-2">
+                        <div className="flex flex-row w-full md:w-auto gap-2 overflow-x-auto pb-1 no-scrollbar">
+                            <button type="button" onClick={startVoiceBilling} className={`fbadge fb-voice whitespace-nowrap ${isListening ? 'animate-pulse' : ''}`}><FaMicrophone /> {isListening ? 'Listening...' : 'Voice Bill'}</button>
+                            <button type="button" onClick={handleMagicScan} className="fbadge fb-scan whitespace-nowrap"><FaMagic /> Magic Scan</button>
+                        </div>
+                        <div className="text-[10px] font-black text-white/40 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                            Mode: {settings.taxType || 'EXCLUSIVE'} GST
+                        </div>
                     </div>
                 </div>
 
@@ -730,6 +727,17 @@ export default function NewInvoicePage() {
                         <div className="grid grid-cols-2 gap-6 mt-6">
                             <div className="fg"><label className="fl">Invoice Date</label><input type="date" className="fi text-slate-900" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} /></div>
                             <div className="fg"><label className="fl">Due Date</label><input type="date" className="fi text-slate-900" value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
+                        </div>
+
+                        <div className="flex items-center gap-2 p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                            <label className="oswitch">
+                                <input type="checkbox" checked={isInterState} onChange={e => setIsInterState(e.target.checked)} />
+                                <span className="oslider"></span>
+                            </label>
+                            <div className="opt-info">
+                                <span className="opt-lbl">Inter-state Sale (IGST)</span>
+                                <span className="opt-sub">Enable if customer is from another state</span>
+                            </div>
                         </div>
                     </div>
 

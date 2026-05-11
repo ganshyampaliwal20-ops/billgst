@@ -216,6 +216,10 @@ export default function InventoryPage() {
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            if (file.size > 1024 * 1024) {
+                toast.error('Image size bahut badi hai! 1MB se kam use karein.', { icon: '⚠️' });
+                return;
+            }
             const reader = new FileReader();
             reader.onloadend = () => {
                 setFormData(prev => ({ ...prev, image_url: reader.result as string }));
@@ -768,7 +772,7 @@ export default function InventoryPage() {
                                             <span className={`tag ${p.type?.toLowerCase() === 'service' ? 'service' : 'product'}`}>{p.type || "PRODUCT"}</span>
                                             <span className="tag gst">GST {p.gst_rate || 0}%</span>
                                         </div>
-                                        {showProfit && p.price && p.purchase_price && parseFloat(p.price) > parseFloat(p.purchase_price) && (
+                                        {showProfit && p.price && p.purchase_price && Number(p.purchase_price) > 0 && parseFloat(p.price) > parseFloat(p.purchase_price) && (
                                             <div className="profit-tag">
                                                 📈 Profit: {(((parseFloat(p.price) - parseFloat(p.purchase_price)) / parseFloat(p.purchase_price)) * 100).toFixed(0)}%
                                             </div>

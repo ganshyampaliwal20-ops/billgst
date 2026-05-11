@@ -65,6 +65,14 @@ export default function SettingsPage() {
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Check file size (Max 1MB for localStorage safety)
+            if (file.size > 1024 * 1024) {
+                toast.error('Logo ka size bahut bada hai! Kripya 1MB se kam ki image use karein.', {
+                    icon: '⚠️',
+                    duration: 4000
+                });
+                return;
+            }
             const reader = new FileReader();
             reader.onloadend = () => {
                 setFormData({ ...formData, logo: reader.result as string });
@@ -89,21 +97,52 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800" style={{ paddingLeft: '2px', paddingRight: '8px', paddingTop: '0px' }}>Tax Settings</h2>
                     </div>
 
-                    <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 gap-4">
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                                <h3 className="font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>I have a GST Number</h3>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only peer"
-                                        checked={!localSettings.nonGstMode || false}
-                                        onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })}
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
+                    <div className="space-y-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 gap-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="font-bold text-gray-800" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>I have a GST Number</h3>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={!localSettings.nonGstMode || false}
+                                            onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Enable this if your business is registered under GST. If you don't have a GST number, turn it off.</p>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>Enable this if your business is registered under GST. If you don't have a GST number, turn it off.</p>
+                        </div>
+
+                        <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-indigo-50 rounded-xl border border-indigo-100 gap-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="font-bold text-indigo-900" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>GST Calculation Mode</h3>
+                                    <div className="flex bg-white p-1 rounded-lg border border-indigo-200 shadow-sm">
+                                        <button 
+                                            type="button"
+                                            onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}
+                                            className={`px-3 py-1 text-[10px] font-black rounded-md transition-all ${localSettings.taxType !== 'INCLUSIVE' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400'}`}
+                                        >
+                                            EXCLUSIVE
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setLocalSettings({ ...localSettings, taxType: 'INCLUSIVE' })}
+                                            className={`px-3 py-1 text-[10px] font-black rounded-md transition-all ${localSettings.taxType === 'INCLUSIVE' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400'}`}
+                                        >
+                                            INCLUSIVE
+                                        </button>
+                                    </div>
+                                </div>
+                                <p className="text-[11px] text-indigo-600/70 mt-1 font-medium" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}>
+                                    {localSettings.taxType === 'INCLUSIVE' 
+                                        ? 'Inclusive: MRP/Price mein GST pehle se juda hua hai. (e.g. ₹100 is Final)' 
+                                        : 'Exclusive: Price par GST alag se lagega. (e.g. ₹100 + GST)'}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -12,7 +12,7 @@ export async function GET(
 
         // 1. Fetch Business Profile
         const businessResult = await client.query(
-            `SELECT business_name, business_logo, business_phone, business_email, business_address, business_upi_id
+            `SELECT business_name, business_logo, business_phone, business_email, business_address, business_upi_id, store_banner
              FROM users WHERE id = $1`,
             [id]
         );

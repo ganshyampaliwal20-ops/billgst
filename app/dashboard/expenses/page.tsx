@@ -161,21 +161,17 @@ export default function BusinessExpensesPage() {
                 const { idb } = await import('../../../lib/idb');
 
                 const possibleKeys = [
-                    `hisaab_pro_data_${session?.user?.id}`
+                    `hisaab_pro_data_${session?.user?.id}`,
+                    `hisaab_pro_data_${session?.user?.email}`,
+                    'hisaab_pro_data' // Global legacy fallback
                 ];
-                if (session?.user?.email) {
-                    possibleKeys.push(`hisaab_pro_data_${session.user.email}`);
-                }
-                if (session?.user?.email === 'gpaliwal59@gmail.com') {
-                    possibleKeys.push('hisaab_pro_data');
-                }
 
                 let loadedData = null;
                 let loadedKey = null;
 
                 // 1. Try to load from IndexedDB first (Primary Storage now)
                 for (const k of possibleKeys) {
-                    if (!k || k === 'hisaab_pro_data_undefined') continue;
+                    if (!k || k.includes('undefined')) continue;
                     try {
                         const savedIdb = await idb.get(k);
                         if (savedIdb && Array.isArray(savedIdb) && savedIdb.length > 0) {
@@ -189,7 +185,7 @@ export default function BusinessExpensesPage() {
                 // 2. Fallback to localStorage if IDB is empty (Migration phase)
                 if (!loadedData) {
                     for (const k of possibleKeys) {
-                        if (!k || k === 'hisaab_pro_data_undefined') continue;
+                        if (!k || k.includes('undefined')) continue;
                         const saved = localStorage.getItem(k);
                         if (saved && saved !== '[]') {
                             try {
@@ -206,6 +202,9 @@ export default function BusinessExpensesPage() {
 
                 if (loadedData) {
                     setCustomers(loadedData);
+                } else {
+                    // If absolutely no data found, use DEFAULT_DATA to show sample
+                    setCustomers(DEFAULT_DATA);
                 }
 
                 setIsMounted(true);

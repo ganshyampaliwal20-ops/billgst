@@ -145,7 +145,14 @@ export default function PublicStorePage() {
             
             <div className="page-container">
                 {/* HEADER */}
-                <header className="store-header">
+                <header className="store-header" style={{ 
+                    backgroundImage: storeData.business.store_banner ? `url(${storeData.business.store_banner})` : '',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    position: 'relative'
+                }}>
+                    {/* Overlay if banner exists for better text readability */}
+                    {storeData.business.store_banner && <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />}
                     <div className="header-orb orb1"></div>
                     <div className="header-orb orb2"></div>
                     <div className="header-orb orb3"></div>

@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export default function StoreManagerPage() {
     const router = useRouter();
-    const { businessProfile, products, updateProduct, fetchBusinessProfile, fetchProducts } = useStore() as any;
+    const { businessProfile, products, updateProduct, fetchBusinessProfile, fetchProducts, saveBusinessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
     // States for Store Settings
@@ -27,11 +27,7 @@ export default function StoreManagerPage() {
     // Theme state
     const [activeTheme, setActiveTheme] = useState({ primary: '#4f46e5', secondary: '#7c3aed' });
 
-    // File Uploads
-    const [bannerImg, setBannerImg] = useState<string | null>(null);
-    const [logoImg, setLogoImg] = useState<string | null>(null);
-
-    // Enquiries Modal
+    // Analytics State
     const [enquiryModalOpen, setEnquiryModalOpen] = useState(false);
     const [selectedEnquiry, setSelectedEnquiry] = useState<any>(null);
 
@@ -97,10 +93,23 @@ export default function StoreManagerPage() {
     const handleFileUpload = (e: any, type: 'banner' | 'logo') => {
         const file = e.target.files[0];
         if (file) {
-            const url = URL.createObjectURL(file);
-            if (type === 'banner') setBannerImg(url);
-            if (type === 'logo') setLogoImg(url);
-            toast.success(`${type === 'banner' ? 'Banner' : 'Logo'} uploaded successfully!`);
+            // Check size (Max 1MB for safety)
+            if (file.size > 1024 * 1024) {
+                toast.error('File size bahut badi hai! 1MB se kam use karein.', { icon: '⚠️' });
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64 = reader.result as string;
+                if (type === 'banner') {
+                    await saveBusinessProfile({ ...businessProfile, store_banner: base64 });
+                } else {
+                    await saveBusinessProfile({ ...businessProfile, logo: base64 });
+                }
+                toast.success(`${type === 'banner' ? 'Banner' : 'Logo'} update ho gaya!`, { icon: '✅' });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -366,7 +375,7 @@ export default function StoreManagerPage() {
                         </div>
                     </div>
                     <div className="topbar-right">
-                        <button className="tb-btn preview" onClick={() => window.open('/s/' + businessProfile.id, '_blank')}>👁 Preview</button>
+                        <button className="tb-btn preview" onClick={() => window.open('/s/' + (businessProfile.id || ''), '_blank')}>👁 Preview</button>
                         <button className="tb-btn publish" onClick={() => toast.success('✅ Store published successfully!')}>🚀 Publish Store</button>
                     </div>
                 </div>
@@ -374,9 +383,9 @@ export default function StoreManagerPage() {
                 <div className="spage">
                     <div className="left-col">
                         <div className="store-hero">
-                            <label className="hero-banner" style={{ display: 'block', backgroundImage: bannerImg ? `url(${bannerImg})` : '', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                            <label className="hero-banner" style={{ display: 'block', backgroundImage: businessProfile.store_banner ? `url(${businessProfile.store_banner})` : '', backgroundSize: 'cover', backgroundPosition: 'center' }}>
                                 <input type="file" style={{ display: 'none' }} accept="image/*" onChange={(e) => handleFileUpload(e, 'banner')} />
-                                {!bannerImg && (
+                                {!businessProfile.store_banner && (
                                     <div className="hero-banner-text">
                                         <div className="banner-label">Store Banner</div>
                                         <div className="banner-cta">📷 Upload Banner</div>
@@ -385,9 +394,9 @@ export default function StoreManagerPage() {
                             </label>
                             <div className="hero-body">
                                 <div className="logo-wrap">
-                                    <label className="store-logo" style={{ backgroundImage: logoImg ? `url(${logoImg})` : '', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                    <label className="store-logo" style={{ backgroundImage: businessProfile.logo ? `url(${businessProfile.logo})` : '', backgroundSize: 'cover', backgroundPosition: 'center' }}>
                                         <input type="file" style={{ display: 'none' }} accept="image/*" onChange={(e) => handleFileUpload(e, 'logo')} />
-                                        {!logoImg && '💼'}
+                                        {!businessProfile.logo && '💼'}
                                     </label>
                                     <label className="logo-edit" htmlFor="logo-upload">✏️
                                         <input id="logo-upload" type="file" style={{ display: 'none' }} accept="image/*" onChange={(e) => handleFileUpload(e, 'logo')} />

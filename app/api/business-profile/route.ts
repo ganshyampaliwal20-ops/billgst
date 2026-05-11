@@ -31,7 +31,7 @@ export async function GET() {
                    business_signature, business_logo_position,
                    auto_reminders_enabled, reminder_frequency, reminder_time,
                    whatsapp_bot_enabled, whatsapp_sender_number, whatsapp_api_key, whatsapp_api_url,
-                   business_terms_and_conditions
+                   business_terms_and_conditions, store_banner
             FROM users WHERE id = $1`;
 
         try {
@@ -121,7 +121,8 @@ export async function POST(request: Request) {
                 whatsapp_sender_number = $24,
                 whatsapp_api_key = $25,
                 whatsapp_api_url = $26,
-                business_terms_and_conditions = $27
+                business_terms_and_conditions = $27,
+                store_banner = $28
             WHERE id = $15
             RETURNING *`;
 
@@ -152,7 +153,8 @@ export async function POST(request: Request) {
             data.whatsappSenderNumber || '',
             data.whatsappApiKey || '',
             data.whatsappApiUrl || '',
-            data.terms_and_conditions || ''
+            data.terms_and_conditions || '',
+            data.store_banner || null
         ];
 
         try {
@@ -228,6 +230,7 @@ function normalizeProfile(dbRow: any, userId: string) {
         whatsapp_api_key: dbRow.whatsapp_api_key || '',
         whatsapp_api_url: dbRow.whatsapp_api_url || '',
         terms_and_conditions: dbRow.business_terms_and_conditions || '',
+        store_banner: dbRow.store_banner || null,
         id: userId
     };
 }
@@ -261,7 +264,8 @@ async function runMigration(client: any) {
         ADD COLUMN IF NOT EXISTS whatsapp_sender_number VARCHAR(20),
         ADD COLUMN IF NOT EXISTS whatsapp_api_key TEXT,
         ADD COLUMN IF NOT EXISTS whatsapp_api_url TEXT,
-        ADD COLUMN IF NOT EXISTS business_terms_and_conditions TEXT;
+        ADD COLUMN IF NOT EXISTS business_terms_and_conditions TEXT,
+        ADD COLUMN IF NOT EXISTS store_banner TEXT;
     `);
 }
 
