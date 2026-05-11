@@ -185,20 +185,65 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
         }
 
-        values.push(id); // ID is the last parameter
+        values.push(id); 
+        values.push(session.user.id); // Add userId for security
 
-        await client.query(`
+        const result = await client.query(`
             UPDATE quotations
             SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $${paramCount}
+            WHERE id = $${paramCount} AND created_by = $${paramCount + 1}
+            RETURNING *
         `, values);
 
         client.release();
-        return NextResponse.json({ success: true });
+        
+        if (result.rowCount === 0) {
+            return NextResponse.json({ error: 'Quotation not found or unauthorized' }, { status: 404 });
+        }
+
+        return NextResponse.json({ success: true, data: result.rows[0] });
 
     } catch (error) {
-        client.release();
+        if (client) client.release();
         console.error('Quotation PUT Error:', error);
         return NextResponse.json({ error: 'Failed to update quotation' }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+        }
+
+        const client = await pool.connect();
+        
+        // Delete quotation items first
+        await client.query('DELETE FROM quotation_items WHERE quotation_id = $1', [id]);
+        
+        // Delete quotation ONLY if owned by user
+        const result = await client.query(
+            'DELETE FROM quotations WHERE id = $1 AND created_by = $2',
+            [id, session.user.id]
+        );
+        
+        client.release();
+
+        if (result.rowCount === 0) {
+            return NextResponse.json({ error: 'Quotation not found or unauthorized' }, { status: 404 });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('API Error deleting quotation:', error);
+        return NextResponse.json({ error: 'Failed to delete quotation' }, { status: 500 });
     }
 }

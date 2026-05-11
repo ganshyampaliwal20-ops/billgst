@@ -189,17 +189,17 @@ export default function BusinessExpensesPage() {
                 };
 
                 // 1. Try User Specific Keys First
-                for (const k of userKeys) {
-                    try {
-                        const idbData = await idb.get(k);
-                        if (idbData) mergeIntoMap(idbData);
-                        const lsData = localStorage.getItem(k);
-                        if (lsData) mergeIntoMap(JSON.parse(lsData));
-                    } catch (e) { }
-                }
-
-                // 2. If no user-specific data found OR user is NOT logged in, check legacy key
-                if (mergedCustomers.size === 0) {
+                if (session?.user?.id) {
+                    for (const k of userKeys) {
+                        try {
+                            const idbData = await idb.get(k);
+                            if (idbData) mergeIntoMap(idbData);
+                            const lsData = localStorage.getItem(k);
+                            if (lsData) mergeIntoMap(JSON.parse(lsData));
+                        } catch (e) { }
+                    }
+                } else {
+                    // 2. ONLY for Guests (Not Logged In), check legacy key
                     try {
                         const idbData = await idb.get(legacyKey);
                         if (idbData) mergeIntoMap(idbData);
