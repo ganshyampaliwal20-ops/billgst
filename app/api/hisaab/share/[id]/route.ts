@@ -7,6 +7,14 @@ export async function GET(request: Request, context: any) {
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
         const client = await pool.connect();
+        
+        // We only allow IDs that look like userUUID_customerID (contains underscore)
+        // This effectively ignores the old insecure IDs
+        if (!id.includes('_')) {
+            client.release();
+            return NextResponse.json({ error: 'Deprecated link format' }, { status: 410 });
+        }
+
         const result = await client.query('SELECT data FROM hisaab_shares WHERE id = $1', [id]);
         client.release();
 

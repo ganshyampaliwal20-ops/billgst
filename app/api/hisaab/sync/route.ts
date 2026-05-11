@@ -18,22 +18,26 @@ export async function POST(request: Request) {
         const customerId = data.id.toString();
         const userId = session.user.id;
 
+        // Create a globally unique ID for this specific user's customer
+        // Format: userUUID_customerID
+        const globalId = `${userId}_${customerId}`;
+
         const client = await pool.connect();
         
-        // Upsert logic
+        // Upsert logic using the globalId
         await client.query(`
             INSERT INTO hisaab_shares (id, user_id, data, updated_at)
             VALUES ($1, $2, $3, NOW())
             ON CONFLICT (id) DO UPDATE 
-            SET data = EXCLUDED.data, updated_at = NOW()
+            SET data = EXCLUDED.data, updated_at = NOW(), user_id = EXCLUDED.user_id
         `, [
-            customerId,
+            globalId,
             userId,
             JSON.stringify(data)
         ]);
 
         client.release();
-        return NextResponse.json({ success: true, id: customerId });
+        return NextResponse.json({ success: true, id: globalId });
     } catch (error) {
         console.error('Hisaab Sync Error:', error);
         return NextResponse.json({ error: 'Sync failed' }, { status: 500 });

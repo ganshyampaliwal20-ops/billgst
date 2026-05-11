@@ -427,7 +427,8 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
         showToast('⏳ WhatsApp message ban raha hai...');
         try {
-            const shareUrl = `${window.location.origin}/hisaab/v?id=${cust.id}`;
+            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
             const textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab ready hai. Yahaan click karke apna poora hisaab dekhein: 👇\n\n${shareUrl}`;
 
             const formData = new FormData();
