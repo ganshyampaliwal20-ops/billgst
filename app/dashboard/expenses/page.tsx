@@ -160,15 +160,16 @@ export default function BusinessExpensesPage() {
             try {
                 const { idb } = await import('../../../lib/idb');
 
-                const possibleKeys = [
-                    'hisaab_pro_data',
-                    `hisaab_pro_data_${session?.user?.email}`,
-                    `hisaab_pro_data_${session?.user?.id}`
-                ];
+                // Define keys based on session
+                const userKeys = [];
+                if (session?.user?.id) {
+                    userKeys.push(`hisaab_pro_data_${session.user.id}`);
+                    if (session.user.email) userKeys.push(`hisaab_pro_data_${session.user.email}`);
+                }
 
+                const legacyKey = 'hisaab_pro_data';
                 const mergedCustomers = new Map<number, any>();
 
-                // Helper to merge data into our map
                 const mergeIntoMap = (dataArray: any[]) => {
                     if (!Array.isArray(dataArray)) return;
                     dataArray.forEach(cust => {
@@ -177,49 +178,38 @@ export default function BusinessExpensesPage() {
                         if (!existing) {
                             mergedCustomers.set(cust.id, cust);
                         } else {
-                            // Merge transactions, avoid duplicates
                             const existingTxnIds = new Set(existing.txns.map((t: any) => t.id));
                             const newTxns = (cust.txns || []).filter((t: any) => !existingTxnIds.has(t.id));
-                            
                             const mergedTxns = [...existing.txns, ...newTxns].sort((a: any, b: any) => 
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
                             );
-
-                            // Keep the latest profile info but combined transactions
-                            mergedCustomers.set(cust.id, {
-                                ...existing,
-                                ...cust,
-                                txns: mergedTxns,
-                                balance: existing.balance // We will re-calculate balance to be sure
-                            });
+                            mergedCustomers.set(cust.id, { ...existing, ...cust, txns: mergedTxns });
                         }
                     });
                 };
 
-                // 1. Load from all keys in both IndexedDB and localStorage
-                for (const k of possibleKeys) {
-                    if (!k || k.includes('undefined')) continue;
-                    
-                    // Try IDB
+                // 1. Try User Specific Keys First
+                for (const k of userKeys) {
                     try {
-                        const savedIdb = await idb.get(k);
-                        if (savedIdb) mergeIntoMap(savedIdb);
+                        const idbData = await idb.get(k);
+                        if (idbData) mergeIntoMap(idbData);
+                        const lsData = localStorage.getItem(k);
+                        if (lsData) mergeIntoMap(JSON.parse(lsData));
                     } catch (e) { }
+                }
 
-                    // Try LocalStorage
+                // 2. If no user-specific data found OR user is NOT logged in, check legacy key
+                if (mergedCustomers.size === 0) {
                     try {
-                        const savedLs = localStorage.getItem(k);
-                        if (savedLs) {
-                            const parsed = JSON.parse(savedLs);
-                            mergeIntoMap(parsed);
-                        }
+                        const idbData = await idb.get(legacyKey);
+                        if (idbData) mergeIntoMap(idbData);
+                        const lsData = localStorage.getItem(legacyKey);
+                        if (lsData) mergeIntoMap(JSON.parse(lsData));
                     } catch (e) { }
                 }
 
                 const finalData = Array.from(mergedCustomers.values());
-
                 if (finalData.length > 0) {
-                    // Final safety: Re-calculate balances based on transactions
                     const balancedData = finalData.map(c => {
                         let debitSum = 0, creditSum = 0;
                         (c.txns || []).forEach((t: any) => {
@@ -230,7 +220,8 @@ export default function BusinessExpensesPage() {
                     });
                     setCustomers(balancedData);
                 } else {
-                    setCustomers(DEFAULT_DATA);
+                    // Only show default data if no records found at all
+                    setCustomers(session?.user?.id ? [] : DEFAULT_DATA);
                 }
 
                 setIsMounted(true);
