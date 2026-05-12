@@ -19,6 +19,7 @@ function HisaabViewer() {
     const searchParams = useSearchParams();
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -68,11 +69,21 @@ function HisaabViewer() {
             } else {
                 setError(true);
             }
+            setLoading(false);
         };
         fetchData();
     }, [searchParams]);
 
     if (!mounted) return null;
+
+    if (loading) {
+        return (
+            <div style={{ minHeight: '100vh', background: '#f0f2f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '40px', height: '40px', border: '3px solid #4a55e8', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+            </div>
+        );
+    }
 
     if (error || !data) {
         return (

@@ -97,8 +97,12 @@ export default function InvoicesPage() {
     };
 
     const handleWhatsApp = (invoice: any) => {
-        const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
         const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
+        if (!phone) {
+            toast.error('Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.', { icon: '📱' });
+            return;
+        }
+        const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
         const url = `https://wa.me/91${phone}?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
     };

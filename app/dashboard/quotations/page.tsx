@@ -73,6 +73,11 @@ export default function QuotationsPage() {
     };
 
     const handleShareRow = async (q: any) => {
+        const phone = (q.customer_phone || '').replace(/\D/g, '');
+        if (!phone) {
+            toast.error('Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.', { icon: '📱' });
+            return;
+        }
         try {
             const pdfDoc = await generateQuotationPDF(q, businessProfile, false);
             if (!pdfDoc) return;
@@ -83,7 +88,7 @@ export default function QuotationsPage() {
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: 'Quotation', text: message });
             } else {
-                window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
             }
         } catch (e) { toast.error('Share failed'); }
     };

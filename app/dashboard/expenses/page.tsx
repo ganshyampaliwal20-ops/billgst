@@ -181,7 +181,7 @@ export default function BusinessExpensesPage() {
                         } else {
                             const existingTxnIds = new Set(existing.txns.map((t: any) => t.id));
                             const newTxns = (cust.txns || []).filter((t: any) => !existingTxnIds.has(t.id));
-                            const mergedTxns = [...existing.txns, ...newTxns].sort((a: any, b: any) => 
+                            const mergedTxns = [...existing.txns, ...newTxns].sort((a: any, b: any) =>
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
                             );
                             mergedCustomers.set(cust.id, { ...existing, ...cust, txns: mergedTxns });
@@ -257,7 +257,7 @@ export default function BusinessExpensesPage() {
             try {
                 const { idb } = await import('../../../lib/idb');
                 await idb.set(storageKey, customers);
-                
+
                 // Cleanup: If we just saved to a user-specific key, 
                 // we should NOT have that same data in the legacy global key anymore
                 // to prevent it leaking when we logout.
@@ -420,19 +420,41 @@ export default function BusinessExpensesPage() {
     const [txnSortAsc, setTxnSortAsc] = useState(false);
 
     const sendWhatsAppRemind = (cust: any, amount: number) => {
+        const phone = cust.phone?.replace(/\\D/g, '') || '';
+        if (!phone) {
+            showToast('📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
+            return;
+        }
         const txt = `Namaste ${cust.name}, \nAapka ${Math.abs(amount)} Rs due hai. Kripya payment karein.`;
-        window.open(`https://wa.me/91${cust.phone.replace(/\\D/g, '')}?text=${encodeURIComponent(txt)}`, '_blank');
+        window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(txt)}`, '_blank');
     };
 
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
+        const phone = cust.phone?.replace(/\\D/g, '') || '';
+        if (!phone) {
+            showToast('📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
+            return;
+        }
         showToast('⏳ WhatsApp message ban raha hai...');
         try {
+            if (session?.user?.id) {
+                try {
+                    await fetch('/api/hisaab/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(cust)
+                    });
+                } catch (e) {
+                    console.error("Immediate sync failed", e);
+                }
+            }
+
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
             const textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab ready hai. Yahaan click karke apna poora hisaab dekhein: 👇\n\n${shareUrl}`;
 
             const formData = new FormData();
-            formData.append('phone', cust.phone);
+            formData.append('phone', phone);
             formData.append('message', textMsg);
 
             showToast('⏳ WhatsApp pe send ho raha hai...');
@@ -444,7 +466,7 @@ export default function BusinessExpensesPage() {
             if (sendRes.ok) {
                 showToast('✅ WhatsApp pe Link chala gaya!');
             } else {
-                window.open(`https://wa.me/91${cust.phone.replace(/\\D/g, '')}?text=${encodeURIComponent(textMsg)}`, '_blank');
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             }
         } catch (err) {
             showToast('❌ Error in sending request!');
@@ -930,7 +952,7 @@ export default function BusinessExpensesPage() {
                                 Call
                             </button>
                         </div>
-                        
+
                         {custStats.net < 0 && (
                             <div className="pending-status-box">
                                 <div className="psb-icon">⏳</div>
@@ -953,12 +975,21 @@ export default function BusinessExpensesPage() {
 
                         <div className="txn-list">
                             {(() => {
-                                let txns = currentCust.txns;
-                                if (currentFilter !== 'all') txns = txns.filter((t: any) => t.type === currentFilter);
-                                if (!txns.length) return <div className="empty-state"><div className="empty-ico">📋</div><div className="empty-title">Koi entry nahi</div><div className="empty-sub">Neeche se credit ya debit add karo</div></div>;
+                                let runningBalTracker = currentCust.balance;
+                                const txnsWithBal = currentCust.txns.map((t: any) => {
+                                    const runningBal = runningBalTracker;
+                                    const isDebit = t.type !== 'credit';
+                                    runningBalTracker -= (isDebit ? t.amt : -t.amt);
+                                    return { ...t, runningBal };
+                                });
+
+                                let txnsToRender = txnsWithBal;
+                                if (currentFilter !== 'all') txnsToRender = txnsToRender.filter((t: any) => t.type === currentFilter);
+
+                                if (!txnsToRender.length) return <div className="empty-state"><div className="empty-ico">📋</div><div className="empty-title">Koi entry nahi</div><div className="empty-sub">Neeche se credit ya debit add karo</div></div>;
 
                                 const groups: any = {};
-                                txns.forEach((t: any) => {
+                                txnsToRender.forEach((t: any) => {
                                     const dStr = t.date.split('T')[0] || t.date;
                                     if (!groups[dStr]) groups[dStr] = [];
                                     groups[dStr].push(t);
@@ -1017,15 +1048,18 @@ export default function BusinessExpensesPage() {
                                                         </div>
                                                         <div className="txn-footer">
                                                             <div>
-                                                                <div className="txn-balance-label">Actions</div>
-                                                                <div className="txn-balance-val" style={{ color: 'var(--ink3)' }}>
-                                                                    <button onClick={() => openEditEntry(t)} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', marginRight: '10px' }}>✏️ Edit</button>
-                                                                    <button onClick={() => deleteTxn(t.id, t.amt, t.type)} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: 'var(--red)' }}>🗑 Delete</button>
+                                                                <div className="txn-balance-label">Balance</div>
+                                                                <div className={`txn-balance-val ${t.runningBal < 0 ? '' : 'positive'}`}>
+                                                                    ₹{fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? 'Dena Hai' : 'Baki Hai'}
                                                                 </div>
                                                             </div>
-                                                            <div className={`txn-attachment ${hasPhotos ? 'has-bill' : ''}`} onClick={() => hasPhotos ? setLightboxImg(t.photos[0]) : addPhotoToTxn(t.id)}>
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
-                                                                {hasPhotos ? 'Bill Added ✓' : 'Add Bill'}
+                                                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                                                <button onClick={() => openEditEntry(t)} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: 'var(--ink3)' }} title="Edit">✏️</button>
+                                                                <button onClick={() => deleteTxn(t.id, t.amt, t.type)} style={{ background: 'none', border: 'none', fontSize: '13px', cursor: 'pointer', color: 'var(--red)' }} title="Delete">🗑</button>
+                                                                <div className={`txn-attachment ${hasPhotos ? 'has-bill' : ''}`} onClick={() => hasPhotos ? setLightboxImg(t.photos[0]) : addPhotoToTxn(t.id)} style={{ marginLeft: '4px' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>
+                                                                    {hasPhotos ? 'Bill' : 'Add'}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1041,17 +1075,17 @@ export default function BusinessExpensesPage() {
                                 <div className="gt-grid">
                                     <div className="gt-item">
                                         <div className="gt-lbl">Total Given</div>
-                                        <div className="gt-val red">₹{fmt(Math.abs(custStats.debit))}</div>
+                                        <div className="gt-val red">{fmt(Math.abs(custStats.debit))}</div>
                                     </div>
                                     <div className="gt-item">
                                         <div className="gt-lbl">Total Received</div>
-                                        <div className="gt-val green">₹{fmt(Math.abs(custStats.credit))}</div>
+                                        <div className="gt-val green">{fmt(Math.abs(custStats.credit))}</div>
                                     </div>
                                 </div>
                                 <div className="gt-final">
                                     <div className="gt-lbl">Final Net Balance</div>
                                     <div className={`gt-amt ${custStats.isNeg ? 'red' : 'green'}`}>
-                                        ₹{fmt(Math.abs(custStats.net))}
+                                        {fmt(Math.abs(custStats.net))}
                                         <span>{custStats.isNeg ? 'You Will Get' : 'You Will Give'}</span>
                                     </div>
                                 </div>
@@ -1068,6 +1102,12 @@ export default function BusinessExpensesPage() {
                                         {entryType === 'debit' ? '↑ Given' : entryType === 'credit' ? '↓ Received' : '⚡ Advance'}
                                     </div>
                                     <div className="amount-display"><span className="curr">₹</span><span>{new Intl.NumberFormat('en-IN').format(parseFloat(amtInp || '0')) + (amtInp.endsWith('.') ? '.' : '')}</span></div>
+                                    {isAddEntryOpen && (
+                                        <div style={{ fontSize: '12px', color: 'var(--ink3)', marginBottom: '8px' }}>
+                                            New Balance: ₹{new Intl.NumberFormat('en-IN').format(Math.abs((currentCust?.balance || 0) + (entryType !== 'credit' ? parseFloat(amtInp || '0') : -parseFloat(amtInp || '0'))))}
+                                            {((currentCust?.balance || 0) + (entryType !== 'credit' ? parseFloat(amtInp || '0') : -parseFloat(amtInp || '0'))) < 0 ? ' Dena Hai' : ' Baki Hai'}
+                                        </div>
+                                    )}
                                     <div className={`amount-underline ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`}></div>
                                 </div>
 
@@ -1088,11 +1128,28 @@ export default function BusinessExpensesPage() {
                                             </span>
                                         ))}
                                     </div>
-                                    <label htmlFor="billFileCamNew" className="extra-field-row">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
-                                        <span style={{ color: pendingPhotos.length ? 'var(--green)' : 'var(--ink3)' }}>{pendingPhotos.length ? '✓ Bill Photo Added' : 'Add Bill Photo'}</span>
-                                        <input type="file" id="billFileCamNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                    </label>
+                                    <div className="extra-field-row" style={{ display: 'flex', gap: '10px', padding: '10px 16px', background: 'transparent', border: 'none' }}>
+                                        <label htmlFor="billFileGalleryNew" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: 'var(--bg)', borderRadius: '10px', border: '1px solid var(--border)', cursor: 'pointer' }}>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                            <span style={{ fontSize: '12px', fontWeight: 600 }}>Gallery</span>
+                                            <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                        </label>
+                                        <label htmlFor="billFileCamNew" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: 'var(--bg)', borderRadius: '10px', border: '1px solid var(--border)', cursor: 'pointer' }}>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
+                                            <span style={{ fontSize: '12px', fontWeight: 600 }}>Camera</span>
+                                            <input type="file" id="billFileCamNew" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                        </label>
+                                    </div>
+                                    {pendingPhotos.length > 0 && (
+                                        <div style={{ padding: '0 16px 10px', display: 'flex', gap: '10px', overflowX: 'auto' }}>
+                                            {pendingPhotos.map((p, i) => (
+                                                <div key={i} style={{ position: 'relative', flexShrink: 0 }}>
+                                                    <img src={p} style={{ width: '50px', height: '50px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)' }} alt={`Attachment ${i}`} />
+                                                    <div onClick={(e) => { e.stopPropagation(); removePendingPhoto(i); }} style={{ position: 'absolute', top: '-6px', right: '-6px', background: 'var(--red)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid white' }}>×</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     <div className="extra-field-row">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
                                         <div style={{ flex: 1, display: 'flex', gap: '10px' }}>

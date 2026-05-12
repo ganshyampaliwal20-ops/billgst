@@ -61,7 +61,7 @@ export default function DashboardPage() {
         const message = `Namaste ${customerName} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ${formatCurrency(amount)} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
         const phone = customer.phone?.replace(/\\D/g, '') || '';
         if (!phone) {
-            toast.error('Customer phone number missing!');
+            toast.error('Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.', { icon: '📱' });
             return;
         }
         const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
@@ -89,7 +89,9 @@ export default function DashboardPage() {
                 const message = cust.message || `Namaste ${customerName} ji, this is a reminder for your total pending balance of ${formatCurrency(amount)} with ${businessName}. Thank you!`;
                 const phone = cust.phone?.replace(/\\D/g, '') || cust.customer_phone?.replace(/\\D/g, '') || '';
 
-                if (phone) {
+                if (!phone) {
+                    toast.error(`Customer ${customerName} ka mobile number nahi hai.`, { icon: '📱' });
+                } else {
                     const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
                     window.open(whatsappUrl, '_blank');
                 }

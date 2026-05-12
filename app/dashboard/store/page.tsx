@@ -53,7 +53,22 @@ export default function StoreManagerPage() {
         }
     };
 
-    if (!isClient) return null;
+    if (!isClient) {
+        return (
+            <div style={{ background: '#f0f2fa', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    :root{
+                      --bg:#f0f2fa;
+                      --white:#fff;
+                      --ink:#0b0f1e;
+                    }
+                    `
+                }} />
+                Loading store...
+            </div>
+        );
+    }
 
     const storeUrl = businessProfile.id ? `billgst.in/s/${businessProfile.id}` : 'Store not ready...';
     const mappedProducts = products || [];

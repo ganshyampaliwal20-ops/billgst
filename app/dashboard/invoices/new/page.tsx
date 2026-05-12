@@ -91,6 +91,12 @@ export default function NewInvoicePage() {
     const [newCustPhone, setNewCustPhone] = useState('');
     const [newCustGstin, setNewCustGstin] = useState('');
     const [newCustAddress, setNewCustAddress] = useState('');
+    const [newCustEmail, setNewCustEmail] = useState('');
+    const [newCustType, setNewCustType] = useState('Grahak');
+    const [newCustState, setNewCustState] = useState('Rajasthan');
+    const [newCustLimit, setNewCustLimit] = useState('');
+    const [newCustOb, setNewCustOb] = useState('');
+    const [showCreditLimit, setShowCreditLimit] = useState(false);
 
     // Compliance State
     const [ewayBill, setEwayBill] = useState({
@@ -239,7 +245,7 @@ export default function NewInvoicePage() {
 
         try {
             const rec = new SR();
-            rec.lang = 'hi-IN';
+            rec.lang = 'en-IN'; // Changed to en-IN so Hindi words are returned in English (Latin) script
             rec.continuous = false;
             rec.interimResults = false;
             rec.maxAlternatives = 10;
@@ -260,8 +266,10 @@ export default function NewInvoicePage() {
 
             rec.onerror = (e: any) => {
                 setIsListening(false);
-                if (e.error === 'network') toast.error('Network problem.');
-                else if (e.error === 'no-speech') toast.error('Kuch nahi suna.');
+                if (e.error === 'network') toast.error('Internet check karein (Network Problem).');
+                else if (e.error === 'no-speech') toast.error('Aawaz nahi aayi! Button dabate hi turant bole.');
+                else if (e.error === 'not-allowed') toast.error('Mic ki permission allow karein browser me.');
+                else toast.error(`Voice error: ${e.error}`);
             };
 
             rec.onend = () => setIsListening(false);
@@ -284,13 +292,14 @@ export default function NewInvoicePage() {
         let maxScore = 0;
         let bestQty = 1;
 
-        const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s]/gi, '').trim();
+        // Remove all non-letter and non-number characters (keeps all languages but strips punctuation/symbols)
+        const clean = (s: string) => s.toLowerCase().replace(/[^\\p{L}\\p{N}\\s]/gu, '').trim();
 
         for (const raw of transcripts) {
             const text = raw.toLowerCase();
             let qty = 1;
             const numMatch = text.match(/\d+/);
-            if (numMatch) qty = parseInt(numMatch[0]);
+            if (numMatch) qty = parseInt(numMatch[0], 10);
 
             const voiceName = clean(text.replace(/\d+/g, ''));
             if (!voiceName) continue;
@@ -389,7 +398,12 @@ export default function NewInvoicePage() {
     };
 
     const handleAddCustomer = async () => {
-        if (!newCustName || !newCustPhone) return toast.error('Name or Phone zaroori hai');
+        if (!newCustName || newCustName.length < 2) {
+            return toast.error('Sahi Naam zaroori hai');
+        }
+        if (newCustPhone && newCustPhone.length !== 10) {
+            return toast.error('Agar phone daala hai to sahi 10-digit number dalo');
+        }
         try {
             const newCust = {
                 id: generateId(),
@@ -397,6 +411,11 @@ export default function NewInvoicePage() {
                 phone: newCustPhone,
                 gstin: newCustGstin,
                 address: newCustAddress,
+                email: newCustEmail,
+                type: newCustType,
+                state: newCustState,
+                credit_limit: newCustLimit ? Number(newCustLimit) : 0,
+                opening_balance: newCustOb ? Number(newCustOb) : 0,
                 created_at: new Date().toISOString()
             };
             const result = await addCustomer(newCust);
@@ -407,7 +426,10 @@ export default function NewInvoicePage() {
                 setNewCustPhone('');
                 setNewCustGstin('');
                 setNewCustAddress('');
-                toast.success('Customer added & selected');
+                setNewCustEmail('');
+                setNewCustLimit('');
+                setNewCustOb('');
+                toast.success(`✓ ${newCustName} save ho gaya!`);
             }
         } catch (e) {
             toast.error('Galti hui add karne me');
@@ -630,6 +652,90 @@ export default function NewInvoicePage() {
                   .inv-pill { padding: 10px; }
                   .ip-num { font-size: 11px; }
                 }
+
+                /* --- Quick Add Party Modal Styles --- */
+                .qap-backdrop { position:fixed; inset:0; z-index:200; background:rgba(13,15,28,.45); backdrop-filter:blur(6px); display:flex; align-items:flex-end; justify-content:center; }
+                .qap-sheet { position:relative; z-index:210; width:100%; max-width:480px; background:#fff; border-radius:28px 28px 0 0; box-shadow:0 20px 60px rgba(13,15,28,.18); overflow:hidden; animation:qapUp .35s cubic-bezier(.22,1,.36,1) both; max-height: 90vh; display: flex; flex-direction: column; }
+                @keyframes qapUp { from { transform:translateY(100%); opacity:0; } to { transform:translateY(0); opacity:1; } }
+                .qap-header { position:relative; padding:24px 20px 20px; background:linear-gradient(135deg,#312e81 0%,#4f46e5 50%,#6d28d9 100%); overflow:hidden; flex-shrink: 0; }
+                .qap-header::before { content:''; position:absolute; top:-60px; right:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.07); }
+                .qap-header::after { content:''; position:absolute; bottom:-40px; left:-20px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,0.05); }
+                .qap-handle { width:36px; height:4px; border-radius:2px; background:rgba(255,255,255,0.3); margin:0 auto 18px; }
+                .qap-title-row { display:flex; align-items:flex-start; justify-content:space-between; position:relative; z-index:1; }
+                .qap-icon-wrap { width:44px; height:44px; border-radius:13px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+                .qap-icon-wrap svg { width:22px; height:22px; color:#fff; }
+                .qap-titles { flex:1; margin-left:12px; }
+                .qap-title { font-size:21px; font-weight:900; color:#fff; letter-spacing:-.4px; line-height:1.1; }
+                .qap-sub { font-size:12px; color:rgba(255,255,255,.55); margin-top:4px; font-weight:600; }
+                .qap-close { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; flex-shrink:0; margin-top:2px; }
+                .qap-close:hover { background:rgba(255,255,255,0.22); }
+                .qap-close svg { width:14px; height:14px; color:rgba(255,255,255,.8); }
+                .qap-steps { display:flex; align-items:center; gap:6px; margin-top:16px; position:relative; z-index:1; }
+                .qap-step-dot { height:4px; border-radius:2px; background:rgba(255,255,255,0.25); transition:all .3s; }
+                .qap-step-dot.done { background:#fff; flex:1.5; }
+                .qap-step-dot.active { background:#fff; flex:2; }
+                .qap-step-dot.todo { flex:1; }
+                .qap-body { padding:20px 20px 0; overflow-y: auto; flex: 1; }
+                .qap-phone-suggest { display:flex; align-items:center; gap:8px; background:#eef0ff; border:1px solid rgba(79,70,229,.2); border-radius:10px; padding:10px 13px; margin-bottom:16px; cursor:pointer; transition:background .15s; }
+                .qap-phone-suggest:hover { background:#e5e7ff; }
+                .qap-phone-suggest svg { width:16px; height:16px; color:#4f46e5; flex-shrink:0; }
+                .qap-phone-suggest-text { font-size:13px; font-weight:700; color:#4f46e5; }
+                .qap-phone-suggest-sub { font-size:11px; color:#7b7fa0; margin-top:1px; }
+                .qap-sec-label { font-size:10px; font-weight:800; color:#b8bbd0; text-transform:uppercase; letter-spacing:1px; margin:16px 0 8px; }
+                .qap-sec-label:first-child { margin-top:0; }
+                .qap-field { display:flex; align-items:center; gap:10px; background:#f0f2f8; border:1.5px solid #e0e3f0; border-radius:14px; padding:13px 15px; margin-bottom:10px; transition:all .18s; position:relative; }
+                .qap-field:focus-within { border-color:#4f46e5; background:#fff; box-shadow:0 0 0 4px rgba(79,70,229,.08); }
+                .qap-field.filled { border-color:rgba(79,70,229,.3); background:#fff; }
+                .qap-field.error { border-color:#ef4444!important; background:#fff0f0!important; box-shadow:0 0 0 4px rgba(239,68,68,.07)!important; }
+                .qap-field.valid { border-color:#10b981!important; }
+                .qap-field-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .15s; }
+                .qap-field:focus-within .qap-field-icon { background:#eef0ff; }
+                .qap-field-icon svg { width:17px; height:17px; color:#b8bbd0; transition:color .15s; }
+                .qap-field:focus-within .qap-field-icon svg { color:#4f46e5; }
+                .qap-field.valid .qap-field-icon svg { color:#10b981; }
+                .qap-field-inner { flex:1; min-width:0; }
+                .qap-field-lbl { font-size:10px; font-weight:800; color:#7b7fa0; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; display:block; transition:color .15s; }
+                .qap-field:focus-within .qap-field-lbl { color:#4f46e5; }
+                .qap-field.valid .qap-field-lbl { color:#10b981; }
+                .qap-field-lbl .req { color:#ef4444; }
+                .qap-field input, .qap-field select, .qap-field textarea { width:100%; border:none; outline:none; background:none; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:700; color:#0d0f1c; }
+                .qap-field input::placeholder, .qap-field textarea::placeholder { color:#b8bbd0; font-weight:600; }
+                .qap-field select { cursor:pointer; appearance:none; color:#0d0f1c; }
+                .qap-field textarea { resize:none; min-height:60px; line-height:1.5; }
+                .qap-field-check { width:22px; height:22px; border-radius:50%; background:#e8faf3; display:none; align-items:center; justify-content:center; flex-shrink:0; }
+                .qap-field-check svg { width:11px; height:11px; color:#10b981; }
+                .qap-field.valid .qap-field-check { display:flex; }
+                .qap-field-err { font-size:11px; font-weight:700; color:#ef4444; margin-top:-6px; margin-bottom:8px; padding:0 4px; display:none; }
+                .qap-field.error + .qap-field-err { display:block; }
+                .qap-sel-arrow { flex-shrink:0; }
+                .qap-sel-arrow svg { width:14px; height:14px; color:#b8bbd0; }
+                .qap-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+                .qap-opt-tag { font-size:9px; font-weight:700; background:#e0e3f0; color:#7b7fa0; padding:2px 7px; border-radius:99px; margin-left:5px; text-transform:uppercase; letter-spacing:.3px; }
+                .qap-toggle-row { display:flex; align-items:center; justify-content:space-between; background:#f0f2f8; border:1.5px solid #e0e3f0; border-radius:14px; padding:12px 15px; margin-bottom:10px; }
+                .qap-toggle-info { display:flex; align-items:center; gap:10px; }
+                .qap-toggle-icon { width:36px; height:36px; border-radius:10px; background:#fffbeb; display:flex; align-items:center; justify-content:center; }
+                .qap-toggle-icon svg { width:17px; height:17px; color:#f59e0b; }
+                .qap-toggle-text { font-size:13px; font-weight:700; color:#0d0f1c; }
+                .qap-toggle-sub { font-size:11px; color:#b8bbd0; }
+                .qap-tswitch { position:relative; width:44px; height:24px; flex-shrink:0; }
+                .qap-tswitch input { opacity:0; width:0; height:0; }
+                .qap-tslider { position:absolute; inset:0; background:#e0e3f0; border-radius:12px; cursor:pointer; transition:background .2s; }
+                .qap-tslider::before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+                .qap-tswitch input:checked + .qap-tslider { background:#4f46e5; }
+                .qap-tswitch input:checked + .qap-tslider::before { transform:translateX(20px); }
+                .qap-credit-field { display:none; }
+                .qap-credit-field.show { display:flex; }
+                .qap-footer { padding:16px 20px 32px; display:flex; gap:10px; border-top:1px solid #e0e3f0; background:#fff; margin-top:16px; flex-shrink: 0; }
+                .qap-cancel-btn { flex:1; padding:14px; border-radius:14px; background:#f0f2f8; border:1.5px solid #e0e3f0; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:800; color:#7b7fa0; cursor:pointer; transition:all .15s; }
+                .qap-cancel-btn:hover { background:#e0e3f0; color:#0d0f1c; }
+                .qap-save-btn { flex:2.2; padding:14px; border-radius:14px; background:linear-gradient(135deg,#4f46e5,#6d28d9); border:none; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:900; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 20px rgba(79,70,229,.4),inset 0 1px 0 rgba(255,255,255,.15); transition:all .18s; letter-spacing:-.1px; }
+                .qap-save-btn:hover { transform:translateY(-1px); box-shadow:0 8px 28px rgba(79,70,229,.5); }
+                .qap-save-btn svg { width:16px; height:16px; }
+                .qap-recent-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+                .qap-recent-chip { display:flex; align-items:center; gap:6px; background:#fff; border:1.5px solid #e0e3f0; border-radius:99px; padding:5px 12px 5px 8px; cursor:pointer; transition:all .15s; }
+                .qap-recent-chip:hover { border-color:#4f46e5; background:#eef0ff; }
+                .qap-chip-av { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:900; color:#fff; flex-shrink:0; }
+                .qap-chip-name { font-size:12px; font-weight:700; color:#3a3d58; }
             `}} />
 
             {/* Header Content */}
@@ -647,9 +753,7 @@ export default function NewInvoicePage() {
                             <button type="button" onClick={startVoiceBilling} className={`fbadge fb-voice whitespace-nowrap ${isListening ? 'animate-pulse' : ''}`}><FaMicrophone /> {isListening ? 'Listening...' : 'Voice Bill'}</button>
                             <button type="button" onClick={handleMagicScan} className="fbadge fb-scan whitespace-nowrap"><FaMagic /> Magic Scan</button>
                         </div>
-                        <div className="text-[10px] font-black text-white/40 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/10">
-                            Mode: {settings.taxType || 'EXCLUSIVE'} GST
-                        </div>
+
                     </div>
                 </div>
 
@@ -686,11 +790,11 @@ export default function NewInvoicePage() {
                                 <div><span className="text-[10px] font-black uppercase text-slate-400 block tracking-widest">Invoice #</span><span className="ip-num">{invoiceNumber}</span></div>
                                 <FaCogs className="text-slate-300" />
                             </div>
-                            <div className="flex gap-2">
-                                <div className="flex-1">
-                                    <label className="fl">{t.customer} *</label>
+                            <div>
+                                <label className="fl">{t.customer} *</label>
+                                <div className="flex items-center gap-2">
                                     <input
-                                        className="fi text-slate-900"
+                                        className="fi text-slate-900 flex-1"
                                         list="customer-list"
                                         placeholder="Enter or select customer"
                                         value={customers.find((c: any) => c.id === customerId)?.name || newCustName}
@@ -708,8 +812,8 @@ export default function NewInvoicePage() {
                                     <datalist id="customer-list">
                                         {safeCustomers.map(c => <option key={c.id} value={c.name} />)}
                                     </datalist>
+                                    <button type="button" onClick={() => setShowCustomerModal(true)} className="new-btn flex-shrink-0 flex items-center justify-center w-[52px] h-[52px]"><FaPlus /></button>
                                 </div>
-                                <button type="button" onClick={() => setShowCustomerModal(true)} className="new-btn mt-6 flex items-center justify-center h-[52px]"><FaPlus /></button>
                             </div>
                         </div>
 
@@ -813,21 +917,22 @@ export default function NewInvoicePage() {
                             {safeProducts.map(p => <option key={p.id} value={p.name}>{p.price ? `₹${p.price}` : ''}</option>)}
                         </datalist>
 
-                        <div className="flex flex-col md:flex-row gap-3 mt-6">
-                            <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[48px]">
-                                <FaPlus /> {t.addNewItem}
-                            </button>
-                            <button type="button" onClick={() => setShowQuickAdd(true)} className="add-item-btn flex-1 h-[48px] bg-amber-50 border-amber-200 text-amber-600">
-                                <FaBox /> Browse Inventory
-                            </button>
+                        <div className="flex flex-col gap-3 mt-6">
+                            <div className="flex flex-row gap-3">
+                                <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[48px]">
+                                    <FaPlus /> {t.addNewItem}
+                                </button>
+                                <button type="button" onClick={() => setShowQuickAdd(true)} className="add-item-btn flex-1 h-[48px] bg-amber-50 border-amber-200 text-amber-600">
+                                    <FaBox /> Browse Inventory
+                                </button>
+                            </div>
                             <button
                                 type="button"
                                 onClick={startVoiceBilling}
-                                className={`add-item-btn w-[48px] h-[48px] flex-shrink-0 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
+                                className={`add-item-btn w-full h-[48px] flex justify-center items-center gap-2 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
                                 title="Add by Voice"
-                                style={{ padding: 0 }}
                             >
-                                <FaMicrophone />
+                                <FaMicrophone /> {isListening ? 'Listening...' : 'Add Item by Voice'}
                             </button>
                         </div>
                     </div>
@@ -928,13 +1033,13 @@ export default function NewInvoicePage() {
             {/* Quick Add Panel - Voice + Type */}
             {showQuickAdd && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-end justify-center p-0">
-                    <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-2xl p-6 animate-in slide-in-from-bottom">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
+                    <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-2xl py-6 px-5 sm:p-6 animate-in slide-in-from-bottom" style={{ paddingLeft: '20px', paddingRight: '20px' }}>
+                        <div className="relative mb-4 flex justify-center items-center">
+                            <div className="text-center">
                                 <h3 className="text-lg font-black text-slate-900">⚡ Quick Add Product</h3>
                                 <p className="text-xs text-slate-400">{isListening ? '🎙️ Listening...' : 'Type ya voice se product add karo'}</p>
                             </div>
-                            <button onClick={() => { setShowQuickAdd(false); setIsListening(false); }} className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">✕</button>
+                            <button onClick={() => { setShowQuickAdd(false); setIsListening(false); }} className="absolute right-0 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">✕</button>
                         </div>
 
                         <div className="flex gap-2 mb-4">
@@ -1003,29 +1108,220 @@ export default function NewInvoicePage() {
             )}
 
             {showCustomerModal && (
-                <div className="fixed inset-0 bg-ink/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-[500px] overflow-hidden shadow-2xl animate-in zoom-in-95">
-                        <div className="bg-indigo-600 p-8 text-white relative">
-                            <button
-                                type="button"
-                                onClick={() => setShowCustomerModal(false)}
-                                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all text-white/80 hover:text-white"
-                                aria-label="Close"
-                            >
-                                <FaTimes size={18} />
-                            </button>
-                            <h3 className="text-2xl font-black italic">Quick Add Party</h3>
-                            <p className="text-indigo-100 text-xs mt-1">Add details of your new registered customer</p>
-                        </div>
-                        <div className="p-8 space-y-4">
-                            <input className="fi" placeholder="Business / Name" value={newCustName} onChange={e => setNewCustName(e.target.value)} />
-                            <input className="fi" placeholder="Phone Number" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} maxLength={10} />
-                            <input className="fi" placeholder="GSTIN (Optional)" value={newCustGstin} onChange={e => setNewCustGstin(e.target.value.toUpperCase())} />
-                            <textarea className="fi" placeholder="Full Address" value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)}></textarea>
-                            <div className="flex gap-3">
-                                <button type="button" className="fi bg-slate-100 border-none" onClick={() => setShowCustomerModal(false)}>Cancel</button>
-                                <button type="button" className="bb-save w-full" onClick={handleAddCustomer}>Save & Select</button>
+                <div className="qap-backdrop">
+                    <div className="qap-sheet">
+                        <div className="qap-header">
+                            <div className="qap-handle"></div>
+                            <div className="qap-title-row">
+                                <div className="qap-icon-wrap">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                        <path d="M12 11v2M16 13l-4 2-4-2" />
+                                    </svg>
+                                </div>
+                                <div className="qap-titles">
+                                    <div className="qap-title">Naya Grahak Jodo</div>
+                                    <div className="qap-sub">Grahak ki details bharke save karo</div>
+                                </div>
+                                <button type="button" className="qap-close" onClick={() => setShowCustomerModal(false)}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                </button>
                             </div>
+                            <div className="qap-steps">
+                                <div className="qap-step-dot done"></div>
+                                <div className="qap-step-dot active"></div>
+                                <div className="qap-step-dot todo"></div>
+                            </div>
+                        </div>
+
+                        <div className="qap-body no-scrollbar">
+                            <div className="qap-phone-suggest" onClick={() => toast('Phone book access feature coming soon', { icon: '📱' })}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2z" />
+                                    <path d="M12 18h.01" />
+                                    <path d="M9 7h6M9 11h4" />
+                                </svg>
+                                <div>
+                                    <div className="qap-phone-suggest-text">📱 Phone Book se Uthao</div>
+                                    <div className="qap-phone-suggest-sub">Contact list se seedha naam aur number lo</div>
+                                </div>
+                            </div>
+
+                            <div className="qap-sec-label">Pichle Grahak</div>
+                            <div className="qap-recent-chips">
+                                {safeCustomers.slice(-4).map((c: any, i: number) => {
+                                    const colors = [
+                                        'linear-gradient(135deg,#4f46e5,#7c3aed)',
+                                        'linear-gradient(135deg,#10b981,#059669)',
+                                        'linear-gradient(135deg,#f59e0b,#d97706)',
+                                        'linear-gradient(135deg,#ef4444,#dc2626)'
+                                    ];
+                                    return (
+                                        <div key={c.id} className="qap-recent-chip" onClick={() => {
+                                            setNewCustName(c.name);
+                                            setNewCustPhone(c.phone || '');
+                                            toast.success(`${c.name} pre-filled`);
+                                        }}>
+                                            <div className="qap-chip-av" style={{ background: colors[i % colors.length] }}>{c.name[0]?.toUpperCase()}</div>
+                                            <span className="qap-chip-name">{c.name.split(' ')[0]}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="qap-sec-label">Zaroori Jaankari</div>
+
+                            <div className={`qap-field ${newCustName.length >= 2 ? 'valid filled' : (newCustName.length > 0 ? 'error' : '')}`}>
+                                <div className="qap-field-icon" style={{ background: newCustName.length >= 2 ? '' : 'var(--indigo-lt)' }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">Naam <span className="req">*</span></span>
+                                    <input type="text" placeholder="Grahak ka poora naam" value={newCustName} onChange={e => setNewCustName(e.target.value)} />
+                                </div>
+                                <div className="qap-field-check">
+                                    <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                </div>
+                            </div>
+                            <div className="qap-field-err" style={{ display: (newCustName.length > 0 && newCustName.length < 2) ? 'block' : 'none' }}>⚠ Naam zaroori hai</div>
+
+                            <div className={`qap-field ${newCustPhone.length === 10 ? 'valid filled' : (newCustPhone.length > 0 ? 'error' : '')}`}>
+                                <div className="qap-field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">Phone Number <span className="qap-opt-tag">Optional</span></span>
+                                    <input type="tel" placeholder="10 digit mobile number" value={newCustPhone} maxLength={10} onChange={e => setNewCustPhone(e.target.value.replace(/\D/g, ''))} />
+                                </div>
+                                <div className="qap-field-check">
+                                    <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                </div>
+                            </div>
+                            <div className="qap-field-err" style={{ display: (newCustPhone.length > 0 && newCustPhone.length < 10) ? 'block' : 'none' }}>⚠ Sahi 10 digit number dalo</div>
+
+                            <div className="qap-row-2">
+                                <div className="qap-field" style={{ marginBottom: 0 }}>
+                                    <div className="qap-field-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg>
+                                    </div>
+                                    <div className="qap-field-inner">
+                                        <span className="qap-field-lbl">Prakar</span>
+                                        <select value={newCustType} onChange={e => setNewCustType(e.target.value)}>
+                                            <option>Grahak</option>
+                                            <option>Supplier</option>
+                                            <option>Dono</option>
+                                        </select>
+                                    </div>
+                                    <div className="qap-sel-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg></div>
+                                </div>
+
+                                <div className="qap-field" style={{ marginBottom: 0 }}>
+                                    <div className="qap-field-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                    </div>
+                                    <div className="qap-field-inner">
+                                        <span className="qap-field-lbl">Rajya</span>
+                                        <select value={newCustState} onChange={e => setNewCustState(e.target.value)}>
+                                            <option>Rajasthan</option>
+                                            <option>Gujarat</option>
+                                            <option>Maharashtra</option>
+                                            <option>Delhi</option>
+                                            <option>UP</option>
+                                            <option>MP</option>
+                                            <option>Punjab</option>
+                                        </select>
+                                    </div>
+                                    <div className="qap-sel-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg></div>
+                                </div>
+                            </div>
+
+                            <div className="qap-sec-label" style={{ marginTop: 16 }}>Anya Jaankari <span className="qap-opt-tag">Optional</span></div>
+
+                            <div className={`qap-field ${newCustGstin.length === 15 ? 'valid filled' : ''}`}>
+                                <div className="qap-field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">GSTIN <span className="qap-opt-tag">Optional</span></span>
+                                    <input type="text" placeholder="22AAAAA0000A1Z5" value={newCustGstin} maxLength={15} onChange={e => setNewCustGstin(e.target.value.toUpperCase())} style={{ textTransform: 'uppercase' }} />
+                                </div>
+                                <div className="qap-field-check">
+                                    <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                </div>
+                            </div>
+
+                            <div className="qap-field">
+                                <div className="qap-field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">Email <span className="qap-opt-tag">Optional</span></span>
+                                    <input type="email" placeholder="email@example.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} />
+                                </div>
+                            </div>
+
+                            <div className="qap-field">
+                                <div className="qap-field-icon" style={{ alignSelf: 'flex-start', marginTop: 2 }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">Pata <span className="qap-opt-tag">Optional</span></span>
+                                    <textarea placeholder="Poora address likho..." value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)}></textarea>
+                                </div>
+                            </div>
+
+                            <div className="qap-sec-label">Credit Limit</div>
+                            <div className="qap-toggle-row">
+                                <div className="qap-toggle-info">
+                                    <div className="qap-toggle-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" /></svg>
+                                    </div>
+                                    <div>
+                                        <div className="qap-toggle-text">Credit Limit Set Karo</div>
+                                        <div className="qap-toggle-sub">Kitna udhar de sakte ho</div>
+                                    </div>
+                                </div>
+                                <label className="qap-tswitch">
+                                    <input type="checkbox" checked={showCreditLimit} onChange={e => setShowCreditLimit(e.target.checked)} />
+                                    <span className="qap-tslider"></span>
+                                </label>
+                            </div>
+
+                            <div className={`qap-field qap-credit-field ${showCreditLimit ? 'show' : ''}`}>
+                                <div className="qap-field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">Credit Limit (₹)</span>
+                                    <input type="number" placeholder="Jaise: 20000" value={newCustLimit} onChange={e => setNewCustLimit(e.target.value)} />
+                                </div>
+                            </div>
+
+                            <div className="qap-field" style={{ marginBottom: 4 }}>
+                                <div className="qap-field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
+                                </div>
+                                <div className="qap-field-inner">
+                                    <span className="qap-field-lbl">Shuruati Bakaya (₹) <span className="qap-opt-tag">Optional</span></span>
+                                    <input type="number" placeholder="0" value={newCustOb} onChange={e => setNewCustOb(e.target.value)} />
+                                </div>
+                            </div>
+                            <div style={{ fontSize: 11, color: '#b8bbd0', padding: '0 4px', marginBottom: 16, fontWeight: 600 }}>
+                                💡 Agar grahak par pehle se kuch baaki hai to yahan daalo
+                            </div>
+
+                        </div>
+
+                        <div className="qap-footer">
+                            <button type="button" className="qap-cancel-btn" onClick={() => setShowCustomerModal(false)}>Ruko</button>
+                            <button type="button" className="qap-save-btn" onClick={handleAddCustomer}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                                    <path d="M17 21v-8H7v8M7 3v5h8" />
+                                </svg>
+                                Save & Invoice Banao
+                            </button>
                         </div>
                     </div>
                 </div>

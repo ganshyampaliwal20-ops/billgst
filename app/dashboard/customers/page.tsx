@@ -86,6 +86,10 @@ export default function CustomersPage() {
     const handleWhatsApp = (c: any, e: any) => {
         e.stopPropagation();
         const phone = c.phone?.replace(/\D/g, '') || '';
+        if (!phone) {
+            toast.error('Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.', { icon: '📱' });
+            return;
+        }
         const businessName = businessProfile?.name || 'Our Business';
         const message = `Namaste ${c.name} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ${c.amountStr} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
         window.open(`https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`, '_blank');
