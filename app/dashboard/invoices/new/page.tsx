@@ -45,7 +45,9 @@ export default function NewInvoicePage() {
     const fetchQuotations = useStore((state: any) => state.fetchQuotations);
     const fetchProducts = useStore((state: any) => state.fetchProducts);
     const fetchCustomers = useStore((state: any) => state.fetchCustomers);
+    const fetchInvoices = useStore((state: any) => state.fetchInvoices);
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
+    const invoices = useStore((state: any) => state.invoices) || [];
 
     const [isClient, setIsClient] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -124,6 +126,7 @@ export default function NewInvoicePage() {
         setIsClient(true);
         if (fetchProducts) fetchProducts();
         if (fetchCustomers) fetchCustomers();
+        if (fetchInvoices) fetchInvoices();
 
         const today = new Date().toISOString().split('T')[0];
         setInvoiceDate(today);
@@ -234,6 +237,17 @@ export default function NewInvoicePage() {
 
     const removeItem = (idx: number) => {
         setSelectedItems(selectedItems.filter((_, i) => i !== idx));
+    };
+
+    const getCustomerBalance = (custId: string) => {
+        if (!custId) return 0;
+        const cust = safeCustomers.find(c => c.id === custId);
+        if (!cust) return 0;
+        
+        let due = Number(cust.opening_balance) || 0;
+        const custInvs = invoices.filter((inv: any) => (inv.customer?.id === custId || inv.customer_id === custId) && inv.status !== 'PAID');
+        due += custInvs.reduce((sum: number, inv: any) => sum + ((Number(inv.total_amount) || 0) - (Number(inv.paid_amount) || 0)), 0);
+        return due;
     };
 
     const startVoiceBilling = () => {
@@ -448,6 +462,23 @@ export default function NewInvoicePage() {
             const isInclusive = settings.taxType === 'INCLUSIVE';
             const customer = safeCustomers.find(c => c.id === customerId);
             const breakdown = calculateInvoiceTotal(selectedItems, isInterState, isInclusive);
+
+            if (customer && customer.credit_limit > 0) {
+                const storeInvs = (useStore.getState() as any).invoices || [];
+                const pastDue = storeInvs
+                    .filter((i: any) => (i.customer?.id === customer.id || i.customer_id === customer.id) && i.status !== 'PAID')
+                    .reduce((sum: number, inv: any) => sum + (Number(inv.total_amount) - Number(inv.paid_amount)), 0);
+                
+                const newDue = totals.grandTotal - (parseFloat(paidAmount) || 0);
+                const projectedBalance = pastDue + newDue + (Number(customer.opening_balance) || 0);
+                
+                if (projectedBalance > customer.credit_limit) {
+                    if (!window.confirm(`⚠️ ALERT: ${customer.name} ki credit limit (₹${customer.credit_limit}) cross ho rahi hai!\n\nUnka total udhaar (Pichla baki + abhi ka) ₹${projectedBalance} ho jayega.\n\nKya aap phir bhi ye invoice save karna chahte hain?`)) {
+                        setIsSubmitting(false);
+                        return;
+                    }
+                }
+            }
 
             const invoice = {
                 id: generateId(),
@@ -818,14 +849,27 @@ export default function NewInvoicePage() {
                         </div>
 
                         {selectedCustomer && (
-                            <div className="cprev">
-                                <div className="c-av">{selectedCustomer.name[0]}</div>
-                                <div>
-                                    <div className="c-name">{selectedCustomer.name}</div>
-                                    <div className="text-[11px] text-slate-400 font-bold">{selectedCustomer.phone || selectedCustomer.gstin || 'Registered Party'}</div>
+                            <>
+                                <div className="cprev">
+                                    <div className="c-av">{selectedCustomer.name[0]}</div>
+                                    <div>
+                                        <div className="c-name">{selectedCustomer.name}</div>
+                                        <div className="text-[11px] text-slate-400 font-bold">{selectedCustomer.phone || selectedCustomer.gstin || 'Registered Party'}</div>
+                                    </div>
+                                    <div className={`c-bal ${getCustomerBalance(selectedCustomer.id) > 0 ? 'text-red-500' : 'text-slate-500'}`}>
+                                        ₹{getCustomerBalance(selectedCustomer.id).toLocaleString('en-IN')} due
+                                    </div>
                                 </div>
-                                <div className="c-bal">₹0 due</div>
-                            </div>
+                                {selectedCustomer.credit_limit > 0 && getCustomerBalance(selectedCustomer.id) > selectedCustomer.credit_limit && (
+                                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                                        <div className="text-red-500 mt-0.5">⚠️</div>
+                                        <div>
+                                            <div className="text-sm font-bold text-red-700">Credit Limit Cross Ho Gayi!</div>
+                                            <div className="text-xs text-red-600 mt-0.5">Inki limit ₹{selectedCustomer.credit_limit.toLocaleString('en-IN')} hai, lekin abhi ₹{getCustomerBalance(selectedCustomer.id).toLocaleString('en-IN')} ka udhaar baki hai.</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
 
                         <div className="grid grid-cols-2 gap-6 mt-6">

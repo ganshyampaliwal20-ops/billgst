@@ -587,6 +587,27 @@ export default function BusinessExpensesPage() {
         const note = entryNote.trim();
         const date = entryDate ? new Date(entryDate).toISOString() : new Date().toISOString();
 
+        // 1. Calculate new balance for validation
+        const currentCustomer = customers.find(c => c.id === curCid);
+        if (currentCustomer) {
+            let projectedBalance = currentCustomer.balance;
+            if (editTxnId) {
+                const oldTxn = currentCustomer.txns.find((t: any) => t.id === editTxnId);
+                if (oldTxn) {
+                    const oldIsDebit = oldTxn.type !== 'credit';
+                    projectedBalance -= (oldIsDebit ? oldTxn.amt : -oldTxn.amt);
+                }
+            }
+            const isDebit = entryType !== 'credit';
+            projectedBalance += (isDebit ? amt : -amt);
+
+            if (currentCustomer.limit > 0 && projectedBalance > currentCustomer.limit) {
+                if (!window.confirm(`⚠️ ALERT: ${currentCustomer.name} ki credit limit (₹${currentCustomer.limit}) cross ho rahi hai!\n\nNaya Balance ₹${projectedBalance} ho jayega.\n\nKya aap phir bhi ye entry save karna chahte hain?`)) {
+                    return;
+                }
+            }
+        }
+
         setCustomers(customers.map(c => {
             if (c.id === curCid) {
                 let newTxns = [...c.txns];
@@ -596,23 +617,16 @@ export default function BusinessExpensesPage() {
                     const oldTxn = newTxns.find((t: any) => t.id === editTxnId);
                     if (oldTxn) {
                         const oldIsDebit = oldTxn.type !== 'credit';
-                        const oldBalChange = oldIsDebit ? oldTxn.amt : -oldTxn.amt;
-                        newBalance -= oldBalChange;
+                        newBalance -= (oldIsDebit ? oldTxn.amt : -oldTxn.amt);
                     }
-                    newTxns = newTxns.map((t: any) => t.id === editTxnId ? { ...t, type: entryType, name, note, date, dueDate: entryDueDate, amt, photos: [...pendingPhotos] } : t);
+                    newTxns = newTxns.map((t: any) => t.id === editTxnId ? { ...t, type: entryType, name, note, date, dueDate: entryDueDate, amt, category: entryCategory, photos: [...pendingPhotos] } : t);
                     const isDebit = entryType !== 'credit';
-                    const balChange = isDebit ? amt : -amt;
-                    newBalance += balChange;
+                    newBalance += (isDebit ? amt : -amt);
                 } else {
                     const newTxn = { id: Date.now(), type: entryType, name, note, date, dueDate: entryDueDate, amt, category: entryCategory, photos: [...pendingPhotos] };
                     newTxns = [newTxn, ...newTxns];
                     const isDebit = entryType !== 'credit';
-                    const balChange = isDebit ? amt : -amt;
-                    newBalance += balChange;
-                }
-
-                if (c.limit > 0 && newBalance > c.limit) {
-                    setTimeout(() => showToast(`⚠️ Credit Limit (₹${c.limit}) cross ho gayi hai! Current: ₹${newBalance}`), 500);
+                    newBalance += (isDebit ? amt : -amt);
                 }
 
                 return { ...c, txns: newTxns, balance: newBalance };
@@ -963,6 +977,16 @@ export default function BusinessExpensesPage() {
                             </div>
                         )}
 
+                        {currentCust.limit > 0 && custStats.net > currentCust.limit && (
+                            <div className="pending-status-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginTop: '12px' }}>
+                                <div className="psb-icon">⚠️</div>
+                                <div className="psb-text">
+                                    <strong style={{ color: '#dc2626' }}>Credit Limit Exceeded!</strong>
+                                    <span style={{ color: '#b91c1c' }}>Aapne limit ₹{fmt(currentCust.limit)} set ki thi, par udhaar ₹{fmt(custStats.net)} ho gaya hai.</span>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="filter-bar">
                             {[{ id: 'all', l: 'All' }, { id: 'debit', l: 'Given' }, { id: 'credit', l: 'Received' }, { id: 'advance', l: 'Advance' }].map(f => (
                                 <button key={f.id} className={`filter-chip ${currentFilter === f.id ? 'active' : ''}`} onClick={() => setCurrentFilter(f.id)}>{f.l}</button>
@@ -1098,8 +1122,13 @@ export default function BusinessExpensesPage() {
                             <div className="spacer" style={{ height: '100px' }}></div>
                             <div className="add-panel" id="addPanel">
                                 <div className={`amount-area ${isAddEntryOpen ? 'show' : ''}`} id="amountArea">
-                                    <div className={`amount-type-label ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`}>
-                                        {entryType === 'debit' ? '↑ Given' : entryType === 'credit' ? '↓ Received' : '⚡ Advance'}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                        <div className={`amount-type-label ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`} style={{ margin: 0 }}>
+                                            {entryType === 'debit' ? '↑ Given' : entryType === 'credit' ? '↓ Received' : '⚡ Advance'}
+                                        </div>
+                                        {isAddEntryOpen && (
+                                            <button onClick={closeNumpad} style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '12px', fontWeight: 800, padding: '4px 12px', borderRadius: '20px', cursor: 'pointer' }}>Cancel ✕</button>
+                                        )}
                                     </div>
                                     <div className="amount-display"><span className="curr">₹</span><span>{new Intl.NumberFormat('en-IN').format(parseFloat(amtInp || '0')) + (amtInp.endsWith('.') ? '.' : '')}</span></div>
                                     {isAddEntryOpen && (
@@ -1122,7 +1151,7 @@ export default function BusinessExpensesPage() {
                                                 key={cat}
                                                 className={`category-tag-option ${entryCategory === cat ? 'active' : ''}`}
                                                 onClick={() => setEntryCategory(cat)}
-                                                style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '20px', background: entryCategory === cat ? 'var(--ink)' : 'var(--bg2)', color: entryCategory === cat ? '#fff' : 'var(--ink3)', cursor: 'pointer', border: '1px solid var(--border)' }}
+                                                style={{ fontSize: '11px', fontWeight: 800, padding: '6px 14px', borderRadius: '20px', background: entryCategory === cat ? '#2563eb' : '#f1f5f9', color: entryCategory === cat ? '#ffffff' : '#000000', cursor: 'pointer', border: entryCategory === cat ? '1px solid #2563eb' : '1px solid #cbd5e1', transition: 'all 0.2s', boxShadow: entryCategory === cat ? '0 2px 8px rgba(37, 99, 235, 0.3)' : 'none' }}
                                             >
                                                 {cat}
                                             </span>
