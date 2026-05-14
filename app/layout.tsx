@@ -69,6 +69,7 @@ export const metadata: Metadata = {
 };
 
 import InstallAppBanner from "@/app/components/InstallAppBanner";
+import { Analytics } from '@vercel/analytics/next';
 
 export default function RootLayout({
   children,
@@ -105,6 +106,7 @@ export default function RootLayout({
         </SessionWrapper>
         <InstallAppBanner />
         <Toaster position="top-right" />
+        <Analytics />
       </body>
     </html>
   );
