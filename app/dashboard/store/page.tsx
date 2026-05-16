@@ -6,6 +6,8 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+import { optimizeImage } from '@/lib/utils';
+
 export default function StoreManagerPage() {
     const router = useRouter();
     const { businessProfile, products, updateProduct, fetchBusinessProfile, fetchProducts, saveBusinessProfile } = useStore() as any;
@@ -105,26 +107,21 @@ export default function StoreManagerPage() {
         toast.success('Theme selected! Click Save to apply.', { icon: '🎨' });
     };
 
-    const handleFileUpload = (e: any, type: 'banner' | 'logo') => {
+    const handleFileUpload = async (e: any, type: 'banner' | 'logo') => {
         const file = e.target.files[0];
         if (file) {
-            // Check size (Max 1MB for safety)
-            if (file.size > 1024 * 1024) {
-                toast.error('File size bahut badi hai! 1MB se kam use karein.', { icon: '⚠️' });
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64 = reader.result as string;
+            try {
+                const optimizedImage = await optimizeImage(file, type === 'banner' ? 1200 : 400, type === 'banner' ? 400 : 400, 0.8);
                 if (type === 'banner') {
-                    await saveBusinessProfile({ ...businessProfile, store_banner: base64 });
+                    await saveBusinessProfile({ ...businessProfile, store_banner: optimizedImage });
                 } else {
-                    await saveBusinessProfile({ ...businessProfile, logo: base64 });
+                    await saveBusinessProfile({ ...businessProfile, logo: optimizedImage });
                 }
                 toast.success(`${type === 'banner' ? 'Banner' : 'Logo'} update ho gaya!`, { icon: '✅' });
-            };
-            reader.readAsDataURL(file);
+            } catch (error: any) {
+                console.error('Failed to optimize image:', error);
+                toast.error(error.message || 'Upload fail ho gaya!');
+            }
         }
     };
 

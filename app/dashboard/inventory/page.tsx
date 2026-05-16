@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { generateCatalogPDF } from "@/lib/pdf-generator";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
+import { optimizeImage } from "@/lib/utils";
+
 export default function InventoryPage() {
     const router = useRouter();
     const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile } = useStore() as any;
@@ -89,9 +91,9 @@ export default function InventoryPage() {
                       --bg:        #f2f3f7;
                       --white:     #ffffff;
                       --ink:       #0d0f1a;
-                      --ink2:      #2d3048;
-                      --ink3:      #6b7094;
-                      --ink4:      #a8adcc;
+                      --ink2:      --2d3048;
+                      --ink3:      --6b7094;
+                      --ink4:      --a8adcc;
                       --border:    #e4e6f0;
                       --border2:   #d0d3e8;
                       --green:     #10b981;
@@ -252,18 +254,17 @@ export default function InventoryPage() {
         setShowAddModal(true);
     };
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 1024 * 1024) {
-                toast.error('Image size bahut badi hai! 1MB se kam use karein.', { icon: '⚠️' });
-                return;
+            try {
+                const optimizedImage = await optimizeImage(file, 800, 800, 0.7);
+                setFormData(prev => ({ ...prev, image_url: optimizedImage }));
+                toast.success('Image optimized!');
+            } catch (error: any) {
+                console.error('Failed to optimize image:', error);
+                toast.error(error.message || 'Image upload fail ho gaya!');
             }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prev => ({ ...prev, image_url: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
         }
     };
 

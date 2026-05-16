@@ -17,6 +17,8 @@ const THEMES = {
     TEMPLATE_6: { accent: '#be123c', title: '#e11d48' }, // Rose Pink
 };
 
+import { optimizeImage } from '@/lib/utils';
+
 export default function SettingsPage() {
     const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
     const [formData, setFormData] = useState(businessProfile || {});
@@ -62,22 +64,17 @@ export default function SettingsPage() {
         updateSettings(localSettings);
     };
 
-    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Check file size (Max 1MB for localStorage safety)
-            if (file.size > 1024 * 1024) {
-                toast.error('Logo ka size bahut bada hai! Kripya 1MB se kam ki image use karein.', {
-                    icon: '⚠️',
-                    duration: 4000
-                });
-                return;
+            try {
+                const optimizedLogo = await optimizeImage(file, 400, 400, 0.8);
+                setFormData({ ...formData, logo: optimizedLogo });
+                toast.success('Logo optimized and uploaded!');
+            } catch (error: any) {
+                console.error('Failed to optimize image:', error);
+                toast.error(error.message || 'Upload fail ho gaya!');
             }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData({ ...formData, logo: reader.result as string });
-            };
-            reader.readAsDataURL(file);
         }
     };
 
