@@ -129,117 +129,156 @@ export default function SmartAddPage() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4 pb-24 min-h-screen bg-[#f8fafc]">
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-8 py-6 pb-32 min-h-screen bg-[#f8fafc]">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 bg-white p-5 sm:p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100">
                 <button 
                     onClick={() => router.push('/dashboard/inventory')}
-                    className="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"
+                    className="self-start sm:self-auto p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-600 transition-all border border-slate-100 hover:shadow-sm"
                 >
                     <FaArrowLeft />
                 </button>
-                <div>
-                    <h1 className="text-xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+                <div className="flex-1">
+                    <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 tracking-tight flex items-center gap-3">
                         <FaRobot className="text-indigo-600" /> Smart AI Scanner
                     </h1>
-                    <p className="text-xs font-semibold text-slate-500 mt-0.5">Upload a bill to auto-extract products</p>
+                    <p className="text-sm font-bold text-slate-400 mt-1">Transform physical bills into digital inventory instantly</p>
                 </div>
             </div>
 
             {/* Upload Step */}
             {step === 'upload' && (
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 text-center animate-fadeIn">
-                    <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <FaUpload size={28} />
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-800 mb-2">Upload Supplier Invoice</h2>
-                    <p className="text-sm font-medium text-slate-500 mb-8 max-w-sm mx-auto">
-                        Take a photo or upload a PDF/Image of your supplier's bill. Our AI will automatically extract the products and quantities.
-                    </p>
+                <div className="bg-white p-8 sm:p-12 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 text-center animate-fadeIn relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-transparent to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
-                    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-                        <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md shadow-indigo-200 flex items-center justify-center gap-2"
-                        >
-                            <FaUpload /> Choose File
-                        </button>
-                        <input 
-                            type="file" 
-                            accept="image/*,.pdf" 
-                            className="hidden" 
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                        />
+                    <div className="relative z-10">
+                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-indigo-100 to-purple-50 text-indigo-600 rounded-[2rem] shadow-inner flex items-center justify-center mx-auto mb-8 transform group-hover:scale-105 transition-transform duration-500 rotate-3">
+                            <FaUpload className="text-4xl sm:text-5xl drop-shadow-md -rotate-3" />
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-black text-slate-800 mb-4 tracking-tight">Upload Supplier Bill</h2>
+                        <p className="text-base font-medium text-slate-500 mb-10 max-w-md mx-auto leading-relaxed">
+                            Take a clear photo or upload a PDF of your wholesale invoice. Our advanced AI will instantly detect products, quantities, and GST rates.
+                        </p>
+                        
+                        <div className="flex flex-col gap-4 max-w-sm mx-auto">
+                            <button 
+                                onClick={() => fileInputRef.current?.click()}
+                                className="group relative w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] hover:shadow-[0_15px_35px_-5px_rgba(79,70,229,0.5)] flex items-center justify-center gap-3 overflow-hidden text-lg"
+                            >
+                                <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                <FaCamera className="text-xl" /> Take Photo / Choose File
+                            </button>
+                            <input 
+                                type="file" 
+                                accept="image/*,.pdf" 
+                                className="hidden" 
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                            />
+                        </div>
                     </div>
+                    
+                    {/* Decorative Background Elements */}
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
                 </div>
             )}
 
             {/* Processing Step */}
             {step === 'processing' && (
-                <div className="bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center flex flex-col items-center animate-fadeIn">
-                    <div className="w-24 h-24 relative mb-6">
-                        <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
-                        <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-                        <FaRobot className="absolute inset-0 m-auto text-indigo-600 text-3xl animate-pulse" />
+                <div className="bg-white p-12 sm:p-20 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 text-center flex flex-col items-center justify-center min-h-[400px] animate-fadeIn relative overflow-hidden">
+                    <div className="relative w-32 h-40 sm:w-40 sm:h-52 bg-slate-50 border-2 border-slate-200 rounded-xl mb-10 overflow-hidden shadow-inner">
+                        {/* Fake Document Lines */}
+                        <div className="absolute inset-x-4 top-6 space-y-3">
+                            <div className="h-2 bg-slate-200 rounded w-3/4"></div>
+                            <div className="h-2 bg-slate-200 rounded w-full"></div>
+                            <div className="h-2 bg-slate-200 rounded w-5/6"></div>
+                            <div className="h-2 bg-slate-200 rounded w-full mt-6"></div>
+                            <div className="h-2 bg-slate-200 rounded w-4/5"></div>
+                        </div>
+                        {/* Scanner Line Animation */}
+                        <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-[0_0_15px_3px_rgba(99,102,241,0.6)] animate-[scan_2s_ease-in-out_infinite_alternate]"></div>
                     </div>
-                    <h2 className="text-xl font-bold text-slate-800 mb-2">AI is scanning your bill...</h2>
-                    <p className="text-sm font-medium text-slate-500 animate-pulse">Extracting products, quantities, and prices</p>
+                    
+                    <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-3 animate-pulse">
+                        Extracting Data with AI...
+                    </h2>
+                    <p className="text-base font-bold text-slate-500 animate-pulse">Please wait while we read products, prices, and taxes</p>
                 </div>
             )}
 
             {/* Review Step */}
             {step === 'review' && (
-                <div className="animate-fadeIn">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-                        <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <FaCheck className="text-green-500" /> Extracted {parsedItems.length} Items
+                <div className="animate-fadeIn pb-10">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div className="bg-emerald-50 border border-emerald-100 px-5 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
+                            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-md">
+                                <FaCheck size={14} />
+                            </div>
+                            <h3 className="font-black text-emerald-800 text-lg">
+                                {parsedItems.length} Products Found
                             </h3>
-                            <button 
-                                onClick={() => setStep('upload')}
-                                className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100"
-                            >
-                                Re-upload
-                            </button>
                         </div>
-                        
-                        <div className="divide-y divide-slate-100">
-                            {parsedItems.map((item, index) => (
-                                <div key={item.id} className={`p-4 transition-colors ${!item.selected ? 'opacity-50 bg-slate-50' : 'bg-white'}`}>
-                                    <div className="flex items-start gap-3">
-                                        <div className="pt-1">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={item.selected}
-                                                onChange={(e) => updateItem(item.id, 'selected', e.target.checked)}
-                                                className="w-5 h-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                                            />
+                        <button 
+                            onClick={() => setStep('upload')}
+                            className="text-sm font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-5 py-2.5 rounded-xl hover:bg-indigo-100 hover:shadow-sm transition-all"
+                        >
+                            Upload Another Bill
+                        </button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                        {parsedItems.map((item, index) => (
+                            <div key={item.id} className={`bg-white rounded-3xl p-5 sm:p-6 transition-all duration-300 border-2 ${item.selected ? 'border-indigo-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]' : 'border-transparent opacity-50 bg-slate-50'}`}>
+                                <div className="flex flex-col sm:flex-row gap-5">
+                                    <div className="flex items-start gap-4 flex-1">
+                                        <div className="pt-2">
+                                            <div className="relative flex items-center justify-center">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={item.selected}
+                                                    onChange={(e) => updateItem(item.id, 'selected', e.target.checked)}
+                                                    className="peer w-6 h-6 sm:w-7 sm:h-7 appearance-none rounded-lg border-2 border-slate-300 checked:border-indigo-600 checked:bg-indigo-600 cursor-pointer transition-all focus:ring-4 focus:ring-indigo-100"
+                                                />
+                                                <FaCheck className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none w-3 h-3 sm:w-4 sm:h-4" />
+                                            </div>
                                         </div>
-                                        <div className="flex-1 space-y-3">
-                                            <input 
-                                                type="text" 
-                                                value={item.name}
-                                                onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                                className="w-full font-bold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none transition-colors"
-                                            />
+                                        <div className="flex-1 w-full space-y-4 sm:space-y-5">
+                                            <div>
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Product Name</label>
+                                                    {item.isExisting && (
+                                                        <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                            Already in Stock (+{item.quantity})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <input 
+                                                    type="text" 
+                                                    value={item.name}
+                                                    onChange={(e) => updateItem(item.id, 'name', e.target.value)}
+                                                    className="w-full text-lg sm:text-xl font-black text-slate-800 bg-transparent border-b-2 border-slate-100 hover:border-slate-300 focus:border-indigo-600 focus:outline-none pb-1 transition-colors"
+                                                    placeholder="Enter product name"
+                                                />
+                                            </div>
                                             
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Quantity</label>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Quantity</label>
                                                     <input 
                                                         type="number" 
                                                         value={item.quantity}
                                                         onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                                                        className="w-full font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+                                                        className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 focus:ring-0 focus:outline-none"
                                                     />
                                                 </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">GST Rate (%)</label>
+                                                
+                                                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">GST Rate (%)</label>
                                                     <select 
                                                         value={item.gstRate}
                                                         onChange={(e) => updateItem(item.id, 'gstRate', Number(e.target.value))}
-                                                        className="w-full font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+                                                        className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 focus:ring-0 focus:outline-none cursor-pointer"
                                                     >
                                                         <option value="0">0%</option>
                                                         <option value="5">5%</option>
@@ -248,64 +287,84 @@ export default function SmartAddPage() {
                                                         <option value="28">28%</option>
                                                     </select>
                                                 </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Purchase Price</label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-3 top-2 font-semibold text-slate-400">₹</span>
+                                                
+                                                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Purchase Price</label>
+                                                    <div className="relative flex items-center">
                                                         <input 
                                                             type="number" 
                                                             value={item.purchasePrice}
                                                             onChange={(e) => {
                                                                 const val = Number(e.target.value);
                                                                 updateItem(item.id, 'purchasePrice', val);
-                                                                // Auto update selling price (+20%)
-                                                                updateItem(item.id, 'sellingPrice', Number((val * 1.2).toFixed(2)));
+                                                                if (!item.isExisting) {
+                                                                    updateItem(item.id, 'sellingPrice', Number((val * 1.2).toFixed(2)));
+                                                                }
                                                             }}
-                                                            className="w-full font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg pl-7 pr-3 py-2 focus:border-indigo-500 outline-none"
+                                                            className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
                                                         />
+                                                        <span className="absolute right-0 font-bold text-slate-400">₹</span>
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <label className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-1 block">Selling Price</label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-3 top-2 font-semibold text-slate-400">₹</span>
+                                                
+                                                <div className="bg-indigo-50 rounded-2xl p-3 border border-indigo-100 ring-1 ring-indigo-500/20 shadow-inner">
+                                                    <label className="text-[10px] font-black text-indigo-600 uppercase tracking-wider mb-1.5 block">Selling Price</label>
+                                                    <div className="relative flex items-center">
                                                         <input 
                                                             type="number" 
                                                             value={item.sellingPrice}
                                                             onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
-                                                            className="w-full font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg pl-7 pr-3 py-2 focus:border-indigo-500 outline-none"
+                                                            className="w-full text-lg font-black text-indigo-700 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
                                                         />
+                                                        <span className="absolute right-0 font-black text-indigo-400">₹</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
 
-                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:pl-72 z-40">
-                        <div className="max-w-2xl mx-auto flex gap-3">
-                            <button 
-                                onClick={() => setStep('upload')}
-                                className="flex-1 py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                onClick={handleSave}
-                                className="flex-[2] py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-md shadow-emerald-200 flex items-center justify-center gap-2"
-                            >
-                                <FaSave /> Save to Inventory ({parsedItems.filter(i => i.selected).length})
-                            </button>
+                    {/* Floating Save Bar */}
+                    <div className="fixed bottom-4 sm:bottom-6 left-2 right-2 sm:left-6 sm:right-6 md:left-[300px] lg:left-[320px] p-4 bg-white/80 backdrop-blur-xl border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] rounded-3xl z-40 flex items-center justify-between gap-4">
+                        <div className="hidden sm:block">
+                            <p className="text-sm font-bold text-slate-500">Selected Items</p>
+                            <p className="text-xl font-black text-slate-800">{parsedItems.filter(i => i.selected).length} / {parsedItems.length}</p>
                         </div>
+                        <button 
+                            onClick={handleSave}
+                            className="flex-1 sm:flex-none w-full sm:w-auto py-4 px-8 bg-slate-800 text-white font-black rounded-2xl hover:bg-slate-900 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 text-lg"
+                        >
+                            <FaSave className="text-xl" /> Save to Inventory
+                        </button>
                     </div>
                 </div>
             )}
+            
+            {/* Custom Animations for Tailwind */}
+            <style jsx global>{`
+                @keyframes scan {
+                    0% { top: 10%; }
+                    100% { top: 90%; }
+                }
+                @keyframes blob {
+                    0% { transform: translate(0px, 0px) scale(1); }
+                    33% { transform: translate(30px, -50px) scale(1.1); }
+                    66% { transform: translate(-20px, 20px) scale(0.9); }
+                    100% { transform: translate(0px, 0px) scale(1); }
+                }
+                .animation-delay-2000 {
+                    animation-delay: 2s;
+                }
+                .animate-blob {
+                    animation: blob 7s infinite;
+                }
+                @keyframes shimmer {
+                    100% { transform: translateX(100%); }
+                }
+            `}</style>
         </div>
     );
 }
