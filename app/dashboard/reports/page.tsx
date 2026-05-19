@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { useStore } from '@/lib/store';
+import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
 import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
 import * as XLSX from 'xlsx';
@@ -13,9 +14,10 @@ import autoTable from 'jspdf-autotable';
 function ReportsContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { getAnalytics, fetchInvoices, invoices, customers } = useStore() as any;
+    const { getAnalytics, fetchInvoices, invoices, customers, settings } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('This Month');
+    const t = getTranslations(settings?.language || 'en');
 
     const revenueChartRef = useRef<HTMLCanvasElement>(null);
     const profitChartRef = useRef<HTMLCanvasElement>(null);
@@ -136,7 +138,7 @@ function ReportsContent() {
     const handleDownloadExcel = () => {
         try {
             if (!invoices || invoices.length === 0) {
-                toast.error('No data to export');
+                toast.error(t.noDataToExport);
                 return;
             }
             const excelData = invoices.map((inv: any) => ({
@@ -156,16 +158,16 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
             XLSX.writeFile(wb, `Business_Report_${period}.xlsx`);
-            toast.success('Excel report downloaded!');
+            toast.success(t.excelDownloaded);
         } catch (error) {
-            toast.error('Failed to download Excel');
+            toast.error(t.failedDownloadExcel);
         }
     };
 
     const handleCSV = () => {
         try {
             if (!invoices || invoices.length === 0) {
-                toast.error('No data to export');
+                toast.error(t.noDataToExport);
                 return;
             }
             const excelData = invoices.map((inv: any) => ({
@@ -182,14 +184,14 @@ function ReportsContent() {
             downloadFile(csv, `Business_Report_${period}.csv`, 'text/csv');
             toast.success('CSV downloaded!');
         } catch (error) {
-            toast.error('Failed to download CSV');
+            toast.error(t.failedDownloadCsv);
         }
     };
 
     const handlePDF = () => {
         try {
             if (!invoices || invoices.length === 0) {
-                toast.error('No data to export');
+                toast.error(t.noDataToExport);
                 return;
             }
             const doc = new jsPDF();
@@ -210,16 +212,16 @@ function ReportsContent() {
             });
 
             doc.save(`Business_Report_${period}.pdf`);
-            toast.success('PDF downloaded!');
+            toast.success(t.pdfDownloaded);
         } catch (error) {
-            toast.error('Failed to download PDF');
+            toast.error(t.failedDownloadPdf);
         }
     };
 
     const handleGSTExcel = () => {
         try {
             if (!invoices || invoices.length === 0) {
-                toast.error('No data to export');
+                toast.error(t.noDataToExport);
                 return;
             }
             const gstData = invoices.map((inv: any) => ({
@@ -240,20 +242,20 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
             XLSX.writeFile(wb, `GST_Report_${period}.xlsx`);
-            toast.success('GST report downloaded!');
+            toast.success(t.gstReportDownloaded);
         } catch (error) {
-            toast.error('Failed to download GST Excel');
+            toast.error(t.failedDownloadGstExcel);
         }
     };
 
     const handleTallyXML = () => {
         if (!invoices || invoices.length === 0) {
-            toast.error('No data to export');
+            toast.error(t.noDataToExport);
             return;
         }
         const xml = generateTallyXML(invoices, 'Business');
         downloadFile(xml, `Tally_Sales_${period}.xml`, 'text/xml');
-        toast.success('Tally XML downloaded!');
+        toast.success(t.tallyXmlDownloaded);
     };
 
     const colors = ['#4f46e5', '#10b981', '#f59e0b', '#0ea5e9', '#8b5cf6'];
@@ -610,20 +612,20 @@ function ReportsContent() {
                     <div className="topbar-left">
                         <button className="back-btn" onClick={() => window.history.back()}>‹</button>
                         <div>
-                            <h1>Business Reports</h1>
-                            <p>Analyze and export your business data</p>
+                            <h1>{t.businessReports}</h1>
+                            <p>{t.analyzeBusinessData}</p>
                         </div>
                     </div>
                     <div className="topbar-right">
-                        <select className="period-select" value={period} onChange={(e) => { setPeriod(e.target.value); toast('Period changed: ' + e.target.value); }}>
-                            <option>This Month</option>
-                            <option>Last Month</option>
-                            <option>This Quarter</option>
-                            <option>This Year</option>
-                            <option>Custom Range</option>
+                        <select className="period-select" value={period} onChange={(e) => { setPeriod(e.target.value); toast(`${t.periodChanged}: ${e.target.value}`); }}>
+                            <option>{t.periodThisMonth}</option>
+                            <option>{t.periodLastMonth}</option>
+                            <option>{t.periodThisQuarter}</option>
+                            <option>{t.periodThisYear}</option>
+                            <option>{t.periodCustomRange}</option>
                         </select>
-                        <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 Tally XML</button>
-                        <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 Excel</button>
+                        <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml}</button>
+                        <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel}</button>
                     </div>
                 </div>
 
@@ -631,11 +633,11 @@ function ReportsContent() {
                     <div className="advisory-left">
                         <span className="advisory-icon">💡</span>
                         <div className="advisory-text">
-                            <p>Advisory</p>
-                            <h3>Aapki HSN compliance 92% hai. Penalties se bachne ke liye missing codes add karein.</h3>
+                            <p>{t.advisory}</p>
+                            <h3>{t.hsnComplianceHint}</h3>
                         </div>
                     </div>
-                    <div className="advisory-badge" onClick={() => toast('ITC Maximize kar rahe hain…')}>⚡ Maximize ITC</div>
+                    <div className="advisory-badge" onClick={() => toast(t.itcMaximizeToast)}>{t.maximizeItc}</div>
                 </div>
 
                 <div className="page-content-box" style={{ paddingBottom: '80px' }}>
@@ -647,7 +649,7 @@ function ReportsContent() {
                                 <div className="kpi-trend up">↑ 12.4%</div>
                             </div>
                             <div className="kpi-value">{formatLakhs(totalSales)}</div>
-                            <div className="kpi-label">Total Revenue</div>
+                            <div className="kpi-label">{t.totalRevenue}</div>
                         </div>
                         <div className="kpi-card green" style={{ animationDelay: ".1s" }}>
                             <div className="kpi-top">
@@ -655,7 +657,7 @@ function ReportsContent() {
                                 <div className="kpi-trend up">↑ 8.1%</div>
                             </div>
                             <div className="kpi-value">{formatLakhs(totalProfit)}</div>
-                            <div className="kpi-label">Net Profit</div>
+                            <div className="kpi-label">{t.netProfit}</div>
                         </div>
                         <div className="kpi-card teal" style={{ animationDelay: ".15s" }}>
                             <div className="kpi-top">
@@ -663,7 +665,7 @@ function ReportsContent() {
                                 <div className="kpi-trend down">↓ 3.2%</div>
                             </div>
                             <div className="kpi-value">{invoiceCount}</div>
-                            <div className="kpi-label">Total Invoices</div>
+                            <div className="kpi-label">{t.totalInvoices}</div>
                         </div>
                         <div className="kpi-card amber" style={{ animationDelay: ".2s" }}>
                             <div className="kpi-top">
@@ -671,7 +673,7 @@ function ReportsContent() {
                                 <div className="kpi-trend up">↑ 5.6%</div>
                             </div>
                             <div className="kpi-value">{formatLakhs(avgOrderValue)}</div>
-                            <div className="kpi-label">Avg. Order Value</div>
+                            <div className="kpi-label">{t.avgOrderValue}</div>
                         </div>
 
                         <div className="kpi-card red" style={{ animationDelay: ".25s" }}>
@@ -680,7 +682,7 @@ function ReportsContent() {
                                 <div className="kpi-trend down">↓ 2.1%</div>
                             </div>
                             <div className="kpi-value">{formatLakhs(paymentPending)}</div>
-                            <div className="kpi-label">Payment Pending</div>
+                            <div className="kpi-label">{t.paymentPending}</div>
                         </div>
                         <div className="kpi-card purple" style={{ animationDelay: ".3s" }}>
                             <div className="kpi-top">
@@ -688,7 +690,7 @@ function ReportsContent() {
                                 <div className="kpi-trend up">↑ 18%</div>
                             </div>
                             <div className="kpi-value">{activeCustomers}</div>
-                            <div className="kpi-label">Active Customers</div>
+                            <div className="kpi-label">{t.activeCustomers}</div>
                         </div>
                         <div className="kpi-card teal" style={{ animationDelay: ".35s" }}>
                             <div className="kpi-top">
@@ -696,7 +698,7 @@ function ReportsContent() {
                                 <div className="kpi-trend up">↑ 4.3%</div>
                             </div>
                             <div className="kpi-value">{formatLakhs(totalSales)}</div>
-                            <div className="kpi-label">Total Sales</div>
+                            <div className="kpi-label">{t.totalSales}</div>
                         </div>
                         <div className="kpi-card green" style={{ animationDelay: ".4s" }}>
                             <div className="kpi-top">
@@ -704,7 +706,7 @@ function ReportsContent() {
                                 <div className="kpi-trend up">↑ 9.7%</div>
                             </div>
                             <div className="kpi-value">{itemsSold}</div>
-                            <div className="kpi-label">Items Sold</div>
+                            <div className="kpi-label">{t.itemsSold}</div>
                         </div>
                     </div>
 
@@ -712,8 +714,8 @@ function ReportsContent() {
                         <div className="chart-card" style={{ animationDelay: ".2s" }}>
                             <div className="chart-header">
                                 <div>
-                                    <div className="chart-title">Revenue Trend</div>
-                                    <div className="chart-sub">Weekly breakdown</div>
+                                    <div className="chart-title">{t.revenueTrend}</div>
+                                    <div className="chart-sub">{t.weeklyBreakdown}</div>
                                 </div>
                                 <div className="chart-legend">
                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#4f46e5" }} />Revenue</div>
@@ -759,22 +761,22 @@ function ReportsContent() {
                     </div>
 
                     <div className="download-section" style={{ animation: "fadeUp .5s .35s ease both" }}>
-                        <div className="section-title">Download Reports</div>
+                        <div className="section-title">{t.downloadReports}</div>
                         <div className="download-grid">
                             <div className="dl-btn tally" onClick={handleTallyXML}>
                                 <span className="dl-icon">📊</span>
-                                <span className="dl-name">Tally XML</span>
-                                <span className="dl-desc">For Tally software</span>
+                                <span className="dl-name">{t.tallyXml}</span>
+                                <span className="dl-desc">{t.forTallySoftware}</span>
                             </div>
                             <div className="dl-btn excel" onClick={handleDownloadExcel}>
                                 <span className="dl-icon">📗</span>
-                                <span className="dl-name">Excel</span>
-                                <span className="dl-desc">Spreadsheet format</span>
+                                <span className="dl-name">{t.excel}</span>
+                                <span className="dl-desc">{t.spreadsheetFormat}</span>
                             </div>
                             <div className="dl-btn pdf" onClick={handlePDF}>
                                 <span className="dl-icon">📄</span>
-                                <span className="dl-name">PDF Report</span>
-                                <span className="dl-desc">Print-ready format</span>
+                                <span className="dl-name">{t.pdfReport}</span>
+                                <span className="dl-desc">{t.printReadyFormat}</span>
                             </div>
                             <div className="dl-btn csv" onClick={handleCSV}>
                                 <span className="dl-icon">🗂️</span>

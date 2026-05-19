@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
+import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
 export default function CustomersPage() {
     const router = useRouter();
-    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile } = useStore() as any;
+    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
+    const t = getTranslations(settings?.language || 'en');
 
     const [activeTab, setActiveTab] = useState('Parties');
     const [activeFilter, setActiveFilter] = useState('all');
@@ -116,9 +118,9 @@ export default function CustomersPage() {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            toast.success("Balance Report Downloaded!");
+            toast.success(t.balanceReportDownloaded);
         } catch (error) {
-            toast.error("Error downloading report.");
+            toast.error(t.errorDownloadingReport);
         }
     };
 
@@ -439,8 +441,8 @@ export default function CustomersPage() {
                         <div className="topbar-row1">
                             <button className="back-btn" onClick={() => window.history.back()}>‹</button>
                             <div className="topbar-title">
-                                <h1>All Customers</h1>
-                                <p>Manage Your Customers</p>
+                                <h1>{t.allCustomers}</h1>
+                                <p>{t.manageYourCustomers}</p>
                             </div>
                             <div className="topbar-icons">
                                 <div className="icon-btn" onClick={() => toast('No new messages')}>💬<span className="badge">0</span></div>
@@ -448,41 +450,41 @@ export default function CustomersPage() {
                             </div>
                         </div>
                         <div className="tabs">
-                            <div className={`tab ${activeTab === 'Parties' ? 'active' : ''}`} onClick={() => setActiveTab('Parties')}>Parties</div>
-                            <div className={`tab ${activeTab === 'Groups' ? 'active' : ''}`} onClick={() => setActiveTab('Groups')}>Groups</div>
-                            <div className={`tab ${activeTab === 'Reports' ? 'active' : ''}`} onClick={() => setActiveTab('Reports')}>Reports</div>
+                            <div className={`tab ${activeTab === 'Parties' ? 'active' : ''}`} onClick={() => setActiveTab('Parties')}>{t.parties}</div>
+                            <div className={`tab ${activeTab === 'Groups' ? 'active' : ''}`} onClick={() => setActiveTab('Groups')}>{t.groups}</div>
+                            <div className={`tab ${activeTab === 'Reports' ? 'active' : ''}`} onClick={() => setActiveTab('Reports')}>{t.reports}</div>
                         </div>                  </div>
 
                     <div className="search-wrap">                      <div className="search-box">
                         <span style={{ fontSize: '15px', color: '#c0c8da' }}>🔍</span>
-                        <input type="text" placeholder="Search name or phone…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                        <input type="text" placeholder={t.searchNamePhone} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                         <div className="search-icon">🔍</div>
                     </div>
                     </div>
 
                     <div className="filter-row">                      {[
                         { id: 'all', label: 'All' },
-                        { id: 'pending', label: 'Payment Pending' },
-                        { id: 'received', label: 'Amount Received' },
+                        { id: 'pending', label: t.paymentPending },
+                        { id: 'received', label: t.amountReceived },
                         { id: 'vip', label: 'VIP' },
-                        { id: 'new', label: 'New' }
+                        { id: 'new', label: t.new || 'New' }
                     ].map(f => (
                         <div key={f.id} className={`chip ${activeFilter === f.id ? 'active' : ''}`} onClick={() => setActiveFilter(f.id)}>{f.label}</div>
                     ))}                  </div>
 
                     <div className="stats-strip">                      <div className="stat-card">
-                        <div className="stat-label">Total</div>                          <div className="stat-value ink">{totalCount}</div>
+                        <div className="stat-label">{t.all}</div>                          <div className="stat-value ink">{totalCount}</div>
                     </div>
                         <div className="stat-card">
-                            <div className="stat-label">Pending</div>                          <div className="stat-value red">{formatLakhs(pendingTotal)}</div>
+                            <div className="stat-label">{t.paymentPending}</div>                          <div className="stat-value red">{formatLakhs(pendingTotal)}</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-label">Received</div>                          <div className="stat-value green">{formatLakhs(receivedTotal)}</div>
+                            <div className="stat-label">{t.amountReceived}</div>                          <div className="stat-value green">{formatLakhs(receivedTotal)}</div>
                         </div>
                     </div>
 
-                    <div className="list-header">                      <div className="list-count">Party List (<span>{finalList.length}</span>)</div>
-                        <button className="balance-report-btn" onClick={handleDownloadReport}>📊 Balance Report</button>
+                    <div className="list-header">                      <div className="list-count">{t.partyList} (<span>{finalList.length}</span>)</div>
+                        <button className="balance-report-btn" onClick={handleDownloadReport}>📊 {t.balanceReport}</button>
                     </div>
 
                     <div className="list" id="customerList">                      {finalList.length === 0 ? (
@@ -505,17 +507,17 @@ export default function CustomersPage() {
                                     </div>
                                     <div className="card-right">
                                         <div className={`pending-tag ${c.status === 'pending' ? 'red' : 'green'}`}>
-                                            {c.status === 'pending' ? '⚠ Pending' : '✓ Received'}
+                                            {c.status === 'pending' ? `⚠ ${t.paymentPending}` : `✓ ${t.amountReceived}`}
                                         </div>
                                         <div className={`card-amount ${c.status === 'pending' ? 'red' : 'green'}`}>
                                             {c.amountStr}                                          </div>
                                     </div>
                                 </div>
                                 <div className="card-bottom">
-                                    <button className="action-btn" onClick={(e) => handleWhatsApp(c, e)}>💬 WhatsApp</button>
-                                    <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 Call</a>
-                                    <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ Delete</button>
-                                    <span className="view-label">View →</span>                                  </div>
+                                    <button className="action-btn" onClick={(e) => handleWhatsApp(c, e)}>💬 {t.whatsapp}</button>
+                                    <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 {t.call}</a>
+                                    <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ {t.delete}</button>
+                                    <span className="view-label">{t.view} →</span>                                  </div>
                             </div>
                         ))
                     )}                  </div>
@@ -528,7 +530,7 @@ export default function CustomersPage() {
                         <div className="modal-handle"></div>                      <div className="modal-title">{selectedCustomer?.name}</div>
                         <div>
                             <div className="modal-detail-row"><span className="detail-key">📱 Phone</span><span className="detail-val">{selectedCustomer?.phone}</span></div>                          <div className="modal-detail-row"><span className="detail-key">💰 Balance</span><span className="detail-val" style={{ color: selectedCustomer?.status === 'pending' ? '#ff4d6d' : '#00c48c' }}>{selectedCustomer?.amountStr}</span></div>
-                            <div className="modal-detail-row"><span className="detail-key">📊 Status</span><span className="detail-val">{selectedCustomer?.status === 'pending' ? '⚠ Payment Pending' : '✓ Amount Received'}</span></div>                          <div className="modal-detail-row"><span className="detail-key">🏷 Tag</span><span className="detail-val">{selectedCustomer?.tag || '—'}</span></div>
+                            <div className="modal-detail-row"><span className="detail-key">📊 Status</span><span className="detail-val">{selectedCustomer?.status === 'pending' ? `⚠ ${t.paymentPending}` : `✓ ${t.amountReceived}`}</span></div>                          <div className="modal-detail-row"><span className="detail-key">🏷 Tag</span><span className="detail-val">{selectedCustomer?.tag || '—'}</span></div>
                         </div>
                         <div className="modal-actions">
                             <button className="modal-btn outline" onClick={() => setShowDetailModal(false)}>🗑 Delete</button>                          <button className="modal-btn solid" onClick={() => { toast('Edit mode open!'); setShowDetailModal(false); }}>✏️ Edit Party</button>
@@ -539,21 +541,21 @@ export default function CustomersPage() {
                     <div className="modal">
                         <div className="modal-handle"></div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <div className="modal-title" style={{ marginBottom: 0 }}>➕ Add New Customer</div>
+                            <div className="modal-title" style={{ marginBottom: 0 }}>➕ {t.addNewCustomer}</div>
                             <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'var(--muted)' }}>×</button>
                         </div>
                         <div style={{ display: 'grid', gap: '12px' }}>
                             <div>
-                                <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>Name *</label>                              <input type="text" placeholder="Customer name" style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newName} onChange={e => setNewName(e.target.value)} />
+                                <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>{t.nameLabel} *</label>                              <input type="text" placeholder={t.customerNamePlaceholder} style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newName} onChange={e => setNewName(e.target.value)} />
                             </div>                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                 <div>
-                                    <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>Phone *</label>                                  <input type="tel" placeholder="Mobile No." maxLength={10} style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newPhone} onChange={e => setNewPhone(e.target.value)} />
+                                    <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>{t.phoneNumberLabel} *</label>                                  <input type="tel" placeholder={t.phonePlaceholder} maxLength={10} style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newPhone} onChange={e => setNewPhone(e.target.value)} />
                                 </div>                              <div>
-                                    <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>Balance ₹</label>                                  <input type="number" placeholder="0" style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newBal} onChange={e => setNewBal(e.target.value)} />
+                                    <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.8px', color: '#8892aa', display: 'block', marginBottom: '6px' }}>{t.balanceAmount}</label>                                  <input type="number" placeholder="0" style={{ width: '100%', padding: '11px 14px', border: '1.5px solid #e4e8f4', borderRadius: '11px', fontFamily: 'Sora', fontSize: '13.5px', outline: 'none' }} value={newBal} onChange={e => setNewBal(e.target.value)} />
                                 </div>                          </div>
                         </div>
                         <div className="modal-actions">
-                            <button className="modal-btn outline" onClick={() => setShowAddModal(false)}>Cancel</button>                          <button className="modal-btn solid" onClick={handleAdd}>Save Customer</button>
+                            <button className="modal-btn outline" onClick={() => setShowAddModal(false)}>{t.cancel}</button>                          <button className="modal-btn solid" onClick={handleAdd}>{t.save}</button>
                         </div>                  </div>
                 </div>
 

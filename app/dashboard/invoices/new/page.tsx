@@ -252,13 +252,16 @@ export default function NewInvoicePage() {
 
     const startVoiceBilling = () => {
         if (typeof window === 'undefined') return;
-        const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SR) return toast.error('Browser support missing. Use Chrome.');
+        const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognitionClass) {
+            toast.error('Voice billing browser support missing. Use Chrome / Edge on HTTPS and allow microphone access.');
+            return;
+        }
 
         if (isListening) return;
 
         try {
-            const rec = new SR();
+            const rec = new SpeechRecognitionClass();
             rec.lang = 'en-IN'; // Changed to en-IN so Hindi words are returned in English (Latin) script
             rec.continuous = false;
             rec.interimResults = false;
@@ -266,12 +269,13 @@ export default function NewInvoicePage() {
 
             rec.onstart = () => {
                 setIsListening(true);
-                toast('🎙️ Listening... Bolye', { id: 'voice-toast' });
+                toast.loading('🎙️ Listening... Bolye', { id: 'voice-toast' });
             };
 
             rec.onresult = (e: any) => {
+                toast.dismiss('voice-toast');
                 const results = e.results[0];
-                const transcripts = [];
+                const transcripts: string[] = [];
                 for (let i = 0; i < results.length; i++) {
                     transcripts.push(results[i].transcript.toLowerCase().trim());
                 }
@@ -280,16 +284,23 @@ export default function NewInvoicePage() {
 
             rec.onerror = (e: any) => {
                 setIsListening(false);
+                rec.abort();
+                toast.dismiss('voice-toast');
                 if (e.error === 'network') toast.error('Internet check karein (Network Problem).');
-                else if (e.error === 'no-speech') toast.error('Aawaz nahi aayi! Button dabate hi turant bole.');
-                else if (e.error === 'not-allowed') toast.error('Mic ki permission allow karein browser me.');
+                else if (e.error === 'no-speech') toast.error('Mic se koi awaaz nahi mili. Button dabayein aur turant bolen.');
+                else if (e.error === 'not-allowed' || e.error === 'permission-denied') toast.error('Mic ki permission allow karein browser me.');
                 else toast.error(`Voice error: ${e.error}`);
             };
 
-            rec.onend = () => setIsListening(false);
+            rec.onend = () => {
+                setIsListening(false);
+                toast.dismiss('voice-toast');
+            };
+
             rec.start();
         } catch (err) {
             setIsListening(false);
+            toast.error('Voice billing start nahi ho paayi. Browser ya mic access check karein.');
         }
     };
 
@@ -588,6 +599,7 @@ export default function NewInvoicePage() {
                 .fb-scan { background: linear-gradient(135deg,#f97316,#f59e0b); color: #fff; }
                 .fb-ai { background: linear-gradient(135deg,#06b6d4,#0ea5e9); color: #fff; }
                 .fbadge:hover { transform: translateY(-2px); filter: brightness(1.1); }
+                .voice-note { line-height: 1.4; }
                 
                 .stepper { display: flex; align-items: center; gap: 10px; margin-top: 25px; }
                 .step-item { display: flex; align-items: center; gap: 8px; opacity: 0.5; transition: 0.3s; }
@@ -784,6 +796,7 @@ export default function NewInvoicePage() {
                             <button type="button" onClick={startVoiceBilling} className={`fbadge fb-voice whitespace-nowrap ${isListening ? 'animate-pulse' : ''}`}><FaMicrophone /> {isListening ? 'Listening...' : 'Voice Bill'}</button>
                             <button type="button" onClick={handleMagicScan} className="fbadge fb-scan whitespace-nowrap"><FaMagic /> Magic Scan</button>
                         </div>
+                        <div className="voice-note text-[11px] text-slate-200 mt-2">Button se awaaz play nahi hoti. Pehle dabayein, phir bolen. Agar mic prompt aaye to allow karein.</div>
 
                     </div>
                 </div>

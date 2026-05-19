@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
-import { translations } from '@/lib/translations';
+import { translations, getTranslations } from '@/lib/translations';
 import { formatCurrency, formatCompactNumber } from '@/lib/utils';
 import FreePlanPopup from './FreePlanPopup';
 import RegistrationPopup from './RegistrationPopup';
@@ -34,7 +34,7 @@ export default function DashboardPage() {
 
     const router = useRouter();
     const miniChartRef = useRef<HTMLCanvasElement>(null);
-    const t = translations[settings?.language as keyof typeof translations] || translations.en;
+    const t = getTranslations(settings?.language);
 
     const handleShareStore = () => {
         if (!businessProfile.id) return;
@@ -171,9 +171,9 @@ export default function DashboardPage() {
 
     const getGreeting = () => {
         const hour = currentTime.getHours();
-        if (hour < 12) return 'Good Morning';
-        if (hour < 17) return 'Good Afternoon';
-        return 'Good Evening';
+        if (hour < 12) return t.goodMorning;
+        if (hour < 17) return t.goodAfternoon;
+        return t.goodEvening;
     };
 
     const today = new Date().toDateString();
@@ -434,25 +434,25 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="qa-grid">
-                    <Link href="/dashboard/invoices/new" className="qa-card c1" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">New Invoice</span></Link>
-                    <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">Add Customer</span></Link>
-                    <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">Add Product</span></Link>
-                    <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">View Reports</span></Link>
-                    <Link href="/dashboard/quotations" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">📋</span><span className="qa-label">Quotations</span></Link>
-                    <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">Expenses</span></Link>
+                    <Link href="/dashboard/invoices/new" className="qa-card c1" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">{t.newInvoice}</span></Link>
+                    <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">{t.addCustomer}</span></Link>
+                    <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">{t.addProduct}</span></Link>
+                    <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">{t.viewReports}</span></Link>
+                    <Link href="/dashboard/quotations" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">📋</span><span className="qa-label">{t.quotations}</span></Link>
+                    <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
                 </div>
 
                 <div className="period-row">
                     <div>
-                        <div className="section-title">Business Overview</div>
-                        <div className="section-sub">Real-time performance metrics</div>
+                        <div className="section-title">{t.businessOverview}</div>
+                        <div className="section-sub">{t.realTimePerformance}</div>
                     </div>
                     <div className="period-tabs">
-                        <div className={`ptab ${period === 'daily' ? 'active' : ''}`} onClick={() => setPeriod('daily')}>Daily</div>
-                        <div className={`ptab ${period === 'weekly' ? 'active' : ''}`} onClick={() => setPeriod('weekly')}>Weekly</div>
-                        <div className={`ptab ${period === 'monthly' ? 'active' : ''}`} onClick={() => setPeriod('monthly')}>Monthly</div>
-                        <div className={`ptab ${period === 'yearly' ? 'active' : ''}`} onClick={() => setPeriod('yearly')}>Yearly</div>
-                        <div className={`ptab ${period === 'custom' ? 'active' : ''}`} onClick={() => setPeriod('custom')}>Custom</div>
+                        <div className={`ptab ${period === 'daily' ? 'active' : ''}`} onClick={() => setPeriod('daily')}>{t.daily}</div>
+                        <div className={`ptab ${period === 'weekly' ? 'active' : ''}`} onClick={() => setPeriod('weekly')}>{t.weekly}</div>
+                        <div className={`ptab ${period === 'monthly' ? 'active' : ''}`} onClick={() => setPeriod('monthly')}>{t.monthly}</div>
+                        <div className={`ptab ${period === 'yearly' ? 'active' : ''}`} onClick={() => setPeriod('yearly')}>{t.yearly}</div>
+                        <div className={`ptab ${period === 'custom' ? 'active' : ''}`} onClick={() => setPeriod('custom')}>{t.custom}</div>
                     </div>
                 </div>
 
@@ -460,22 +460,22 @@ export default function DashboardPage() {
                     <div className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer" }} onClick={() => router.push('/dashboard/reports?period=daily')}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(79,70,229,0.1)" }}>💰</div><div className="kpi-trend trend-up">Now</div></div>
                         <div className="kpi-val" style={{ color: "var(--indigo)" }}>{formatCompactNumber(todaySales)}</div>
-                        <div className="kpi-lbl">Today's Sales</div>
+                        <div className="kpi-lbl">{t.todaysSales}</div>
                     </div>
                     <div className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer" }} onClick={() => router.push('/dashboard/reports')}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(16,185,129,0.1)" }}>📈</div><div className="kpi-trend trend-up">Total</div></div>
                         <div className="kpi-val" style={{ color: "var(--green)" }}>{formatCompactNumber(totalSales)}</div>
-                        <div className="kpi-lbl">Total Revenue</div>
+                        <div className="kpi-lbl">{t.totalRevenue}</div>
                     </div>
                     <div className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer" }} onClick={() => router.push('/dashboard/invoices')}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(14,165,233,0.1)" }}>🧾</div><div className="kpi-trend trend-up">All</div></div>
                         <div className="kpi-val" style={{ color: "var(--teal)" }}>{formatCompactNumber(invoiceCount)}</div>
-                        <div className="kpi-lbl">Total Invoices</div>
+                        <div className="kpi-lbl">{t.totalInvoices}</div>
                     </div>
                     <div className="kpi-card k4" style={{ animationDelay: ".22s", cursor: "pointer" }} onClick={() => router.push('/dashboard/inventory')}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(239,68,68,0.1)" }}>⚠️</div>{lowStockItems > 0 ? <div className="kpi-trend trend-down">Act</div> : <div className="kpi-trend trend-up">OK</div>}</div>
                         <div className="kpi-val" style={{ color: "var(--red)" }}>{lowStockItems}</div>
-                        <div className="kpi-lbl">Low Stock Items</div>
+                        <div className="kpi-lbl">{t.lowStock}</div>
                     </div>
                 </div>
 
@@ -483,10 +483,10 @@ export default function DashboardPage() {
                     <div className="card" style={{ animationDelay: ".2s" }}>
                         <div className="card-hdr">
                             <div>
-                                <div className="card-title">Recent Invoices</div>
-                                <div className="card-sub">Latest billing activity</div>
+                                <div className="card-title">{t.recentInvoices}</div>
+                                <div className="card-sub">{t.latestBillingActivity || 'Latest billing activity'}</div>
                             </div>
-                            <span className="see-all" onClick={() => router.push('/dashboard/invoices')}>View All →</span>
+                            <span className="see-all" onClick={() => router.push('/dashboard/invoices')}>{t.viewAll} →</span>
                         </div>
                         <div>
                             {recentInvoices.map((inv: any, idx: number) => {
@@ -507,10 +507,10 @@ export default function DashboardPage() {
                                     </div>
                                 );
                             })}
-                            {recentInvoices.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold">No Invoices</div>}
+                            {recentInvoices.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold">{t.noInvoices}</div>}
                         </div>
                         <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--faint)" }}>
-                            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>Revenue This Week</div>
+                            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>{t.revenueThisWeek || 'Revenue This Week'}</div>
                             <canvas ref={miniChartRef} style={{ maxHeight: "90px" }}></canvas>
                         </div>
                     </div>
@@ -527,7 +527,7 @@ export default function DashboardPage() {
                             <div style={{ marginBottom: "10px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--faint)", border: "1.5px solid var(--border)", borderRadius: "10px", padding: "9px 12px" }}>
                                     <span style={{ color: "var(--muted)" }}>🔍</span>
-                                    <input type="text" placeholder="Search party…" value={collectionSearch} onChange={(e) => setCollectionSearch(e.target.value)} style={{ border: "none", outline: "none", fontFamily: "'Sora',sans-serif", fontSize: "13px", background: "transparent", flex: 1, color: "var(--ink)" }} />
+                                    <input type="text" placeholder={t.searchParty} value={collectionSearch} onChange={(e) => setCollectionSearch(e.target.value)} style={{ border: "none", outline: "none", fontFamily: "'Sora',sans-serif", fontSize: "13px", background: "transparent", flex: 1, color: "var(--ink)" }} />
                                 </div>
                             </div>
                             <div className="coll-grid">
@@ -535,10 +535,10 @@ export default function DashboardPage() {
                                     <div className="coll-card" key={c.id} onClick={() => router.push('/dashboard/customers/' + c.id)}>
                                         <div className="coll-top">
                                             <div className="coll-num">{i + 1}</div>
-                                            <div className="coll-bills">{c.invoiceCount} BILLS</div>
+                                            <div className="coll-bills">{c.invoiceCount} {t.bills}</div>
                                         </div>
                                         <div className="coll-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-                                        <div className="coll-last">Last: {new Date(c.lastInvoiceDate).toLocaleDateString()}</div>
+                                        <div className="coll-last">{t.lastInvoice}: {new Date(c.lastInvoiceDate).toLocaleDateString()}</div>
                                         <div className="coll-amt">{formatCompactNumber(c.totalPending)}</div>
                                         <div className="coll-bottom">
                                             <button className="wa-btn" onClick={(e) => { e.stopPropagation(); handleSendReminder(c); }}>💬</button>
@@ -549,11 +549,11 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
                                 ))}
-                                {pendingCustomersList.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>No Pending Collections</div>}
+                                {pendingCustomersList.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noPendingCollections}</div>}
                             </div>
                             <div className="action-bar">
-                                <button className="action-bar-btn btn-remind" onClick={() => handleBulkReminder(pendingCustomersList)}>💬 Remind All</button>
-                                <button className="action-bar-btn btn-due" onClick={() => toast.success('Total due: ' + formatLakhs(totalOverallPending))}>₹ Total Due</button>
+                                <button className="action-bar-btn btn-remind" onClick={() => handleBulkReminder(pendingCustomersList)}>💬 {t.remindAll}</button>
+                                <button className="action-bar-btn btn-due" onClick={() => toast.success(`${t.totalDueLabel}: ` + formatLakhs(totalOverallPending))}>₹ {t.totalDueLabel}</button>
                             </div>
                         </div>
                     </div>
@@ -562,15 +562,15 @@ export default function DashboardPage() {
                 <div className="card" style={{ animationDelay: ".3s", marginBottom: "0" }}>
                     <div className="card-hdr">
                         <div>
-                            <div className="card-title">🏆 Top Selling Products</div>
-                            <div className="card-sub">Your best sellers this month</div>
+                            <div className="card-title">🏆 {t.topSellingProducts}</div>
+                            <div className="card-sub">{t.bestSellersThisMonth || 'Your best sellers this month'}</div>
                         </div>
-                        <span className="see-all" onClick={() => router.push('/dashboard/inventory')}>View All {topProducts.length} →</span>
+                        <span className="see-all" onClick={() => router.push('/dashboard/inventory')}>{t.viewAllProducts} {topProducts.length} →</span>
                     </div>
                     <div className="prod-grid">
                         {topProducts.slice(0, 6).map((p: any, i: number) => {
                             const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-                            const badge = i === 0 ? 'BEST SELLER' : 'TOP PRODUCT';
+                            const badge = i === 0 ? t.bestSeller : t.topProduct;
                             const bc = i === 0 ? 'badge-best' : 'badge-top';
                             return (
                                 <div className="prod-card" key={i} onClick={() => router.push('/dashboard/inventory')}>
@@ -591,11 +591,11 @@ export default function DashboardPage() {
                         <div className="store-card">
                             <div className="store-icon">🌐</div>
                             <div className="store-info" style={{ flex: 1 }}>
-                                <div className="store-title">Your Online Store</div>
-                                <div className="store-sub">Manage and share online store</div>
+                                <div className="store-title">{t.yourOnlineStore}</div>
+                                <div className="store-sub">{t.manageAndShareOnlineStore}</div>
                                 <div className="store-btns">
-                                    <button className="store-btn btn-open" onClick={(e) => { e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ Manage</button>
-                                    <button className="store-btn btn-share" onClick={(e) => { e.stopPropagation(); handleShareStore() }}>📤 Share</button>
+                                    <button className="store-btn btn-open" onClick={(e) => { e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ {t.manage}</button>
+                                    <button className="store-btn btn-share" onClick={(e) => { e.stopPropagation(); handleShareStore() }}>📤 {t.share}</button>
                                 </div>
                             </div>
                         </div>
@@ -604,15 +604,15 @@ export default function DashboardPage() {
                     <div className="gst-quick" style={{ animation: "fadeUp .5s .4s ease both" }}>
                         <div className="card-hdr">
                             <div>
-                                <div className="card-title">🏛️ GST Quick Summary</div>
-                                <div className="card-sub">Current period</div>
+                                <div className="card-title">🏛️ {t.gstQuickSummary}</div>
+                                <div className="card-sub">{t.currentPeriod}</div>
                             </div>
-                            <span className="see-all" onClick={() => router.push('/dashboard/gst-returns')}>File →</span>
+                            <span className="see-all" onClick={() => router.push('/dashboard/gst-returns')}>{t.file} →</span>
                         </div>
-                        <div className="gst-row"><span className="gst-key">Taxable Amount</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
-                        <div className="gst-row"><span className="gst-key">Total Tax</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
-                        <div className="gst-row"><span className="gst-key">Due Date</span><span className="gst-val" style={{ color: "var(--red)" }}>20 Mar 2026</span></div>
-                        <div className="gst-row"><span className="gst-key">Status</span><span className="gst-val" style={{ color: "var(--amber)" }}>⏳ Pending</span></div>
+                        <div className="gst-row"><span className="gst-key">{t.taxableAmount}</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
+                        <div className="gst-row"><span className="gst-key">{t.totalTax}</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
+                        <div className="gst-row"><span className="gst-key">{t.dueDateLabel}</span><span className="gst-val" style={{ color: "var(--red)" }}>20 Mar 2026</span></div>
+                        <div className="gst-row"><span className="gst-key">{t.status}</span><span className="gst-val" style={{ color: "var(--amber)" }}>{t.pendingStatus}</span></div>
                     </div>
                 </div>
 
@@ -620,10 +620,10 @@ export default function DashboardPage() {
                     <div className="store-card" style={{ background: "linear-gradient(135deg, #10b981, #059669)", cursor: "pointer", animation: "fadeUp .5s .45s ease both" }} onClick={() => router.push('/dashboard/referral')}>
                         <div className="store-icon" style={{ background: "rgba(255,255,255,0.2)" }}>🎁</div>
                         <div className="store-info" style={{ flex: 1 }}>
-                            <div className="store-title">Refer & Earn — Get 20 Free Invoices!</div>
-                            <div className="store-sub">Invite your friends to BillGST and both get 20 extra invoices</div>
+                            <div className="store-title">{t.referEarnTitle}</div>
+                            <div className="store-sub">{t.referEarnSubtitle}</div>
                         </div>
-                        <span className="see-all" style={{ color: "#fff", background: "rgba(0,0,0,0.15)", padding: "8px 14px", borderRadius: "8px", textDecoration: "none" }}>Refer Now →</span>
+                        <span className="see-all" style={{ color: "#fff", background: "rgba(0,0,0,0.15)", padding: "8px 14px", borderRadius: "8px", textDecoration: "none" }}>{t.referNow}</span>
                     </div>
                 </div>
 
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                     </a>
                 </div>
 
-                <button className="support-btn" onClick={() => router.push('/dashboard/help')}>👥 Support — Help chahiye? Contact karo</button>
+                <button className="support-btn" onClick={() => router.push('/dashboard/help')}>👥 {t.supportHelp}</button>
             </div>
 
             <FreePlanPopup />

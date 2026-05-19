@@ -49,7 +49,7 @@ export default function LanguageSelector({ showLabel = true }: { showLabel?: boo
                         <FaLanguage size={20} className="group-hover:rotate-12 transition-transform" />
                     </div>
                     <div className="flex flex-col items-start">
-                        {showLabel && <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Language</span>}
+                        {showLabel && <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">{t.language}</span>}
                         <span className="text-sm font-bold tracking-wide">{currentLang.nativeName}</span>
                     </div>
                 </div>

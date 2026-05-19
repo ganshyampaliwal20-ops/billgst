@@ -5,12 +5,14 @@ import { FaChevronLeft, FaChartPie, FaTrash, FaReceipt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 // @ts-ignore
 import { useStore } from '../../../../lib/store';
+import { getTranslations } from '@/lib/translations';
 import toast from 'react-hot-toast';
 
 export default function TotalExpensesPage() {
     const router = useRouter();
-    const { expenses, fetchExpenses, deleteExpense } = useStore() as any;
+    const { expenses, fetchExpenses, deleteExpense, settings } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
+    const t = getTranslations(settings?.language || 'en');
 
     useEffect(() => {
         setIsClient(true);
@@ -19,9 +21,9 @@ export default function TotalExpensesPage() {
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
-        if (confirm('Are you sure you want to delete this expense?')) {
+        if (confirm(t.deleteExpenseConfirm)) {
             await deleteExpense(id);
-            toast.success('Expense deleted');
+            toast.success(t.expenseDeleted);
         }
     };
 
@@ -51,15 +53,15 @@ export default function TotalExpensesPage() {
             </div>
 
             <div className="px-8 py-3 flex justify-between text-[10px] font-black uppercase text-orange-600 tracking-[0.2em] bg-orange-50/30 border-y border-orange-50" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
-                <span>All Records ({expenses.length})</span>
-                <span>Amount Spent</span>
+                <span>{t.allRecords} ({expenses.length})</span>
+                <span>{t.amountSpent}</span>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '8px', paddingBottom: '8px' }}>
                 {expenses.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-slate-300 pb-20">
                         <FaChartPie className="text-8xl mb-6 opacity-20 text-orange-300" />
-                        <p className="font-black uppercase tracking-widest text-sm italic text-slate-400">No expenses found</p>
+                        <p className="font-black uppercase tracking-widest text-sm italic text-slate-400">{t.noExpensesFound}</p>
                     </div>
                 ) : (
                     expenses.map((expense: any, idx: number) => {

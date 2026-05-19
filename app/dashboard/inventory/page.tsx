@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
+import { getTranslations } from "@/lib/translations";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { generateCatalogPDF } from "@/lib/pdf-generator";
@@ -11,8 +12,9 @@ import { optimizeImage } from "@/lib/utils";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile } = useStore() as any;
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile, settings } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
+    const t = getTranslations(settings?.language || 'en');
     const [showProfit, setShowProfit] = useState(true);
 
     // State
@@ -118,7 +120,7 @@ export default function InventoryPage() {
                     }
                     `
                 }} />
-                <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>
+                <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.loading}</div>
             </div>
         );
     }
@@ -706,36 +708,36 @@ export default function InventoryPage() {
                         <span className="hero-eyebrow-dot"></span>
                         BillGST Smart System
                     </div>
-                    <div className="hero-title">⚡ Smart <span className="accent">Inventory</span></div>
-                    <div className="hero-sub">Manage Products &amp; Stock</div>
+                    <div className="hero-title">⚡ {t.smartInventory}</div>
+                    <div className="hero-sub">{t.manageProductsStock}</div>
 
                     <div className="stats-grid">
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(79,70,229,0.2)" }}>📦</div>
                             <div>
                                 <div className="stat-num" style={{ color: "#fff" }}>{totalItems}</div>
-                                <div className="stat-label">Total Items</div>
+                                <div className="stat-label">{t.totalItems}</div>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(239,68,68,0.2)" }}>⚠️</div>
                             <div>
                                 <div className="stat-num" style={{ color: "#f87171" }}>{lowStockCount}</div>
-                                <div className="stat-label">Low Stock</div>
+                                <div className="stat-label">{t.lowStock}</div>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(16,185,129,0.2)" }}>💰</div>
                             <div>
                                 <div className="stat-num" style={{ color: "#34d399", fontSize: "16px" }}>₹{(stockValue / 100000).toFixed(1)}L</div>
-                                <div className="stat-label">Stock Value</div>
+                                <div className="stat-label">{t.stockValue}</div>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(245,158,11,0.2)" }}>📈</div>
                             <div>
                                 <div className="stat-num" style={{ color: "#fbbf24" }}>{totalItems * 12}</div>
-                                <div className="stat-label">Units Sold</div>
+                                <div className="stat-label">{t.unitsSold}</div>
                             </div>
                         </div>
                     </div>
@@ -832,7 +834,7 @@ export default function InventoryPage() {
                                 </div>
                                 <div className="stock-bar-wrap">
                                     <div className="stock-bar-info">
-                                        <span className="stock-bar-label">Stock level</span>
+                                        <span className="stock-bar-label">{t.stockLevel}</span>
                                         <span className="stock-bar-pct" style={{ color: st.color }}>{st.label}</span>
                                     </div>
                                     <div className="stock-bar-track">
@@ -842,15 +844,15 @@ export default function InventoryPage() {
                                 <div className="card-actions">
                                     <button className="action-btn edit" onClick={() => handleEdit(p)}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                        Edit
+                                        {t.edit}
                                     </button>
                                     <button className="action-btn qr" onClick={(e) => openQR(e, p)}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><rect x="7" y="7" width="3" height="3" /><rect x="14" y="7" width="3" height="3" /><rect x="7" y="14" width="3" height="3" /><rect x="14" y="14" width="3" height="3" /></svg>
-                                        QR Code
+                                        {t.qrCode}
                                     </button>
                                     <button className="action-btn del" onClick={(e) => handleDelete(e, p.id, p.name)}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
-                                        Delete
+                                        {t.delete}
                                     </button>
                                 </div>
                             </div>
@@ -859,31 +861,56 @@ export default function InventoryPage() {
                 ) : (
                     <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink3)' }}>
                         <div style={{ fontSize: '40px', marginBottom: '15px' }}>📦</div>
-                        <div style={{ fontWeight: '700', fontSize: '16px' }}>No products found</div>
-                        <div style={{ fontSize: '12px', marginTop: '5px' }}>Try searching something else or add a new product.</div>
+                        <div style={{ fontWeight: '700', fontSize: '16px' }}>{t.noProductsFound}</div>
+                        <div style={{ fontSize: '12px', marginTop: '5px' }}>{t.inventoryEmptyHelp}</div>
                         <button 
                             onClick={openAddModal}
                             style={{ marginTop: '20px', background: 'var(--ink)', color: '#fff', padding: '10px 20px', borderRadius: '10px', border: 'none', fontWeight: '700' }}
                         >
-                            + Add First Product
+                            + {t.addFirstProduct}
                         </button>
                     </div>
                 )}
+            </div>
+            {/* AI Smart Scanner Button */}
+            <div style={{ padding: '0 14px', marginTop: '20px' }}>
+                <button 
+                    onClick={() => router.push('/dashboard/inventory/smart-add')}
+                    style={{
+                        width: '100%',
+                        padding: '14px',
+                        background: 'linear-gradient(135deg, #4f46e5, #8b5cf6)',
+                        color: '#fff',
+                        borderRadius: '12px',
+                        border: 'none',
+                        fontWeight: '800',
+                        fontSize: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
+                    ✨ Smart Add via AI Scanner
+                </button>
             </div>
 
             {/* ══ ACTIONS AT BOTTOM (As requested) ══ */}
             <div className="hero-btns">
                 <button className="hero-btn catalog" onClick={downloadPdf}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8M16 17H8M10 9H8" /></svg>
-                    Catalog
+                    {t.downloadCatalog}
                 </button>
                 <button className="hero-btn whatsapp" onClick={shareLowStockOnWhatsApp}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-                    Alert
+                    {t.shareLowStock}
                 </button>
                 <button className="hero-btn add" onClick={openAddModal}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-                    Add
+                    {t.add}
                 </button>
             </div>
 
@@ -940,7 +967,7 @@ export default function InventoryPage() {
                                     <input className="field-input" type="number" placeholder="0" value={formData.stock_quantity} onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="field-label">Low Stock Alert</label>
+                                    <label className="field-label">{t.lowStockAlert}</label>
                                     <input className="field-input" type="number" placeholder="10" value={formData.alert_quantity} onChange={e => setFormData({ ...formData, alert_quantity: e.target.value })} />
                                 </div>
                             </div>

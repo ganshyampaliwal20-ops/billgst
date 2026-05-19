@@ -82,26 +82,26 @@ export default function DashboardLayout({
                 { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
             ]
         },
-        { icon: FaFileAlt, label: 'Quotation', href: '/dashboard/quotations' },
-        { icon: FaMoneyBillWave, label: 'Expenses', href: '/dashboard/expenses' },
+        { icon: FaFileAlt, label: t.quotations || 'Quotation', href: '/dashboard/quotations' },
+        { icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' },
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
-        { icon: FaFileContract, label: 'GST Returns', href: '/dashboard/gst-returns' },
+        { icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' },
         {
             icon: FaRobot,
-            label: 'AI Assistant',
+            label: t.aiAssistant || 'AI Assistant',
             href: '#',
             onClick: () => {
                 setAiChatOpen(true);
                 setIsSidebarOpen(false);
             }
         },
-        { icon: FaStar, label: 'Subscription', href: '/dashboard/pricing' },
-        { icon: FaUsers, label: 'Refer & Earn', href: '/dashboard/referral' },
-        { icon: FaInfoCircle, label: 'About Us', href: '/about' },
-        { icon: FaShieldAlt, label: 'Privacy Policy', href: '/privacy' },
-        ...(session?.user?.email === 'ganshyampaliwal20@gmail.com' ? [{ icon: FaShieldAlt, label: 'Admin Panel', href: '/dashboard/admin' }] : []),
+        { icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' },
+        { icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' },
+        { icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' },
+        { icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' },
+        ...(session?.user?.email === 'ganshyampaliwal20@gmail.com' ? [{ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' }] : []),
         // Settings moved to bottom manually
     ];
 
@@ -151,9 +151,9 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Navigation - Distributed evenly to fit layout */}
-                    <nav className="flex-1 px-2 py-2 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
+                    <nav className="flex-1 py-2 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar" style={{ paddingLeft: '5px', paddingRight: '8px' }}>
                         {/* Language Toggle */}
-                        <div className="flex px-1 shrink-0 mb-1">
+                        <div className="flex shrink-0 mb-1" style={{ paddingLeft: '5px' }}>
                             <LanguageSelector showLabel={true} />
                         </div>
 
@@ -170,13 +170,13 @@ export default function DashboardLayout({
                                             <button
                                                 onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
                                                 className={`
-                                                    flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                                    flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
                                                     border relative overflow-hidden flex-1 min-h-[40px] w-full text-left
                                                     bg-blue-600 text-white font-bold border-blue-700 shadow-lg
                                                 `}
                                             >
                                                 <div className={`
-                                                    p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                                    p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                                     ${isActive
                                                         ? 'bg-white/20 text-white'
                                                         : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
@@ -196,7 +196,7 @@ export default function DashboardLayout({
                                                             href={sub.href}
                                                             onClick={() => setIsSidebarOpen(false)}
                                                             className={`
-                                                                flex items-center justify-center p-2 rounded-xl text-xs font-bold transition-all border-2
+                                                                flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold transition-all border-2
                                                                 bg-orange-500 text-white border-orange-600 shadow-md hover:bg-orange-600 hover:scale-[1.02] active:scale-95
                                                             `}
                                                         >
@@ -222,7 +222,7 @@ export default function DashboardLayout({
                                             }
                                         }}
                                         className={`
-                                            flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                            flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
                                             border relative overflow-hidden flex-shrink-0 min-h-[40px]
                                             ${isActive
                                                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
@@ -231,7 +231,7 @@ export default function DashboardLayout({
                                         `}
                                     >
                                         <div className={`
-                                            p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                            p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                             ${isActive
                                                 ? 'bg-white/20 text-white'
                                                 : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
@@ -262,7 +262,7 @@ export default function DashboardLayout({
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
-                                        flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                        flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
                                         border relative overflow-hidden flex-shrink-0 min-h-[40px]
                                         ${isActive
                                             ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-sm'
@@ -271,7 +271,7 @@ export default function DashboardLayout({
                                     `}
                                 >
                                     <div className={`
-                                        p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                        p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                         ${isActive
                                             ? 'bg-white/20 text-white'
                                             : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
@@ -289,7 +289,7 @@ export default function DashboardLayout({
                             href="/dashboard/settings"
                             onClick={() => setIsSidebarOpen(false)}
                             className={`
-                                flex items-center gap-2.5 px-3 rounded-xl transition-all duration-300 group 
+                                flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
                                 border relative overflow-hidden flex-shrink-0 min-h-[40px] mt-0.5
                                 ${pathname === '/dashboard/settings'
                                     ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold border-slate-900 shadow-sm'
@@ -298,7 +298,7 @@ export default function DashboardLayout({
                             `}
                         >
                             <div className={`
-                                p-1.5 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                 ${pathname === '/dashboard/settings'
                                     ? 'bg-white/20 text-white'
                                     : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
@@ -336,7 +336,7 @@ export default function DashboardLayout({
 
                         <button
                             onClick={handleLogout}
-                            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
+                            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
                         >
                             <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
                             <span>Logout Safe</span>

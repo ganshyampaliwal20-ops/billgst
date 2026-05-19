@@ -12,7 +12,7 @@ import {
 import { useSession, signOut } from 'next-auth/react';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
-import { translations } from '@/lib/translations';
+import { translations, getTranslations } from '@/lib/translations';
 
 export default function Navbar3D() {
     const { status } = useSession();
@@ -32,13 +32,13 @@ export default function Navbar3D() {
     }, []);
 
     const language = settings?.language || 'en';
-    const t = translations[language as keyof typeof translations] || translations.en;
+    const t = getTranslations(language);
 
     const menuItems = [
-        { icon: FaLanguage, label: 'Language', href: '#', isLanguage: true },
-        { icon: FaCog, label: 'Setting', href: '/dashboard/settings' },
-        { icon: FaFileInvoice, label: 'Invoice', href: '/dashboard/invoices' },
-        { icon: FaSignInAlt, label: 'Login Page', href: '/login' },
+        { icon: FaLanguage, label: t.language, href: '#', isLanguage: true },
+        { icon: FaCog, label: t.settings, href: '/dashboard/settings' },
+        { icon: FaFileInvoice, label: t.invoices, href: '/dashboard/invoices' },
+        { icon: FaSignInAlt, label: t.login, href: '/login' },
     ];
 
     const handleLogout = () => {
@@ -87,7 +87,7 @@ export default function Navbar3D() {
                                         href="/dashboard"
                                         className="bg-white text-indigo-600 px-6 py-2 rounded-xl font-bold hover:bg-slate-50 transition shadow-lg"
                                     >
-                                        Dashboard
+                                        {t.dashboard}
                                     </Link>
                                 ) : (
                                     <>
@@ -95,7 +95,7 @@ export default function Navbar3D() {
                                             href="/login"
                                             className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-slate-50 hover:text-indigo-600 border border-transparent hover:border-indigo-100 transition shadow-lg"
                                         >
-                                            Login
+                                            {t.login}
                                         </Link>
                                     </>
                                 )}
@@ -136,7 +136,7 @@ export default function Navbar3D() {
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
                                 <FaStore className="text-white text-base" />
                             </div>
-                            <h2 className="text-base font-bold text-slate-800">Menu</h2>
+                            <h2 className="text-base font-bold text-slate-800">{t.menu}</h2>
                         </div>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
@@ -186,12 +186,12 @@ export default function Navbar3D() {
                                         <button
                                             onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
                                             className={`
-                                                flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group 
+                                                flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group 
                                                 border-2 relative overflow-hidden w-full text-left
                                                 bg-blue-600 text-white font-bold border-blue-700 shadow-lg
                                             `}
                                         >
-                                            <div className="p-2 rounded-xl bg-white/20 text-white group-hover:bg-white/30 transition-colors group-hover:scale-110">
+                                            <div className="p-3 rounded-xl bg-white/20 text-white group-hover:bg-white/30 transition-colors group-hover:scale-110">
                                                 <Icon className="text-lg transition-transform duration-300 group-hover:rotate-12" />
                                             </div>
                                             <span className="text-sm tracking-wide flex-1 font-bold">{item.label}</span>
@@ -206,7 +206,7 @@ export default function Navbar3D() {
                                                         href={sub.href}
                                                         onClick={() => setIsSidebarOpen(false)}
                                                         className={`
-                                                            flex items-center justify-center p-2 rounded-xl text-xs font-black transition-all border-b-2
+                                                            flex items-center justify-center px-3 py-2 rounded-xl text-xs font-black transition-all border-b-2
                                                             bg-orange-500 text-white border-orange-700 shadow-md hover:bg-orange-600 hover:-translate-y-0.5 active:translate-y-0 active:border-b-0
                                                         `}
                                                     >
@@ -225,7 +225,7 @@ export default function Navbar3D() {
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
-                                        flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group 
+                                        flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group 
                                         border-2 relative overflow-hidden bg-white text-slate-600 font-semibold 
                                         border-slate-200 shadow-[0_2px_0_0_#e2e8f0] 
                                         hover:-translate-y-0.5 hover:shadow-[0_4px_0_0_#cbd5e1] 
@@ -233,7 +233,7 @@ export default function Navbar3D() {
                                         active:translate-y-0 active:shadow-none active:scale-95
                                     `}
                                 >
-                                    <div className="p-2 rounded-xl bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors group-hover:scale-110">
+                                    <div className="p-3 rounded-xl bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors group-hover:scale-110">
                                         <Icon className="text-lg transition-transform duration-300 group-hover:rotate-12" />
                                     </div>
                                     <span className="text-sm tracking-wide flex-1">{item.label}</span>
@@ -247,14 +247,14 @@ export default function Navbar3D() {
                         <Link
                             href="/dashboard/settings"
                             onClick={() => setIsSidebarOpen(false)}
-                            className="flex items-center gap-4 px-5 py-3 rounded-2xl transition-all duration-300 group border-2 bg-indigo-50 text-indigo-700 font-bold border-indigo-100 shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#c7d2fe] active:translate-y-0 active:shadow-none"
+                            className="flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group border-2 bg-indigo-50 text-indigo-700 font-bold border-indigo-100 shadow-[0_4px_0_0_#e0e7ff] hover:-translate-y-1 hover:shadow-[0_8px_0_0_#c7d2fe] active:translate-y-0 active:shadow-none"
                         >
-                            <div className="p-2 rounded-xl bg-white text-indigo-600 shadow-sm">
+                            <div className="p-3 rounded-xl bg-white text-indigo-600 shadow-sm">
                                 <FaStore className="text-lg" />
                             </div>
                             <div className="flex flex-col flex-1 overflow-hidden">
-                                <span className="text-[9px] uppercase tracking-widest text-indigo-400 font-black">My Business</span>
-                                <span className="text-sm truncate font-bold">{businessProfile.name || 'Set Business Name'}</span>
+                                <span className="text-[9px] uppercase tracking-widest text-indigo-400 font-black">{t.myBusiness || 'My Business'}</span>
+                                <span className="text-sm truncate font-bold">{businessProfile.name || t.setBusinessName || 'Set Business Name'}</span>
                             </div>
                         </Link>
                     </div>
