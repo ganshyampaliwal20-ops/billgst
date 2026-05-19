@@ -148,39 +148,27 @@ export default function SmartAddPage() {
 
             {/* Upload Step */}
             {step === 'upload' && (
-                <div className="bg-white p-8 sm:p-12 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 text-center animate-fadeIn relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-transparent to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    <div className="relative z-10">
-                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-indigo-100 to-purple-50 text-indigo-600 rounded-[2rem] shadow-inner flex items-center justify-center mx-auto mb-8 transform group-hover:scale-105 transition-transform duration-500 rotate-3">
-                            <FaUpload className="text-4xl sm:text-5xl drop-shadow-md -rotate-3" />
+                <div className="bg-white p-6 sm:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 text-center animate-fadeIn">
+                    {/* Professional Dashed Dropzone */}
+                    <div 
+                        className="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/30 rounded-3xl p-8 sm:p-14 transition-all cursor-pointer group" 
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <div className="w-20 h-20 bg-white text-indigo-600 rounded-2xl shadow-sm border border-indigo-50 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                            <FaUpload size={32} />
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-black text-slate-800 mb-4 tracking-tight">Upload Supplier Bill</h2>
-                        <p className="text-base font-medium text-slate-500 mb-10 max-w-md mx-auto leading-relaxed">
-                            Take a clear photo or upload a PDF of your wholesale invoice. Our advanced AI will instantly detect products, quantities, and GST rates.
+                        <h2 className="text-2xl font-black text-slate-800 mb-3 tracking-tight group-hover:text-indigo-700 transition-colors">Upload Supplier Invoice</h2>
+                        <p className="text-sm font-semibold text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed">
+                            Upload a photo, scan, or PDF of your bill. Our AI will instantly detect products, quantities, and prices for you.
                         </p>
                         
-                        <div className="flex flex-col gap-4 max-w-sm mx-auto">
-                            <button 
-                                onClick={() => fileInputRef.current?.click()}
-                                className="group relative w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] hover:shadow-[0_15px_35px_-5px_rgba(79,70,229,0.5)] flex items-center justify-center gap-3 overflow-hidden text-lg"
-                            >
-                                <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
-                                <FaCamera className="text-xl" /> Take Photo / Choose File
+                        <div className="flex flex-col gap-3 max-w-xs mx-auto w-full">
+                            <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                <FaCamera className="text-lg" /> Browse or Take Photo
                             </button>
-                            <input 
-                                type="file" 
-                                accept="image/*,.pdf" 
-                                className="hidden" 
-                                ref={fileInputRef}
-                                onChange={handleFileUpload}
-                            />
                         </div>
                     </div>
-                    
-                    {/* Decorative Background Elements */}
-                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+                    <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                 </div>
             )}
 
@@ -290,7 +278,7 @@ export default function SmartAddPage() {
                                                 
                                                 <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
                                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Purchase Price</label>
-                                                    <div className="relative flex items-center">
+                                                    <div className="relative">
                                                         <input 
                                                             type="number" 
                                                             value={item.purchasePrice}
@@ -303,20 +291,24 @@ export default function SmartAddPage() {
                                                             }}
                                                             className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
                                                         />
-                                                        <span className="absolute right-0 font-bold text-slate-400">₹</span>
+                                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                                            <span className="font-bold text-slate-400">₹</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 
                                                 <div className="bg-indigo-50 rounded-2xl p-3 border border-indigo-100 ring-1 ring-indigo-500/20 shadow-inner">
                                                     <label className="text-[10px] font-black text-indigo-600 uppercase tracking-wider mb-1.5 block">Selling Price</label>
-                                                    <div className="relative flex items-center">
+                                                    <div className="relative">
                                                         <input 
                                                             type="number" 
                                                             value={item.sellingPrice}
                                                             onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
                                                             className="w-full text-lg font-black text-indigo-700 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
                                                         />
-                                                        <span className="absolute right-0 font-black text-indigo-400">₹</span>
+                                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                                            <span className="font-black text-indigo-400">₹</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -685,17 +685,17 @@ export default function InventoryPage() {
                 .fab svg{width:24px;height:24px;color:#fff;}
 
                 /* Modals Styling */
-                .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:500; display:flex; align-items:center; justify-content:center; padding:12px; }
-                .modal { background:var(--white); border-radius:22px; width:100%; max-width:520px; overflow-y:auto; max-height:95vh; }
-                .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:18px 22px; display:flex; align-items:center; justify-content:space-between; }
+                .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:flex-start; justify-content:center; padding:80px 12px 20px 12px; overflow-y:auto; }
+                .modal { margin:auto; background:var(--white); border-radius:22px; width:100%; max-width:520px; display:flex; flex-direction:column; max-height:90vh; overflow:hidden; }
+                .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:18px 22px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
                 .modal-header h3 { font-size:16px; font-weight:800; color:#fff; margin:0;}
-                .modal-close { width:32px; height:32px; background:rgba(255,255,255,.1); border:none; border-radius:8px; color:#fff; font-size:18px; cursor:pointer; }
-                .modal-body { padding:18px 22px; }
+                .modal-close { width:32px; height:32px; background:rgba(255,255,255,.1); border:none; border-radius:8px; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0; }
+                .modal-body { padding:18px 22px; overflow-y:auto; flex-grow:1; }
                 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
                 .field-label { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--ink3); margin-bottom:6px; display:block; }
                 .field-input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'DM Sans',sans-serif; font-size:13px; color:#000 !important; outline:none; background:var(--bg); }
                 .field-input:focus { border-color:var(--green); background:var(--white); color:#000 !important; }
-                .modal-footer { padding:0 24px 22px; display:flex; gap:10px; }
+                .modal-footer { padding:16px 24px 20px; display:flex; gap:10px; flex-shrink:0; border-top:1px solid var(--border); background:var(--white); }
                 .mf-btn { flex:1; padding:13px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; border:none; }
                 .mf-cancel { background:var(--bg); color:var(--ink2); border:1.5px solid var(--border); }
                 .mf-save { background:linear-gradient(135deg,var(--green),#059669); color:#fff; }
