@@ -20,13 +20,54 @@ export default function SmartAddPage() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const base64 = event.target?.result as string;
-            setImage(base64);
-            await processImage(base64);
-        };
-        reader.readAsDataURL(file);
+        // Compress images to avoid Vercel 4.5MB payload limit
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new window.Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Scale down to max 1500px
+                    const MAX_DIM = 1500;
+                    if (width > height && width > MAX_DIM) {
+                        height *= MAX_DIM / width;
+                        width = MAX_DIM;
+                    } else if (height > MAX_DIM) {
+                        width *= MAX_DIM / height;
+                        height = MAX_DIM;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        // Compress as JPEG
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                        setImage(compressedBase64);
+                        processImage(compressedBase64);
+                    }
+                };
+                img.src = event.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // For PDFs, send as is but check size
+            if (file.size > 4 * 1024 * 1024) {
+                toast.error("File is too large! Please upload a file smaller than 4MB.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const base64 = event.target?.result as string;
+                setImage(base64);
+                await processImage(base64);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const processImage = async (base64Data: string) => {
@@ -129,7 +170,7 @@ export default function SmartAddPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-8 py-6 pb-32 min-h-screen bg-[#f8fafc]">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8 pb-32 min-h-screen bg-[#f8fafc]">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 bg-white p-5 sm:p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100">
                 <button 
