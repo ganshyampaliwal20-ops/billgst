@@ -638,8 +638,8 @@ export default function InventoryPage() {
                 .action-btn.edit:hover{color:var(--blue);}
                 .action-btn.del:hover{color:var(--red);background:var(--red-lt);}
 
-                /* Action buttons at bottom - Equal size for all 4 */
-                .hero-btns{display:flex;flex-direction:row;gap:8px;margin: 20px 14px;align-items:center;justify-content:space-between;}
+                /* Action buttons at bottom - Equal size for all */
+                .hero-btns{display:flex;flex-direction:row;gap:8px;margin: 20px 14px;align-items:stretch;justify-content:space-between;}
                 .hero-btn{
                   flex:1; width:0; min-width:0; /* Forces equal width */
                   padding:10px 4px; border-radius:12px;
