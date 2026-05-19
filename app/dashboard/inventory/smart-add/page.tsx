@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 
 export default function SmartAddPage() {
     const router = useRouter();
-    const { addProduct } = useStore() as any;
+    const { products, addProduct, updateProduct } = useStore() as any;
     
     const [image, setImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -44,16 +44,25 @@ export default function SmartAddPage() {
 
             if (data.items && data.items.length > 0) {
                 // Map to our product format
-                const mappedItems = data.items.map((item: any) => ({
-                    id: crypto.randomUUID(),
-                    name: item.name || '',
-                    quantity: Number(item.quantity) || 1,
-                    purchasePrice: Number(item.purchasePrice) || 0,
-                    sellingPrice: Number(item.purchasePrice) ? Number(item.purchasePrice) * 1.2 : 0, // Add 20% margin by default
-                    gstRate: Number(item.gstRate) || 18,
-                    totalAmount: Number(item.totalAmount) || 0,
-                    selected: true
-                }));
+                const mappedItems = data.items.map((item: any) => {
+                    // Try to find if this product already exists by name
+                    const existingProduct = products?.find((p: any) => p.name.toLowerCase().trim() === (item.name || '').toLowerCase().trim());
+                    
+                    return {
+                        id: crypto.randomUUID(),
+                        name: item.name || '',
+                        quantity: Number(item.quantity) || 1,
+                        purchasePrice: Number(item.purchasePrice) || existingProduct?.purchase_price || 0,
+                        sellingPrice: existingProduct?.price || (Number(item.purchasePrice) ? Number(item.purchasePrice) * 1.2 : 0),
+                        gstRate: Number(item.gstRate) || existingProduct?.gst_rate || 18,
+                        totalAmount: Number(item.totalAmount) || 0,
+                        selected: true,
+                        isExisting: !!existingProduct,
+                        existingId: existingProduct?.id || null,
+                        currentStock: parseInt(existingProduct?.stock_quantity || 0)
+                    };
+                });
+                
                 setParsedItems(mappedItems);
                 setStep('review');
                 toast.success('Invoice parsed successfully!');
@@ -82,16 +91,26 @@ export default function SmartAddPage() {
 
         for (const item of itemsToSave) {
             try {
-                await addProduct({
-                    id: crypto.randomUUID(),
-                    name: item.name,
-                    price: item.sellingPrice || item.purchasePrice,
-                    purchase_price: item.purchasePrice,
-                    stock_quantity: item.quantity,
-                    gst_rate: item.gstRate,
-                    type: 'PRODUCT',
-                    created_at: new Date().toISOString()
-                });
+                if (item.isExisting && item.existingId) {
+                    // Update existing product stock
+                    await updateProduct(item.existingId, {
+                        stock_quantity: item.currentStock + item.quantity,
+                        purchase_price: item.purchasePrice, // Update to latest purchase price
+                        price: item.sellingPrice || item.purchasePrice
+                    });
+                } else {
+                    // Create new product
+                    await addProduct({
+                        id: crypto.randomUUID(),
+                        name: item.name,
+                        price: item.sellingPrice || item.purchasePrice,
+                        purchase_price: item.purchasePrice,
+                        stock_quantity: item.quantity,
+                        gst_rate: item.gstRate,
+                        type: 'PRODUCT',
+                        created_at: new Date().toISOString()
+                    });
+                }
                 successCount++;
             } catch (err) {
                 console.error('Error saving item:', item.name, err);
@@ -99,7 +118,7 @@ export default function SmartAddPage() {
         }
 
         toast.dismiss(loadToast);
-        toast.success(`Successfully added ${successCount} items to inventory!`);
+        toast.success(`Successfully saved ${successCount} items!`);
         router.push('/dashboard/inventory');
     };
 
