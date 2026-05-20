@@ -8,7 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export default function SmartAttendance() {
-    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance } = useStore();
+    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff } = useStore();
     const [isClient, setIsClient] = useState(false);
 
     // State for dates
@@ -274,6 +274,12 @@ export default function SmartAttendance() {
             }
         });
 
+        const footerText = businessProfile?.name || 'BillGST';
+        const pageHeight = doc.internal.pageSize.getHeight();
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.text(footerText, 14, pageHeight - 10);
+
         doc.save(`${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`);
         toast.success('Salary Slip PDF Downloaded!');
     };
@@ -357,6 +363,12 @@ export default function SmartAttendance() {
             styles: { fontSize: 13, fontStyle: 'bold', textColor: [16, 185, 129] }
         });
 
+        const footerText = businessProfile?.name || 'BillGST';
+        const pageHeight = doc.internal.pageSize.getHeight();
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.text(footerText, 14, pageHeight - 10);
+
         doc.save(`Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`);
         toast.success('Master Report Downloaded!');
     };
@@ -409,8 +421,8 @@ export default function SmartAttendance() {
             .tb-icons{display:flex;gap:6px;}
             .tbi{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;}
             
-            .page-tabs{display:flex;gap:0;}
-            .ptab{flex:1;padding:10px 8px;text-align:center;font-size:12px;font-weight:800;color:rgba(255,255,255,.5);border-bottom:2px solid transparent;cursor:pointer;}
+            .page-tabs{display:flex;gap:6px;justify-content:space-between;}
+            .ptab{flex:1;min-width:110px;padding:10px 8px;text-align:center;font-size:12px;font-weight:800;color:rgba(255,255,255,.5);border-bottom:2px solid transparent;cursor:pointer;}
             .ptab.on{color:#fff;border-bottom-color:#fff;}
             
             .date-strip{background:var(--white);padding:14px 16px;border-bottom:1px solid var(--border);}
@@ -467,6 +479,8 @@ export default function SmartAttendance() {
             .att-btn.absent{background:var(--red-lt);border-color:var(--red);color:var(--red);}
             .att-btn.half{background:var(--amber-lt);border-color:var(--amber);color:var(--amber);}
             .att-btn.leave{background:var(--blue-lt);border-color:var(--blue);color:var(--blue);}
+            .delete-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid #ef4444;background:#fff5f5;color:#ef4444;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:14px;transition:all 0.15s;}
+            .delete-btn:hover{background:#fee2e2;}
             
             .salary-row{padding:9px 14px;background:#fafbff;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
             .sal-label{font-size:11px;color:var(--ink4);font-weight:700;}
@@ -481,7 +495,7 @@ export default function SmartAttendance() {
             
             .aw-field{display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
             .aw-field-icon{width:32px;height:32px;border-radius:9px;background:var(--indigo-lt);display:flex;align-items:center;justify-content:center;}
-            .aw-inner{flex:1;}
+            .aw-inner{flex:1;position:relative;}
             .aw-lbl{font-size:10px;font-weight:800;color:var(--ink3);text-transform:uppercase;}
             .aw-inner input,.aw-inner select{width:100%;border:none;outline:none;background:none;font-size:14px;font-weight:700;color:var(--ink);}
             .aw-save{width:100%;padding:14px;border-radius:var(--r);background:linear-gradient(135deg,var(--indigo),var(--purple));border:none;color:#fff;font-size:15px;font-weight:900;}
@@ -615,6 +629,15 @@ export default function SmartAttendance() {
                                         <button className={`att-btn ${status === 'HALF_DAY' ? 'half' : ''}`} onClick={() => handleSetAtt(member.id, 'HALF_DAY')} title="Half Day">½</button>
                                         <button className={`att-btn ${status === 'ABSENT' ? 'absent' : ''}`} onClick={() => handleSetAtt(member.id, 'ABSENT')} title="Absent">✕</button>
                                         <button className={`att-btn ${status === 'LEAVE' ? 'leave' : ''}`} onClick={() => handleSetAtt(member.id, 'LEAVE')} title="Leave">🏖</button>
+                                    {deleteStaff && (
+                                        <button className="delete-btn" onClick={async () => {
+                                            if (window.confirm(`Delete ${member.name}?`)) {
+                                                await deleteStaff(member.id);
+                                                fetchStaff();
+                                                toast.success('Staff removed');
+                                            }
+                                        }} title="Delete Staff">🗑</button>
+                                    )}
                                     </div>
                                 </div>
                                 <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0 }); setIsEditingStaff(false); setSheet('detail'); }}>
@@ -719,9 +742,12 @@ export default function SmartAttendance() {
 
                             <div className="aw-field">
                                 <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></div>
-                                <div className="aw-inner">
+                                <div className="aw-inner" style={{ position: 'relative' }}>
                                     <div className="aw-lbl">Poora Naam *</div>
                                     <input type="text" placeholder="Jaise: Ramesh Kumar" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                    {formData.name && (
+                                        <button type="button" onClick={() => setFormData({ ...formData, name: '' })} style={{ position: 'absolute', right: '10px', top: '45px', border: 'none', background: 'transparent', color: '#7b7fa0', cursor: 'pointer', fontSize: '16px' }} aria-label="Clear name field">×</button>
+                                    )}
                                 </div>
                             </div>
 
