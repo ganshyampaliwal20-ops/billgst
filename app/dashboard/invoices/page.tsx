@@ -49,7 +49,7 @@ export default function InvoicesPage() {
                 }
             }
         }
-    }, [isClient, safeInvoices]);
+    }, [isClient, invoices]);
 
 
     const safeInvoices = Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [];

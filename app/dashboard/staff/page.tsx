@@ -299,7 +299,7 @@ export default function SmartAttendance() {
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
         doc.text(`Month: ${currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}`, 14, 35);
 
-        const tableBody = [];
+        const tableBody: any[] = [];
         let grandTotalNet = 0;
         let grandTotalPresent = 0;
 

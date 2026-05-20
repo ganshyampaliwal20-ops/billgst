@@ -363,7 +363,7 @@ export default function NewInvoicePage() {
                 const cleanWord = segment.replace(/[^a-z0-9\s]/g, '').trim();
                 if (!cleanWord || cleanWord.length < 2) return;
 
-                let bestMatch = null;
+                let bestMatch: any = null;
                 let maxScore = 0;
 
                 liveProducts.forEach((p: any) => {

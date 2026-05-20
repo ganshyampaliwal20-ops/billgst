@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import {
     FaFileInvoice, FaCog, FaBars, FaTimes,
     FaSignInAlt, FaUserPlus, FaLanguage, FaStore,
-    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss, FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp
+    FaSignOutAlt, FaUsers, FaBox, FaChartLine, FaRss, FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaIdCard
 } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { useStore } from '@/lib/store';
