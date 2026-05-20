@@ -2,9 +2,10 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaUpload, FaCamera, FaSpinner, FaCheck, FaSave, FaTrash, FaRobot, FaArrowLeft } from 'react-icons/fa';
+import { FaUpload, FaCamera, FaSpinner, FaCheck, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SmartAddPage() {
     const router = useRouter();
@@ -79,6 +80,12 @@ export default function SmartAddPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ imageBase64: base64Data })
             });
+
+            // Check if response is actually JSON before parsing to prevent SyntaxError
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error('Server encountered an error (likely Image too large or AI configuration error)');
+            }
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Failed to parse invoice');
@@ -170,218 +177,277 @@ export default function SmartAddPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8 pb-32 min-h-screen bg-[#f8fafc]">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 bg-white p-5 sm:p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100">
-                <button 
-                    onClick={() => router.push('/dashboard/inventory')}
-                    className="self-start sm:self-auto p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-600 transition-all border border-slate-100 hover:shadow-sm"
-                >
-                    <FaArrowLeft />
-                </button>
-                <div className="flex-1">
-                    <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 tracking-tight flex items-center gap-3">
-                        <FaRobot className="text-indigo-600" /> Smart AI Scanner
-                    </h1>
-                    <p className="text-sm font-bold text-slate-400 mt-1">Transform physical bills into digital inventory instantly</p>
-                </div>
+        <div className="relative min-h-[calc(100vh-60px)] bg-[#0f172a] text-slate-100 overflow-hidden flex flex-col justify-center items-center py-10 px-4 sm:px-8">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] animate-blob" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px] animate-blob animation-delay-2000" />
             </div>
 
-            {/* Upload Step */}
-            {step === 'upload' && (
-                <div className="bg-white p-6 sm:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 text-center animate-fadeIn">
-                    {/* Professional Dashed Dropzone */}
-                    <div 
-                        className="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/30 rounded-3xl p-8 sm:p-14 transition-all cursor-pointer group" 
-                        onClick={() => fileInputRef.current?.click()}
+            <div className="w-full max-w-5xl mx-auto relative z-10">
+                {/* Glassmorphic Header */}
+                <motion.div 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="flex flex-col items-center text-center gap-4 mb-10 bg-white/10 backdrop-blur-xl p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] relative"
+                >
+                    <button 
+                        onClick={() => router.push('/dashboard/inventory')}
+                        className="sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 p-3 px-6 rounded-2xl bg-white/5 hover:bg-white/20 text-white transition-all border border-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] group flex items-center gap-2"
                     >
-                        <div className="w-20 h-20 bg-white text-indigo-600 rounded-2xl shadow-sm border border-indigo-50 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                            <FaUpload size={32} />
-                        </div>
-                        <h2 className="text-2xl font-black text-slate-800 mb-3 tracking-tight group-hover:text-indigo-700 transition-colors">Upload Supplier Invoice</h2>
-                        <p className="text-sm font-semibold text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed">
-                            Upload a photo, scan, or PDF of your bill. Our AI will instantly detect products, quantities, and prices for you.
-                        </p>
-                        
-                        <div className="flex flex-col gap-3 max-w-xs mx-auto w-full">
-                            <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                                <FaCamera className="text-lg" /> Browse or Take Photo
-                            </button>
-                        </div>
+                        <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" /> <span className="sm:hidden font-bold">Back</span>
+                    </button>
+                    <div className="flex-1 mt-2 sm:mt-0">
+                        <h1 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tight flex items-center justify-center gap-3">
+                            <FaMagic className="text-purple-400" /> Smart AI Scanner
+                        </h1>
+                        <p className="text-sm sm:text-base font-medium text-slate-400 mt-2">Transform physical supplier bills into digital inventory instantly</p>
                     </div>
-                    <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
-                </div>
-            )}
+                </motion.div>
 
-            {/* Processing Step */}
-            {step === 'processing' && (
-                <div className="bg-white p-12 sm:p-20 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 text-center flex flex-col items-center justify-center min-h-[400px] animate-fadeIn relative overflow-hidden">
-                    <div className="relative w-32 h-40 sm:w-40 sm:h-52 bg-slate-50 border-2 border-slate-200 rounded-xl mb-10 overflow-hidden shadow-inner">
-                        {/* Fake Document Lines */}
-                        <div className="absolute inset-x-4 top-6 space-y-3">
-                            <div className="h-2 bg-slate-200 rounded w-3/4"></div>
-                            <div className="h-2 bg-slate-200 rounded w-full"></div>
-                            <div className="h-2 bg-slate-200 rounded w-5/6"></div>
-                            <div className="h-2 bg-slate-200 rounded w-full mt-6"></div>
-                            <div className="h-2 bg-slate-200 rounded w-4/5"></div>
-                        </div>
-                        {/* Scanner Line Animation */}
-                        <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent shadow-[0_0_15px_3px_rgba(99,102,241,0.6)] animate-[scan_2s_ease-in-out_infinite_alternate]"></div>
-                    </div>
-                    
-                    <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-3 animate-pulse">
-                        Extracting Data with AI...
-                    </h2>
-                    <p className="text-base font-bold text-slate-500 animate-pulse">Please wait while we read products, prices, and taxes</p>
-                </div>
-            )}
-
-            {/* Review Step */}
-            {step === 'review' && (
-                <div className="animate-fadeIn pb-10">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                        <div className="bg-emerald-50 border border-emerald-100 px-5 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
-                            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-md">
-                                <FaCheck size={14} />
-                            </div>
-                            <h3 className="font-black text-emerald-800 text-lg">
-                                {parsedItems.length} Products Found
-                            </h3>
-                        </div>
-                        <button 
-                            onClick={() => setStep('upload')}
-                            className="text-sm font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-5 py-2.5 rounded-xl hover:bg-indigo-100 hover:shadow-sm transition-all"
+                <AnimatePresence mode="wait">
+                    {/* Upload Step */}
+                    {step === 'upload' && (
+                        <motion.div 
+                            key="upload"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.05 }}
+                            transition={{ duration: 0.4 }}
+                            className="bg-white/5 backdrop-blur-md p-6 sm:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl text-center relative overflow-hidden group"
                         >
-                            Upload Another Bill
-                        </button>
-                    </div>
-                    
-                    <div className="space-y-4">
-                        {parsedItems.map((item, index) => (
-                            <div key={item.id} className={`bg-white rounded-3xl p-5 sm:p-6 transition-all duration-300 border-2 ${item.selected ? 'border-indigo-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]' : 'border-transparent opacity-50 bg-slate-50'}`}>
-                                <div className="flex flex-col sm:flex-row gap-5">
-                                    <div className="flex items-start gap-4 flex-1">
-                                        <div className="pt-2">
-                                            <div className="relative flex items-center justify-center">
-                                                <input 
-                                                    type="checkbox" 
-                                                    checked={item.selected}
-                                                    onChange={(e) => updateItem(item.id, 'selected', e.target.checked)}
-                                                    className="peer w-6 h-6 sm:w-7 sm:h-7 appearance-none rounded-lg border-2 border-slate-300 checked:border-indigo-600 checked:bg-indigo-600 cursor-pointer transition-all focus:ring-4 focus:ring-indigo-100"
-                                                />
-                                                <FaCheck className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none w-3 h-3 sm:w-4 sm:h-4" />
-                                            </div>
-                                        </div>
-                                        <div className="flex-1 w-full space-y-4 sm:space-y-5">
-                                            <div>
-                                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Product Name</label>
-                                                    {item.isExisting && (
-                                                        <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                            Already in Stock (+{item.quantity})
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <input 
-                                                    type="text" 
-                                                    value={item.name}
-                                                    onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                                    className="w-full text-lg sm:text-xl font-black text-slate-800 bg-transparent border-b-2 border-slate-100 hover:border-slate-300 focus:border-indigo-600 focus:outline-none pb-1 transition-colors"
-                                                    placeholder="Enter product name"
-                                                />
-                                            </div>
-                                            
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Quantity</label>
-                                                    <input 
-                                                        type="number" 
-                                                        value={item.quantity}
-                                                        onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                                                        className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 focus:ring-0 focus:outline-none"
-                                                    />
-                                                </div>
-                                                
-                                                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">GST Rate (%)</label>
-                                                    <select 
-                                                        value={item.gstRate}
-                                                        onChange={(e) => updateItem(item.id, 'gstRate', Number(e.target.value))}
-                                                        className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 focus:ring-0 focus:outline-none cursor-pointer"
-                                                    >
-                                                        <option value="0">0%</option>
-                                                        <option value="5">5%</option>
-                                                        <option value="12">12%</option>
-                                                        <option value="18">18%</option>
-                                                        <option value="28">28%</option>
-                                                    </select>
-                                                </div>
-                                                
-                                                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
-                                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5 block">Purchase Price</label>
-                                                    <div className="relative">
-                                                        <input 
-                                                            type="number" 
-                                                            value={item.purchasePrice}
-                                                            onChange={(e) => {
-                                                                const val = Number(e.target.value);
-                                                                updateItem(item.id, 'purchasePrice', val);
-                                                                if (!item.isExisting) {
-                                                                    updateItem(item.id, 'sellingPrice', Number((val * 1.2).toFixed(2)));
-                                                                }
-                                                            }}
-                                                            className="w-full text-base font-bold text-slate-700 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
-                                                        />
-                                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                                                            <span className="font-bold text-slate-400">₹</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div className="bg-indigo-50 rounded-2xl p-3 border border-indigo-100 ring-1 ring-indigo-500/20 shadow-inner">
-                                                    <label className="text-[10px] font-black text-indigo-600 uppercase tracking-wider mb-1.5 block">Selling Price</label>
-                                                    <div className="relative">
-                                                        <input 
-                                                            type="number" 
-                                                            value={item.sellingPrice}
-                                                            onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
-                                                            className="w-full text-lg font-black text-indigo-700 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
-                                                        />
-                                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                                                            <span className="font-black text-indigo-400">₹</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            
+                            <div 
+                                className="relative border-2 border-dashed border-indigo-400/30 hover:border-indigo-400 bg-indigo-900/10 rounded-[2rem] p-10 sm:p-16 transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center text-center" 
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                
+                                <motion.div 
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    className="relative w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-[0_0_30px_rgba(99,102,241,0.5)] flex items-center justify-center mx-auto mb-8 border border-white/20"
+                                >
+                                    <FaFileInvoice className="text-4xl text-white drop-shadow-md" />
+                                </motion.div>
+                                
+                                <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Upload Supplier Invoice</h2>
+                                <p className="text-base font-medium text-indigo-200/80 mb-10 max-w-md mx-auto leading-relaxed">
+                                    Upload a photo, scan, or PDF of your bill. Our Vision AI will instantly detect products, quantities, and prices.
+                                </p>
+                                
+                                <motion.button 
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="relative overflow-hidden bg-white text-indigo-900 font-black py-4 px-8 rounded-2xl transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center justify-center gap-3 mx-auto"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <FaCamera className="text-xl" /> Browse or Take Photo
+                                    </span>
+                                </motion.button>
+                            </div>
+                            <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
+                        </motion.div>
+                    )}
+
+                    {/* Processing Step */}
+                    {step === 'processing' && (
+                        <motion.div 
+                            key="processing"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="bg-white/5 backdrop-blur-md p-12 sm:p-20 rounded-[2.5rem] border border-white/10 shadow-2xl text-center flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-purple-500/10 animate-pulse" />
+                            
+                            <div className="relative w-40 h-56 bg-slate-800/80 border border-slate-600 rounded-2xl mb-12 overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.3)] backdrop-blur-sm">
+                                {/* Fake Document Lines */}
+                                <div className="absolute inset-x-6 top-8 space-y-4">
+                                    <div className="h-2 bg-slate-600 rounded w-3/4" />
+                                    <div className="h-2 bg-slate-600 rounded w-full" />
+                                    <div className="h-2 bg-slate-600 rounded w-5/6" />
+                                    <div className="h-2 bg-slate-600 rounded w-full mt-8" />
+                                    <div className="h-2 bg-slate-600 rounded w-4/5" />
                                 </div>
+                                {/* Advanced Scanner Line */}
+                                <motion.div 
+                                    animate={{ top: ['0%', '100%', '0%'] }}
+                                    transition={{ duration: 3, ease: "linear", repeat: Infinity }}
+                                    className="absolute inset-x-0 h-1 bg-cyan-400 shadow-[0_0_20px_4px_rgba(34,211,238,0.8)] z-10"
+                                >
+                                    <div className="absolute inset-0 h-12 -top-11 bg-gradient-to-t from-cyan-400/40 to-transparent pointer-events-none" />
+                                </motion.div>
                             </div>
-                        ))}
-                    </div>
+                            
+                            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-4 drop-shadow-sm">
+                                AI Extracting Data...
+                            </h2>
+                            <p className="text-lg font-medium text-slate-400">Reading products, prices, and taxes in real-time</p>
+                        </motion.div>
+                    )}
 
-                    {/* Floating Save Bar */}
-                    <div className="fixed bottom-4 sm:bottom-6 left-2 right-2 sm:left-6 sm:right-6 md:left-[300px] lg:left-[320px] p-4 bg-white/80 backdrop-blur-xl border border-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] rounded-3xl z-40 flex items-center justify-between gap-4">
-                        <div className="hidden sm:block">
-                            <p className="text-sm font-bold text-slate-500">Selected Items</p>
-                            <p className="text-xl font-black text-slate-800">{parsedItems.filter(i => i.selected).length} / {parsedItems.length}</p>
-                        </div>
-                        <button 
-                            onClick={handleSave}
-                            className="flex-1 sm:flex-none w-full sm:w-auto py-4 px-8 bg-slate-800 text-white font-black rounded-2xl hover:bg-slate-900 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 text-lg"
+                    {/* Review Step */}
+                    {step === 'review' && (
+                        <motion.div 
+                            key="review"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="pb-20"
                         >
-                            <FaSave className="text-xl" /> Save to Inventory
-                        </button>
-                    </div>
-                </div>
-            )}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                                <motion.div 
+                                    initial={{ scale: 0.9 }}
+                                    animate={{ scale: 1 }}
+                                    className="bg-emerald-500/10 border border-emerald-500/30 px-6 py-4 rounded-2xl flex items-center gap-4 shadow-[0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-md"
+                                >
+                                    <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                                        <FaCheck size={18} />
+                                    </div>
+                                    <h3 className="font-black text-emerald-400 text-xl tracking-tight">
+                                        {parsedItems.length} Products Found
+                                    </h3>
+                                </motion.div>
+                                <button 
+                                    onClick={() => setStep('upload')}
+                                    className="text-sm font-bold text-white bg-white/10 border border-white/20 px-6 py-3 rounded-xl hover:bg-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all"
+                                >
+                                    Upload Another Bill
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                {parsedItems.map((item, index) => (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        key={item.id} 
+                                        className={`bg-slate-800/50 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 transition-all duration-300 border-2 ${item.selected ? 'border-indigo-500/50 shadow-[0_10px_40px_rgba(99,102,241,0.15)]' : 'border-slate-700/50 opacity-60 hover:opacity-80'}`}
+                                    >
+                                        <div className="flex flex-col xl:flex-row gap-6">
+                                            <div className="flex items-start gap-5 flex-1">
+                                                <div className="pt-2">
+                                                    <div className="relative flex items-center justify-center cursor-pointer" onClick={() => updateItem(item.id, 'selected', !item.selected)}>
+                                                        <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all duration-300 ${item.selected ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-slate-700 border-slate-600'}`}>
+                                                            <FaCheck className={`text-white text-sm transition-opacity ${item.selected ? 'opacity-100' : 'opacity-0'}`} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1 w-full space-y-6">
+                                                    <div>
+                                                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                                                            <label className="text-xs font-black text-indigo-300 uppercase tracking-[0.2em]">Product Name</label>
+                                                            {item.isExisting && (
+                                                                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                                                                    In Stock (+{item.quantity})
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <input 
+                                                            type="text" 
+                                                            value={item.name}
+                                                            onChange={(e) => updateItem(item.id, 'name', e.target.value)}
+                                                            className="w-full text-xl sm:text-2xl font-black text-white bg-transparent border-b-2 border-slate-600 hover:border-indigo-400 focus:border-indigo-500 focus:outline-none pb-2 transition-colors placeholder:text-slate-600"
+                                                            placeholder="Enter product name"
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+                                                        <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50 hover:border-slate-500 transition-colors">
+                                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Quantity</label>
+                                                            <input 
+                                                                type="number" 
+                                                                value={item.quantity}
+                                                                onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
+                                                                className="w-full text-lg font-bold text-white bg-transparent border-none p-0 focus:ring-0 focus:outline-none"
+                                                            />
+                                                        </div>
+                                                        
+                                                        <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50 hover:border-slate-500 transition-colors">
+                                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">GST Rate (%)</label>
+                                                            <select 
+                                                                value={item.gstRate}
+                                                                onChange={(e) => updateItem(item.id, 'gstRate', Number(e.target.value))}
+                                                                className="w-full text-lg font-bold text-white bg-transparent border-none p-0 focus:ring-0 focus:outline-none cursor-pointer appearance-none"
+                                                            >
+                                                                <option value="0" className="bg-slate-800">0%</option>
+                                                                <option value="5" className="bg-slate-800">5%</option>
+                                                                <option value="12" className="bg-slate-800">12%</option>
+                                                                <option value="18" className="bg-slate-800">18%</option>
+                                                                <option value="28" className="bg-slate-800">28%</option>
+                                                            </select>
+                                                        </div>
+                                                        
+                                                        <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50 hover:border-slate-500 transition-colors">
+                                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Purchase Price</label>
+                                                            <div className="relative">
+                                                                <input 
+                                                                    type="number" 
+                                                                    value={item.purchasePrice}
+                                                                    onChange={(e) => {
+                                                                        const val = Number(e.target.value);
+                                                                        updateItem(item.id, 'purchasePrice', val);
+                                                                        if (!item.isExisting) {
+                                                                            updateItem(item.id, 'sellingPrice', Number((val * 1.2).toFixed(2)));
+                                                                        }
+                                                                    }}
+                                                                    className="w-full text-lg font-bold text-white bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
+                                                                />
+                                                                <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
+                                                                    <span className="font-bold text-slate-500">₹</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div className="bg-indigo-900/40 rounded-2xl p-4 border border-indigo-500/30 shadow-[inset_0_0_20px_rgba(99,102,241,0.1)] relative overflow-hidden group">
+                                                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            <label className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-2 block relative z-10">Selling Price</label>
+                                                            <div className="relative z-10">
+                                                                <input 
+                                                                    type="number" 
+                                                                    value={item.sellingPrice}
+                                                                    onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
+                                                                    className="w-full text-xl font-black text-indigo-300 bg-transparent border-none p-0 pr-6 focus:ring-0 focus:outline-none text-left"
+                                                                />
+                                                                <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
+                                                                    <span className="font-black text-indigo-500/50">₹</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+
+                            {/* Floating Save Bar */}
+                            <motion.div 
+                                initial={{ y: 100 }}
+                                animate={{ y: 0 }}
+                                className="fixed bottom-6 left-4 right-4 md:left-[320px] md:right-8 p-5 bg-slate-900/90 backdrop-blur-xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-[2rem] z-40 flex items-center justify-between gap-6"
+                            >
+                                <div className="hidden sm:block pl-2">
+                                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Selected to Save</p>
+                                    <p className="text-2xl font-black text-white">{parsedItems.filter(i => i.selected).length} <span className="text-slate-500 text-lg">/ {parsedItems.length}</span></p>
+                                </div>
+                                <motion.button 
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={handleSave}
+                                    className="flex-1 sm:flex-none w-full sm:w-auto py-4 px-10 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] flex items-center justify-center gap-3 text-lg border border-white/10"
+                                >
+                                    <FaSave className="text-xl" /> Save to Inventory
+                                </motion.button>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
             
-            {/* Custom Animations for Tailwind */}
             <style jsx global>{`
-                @keyframes scan {
-                    0% { top: 10%; }
-                    100% { top: 90%; }
-                }
                 @keyframes blob {
                     0% { transform: translate(0px, 0px) scale(1); }
                     33% { transform: translate(30px, -50px) scale(1.1); }
@@ -392,10 +458,7 @@ export default function SmartAddPage() {
                     animation-delay: 2s;
                 }
                 .animate-blob {
-                    animation: blob 7s infinite;
-                }
-                @keyframes shimmer {
-                    100% { transform: translateX(100%); }
+                    animation: blob 10s infinite alternate ease-in-out;
                 }
             `}</style>
         </div>

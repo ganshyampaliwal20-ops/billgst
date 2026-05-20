@@ -1,0 +1,110 @@
+import { NextResponse } from 'next/server';
+import pool from '@/lib/db';
+import { v4 as uuidv4 } from 'uuid';
+
+export async function GET() {
+    try {
+        const client = await pool.connect();
+        
+        // Ensure table exists
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS staff (
+                id UUID PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                phone VARCHAR(20),
+                role VARCHAR(100),
+                daily_wage NUMERIC DEFAULT 0,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        const result = await client.query('SELECT * FROM staff ORDER BY created_at DESC');
+        client.release();
+        return NextResponse.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching staff:', error);
+        return NextResponse.json({ error: 'Failed to fetch staff' }, { status: 500 });
+    }
+}
+
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const { id, name, phone, role, daily_wage } = body;
+        
+        if (!name) {
+            return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+        }
+
+        const staffId = id || uuidv4();
+        
+        const client = await pool.connect();
+        
+        // Ensure table exists just in case POST is called first
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS staff (
+                id UUID PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                phone VARCHAR(20),
+                role VARCHAR(100),
+                daily_wage NUMERIC DEFAULT 0,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        await client.query(
+            `INSERT INTO staff (id, name, phone, role, daily_wage) 
+             VALUES ($1, $2, $3, $4, $5)`,
+            [staffId, name, phone || '', role || 'Worker', daily_wage || 0]
+        );
+        
+        client.release();
+        return NextResponse.json({ success: true, id: staffId });
+    } catch (error) {
+        console.error('Error creating staff:', error);
+        return NextResponse.json({ error: 'Failed to create staff' }, { status: 500 });
+    }
+}
+
+export async function PUT(req: Request) {
+    try {
+        const body = await req.json();
+        const { id, name, phone, role, daily_wage } = body;
+        
+        if (!id || !name) {
+            return NextResponse.json({ error: 'ID and Name are required' }, { status: 400 });
+        }
+
+        const client = await pool.connect();
+        await client.query(
+            `UPDATE staff SET name = $1, phone = $2, role = $3, daily_wage = $4 WHERE id = $5`,
+            [name, phone || '', role || 'Worker', daily_wage || 0, id]
+        );
+        
+        client.release();
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error updating staff:', error);
+        return NextResponse.json({ error: 'Failed to update staff' }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: Request) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get('id');
+        
+        if (!id) {
+            return NextResponse.json({ error: 'Staff ID is required' }, { status: 400 });
+        }
+
+        const client = await pool.connect();
+        await client.query(`DELETE FROM staff WHERE id = $1`, [id]);
+        
+        client.release();
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting staff:', error);
+        return NextResponse.json({ error: 'Failed to delete staff' }, { status: 500 });
+    }
+}

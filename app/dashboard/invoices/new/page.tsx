@@ -304,74 +304,141 @@ export default function NewInvoicePage() {
         }
     };
 
-    const processVoiceTranscripts = (transcripts: string[]) => {
+    const processVoiceTranscripts = async (transcripts: string[]) => {
         const storeProducts = (useStore.getState() as any).products || [];
         const liveProducts = storeProducts.filter((p: any) => p?.id && p?.name && p?.status !== 'INACTIVE');
         
-        if (liveProducts.length === 0) return toast.error('Inventory khali hai.');
+        if (liveProducts.length === 0) return toast.error('Inventory khali hai. Pehle products add karein.');
 
         const heard = transcripts[0];
-        toast(`Suna: "${heard}"`, { icon: '👂' });
+        toast.loading(`Samajh rahe hain: "${heard}"...`, { id: 'voice-parsing' });
 
-        let bestMatch: any = null;
-        let maxScore = 0;
-        let bestQty = 1;
+        let parsedItems: any[] = [];
+        let usedAI = true;
 
-        // Remove all non-letter and non-number characters (keeps all languages but strips punctuation/symbols)
-        const clean = (s: string) => s.toLowerCase().replace(/[^\\p{L}\\p{N}\\s]/gu, '').trim();
+        try {
+            // Try the advanced Gemini API first
+            const res = await fetch('/api/ai/voice-billing', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    transcript: heard,
+                    products: liveProducts.map((p: any) => ({ id: p.id, name: p.name }))
+                })
+            });
 
-        for (const raw of transcripts) {
-            const text = raw.toLowerCase();
-            let qty = 1;
-            const numMatch = text.match(/\d+/);
-            if (numMatch) qty = parseInt(numMatch[0], 10);
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error('Fallback');
+            }
 
-            const voiceName = clean(text.replace(/\d+/g, ''));
-            if (!voiceName) continue;
+            const data = await res.json();
+            if (!res.ok) throw new Error('Fallback');
 
-            liveProducts.forEach((p: any) => {
-                const pName = clean(p.name);
-                let score = 0;
+            if (data.items && data.items.length > 0) {
+                parsedItems = data.items;
+            }
+        } catch (err: any) {
+            // OFFLINE SMART FALLBACK: If API Key is missing or quota exceeded
+            usedAI = false;
+            console.log("Using Offline Smart Fallback matching...");
+            
+            // Clean text and handle common hindi/english numbers
+            let text = heard.toLowerCase()
+                .replace(/ek/g, '1').replace(/do/g, '2').replace(/teen/g, '3')
+                .replace(/chaar/g, '4').replace(/paanch/g, '5')
+                .replace(/aur/g, 'and').replace(/, /g, ' and ');
 
-                if (pName === voiceName) score = 2000;
-                else if (pName.includes(voiceName) || voiceName.includes(pName)) score = 1000;
-                else {
-                    const parts = voiceName.split(' ').filter(w => w.length > 2);
-                    parts.forEach(w => { if (pName.includes(w)) score += 500; });
+            // Split by "and" to handle multiple items like "1 maggi and 2 soap"
+            const segments = text.split(' and ');
+            
+            segments.forEach(segment => {
+                let qty = 1;
+                const numMatch = segment.match(/\d+/);
+                if (numMatch) {
+                    qty = parseInt(numMatch[0], 10);
+                    segment = segment.replace(/\d+/g, '');
                 }
 
-                if (score > maxScore) {
-                    maxScore = score;
-                    bestMatch = p;
-                    bestQty = qty;
+                const cleanWord = segment.replace(/[^a-z0-9\s]/g, '').trim();
+                if (!cleanWord || cleanWord.length < 2) return;
+
+                let bestMatch = null;
+                let maxScore = 0;
+
+                liveProducts.forEach((p: any) => {
+                    const pName = p.name.toLowerCase();
+                    let score = 0;
+                    
+                    if (pName === cleanWord) score = 100;
+                    else if (pName.startsWith(cleanWord) || cleanWord.startsWith(pName)) score = 80;
+                    else if (pName.includes(cleanWord) || cleanWord.includes(pName)) score = 60;
+                    else {
+                        const words = cleanWord.split(' ');
+                        words.forEach(w => {
+                            if (w.length > 2 && pName.includes(w)) score += 30;
+                        });
+                    }
+
+                    if (score > maxScore) {
+                        maxScore = score;
+                        bestMatch = p;
+                    }
+                });
+
+                if (bestMatch && maxScore > 20) {
+                    parsedItems.push({
+                        id: bestMatch.id,
+                        quantity: qty
+                    });
                 }
             });
-            if (maxScore >= 2000) break;
         }
 
-        if (bestMatch && maxScore > 200) {
-            const p = bestMatch;
-            const price = p.price || p.sale_price || p.unit_price || 0;
-            setSelectedItems(prev => {
-                const idx = prev.findIndex(item => item.product_id === p.id);
-                if (idx > -1) {
-                    const next = [...prev];
-                    next[idx].quantity = (Number(next[idx].quantity) || 0) + bestQty;
-                    return next;
-                }
-                return [...prev, {
-                    product_id: p.id,
-                    product_name: p.name,
-                    quantity: bestQty,
-                    unit_price: price,
-                    gst_rate: p.gst_rate || 18,
-                    hsn_code: p.hsn_code || '',
-                    unit: p.unit || 'PCS'
-                }];
+        if (parsedItems.length > 0) {
+            let addedCount = 0;
+            setSelectedItems((prev) => {
+                const next = [...prev];
+                
+                parsedItems.forEach((aiItem: any) => {
+                    const p = liveProducts.find((p: any) => p.id === aiItem.id);
+                    if (p) {
+                        addedCount++;
+                        const qty = Number(aiItem.quantity) || 1;
+                        const price = p.price || p.sale_price || p.unit_price || 0;
+                        
+                        const idx = next.findIndex(item => item.product_id === p.id);
+                        if (idx > -1) {
+                            next[idx].quantity = (Number(next[idx].quantity) || 0) + qty;
+                        } else {
+                            const emptyIdx = next.findIndex(item => !item.product_id);
+                            const newItem = {
+                                product_id: p.id,
+                                product_name: p.name,
+                                quantity: qty,
+                                unit_price: price,
+                                gst_rate: p.gst_rate || 18,
+                                hsn_code: p.hsn_code || '',
+                                unit: p.unit || 'PCS'
+                            };
+                            
+                            if (emptyIdx > -1 && addedCount === 1) {
+                                next[emptyIdx] = newItem;
+                            } else {
+                                next.push(newItem);
+                            }
+                        }
+                    }
+                });
+                
+                return next;
             });
-            toast.success(`✅ ${p.name} added`);
+            
+            toast.dismiss('voice-parsing');
+            toast.success(`✅ ${addedCount} Product(s) Add Ho Gaye! ${usedAI ? '' : '(Offline Mode)'}`);
         } else {
-            toast.error(`Nahi mila: "${heard}"`);
+            toast.dismiss('voice-parsing');
+            toast.error(`Suna: "${heard}", par koi item samajh nahi aaya.`);
         }
     };
 
@@ -563,7 +630,11 @@ export default function NewInvoicePage() {
                     }
                 }
 
-                router.push('/dashboard/invoices');
+                if (result && result.id) {
+                    router.push('/dashboard/invoices?new=' + result.id);
+                } else {
+                    router.push('/dashboard/invoices');
+                }
             } else {
                 toast.error('Failed to save invoice');
             }
@@ -615,7 +686,7 @@ export default function NewInvoicePage() {
                 .c-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
                 .c-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
                 
-                .doc-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+                .doc-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
                 .dtab { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--faint); cursor: pointer; transition: 0.2s; }
                 .dtab.active { background: #eef2ff; border-color: var(--indigo); color: var(--indigo); font-weight: 700; }
                 .dt-label { font-size: 10px; text-transform: uppercase; text-align: center; }
@@ -675,7 +746,7 @@ export default function NewInvoicePage() {
                   .c-title { margin-bottom: 12px; }
                   .bottom-bar { padding: 10px 15px; height: auto; flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; }
                   .bb-save { justify-content: center; padding: 10px 20px; font-size: 13px; }
-                  .doc-tabs { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+                  .doc-tabs { grid-template-columns: repeat(5, 1fr); gap: 5px; }
                   .dtab { padding: 8px 4px; }
                   .dt-icon { font-size: 14px; }
                   .dt-label { font-size: 8px; }
@@ -690,7 +761,7 @@ export default function NewInvoicePage() {
                 }
 
                 @media (max-width: 480px) {
-                  .doc-tabs { grid-template-columns: repeat(4, 1fr); }
+                  .doc-tabs { grid-template-columns: repeat(5, 1fr); }
                   .pay-grid { grid-template-columns: repeat(4, 1fr); }
                   .inv-pill { padding: 10px; }
                   .ip-num { font-size: 11px; }
@@ -818,11 +889,12 @@ export default function NewInvoicePage() {
                     {/* Document Type */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#ede9fe', color: '#6d28d9' }}><FaFileInvoice /></div> Document Type</div>
-                        <div className="doc-tabs">
+                        <div className="doc-tabs" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
                             <div className={`dtab ${docType === DOC_TYPES.TAX_INVOICE ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.TAX_INVOICE)}><span className="dt-icon">🧾</span><span className="dt-label">Tax Invoice</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.BILL_OF_SUPPLY ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.BILL_OF_SUPPLY)}><span className="dt-icon">📋</span><span className="dt-label">Bill Supply</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.DELIVERY_CHALLAN ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.DELIVERY_CHALLAN)}><span className="dt-icon">🚚</span><span className="dt-label">Del. Challan</span></div>
-                            <div className={`dtab ${docType === DOC_TYPES.E_WAY_BILL ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.E_WAY_BILL)}><span className="dt-icon">🛣</span><span className="dt-label">E-Way Bill</span></div>
+                            <div className={`dtab ${docType === DOC_TYPES.E_WAY_BILL ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.E_WAY_BILL)}><span className="dt-icon">🛣️</span><span className="dt-label">E-Way Bill</span></div>
+                            <div className="dtab" onClick={() => router.push('/dashboard/quotations/new')}><span className="dt-icon">📝</span><span className="dt-label">Quotation</span></div>
                         </div>
                     </div>
 

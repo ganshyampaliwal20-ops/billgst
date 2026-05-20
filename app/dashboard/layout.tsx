@@ -10,7 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
-    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot
+    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -80,11 +80,12 @@ export default function DashboardLayout({
                 { label: t.billOfSupply, href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
                 { label: t.eWayBill, href: '/dashboard/invoices/new?type=E_WAY_BILL' },
                 { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
+                { label: t.quotations || 'Quotation', href: '/dashboard/quotations' },
             ]
         },
-        { icon: FaFileAlt, label: t.quotations || 'Quotation', href: '/dashboard/quotations' },
         { icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' },
         { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
+        { icon: FaIdCard, label: 'Staff & Attendance', href: '/dashboard/staff' },
         { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
         { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
         { icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' },

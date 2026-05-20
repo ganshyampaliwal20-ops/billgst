@@ -36,10 +36,25 @@ export default function InvoicesPage() {
         if (fetchQuotations) fetchQuotations();
     }, [fetchInvoices, fetchQuotations]);
 
+    // Handle auto-select new invoice
+    useEffect(() => {
+        if (isClient && safeInvoices.length > 0) {
+            const params = new URLSearchParams(window.location.search);
+            const newId = params.get('new');
+            if (newId) {
+                const newInv = safeInvoices.find((i: any) => i.id === newId);
+                if (newInv) {
+                    setSelectedInvoice(newInv);
+                    window.history.replaceState({}, '', '/dashboard/invoices');
+                }
+            }
+        }
+    }, [isClient, safeInvoices]);
+
 
     const safeInvoices = Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [];
     
-    // Filtering Logic
+    // Filtering & Sorting Logic
     const filteredInvoices = safeInvoices.filter((inv: any) => {
         const customerName = (inv?.customer?.name || '').toLowerCase();
         const invoiceNumber = (inv?.invoice_number || '').toLowerCase();
@@ -52,6 +67,10 @@ export default function InvoicesPage() {
         if (activeTab === 'd' && (inv.status || '').toUpperCase() !== 'PAID') return false;
 
         return true;
+    }).sort((a: any, b: any) => {
+        const dateA = new Date(a.created_at || a.invoice_date).getTime();
+        const dateB = new Date(b.created_at || b.invoice_date).getTime();
+        return dateB - dateA;
     });
 
     const grouped = useMemo(() => {
@@ -228,7 +247,11 @@ export default function InvoicesPage() {
             </div>
 
             <div className="invoice-list">
-                {Object.entries(grouped).map(([key, invs]: [string, any]) => (
+                {Object.entries(grouped).sort((a: any, b: any) => {
+                    const latestA = Math.max(...a[1].map((i: any) => new Date(i.created_at || i.invoice_date).getTime()));
+                    const latestB = Math.max(...b[1].map((i: any) => new Date(i.created_at || i.invoice_date).getTime()));
+                    return latestB - latestA;
+                }).map(([key, invs]: [string, any]) => (
                     <div key={key} className="cust-group">
                         <div className="cust-hdr" onClick={() => setExpandedCustomers(prev => ({ ...prev, [key]: !prev[key] }))}>
                             <div className="avatar" style={{ color: 'var(--indigo)' }}>{invs[0]?.customer?.name?.charAt(0) || 'C'}</div>

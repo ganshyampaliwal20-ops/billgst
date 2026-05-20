@@ -166,9 +166,11 @@ export default function Navbar3D() {
                                     { label: t.billOfSupply, href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
                                     { label: t.eWayBill, href: '/dashboard/invoices/new?type=E_WAY_BILL' },
                                     { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
+                                    { label: t.quotations || 'Quotation', href: '/dashboard/quotations' },
                                 ]
                             },
                             { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
+                            { icon: FaIdCard, label: 'Staff & Attendance', href: '/dashboard/staff' },
                             { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
                             { icon: FaChartLine, label: t.reports, href: '/dashboard/reports' },
                             { icon: FaRss, label: 'Blog', href: '/blog' },
