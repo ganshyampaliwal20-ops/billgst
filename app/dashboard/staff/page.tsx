@@ -334,14 +334,20 @@ export default function SmartAttendance() {
             }
         });
 
-        const footerText = businessProfile?.name || 'BillGST';
+        const footerText = 'Generated securely via BillGST.in';
         const pageHeight = doc.internal.pageSize.getHeight();
         doc.setFontSize(10);
-        doc.setTextColor(120);
+        doc.setTextColor(150);
         doc.text(footerText, 14, pageHeight - 10);
 
-        doc.save(`${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`);
-        toast.success('Salary Slip PDF Downloaded!');
+        const filename = `${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
+        try {
+            doc.save(filename);
+            toast.success('Salary Slip Downloaded!');
+        } catch (err) {
+            console.error('PDF Save error:', err);
+            toast.error('Failed to save PDF');
+        }
     };
 
     const generateMasterReportPDF = async () => {
@@ -423,32 +429,20 @@ export default function SmartAttendance() {
             styles: { fontSize: 13, fontStyle: 'bold', textColor: [16, 185, 129] }
         });
 
-        const footerText = businessProfile?.name || 'BillGST';
+        const footerText = 'Generated securely via BillGST.in';
         const pageHeight = doc.internal.pageSize.getHeight();
         doc.setFontSize(10);
-        doc.setTextColor(120);
+        doc.setTextColor(150);
         doc.text(footerText, 14, pageHeight - 10);
 
         const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], filename, { type: 'application/pdf' });
-            
-            if (navigator.share) {
-                await navigator.share({
-                    files: [file],
-                    title: filename,
-                    text: 'Staff Attendance & Salary Report'
-                });
-                toast.success('Report tayyar hai!');
-            } else {
-                window.open(URL.createObjectURL(pdfBlob), '_blank');
-                toast.success('Master Report Opened!');
-            }
-        } catch (err) {
-            console.error('PDF Share/Save error:', err);
+            // Most robust fallback for mobile TWA/WebView
             doc.save(filename);
             toast.success('Master Report Downloaded!');
+        } catch (err) {
+            console.error('PDF Save error:', err);
+            toast.error('Failed to save PDF');
         }
     };
 
@@ -630,19 +624,6 @@ export default function SmartAttendance() {
                         <button className="date-nav-btn" onClick={nextMonth}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
                         </button>
-                    </div>
-
-                    <div className="days-scroll" ref={scrollRef}>
-                        {daysArray.map(d => (
-                            <div 
-                                key={d.dateStr}
-                                onClick={() => setSelectedDate(d.dateStr)}
-                                className={`day-chip ${d.isSun ? 'sunday' : 'has-data'} ${d.isToday ? 'today' : ''} ${selectedDate === d.dateStr ? 'selected' : ''}`}
-                            >
-                                <div className="day-chip-name">{d.dayName}</div>
-                                <div className="day-chip-num">{d.dayNum}</div>
-                            </div>
-                        ))}
                     </div>
                 </div>
 
