@@ -4,10 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export default function SmartAttendance() {
+    const { data: session } = useSession();
     const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff } = useStore();
     const [isClient, setIsClient] = useState(false);
 
@@ -19,6 +22,8 @@ export default function SmartAttendance() {
     const [searchQuery, setSearchQuery] = useState('');
     const [deptFilter, setDeptFilter] = useState('all');
     const [activeTab, setActiveTab] = useState('workers');
+    const currentUserRole = normalizeRole(session?.user?.role);
+    const canAccessRoleAdmin = isOwnerRole(currentUserRole) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
     const [sheet, setSheet] = useState<'none'|'detail'|'add'>('none');
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [isEditingStaff, setIsEditingStaff] = useState(false);
@@ -27,6 +32,7 @@ export default function SmartAttendance() {
     // Form State
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
         phone: '',
         role: 'Kaamgaar',
         daily_wage: ''
@@ -108,7 +114,7 @@ export default function SmartAttendance() {
         if (!formData.name || !formData.phone) return toast.error('Name & Phone required');
         await addStaff(formData);
         setSheet('none');
-        setFormData({ name: '', phone: '', role: 'Kaamgaar', daily_wage: '' });
+        setFormData({ name: '', email: '', phone: '', role: 'Kaamgaar', daily_wage: '' });
     };
 
     // Calculate Stats for Selected Date
@@ -594,6 +600,22 @@ export default function SmartAttendance() {
                     <button className={`dtab ${deptFilter === 'cleaner' ? 'on' : ''}`} onClick={() => setDeptFilter('cleaner')}>Safai</button>
                 </div>
 
+                {canAccessRoleAdmin && (
+                    <div className="admin-shortcut-card" style={{ marginTop: '18px', padding: '18px', borderRadius: '18px', background: '#eef2ff', border: '1px solid #c7d2fe', color: '#1e3a8a' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                            <div>
+                                <div style={{ fontSize: '15px', fontWeight: 800 }}>Owner/Admin ke liye</div>
+                                <div style={{ fontSize: '13px', color: '#334155', marginTop: '6px' }}>
+                                    Yahan se staff ke roles assign karne ka page khol sakte ho. Sirf owner/admin login wale dekh sakte hain.
+                                </div>
+                            </div>
+                            <Link href="/dashboard/admin" className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 transition">
+                                Admin Panel Kholen
+                            </Link>
+                        </div>
+                    </div>
+                )}
+
                 {/* WORKERS LIST */}
                 <div className="workers">
                     {filteredStaff.length === 0 && <div className="text-center mt-10 text-[#7b7fa0] font-bold">Koi kaamgaar nahi mila</div>}
@@ -671,6 +693,9 @@ export default function SmartAttendance() {
                                 <div>
                                     <div style={{ fontSize: '18px', fontWeight: 900, color: '#0d0f1c' }}>{selectedStaff.name}</div>
                                     <div style={{ fontSize: '12px', color: '#7b7fa0' }}>{selectedStaff.role} · ₹{selectedStaff.daily_wage}/din</div>
+                                    {selectedStaff.email && (
+                                        <div style={{ fontSize: '11px', color: '#7b7fa0', marginTop: '4px' }}>{selectedStaff.email}</div>
+                                    )}
                                 </div>
                                 <button onClick={() => setSheet('none')} style={{ marginLeft: 'auto', width: '32px', height: '32px', borderRadius: '50%', background: '#f0f2f8', border: '1px solid #e0e3f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><path d="M18 6L6 18M6 6l12 12" /></svg>
@@ -751,6 +776,13 @@ export default function SmartAttendance() {
                                 </div>
                             </div>
 
+                            <div className="aw-field">
+                                <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z" /></svg></div>
+                                <div className="aw-inner">
+                                    <div className="aw-lbl">Email (optional)</div>
+                                    <input type="email" placeholder="user@example.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                                </div>
+                            </div>
                             <div className="aw-field">
                                 <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z" /></svg></div>
                                 <div className="aw-inner">

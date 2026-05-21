@@ -4,17 +4,7 @@
             "outputFile": "in.billgst.app-mergeReleaseResources-12:/values-en-rXC/values-en-rXC.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Ghanshyam\\.gradle\\caches\\9.1.0\\transforms\\43a8c83b393b43be188509f62495a5d3\\workspace\\transformed\\browser-1.4.0\\res\\values-en-rXC\\values-en-rXC.xml",
-                    "from": {
-                        "startLines": "2,3,4,5",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "55,255,454,665",
-                        "endColumns": "199,198,210,201",
-                        "endOffsets": "250,449,660,862"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Ghanshyam\\.gradle\\caches\\9.1.0\\transforms\\ed19162747329bd195a8f42f324610ce\\workspace\\transformed\\core-1.2.0\\res\\values-en-rXC\\values-en-rXC.xml",
+                    "source": "C:\\Users\\Ghanshyam\\.gradle\\caches\\9.1.0\\transforms\\c47b02e7d3e7f3657e10442b9c8b73b2\\workspace\\transformed\\core-1.2.0\\res\\values-en-rXC\\values-en-rXC.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -28,6 +18,16 @@
                         "startOffsets": "867",
                         "endColumns": "203",
                         "endOffsets": "1066"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Ghanshyam\\.gradle\\caches\\9.1.0\\transforms\\a95bb20830a0f7f4ad55453f2d499a3d\\workspace\\transformed\\browser-1.4.0\\res\\values-en-rXC\\values-en-rXC.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,255,454,665",
+                        "endColumns": "199,198,210,201",
+                        "endOffsets": "250,449,660,862"
                     }
                 }
             ]

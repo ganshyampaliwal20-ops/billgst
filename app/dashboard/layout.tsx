@@ -13,6 +13,7 @@ import {
     FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
+import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
 import LanguageSelector from '@/app/components/LanguageSelector';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from './RegistrationPopup';
@@ -64,6 +65,7 @@ export default function DashboardLayout({
         icon: any;
         label: string;
         href: string;
+        show?: boolean;
         isAuth?: boolean;
         subItems?: { label: string; href: string }[];
         onClick?: () => void;
@@ -102,7 +104,10 @@ export default function DashboardLayout({
         { icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' },
         { icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' },
         { icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' },
-        ...(session?.user?.email === 'ganshyampaliwal20@gmail.com' ? [{ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' }] : []),
+        ...((isOwnerRole(normalizeRole(session?.user?.role)) ||
+            ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || ''))
+            ? [{ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' }]
+            : []),
         // Settings moved to bottom manually
     ];
 

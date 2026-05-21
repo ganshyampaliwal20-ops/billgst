@@ -1457,6 +1457,7 @@
   font-family: inherit;
   font-size: 14px;
   color: var(--ink);
+  -webkit-text-fill-color: currentColor;
   transition: all .2s;
 }
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './hisaab.css';
 import { generateHisaabPDF } from '../../../lib/pdf-generator';
+import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
 
 // ─── HELPERS ───
@@ -152,6 +153,17 @@ export default function BusinessExpensesPage() {
     const [acOpening, setAcOpening] = useState('');
 
     const toastTimeout = useRef<any>(null);
+
+    useEffect(() => {
+        if (!isAddCustOpen) return;
+        const id = window.requestAnimationFrame(() => {
+            document.body.style.display = 'inline-block';
+            window.requestAnimationFrame(() => {
+                document.body.style.display = '';
+            });
+        });
+        return () => window.cancelAnimationFrame(id);
+    }, [isAddCustOpen]);
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -430,41 +442,68 @@ export default function BusinessExpensesPage() {
     };
 
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
-        const phone = cust.phone?.replace(/\\D/g, '') || '';
+        const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
             showToast('📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
             return;
         }
-        showToast('⏳ WhatsApp message ban raha hai...');
+        
+        showToast('⏳ PDF Statement ban raha hai...');
         try {
             if (session?.user?.id) {
                 try {
-                    await fetch('/api/hisaab/sync', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(cust)
-                    });
-                } catch (e) {
-                    console.error("Immediate sync failed", e);
-                }
+                    await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) });
+                } catch (e) {}
             }
 
+            let c = 0, d = 0;
+            (cust.txns || []).forEach((t: any) => {
+                if (t.type === 'credit') c += t.amt;
+                else d += t.amt;
+            });
+            const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
+            
+            const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
+            if (!doc) {
+                showToast('❌ PDF nahi ban paya!');
+                return;
+            }
+
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], `Statement_${cust.name}.pdf`, { type: 'application/pdf' });
+            
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            const textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab ready hai. Yahaan click karke apna poora hisaab dekhein: 👇\n\n${shareUrl}`;
+            const textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+
+            // Native Web Share API
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: `Statement_${cust.name}.pdf`,
+                        text: textMsg
+                    });
+                    showToast('✅ WhatsApp pe share ho gaya!');
+                    return;
+                } catch (e) {
+                    console.log('Share cancelled', e);
+                }
+            }
 
             const formData = new FormData();
             formData.append('phone', phone);
             formData.append('message', textMsg);
+            formData.append('file', file);
 
-            showToast('⏳ WhatsApp pe send ho raha hai...');
+            showToast('⏳ WhatsApp Bot se bhej rahe hain...');
             const sendRes = await fetch('/api/whatsapp/send-media', {
                 method: 'POST',
                 body: formData
             });
 
             if (sendRes.ok) {
-                showToast('✅ WhatsApp pe Link chala gaya!');
+                showToast('✅ WhatsApp pe PDF chala gaya!');
             } else {
                 window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             }

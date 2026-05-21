@@ -37,16 +37,16 @@
 34-->F:\bill\app\src\main\AndroidManifest.xml:28:5-78
 34-->F:\bill\app\src\main\AndroidManifest.xml:28:22-76
 35    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-35-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ebe6fe5380fabd79005e24d14dbb1505\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:7:5-79
-35-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ebe6fe5380fabd79005e24d14dbb1505\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:7:22-76
+35-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\593b5c6ac746f2d018d003b97d4c054c\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:7:5-79
+35-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\593b5c6ac746f2d018d003b97d4c054c\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:7:22-76
 36    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-36-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ebe6fe5380fabd79005e24d14dbb1505\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:8:5-81
-36-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ebe6fe5380fabd79005e24d14dbb1505\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:8:22-78
+36-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\593b5c6ac746f2d018d003b97d4c054c\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:8:5-81
+36-->[com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\593b5c6ac746f2d018d003b97d4c054c\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:8:22-78
 37
 38    <queries>
-38-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\1aa7db129ce8f7f909d7835659fbd385\workspace\transformed\androidbrowserhelper-2.5.0\AndroidManifest.xml:26:5-34:15
+38-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\29dbb3d47b30b3bc0e5ed363d9097d9e\workspace\transformed\androidbrowserhelper-2.5.0\AndroidManifest.xml:26:5-34:15
 39        <intent>
-39-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\1aa7db129ce8f7f909d7835659fbd385\workspace\transformed\androidbrowserhelper-2.5.0\AndroidManifest.xml:27:9-33:18
+39-->[com.google.androidbrowserhelper:androidbrowserhelper:2.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\29dbb3d47b30b3bc0e5ed363d9097d9e\workspace\transformed\androidbrowserhelper-2.5.0\AndroidManifest.xml:27:9-33:18
 40            <action android:name="android.intent.action.VIEW" />
 40-->F:\bill\app\src\main\AndroidManifest.xml:147:17-68
 40-->F:\bill\app\src\main\AndroidManifest.xml:147:25-66
@@ -60,29 +60,29 @@
 44-->F:\bill\app\src\main\AndroidManifest.xml:150:23-45
 45        </intent>
 46        <intent>
-46-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:13:9-15:18
+46-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:13:9-15:18
 47            <action android:name="com.android.vending.billing.InAppBillingService.BIND" />
-47-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:14:13-91
-47-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:14:21-88
+47-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:14:13-91
+47-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:14:21-88
 48        </intent>
 49        <intent>
-49-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:16:9-18:18
+49-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:16:9-18:18
 50            <action android:name="com.google.android.apps.play.billingtestcompanion.BillingOverrideService.BIND" />
-50-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:17:13-116
-50-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:17:21-113
+50-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:17:13-116
+50-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:17:21-113
 51        </intent>
 52    </queries>
 53
 54    <uses-permission android:name="com.android.vending.BILLING" /> <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
-54-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:10:5-67
-54-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:10:22-64
+54-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:10:5-67
+54-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:10:22-64
 55    <!-- <uses-sdk android:minSdkVersion="14"/> -->
 56    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-56-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:5-79
-56-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:22-76
+56-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:5-79
+56-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:22-76
 57    <uses-permission android:name="android.permission.INTERNET" />
-57-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:5-67
-57-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:22-64
+57-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:5-67
+57-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:22-64
 58
 59    <application
 59-->F:\bill\app\src\main\AndroidManifest.xml:34:5-226:19
@@ -91,7 +91,7 @@
 61        android:allowBackup="true"
 61-->F:\bill\app\src\main\AndroidManifest.xml:36:9-35
 62        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-62-->[androidx.core:core:1.2.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ed19162747329bd195a8f42f324610ce\workspace\transformed\core-1.2.0\AndroidManifest.xml:24:18-86
+62-->[androidx.core:core:1.2.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\c47b02e7d3e7f3657e10442b9c8b73b2\workspace\transformed\core-1.2.0\AndroidManifest.xml:24:18-86
 63        android:extractNativeLibs="true"
 64        android:icon="@mipmap/ic_launcher"
 64-->F:\bill\app\src\main\AndroidManifest.xml:37:9-43
@@ -379,77 +379,77 @@
 211        </service>
 212
 213        <meta-data
-213-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:22:9-24:37
+213-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:22:9-24:37
 214            android:name="com.google.android.play.billingclient.version"
-214-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:23:13-73
+214-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:23:13-73
 215            android:value="7.1.1" />
-215-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:24:13-34
+215-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:24:13-34
 216
 217        <activity
-217-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:26:9-30:75
+217-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:26:9-30:75
 218            android:name="com.android.billingclient.api.ProxyBillingActivity"
-218-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:27:13-78
+218-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:27:13-78
 219            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-219-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:28:13-96
+219-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:28:13-96
 220            android:exported="false"
-220-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:29:13-37
+220-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:29:13-37
 221            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-221-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:30:13-72
+221-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:30:13-72
 222        <activity
-222-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:31:9-35:75
+222-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:31:9-35:75
 223            android:name="com.android.billingclient.api.ProxyBillingActivityV2"
-223-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:32:13-80
+223-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:32:13-80
 224            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-224-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:33:13-96
+224-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:33:13-96
 225            android:exported="false"
-225-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:34:13-37
+225-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:34:13-37
 226            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-226-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\878aa1f55a9523b21171289ef7cad4d4\workspace\transformed\billing-7.1.1\AndroidManifest.xml:35:13-72
+226-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:35:13-72
 227        <activity
-227-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8aec6337ceffec73480e03c4515b313f\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+227-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
 228            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-228-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8aec6337ceffec73480e03c4515b313f\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+228-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
 229            android:exported="false"
-229-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8aec6337ceffec73480e03c4515b313f\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+229-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
 230            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-230-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8aec6337ceffec73480e03c4515b313f\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
+230-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
 231
 232        <meta-data
-232-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\71df0428da1f1529818f40e15d0705f9\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+232-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
 233            android:name="com.google.android.gms.version"
-233-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\71df0428da1f1529818f40e15d0705f9\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+233-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
 234            android:value="@integer/google_play_services_version" />
-234-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\71df0428da1f1529818f40e15d0705f9\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+234-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
 235
 236        <service
-236-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:28:9-34:19
+236-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:28:9-34:19
 237            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
-237-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:29:13-103
+237-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:29:13-103
 238            android:exported="false" >
-238-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:30:13-37
+238-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:30:13-37
 239            <meta-data
-239-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:31:13-33:39
+239-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:31:13-33:39
 240                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
-240-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:32:17-94
+240-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:32:17-94
 241                android:value="cct" />
-241-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\63624619b8c2dc154fabffba1dad3d90\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:33:17-36
+241-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:33:17-36
 242        </service>
 243        <service
-243-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:26:9-30:19
+243-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:26:9-30:19
 244            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
-244-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:27:13-117
+244-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:27:13-117
 245            android:exported="false"
-245-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:28:13-37
+245-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:28:13-37
 246            android:permission="android.permission.BIND_JOB_SERVICE" >
-246-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:29:13-69
+246-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:29:13-69
 247        </service>
 248
 249        <receiver
-249-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:32:9-34:40
+249-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:32:9-34:40
 250            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
-250-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:33:13-132
+250-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:33:13-132
 251            android:exported="false" />
-251-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\01167c45cc501633462b85eadf10e4e5\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:34:13-37
+251-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:34:13-37
 252    </application>
 253
 254</manifest>

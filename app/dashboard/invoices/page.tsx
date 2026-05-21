@@ -115,15 +115,60 @@ export default function InvoicesPage() {
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
-    const handleWhatsApp = (invoice: any) => {
+    const handleWhatsApp = async (invoice: any) => {
         const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
         if (!phone) {
             toast.error('Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.', { icon: '📱' });
             return;
         }
-        const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
-        const url = `https://wa.me/91${phone}?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
+
+        const toastId = toast.loading('WhatsApp ke liye PDF ban raha hai...');
+        try {
+            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+            if (!doc) {
+                toast.error('PDF Generate fail!', { id: toastId });
+                return;
+            }
+
+            const pdfBlob = doc.output('blob');
+            const fileName = `Invoice_${invoice.invoice_number || '001'}.pdf`;
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+            
+            const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: fileName,
+                        text: text
+                    });
+                    toast.success('WhatsApp par share open ho gaya!', { id: toastId });
+                    return;
+                } catch (e) {
+                    console.log('Share cancelled', e);
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('message', text);
+            formData.append('file', file);
+
+            const res = await fetch('/api/whatsapp/send-media', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                toast.success('WhatsApp Bot ne PDF bhej diya! ✅', { id: toastId });
+            } else {
+                toast.dismiss(toastId);
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(text)}`, '_blank');
+            }
+        } catch (error) {
+            toast.error('WhatsApp Share Error', { id: toastId });
+        }
     };
 
     if (!isClient) return <div style={{ background: '#0F0E17', minHeight: '100vh' }} />;
