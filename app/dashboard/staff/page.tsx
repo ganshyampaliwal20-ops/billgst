@@ -99,14 +99,14 @@ export default function SmartAttendance() {
 
     const getTimeFields = (staffId: string, dStr: string) => {
         const rec = attendance?.find((a: any) => a.staff_id === staffId && a.date === dStr);
-        return { in_time: rec?.in_time || '', out_time: rec?.out_time || '' };
+        return { in_time: rec?.in_time || '', out_time: rec?.out_time || '', note: rec?.note || '' };
     };
 
-    const handleSetAtt = async (id: string, status: string, in_time?: string | null, out_time?: string | null) => {
+    const handleSetAtt = async (id: string, status: string, in_time?: string | null, out_time?: string | null, note?: string | null) => {
         if (isSaving) return;
         setIsSaving(true);
         try {
-            const res = await markAttendance(id, selectedDate, status, in_time, out_time);
+            const res = await markAttendance(id, selectedDate, status, in_time, out_time, note);
             if (res && res.success) {
                 toast.success(
                     status === 'PRESENT' ? 'Haazir mark kiya ✓' :
@@ -167,14 +167,32 @@ export default function SmartAttendance() {
             a.date.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}`)
         ) || [];
         
+        let calculatedGross = 0;
+        let presentDays = 0;
+        
         currentMonthRecords.forEach((r: any) => {
+            if (r.status === 'PRESENT' || r.status === 'HALF_DAY') {
+                if (r.in_time && r.out_time) {
+                    const inDate = new Date(`1970-01-01T${r.in_time}Z`);
+                    const outDate = new Date(`1970-01-01T${r.out_time}Z`);
+                    let diffMs = outDate.getTime() - inDate.getTime();
+                    if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+                    const hours = diffMs / (1000 * 60 * 60);
+                    calculatedGross += (ds.rate / 8) * hours;
+                    presentDays += (hours / 8); // approximate days based on 8hr
+                } else {
+                    calculatedGross += (r.status === 'PRESENT' ? ds.rate : (ds.rate * 0.5));
+                    presentDays += (r.status === 'PRESENT' ? 1 : 0.5);
+                }
+            }
             if (r.status === 'PRESENT') ds.p++;
             if (r.status === 'HALF_DAY') ds.h++;
             if (r.status === 'ABSENT') ds.a++;
             if (r.status === 'LEAVE') ds.l++;
         });
 
-        ds.gross = (ds.p * ds.rate) + (ds.h * ds.rate * 0.5);
+        ds.gross = Math.round(calculatedGross);
+        // Note: ds.p and ds.h are just counts. We use a base deduction logic if simple
         ds.deduct = ds.a * ds.rate;
         const advance = Number(selectedStaff.advance) || 0;
         ds.net = ds.gross - ds.deduct - advance;
@@ -183,6 +201,7 @@ export default function SmartAttendance() {
     const handleUpdateStaffInfo = async () => {
         if (!selectedStaff) return;
         await updateStaff(selectedStaff.id, { 
+            ...selectedStaff,
             daily_wage: editStaffData.daily_wage,
             advance: editStaffData.advance 
         });
@@ -732,14 +751,20 @@ export default function SmartAttendance() {
                                 </div>
                                 
                                 {(status === 'PRESENT' || status === 'HALF_DAY') && (
-                                    <div style={{ padding: '8px 14px', background: '#fafbff', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time (Optional)</label>
-                                            <input type="time" value={times.in_time} onChange={(e) => handleSetAtt(member.id, status, e.target.value, times.out_time)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                    <div style={{ padding: '8px 14px', background: '#fafbff', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time</label>
+                                                <input type="time" value={times.in_time} onChange={(e) => handleSetAtt(member.id, status, e.target.value, times.out_time, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                            </div>
+                                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time</label>
+                                                <input type="time" value={times.out_time} onChange={(e) => handleSetAtt(member.id, status, times.in_time, e.target.value, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                            </div>
                                         </div>
-                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time (Optional)</label>
-                                            <input type="time" value={times.out_time} onChange={(e) => handleSetAtt(member.id, status, times.in_time, e.target.value)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Note / Remark (Optional)</label>
+                                            <input type="text" placeholder="Jaise: 1 ghanta late aaya..." defaultValue={times.note} onBlur={(e) => { if(e.target.value !== times.note) handleSetAtt(member.id, status, times.in_time, times.out_time, e.target.value) }} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px', width: '100%' }} />
                                         </div>
                                     </div>
                                 )}

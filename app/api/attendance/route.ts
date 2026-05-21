@@ -32,6 +32,7 @@ export async function GET(req: Request) {
         // Add new columns if they don't exist
         await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS in_time TIME');
         await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS out_time TIME');
+        await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS note TEXT');
 
         let query = `
             SELECT a.* FROM attendance a
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
         const userId = session.user.id;
 
         const body = await req.json();
-        const { staff_id, date, status, in_time, out_time } = body;
+        const { staff_id, date, status, in_time, out_time, note } = body;
         
         if (!staff_id || !date || !status) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -96,17 +97,19 @@ export async function POST(req: Request) {
         // Add new columns if they don't exist
         await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS in_time TIME');
         await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS out_time TIME');
+        await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS note TEXT');
 
         // Upsert attendance (if already exists for that date, update status)
         await client.query(
-            `INSERT INTO attendance (id, staff_id, date, status, in_time, out_time) 
-             VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO attendance (id, staff_id, date, status, in_time, out_time, note) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
              ON CONFLICT (staff_id, date) 
              DO UPDATE SET status = EXCLUDED.status, 
                            in_time = COALESCE(EXCLUDED.in_time, attendance.in_time), 
                            out_time = COALESCE(EXCLUDED.out_time, attendance.out_time),
+                           note = COALESCE(EXCLUDED.note, attendance.note),
                            created_at = CURRENT_TIMESTAMP`,
-            [attendanceId, staff_id, date, status, in_time || null, out_time || null]
+            [attendanceId, staff_id, date, status, in_time || null, out_time || null, note || null]
         );
         
         client.release();
