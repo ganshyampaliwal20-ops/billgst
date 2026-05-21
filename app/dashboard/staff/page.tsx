@@ -320,7 +320,7 @@ export default function SmartAttendance() {
         toast.success('Salary Slip PDF Downloaded!');
     };
 
-    const generateMasterReportPDF = () => {
+    const generateMasterReportPDF = async () => {
         const doc = new jsPDF();
         
         // Add Business Logo
