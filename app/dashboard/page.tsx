@@ -177,14 +177,14 @@ export default function DashboardPage() {
     };
 
     const today = new Date().toDateString();
-    const todaySales = invoices
+    const todaySales = (invoices || [])
         .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
         .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
 
     const pendingInvoices = (invoices || []).filter((inv: any) => inv.status !== 'PAID');
     const pendingByCustomer = pendingInvoices.reduce((acc: any, inv: any) => {
         const id = inv.customer_id || inv.customer?.id;
-        const custObj = customers.find((c: any) => c.id === id);
+        const custObj = (customers || []).find((c: any) => c.id === id);
         if (!acc[id]) {
             acc[id] = {
                 id,
@@ -213,7 +213,7 @@ export default function DashboardPage() {
 
     const totalOverallPending = pendingCustomersList.reduce((acc: number, c: any) => acc + c.totalPending, 0);
 
-    const recentInvoices = invoices.slice(0, 5);
+    const recentInvoices = (invoices || []).slice(0, 5);
 
     return (
         <div className="db-wrapper">
