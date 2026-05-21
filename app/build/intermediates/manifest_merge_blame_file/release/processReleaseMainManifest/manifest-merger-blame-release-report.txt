@@ -23,8 +23,8 @@
 23-->
 24<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 25    package="in.billgst.app"
-26    android:versionCode="12"
-27    android:versionName="2.2.0" >
+26    android:versionCode="20"
+27    android:versionName="2.2.8" >
 28
 29    <uses-sdk
 30        android:minSdkVersion="21"
