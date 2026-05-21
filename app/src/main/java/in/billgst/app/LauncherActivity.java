@@ -1,8 +1,6 @@
 package in.billgst.app;
 
-import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 public class LauncherActivity
@@ -10,12 +8,12 @@ public class LauncherActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        try {
+            androidx.activity.EdgeToEdge.enable(this);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        super.onCreate(savedInstanceState);
     }
 
     @Override
