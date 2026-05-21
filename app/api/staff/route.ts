@@ -71,6 +71,7 @@ export async function POST(req: Request) {
         `);
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS email VARCHAR(255)');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS created_by VARCHAR(255)');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS advance NUMERIC DEFAULT 0');
 
         await client.query(
             `INSERT INTO staff (id, name, email, phone, role, daily_wage, created_by) 
@@ -95,16 +96,18 @@ export async function PUT(req: Request) {
         const userId = session.user.id;
 
         const body = await req.json();
-        const { id, name, phone, role, daily_wage } = body;
+        const { id, name, phone, role, daily_wage, advance } = body;
         
         if (!id || !name) {
             return NextResponse.json({ error: 'ID and Name are required' }, { status: 400 });
         }
 
         const client = await pool.connect();
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS advance NUMERIC DEFAULT 0');
+        
         await client.query(
-            `UPDATE staff SET name = $1, email = $2, phone = $3, role = $4, daily_wage = $5 WHERE id = $6 AND created_by = $7`,
-            [name, body.email?.trim() || '', phone || '', role || 'Worker', daily_wage || 0, id, userId]
+            `UPDATE staff SET name = $1, email = $2, phone = $3, role = $4, daily_wage = $5, advance = $6 WHERE id = $7 AND created_by = $8`,
+            [name, body.email?.trim() || '', phone || '', role || 'Worker', daily_wage || 0, advance || 0, id, userId]
         );
         
         client.release();
