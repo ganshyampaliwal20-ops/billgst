@@ -106,12 +106,14 @@ export default function SmartAttendance() {
         if (isSaving) return;
         setIsSaving(true);
         try {
-            await markAttendance(id, selectedDate, status, in_time, out_time);
-            toast.success(
-                status === 'PRESENT' ? 'Haazir mark kiya ✓' :
-                status === 'HALF_DAY' ? 'Adha din mark kiya' :
-                status === 'ABSENT' ? 'Gair-haazir mark kiya ✕' : 'Chhutii mark ki 🏖'
-            );
+            const res = await markAttendance(id, selectedDate, status, in_time, out_time);
+            if (res && res.success) {
+                toast.success(
+                    status === 'PRESENT' ? 'Haazir mark kiya ✓' :
+                    status === 'HALF_DAY' ? 'Adha din mark kiya' :
+                    status === 'ABSENT' ? 'Gair-haazir mark kiya ✕' : 'Chhutii mark ki 🏖'
+                );
+            }
         } finally {
             setIsSaving(false);
         }
@@ -133,7 +135,7 @@ export default function SmartAttendance() {
     };
 
     const handleSaveWorker = async () => {
-        if (!formData.name || !formData.phone) return toast.error('Name & Phone required');
+        if (!formData.name) return toast.error('Name required');
         if (isSaving) return;
         setIsSaving(true);
         try {
@@ -405,19 +407,30 @@ export default function SmartAttendance() {
 
         const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {
-            // Use Blob URL approach for better mobile/TWA compatibility
             const pdfBlob = doc.output('blob');
-            const blobUrl = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-            toast.success('Master Report Downloaded!');
+            const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: filename,
+                    text: 'Staff Attendance & Salary Report'
+                });
+                toast.success('Report tayyar hai!');
+            } else {
+                // Fallback for desktop browsers
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                toast.success('Master Report Downloaded!');
+            }
         } catch (err) {
-            console.error('PDF Save error:', err);
+            console.error('PDF Share/Save error:', err);
             // Fallback
             doc.save(filename);
             toast.success('Master Report Downloaded (Fallback)!');
@@ -855,7 +868,7 @@ export default function SmartAttendance() {
                             <div className="aw-field">
                                 <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z" /></svg></div>
                                 <div className="aw-inner">
-                                    <div className="aw-lbl">Phone Number *</div>
+                                    <div className="aw-lbl">Phone Number (optional)</div>
                                     <input type="tel" placeholder="10 digit number" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                 </div>
                             </div>

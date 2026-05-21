@@ -25,12 +25,13 @@ export async function GET(req: Request) {
                 staff_id UUID NOT NULL,
                 date DATE NOT NULL,
                 status VARCHAR(50) NOT NULL,
-                in_time TIME,
-                out_time TIME,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(staff_id, date)
             )
         `);
+        // Add new columns if they don't exist
+        await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS in_time TIME');
+        await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS out_time TIME');
 
         let query = `
             SELECT a.* FROM attendance a
@@ -88,12 +89,13 @@ export async function POST(req: Request) {
                 staff_id UUID NOT NULL,
                 date DATE NOT NULL,
                 status VARCHAR(50) NOT NULL,
-                in_time TIME,
-                out_time TIME,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(staff_id, date)
             )
         `);
+        // Add new columns if they don't exist
+        await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS in_time TIME');
+        await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS out_time TIME');
 
         // Upsert attendance (if already exists for that date, update status)
         await client.query(
