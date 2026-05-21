@@ -596,11 +596,6 @@ export default function SmartAttendance() {
                             <span className="logo-nm">{businessProfile?.name || 'BillGST'}</span>
                         </div>
                         <span className="tb-title">Smart Attendance</span>
-                        <div className="tb-icons">
-                            <button className="tbi" onClick={() => toast.success('Report dekhein')}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8" /></svg>
-                            </button>
-                        </div>
                     </div>
                     <div className="page-tabs">
                         <div className={`ptab ${activeTab === 'workers' ? 'on' : ''}`} onClick={() => setActiveTab('workers')}>👷 Kaamgaar</div>
@@ -610,22 +605,6 @@ export default function SmartAttendance() {
                     </div>
                 </div>
 
-                {/* DATE STRIP */}
-                <div className="date-strip">
-                    <div className="date-nav">
-                        <button className="date-nav-btn" onClick={prevMonth}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-                        </button>
-                        <div className="date-center">
-                            <div className="date-month">{currentMonth.toLocaleString('default', { month: 'short' })} {currentMonth.getFullYear()}</div>
-                            <div className="date-year">Aaj: {new Date().getDate()} {new Date().toLocaleString('default', { month: 'short' })}</div>
-                        </div>
-                        <button className="today-btn" onClick={goToToday}>Aaj</button>
-                        <button className="date-nav-btn" onClick={nextMonth}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
-                        </button>
-                    </div>
-                </div>
 
                 {/* STATS */}
                 <div className="stats-row">
