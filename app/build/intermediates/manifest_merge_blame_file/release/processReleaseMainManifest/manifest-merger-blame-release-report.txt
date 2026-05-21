@@ -23,8 +23,8 @@
 23-->
 24<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 25    package="in.billgst.app"
-26    android:versionCode="20"
-27    android:versionName="2.2.8" >
+26    android:versionCode="21"
+27    android:versionName="2.2.9" >
 28
 29    <uses-sdk
 30        android:minSdkVersion="21"
@@ -73,383 +73,448 @@
 51        </intent>
 52    </queries>
 53
-54    <uses-permission android:name="com.android.vending.BILLING" /> <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
+54    <uses-permission android:name="com.android.vending.BILLING" />
 54-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:10:5-67
 54-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:10:22-64
-55    <!-- <uses-sdk android:minSdkVersion="14"/> -->
-56    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-56-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:5-79
-56-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:22-76
-57    <uses-permission android:name="android.permission.INTERNET" />
-57-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:5-67
-57-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:22-64
-58
-59    <application
-59-->F:\bill\app\src\main\AndroidManifest.xml:34:5-226:19
-60        android:name="in.billgst.app.Application"
-60-->F:\bill\app\src\main\AndroidManifest.xml:35:9-50
-61        android:allowBackup="true"
-61-->F:\bill\app\src\main\AndroidManifest.xml:36:9-35
-62        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-62-->[androidx.core:core:1.2.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\c47b02e7d3e7f3657e10442b9c8b73b2\workspace\transformed\core-1.2.0\AndroidManifest.xml:24:18-86
-63        android:extractNativeLibs="true"
-64        android:icon="@mipmap/ic_launcher"
-64-->F:\bill\app\src\main\AndroidManifest.xml:37:9-43
-65        android:label="@string/appName"
-65-->F:\bill\app\src\main\AndroidManifest.xml:38:9-40
-66        android:manageSpaceActivity="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
-66-->F:\bill\app\src\main\AndroidManifest.xml:40:9-105
-67        android:supportsRtl="true"
-67-->F:\bill\app\src\main\AndroidManifest.xml:42:9-35
-68        android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-68-->F:\bill\app\src\main\AndroidManifest.xml:43:9-68
-69        <meta-data
-69-->F:\bill\app\src\main\AndroidManifest.xml:45:9-47:58
-70            android:name="asset_statements"
-70-->F:\bill\app\src\main\AndroidManifest.xml:46:13-44
-71            android:resource="@string/assetStatements" />
-71-->F:\bill\app\src\main\AndroidManifest.xml:47:13-55
-72        <meta-data
-72-->F:\bill\app\src\main\AndroidManifest.xml:50:13-52:58
-73            android:name="web_manifest_url"
-73-->F:\bill\app\src\main\AndroidManifest.xml:51:17-48
-74            android:value="@string/webManifestUrl" />
-74-->F:\bill\app\src\main\AndroidManifest.xml:52:17-55
+55
+56    <permission
+56-->[androidx.core:core:1.13.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\AndroidManifest.xml:22:5-24:47
+57        android:name="in.billgst.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+57-->[androidx.core:core:1.13.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\AndroidManifest.xml:23:9-81
+58        android:protectionLevel="signature" />
+58-->[androidx.core:core:1.13.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\AndroidManifest.xml:24:9-44
+59
+60    <uses-permission android:name="in.billgst.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" /> <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
+60-->[androidx.core:core:1.13.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\AndroidManifest.xml:26:5-97
+60-->[androidx.core:core:1.13.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\AndroidManifest.xml:26:22-94
+61    <!-- <uses-sdk android:minSdkVersion="14"/> -->
+62    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+62-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:5-79
+62-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:24:22-76
+63    <uses-permission android:name="android.permission.INTERNET" />
+63-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:5-67
+63-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:25:22-64
+64
+65    <application
+65-->F:\bill\app\src\main\AndroidManifest.xml:34:5-226:19
+66        android:name="in.billgst.app.Application"
+66-->F:\bill\app\src\main\AndroidManifest.xml:35:9-50
+67        android:allowBackup="true"
+67-->F:\bill\app\src\main\AndroidManifest.xml:36:9-35
+68        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+68-->[androidx.core:core:1.13.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\AndroidManifest.xml:28:18-86
+69        android:extractNativeLibs="true"
+70        android:icon="@mipmap/ic_launcher"
+70-->F:\bill\app\src\main\AndroidManifest.xml:37:9-43
+71        android:label="@string/appName"
+71-->F:\bill\app\src\main\AndroidManifest.xml:38:9-40
+72        android:manageSpaceActivity="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
+72-->F:\bill\app\src\main\AndroidManifest.xml:40:9-105
+73        android:supportsRtl="true"
+73-->F:\bill\app\src\main\AndroidManifest.xml:42:9-35
+74        android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+74-->F:\bill\app\src\main\AndroidManifest.xml:43:9-68
 75        <meta-data
-75-->F:\bill\app\src\main\AndroidManifest.xml:55:9-57:52
-76            android:name="twa_generator"
-76-->F:\bill\app\src\main\AndroidManifest.xml:56:13-41
-77            android:value="@string/generatorApp" />
-77-->F:\bill\app\src\main\AndroidManifest.xml:57:13-49
-78
-79        <activity
-79-->F:\bill\app\src\main\AndroidManifest.xml:64:13-75:24
-80            android:name="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
-80-->F:\bill\app\src\main\AndroidManifest.xml:64:23-104
-81            android:enabled="true"
-81-->F:\bill\app\src\main\AndroidManifest.xml:66:17-39
-82            android:excludeFromRecents="true"
-82-->F:\bill\app\src\main\AndroidManifest.xml:67:17-50
-83            android:exported="false" >
-83-->F:\bill\app\src\main\AndroidManifest.xml:65:17-41
-84            <meta-data
-84-->F:\bill\app\src\main\AndroidManifest.xml:68:17-70:57
-85                android:name="android.support.customtabs.trusted.MANAGE_SPACE_URL"
-85-->F:\bill\app\src\main\AndroidManifest.xml:69:21-87
-86                android:value="@string/launchUrl" />
-86-->F:\bill\app\src\main\AndroidManifest.xml:70:21-54
-87
-88            <intent-filter>
-88-->F:\bill\app\src\main\AndroidManifest.xml:71:17-74:33
-89                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
-89-->F:\bill\app\src\main\AndroidManifest.xml:72:21-92
-89-->F:\bill\app\src\main\AndroidManifest.xml:72:29-89
-90
-91                <category android:name="android.intent.category.DEFAULT" />
-91-->F:\bill\app\src\main\AndroidManifest.xml:73:21-80
-91-->F:\bill\app\src\main\AndroidManifest.xml:73:31-77
-92            </intent-filter>
-93        </activity>
-94        <activity
-94-->F:\bill\app\src\main\AndroidManifest.xml:78:9-159:20
-95            android:name="in.billgst.app.LauncherActivity"
-95-->F:\bill\app\src\main\AndroidManifest.xml:78:19-65
-96            android:alwaysRetainTaskState="true"
-96-->F:\bill\app\src\main\AndroidManifest.xml:79:13-49
-97            android:exported="true"
-97-->F:\bill\app\src\main\AndroidManifest.xml:81:13-36
-98            android:label="@string/launcherName" >
-98-->F:\bill\app\src\main\AndroidManifest.xml:80:13-49
-99            <meta-data
-99-->F:\bill\app\src\main\AndroidManifest.xml:82:13-83:53
-100                android:name="android.support.customtabs.trusted.DEFAULT_URL"
-100-->F:\bill\app\src\main\AndroidManifest.xml:82:24-85
-101                android:value="@string/launchUrl" />
-101-->F:\bill\app\src\main\AndroidManifest.xml:83:17-50
-102            <meta-data
-102-->F:\bill\app\src\main\AndroidManifest.xml:85:13-87:58
-103                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
-103-->F:\bill\app\src\main\AndroidManifest.xml:86:17-83
-104                android:resource="@color/colorPrimary" />
-104-->F:\bill\app\src\main\AndroidManifest.xml:87:17-55
+75-->F:\bill\app\src\main\AndroidManifest.xml:45:9-47:58
+76            android:name="asset_statements"
+76-->F:\bill\app\src\main\AndroidManifest.xml:46:13-44
+77            android:resource="@string/assetStatements" />
+77-->F:\bill\app\src\main\AndroidManifest.xml:47:13-55
+78        <meta-data
+78-->F:\bill\app\src\main\AndroidManifest.xml:50:13-52:58
+79            android:name="web_manifest_url"
+79-->F:\bill\app\src\main\AndroidManifest.xml:51:17-48
+80            android:value="@string/webManifestUrl" />
+80-->F:\bill\app\src\main\AndroidManifest.xml:52:17-55
+81        <meta-data
+81-->F:\bill\app\src\main\AndroidManifest.xml:55:9-57:52
+82            android:name="twa_generator"
+82-->F:\bill\app\src\main\AndroidManifest.xml:56:13-41
+83            android:value="@string/generatorApp" />
+83-->F:\bill\app\src\main\AndroidManifest.xml:57:13-49
+84
+85        <activity
+85-->F:\bill\app\src\main\AndroidManifest.xml:64:13-75:24
+86            android:name="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
+86-->F:\bill\app\src\main\AndroidManifest.xml:64:23-104
+87            android:enabled="true"
+87-->F:\bill\app\src\main\AndroidManifest.xml:66:17-39
+88            android:excludeFromRecents="true"
+88-->F:\bill\app\src\main\AndroidManifest.xml:67:17-50
+89            android:exported="false" >
+89-->F:\bill\app\src\main\AndroidManifest.xml:65:17-41
+90            <meta-data
+90-->F:\bill\app\src\main\AndroidManifest.xml:68:17-70:57
+91                android:name="android.support.customtabs.trusted.MANAGE_SPACE_URL"
+91-->F:\bill\app\src\main\AndroidManifest.xml:69:21-87
+92                android:value="@string/launchUrl" />
+92-->F:\bill\app\src\main\AndroidManifest.xml:70:21-54
+93
+94            <intent-filter>
+94-->F:\bill\app\src\main\AndroidManifest.xml:71:17-74:33
+95                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+95-->F:\bill\app\src\main\AndroidManifest.xml:72:21-92
+95-->F:\bill\app\src\main\AndroidManifest.xml:72:29-89
+96
+97                <category android:name="android.intent.category.DEFAULT" />
+97-->F:\bill\app\src\main\AndroidManifest.xml:73:21-80
+97-->F:\bill\app\src\main\AndroidManifest.xml:73:31-77
+98            </intent-filter>
+99        </activity>
+100        <activity
+100-->F:\bill\app\src\main\AndroidManifest.xml:78:9-159:20
+101            android:name="in.billgst.app.LauncherActivity"
+101-->F:\bill\app\src\main\AndroidManifest.xml:78:19-65
+102            android:alwaysRetainTaskState="true"
+102-->F:\bill\app\src\main\AndroidManifest.xml:79:13-49
+103            android:exported="true"
+103-->F:\bill\app\src\main\AndroidManifest.xml:81:13-36
+104            android:label="@string/launcherName" >
+104-->F:\bill\app\src\main\AndroidManifest.xml:80:13-49
 105            <meta-data
-105-->F:\bill\app\src\main\AndroidManifest.xml:91:13-93:62
-106                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR_DARK"
-106-->F:\bill\app\src\main\AndroidManifest.xml:92:17-88
-107                android:resource="@color/colorPrimaryDark" />
-107-->F:\bill\app\src\main\AndroidManifest.xml:93:17-59
+105-->F:\bill\app\src\main\AndroidManifest.xml:82:13-83:53
+106                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+106-->F:\bill\app\src\main\AndroidManifest.xml:82:24-85
+107                android:value="@string/launchUrl" />
+107-->F:\bill\app\src\main\AndroidManifest.xml:83:17-50
 108            <meta-data
-108-->F:\bill\app\src\main\AndroidManifest.xml:95:13-97:61
-109                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
-109-->F:\bill\app\src\main\AndroidManifest.xml:96:17-87
-110                android:resource="@color/navigationColor" />
-110-->F:\bill\app\src\main\AndroidManifest.xml:97:17-58
+108-->F:\bill\app\src\main\AndroidManifest.xml:85:13-87:58
+109                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
+109-->F:\bill\app\src\main\AndroidManifest.xml:86:17-83
+110                android:resource="@color/colorPrimary" />
+110-->F:\bill\app\src\main\AndroidManifest.xml:87:17-55
 111            <meta-data
-111-->F:\bill\app\src\main\AndroidManifest.xml:99:13-101:65
-112                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR_DARK"
-112-->F:\bill\app\src\main\AndroidManifest.xml:100:17-92
-113                android:resource="@color/navigationColorDark" />
-113-->F:\bill\app\src\main\AndroidManifest.xml:101:17-62
+111-->F:\bill\app\src\main\AndroidManifest.xml:91:13-93:62
+112                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR_DARK"
+112-->F:\bill\app\src\main\AndroidManifest.xml:92:17-88
+113                android:resource="@color/colorPrimaryDark" />
+113-->F:\bill\app\src\main\AndroidManifest.xml:93:17-59
 114            <meta-data
-114-->F:\bill\app\src\main\AndroidManifest.xml:103:13-105:68
-115                android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR"
-115-->F:\bill\app\src\main\AndroidManifest.xml:104:17-84
-116                android:resource="@color/navigationDividerColor" />
-116-->F:\bill\app\src\main\AndroidManifest.xml:105:17-65
+114-->F:\bill\app\src\main\AndroidManifest.xml:95:13-97:61
+115                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
+115-->F:\bill\app\src\main\AndroidManifest.xml:96:17-87
+116                android:resource="@color/navigationColor" />
+116-->F:\bill\app\src\main\AndroidManifest.xml:97:17-58
 117            <meta-data
-117-->F:\bill\app\src\main\AndroidManifest.xml:107:13-109:72
-118                android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR_DARK"
-118-->F:\bill\app\src\main\AndroidManifest.xml:108:17-89
-119                android:resource="@color/navigationDividerColorDark" />
-119-->F:\bill\app\src\main\AndroidManifest.xml:109:17-69
+117-->F:\bill\app\src\main\AndroidManifest.xml:99:13-101:65
+118                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR_DARK"
+118-->F:\bill\app\src\main\AndroidManifest.xml:100:17-92
+119                android:resource="@color/navigationColorDark" />
+119-->F:\bill\app\src\main\AndroidManifest.xml:101:17-62
 120            <meta-data
-120-->F:\bill\app\src\main\AndroidManifest.xml:111:13-112:54
-121                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
-121-->F:\bill\app\src\main\AndroidManifest.xml:111:24-95
-122                android:resource="@drawable/splash" />
-122-->F:\bill\app\src\main\AndroidManifest.xml:112:17-52
+120-->F:\bill\app\src\main\AndroidManifest.xml:103:13-105:68
+121                android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR"
+121-->F:\bill\app\src\main\AndroidManifest.xml:104:17-84
+122                android:resource="@color/navigationDividerColor" />
+122-->F:\bill\app\src\main\AndroidManifest.xml:105:17-65
 123            <meta-data
-123-->F:\bill\app\src\main\AndroidManifest.xml:114:13-115:60
-124                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
-124-->F:\bill\app\src\main\AndroidManifest.xml:114:24-104
-125                android:resource="@color/backgroundColor" />
-125-->F:\bill\app\src\main\AndroidManifest.xml:115:17-58
+123-->F:\bill\app\src\main\AndroidManifest.xml:107:13-109:72
+124                android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR_DARK"
+124-->F:\bill\app\src\main\AndroidManifest.xml:108:17-89
+125                android:resource="@color/navigationDividerColorDark" />
+125-->F:\bill\app\src\main\AndroidManifest.xml:109:17-69
 126            <meta-data
-126-->F:\bill\app\src\main\AndroidManifest.xml:117:13-118:71
-127                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
-127-->F:\bill\app\src\main\AndroidManifest.xml:117:24-105
-128                android:value="@integer/splashScreenFadeOutDuration" />
-128-->F:\bill\app\src\main\AndroidManifest.xml:118:17-69
+126-->F:\bill\app\src\main\AndroidManifest.xml:111:13-112:54
+127                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
+127-->F:\bill\app\src\main\AndroidManifest.xml:111:24-95
+128                android:resource="@drawable/splash" />
+128-->F:\bill\app\src\main\AndroidManifest.xml:112:17-52
 129            <meta-data
-129-->F:\bill\app\src\main\AndroidManifest.xml:120:13-121:60
-130                android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
-130-->F:\bill\app\src\main\AndroidManifest.xml:120:24-97
-131                android:value="@string/providerAuthority" />
-131-->F:\bill\app\src\main\AndroidManifest.xml:121:17-58
+129-->F:\bill\app\src\main\AndroidManifest.xml:114:13-115:60
+130                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
+130-->F:\bill\app\src\main\AndroidManifest.xml:114:24-104
+131                android:resource="@color/backgroundColor" />
+131-->F:\bill\app\src\main\AndroidManifest.xml:115:17-58
 132            <meta-data
-132-->F:\bill\app\src\main\AndroidManifest.xml:123:13-97
-133                android:name="android.app.shortcuts"
-133-->F:\bill\app\src\main\AndroidManifest.xml:123:24-60
-134                android:resource="@xml/shortcuts" />
-134-->F:\bill\app\src\main\AndroidManifest.xml:123:61-94
+132-->F:\bill\app\src\main\AndroidManifest.xml:117:13-118:71
+133                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
+133-->F:\bill\app\src\main\AndroidManifest.xml:117:24-105
+134                android:value="@integer/splashScreenFadeOutDuration" />
+134-->F:\bill\app\src\main\AndroidManifest.xml:118:17-69
 135            <meta-data
-135-->F:\bill\app\src\main\AndroidManifest.xml:125:13-126:56
-136                android:name="android.support.customtabs.trusted.FALLBACK_STRATEGY"
-136-->F:\bill\app\src\main\AndroidManifest.xml:125:24-91
-137                android:value="@string/fallbackType" />
-137-->F:\bill\app\src\main\AndroidManifest.xml:126:17-53
+135-->F:\bill\app\src\main\AndroidManifest.xml:120:13-121:60
+136                android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
+136-->F:\bill\app\src\main\AndroidManifest.xml:120:24-97
+137                android:value="@string/providerAuthority" />
+137-->F:\bill\app\src\main\AndroidManifest.xml:121:17-58
 138            <meta-data
-138-->F:\bill\app\src\main\AndroidManifest.xml:132:13-133:54
-139                android:name="android.support.customtabs.trusted.SCREEN_ORIENTATION"
-139-->F:\bill\app\src\main\AndroidManifest.xml:132:24-92
-140                android:value="@string/orientation" />
-140-->F:\bill\app\src\main\AndroidManifest.xml:133:17-52
-141
-142            <intent-filter>
-142-->F:\bill\app\src\main\AndroidManifest.xml:141:13-144:29
-143                <action android:name="android.intent.action.MAIN" />
-143-->F:\bill\app\src\main\AndroidManifest.xml:142:17-69
-143-->F:\bill\app\src\main\AndroidManifest.xml:142:25-66
-144
-145                <category android:name="android.intent.category.LAUNCHER" />
-145-->F:\bill\app\src\main\AndroidManifest.xml:143:17-77
-145-->F:\bill\app\src\main\AndroidManifest.xml:143:27-74
-146            </intent-filter>
-147            <intent-filter android:autoVerify="true" >
-147-->F:\bill\app\src\main\AndroidManifest.xml:146:13-154:29
-147-->F:\bill\app\src\main\AndroidManifest.xml:146:28-53
-148                <action android:name="android.intent.action.VIEW" />
-148-->F:\bill\app\src\main\AndroidManifest.xml:147:17-68
-148-->F:\bill\app\src\main\AndroidManifest.xml:147:25-66
-149
-150                <category android:name="android.intent.category.DEFAULT" />
-150-->F:\bill\app\src\main\AndroidManifest.xml:73:21-80
-150-->F:\bill\app\src\main\AndroidManifest.xml:73:31-77
-151                <category android:name="android.intent.category.BROWSABLE" />
-151-->F:\bill\app\src\main\AndroidManifest.xml:149:17-77
-151-->F:\bill\app\src\main\AndroidManifest.xml:149:27-75
-152
-153                <data
-153-->F:\bill\app\src\main\AndroidManifest.xml:150:17-153:19
-154                    android:host="@string/hostName"
-154-->F:\bill\app\src\main\AndroidManifest.xml:151:21-52
-155                    android:scheme="https" />
-155-->F:\bill\app\src\main\AndroidManifest.xml:150:23-45
-156            </intent-filter>
-157        </activity>
-158        <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
-158-->F:\bill\app\src\main\AndroidManifest.xml:161:9-90
-158-->F:\bill\app\src\main\AndroidManifest.xml:161:19-87
-159        <activity
-159-->F:\bill\app\src\main\AndroidManifest.xml:163:9-164:62
-160            android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"
-160-->F:\bill\app\src\main\AndroidManifest.xml:163:19-97
-161            android:configChanges="orientation|screenSize" />
-161-->F:\bill\app\src\main\AndroidManifest.xml:164:13-59
-162
-163        <provider
-163-->F:\bill\app\src\main\AndroidManifest.xml:166:9-174:20
-164            android:name="androidx.core.content.FileProvider"
-164-->F:\bill\app\src\main\AndroidManifest.xml:167:13-62
-165            android:authorities="@string/providerAuthority"
-165-->F:\bill\app\src\main\AndroidManifest.xml:168:13-60
-166            android:exported="false"
-166-->F:\bill\app\src\main\AndroidManifest.xml:170:13-37
-167            android:grantUriPermissions="true" >
-167-->F:\bill\app\src\main\AndroidManifest.xml:169:13-47
-168            <meta-data
-168-->F:\bill\app\src\main\AndroidManifest.xml:171:13-173:53
-169                android:name="android.support.FILE_PROVIDER_PATHS"
-169-->F:\bill\app\src\main\AndroidManifest.xml:172:17-67
-170                android:resource="@xml/filepaths" />
-170-->F:\bill\app\src\main\AndroidManifest.xml:173:17-50
-171        </provider>
-172
-173        <service
-173-->F:\bill\app\src\main\AndroidManifest.xml:176:9-191:19
-174            android:name="in.billgst.app.DelegationService"
-174-->F:\bill\app\src\main\AndroidManifest.xml:177:13-60
-175            android:enabled="@bool/enableNotification"
-175-->F:\bill\app\src\main\AndroidManifest.xml:178:13-55
-176            android:exported="@bool/enableNotification" >
-176-->F:\bill\app\src\main\AndroidManifest.xml:179:13-56
-177            <meta-data
-177-->F:\bill\app\src\main\AndroidManifest.xml:182:17-184:73
-178                android:name="android.support.customtabs.trusted.SMALL_ICON"
-178-->F:\bill\app\src\main\AndroidManifest.xml:183:21-81
-179                android:resource="@drawable/ic_notification_icon" />
-179-->F:\bill\app\src\main\AndroidManifest.xml:184:21-70
-180
-181            <intent-filter>
-181-->F:\bill\app\src\main\AndroidManifest.xml:187:13-190:29
-182                <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
-182-->F:\bill\app\src\main\AndroidManifest.xml:188:17-105
-182-->F:\bill\app\src\main\AndroidManifest.xml:188:25-103
-183
-184                <category android:name="android.intent.category.DEFAULT" />
-184-->F:\bill\app\src\main\AndroidManifest.xml:73:21-80
-184-->F:\bill\app\src\main\AndroidManifest.xml:73:31-77
-185            </intent-filter>
-186        </service>
-187
-188        <activity android:name="com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity" />
-188-->F:\bill\app\src\main\AndroidManifest.xml:194:13-118
-188-->F:\bill\app\src\main\AndroidManifest.xml:194:23-115
-189        <activity android:name="com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity" />
-189-->F:\bill\app\src\main\AndroidManifest.xml:198:13-199:89
-189-->F:\bill\app\src\main\AndroidManifest.xml:198:23-123
-190        <activity
-190-->F:\bill\app\src\main\AndroidManifest.xml:202:9-215:20
-191            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentActivity"
-191-->F:\bill\app\src\main\AndroidManifest.xml:203:13-96
-192            android:configChanges="keyboardHidden|keyboard|orientation|screenLayout|screenSize"
-192-->F:\bill\app\src\main\AndroidManifest.xml:205:13-96
-193            android:exported="true"
-193-->F:\bill\app\src\main\AndroidManifest.xml:206:13-36
-194            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-194-->F:\bill\app\src\main\AndroidManifest.xml:204:13-72
-195            <intent-filter>
-195-->F:\bill\app\src\main\AndroidManifest.xml:208:13-210:29
-196                <action android:name="org.chromium.intent.action.PAY" />
-196-->F:\bill\app\src\main\AndroidManifest.xml:209:17-73
-196-->F:\bill\app\src\main\AndroidManifest.xml:209:25-70
-197            </intent-filter>
-198
-199            <meta-data
-199-->F:\bill\app\src\main\AndroidManifest.xml:212:13-214:67
-200                android:name="org.chromium.default_payment_method_name"
-200-->F:\bill\app\src\main\AndroidManifest.xml:213:17-72
-201                android:value="https://play.google.com/billing" />
-201-->F:\bill\app\src\main\AndroidManifest.xml:214:17-64
-202        </activity>
-203
-204        <!-- This service checks who calls it at runtime. -->
-205        <service
-205-->F:\bill\app\src\main\AndroidManifest.xml:218:9-224:19
-206            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentService"
-206-->F:\bill\app\src\main\AndroidManifest.xml:219:13-95
-207            android:exported="true" >
-207-->F:\bill\app\src\main\AndroidManifest.xml:220:13-36
-208            <intent-filter>
-208-->F:\bill\app\src\main\AndroidManifest.xml:221:13-223:29
-209                <action android:name="org.chromium.intent.action.IS_READY_TO_PAY" />
-209-->F:\bill\app\src\main\AndroidManifest.xml:222:17-85
-209-->F:\bill\app\src\main\AndroidManifest.xml:222:25-82
-210            </intent-filter>
-211        </service>
-212
-213        <meta-data
-213-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:22:9-24:37
-214            android:name="com.google.android.play.billingclient.version"
-214-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:23:13-73
-215            android:value="7.1.1" />
-215-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:24:13-34
-216
-217        <activity
-217-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:26:9-30:75
-218            android:name="com.android.billingclient.api.ProxyBillingActivity"
-218-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:27:13-78
-219            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-219-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:28:13-96
-220            android:exported="false"
-220-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:29:13-37
-221            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-221-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:30:13-72
-222        <activity
-222-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:31:9-35:75
-223            android:name="com.android.billingclient.api.ProxyBillingActivityV2"
-223-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:32:13-80
-224            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-224-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:33:13-96
-225            android:exported="false"
-225-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:34:13-37
-226            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-226-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:35:13-72
-227        <activity
-227-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
-228            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-228-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
-229            android:exported="false"
-229-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
-230            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-230-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
-231
-232        <meta-data
-232-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
-233            android:name="com.google.android.gms.version"
-233-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
-234            android:value="@integer/google_play_services_version" />
-234-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
-235
-236        <service
-236-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:28:9-34:19
-237            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
-237-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:29:13-103
-238            android:exported="false" >
-238-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:30:13-37
-239            <meta-data
-239-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:31:13-33:39
-240                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
-240-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:32:17-94
-241                android:value="cct" />
-241-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:33:17-36
-242        </service>
-243        <service
-243-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:26:9-30:19
-244            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
-244-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:27:13-117
-245            android:exported="false"
-245-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:28:13-37
-246            android:permission="android.permission.BIND_JOB_SERVICE" >
-246-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:29:13-69
-247        </service>
-248
-249        <receiver
-249-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:32:9-34:40
-250            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
-250-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:33:13-132
-251            android:exported="false" />
-251-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:34:13-37
-252    </application>
-253
-254</manifest>
+138-->F:\bill\app\src\main\AndroidManifest.xml:123:13-97
+139                android:name="android.app.shortcuts"
+139-->F:\bill\app\src\main\AndroidManifest.xml:123:24-60
+140                android:resource="@xml/shortcuts" />
+140-->F:\bill\app\src\main\AndroidManifest.xml:123:61-94
+141            <meta-data
+141-->F:\bill\app\src\main\AndroidManifest.xml:125:13-126:56
+142                android:name="android.support.customtabs.trusted.FALLBACK_STRATEGY"
+142-->F:\bill\app\src\main\AndroidManifest.xml:125:24-91
+143                android:value="@string/fallbackType" />
+143-->F:\bill\app\src\main\AndroidManifest.xml:126:17-53
+144            <meta-data
+144-->F:\bill\app\src\main\AndroidManifest.xml:132:13-133:54
+145                android:name="android.support.customtabs.trusted.SCREEN_ORIENTATION"
+145-->F:\bill\app\src\main\AndroidManifest.xml:132:24-92
+146                android:value="@string/orientation" />
+146-->F:\bill\app\src\main\AndroidManifest.xml:133:17-52
+147
+148            <intent-filter>
+148-->F:\bill\app\src\main\AndroidManifest.xml:141:13-144:29
+149                <action android:name="android.intent.action.MAIN" />
+149-->F:\bill\app\src\main\AndroidManifest.xml:142:17-69
+149-->F:\bill\app\src\main\AndroidManifest.xml:142:25-66
+150
+151                <category android:name="android.intent.category.LAUNCHER" />
+151-->F:\bill\app\src\main\AndroidManifest.xml:143:17-77
+151-->F:\bill\app\src\main\AndroidManifest.xml:143:27-74
+152            </intent-filter>
+153            <intent-filter android:autoVerify="true" >
+153-->F:\bill\app\src\main\AndroidManifest.xml:146:13-154:29
+153-->F:\bill\app\src\main\AndroidManifest.xml:146:28-53
+154                <action android:name="android.intent.action.VIEW" />
+154-->F:\bill\app\src\main\AndroidManifest.xml:147:17-68
+154-->F:\bill\app\src\main\AndroidManifest.xml:147:25-66
+155
+156                <category android:name="android.intent.category.DEFAULT" />
+156-->F:\bill\app\src\main\AndroidManifest.xml:73:21-80
+156-->F:\bill\app\src\main\AndroidManifest.xml:73:31-77
+157                <category android:name="android.intent.category.BROWSABLE" />
+157-->F:\bill\app\src\main\AndroidManifest.xml:149:17-77
+157-->F:\bill\app\src\main\AndroidManifest.xml:149:27-75
+158
+159                <data
+159-->F:\bill\app\src\main\AndroidManifest.xml:150:17-153:19
+160                    android:host="@string/hostName"
+160-->F:\bill\app\src\main\AndroidManifest.xml:151:21-52
+161                    android:scheme="https" />
+161-->F:\bill\app\src\main\AndroidManifest.xml:150:23-45
+162            </intent-filter>
+163        </activity>
+164        <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
+164-->F:\bill\app\src\main\AndroidManifest.xml:161:9-90
+164-->F:\bill\app\src\main\AndroidManifest.xml:161:19-87
+165        <activity
+165-->F:\bill\app\src\main\AndroidManifest.xml:163:9-164:62
+166            android:name="in.billgst.app.WebViewFallbackActivity"
+166-->F:\bill\app\src\main\AndroidManifest.xml:163:19-72
+167            android:configChanges="orientation|screenSize" />
+167-->F:\bill\app\src\main\AndroidManifest.xml:164:13-59
+168
+169        <provider
+169-->F:\bill\app\src\main\AndroidManifest.xml:166:9-174:20
+170            android:name="androidx.core.content.FileProvider"
+170-->F:\bill\app\src\main\AndroidManifest.xml:167:13-62
+171            android:authorities="@string/providerAuthority"
+171-->F:\bill\app\src\main\AndroidManifest.xml:168:13-60
+172            android:exported="false"
+172-->F:\bill\app\src\main\AndroidManifest.xml:170:13-37
+173            android:grantUriPermissions="true" >
+173-->F:\bill\app\src\main\AndroidManifest.xml:169:13-47
+174            <meta-data
+174-->F:\bill\app\src\main\AndroidManifest.xml:171:13-173:53
+175                android:name="android.support.FILE_PROVIDER_PATHS"
+175-->F:\bill\app\src\main\AndroidManifest.xml:172:17-67
+176                android:resource="@xml/filepaths" />
+176-->F:\bill\app\src\main\AndroidManifest.xml:173:17-50
+177        </provider>
+178
+179        <service
+179-->F:\bill\app\src\main\AndroidManifest.xml:176:9-191:19
+180            android:name="in.billgst.app.DelegationService"
+180-->F:\bill\app\src\main\AndroidManifest.xml:177:13-60
+181            android:enabled="@bool/enableNotification"
+181-->F:\bill\app\src\main\AndroidManifest.xml:178:13-55
+182            android:exported="@bool/enableNotification" >
+182-->F:\bill\app\src\main\AndroidManifest.xml:179:13-56
+183            <meta-data
+183-->F:\bill\app\src\main\AndroidManifest.xml:182:17-184:73
+184                android:name="android.support.customtabs.trusted.SMALL_ICON"
+184-->F:\bill\app\src\main\AndroidManifest.xml:183:21-81
+185                android:resource="@drawable/ic_notification_icon" />
+185-->F:\bill\app\src\main\AndroidManifest.xml:184:21-70
+186
+187            <intent-filter>
+187-->F:\bill\app\src\main\AndroidManifest.xml:187:13-190:29
+188                <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
+188-->F:\bill\app\src\main\AndroidManifest.xml:188:17-105
+188-->F:\bill\app\src\main\AndroidManifest.xml:188:25-103
+189
+190                <category android:name="android.intent.category.DEFAULT" />
+190-->F:\bill\app\src\main\AndroidManifest.xml:73:21-80
+190-->F:\bill\app\src\main\AndroidManifest.xml:73:31-77
+191            </intent-filter>
+192        </service>
+193
+194        <activity android:name="com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity" />
+194-->F:\bill\app\src\main\AndroidManifest.xml:194:13-118
+194-->F:\bill\app\src\main\AndroidManifest.xml:194:23-115
+195        <activity android:name="com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity" />
+195-->F:\bill\app\src\main\AndroidManifest.xml:198:13-199:89
+195-->F:\bill\app\src\main\AndroidManifest.xml:198:23-123
+196        <activity
+196-->F:\bill\app\src\main\AndroidManifest.xml:202:9-215:20
+197            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentActivity"
+197-->F:\bill\app\src\main\AndroidManifest.xml:203:13-96
+198            android:configChanges="keyboardHidden|keyboard|orientation|screenLayout|screenSize"
+198-->F:\bill\app\src\main\AndroidManifest.xml:205:13-96
+199            android:exported="true"
+199-->F:\bill\app\src\main\AndroidManifest.xml:206:13-36
+200            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+200-->F:\bill\app\src\main\AndroidManifest.xml:204:13-72
+201            <intent-filter>
+201-->F:\bill\app\src\main\AndroidManifest.xml:208:13-210:29
+202                <action android:name="org.chromium.intent.action.PAY" />
+202-->F:\bill\app\src\main\AndroidManifest.xml:209:17-73
+202-->F:\bill\app\src\main\AndroidManifest.xml:209:25-70
+203            </intent-filter>
+204
+205            <meta-data
+205-->F:\bill\app\src\main\AndroidManifest.xml:212:13-214:67
+206                android:name="org.chromium.default_payment_method_name"
+206-->F:\bill\app\src\main\AndroidManifest.xml:213:17-72
+207                android:value="https://play.google.com/billing" />
+207-->F:\bill\app\src\main\AndroidManifest.xml:214:17-64
+208        </activity>
+209
+210        <!-- This service checks who calls it at runtime. -->
+211        <service
+211-->F:\bill\app\src\main\AndroidManifest.xml:218:9-224:19
+212            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentService"
+212-->F:\bill\app\src\main\AndroidManifest.xml:219:13-95
+213            android:exported="true" >
+213-->F:\bill\app\src\main\AndroidManifest.xml:220:13-36
+214            <intent-filter>
+214-->F:\bill\app\src\main\AndroidManifest.xml:221:13-223:29
+215                <action android:name="org.chromium.intent.action.IS_READY_TO_PAY" />
+215-->F:\bill\app\src\main\AndroidManifest.xml:222:17-85
+215-->F:\bill\app\src\main\AndroidManifest.xml:222:25-82
+216            </intent-filter>
+217        </service>
+218
+219        <meta-data
+219-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:22:9-24:37
+220            android:name="com.google.android.play.billingclient.version"
+220-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:23:13-73
+221            android:value="7.1.1" />
+221-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:24:13-34
+222
+223        <activity
+223-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:26:9-30:75
+224            android:name="com.android.billingclient.api.ProxyBillingActivity"
+224-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:27:13-78
+225            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+225-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:28:13-96
+226            android:exported="false"
+226-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:29:13-37
+227            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+227-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:30:13-72
+228        <activity
+228-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:31:9-35:75
+229            android:name="com.android.billingclient.api.ProxyBillingActivityV2"
+229-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:32:13-80
+230            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+230-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:33:13-96
+231            android:exported="false"
+231-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:34:13-37
+232            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+232-->[com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:35:13-72
+233        <activity
+233-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+234            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+234-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+235            android:exported="false"
+235-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+236            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+236-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\918454f45341f0eec36f72040941d401\workspace\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
+237
+238        <meta-data
+238-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+239            android:name="com.google.android.gms.version"
+239-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+240            android:value="@integer/google_play_services_version" />
+240-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+241
+242        <provider
+242-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+243            android:name="androidx.startup.InitializationProvider"
+243-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:25:13-67
+244            android:authorities="in.billgst.app.androidx-startup"
+244-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:26:13-68
+245            android:exported="false" >
+245-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:27:13-37
+246            <meta-data
+246-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+247                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+247-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+248                android:value="androidx.startup" />
+248-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+249        </provider>
+250
+251        <receiver
+251-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+252            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+252-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+253            android:directBootAware="false"
+253-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+254            android:enabled="true"
+254-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+255            android:exported="true"
+255-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+256            android:permission="android.permission.DUMP" >
+256-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+257            <intent-filter>
+257-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+258                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+258-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+258-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+259            </intent-filter>
+260            <intent-filter>
+260-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+261                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+261-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+261-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+262            </intent-filter>
+263            <intent-filter>
+263-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+264                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+264-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+264-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+265            </intent-filter>
+266            <intent-filter>
+266-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+267                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+267-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+267-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4be0c69f510332bec28f8a7af4b32a14\workspace\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+268            </intent-filter>
+269        </receiver>
+270
+271        <service
+271-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:28:9-34:19
+272            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+272-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:29:13-103
+273            android:exported="false" >
+273-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:30:13-37
+274            <meta-data
+274-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:31:13-33:39
+275                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+275-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:32:17-94
+276                android:value="cct" />
+276-->[com.google.android.datatransport:transport-backend-cct:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\AndroidManifest.xml:33:17-36
+277        </service>
+278        <service
+278-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:26:9-30:19
+279            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+279-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:27:13-117
+280            android:exported="false"
+280-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:28:13-37
+281            android:permission="android.permission.BIND_JOB_SERVICE" >
+281-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:29:13-69
+282        </service>
+283
+284        <receiver
+284-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:32:9-34:40
+285            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+285-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:33:13-132
+286            android:exported="false" />
+286-->[com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\68d9fa8b5fa0b8ca2f3611bd741527f4\workspace\transformed\transport-runtime-3.1.8\AndroidManifest.xml:34:13-37
+287    </application>
+288
+289</manifest>

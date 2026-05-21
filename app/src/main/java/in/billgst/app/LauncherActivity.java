@@ -9,9 +9,13 @@ public class LauncherActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
-            androidx.activity.EdgeToEdge.enable(this);
-        } catch (Exception e) {
-            e.printStackTrace();
+            androidx.activity.EdgeToEdge.enable((androidx.activity.ComponentActivity) (Object) this);
+        } catch (Throwable t) {
+            // Ignore ClassCastException since androidbrowserhelper LauncherActivity extends android.app.Activity
+        }
+        try {
+            androidx.core.view.WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        } catch (Throwable t) {
         }
         super.onCreate(savedInstanceState);
     }

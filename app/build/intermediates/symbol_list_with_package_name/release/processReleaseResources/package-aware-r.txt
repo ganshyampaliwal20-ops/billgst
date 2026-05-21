@@ -10,20 +10,29 @@ attr fontProviderFetchStrategy
 attr fontProviderFetchTimeout
 attr fontProviderPackage
 attr fontProviderQuery
+attr fontProviderSystemFontFamily
 attr fontStyle
 attr fontVariationSettings
 attr fontWeight
 attr imageAspectRatio
 attr imageAspectRatioAdjust
+attr lStar
+attr nestedScrollViewStyle
+attr queryPatterns
 attr scopeUris
+attr shortcutMatchRequired
 attr ttcIndex
 bool enableNotification
 bool enableSiteSettingsShortcut
+color androidx_core_ripple_material_light
+color androidx_core_secondary_text_default_material_light
 color backgroundColor
 color browser_actions_bg_grey
 color browser_actions_divider_color
 color browser_actions_text_color
 color browser_actions_title_color
+color call_notification_answer_color
+color call_notification_decline_color
 color colorPrimary
 color colorPrimaryDark
 color common_google_signin_btn_text_dark
@@ -43,8 +52,6 @@ color navigationDividerColor
 color navigationDividerColorDark
 color notification_action_color_filter
 color notification_icon_bg_color
-color ripple_material_light
-color secondary_text_default_material_light
 color shortcut_background
 dimen browser_actions_context_menu_max_width
 dimen browser_actions_context_menu_min_padding
@@ -91,6 +98,12 @@ drawable common_google_signin_btn_text_light_normal
 drawable common_google_signin_btn_text_light_normal_background
 drawable googleg_disabled_color_18
 drawable googleg_standard_color_18
+drawable ic_call_answer
+drawable ic_call_answer_low
+drawable ic_call_answer_video
+drawable ic_call_answer_video_low
+drawable ic_call_decline
+drawable ic_call_decline_low
 drawable ic_notification_icon
 drawable ic_site_settings
 drawable notification_action_background
@@ -101,6 +114,7 @@ drawable notification_bg_low_pressed
 drawable notification_bg_normal
 drawable notification_bg_normal_pressed
 drawable notification_icon_background
+drawable notification_oversize_large_icon_bg
 drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
@@ -160,7 +174,9 @@ id browser_actions_menu_view
 id chronometer
 id dark
 id dialog_button
+id edit_text_id
 id forever
+id hide_ime_id
 id icon
 id icon_group
 id icon_only
@@ -174,6 +190,7 @@ id normal
 id notification_background
 id notification_main_column
 id notification_main_column_container
+id report_drawn
 id right_icon
 id right_side
 id standard
@@ -181,15 +198,21 @@ id tag_accessibility_actions
 id tag_accessibility_clickable_spans
 id tag_accessibility_heading
 id tag_accessibility_pane_title
+id tag_on_apply_window_listener
+id tag_on_receive_content_listener
+id tag_on_receive_content_mime_types
 id tag_screen_reader_focusable
+id tag_state_description
 id tag_transition_group
 id tag_unhandled_key_event_manager
 id tag_unhandled_key_listeners
+id tag_window_insets_animation_callback
 id text
 id text2
 id time
 id title
 id view_tree_lifecycle_owner
+id view_tree_on_back_pressed_dispatcher_owner
 id view_tree_saved_state_registry_owner
 id view_tree_view_model_store_owner
 id wide
@@ -199,6 +222,8 @@ integer status_bar_notification_info_maxnum
 layout browser_actions_context_menu_page
 layout browser_actions_context_menu_row
 layout custom_dialog
+layout ime_base_split_test_activity
+layout ime_secondary_split_test_activity
 layout notification_action
 layout notification_action_tombstone
 layout notification_template_custom_big
@@ -210,9 +235,17 @@ mipmap ic_maskable
 raw com_android_billingclient_heterodyne_info
 raw com_android_billingclient_registration_info
 raw web_app_manifest
+string androidx_startup
 string appName
 string app_name
 string assetStatements
+string call_notification_answer_action
+string call_notification_answer_video_action
+string call_notification_decline_action
+string call_notification_hang_up_action
+string call_notification_incoming_text
+string call_notification_ongoing_text
+string call_notification_screening_text
 string common_google_play_services_enable_button
 string common_google_play_services_enable_text
 string common_google_play_services_enable_title
@@ -260,8 +293,9 @@ style TextAppearance_Compat_Notification_Time
 style TextAppearance_Compat_Notification_Title
 style Widget_Compat_NotificationActionContainer
 style Widget_Compat_NotificationActionText
-styleable ColorStateListItem android_color android_alpha alpha
-styleable FontFamily fontProviderAuthority fontProviderCerts fontProviderFetchStrategy fontProviderFetchTimeout fontProviderPackage fontProviderQuery
+styleable Capability queryPatterns shortcutMatchRequired
+styleable ColorStateListItem android_color android_alpha android_lStar alpha lStar
+styleable FontFamily fontProviderAuthority fontProviderCerts fontProviderFetchStrategy fontProviderFetchTimeout fontProviderPackage fontProviderQuery fontProviderSystemFontFamily
 styleable FontFamilyFont android_font android_fontWeight android_fontStyle android_ttcIndex android_fontVariationSettings font fontStyle fontVariationSettings fontWeight ttcIndex
 styleable GradientColor android_startColor android_endColor android_type android_centerX android_centerY android_gradientRadius android_tileMode android_centerColor android_startX android_startY android_endX android_endY
 styleable GradientColorItem android_color android_offset
