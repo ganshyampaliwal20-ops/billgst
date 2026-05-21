@@ -235,8 +235,8 @@ export default function SmartAttendance() {
         
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-        doc.text(`Month: ${currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}`, 14, 35);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 30);
+        doc.text(`Report Month: ${currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}`, 14, 35);
         
         // Staff Info
         doc.setFontSize(14);
@@ -303,14 +303,19 @@ export default function SmartAttendance() {
             a.date.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}`)
         ) || [];
 
-        const breakdownBody = [];
-        for (let i = 1; i <= daysInMonth; i++) {
-            const dStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-            const rec = currentMonthRecords.find((a: any) => a.date === dStr);
-            const status = rec ? rec.status : 'NOT MARKED';
-            const dateDisplay = `${i} ${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}`;
-            breakdownBody.push([dateDisplay, status.replace('_', ' ')]);
-        }
+        const breakdownBody: any[] = [];
+        
+        const sortedRecords = [...currentMonthRecords].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+        sortedRecords.forEach((rec: any) => {
+            const dateObj = new Date(rec.date);
+            const dateDisplay = `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short', year: 'numeric' })}`;
+            let statusText = rec.status.replace('_', ' ');
+            if (rec.in_time && rec.out_time) {
+                statusText += ` (${rec.in_time} - ${rec.out_time})`;
+            }
+            breakdownBody.push([dateDisplay, statusText]);
+        });
 
         autoTable(doc, {
             startY: dailyY + 20,
@@ -429,7 +434,7 @@ export default function SmartAttendance() {
             const pdfBlob = doc.output('blob');
             const file = new File([pdfBlob], filename, { type: 'application/pdf' });
             
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.share) {
                 await navigator.share({
                     files: [file],
                     title: filename,
@@ -437,22 +442,13 @@ export default function SmartAttendance() {
                 });
                 toast.success('Report tayyar hai!');
             } else {
-                // Fallback for desktop browsers
-                const blobUrl = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-                toast.success('Master Report Downloaded!');
+                window.open(URL.createObjectURL(pdfBlob), '_blank');
+                toast.success('Master Report Opened!');
             }
         } catch (err) {
             console.error('PDF Share/Save error:', err);
-            // Fallback
             doc.save(filename);
-            toast.success('Master Report Downloaded (Fallback)!');
+            toast.success('Master Report Downloaded!');
         }
     };
 
@@ -807,6 +803,41 @@ export default function SmartAttendance() {
                                 <button onClick={() => setSheet('none')} style={{ marginLeft: 'auto', width: '32px', height: '32px', borderRadius: '50%', background: '#f0f2f8', border: '1px solid #e0e3f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><path d="M18 6L6 18M6 6l12 12" /></svg>
                                 </button>
+                            </div>
+
+                            {/* Mark Attendance within Detail Sheet */}
+                            <div style={{ background: '#fafbff', padding: '12px', borderRadius: '12px', border: '1px solid #e0e3f0', marginBottom: '18px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#0d0f1c' }}>Attendance Edit Karein</div>
+                                    <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={{ background: 'none', border: 'none', outline: 'none', fontSize: '13px', fontWeight: 800, color: '#4f46e5' }} />
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px', marginBottom: '10px' }}>
+                                    <button onClick={() => handleSetAtt(selectedStaff.id, 'PRESENT')} style={{ background: getStatus(selectedStaff.id, selectedDate) === 'PRESENT' ? '#10b981' : '#f0fdf4', color: getStatus(selectedStaff.id, selectedDate) === 'PRESENT' ? '#fff' : '#10b981', border: '1px solid #10b981', padding: '8px 0', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>Present</button>
+                                    <button onClick={() => handleSetAtt(selectedStaff.id, 'HALF_DAY')} style={{ background: getStatus(selectedStaff.id, selectedDate) === 'HALF_DAY' ? '#f59e0b' : '#fffbeb', color: getStatus(selectedStaff.id, selectedDate) === 'HALF_DAY' ? '#fff' : '#f59e0b', border: '1px solid #f59e0b', padding: '8px 0', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>Half</button>
+                                    <button onClick={() => handleSetAtt(selectedStaff.id, 'ABSENT')} style={{ background: getStatus(selectedStaff.id, selectedDate) === 'ABSENT' ? '#ef4444' : '#fef2f2', color: getStatus(selectedStaff.id, selectedDate) === 'ABSENT' ? '#fff' : '#ef4444', border: '1px solid #ef4444', padding: '8px 0', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>Absent</button>
+                                    <button onClick={() => handleSetAtt(selectedStaff.id, 'LEAVE')} style={{ background: getStatus(selectedStaff.id, selectedDate) === 'LEAVE' ? '#3b82f6' : '#eff6ff', color: getStatus(selectedStaff.id, selectedDate) === 'LEAVE' ? '#fff' : '#3b82f6', border: '1px solid #3b82f6', padding: '8px 0', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>Leave</button>
+                                </div>
+                                {(getStatus(selectedStaff.id, selectedDate) === 'PRESENT' || getStatus(selectedStaff.id, selectedDate) === 'HALF_DAY') && (() => {
+                                    const times = getTimeFields(selectedStaff.id, selectedDate);
+                                    return (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)' }}>IN TIME</label>
+                                                    <input type="time" value={times.in_time} onChange={(e) => handleSetAtt(selectedStaff.id, getStatus(selectedStaff.id, selectedDate), e.target.value, times.out_time, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                                </div>
+                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)' }}>OUT TIME</label>
+                                                    <input type="time" value={times.out_time} onChange={(e) => handleSetAtt(selectedStaff.id, getStatus(selectedStaff.id, selectedDate), times.in_time, e.target.value, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)' }}>NOTE / REMARK</label>
+                                                <input type="text" placeholder="Jaise: 1 ghanta late aaya..." defaultValue={times.note} onBlur={(e) => { if(e.target.value !== times.note) handleSetAtt(selectedStaff.id, getStatus(selectedStaff.id, selectedDate), times.in_time, times.out_time, e.target.value) }} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '18px' }}>
