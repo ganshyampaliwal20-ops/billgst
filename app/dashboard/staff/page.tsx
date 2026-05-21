@@ -32,7 +32,7 @@ export default function SmartAttendance() {
     const [sheet, setSheet] = useState<'none'|'detail'|'add'>('none');
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [isEditingStaff, setIsEditingStaff] = useState(false);
-    const [editStaffData, setEditStaffData] = useState({ daily_wage: 0, advance: 0 });
+    const [editStaffData, setEditStaffData] = useState({ daily_wage: 0, advance: 0, role: '' });
 
     // Form State
     const [formData, setFormData] = useState({
@@ -203,14 +203,16 @@ export default function SmartAttendance() {
         await updateStaff(selectedStaff.id, { 
             ...selectedStaff,
             daily_wage: editStaffData.daily_wage,
-            advance: editStaffData.advance 
+            advance: editStaffData.advance,
+            role: editStaffData.role
         });
         setIsEditingStaff(false);
         // Refresh local selectedStaff so UI updates immediately
         setSelectedStaff({
             ...selectedStaff, 
             daily_wage: editStaffData.daily_wage,
-            advance: editStaffData.advance
+            advance: editStaffData.advance,
+            role: editStaffData.role
         });
         toast.success('Staff Details Updated!');
     };
@@ -725,7 +727,7 @@ export default function SmartAttendance() {
                                     </div>
                                 )}
 
-                                <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0 }); setIsEditingStaff(false); setSheet('detail'); }}>
+                                <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Kaamgaar' }); setIsEditingStaff(false); setSheet('detail'); }}>
                                     <div className="sal-info">
                                         <div>
                                             <div className="sal-label">Rate / Details</div>
@@ -826,6 +828,10 @@ export default function SmartAttendance() {
                                 {isEditingStaff ? (
                                     <div style={{ background: '#fff', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid #e0e3f0' }}>
                                         <div style={{ marginBottom: '8px' }}>
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Kaam (Role)</label>
+                                            <input type="text" list="role-options" value={editStaffData.role || ''} onChange={e => setEditStaffData({...editStaffData, role: e.target.value})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} placeholder="Jaise: Driver, Safai..." />
+                                        </div>
+                                        <div style={{ marginBottom: '8px' }}>
                                             <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Roz Ka Vetan (₹)</label>
                                             <input type="number" value={editStaffData.daily_wage} onChange={e => setEditStaffData({...editStaffData, daily_wage: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
                                         </div>
@@ -893,18 +899,19 @@ export default function SmartAttendance() {
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
                                     <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg></div>
                                     <div className="aw-inner">
-                                        <div className="aw-lbl">Kaam</div>
-                                        <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}>
-                                            <option>Kaamgaar</option>
-                                            <option>Driver</option>
-                                            <option>Chowkidar</option>
-                                            <option>Safai</option>
-                                            <option>Manager</option>
-                                        </select>
+                                        <div className="aw-lbl">Kaam (Role)</div>
+                                        <input type="text" list="role-options" placeholder="Jaise: Driver..." value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} />
+                                        <datalist id="role-options">
+                                            <option value="Kaamgaar" />
+                                            <option value="Driver" />
+                                            <option value="Chowkidar" />
+                                            <option value="Safai" />
+                                            <option value="Manager" />
+                                        </datalist>
                                     </div>
                                 </div>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
-                                    <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg></div>
+                                    <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-8.5 8"/><path d="M6 13h3c3.5 0 5-1.5 5-4s-1.5-4-5-4H6"/></svg></div>
                                     <div className="aw-inner">
                                         <div className="aw-lbl">Din ka Vetan (₹)</div>
                                         <input type="number" placeholder="400" value={formData.daily_wage} onChange={e => setFormData({ ...formData, daily_wage: e.target.value })} />
