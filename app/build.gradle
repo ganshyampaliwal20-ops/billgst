@@ -66,8 +66,8 @@ android {
         applicationId "in.billgst.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 13
-        versionName "2.2.1"
+        versionCode 20
+        versionName "2.2.8"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
