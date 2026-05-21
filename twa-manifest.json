@@ -20,8 +20,8 @@
     "path": "F:\\bill\\android.keystore",
     "alias": "android"
   },
-  "appVersionName": "1",
-  "appVersionCode": 1,
+  "appVersionName": "2.2.1",
+  "appVersionCode": 13,
   "shortcuts": [
     {
       "name": "New Invoice",
@@ -63,5 +63,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "1"
+  "appVersion": "2.2.1"
 }
