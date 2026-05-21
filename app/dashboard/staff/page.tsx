@@ -102,7 +102,7 @@ export default function SmartAttendance() {
         return { in_time: rec?.in_time || '', out_time: rec?.out_time || '' };
     };
 
-    const handleSetAtt = async (id: string, status: string, in_time = null, out_time = null) => {
+    const handleSetAtt = async (id: string, status: string, in_time?: string | null, out_time?: string | null) => {
         if (isSaving) return;
         setIsSaving(true);
         try {
