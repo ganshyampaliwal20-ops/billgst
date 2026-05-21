@@ -13,7 +13,7 @@ import {
     FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
-import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
+import { normalizeRole, isOwnerRole, isAccountantRole, isSecurityRole, isSalesRole, ROLE_SECURITY, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
 import LanguageSelector from '@/app/components/LanguageSelector';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from './RegistrationPopup';
@@ -71,8 +71,19 @@ export default function DashboardLayout({
         onClick?: () => void;
     }
 
-    const menuItems: MenuItem[] = [
-        {
+    const userRole = normalizeRole(session?.user?.role);
+    const superAdmins = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
+    const isSuperAdmin = superAdmins.includes(session?.user?.email || '');
+
+    const menuItems: MenuItem[] = [];
+
+    const canSeeSales = isSalesRole(userRole) || isAccountantRole(userRole) || userRole === 'USER';
+    const canSeeAccounting = isAccountantRole(userRole) || userRole === 'USER';
+    const canSeeStaff = isSecurityRole(userRole) || userRole === 'USER';
+    const isOwner = isOwnerRole(userRole) || userRole === 'USER';
+
+    if (canSeeSales) {
+        menuItems.push({
             icon: FaFileInvoice,
             label: t.invoices,
             href: '/dashboard/invoices',
@@ -84,32 +95,48 @@ export default function DashboardLayout({
                 { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
                 { label: t.quotations || 'Quotation', href: '/dashboard/quotations' },
             ]
-        },
-        { icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' },
-        { icon: FaUsers, label: t.customers, href: '/dashboard/customers' },
-        { icon: FaIdCard, label: 'Staff & Attendance', href: '/dashboard/staff' },
-        { icon: FaBox, label: t.inventory, href: '/dashboard/inventory' },
-        { icon: FaChartBar, label: t.reports, href: '/dashboard/reports' },
-        { icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' },
-        {
-            icon: FaRobot,
-            label: t.aiAssistant || 'AI Assistant',
-            href: '#',
-            onClick: () => {
-                setAiChatOpen(true);
-                setIsSidebarOpen(false);
-            }
-        },
-        { icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' },
-        { icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' },
-        { icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' },
-        { icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' },
-        ...((isOwnerRole(normalizeRole(session?.user?.role)) ||
-            ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || ''))
-            ? [{ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' }]
-            : []),
-        // Settings moved to bottom manually
-    ];
+        });
+    }
+
+    if (canSeeAccounting) {
+        menuItems.push({ icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' });
+    }
+
+    if (canSeeSales) {
+        menuItems.push({ icon: FaUsers, label: t.customers, href: '/dashboard/customers' });
+    }
+
+    if (canSeeStaff) {
+        menuItems.push({ icon: FaIdCard, label: 'Staff & Attendance', href: '/dashboard/staff' });
+    }
+
+    if (canSeeAccounting) {
+        menuItems.push({ icon: FaBox, label: t.inventory, href: '/dashboard/inventory' });
+        menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
+        menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
+    }
+
+    menuItems.push({
+        icon: FaRobot,
+        label: t.aiAssistant || 'AI Assistant',
+        href: '#',
+        onClick: () => {
+            setAiChatOpen(true);
+            setIsSidebarOpen(false);
+        }
+    });
+
+    if (isOwner) {
+        menuItems.push({ icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' });
+        menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
+    }
+
+    menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
+    menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
+
+    if (isOwnerRole(userRole) || isSuperAdmin) {
+        menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
+    }
 
     const handleLogout = () => {
         resetStore();

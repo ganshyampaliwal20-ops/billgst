@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
 
-const VALID_ROLES = ['USER', 'SECURITY', 'ACCOUNTANT', 'OWNER', 'ADMIN'];
+const VALID_ROLES = ['USER', 'SECURITY', 'ACCOUNTANT', 'SALES', 'OWNER', 'ADMIN'];
 
 export async function GET() {
   try {
@@ -57,9 +57,10 @@ export async function POST(request: Request) {
 
     for (const identifier of rawIdentifiers) {
       const normalizedIdentifier = identifier.toLowerCase();
+      const cleanPhone = identifier.replace(/[^0-9]/g, '');
       const userResult = await client.query(
-        'SELECT id, email FROM users WHERE LOWER(email) = $1 OR phone = $2 OR LOWER(name) = $3 LIMIT 1',
-        [normalizedIdentifier, identifier, normalizedIdentifier]
+        "SELECT id, email FROM users WHERE LOWER(email) = $1 OR (LENGTH($2) >= 10 AND RIGHT(REPLACE(phone, ' ', ''), 10) = RIGHT($2, 10)) OR LOWER(name) = $3 LIMIT 1",
+        [normalizedIdentifier, cleanPhone, normalizedIdentifier]
       );
 
       if (userResult.rows.length > 0) {
@@ -70,8 +71,8 @@ export async function POST(request: Request) {
       }
 
       const staffResult = await client.query(
-        'SELECT id, name, email, phone FROM staff WHERE LOWER(email) = $1 OR LOWER(phone) = $2 OR LOWER(name) = $3 LIMIT 1',
-        [normalizedIdentifier, normalizedIdentifier, normalizedIdentifier]
+        "SELECT id, name, email, phone FROM staff WHERE LOWER(email) = $1 OR (LENGTH($2) >= 10 AND RIGHT(REPLACE(phone, ' ', ''), 10) = RIGHT($2, 10)) OR LOWER(name) = $3 LIMIT 1",
+        [normalizedIdentifier, cleanPhone, normalizedIdentifier]
       );
 
       if (staffResult.rows.length > 0) {

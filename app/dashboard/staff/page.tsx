@@ -603,7 +603,6 @@ export default function SmartAttendance() {
                         <div className={`ptab ${activeTab === 'workers' ? 'on' : ''}`} onClick={() => setActiveTab('workers')}>👷 Kaamgaar</div>
                         <div className={`ptab ${activeTab === 'school' ? 'on' : ''}`} onClick={() => setActiveTab('school')}>🎓 Vidyarthi</div>
                         <div className={`ptab ${activeTab === 'salary' ? 'on' : ''}`} onClick={() => setActiveTab('salary')}>💰 Vetan</div>
-                        <div className={`ptab ${activeTab === 'report' ? 'on' : ''}`} onClick={generateMasterReportPDF}>📊 Report PDF</div>
                     </div>
                 </div>
 
@@ -739,6 +738,16 @@ export default function SmartAttendance() {
                             </div>
                         );
                     })}
+                </div>
+
+                {/* PDF DOWNLOAD BUTTON AT THE BOTTOM */}
+                <div style={{ padding: '20px', paddingBottom: '100px', display: 'flex', justifyContent: 'center' }}>
+                    <button 
+                        onClick={generateMasterReportPDF} 
+                        style={{ width: '100%', maxWidth: '400px', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', fontSize: '16px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.25)' }}
+                    >
+                        📊 Pure Staff Ki Report PDF Download Karein
+                    </button>
                 </div>
 
                 {/* FAB */}

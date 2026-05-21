@@ -972,7 +972,7 @@ export default function BusinessExpensesPage() {
                             </div>
                             <div className={`balance-status ${custStats.isNeg ? '' : 'positive'}`}>
                                 <span className="balance-status-dot"></span>
-                                {custStats.isNeg ? 'You Will Get' : 'You Will Give'}
+                                {custStats.isNeg ? 'You Will Give' : 'You Will Get'}
                             </div>
                             <div className="balance-stats">
                                 <div className="bal-stat">
@@ -1149,7 +1149,7 @@ export default function BusinessExpensesPage() {
                                     <div className="gt-lbl">Final Net Balance</div>
                                     <div className={`gt-amt ${custStats.isNeg ? 'red' : 'green'}`}>
                                         {fmt(Math.abs(custStats.net))}
-                                        <span>{custStats.isNeg ? 'You Will Get' : 'You Will Give'}</span>
+                                        <span>{custStats.isNeg ? 'You Will Give' : 'You Will Get'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1180,9 +1180,9 @@ export default function BusinessExpensesPage() {
                                 </div>
 
                                 <div className={`extra-fields ${isAddEntryOpen ? 'show' : ''}`}>
-                                    <div className="extra-field-row">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                        <input type="text" placeholder="Add note (optional)" value={entryNote} onChange={e => setEntryNote(e.target.value)} />
+                                    <div className="extra-field-row" style={{ backgroundColor: '#ffffff' }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: entryType === 'credit' ? '#16a34a' : '#dc2626' }}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                        <input type="text" placeholder="Add note (optional)" value={entryNote} onChange={e => setEntryNote(e.target.value)} style={{ fontWeight: 'bold', color: entryType === 'credit' ? '#16a34a' : '#dc2626' }} />
                                     </div>
                                     <div className="extra-field-row" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', paddingLeft: '32px' }}>
                                         {['General', 'Goods', 'Salary', 'Rent', 'Food', 'Transport'].map(cat => (
