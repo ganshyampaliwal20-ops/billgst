@@ -25,6 +25,8 @@ export async function GET(req: Request) {
                 staff_id UUID NOT NULL,
                 date DATE NOT NULL,
                 status VARCHAR(50) NOT NULL,
+                in_time TIME,
+                out_time TIME,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(staff_id, date)
             )
@@ -63,7 +65,7 @@ export async function POST(req: Request) {
         const userId = session.user.id;
 
         const body = await req.json();
-        const { staff_id, date, status } = body;
+        const { staff_id, date, status, in_time, out_time } = body;
         
         if (!staff_id || !date || !status) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -86,6 +88,8 @@ export async function POST(req: Request) {
                 staff_id UUID NOT NULL,
                 date DATE NOT NULL,
                 status VARCHAR(50) NOT NULL,
+                in_time TIME,
+                out_time TIME,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(staff_id, date)
             )
@@ -93,11 +97,14 @@ export async function POST(req: Request) {
 
         // Upsert attendance (if already exists for that date, update status)
         await client.query(
-            `INSERT INTO attendance (id, staff_id, date, status) 
-             VALUES ($1, $2, $3, $4)
+            `INSERT INTO attendance (id, staff_id, date, status, in_time, out_time) 
+             VALUES ($1, $2, $3, $4, $5, $6)
              ON CONFLICT (staff_id, date) 
-             DO UPDATE SET status = EXCLUDED.status, created_at = CURRENT_TIMESTAMP`,
-            [attendanceId, staff_id, date, status]
+             DO UPDATE SET status = EXCLUDED.status, 
+                           in_time = COALESCE(EXCLUDED.in_time, attendance.in_time), 
+                           out_time = COALESCE(EXCLUDED.out_time, attendance.out_time),
+                           created_at = CURRENT_TIMESTAMP`,
+            [attendanceId, staff_id, date, status, in_time || null, out_time || null]
         );
         
         client.release();

@@ -14,9 +14,14 @@ export default function SmartAttendance() {
     const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff } = useStore();
     const [isClient, setIsClient] = useState(false);
 
+    const getLocalISODate = (d: Date = new Date()) => {
+        const offset = d.getTimezoneOffset() * 60000;
+        return new Date(d.getTime() - offset).toISOString().split('T')[0];
+    };
     // State for dates
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(getLocalISODate());
+    const [isSaving, setIsSaving] = useState(false);
     
     // UI State
     const [searchQuery, setSearchQuery] = useState('');
@@ -77,7 +82,7 @@ export default function SmartAttendance() {
     const goToToday = () => {
         const today = new Date();
         setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
-        setSelectedDate(today.toISOString().split('T')[0]);
+        setSelectedDate(getLocalISODate(today));
     };
 
     // --- Data Processing ---
@@ -92,29 +97,52 @@ export default function SmartAttendance() {
         return rec ? rec.status : null;
     };
 
-    const handleSetAtt = async (id: string, status: string) => {
-        await markAttendance(id, selectedDate, status);
-        toast.success(
-            status === 'PRESENT' ? 'Haazir mark kiya ✓' :
-            status === 'HALF_DAY' ? 'Adha din mark kiya' :
-            status === 'ABSENT' ? 'Gair-haazir mark kiya ✕' : 'Chhutii mark ki 🏖'
-        );
+    const getTimeFields = (staffId: string, dStr: string) => {
+        const rec = attendance?.find((a: any) => a.staff_id === staffId && a.date === dStr);
+        return { in_time: rec?.in_time || '', out_time: rec?.out_time || '' };
+    };
+
+    const handleSetAtt = async (id: string, status: string, in_time = null, out_time = null) => {
+        if (isSaving) return;
+        setIsSaving(true);
+        try {
+            await markAttendance(id, selectedDate, status, in_time, out_time);
+            toast.success(
+                status === 'PRESENT' ? 'Haazir mark kiya ✓' :
+                status === 'HALF_DAY' ? 'Adha din mark kiya' :
+                status === 'ABSENT' ? 'Gair-haazir mark kiya ✕' : 'Chhutii mark ki 🏖'
+            );
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const markAllPresent = async () => {
-        for (const s of filteredStaff) {
-            if (!getStatus(s.id, selectedDate)) {
-                await markAttendance(s.id, selectedDate, 'PRESENT');
+        if (isSaving) return;
+        setIsSaving(true);
+        try {
+            for (const s of filteredStaff) {
+                if (!getStatus(s.id, selectedDate)) {
+                    await markAttendance(s.id, selectedDate, 'PRESENT');
+                }
             }
+            toast.success('Sabko haazir mark kar diya ✓');
+        } finally {
+            setIsSaving(false);
         }
-        toast.success('Sabko haazir mark kar diya ✓');
     };
 
     const handleSaveWorker = async () => {
         if (!formData.name || !formData.phone) return toast.error('Name & Phone required');
-        await addStaff(formData);
-        setSheet('none');
-        setFormData({ name: '', email: '', phone: '', role: 'Kaamgaar', daily_wage: '' });
+        if (isSaving) return;
+        setIsSaving(true);
+        try {
+            await addStaff(formData);
+            setSheet('none');
+            setFormData({ name: '', email: '', phone: '', role: 'Kaamgaar', daily_wage: '' });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     // Calculate Stats for Selected Date
@@ -375,8 +403,25 @@ export default function SmartAttendance() {
         doc.setTextColor(120);
         doc.text(footerText, 14, pageHeight - 10);
 
-        doc.save(`Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`);
-        toast.success('Master Report Downloaded!');
+        const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
+        try {
+            // Use Blob URL approach for better mobile/TWA compatibility
+            const pdfBlob = doc.output('blob');
+            const blobUrl = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+            toast.success('Master Report Downloaded!');
+        } catch (err) {
+            console.error('PDF Save error:', err);
+            // Fallback
+            doc.save(filename);
+            toast.success('Master Report Downloaded (Fallback)!');
+        }
     };
 
     // Avatar Color Gen
@@ -501,10 +546,12 @@ export default function SmartAttendance() {
             
             .aw-field{display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
             .aw-field-icon{width:32px;height:32px;border-radius:9px;background:var(--indigo-lt);display:flex;align-items:center;justify-content:center;}
+            .aw-field-icon svg{width:18px;height:18px;}
             .aw-inner{flex:1;position:relative;}
             .aw-lbl{font-size:10px;font-weight:800;color:var(--ink3);text-transform:uppercase;}
             .aw-inner input,.aw-inner select{width:100%;border:none;outline:none;background:none;font-size:14px;font-weight:700;color:var(--ink);}
-            .aw-save{width:100%;padding:14px;border-radius:var(--r);background:linear-gradient(135deg,var(--indigo),var(--purple));border:none;color:#fff;font-size:15px;font-weight:900;}
+            .aw-save{width:100%;padding:14px;border-radius:var(--r);background:linear-gradient(135deg,var(--indigo),var(--purple));border:none;color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:8px;}
+            .aw-save svg{width:20px;height:20px;}
             
             .sal-card{background:var(--bg);border-radius:var(--r);padding:14px;margin-bottom:14px;}
             .sal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
@@ -618,10 +665,18 @@ export default function SmartAttendance() {
 
                 {/* WORKERS LIST */}
                 <div className="workers">
-                    {filteredStaff.length === 0 && <div className="text-center mt-10 text-[#7b7fa0] font-bold">Koi kaamgaar nahi mila</div>}
+                    {filteredStaff.length === 0 && (
+                        <div className="text-center mt-10 text-[#7b7fa0] font-bold flex flex-col items-center">
+                            <div style={{ marginBottom: '15px' }}>Koi kaamgaar nahi mila</div>
+                            <button onClick={() => setSheet('add')} style={{ padding: '12px 24px', background: '#4f46e5', color: 'white', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
+                                + Naya Staff Add Karein
+                            </button>
+                        </div>
+                    )}
                     
                     {filteredStaff.map((member: any) => {
                         const status = getStatus(member.id, selectedDate);
+                        const times = getTimeFields(member.id, selectedDate);
                         const roleColor = member.role === 'Driver' ? { bg: '#fff0f0', text: '#ef4444' } : 
                                           member.role === 'Chowkidar' ? { bg: '#e8faf3', text: '#10b981' } : 
                                           member.role === 'Safai' ? { bg: '#eff6ff', text: '#3b82f6' } : 
@@ -662,6 +717,20 @@ export default function SmartAttendance() {
                                     )}
                                     </div>
                                 </div>
+                                
+                                {(status === 'PRESENT' || status === 'HALF_DAY') && (
+                                    <div style={{ padding: '8px 14px', background: '#fafbff', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time (Optional)</label>
+                                            <input type="time" value={times.in_time} onChange={(e) => handleSetAtt(member.id, status, e.target.value, times.out_time)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                        </div>
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time (Optional)</label>
+                                            <input type="time" value={times.out_time} onChange={(e) => handleSetAtt(member.id, status, times.in_time, e.target.value)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0 }); setIsEditingStaff(false); setSheet('detail'); }}>
                                     <div className="sal-info">
                                         <div>
