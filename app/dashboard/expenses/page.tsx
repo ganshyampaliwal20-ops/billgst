@@ -157,14 +157,7 @@ export default function BusinessExpensesPage() {
     const loadCompleted = useRef(false);
 
     useEffect(() => {
-        if (!isAddCustOpen) return;
-        const id = window.requestAnimationFrame(() => {
-            document.body.style.display = 'inline-block';
-            window.requestAnimationFrame(() => {
-                document.body.style.display = '';
-            });
-        });
-        return () => window.cancelAnimationFrame(id);
+        // Removed DOM reflow hack that caused sluggish UI
     }, [isAddCustOpen]);
 
     useEffect(() => {
@@ -430,10 +423,7 @@ export default function BusinessExpensesPage() {
         window.history.pushState({ screen: 'detail' }, '', window.location.pathname + '#detail');
         // Small timeout ensures the new screen is rendered before we scroll
         setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'auto' });
-            // Force a layout recalculation for some mobile browsers
-            document.body.style.display = 'inline-block';
-            setTimeout(() => { document.body.style.display = ''; }, 0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 50);
     };
 
