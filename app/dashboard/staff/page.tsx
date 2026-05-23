@@ -533,13 +533,14 @@ export default function SmartAttendance() {
             .stat-lbl{font-size:10px;font-weight:800;text-transform:uppercase;margin-top:6px;letter-spacing:0.5px;}
             .sn-g{color:var(--green);} .sn-r{color:var(--red);} .sn-a{color:var(--amber);} .sn-b{color:var(--blue);}
             
-            .controls{padding:0 20px 16px;display:flex;gap:10px;align-items:center;position:relative;z-index:90;}
-            .sbox{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(0,0,0,0.05);border-radius:14px;padding:0 14px;height:46px;box-shadow:0 4px 15px rgba(0,0,0,0.02);transition:all 0.2s;}
+            .controls{padding:0 16px 16px;display:flex;gap:8px;align-items:center;position:relative;z-index:90;}
+            .sbox{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(0,0,0,0.05);border-radius:12px;padding:0 12px;height:42px;box-shadow:0 4px 15px rgba(0,0,0,0.02);transition:all 0.2s;min-width:0;}
             .sbox:focus-within{border-color:var(--indigo);box-shadow:0 4px 20px rgba(79,70,229,0.1);}
-            .sbox svg{width:18px;height:18px;color:var(--ink3);}
-            .sbox input{flex:1;border:none;outline:none;background:none;font-size:14px;color:var(--ink);font-weight:600;}
-            .mark-all-btn{height:46px;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:14px;font-size:13px;font-weight:900;white-space:nowrap;box-shadow:0 6px 15px rgba(16,185,129,0.3);cursor:pointer;transition:all 0.2s;}
+            .sbox svg{width:16px;height:16px;color:var(--ink3);flex-shrink:0;}
+            .sbox input{flex:1;border:none;outline:none;background:none;font-size:13px;color:var(--ink);font-weight:600;min-width:0;}
+            .mark-all-btn{flex-shrink:0;height:42px;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:4px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 6px 15px rgba(16,185,129,0.3);cursor:pointer;transition:all 0.2s;}
             .mark-all-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,0.4);}
+            .mark-all-btn svg{width:16px;height:16px;}
             
             .dept-tabs{padding:0 20px 16px;display:flex;gap:8px;overflow-x:auto;}
             .dtab{padding:8px 16px;border-radius:99px;font-size:12px;font-weight:800;border:1px solid rgba(0,0,0,0.05);background:#fff;color:var(--ink3);white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.02);cursor:pointer;transition:all 0.2s;}
