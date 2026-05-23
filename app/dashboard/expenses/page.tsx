@@ -229,6 +229,23 @@ export default function BusinessExpensesPage() {
                 // Debug: log what keys were found
                 console.log('[Hisaab] IDB merge done, total customers found:', mergedCustomers.size);
 
+                // 3. Server se recover karo agar local data nahi mili (user logged in ho toh)
+                if (mergedCustomers.size === 0 && session?.user?.id) {
+                    try {
+                        console.log('[Hisaab] Local data nahi mili, server se recover kar raha hoon...');
+                        const res = await fetch('/api/hisaab/sync');
+                        if (res.ok) {
+                            const serverCustomers = await res.json();
+                            if (Array.isArray(serverCustomers) && serverCustomers.length > 0) {
+                                mergeIntoMap(serverCustomers);
+                                console.log('[Hisaab] ✅ Server se', serverCustomers.length, 'customers recover ho gaye!');
+                            }
+                        }
+                    } catch(e) {
+                        console.error('[Hisaab] Server recovery failed:', e);
+                    }
+                }
+
                 const finalData = Array.from(mergedCustomers.values());
                 if (finalData.length > 0) {
                     const balancedData = finalData.map(c => {
@@ -239,13 +256,14 @@ export default function BusinessExpensesPage() {
                         });
                         return { ...c, balance: debitSum - creditSum };
                     });
-                    console.log('[Hisaab] Loaded', balancedData.length, 'customers from storage');
+                    console.log('[Hisaab] ✅ Loaded', balancedData.length, 'customers from storage');
                     setCustomers(balancedData);
                 } else {
-                    console.log('[Hisaab] No data found in storage. User logged in:', !!session?.user?.id);
+                    console.log('[Hisaab] ⚠️ No data found anywhere. User logged in:', !!session?.user?.id);
                     // Only show default demo data for guest users with no data
                     setCustomers(session?.user?.id ? [] : DEFAULT_DATA);
                 }
+
 
                 setIsMounted(true);
                 loadCompleted.current = true;
@@ -292,7 +310,7 @@ export default function BusinessExpensesPage() {
                 console.error("IDB Storage error:", err);
             }
 
-            // Sync with Server if applicable
+            // Sync only active customer with Server (Bulk sync freezes UI due to large data)
             if (curCid && session?.user?.id) {
                 const c = customers.find((x: any) => x.id === curCid);
                 if (c) {

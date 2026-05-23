@@ -49,6 +49,10 @@ export default function WorkspaceSwitcher() {
     const activeWorkspace = workspaces.find(w => w.id === currentWorkspaceId) || workspaces[0] || { name: 'My Business', role: 'OWNER', type: 'PERSONAL', id: currentWorkspaceId };
     const hasMultipleWorkspaces = workspaces.length > 1;
 
+    if (!hasMultipleWorkspaces) {
+        return null;
+    }
+
     const switchWorkspace = (workspace: Workspace) => {
         document.cookie = `billgst_workspace_id=${workspace.id}; path=/; max-age=31536000`;
         document.cookie = `billgst_workspace_role=${workspace.role}; path=/; max-age=31536000`;
@@ -56,39 +60,24 @@ export default function WorkspaceSwitcher() {
         window.location.reload();
     };
 
-    const resetWorkspace = () => {
-        document.cookie = 'billgst_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'billgst_workspace_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        window.location.reload();
-    };
-
     return (
         <div className="relative w-full mb-2 z-[70]">
             <button 
-                onClick={() => hasMultipleWorkspaces ? setIsOpen(!isOpen) : resetWorkspace()}
-                className={`
-                    flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
-                    border relative overflow-hidden flex-1 min-h-[40px] w-full text-left
-                    ${hasMultipleWorkspaces ? 'bg-indigo-50/50 border-indigo-100 hover:border-indigo-300 hover:shadow-sm cursor-pointer' : 'bg-red-50/50 border-red-100 hover:bg-red-100 cursor-pointer'}
-                `}
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group border relative overflow-hidden flex-1 min-h-[40px] w-full text-left bg-indigo-50/50 border-indigo-100 hover:border-indigo-300 hover:shadow-sm cursor-pointer"
             >
-                <div className={`
-                    p-2 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                    ${hasMultipleWorkspaces ? 'bg-indigo-100 text-indigo-600' : 'bg-red-100 text-red-600'}
-                `}>
-                    <FaSync size={16} className={`${hasMultipleWorkspaces ? 'group-hover:rotate-180' : ''} transition-transform duration-500`} />
+                <div className="p-2 rounded-lg transition-all duration-300 relative z-10 shrink-0 bg-indigo-100 text-indigo-600">
+                    <FaSync size={16} className="group-hover:rotate-180 transition-transform duration-500" />
                 </div>
                 <div className="flex-1 relative z-10 overflow-hidden flex flex-col justify-center">
                     <span className="text-xs font-bold text-slate-700 truncate tracking-wide">
-                        {hasMultipleWorkspaces ? 'Switch Account' : 'Fix My Account'}
+                        Switch Account
                     </span>
                     <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider truncate">
                         {activeWorkspace?.name}
                     </span>
                 </div>
-                {hasMultipleWorkspaces && (
-                    <FaChevronDown className={`text-slate-400 text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                )}
+                <FaChevronDown className={`text-slate-400 text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
