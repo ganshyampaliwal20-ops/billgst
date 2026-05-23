@@ -15,13 +15,33 @@ export async function GET() {
         const userId = session.user.id;
         const client = await pool.connect();
 
-        const result = await client.query(`
-            SELECT * FROM expenses
-            WHERE created_by = $1
-            ORDER BY expense_date DESC, created_at DESC
-        `, [userId]);
+        const adminEmails = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
+        const isSuperAdmin = session.user.email && adminEmails.includes(session.user.email);
 
-        client.release();
+        let query: string;
+        let params: any[] = [];
+        if (isSuperAdmin) {
+            query = `
+                SELECT * FROM expenses
+                ORDER BY expense_date DESC, created_at DESC
+            `;
+            params = [];
+        } else {
+            query = `
+                SELECT * FROM expenses
+                WHERE created_by = $1
+                ORDER BY expense_date DESC, created_at DESC
+            `;
+            params = [userId];
+        }
+
+        let result;
+        try {
+            result = await client.query(query, params);
+        } finally {
+            client.release();
+        }
+
         return NextResponse.json(result.rows);
     } catch (error) {
         console.error('Error fetching expenses:', error);

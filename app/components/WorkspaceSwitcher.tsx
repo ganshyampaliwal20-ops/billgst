@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { FaBuilding, FaChevronDown, FaCheck, FaUserTie } from 'react-icons/fa';
+import { FaBuilding, FaChevronDown, FaCheck, FaUserTie, FaSync } from 'react-icons/fa';
 
 interface Workspace {
     id: string;
@@ -56,21 +56,35 @@ export default function WorkspaceSwitcher() {
         window.location.reload();
     };
 
+    const resetWorkspace = () => {
+        document.cookie = 'billgst_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = 'billgst_workspace_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        window.location.reload();
+    };
+
     return (
-        <div className="relative w-full mb-4 z-[70]">
+        <div className="relative w-full mb-2 z-[70]">
             <button 
-                onClick={() => hasMultipleWorkspaces && setIsOpen(!isOpen)}
-                disabled={!hasMultipleWorkspaces}
-                className={`w-full flex items-center justify-between bg-white border border-slate-200 p-2.5 rounded-xl transition-all group ${hasMultipleWorkspaces ? 'hover:border-indigo-300 hover:shadow-md cursor-pointer' : 'opacity-80 cursor-default'}`}
+                onClick={() => hasMultipleWorkspaces ? setIsOpen(!isOpen) : resetWorkspace()}
+                className={`
+                    flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
+                    border relative overflow-hidden flex-1 min-h-[40px] w-full text-left
+                    ${hasMultipleWorkspaces ? 'bg-indigo-50/50 border-indigo-100 hover:border-indigo-300 hover:shadow-sm cursor-pointer' : 'bg-red-50/50 border-red-100 hover:bg-red-100 cursor-pointer'}
+                `}
             >
-                <div className="flex items-center gap-3 overflow-hidden">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${activeWorkspace?.type === 'PERSONAL' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                        {activeWorkspace?.type === 'PERSONAL' ? <FaUserTie size={14} /> : <FaBuilding size={14} />}
-                    </div>
-                    <div className="text-left overflow-hidden">
-                        <div className="text-xs font-bold text-slate-800 truncate">{activeWorkspace?.name}</div>
-                        <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">{activeWorkspace?.role}</div>
-                    </div>
+                <div className={`
+                    p-2 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                    ${hasMultipleWorkspaces ? 'bg-indigo-100 text-indigo-600' : 'bg-red-100 text-red-600'}
+                `}>
+                    <FaSync size={16} className={`${hasMultipleWorkspaces ? 'group-hover:rotate-180' : ''} transition-transform duration-500`} />
+                </div>
+                <div className="flex-1 relative z-10 overflow-hidden flex flex-col justify-center">
+                    <span className="text-xs font-bold text-slate-700 truncate tracking-wide">
+                        {hasMultipleWorkspaces ? 'Switch Account' : 'Fix My Account'}
+                    </span>
+                    <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider truncate">
+                        {activeWorkspace?.name}
+                    </span>
                 </div>
                 {hasMultipleWorkspaces && (
                     <FaChevronDown className={`text-slate-400 text-xs transition-transform ${isOpen ? 'rotate-180' : ''}`} />

@@ -153,6 +153,8 @@ export default function BusinessExpensesPage() {
     const [acOpening, setAcOpening] = useState('');
 
     const toastTimeout = useRef<any>(null);
+    // Track whether load has fully completed — prevent saving empty array during load
+    const loadCompleted = useRef(false);
 
     useEffect(() => {
         if (!isAddCustOpen) return;
@@ -169,18 +171,13 @@ export default function BusinessExpensesPage() {
         if (status === 'loading') return;
 
         const loadData = async () => {
-            setCustomers([]); // Reset immediately to prevent ghosting from previous session
+            // Reset flag so saving is blocked during this load
+            loadCompleted.current = false;
+            setCanSave(false);
+
             try {
                 const { idb } = await import('../../../lib/idb');
 
-                // Define keys based on session
-                const userKeys = [];
-                if (session?.user?.id) {
-                    userKeys.push(`hisaab_pro_data_${session.user.id}`);
-                    if (session.user.email) userKeys.push(`hisaab_pro_data_${session.user.email}`);
-                }
-
-                const legacyKey = 'hisaab_pro_data';
                 const mergedCustomers = new Map<number, any>();
 
                 const mergeIntoMap = (dataArray: any[]) => {
@@ -189,11 +186,13 @@ export default function BusinessExpensesPage() {
                         if (!cust.id) return;
                         const existing = mergedCustomers.get(cust.id);
                         if (!existing) {
-                            mergedCustomers.set(cust.id, cust);
+                            mergedCustomers.set(cust.id, { ...cust, txns: cust.txns || [] });
                         } else {
-                            const existingTxnIds = new Set(existing.txns.map((t: any) => t.id));
-                            const newTxns = (cust.txns || []).filter((t: any) => !existingTxnIds.has(t.id));
-                            const mergedTxns = [...existing.txns, ...newTxns].sort((a: any, b: any) =>
+                            const existingTxns = existing.txns || [];
+                            const custTxns = cust.txns || [];
+                            const existingTxnIds = new Set(existingTxns.map((t: any) => t.id));
+                            const newTxns = custTxns.filter((t: any) => !existingTxnIds.has(t.id));
+                            const mergedTxns = [...existingTxns, ...newTxns].sort((a: any, b: any) =>
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
                             );
                             mergedCustomers.set(cust.id, { ...existing, ...cust, txns: mergedTxns });
@@ -201,25 +200,34 @@ export default function BusinessExpensesPage() {
                     });
                 };
 
-                // 1. Try User Specific Keys First
-                if (session?.user?.id) {
-                    for (const k of userKeys) {
-                        try {
+                // 1. Recover data from ALL hisaab keys in IDB (Aggressive Recovery)
+                try {
+                    const allKeys = await idb.keys();
+                    for (const k of allKeys) {
+                        if (typeof k === 'string' && k.startsWith('hisaab_pro_data')) {
                             const idbData = await idb.get(k);
                             if (idbData) mergeIntoMap(idbData);
-                            const lsData = localStorage.getItem(k);
-                            if (lsData) mergeIntoMap(JSON.parse(lsData));
-                        } catch (e) { }
+                        }
                     }
-                } else {
-                    // 2. ONLY for Guests (Not Logged In), check legacy key
-                    try {
-                        const idbData = await idb.get(legacyKey);
-                        if (idbData) mergeIntoMap(idbData);
-                        const lsData = localStorage.getItem(legacyKey);
-                        if (lsData) mergeIntoMap(JSON.parse(lsData));
-                    } catch (e) { }
+                } catch(e) {
+                    console.error("IDB keys failed", e);
                 }
+
+                // 2. Also check localStorage for any legacy keys
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('hisaab_pro_data')) {
+                            try {
+                                const lsData = localStorage.getItem(k);
+                                if (lsData) mergeIntoMap(JSON.parse(lsData));
+                            } catch(e) {}
+                        }
+                    }
+                } catch(e) {}
+
+                // Debug: log what keys were found
+                console.log('[Hisaab] IDB merge done, total customers found:', mergedCustomers.size);
 
                 const finalData = Array.from(mergedCustomers.values());
                 if (finalData.length > 0) {
@@ -231,17 +239,23 @@ export default function BusinessExpensesPage() {
                         });
                         return { ...c, balance: debitSum - creditSum };
                     });
+                    console.log('[Hisaab] Loaded', balancedData.length, 'customers from storage');
                     setCustomers(balancedData);
                 } else {
-                    // Only show default data if no records found at all
+                    console.log('[Hisaab] No data found in storage. User logged in:', !!session?.user?.id);
+                    // Only show default demo data for guest users with no data
                     setCustomers(session?.user?.id ? [] : DEFAULT_DATA);
                 }
 
                 setIsMounted(true);
-                setTimeout(() => setCanSave(true), 1000);
+                loadCompleted.current = true;
+                // Allow saves only after load is fully done
+                setTimeout(() => setCanSave(true), 800);
             } catch (e) {
                 console.error("Storage init error", e);
                 setIsMounted(true);
+                loadCompleted.current = true;
+                setTimeout(() => setCanSave(true), 800);
             }
         };
 
@@ -250,14 +264,15 @@ export default function BusinessExpensesPage() {
 
     // --- SAVING LOGIC ---
     useEffect(() => {
-        // Critical: Only save if we have explicitly finished loading and have valid state
-        if (!isMounted || !canSave || !customers) return;
+        // CRITICAL: Only save after load is fully completed — never overwrite with empty data
+        if (!isMounted || !canSave || !loadCompleted.current) return;
+        // Extra guard: never save empty array (could be mid-load state)
+        if (customers.length === 0 && !session?.user?.id) return;
 
         const saveData = async () => {
             let storageKey = null;
 
             if (session?.user?.id) {
-                // Strictly use user-specific key if logged in
                 storageKey = `hisaab_pro_data_${session.user.id}`;
             } else if (!session) {
                 // ONLY use legacy key if explicitly NOT logged in (Guest Mode)
@@ -270,9 +285,6 @@ export default function BusinessExpensesPage() {
                 const { idb } = await import('../../../lib/idb');
                 await idb.set(storageKey, customers);
 
-                // Cleanup: If we just saved to a user-specific key, 
-                // we should NOT have that same data in the legacy global key anymore
-                // to prevent it leaking when we logout.
                 if (session?.user?.id) {
                     try { localStorage.removeItem('hisaab_pro_data'); } catch (e) { }
                 }
@@ -418,10 +430,14 @@ export default function BusinessExpensesPage() {
         else setAmtInp(amtInp.slice(0, -1));
     };
     const openNumpad = (type: string) => {
+        setEditTxnId(null);
         setEntryType(type as any);
         setAmtInp('0');
+        setEntryName('');
         setEntryNote('');
         setEntryDate(new Date().toISOString().split('T')[0]);
+        setEntryDueDate('');
+        setEntryCategory('General');
         setPendingPhotos([]);
         setIsAddEntryOpen(true);
     };
@@ -540,10 +556,12 @@ export default function BusinessExpensesPage() {
     const openAddEntry = (type: 'credit' | 'debit' | 'advance', prepopulateAmt?: string) => {
         setEditTxnId(null);
         setEntryType(type);
-        setAmtInp(prepopulateAmt || '');
+        setAmtInp(prepopulateAmt || '0');
         setEntryName('');
         setEntryNote('');
         setEntryDate(new Date().toISOString().split('T')[0]);
+        setEntryDueDate('');
+        setEntryCategory('General');
         setPendingPhotos([]);
         setIsAddEntryOpen(true);
     };
@@ -621,7 +639,7 @@ export default function BusinessExpensesPage() {
 
     const saveEntry = () => {
         const amt = parseFloat(amtInp);
-        if (!amt) { showToast('⚠️ Amount daalo!'); return; }
+        if (!amt || isNaN(amt) || amt <= 0) { showToast('⚠️ Amount daalo!'); return; }
         const name = entryName.trim() || (entryType === 'credit' ? 'Received' : 'Given');
         const note = entryNote.trim();
         const date = entryDate ? new Date(entryDate).toISOString() : new Date().toISOString();
@@ -845,8 +863,8 @@ export default function BusinessExpensesPage() {
 
                 <div style={{ background: 'var(--bg2)', padding: '10px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                        <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Hisaab Pro</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Customer Ledger</div>
+                        <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Business Expenses</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Expense Ledger</div>
                     </div>
                     <div style={{ display: 'flex', gap: '7px' }}>
                         <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>

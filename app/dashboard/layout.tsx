@@ -10,7 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
-    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard
+    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard, FaBookOpen
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { normalizeRole, isOwnerRole, isAccountantRole, isAttendanceRole, isSalesRole, ROLE_ATTENDANCE, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
@@ -161,7 +161,7 @@ export default function DashboardLayout({
     menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
-    if (isOwnerRole(userRole) || isSuperAdmin) {
+    if (isSuperAdmin) {
         menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
     }
 
@@ -215,10 +215,6 @@ export default function DashboardLayout({
                         {/* Language Toggle */}
                         <div className="flex shrink-0 mb-1" style={{ paddingLeft: '5px' }}>
                             <LanguageSelector showLabel={true} />
-                        </div>
-                        
-                        <div className="px-1">
-                            <WorkspaceSwitcher />
                         </div>
 
                         {/* Menu Items Container */}
@@ -398,13 +394,17 @@ export default function DashboardLayout({
                             </div>
                         </div>
 
-                        <button
-                            onClick={handleLogout}
-                            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100/80 rounded-xl transition-all border border-red-100 shadow-sm hover:shadow group"
-                        >
-                            <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
-                            <span>Logout Safe</span>
-                        </button>
+                        {/* Workspace Switcher & Logout */}
+                        <div className="mt-4 px-2 flex flex-col gap-2">
+                            <WorkspaceSwitcher />
+                            <button
+                                onClick={handleLogout}
+                                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 py-3 rounded-xl hover:from-slate-200 hover:to-slate-300 transition-all font-bold group shadow-sm"
+                            >
+                                <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
+                                <span>Logout Safe</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </aside>
