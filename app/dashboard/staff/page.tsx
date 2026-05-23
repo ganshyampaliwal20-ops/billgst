@@ -605,25 +605,50 @@ export default function SmartAttendance() {
 
             <div className="sa-container">
                 {/* TOPBAR */}
-                <div className="topbar">
-                    <div className="tb1">
-                        <div className="logo-box">
-                            <div className="logo-sq" style={{ padding: businessProfile?.logo ? '0' : '6px' }}>
-                                {businessProfile?.logo ? (
-                                    <img src={businessProfile.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '5px' }} />
-                                ) : (
-                                    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" fill="currentColor" /><rect x="13" y="3" width="8" height="5" rx="2" fill="currentColor" opacity=".6" /><rect x="3" y="13" width="8" height="5" rx="2" fill="currentColor" opacity=".6" /><rect x="13" y="11" width="8" height="8" rx="2" fill="currentColor" /></svg>
-                                )}
+                <div className="topbar" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: '16px' }}>
+                    <div className="logo-box" style={{ background: 'transparent', border: 'none', boxShadow: 'none', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+                        {businessProfile?.logo && (
+                            <div className="logo-sq" style={{ padding: '0', width: '40px', height: '40px', marginBottom: '4px' }}>
+                                <img src={businessProfile.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} />
                             </div>
-                            <span className="logo-nm">{businessProfile?.name || 'BillGST'}</span>
+                        )}
+                        <span className="logo-nm" style={{ fontSize: '20px', fontWeight: 900, color: 'var(--ink)' }}>{businessProfile?.name || 'BillGST'}</span>
+                    </div>
+                    <span className="tb-title" style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ink3)', letterSpacing: '1px', textTransform: 'uppercase' }}>Attendance</span>
+                </div>
+
+                {/* SELECT FILTER & ACTION BUTTONS */}
+                <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div style={{ flex: 1, position: 'relative' }}>
+                        <select 
+                            value={activeTab} 
+                            onChange={(e) => setActiveTab(e.target.value)}
+                            style={{ width: '100%', padding: '12px 14px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.05)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--ink)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', appearance: 'none', cursor: 'pointer' }}
+                        >
+                            <option value="workers">👷 Workers</option>
+                            <option value="school">🎓 Students</option>
+                            <option value="salary">💰 Salary</option>
+                        </select>
+                        <div style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--ink3)' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M6 9l6 6 6-6" /></svg>
                         </div>
-                        <span className="tb-title">Smart Attendance</span>
                     </div>
-                    <div className="page-tabs">
-                        <div className={`ptab ${activeTab === 'workers' ? 'on' : ''}`} onClick={() => setActiveTab('workers')}>👷 Workers</div>
-                        <div className={`ptab ${activeTab === 'school' ? 'on' : ''}`} onClick={() => setActiveTab('school')}>🎓 Students</div>
-                        <div className={`ptab ${activeTab === 'salary' ? 'on' : ''}`} onClick={() => setActiveTab('salary')}>💰 Salary</div>
-                    </div>
+                    
+                    <button 
+                        onClick={generateMasterReportPDF} 
+                        style={{ width: '46px', height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: 'var(--indigo)' }}
+                        title="Download PDF"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+                    </button>
+                    
+                    <button 
+                        onClick={() => setSheet('add')}
+                        style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 20px rgba(79,70,229,0.3)' }}
+                        title="Add New Staff"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M12 5v14M5 12h14" /></svg>
+                    </button>
                 </div>
 
 
@@ -750,20 +775,7 @@ export default function SmartAttendance() {
                     })}
                 </div>
 
-                {/* PDF DOWNLOAD BUTTON AT THE BOTTOM */}
-                <div style={{ padding: '20px', paddingBottom: '100px', display: 'flex', justifyContent: 'center' }}>
-                    <button 
-                        onClick={generateMasterReportPDF} 
-                        style={{ width: '100%', maxWidth: '400px', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', fontSize: '16px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.25)' }}
-                    >
-                        📊 Download Complete Staff Report PDF
-                    </button>
-                </div>
-
-                {/* FAB */}
-                <button className="fab" onClick={() => setSheet('add')}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-                </button>
+                <div style={{ paddingBottom: '20px' }}></div>
 
                 {/* DETAIL SHEET */}
                 {sheet === 'detail' && selectedStaff && (
@@ -907,22 +919,25 @@ export default function SmartAttendance() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
                                     <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg></div>
-                                    <div className="aw-inner">
+                                    <div className="aw-inner" style={{ position: 'relative' }}>
                                         <div className="aw-lbl">Role</div>
-                                        <input type="text" list="role-options" placeholder="Example: Driver..." value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} />
-                                        <datalist id="role-options">
-                                            <option value="Worker" />
-                                            <option value="Driver" />
-                                            <option value="Guard" />
-                                            <option value="Cleaner" />
-                                            <option value="Manager" />
-                                        </datalist>
+                                        <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', fontWeight: 700, color: 'var(--ink)', appearance: 'none', padding: '0', cursor: 'pointer' }}>
+                                            <option value="Worker">Worker</option>
+                                            <option value="Driver">Driver</option>
+                                            <option value="Guard">Guard</option>
+                                            <option value="Cleaner">Cleaner</option>
+                                            <option value="Manager">Manager</option>
+                                            <option value="Student">Student</option>
+                                        </select>
+                                        <div style={{ position: 'absolute', right: '0', top: '18px', pointerEvents: 'none', color: 'var(--ink3)' }}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M6 9l6 6 6-6" /></svg>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
-                                    <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-8.5 8"/><path d="M6 13h3c3.5 0 5-1.5 5-4s-1.5-4-5-4H6"/></svg></div>
+                                    <div className="aw-field-icon" style={{ fontSize: '20px', fontWeight: 900 }}>₹</div>
                                     <div className="aw-inner">
-                                        <div className="aw-lbl">Daily Wage (₹)</div>
+                                        <div className="aw-lbl">Daily Wage</div>
                                         <input type="number" placeholder="400" value={formData.daily_wage} onChange={e => setFormData({ ...formData, daily_wage: e.target.value })} />
                                     </div>
                                 </div>
