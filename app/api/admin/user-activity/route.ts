@@ -8,9 +8,12 @@ export async function POST(request: Request) {
   try {
     const session: any = await getServerSession(authOptions as any);
     const role = normalizeRole(session?.user?.role);
-    const canAccess = isOwnerRole(role) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
+    const isSuperAdmin = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
+    const canAccess = isOwnerRole(role) || isSuperAdmin;
+    
     if (!canAccess) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const ownerId = session.user.personalId || session.user.id;
     const body = await request.json();
     const identifier = (body.identifier || '').toString().trim();
     const source = body.source || 'user';
@@ -24,7 +27,17 @@ export async function POST(request: Request) {
     if (source === 'staff') {
       // Try find staff by email/phone/name
       const normalized = identifier.toLowerCase();
-      const staffRes = await client.query('SELECT id, name, email, phone, role FROM staff WHERE LOWER(email) = $1 OR LOWER(phone) = $2 OR LOWER(name) = $3 LIMIT 1', [normalized, normalized, normalized]);
+      let staffQuery = 'SELECT id, name, email, phone, role FROM staff WHERE (LOWER(email) = $1 OR LOWER(phone) = $2 OR LOWER(name) = $3)';
+      const queryParams: any[] = [normalized, normalized, normalized];
+      
+      // Restrict to their own staff if not super admin
+      if (!isSuperAdmin) {
+        staffQuery += ' AND created_by = $4';
+        queryParams.push(ownerId);
+      }
+      staffQuery += ' LIMIT 1';
+
+      const staffRes = await client.query(staffQuery, queryParams);
       if (staffRes.rows.length === 0) {
         client.release();
         return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
@@ -42,7 +55,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ staff, attendance: attendanceRes.rows });
     }
 
-    // source === 'user'
+    // source === 'user' (Global platform users)
+    if (!isSuperAdmin) {
+      client.release();
+      return NextResponse.json({ error: 'Only system administrators can view global user activity' }, { status: 403 });
+    }
+
     const normalized = identifier.toLowerCase();
     const userRes = await client.query('SELECT id, name, email, role FROM users WHERE LOWER(email) = $1 OR phone = $2 OR LOWER(name) = $3 LIMIT 1', [normalized, identifier, normalized]);
     if (userRes.rows.length === 0) {
@@ -52,7 +70,6 @@ export async function POST(request: Request) {
     const user = userRes.rows[0];
 
     // Fetch invoices and expenses created by this user id
-    // Build date filtered queries if dates provided
     let invoicesQuery = 'SELECT id, invoice_number, total_amount, status, created_at FROM invoices WHERE created_by = $1';
     let expensesQuery = 'SELECT id, category, description, amount, expense_date, created_at FROM expenses WHERE created_by = $1';
     const params: any[] = [user.id];

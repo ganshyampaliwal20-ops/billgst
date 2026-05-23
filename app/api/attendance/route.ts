@@ -35,7 +35,8 @@ export async function GET(req: Request) {
         await client.query('ALTER TABLE attendance ADD COLUMN IF NOT EXISTS note TEXT');
 
         let query = `
-            SELECT a.* FROM attendance a
+            SELECT a.id, a.staff_id, TO_CHAR(a.date, 'YYYY-MM-DD') as date, a.status, a.in_time, a.out_time, a.note, a.created_at 
+            FROM attendance a
             JOIN staff s ON a.staff_id = s.id
             WHERE s.created_by = $1
         `;

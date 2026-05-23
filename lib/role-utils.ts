@@ -1,9 +1,10 @@
 export const ROLE_USER = 'USER';
-export const ROLE_SECURITY = 'SECURITY';
+export const ROLE_ATTENDANCE = 'ATTENDANCE';
 export const ROLE_ACCOUNTANT = 'ACCOUNTANT';
 export const ROLE_SALES = 'SALES';
 export const ROLE_OWNER = 'OWNER';
 export const ROLE_ADMIN = 'ADMIN';
+export const ROLE_STAFF = 'STAFF';
 
 export function normalizeRole(role?: string) {
   return (role || ROLE_USER).toUpperCase();
@@ -19,9 +20,9 @@ export function isAccountantRole(role?: string) {
   return normalized === ROLE_ACCOUNTANT || normalized === ROLE_OWNER || normalized === ROLE_ADMIN;
 }
 
-export function isSecurityRole(role?: string) {
+export function isAttendanceRole(role?: string) {
   const normalized = normalizeRole(role);
-  return normalized === ROLE_SECURITY || normalized === ROLE_OWNER || normalized === ROLE_ADMIN;
+  return normalized === ROLE_ATTENDANCE || normalized === ROLE_OWNER || normalized === ROLE_ADMIN;
 }
 
 export function isSalesRole(role?: string) {
@@ -36,8 +37,8 @@ export function formatRoleLabel(role?: string) {
       return 'Owner';
     case ROLE_ADMIN:
       return 'Admin';
-    case ROLE_SECURITY:
-      return 'Security';
+    case ROLE_ATTENDANCE:
+      return 'Attendance';
     case ROLE_ACCOUNTANT:
       return 'Accountant';
     case ROLE_SALES:

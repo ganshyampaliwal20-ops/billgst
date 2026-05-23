@@ -11,7 +11,7 @@ export default function AdminPaymentsPage() {
     const [pending, setPending] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [assignEmail, setAssignEmail] = useState('');
-    const [assignRole, setAssignRole] = useState('SECURITY');
+    const [assignRole, setAssignRole] = useState('ATTENDANCE');
     const [assignLoading, setAssignLoading] = useState(false);
     const [assignResult, setAssignResult] = useState<string | null>(null);
     const [roleList, setRoleList] = useState<any[]>([]);
@@ -172,60 +172,67 @@ export default function AdminPaymentsPage() {
                     {/* Left Column (Assign Role + Pending Payments) */}
                     <div className="lg:col-span-4 space-y-4">
                         
-                        {/* Assign Role Card */}
-                        <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100 p-2 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-indigo-50 rounded-bl-full -z-0 transition-transform group-hover:scale-110 duration-500"></div>
+                        {/* Premium Assign Role Card */}
+                        <div className="bg-white/80 backdrop-blur-xl rounded-[32px] border border-white/50 p-6 sm:p-8 shadow-2xl shadow-indigo-100/50 relative overflow-hidden group hover:bg-white transition-all duration-500">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-indigo-50 to-transparent rounded-bl-full -z-0 opacity-50 transition-transform group-hover:scale-125 duration-700"></div>
                             
-                            <div className="relative z-10 p-2">
-                                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-base sm:text-lg">🛡️</div>
-                                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-800">Assign Role</h2>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-200">🛡️</div>
+                                    <div>
+                                        <h2 className="text-xl sm:text-2xl font-black text-slate-800">Assign Role</h2>
+                                        <p className="text-xs font-semibold text-slate-500 mt-1">Grant system access securely</p>
+                                    </div>
                                 </div>
                                 
-                                <div className="space-y-4 sm:space-y-5" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">User Identifier</label>
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Target User</label>
                                         <input
                                             type="text"
                                             value={assignEmail}
                                             onChange={(e) => setAssignEmail(e.target.value)}
-                                            placeholder="Email, Phone, or Name"
-                                            className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+                                            placeholder="Enter Name, Email, or Phone"
+                                            className="w-full rounded-2xl border-2 border-slate-100 bg-slate-50/50 p-4 text-sm font-semibold outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/20"
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Role</label>
-                                        <select
-                                            value={assignRole}
-                                            onChange={(e) => setAssignRole(e.target.value)}
-                                            className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-sm font-semibold text-slate-700 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 appearance-none"
-                                        >
-                                            <option value="USER">USER</option>
-                                            <option value="SALES">SALES</option>
-                                            <option value="SECURITY">SECURITY</option>
-                                            <option value="ACCOUNTANT">ACCOUNTANT</option>
-                                            <option value="ADMIN">ADMIN</option>
-                                            <option value="OWNER">OWNER</option>
-                                        </select>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Access Level</label>
+                                        <div className="relative">
+                                            <select
+                                                value={assignRole}
+                                                onChange={(e) => setAssignRole(e.target.value)}
+                                                className="w-full rounded-2xl border-2 border-slate-100 bg-slate-50/50 p-4 text-sm font-black text-slate-700 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/20 appearance-none cursor-pointer"
+                                            >
+                                                <option value="USER">Base User (No Access)</option>
+                                                <option value="ATTENDANCE">Attendance Manager</option>
+                                                <option value="SALES">Sales Executive</option>
+                                                <option value="ACCOUNTANT">Accountant</option>
+                                                <option value="ADMIN">System Admin</option>
+                                                <option value="OWNER">Owner (Full Access)</option>
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">▼</div>
+                                        </div>
                                     </div>
                                     
                                     <button
                                         type="button"
                                         onClick={handleAssignRole}
                                         disabled={assignLoading}
-                                        className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 p-2 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] hover:shadow-indigo-300 disabled:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-4 text-sm sm:text-base font-black text-white shadow-xl shadow-indigo-200 transition-all hover:scale-[1.02] hover:shadow-indigo-300 disabled:scale-100 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
-                                        {assignLoading ? 'Assigning...' : 'Assign Role Now'}
+                                        {assignLoading ? 'Granting Access...' : 'Grant Access Now ✨'}
                                     </button>
 
                                     {assignResult && (
-                                        <div className={`mt-2 rounded-lg border p-2 text-xs font-semibold ${assignResult.toLowerCase().includes('fail') || assignResult.toLowerCase().includes('error') ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
-                                            {assignResult}
+                                        <div className={`mt-4 rounded-xl border p-4 text-xs font-bold text-center flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-2 ${assignResult.toLowerCase().includes('fail') || assignResult.toLowerCase().includes('error') ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
+                                            {assignResult.toLowerCase().includes('error') ? '❌' : '✅'} {assignResult}
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
+
 
                         {/* Pending Payments Widget */}
                         {isSuperAdmin && (
@@ -328,7 +335,7 @@ export default function AdminPaymentsPage() {
                                                             <span className={`inline-flex items-center px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded text-[8px] sm:text-[10px] font-black uppercase tracking-widest ${
                                                                 item.role === 'ADMIN' || item.role === 'OWNER' ? 'bg-rose-100 text-rose-700' :
                                                                 item.role === 'ACCOUNTANT' ? 'bg-amber-100 text-amber-700' :
-                                                                item.role === 'SECURITY' ? 'bg-emerald-100 text-emerald-700' :
+                                                                item.role === 'ATTENDANCE' ? 'bg-emerald-100 text-emerald-700' :
                                                                 'bg-slate-100 text-slate-700'
                                                             }`}>
                                                                 {item.role || 'USER'}

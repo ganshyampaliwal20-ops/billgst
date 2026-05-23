@@ -13,12 +13,13 @@ import {
     FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
-import { normalizeRole, isOwnerRole, isAccountantRole, isSecurityRole, isSalesRole, ROLE_SECURITY, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
+import { normalizeRole, isOwnerRole, isAccountantRole, isAttendanceRole, isSalesRole, ROLE_ATTENDANCE, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
 import LanguageSelector from '@/app/components/LanguageSelector';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from './RegistrationPopup';
 import AIChat from '@/app/components/AIChat';
 import UpgradeModal from '@/app/components/UpgradeModal';
+import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
 
 export default function DashboardLayout({
     children,
@@ -41,13 +42,39 @@ export default function DashboardLayout({
         // Only fetch profile if session is active
         if (typeof window !== 'undefined' && status === 'authenticated') {
             fetchBusinessProfile();
+
+            // Role-based route protection
+            const userRole = normalizeRole(session?.user?.role);
+            const path = pathname;
+
+            // Restrict non-owners from unauthorized paths
+            if (userRole !== 'USER' && userRole !== 'OWNER' && userRole !== 'ADMIN') {
+                if (userRole === 'ATTENDANCE') {
+                    if (!path.startsWith('/dashboard/staff') && path !== '/dashboard') {
+                        router.push('/dashboard/staff');
+                    }
+                } else if (userRole === 'ACCOUNTANT') {
+                    if (path.startsWith('/dashboard/staff') || path.startsWith('/dashboard/admin') || path.startsWith('/dashboard/pricing')) {
+                        router.push('/dashboard');
+                    }
+                } else if (userRole === 'SALES') {
+                    if (!path.startsWith('/dashboard/invoices') && !path.startsWith('/dashboard/customers') && !path.startsWith('/dashboard/quotations') && path !== '/dashboard') {
+                        router.push('/dashboard/invoices');
+                    }
+                } else if (userRole === 'STAFF') {
+                    // Generic staff - very restricted
+                    if (path !== '/dashboard') {
+                        router.push('/dashboard');
+                    }
+                }
+            }
         }
 
         // Redirect to login only if session is definitively unauthenticated
         if (status === 'unauthenticated') {
             router.push('/login?callbackUrl=' + encodeURIComponent(pathname));
         }
-    }, [fetchBusinessProfile, status, pathname, router]);
+    }, [fetchBusinessProfile, status, pathname, router, session]);
 
     const [currentTime, setCurrentTime] = useState(new Date());
     useEffect(() => {
@@ -79,7 +106,7 @@ export default function DashboardLayout({
 
     const canSeeSales = isSalesRole(userRole) || isAccountantRole(userRole) || userRole === 'USER';
     const canSeeAccounting = isAccountantRole(userRole) || userRole === 'USER';
-    const canSeeStaff = isSecurityRole(userRole) || userRole === 'USER';
+    const canSeeStaff = isAttendanceRole(userRole) || userRole === 'USER';
     const isOwner = isOwnerRole(userRole) || userRole === 'USER';
 
     if (canSeeSales) {
@@ -188,6 +215,10 @@ export default function DashboardLayout({
                         {/* Language Toggle */}
                         <div className="flex shrink-0 mb-1" style={{ paddingLeft: '5px' }}>
                             <LanguageSelector showLabel={true} />
+                        </div>
+                        
+                        <div className="px-1">
+                            <WorkspaceSwitcher />
                         </div>
 
                         {/* Menu Items Container */}

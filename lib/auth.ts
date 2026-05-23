@@ -69,6 +69,7 @@ export const authOptions: AuthOptions = {
                         }
                     }
 
+
                     console.log('Auth Success for:', user.email);
                     return {
                         id: user.id.toString(),
@@ -94,8 +95,25 @@ export const authOptions: AuthOptions = {
         },
         async session({ session, token }) {
             if (session?.user) {
-                session.user.role = token.role as string;
-                session.user.id = token.id as string;
+                let activeId = token.id as string;
+                let activeRole = token.role as string;
+                
+                try {
+                    const { cookies } = require('next/headers');
+                    const cookieStore = cookies();
+                    const wsId = cookieStore.get('billgst_workspace_id')?.value;
+                    const wsRole = cookieStore.get('billgst_workspace_role')?.value;
+                    if (wsId) activeId = wsId;
+                    if (wsRole) activeRole = wsRole;
+                } catch (e) {
+                    // Ignore errors if cookies() is not available in this context
+                }
+
+                session.user.role = activeRole;
+                session.user.id = activeId;
+                // Add personal ID to session so frontend knows who they really are
+                (session.user as any).personalId = token.id as string;
+                (session.user as any).personalRole = token.role as string;
             }
             return session;
         }

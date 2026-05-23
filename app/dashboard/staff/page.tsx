@@ -11,6 +11,8 @@ import autoTable from 'jspdf-autotable';
 
 export default function SmartAttendance() {
     const { data: session } = useSession();
+    const userRole = (session?.user as any)?.role || 'USER';
+    const isOwnerOrAccountant = userRole === 'USER' || userRole === 'OWNER' || userRole === 'ADMIN' || userRole === 'ACCOUNTANT';
     const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff } = useStore();
     const [isClient, setIsClient] = useState(false);
 
@@ -39,7 +41,7 @@ export default function SmartAttendance() {
         name: '',
         email: '',
         phone: '',
-        role: 'Kaamgaar',
+        role: 'Worker',
         daily_wage: ''
     });
 
@@ -109,9 +111,9 @@ export default function SmartAttendance() {
             const res = await markAttendance(id, selectedDate, status, in_time, out_time, note);
             if (res && res.success) {
                 toast.success(
-                    status === 'PRESENT' ? 'Haazir mark kiya ✓' :
-                    status === 'HALF_DAY' ? 'Adha din mark kiya' :
-                    status === 'ABSENT' ? 'Gair-haazir mark kiya ✕' : 'Chhutii mark ki 🏖'
+                    status === 'PRESENT' ? 'Marked Present ✓' :
+                    status === 'HALF_DAY' ? 'Marked Half Day' :
+                    status === 'ABSENT' ? 'Marked Absent ✕' : 'Marked Leave 🏖'
                 );
             }
         } finally {
@@ -128,7 +130,7 @@ export default function SmartAttendance() {
                     await markAttendance(s.id, selectedDate, 'PRESENT');
                 }
             }
-            toast.success('Sabko haazir mark kar diya ✓');
+            toast.success('Marked all as present ✓');
         } finally {
             setIsSaving(false);
         }
@@ -141,7 +143,7 @@ export default function SmartAttendance() {
         try {
             await addStaff(formData);
             setSheet('none');
-            setFormData({ name: '', email: '', phone: '', role: 'Kaamgaar', daily_wage: '' });
+            setFormData({ name: '', email: '', phone: '', role: 'Worker', daily_wage: '' });
         } finally {
             setIsSaving(false);
         }
@@ -250,7 +252,7 @@ export default function SmartAttendance() {
             theme: 'plain',
             body: [
                 ['Name', selectedStaff.name],
-                ['Role', selectedStaff.role || 'Kaamgaar'],
+                ['Role', selectedStaff.role || 'Worker'],
                 ['Phone', selectedStaff.phone || '-'],
                 ['Daily Wage', `Rs. ${ds.rate}`],
             ],
@@ -401,7 +403,7 @@ export default function SmartAttendance() {
 
             tableBody.push([
                 member.name,
-                member.role || 'Kaamgaar',
+                member.role || 'Worker',
                 `${p + (h*0.5)} days`,
                 `Rs. ${rate}`,
                 `Rs. ${net}`
@@ -464,123 +466,141 @@ export default function SmartAttendance() {
         <>
             <style dangerouslySetInnerHTML={{ __html: `
             :root{
-                --bg:#f0f2f8;--white:#fff;--ink:#0d0f1c;--ink2:#3a3d58;--ink3:#7b7fa0;--ink4:#b8bbd0;
-                --border:#e0e3f0;--green:#10b981;--green-lt:#e8faf3;--green-dk:#059669;
-                --red:#ef4444;--red-lt:#fff0f0;--amber:#f59e0b;--amber-lt:#fffbeb;
-                --blue:#3b82f6;--blue-lt:#eff6ff;--indigo:#4f46e5;--indigo-lt:#eef0ff;
+                --bg:#f4f7fb;--white:rgba(255,255,255,0.85);--ink:#0f172a;--ink2:#334155;--ink3:#64748b;--ink4:#94a3b8;
+                --border:rgba(255,255,255,0.6);--green:#10b981;--green-lt:#ecfdf5;--green-dk:#059669;
+                --red:#ef4444;--red-lt:#fef2f2;--amber:#f59e0b;--amber-lt:#fffbeb;
+                --blue:#3b82f6;--blue-lt:#eff6ff;--indigo:#4f46e5;--indigo-lt:#eef2ff;
                 --purple:#8b5cf6;--purple-lt:#f5f3ff;
-                --r:14px;--rsm:10px;--rxs:7px;
-                --sh:0 2px 12px rgba(13,15,28,.07);--shmd:0 8px 32px rgba(13,15,28,.12);
+                --r:18px;--rsm:12px;--rxs:8px;
+                --sh:0 10px 30px rgba(0,0,0,.03);--shmd:0 15px 40px rgba(0,0,0,.06);
             }
             .sa-container {
-                font-family: 'Nunito', sans-serif;
+                font-family: 'Inter', 'Nunito', sans-serif;
                 background: var(--bg);
-                max-width: 600px; margin: 20px auto; /* Centered with top margin instead of squished to edges */
-                min-height: calc(100vh - 100px); color: var(--ink);
+                max-width: 650px; margin: 30px auto;
+                min-height: calc(100vh - 120px); color: var(--ink);
                 -webkit-font-smoothing: antialiased;
                 position: relative;
                 padding-bottom: 20px;
-                border-radius: 20px;
+                border-radius: 24px;
                 overflow: hidden;
                 box-shadow: var(--shmd);
+                border: 1px solid rgba(255,255,255,0.7);
             }
             .sa-container *{scrollbar-width:none;}
             .sa-container *::-webkit-scrollbar{display:none;}
             
-            .topbar{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4f46e5 100%);padding:14px 16px 0;position:relative;z-index:100;}
-            .tb1{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-            .logo-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:6px 11px 6px 8px;}
-            .logo-sq{width:22px;height:22px;border-radius:5px;background:linear-gradient(135deg,#fff,rgba(255,255,255,.7));display:flex;align-items:center;justify-content:center;}
-            .logo-nm{font-size:12px;font-weight:900;color:#fff;}
-            .tb-title{flex:1;font-size:17px;font-weight:900;color:#fff;letter-spacing:-.3px;}
-            .tb-icons{display:flex;gap:6px;}
-            .tbi{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+            .topbar{background:rgba(255,255,255,0.6);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:20px 20px 0;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.5);}
+            .tb1{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+            .logo-box{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.5);border:1px solid #fff;border-radius:12px;padding:8px 14px 8px 10px;box-shadow:0 4px 15px rgba(0,0,0,0.02);}
+            .logo-sq{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--indigo),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;}
+            .logo-nm{font-size:14px;font-weight:900;color:var(--ink);}
+            .tb-title{flex:1;font-size:20px;font-weight:900;color:var(--ink);letter-spacing:-.5px;}
+            .tb-icons{display:flex;gap:8px;}
+            .tbi{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.6);border:1px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink3);box-shadow:0 2px 10px rgba(0,0,0,0.02);transition:all 0.2s;}
+            .tbi:hover{background:#fff;color:var(--indigo);transform:translateY(-1px);}
             
-            .page-tabs{display:flex;gap:6px;justify-content:space-between;}
-            .ptab{flex:1;min-width:110px;padding:10px 8px;text-align:center;font-size:12px;font-weight:800;color:rgba(255,255,255,.5);border-bottom:2px solid transparent;cursor:pointer;}
-            .ptab.on{color:#fff;border-bottom-color:#fff;}
+            .page-tabs{display:flex;gap:8px;justify-content:space-between;padding-bottom:2px;}
+            .ptab{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:800;color:var(--ink4);border-bottom:3px solid transparent;cursor:pointer;transition:all 0.2s;}
+            .ptab.on{color:var(--indigo);border-bottom-color:var(--indigo);}
             
-            .date-strip{background:var(--white);padding:14px 16px;border-bottom:1px solid var(--border);}
-            .date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-            .date-nav-btn{width:32px;height:32px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+            .date-strip{background:rgba(255,255,255,0.4);padding:16px 20px;border-bottom:1px solid var(--border);}
+            .date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+            .date-nav-btn{width:36px;height:36px;border-radius:10px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.02);color:var(--ink3);transition:all 0.2s;}
+            .date-nav-btn:hover{background:var(--indigo-lt);color:var(--indigo);border-color:var(--indigo-lt);}
             .date-center{text-align:center;}
-            .date-month{font-size:15px;font-weight:900;}
-            .date-year{font-size:11px;color:var(--ink4);font-weight:700;}
-            .today-btn{font-size:11px;font-weight:800;color:var(--indigo);background:var(--indigo-lt);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;}
+            .date-month{font-size:17px;font-weight:900;color:var(--ink);}
+            .date-year{font-size:12px;color:var(--ink3);font-weight:700;}
+            .today-btn{font-size:12px;font-weight:800;color:var(--indigo);background:var(--indigo-lt);border:none;border-radius:8px;padding:6px 14px;cursor:pointer;transition:all 0.2s;}
+            .today-btn:hover{background:var(--indigo);color:#fff;}
             
-            .days-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scroll-behavior: smooth;}
-            .day-chip{display:flex;flex-direction:column;align-items:center;min-width:44px;padding:8px 6px;border-radius:12px;cursor:pointer;flex-shrink:0;border:1.5px solid transparent;}
-            .day-chip.today{background:var(--indigo);border-color:var(--indigo);}
-            .day-chip.has-data{border-color:var(--border);}
-            .day-chip.sunday{background:var(--red-lt);}
-            .day-chip.selected{border-color:var(--indigo); background:var(--indigo-lt);}
-            .day-chip-name{font-size:9px;font-weight:800;text-transform:uppercase;color:var(--ink4);}
-            .day-chip.today .day-chip-name{color:rgba(255,255,255,.7);}
-            .day-chip-num{font-size:16px;font-weight:900;line-height:1.2;}
+            .days-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scroll-behavior: smooth;}
+            .day-chip{display:flex;flex-direction:column;align-items:center;min-width:48px;padding:10px 6px;border-radius:14px;cursor:pointer;flex-shrink:0;border:1.5px solid transparent;background:rgba(255,255,255,0.5);transition:all 0.2s;}
+            .day-chip.today{background:linear-gradient(135deg,var(--indigo),var(--purple));border-color:transparent;box-shadow:0 6px 15px rgba(79,70,229,0.3);}
+            .day-chip.has-data{border-color:rgba(0,0,0,0.05);background:#fff;}
+            .day-chip.sunday{background:var(--red-lt);color:var(--red);}
+            .day-chip.selected{border-color:var(--indigo); background:#fff; box-shadow:0 4px 12px rgba(79,70,229,0.15);}
+            .day-chip-name{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--ink3);}
+            .day-chip.today .day-chip-name{color:rgba(255,255,255,.8);}
+            .day-chip-num{font-size:17px;font-weight:900;line-height:1.2;color:var(--ink);}
             .day-chip.today .day-chip-num{color:#fff;}
             .day-chip.sunday .day-chip-num{color:var(--red);}
             
-            .stats-row{display:grid;grid-template-columns:repeat(4,1fr);background:var(--white);border-bottom:1px solid var(--border);}
-            .stat-box{padding:12px 6px;text-align:center;border-right:1px solid var(--border);}
-            .stat-num{font-size:20px;font-weight:900;line-height:1;}
-            .stat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;margin-top:3px;}
+            .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px;background:transparent;}
+            .stat-box{padding:16px 8px;text-align:center;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border:1px solid #fff;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,0.03);transition:transform 0.2s,box-shadow 0.2s;}
+            .stat-box:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.05);}
+            .stat-num{font-size:24px;font-weight:900;line-height:1;}
+            .stat-lbl{font-size:10px;font-weight:800;text-transform:uppercase;margin-top:6px;letter-spacing:0.5px;}
             .sn-g{color:var(--green);} .sn-r{color:var(--red);} .sn-a{color:var(--amber);} .sn-b{color:var(--blue);}
             
-            .controls{background:var(--white);padding:10px 14px;display:flex;gap:8px;border-bottom:1px solid var(--border);position:relative;z-index:100;}
-            .sbox{flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rsm);padding:8px 11px;}
-            .sbox svg{width:16px;height:16px;color:var(--ink4);}
-            .sbox input{flex:1;border:none;outline:none;background:none;font-size:13px;color:var(--ink);}
-            .mark-all-btn{display:flex;align-items:center;gap:5px;background:var(--green);color:#fff;border:none;border-radius:var(--rsm);padding:8px 13px;font-size:12px;font-weight:800;}
+            .controls{padding:0 20px 16px;display:flex;gap:10px;position:relative;z-index:90;}
+            .sbox{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(0,0,0,0.05);border-radius:14px;padding:10px 14px;box-shadow:0 4px 15px rgba(0,0,0,0.02);transition:all 0.2s;}
+            .sbox:focus-within{border-color:var(--indigo);box-shadow:0 4px 20px rgba(79,70,229,0.1);}
+            .sbox svg{width:18px;height:18px;color:var(--ink3);}
+            .sbox input{flex:1;border:none;outline:none;background:none;font-size:14px;color:var(--ink);font-weight:600;}
+            .mark-all-btn{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:14px;padding:10px 18px;font-size:13px;font-weight:800;box-shadow:0 6px 15px rgba(16,185,129,0.3);cursor:pointer;transition:all 0.2s;}
+            .mark-all-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,0.4);}
             
-            .dept-tabs{background:var(--white);padding:8px 14px 10px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--border);}
-            .dtab{padding:5px 13px;border-radius:99px;font-size:11px;font-weight:800;border:1.5px solid var(--border);background:transparent;color:var(--ink3);white-space:nowrap;flex-shrink:0;}
-            .dtab.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+            .dept-tabs{padding:0 20px 16px;display:flex;gap:8px;overflow-x:auto;}
+            .dtab{padding:8px 16px;border-radius:99px;font-size:12px;font-weight:800;border:1px solid rgba(0,0,0,0.05);background:#fff;color:var(--ink3);white-space:nowrap;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.02);cursor:pointer;transition:all 0.2s;}
+            .dtab.on{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+            .dtab:hover:not(.on){background:var(--bg);color:var(--ink);}
             
-            .workers{padding:10px 12px 100px;display:flex;flex-direction:column;gap:8px;}
-            .wcard{background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);overflow:hidden;}
-            .wcard-top{display:flex;align-items:center;gap:11px;padding:12px 14px;}
-            .wavt{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#fff;position:relative;flex-shrink:0;}
-            .online-ring{position:absolute;bottom:-1px;right:-1px;width:13px;height:13px;border-radius:50%;border:2px solid #fff;}
+            .workers{padding:0 20px 100px;display:flex;flex-direction:column;gap:14px;}
+            .wcard{background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border-radius:24px;border:1px solid #fff;box-shadow:var(--sh);overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+            .wcard:hover{transform:translateY(-2px);box-shadow:var(--shmd);}
+            .wcard-top{display:flex;align-items:center;gap:14px;padding:16px 18px;}
+            .wavt{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;position:relative;flex-shrink:0;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+            .online-ring{position:absolute;bottom:-3px;right:-3px;width:16px;height:16px;border-radius:50%;border:3px solid #fff;}
             .or-green{background:var(--green);} .or-red{background:var(--red);} .or-amber{background:var(--amber);} .or-blue{background:var(--blue);}
             .winfo{flex:1;min-width:0;}
-            .wname{font-size:14px;font-weight:900;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-            .wmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-            .wrole{font-size:10px;font-weight:800;text-transform:uppercase;padding:2px 7px;border-radius:5px;}
-            .wsalary{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);font-weight:500;}
-            .att-btns{display:flex;gap:4px;flex-shrink:0;}
-            .att-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:12px;transition:all 0.15s;}
-            .att-btn:hover{transform:scale(1.05);}
-            .att-btn.present{background:var(--green-lt);border-color:var(--green);color:var(--green);}
-            .att-btn.absent{background:var(--red-lt);border-color:var(--red);color:var(--red);}
-            .att-btn.half{background:var(--amber-lt);border-color:var(--amber);color:var(--amber);}
-            .att-btn.leave{background:var(--blue-lt);border-color:var(--blue);color:var(--blue);}
-            .delete-btn{width:28px;height:28px;border-radius:8px;border:1.5px solid #ef4444;background:#fff5f5;color:#ef4444;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:14px;transition:all 0.15s;}
-            .delete-btn:hover{background:#fee2e2;}
+            .wname{font-size:16px;font-weight:900;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);}
+            .wmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+            .wrole{font-size:10px;font-weight:900;text-transform:uppercase;padding:3px 8px;border-radius:6px;letter-spacing:0.5px;}
+            .wsalary{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink3);font-weight:700;background:rgba(0,0,0,0.03);padding:3px 8px;border-radius:6px;}
             
-            .salary-row{padding:9px 14px;background:#fafbff;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
-            .sal-label{font-size:11px;color:var(--ink4);font-weight:700;}
-            .sal-amt{font-size:13px;font-weight:600;color:var(--green);}
-            .pay-btn{font-size:11px;font-weight:800;color:var(--indigo);background:var(--indigo-lt);border:none;border-radius:6px;padding:5px 12px;cursor:pointer;}
+            .att-btn-new{flex:1;padding:10px 4px;border-radius:12px;border:1px solid rgba(0,0,0,0.04);background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:12px;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);gap:4px;color:var(--ink3);box-shadow:0 2px 8px rgba(0,0,0,0.02);}
+            .att-btn-new:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(0,0,0,0.05);background:#fff;}
+            .att-btn-new.active-p{background:linear-gradient(135deg,var(--green),var(--green-dk));border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(16,185,129,0.3);}
+            .att-btn-new.active-a{background:linear-gradient(135deg,var(--red),#be123c);border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(239,68,68,0.3);}
+            .att-btn-new.active-h{background:linear-gradient(135deg,var(--amber),#d97706);border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(245,158,11,0.3);}
+            .att-btn-new.active-l{background:linear-gradient(135deg,var(--blue),#2563eb);border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(59,130,246,0.3);}
+            .delete-btn{padding:8px;border-radius:12px;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:14px;transition:all 0.2s;box-shadow:0 2px 8px rgba(225,29,72,0.1);}
+            .delete-btn:hover{background:#ffe4e6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(225,29,72,0.2);}
             
-            .fab{position:absolute;bottom:20px;right:20px;width:52px;height:52px;border-radius:16px;background:var(--indigo);border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(79,70,229,.4);color:white;z-index:150;cursor:pointer;}
+            .salary-row{padding:12px 18px;background:rgba(255,255,255,0.5);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s;}
+            .salary-row:hover{background:rgba(255,255,255,0.9);}
+            .sal-label{font-size:12px;color:var(--ink3);font-weight:800;margin-bottom:2px;}
+            .sal-amt{font-size:15px;font-weight:900;color:var(--green);}
+            .pay-btn{font-size:12px;font-weight:800;color:var(--indigo);background:var(--indigo-lt);border:none;border-radius:8px;padding:8px 16px;cursor:pointer;transition:all 0.2s;}
+            .pay-btn:hover{background:var(--indigo);color:#fff;}
             
-            .ov{position:fixed;inset:0;z-index:9999;background:rgba(13,15,28,.5);backdrop-filter:blur(7px);display:flex;align-items:flex-end;justify-content:center;}
-            .bsheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:600px;padding:0 18px 36px;max-height:90vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,0.1);}
-            .bsh-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:14px auto 18px;}
+            .fab{position:fixed;bottom:30px;right:calc(50% - 280px);width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,var(--indigo),var(--purple));border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 25px rgba(79,70,229,.5);color:white;z-index:150;cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+            @media(max-width: 650px) { .fab { right: 20px; } }
+            .fab:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 15px 35px rgba(79,70,229,.6);}
             
-            .aw-field{display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
-            .aw-field-icon{width:32px;height:32px;border-radius:9px;background:var(--indigo-lt);display:flex;align-items:center;justify-content:center;}
-            .aw-field-icon svg{width:18px;height:18px;}
+            .ov{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.3s ease-out;}
+            @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+            .bsheet{background:#fff;border-radius:32px 32px 0 0;width:100%;max-width:650px;padding:0 24px 40px;max-height:92vh;overflow-y:auto;box-shadow:0 -20px 50px rgba(0,0,0,0.15);animation:slideUp 0.4s cubic-bezier(0.4,0,0.2,1);}
+            @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+            .bsh-handle{width:48px;height:6px;border-radius:3px;background:rgba(0,0,0,0.1);margin:16px auto 24px;}
+            
+            .aw-field{display:flex;align-items:center;gap:12px;background:#f8fafc;border:1px solid rgba(0,0,0,0.05);border-radius:16px;padding:14px 18px;margin-bottom:12px;transition:all 0.2s;}
+            .aw-field:focus-within{border-color:var(--indigo);background:#fff;box-shadow:0 4px 15px rgba(79,70,229,0.08);}
+            .aw-field-icon{width:36px;height:36px;border-radius:10px;background:var(--indigo-lt);display:flex;align-items:center;justify-content:center;color:var(--indigo);}
+            .aw-field-icon svg{width:20px;height:20px;}
             .aw-inner{flex:1;position:relative;}
-            .aw-lbl{font-size:10px;font-weight:800;color:var(--ink3);text-transform:uppercase;}
-            .aw-inner input,.aw-inner select{width:100%;border:none;outline:none;background:none;font-size:14px;font-weight:700;color:var(--ink);}
-            .aw-save{width:100%;padding:14px;border-radius:var(--r);background:linear-gradient(135deg,var(--indigo),var(--purple));border:none;color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:8px;}
-            .aw-save svg{width:20px;height:20px;}
+            .aw-lbl{font-size:11px;font-weight:900;color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+            .aw-inner input,.aw-inner select{width:100%;border:none;outline:none;background:none;font-size:15px;font-weight:700;color:var(--ink);}
+            .aw-save{width:100%;padding:18px;border-radius:16px;background:linear-gradient(135deg,var(--indigo),var(--purple));border:none;color:#fff;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 25px rgba(79,70,229,0.4);cursor:pointer;transition:all 0.3s;}
+            .aw-save:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(79,70,229,0.5);}
+            .aw-save svg{width:22px;height:22px;}
             
-            .sal-card{background:var(--bg);border-radius:var(--r);padding:14px;margin-bottom:14px;}
-            .sal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
-            .sal-lbl{font-size:13px;color:var(--ink3);}
-            .sal-val{font-size:13px;font-weight:600;}
+            .sal-card{background:#f8fafc;border-radius:20px;padding:18px;margin-bottom:18px;border:1px solid rgba(0,0,0,0.03);}
+            .sal-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed rgba(0,0,0,0.06);}
+            .sal-row:last-child{border-bottom:none;}
+            .sal-lbl{font-size:14px;color:var(--ink3);font-weight:600;}
+            .sal-val{font-size:15px;font-weight:800;}
             `}} />
 
             <div className="sa-container">
@@ -600,65 +620,49 @@ export default function SmartAttendance() {
                         <span className="tb-title">Smart Attendance</span>
                     </div>
                     <div className="page-tabs">
-                        <div className={`ptab ${activeTab === 'workers' ? 'on' : ''}`} onClick={() => setActiveTab('workers')}>👷 Kaamgaar</div>
-                        <div className={`ptab ${activeTab === 'school' ? 'on' : ''}`} onClick={() => setActiveTab('school')}>🎓 Vidyarthi</div>
-                        <div className={`ptab ${activeTab === 'salary' ? 'on' : ''}`} onClick={() => setActiveTab('salary')}>💰 Vetan</div>
+                        <div className={`ptab ${activeTab === 'workers' ? 'on' : ''}`} onClick={() => setActiveTab('workers')}>👷 Workers</div>
+                        <div className={`ptab ${activeTab === 'school' ? 'on' : ''}`} onClick={() => setActiveTab('school')}>🎓 Students</div>
+                        <div className={`ptab ${activeTab === 'salary' ? 'on' : ''}`} onClick={() => setActiveTab('salary')}>💰 Salary</div>
                     </div>
                 </div>
 
 
                 {/* STATS */}
                 <div className="stats-row">
-                    <div className="stat-box"><div className="stat-num sn-g">{todayStats.P}</div><div className="stat-lbl sl">Aaya</div></div>
-                    <div className="stat-box"><div className="stat-num sn-r">{todayStats.A}</div><div className="stat-lbl sl">Nahi Aaya</div></div>
-                    <div className="stat-box"><div className="stat-num sn-a">{todayStats.H}</div><div className="stat-lbl sl">Adha Din</div></div>
-                    <div className="stat-box"><div className="stat-num sn-b">{todayStats.L}</div><div className="stat-lbl sl">Chhutii</div></div>
+                    <div className="stat-box"><div className="stat-num sn-g">{todayStats.P}</div><div className="stat-lbl sl">Present</div></div>
+                    <div className="stat-box"><div className="stat-num sn-r">{todayStats.A}</div><div className="stat-lbl sl">Absent</div></div>
+                    <div className="stat-box"><div className="stat-num sn-a">{todayStats.H}</div><div className="stat-lbl sl">Half Day</div></div>
+                    <div className="stat-box"><div className="stat-num sn-b">{todayStats.L}</div><div className="stat-lbl sl">Leave</div></div>
                 </div>
 
                 {/* CONTROLS */}
                 <div className="controls">
                     <div className="sbox">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
-                        <input type="text" placeholder="Naam dhundho..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                        <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                     </div>
                     <button className="mark-all-btn" onClick={markAllPresent}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
-                        Sabko Haazir
+                        All Present
                     </button>
                 </div>
 
                 {/* DEPT TABS */}
                 <div className="dept-tabs">
-                    <button className={`dtab ${deptFilter === 'all' ? 'on' : ''}`} onClick={() => setDeptFilter('all')}>Sab</button>
-                    <button className={`dtab ${deptFilter === 'worker' ? 'on' : ''}`} onClick={() => setDeptFilter('worker')}>Kaamgaar</button>
+                    <button className={`dtab ${deptFilter === 'all' ? 'on' : ''}`} onClick={() => setDeptFilter('all')}>All</button>
+                    <button className={`dtab ${deptFilter === 'worker' ? 'on' : ''}`} onClick={() => setDeptFilter('worker')}>Worker</button>
                     <button className={`dtab ${deptFilter === 'driver' ? 'on' : ''}`} onClick={() => setDeptFilter('driver')}>Driver</button>
-                    <button className={`dtab ${deptFilter === 'guard' ? 'on' : ''}`} onClick={() => setDeptFilter('guard')}>Chowkidar</button>
-                    <button className={`dtab ${deptFilter === 'cleaner' ? 'on' : ''}`} onClick={() => setDeptFilter('cleaner')}>Safai</button>
+                    <button className={`dtab ${deptFilter === 'guard' ? 'on' : ''}`} onClick={() => setDeptFilter('guard')}>Guard</button>
+                    <button className={`dtab ${deptFilter === 'cleaner' ? 'on' : ''}`} onClick={() => setDeptFilter('cleaner')}>Cleaner</button>
                 </div>
-
-                {canAccessRoleAdmin && (
-                    <div className="admin-shortcut-card" style={{ marginTop: '18px', padding: '18px', borderRadius: '18px', background: '#eef2ff', border: '1px solid #c7d2fe', color: '#1e3a8a' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-                            <div>
-                                <div style={{ fontSize: '15px', fontWeight: 800 }}>Owner/Admin ke liye</div>
-                                <div style={{ fontSize: '13px', color: '#334155', marginTop: '6px' }}>
-                                    Yahan se staff ke roles assign karne ka page khol sakte ho. Sirf owner/admin login wale dekh sakte hain.
-                                </div>
-                            </div>
-                            <Link href="/dashboard/admin" className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 transition">
-                                Admin Panel Kholen
-                            </Link>
-                        </div>
-                    </div>
-                )}
 
                 {/* WORKERS LIST */}
                 <div className="workers">
                     {filteredStaff.length === 0 && (
                         <div className="text-center mt-10 text-[#7b7fa0] font-bold flex flex-col items-center">
-                            <div style={{ marginBottom: '15px' }}>Koi kaamgaar nahi mila</div>
+                            <div style={{ marginBottom: '15px' }}>No staff found</div>
                             <button onClick={() => setSheet('add')} style={{ padding: '12px 24px', background: '#4f46e5', color: 'white', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
-                                + Naya Staff Add Karein
+                                + Add New Staff
                             </button>
                         </div>
                     )}
@@ -686,15 +690,11 @@ export default function SmartAttendance() {
                                     <div className="winfo">
                                         <div className="wname">{member.name}</div>
                                         <div className="wmeta">
-                                            <span className="wrole" style={{ background: roleColor.bg, color: roleColor.text }}>{member.role || 'Kaamgaar'}</span>
-                                            <span className="wsalary">₹{member.daily_wage || 0}/din</span>
+                                            <span className="wrole" style={{ background: roleColor.bg, color: roleColor.text }}>{member.role || 'Worker'}</span>
+                                            {isOwnerOrAccountant && <span className="wsalary">₹{member.daily_wage || 0}/day</span>}
                                         </div>
                                     </div>
                                     <div className="att-btns">
-                                        <button className={`att-btn ${status === 'PRESENT' ? 'present' : ''}`} onClick={() => handleSetAtt(member.id, 'PRESENT')} title="Present">✓</button>
-                                        <button className={`att-btn ${status === 'HALF_DAY' ? 'half' : ''}`} onClick={() => handleSetAtt(member.id, 'HALF_DAY')} title="Half Day">½</button>
-                                        <button className={`att-btn ${status === 'ABSENT' ? 'absent' : ''}`} onClick={() => handleSetAtt(member.id, 'ABSENT')} title="Absent">✕</button>
-                                        <button className={`att-btn ${status === 'LEAVE' ? 'leave' : ''}`} onClick={() => handleSetAtt(member.id, 'LEAVE')} title="Leave">🏖</button>
                                     {deleteStaff && (
                                         <button className="delete-btn" onClick={async () => {
                                             if (window.confirm(`Delete ${member.name}?`)) {
@@ -705,6 +705,13 @@ export default function SmartAttendance() {
                                         }} title="Delete Staff">🗑</button>
                                     )}
                                     </div>
+                                </div>
+                                
+                                <div style={{ padding: '0 14px 12px 14px', display: 'flex', gap: '6px' }}>
+                                    <button className={`att-btn-new ${status === 'PRESENT' ? 'active-p' : ''}`} onClick={() => handleSetAtt(member.id, 'PRESENT')}>✓ Present</button>
+                                    <button className={`att-btn-new ${status === 'ABSENT' ? 'active-a' : ''}`} onClick={() => handleSetAtt(member.id, 'ABSENT')}>✕ Absent</button>
+                                    <button className={`att-btn-new ${status === 'HALF_DAY' ? 'active-h' : ''}`} onClick={() => handleSetAtt(member.id, 'HALF_DAY')}>½ Half Day</button>
+                                    <button className={`att-btn-new ${status === 'LEAVE' ? 'active-l' : ''}`} onClick={() => handleSetAtt(member.id, 'LEAVE')}>🏖 Leave</button>
                                 </div>
                                 
                                 {(status === 'PRESENT' || status === 'HALF_DAY') && (
@@ -721,20 +728,23 @@ export default function SmartAttendance() {
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Note / Remark (Optional)</label>
-                                            <input type="text" placeholder="Jaise: 1 ghanta late aaya..." defaultValue={times.note} onBlur={(e) => { if(e.target.value !== times.note) handleSetAtt(member.id, status, times.in_time, times.out_time, e.target.value) }} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px', width: '100%' }} />
+                                            <input type="text" placeholder="Example: 1 hour late..." defaultValue={times.note} onBlur={(e) => { if(e.target.value !== times.note) handleSetAtt(member.id, status, times.in_time, times.out_time, e.target.value) }} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px', width: '100%' }} />
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Kaamgaar' }); setIsEditingStaff(false); setSheet('detail'); }}>
-                                    <div className="sal-info">
-                                        <div>
-                                            <div className="sal-label">Rate / Details</div>
-                                            <div className="sal-amt">₹{member.daily_wage || 0} / din</div>
+                                
+                                {isOwnerOrAccountant && (
+                                    <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Worker' }); setIsEditingStaff(false); setSheet('detail'); }}>
+                                        <div className="sal-info">
+                                            <div>
+                                                <div className="sal-label">Rate / Details</div>
+                                                <div className="sal-amt">₹{member.daily_wage || 0} / day</div>
+                                            </div>
                                         </div>
+                                        <button className="pay-btn">View Salary →</button>
                                     </div>
-                                    <button className="pay-btn">Vetan Dekho →</button>
-                                </div>
+                                )}
                             </div>
                         );
                     })}
@@ -746,7 +756,7 @@ export default function SmartAttendance() {
                         onClick={generateMasterReportPDF} 
                         style={{ width: '100%', maxWidth: '400px', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', fontSize: '16px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.25)' }}
                     >
-                        📊 Pure Staff Ki Report PDF Download Karein
+                        📊 Download Complete Staff Report PDF
                     </button>
                 </div>
 
@@ -766,7 +776,7 @@ export default function SmartAttendance() {
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '18px', fontWeight: 900, color: '#0d0f1c' }}>{selectedStaff.name}</div>
-                                    <div style={{ fontSize: '12px', color: '#7b7fa0' }}>{selectedStaff.role} · ₹{selectedStaff.daily_wage}/din</div>
+                                    <div style={{ fontSize: '12px', color: '#7b7fa0' }}>{selectedStaff.role}{isOwnerOrAccountant ? ` · ₹${selectedStaff.daily_wage}/day` : ''}</div>
                                     {selectedStaff.email && (
                                         <div style={{ fontSize: '11px', color: '#7b7fa0', marginTop: '4px' }}>{selectedStaff.email}</div>
                                     )}
@@ -779,7 +789,7 @@ export default function SmartAttendance() {
                             {/* Mark Attendance within Detail Sheet */}
                             <div style={{ background: '#fafbff', padding: '12px', borderRadius: '12px', border: '1px solid #e0e3f0', marginBottom: '18px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#0d0f1c' }}>Attendance Edit Karein</div>
+                                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#0d0f1c' }}>Edit Attendance</div>
                                     <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={{ background: 'none', border: 'none', outline: 'none', fontSize: '13px', fontWeight: 800, color: '#4f46e5' }} />
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px', marginBottom: '10px' }}>
@@ -813,59 +823,63 @@ export default function SmartAttendance() {
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '18px' }}>
                                 <div style={{ background: '#f0f2f8', borderRadius: '10px', padding: '10px 6px', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#10b981' }}>{ds.p}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Aaya</div>
+                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#10b981' }}>{ds.p}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Present</div>
                                 </div>
                                 <div style={{ background: '#f0f2f8', borderRadius: '10px', padding: '10px 6px', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#ef4444' }}>{ds.a}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Nahi Aaya</div>
+                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#ef4444' }}>{ds.a}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Absent</div>
                                 </div>
                                 <div style={{ background: '#f0f2f8', borderRadius: '10px', padding: '10px 6px', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#f59e0b' }}>{ds.h}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Adha</div>
+                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#f59e0b' }}>{ds.h}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Half Day</div>
                                 </div>
                                 <div style={{ background: '#f0f2f8', borderRadius: '10px', padding: '10px 6px', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#3b82f6' }}>{ds.l}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Chhutii</div>
+                                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#3b82f6' }}>{ds.l}</div><div style={{ fontSize: '9px', fontWeight: 700, color: '#b8bbd0' }}>Leave</div>
                                 </div>
                             </div>
 
-                            <div className="sal-card">
+                            {isOwnerOrAccountant && (
+                                <div className="sal-card">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                    <div style={{ fontSize: '12px', fontWeight: 800, color: '#b8bbd0', textTransform: 'uppercase' }}>Vetan Hisaab — {currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}</div>
+                                    <div style={{ fontSize: '12px', fontWeight: 800, color: '#b8bbd0', textTransform: 'uppercase' }}>Salary Calculation — {currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}</div>
                                     <button onClick={() => setIsEditingStaff(!isEditingStaff)} style={{ fontSize: '11px', fontWeight: 800, color: '#4f46e5', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                        {isEditingStaff ? 'Cancel' : 'Edit Pagar/Advance ✎'}
+                                        {isEditingStaff ? 'Cancel' : 'Edit Salary/Advance ✎'}
                                     </button>
                                 </div>
                                 
                                 {isEditingStaff ? (
                                     <div style={{ background: '#fff', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid #e0e3f0' }}>
                                         <div style={{ marginBottom: '8px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Kaam (Role)</label>
-                                            <input type="text" list="role-options" value={editStaffData.role || ''} onChange={e => setEditStaffData({...editStaffData, role: e.target.value})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} placeholder="Jaise: Driver, Safai..." />
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Role</label>
+                                            <input type="text" list="role-options" value={editStaffData.role || ''} onChange={e => setEditStaffData({...editStaffData, role: e.target.value})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} placeholder="Example: Driver, Cleaner..." />
                                         </div>
                                         <div style={{ marginBottom: '8px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Roz Ka Vetan (₹)</label>
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Daily Wage (₹)</label>
                                             <input type="number" value={editStaffData.daily_wage} onChange={e => setEditStaffData({...editStaffData, daily_wage: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
                                         </div>
                                         <div style={{ marginBottom: '10px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Advance Diya (₹)</label>
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Advance Given (₹)</label>
                                             <input type="number" value={editStaffData.advance} onChange={e => setEditStaffData({...editStaffData, advance: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
                                         </div>
                                         <button onClick={handleUpdateStaffInfo} style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', padding: '8px', borderRadius: '6px', fontWeight: 800, cursor: 'pointer' }}>Save Updates</button>
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="sal-row"><span className="sal-lbl">Roz ka vetan</span><span className="sal-val">₹{ds.rate}</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Haazir din</span><span className="sal-val" style={{ color: '#10b981' }}>{ds.p + (ds.h * 0.5)} din</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Kul vetan</span><span className="sal-val">₹{ds.gross}</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Katauti (Gairahaaziri)</span><span className="sal-val" style={{ color: '#ef4444' }}>-₹{ds.deduct}</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Advance Liya</span><span className="sal-val" style={{ color: '#f59e0b' }}>-₹{selectedStaff.advance || 0}</span></div>
-                                        <div className="sal-row" style={{ borderTop: '2px dashed #e0e3f0', marginTop: '5px', paddingTop: '10px' }}><span className="sal-lbl" style={{ fontWeight: 800, color: '#0d0f1c' }}>Net Vetan</span><span className="sal-val" style={{ color: '#4f46e5', fontSize: '15px' }}>₹{ds.net}</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Daily wage</span><span className="sal-val">₹{ds.rate}</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Present days</span><span className="sal-val" style={{ color: '#10b981' }}>{ds.p + (ds.h * 0.5)} days</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Gross salary</span><span className="sal-val">₹{ds.gross}</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Deduction (Absence)</span><span className="sal-val" style={{ color: '#ef4444' }}>-₹{ds.deduct}</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Advance Taken</span><span className="sal-val" style={{ color: '#f59e0b' }}>-₹{selectedStaff.advance || 0}</span></div>
+                                        <div className="sal-row" style={{ borderTop: '2px dashed #e0e3f0', marginTop: '5px', paddingTop: '10px' }}><span className="sal-lbl" style={{ fontWeight: 800, color: '#0d0f1c' }}>Net Salary</span><span className="sal-val" style={{ color: '#4f46e5', fontSize: '15px' }}>₹{ds.net}</span></div>
                                     </>
                                 )}
                             </div>
+                            )}
 
-                            <button onClick={generateSalarySlipPDF} style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#eef0ff', color: '#4f46e5', fontSize: '15px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none' }}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
-                                Salary PDF Download Karein
-                            </button>
+                            {isOwnerOrAccountant && (
+                                <button onClick={generateSalarySlipPDF} style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#eef0ff', color: '#4f46e5', fontSize: '15px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none' }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+                                    Download Salary PDF
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -875,46 +889,32 @@ export default function SmartAttendance() {
                     <div className="ov" onClick={() => setSheet('none')}>
                         <div className="bsheet" onClick={e => e.stopPropagation()}>
                             <div className="bsh-handle"></div>
-                            <div style={{ fontSize: '19px', fontWeight: 900, color: '#0d0f1c', marginBottom: '6px' }}>➕ Naya Kaamgaar Jodo</div>
-                            <div style={{ fontSize: '12px', color: '#b8bbd0', marginBottom: '18px', fontWeight: 600 }}>Kaamgaar ki jaankari bhari aur save karo</div>
+                            <div style={{ fontSize: '19px', fontWeight: 900, color: '#0d0f1c', marginBottom: '6px' }}>➕ Add New Staff</div>
+                            <div style={{ fontSize: '12px', color: '#b8bbd0', marginBottom: '18px', fontWeight: 600 }}>Fill and save staff details</div>
 
                             <div className="aw-field">
                                 <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></div>
                                 <div className="aw-inner" style={{ position: 'relative' }}>
-                                    <div className="aw-lbl">Poora Naam *</div>
-                                    <input type="text" placeholder="Jaise: Ramesh Kumar" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                    <div className="aw-lbl">Full Name *</div>
+                                    <input type="text" placeholder="Example: John Doe" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                                     {formData.name && (
                                         <button type="button" onClick={() => setFormData({ ...formData, name: '' })} style={{ position: 'absolute', right: '10px', top: '45px', border: 'none', background: 'transparent', color: '#7b7fa0', cursor: 'pointer', fontSize: '16px' }} aria-label="Clear name field">×</button>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="aw-field">
-                                <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z" /></svg></div>
-                                <div className="aw-inner">
-                                    <div className="aw-lbl">Email (optional)</div>
-                                    <input type="email" placeholder="user@example.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
-                                </div>
-                            </div>
-                            <div className="aw-field">
-                                <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z" /></svg></div>
-                                <div className="aw-inner">
-                                    <div className="aw-lbl">Phone Number (optional)</div>
-                                    <input type="tel" placeholder="10 digit number" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-                                </div>
-                            </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
                                     <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg></div>
                                     <div className="aw-inner">
-                                        <div className="aw-lbl">Kaam (Role)</div>
-                                        <input type="text" list="role-options" placeholder="Jaise: Driver..." value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} />
+                                        <div className="aw-lbl">Role</div>
+                                        <input type="text" list="role-options" placeholder="Example: Driver..." value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} />
                                         <datalist id="role-options">
-                                            <option value="Kaamgaar" />
+                                            <option value="Worker" />
                                             <option value="Driver" />
-                                            <option value="Chowkidar" />
-                                            <option value="Safai" />
+                                            <option value="Guard" />
+                                            <option value="Cleaner" />
                                             <option value="Manager" />
                                         </datalist>
                                     </div>
@@ -922,7 +922,7 @@ export default function SmartAttendance() {
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
                                     <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-8.5 8"/><path d="M6 13h3c3.5 0 5-1.5 5-4s-1.5-4-5-4H6"/></svg></div>
                                     <div className="aw-inner">
-                                        <div className="aw-lbl">Din ka Vetan (₹)</div>
+                                        <div className="aw-lbl">Daily Wage (₹)</div>
                                         <input type="number" placeholder="400" value={formData.daily_wage} onChange={e => setFormData({ ...formData, daily_wage: e.target.value })} />
                                     </div>
                                 </div>
@@ -930,7 +930,7 @@ export default function SmartAttendance() {
 
                             <button className="aw-save" onClick={handleSaveWorker} style={{ marginTop: '20px' }}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><path d="M17 21v-8H7v8M7 3v5h8" /></svg>
-                                Kaamgaar Save Karo
+                                Save Staff
                             </button>
                         </div>
                     </div>

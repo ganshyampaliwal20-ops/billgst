@@ -20,6 +20,7 @@ export async function GET() {
         }
 
         const userId = session.user.id;
+        const userEmail = session.user.email;
         client = await pool.connect();
 
         const fetchQuery = `
@@ -35,15 +36,29 @@ export async function GET() {
             FROM users WHERE id = $1`;
 
         try {
-            const result = await client.query(fetchQuery, [userId]);
+            let result = await client.query(fetchQuery, [userId]);
+            let dbRow = result.rows[0];
 
-            if (result.rows.length === 0) {
+            // If the user's profile is empty/default, try to find if they are a staff member of an owner
+            if (dbRow && (!dbRow.business_name || dbRow.business_name === 'My Business' || !dbRow.business_logo)) {
+                if (userEmail) {
+                    const staffResult = await client.query('SELECT created_by FROM staff WHERE email = $1 LIMIT 1', [userEmail]);
+                    if (staffResult.rows.length > 0 && staffResult.rows[0].created_by) {
+                        const ownerId = staffResult.rows[0].created_by;
+                        const ownerProfileResult = await client.query(fetchQuery, [ownerId]);
+                        if (ownerProfileResult.rows.length > 0) {
+                            dbRow = ownerProfileResult.rows[0];
+                        }
+                    }
+                }
+            }
+
+            if (!dbRow) {
                 client.release();
                 console.error(`Business Profile GET: User ${userId} not found in database.`);
                 return NextResponse.json({ error: 'User not found' }, { status: 404 });
             }
 
-            const dbRow = result.rows[0];
             const normalizedProfile = normalizeProfile(dbRow, userId);
 
             client.release();
