@@ -100,7 +100,7 @@ export const authOptions: AuthOptions = {
                 
                 try {
                     const { cookies } = require('next/headers');
-                    const cookieStore = cookies();
+                    const cookieStore = await cookies();
                     const wsId = cookieStore.get('billgst_workspace_id')?.value;
                     const wsRole = cookieStore.get('billgst_workspace_role')?.value;
                     if (wsId) activeId = wsId;
