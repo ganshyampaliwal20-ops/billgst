@@ -72,7 +72,7 @@ export default function InstallAppBanner() {
     if (!showBanner) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-3 shadow-[0_-10px_30px_rgba(0,0,0,0.2)] flex items-center justify-between md:hidden pb-safe border-t-2 border-indigo-400 animate-slideUp">
+        <div className="fixed bottom-[10px] left-[10px] right-[10px] rounded-2xl z-[9999] bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-3 shadow-[0_-10px_30px_rgba(0,0,0,0.3)] flex items-center justify-between md:hidden border border-indigo-400 animate-slideUp">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
