@@ -415,7 +415,9 @@ export default function InventoryPage() {
                   border-radius: 0 0 24px 24px;
                 }
                 @media (min-width: 768px) {
-                  .hero { border-radius: 24px; margin: 16px; }
+                  .hero { border-radius: 24px; margin: 16px; text-align: center; }
+                  .hero-eyebrow { justify-content: center; }
+                  .stats-grid { margin: 0 auto; max-width: 800px; }
                 }
                 .hero::before{
                   content:'';position:absolute;inset:0;
@@ -869,7 +871,7 @@ export default function InventoryPage() {
                         );
                     })
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink3)' }}>
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink3)', gridColumn: '1 / -1' }}>
                         <div style={{ fontSize: '40px', marginBottom: '15px' }}>📦</div>
                         <div style={{ fontWeight: '700', fontSize: '16px' }}>{t.noProductsFound}</div>
                         <div style={{ fontSize: '12px', marginTop: '5px' }}>{t.inventoryEmptyHelp}</div>
