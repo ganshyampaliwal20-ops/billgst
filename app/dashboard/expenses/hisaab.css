@@ -2008,3 +2008,57 @@
     border-left: 1px solid var(--border);
   }
 }
+
+.kb-whatsapp-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.kb-toggle {
+  width: 44px;
+  height: 24px;
+  background: #cbd5e1;
+  border-radius: 99px;
+  position: relative;
+  transition: 0.3s;
+}
+.kb-toggle.on {
+  background: #25D366;
+}
+.kb-toggle-knob {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.kb-toggle.on .kb-toggle-knob {
+  transform: translateX(20px);
+}
+.kb-footer-btns {
+  display: flex;
+  gap: 12px;
+}
+.kb-cancel-btn {
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: #475569;
+  font-weight: 700;
+  border-radius: 4px;
+  flex: 1;
+  cursor: pointer;
+}
+.kb-save-btn {
+  flex: 2;
+}

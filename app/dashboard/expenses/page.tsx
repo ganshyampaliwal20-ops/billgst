@@ -631,7 +631,7 @@ export default function BusinessExpensesPage() {
     const openAddEntry = (type: 'credit' | 'debit' | 'advance', prepopulateAmt?: string) => {
         setEditTxnId(null);
         setEntryType(type);
-        setAmtInp(prepopulateAmt || '0');
+        setAmtInp(prepopulateAmt || '');
         setEntryName('');
         setEntryNote('');
         setEntryDate(new Date().toISOString().split('T')[0]);
@@ -1350,12 +1350,18 @@ export default function BusinessExpensesPage() {
                                 <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} className="kb-date-input" />
                             </div>
                             
-                            <label htmlFor="billFileGalleryNew" className="kb-card kb-attach-card">
-                                <span className="kb-new-badge">NEW</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                                <span>Attach bills</span>
-                                <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                            </label>
+                            <div style={{ display: 'flex', gap: '8px', flex: 1 }}>
+                                <label htmlFor="billFileCameraNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
+                                    <span className="kb-new-badge" style={{ background: '#eab308' }}>📷</span>
+                                    <span>Camera</span>
+                                    <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                </label>
+                                <label htmlFor="billFileGalleryNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                    <span>Gallery</span>
+                                    <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                </label>
+                            </div>
                         </div>
 
                         {pendingPhotos.length > 0 && (
@@ -1371,9 +1377,25 @@ export default function BusinessExpensesPage() {
                     </div>
 
                     <div className="kb-entry-footer">
-                        <button className={`kb-save-btn ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`} onClick={() => { saveEntry(); closeNumpad(); }}>
-                            SAVE
-                        </button>
+                        {currentCust?.phone && (
+                            <div className="kb-whatsapp-toggle" onClick={() => setAutoWhatsApp(!autoWhatsApp)}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <svg viewBox="0 0 24 24" fill="#25D366" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Share SMS on WhatsApp</span>
+                                </div>
+                                <div className={`kb-toggle ${autoWhatsApp ? 'on' : 'off'}`}>
+                                    <div className="kb-toggle-knob"></div>
+                                </div>
+                            </div>
+                        )}
+                        <div className="kb-footer-btns">
+                            <button className="kb-cancel-btn" onClick={closeNumpad}>
+                                CANCEL
+                            </button>
+                            <button className={`kb-save-btn ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`} onClick={() => { saveEntry(); closeNumpad(); }}>
+                                SAVE
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
