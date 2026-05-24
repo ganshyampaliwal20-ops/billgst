@@ -395,7 +395,7 @@ export default function InventoryPage() {
                 .inv-page-container {
                   font-family:'DM Sans',sans-serif;
                   background:var(--bg);
-                  max-width:480px; margin:0 auto;
+                  max-width:1200px; margin:0 auto;
                   min-height:100vh;
                   color:var(--ink);
                   -webkit-font-smoothing:antialiased;
@@ -412,6 +412,10 @@ export default function InventoryPage() {
                   background:linear-gradient(160deg,#1a1d3a 0%,#2a2f6e 60%,#1e3a5f 100%);
                   padding:20px 18px 24px;
                   position:relative;overflow:hidden;
+                  border-radius: 0 0 24px 24px;
+                }
+                @media (min-width: 768px) {
+                  .hero { border-radius: 24px; margin: 16px; }
                 }
                 .hero::before{
                   content:'';position:absolute;inset:0;
@@ -443,7 +447,7 @@ export default function InventoryPage() {
 
                 /* Stats grid */
                 .stats-grid{
-                  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+                  display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:10px;
                 }
                 .stat-card{
                   background:rgba(255,255,255,0.07);
@@ -472,7 +476,11 @@ export default function InventoryPage() {
                   display:flex;flex-direction:column;gap:10px;
                   position:sticky;top:0;z-index:100;
                 }
-                .search-row{display:flex;gap:8px;}
+                @media (min-width: 768px) {
+                  .controls { flex-direction:row; justify-content:space-between; align-items:center; border-radius:12px; margin:0 16px 16px; border:1px solid var(--border); top: 16px; }
+                  .filter-tabs { flex:1; justify-content:flex-end; }
+                }
+                .search-row{display:flex;gap:8px;flex:1;}
                 .search-box{
                   flex:1;display:flex;align-items:center;gap:9px;
                   background:var(--bg);border:1.5px solid var(--border2);
@@ -527,7 +535,9 @@ export default function InventoryPage() {
                 /* ══ PRODUCT LIST ══ */
                 .products-list{
                   padding:0 12px;
-                  display:flex;flex-direction:column;gap:10px;
+                  display:grid;
+                  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                  gap: 12px;
                 }
 
                 /* ── PRODUCT CARD ── */
