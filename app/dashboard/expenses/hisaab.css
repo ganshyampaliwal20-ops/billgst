@@ -1977,7 +1977,7 @@
 .kb-entry-footer {
   padding: 16px;
   background: #f1f5f9;
-  padding-bottom: env(safe-area-inset-bottom, 16px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 24px);
 }
 .kb-save-btn {
   width: 100%;
