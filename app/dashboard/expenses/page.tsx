@@ -1270,133 +1270,96 @@ export default function BusinessExpensesPage() {
                                 <button className="qa-btn excel" onClick={downloadCustomerExcel}>📊 Excel Download</button>
                             </div>
                             <div className="spacer" style={{ height: '100px' }}></div>
-                            <div className="add-panel" id="addPanel">
-                                <div className={`amount-area ${isAddEntryOpen ? 'show' : ''}`} id="amountArea">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                                        <div className={`amount-type-label ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`} style={{ margin: 0 }}>
-                                            {entryType === 'debit' ? '↑ Given' : entryType === 'credit' ? '↓ Received' : '⚡ Advance'}
+                            <div className="add-panel" id="addPanel" style={{ background: 'transparent', boxShadow: 'none', border: 'none', padding: 0 }}>
+                                {isAddEntryOpen ? (
+                                    <div className="kb-entry-overlay">
+                                        <div className="kb-entry-header">
+                                            <button className="kb-back-btn" onClick={closeNumpad}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
+                                            </button>
+                                            <div className={`kb-title ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`}>
+                                                {entryType === 'debit' ? `You gave ₹ ${amtInp || '0'} to ${currentCust?.name || ''}` : 
+                                                 entryType === 'credit' ? `You got ₹ ${amtInp || '0'} from ${currentCust?.name || ''}` : 
+                                                 `Advance ₹ ${amtInp || '0'} to ${currentCust?.name || ''}`}
+                                            </div>
                                         </div>
-                                        {isAddEntryOpen && (
-                                            <button onClick={closeNumpad} style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '12px', fontWeight: 800, padding: '4px 12px', borderRadius: '20px', cursor: 'pointer' }}>Cancel ✕</button>
-                                        )}
-                                    </div>
-                                    <div className="amount-display" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <span className="curr">₹</span>
-                                        <input 
-                                            type="text" 
-                                            inputMode="decimal"
-                                            value={amtInp}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/[^0-9.]/g, '');
-                                                if ((val.match(/\./g) || []).length <= 1) {
-                                                    setAmtInp(val);
-                                                }
-                                            }}
-                                            placeholder="0"
-                                            style={{
-                                                background: 'transparent',
-                                                border: 'none',
-                                                outline: 'none',
-                                                fontSize: 'inherit',
-                                                fontWeight: 'inherit',
-                                                color: 'inherit',
-                                                width: '200px',
-                                                textAlign: 'left'
-                                            }}
-                                            autoFocus={isAddEntryOpen}
-                                            autoComplete="off"
-                                        />
-                                    </div>
-                                    {isAddEntryOpen && (
-                                        <div style={{ fontSize: '12px', color: 'var(--ink3)', marginBottom: '8px' }}>
-                                            New Balance: ₹{new Intl.NumberFormat('en-IN').format(Math.abs((currentCust?.balance || 0) + (entryType !== 'credit' ? parseFloat(amtInp || '0') : -parseFloat(amtInp || '0'))))}
-                                            {((currentCust?.balance || 0) + (entryType !== 'credit' ? parseFloat(amtInp || '0') : -parseFloat(amtInp || '0'))) < 0 ? ' Dena Hai' : ' Baki Hai'}
-                                        </div>
-                                    )}
-                                    <div className={`amount-underline ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`}></div>
-                                </div>
 
-                                <div className={`extra-fields ${isAddEntryOpen ? 'show' : ''}`} style={{ display: isAddEntryOpen ? 'flex' : 'none', flexDirection: 'column', gap: '6px', paddingBottom: '10px' }}>
-                                    <div className="extra-field-row" style={{ backgroundColor: '#ffffff', padding: '6px 12px', minHeight: '36px' }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ color: entryType === 'credit' ? '#16a34a' : '#dc2626' }}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                        <input type="text" placeholder="Add note (optional)" value={entryNote} onChange={e => setEntryNote(e.target.value)} style={{ fontWeight: 'bold', color: entryType === 'credit' ? '#16a34a' : '#dc2626', fontSize: '13px' }} />
-                                    </div>
-                                    <div className="extra-field-row" style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', padding: '6px 12px' }}>
-                                        {['General', 'Goods', 'Salary', 'Rent', 'Food', 'Transport'].map(cat => (
-                                            <span
-                                                key={cat}
-                                                className={`category-tag-option ${entryCategory === cat ? 'active' : ''}`}
-                                                onClick={() => setEntryCategory(cat)}
-                                                style={{ fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '20px', background: entryCategory === cat ? '#2563eb' : '#f1f5f9', color: entryCategory === cat ? '#ffffff' : '#000000', cursor: 'pointer', border: entryCategory === cat ? '1px solid #2563eb' : '1px solid #cbd5e1', transition: 'all 0.2s', boxShadow: entryCategory === cat ? '0 2px 8px rgba(37, 99, 235, 0.3)' : 'none' }}
-                                            >
-                                                {cat}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <div className="extra-field-row" style={{ display: 'flex', gap: '8px', padding: '6px 12px', background: 'transparent', border: 'none' }}>
-                                        <label htmlFor="billFileGalleryNew" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '6px', background: 'var(--bg)', borderRadius: '8px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                                            <span style={{ fontSize: '11px', fontWeight: 600 }}>Gallery</span>
-                                            <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                        </label>
-                                        <label htmlFor="billFileCamNew" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '6px', background: 'var(--bg)', borderRadius: '8px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
-                                            <span style={{ fontSize: '11px', fontWeight: 600 }}>Camera</span>
-                                            <input type="file" id="billFileCamNew" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                        </label>
-                                    </div>
-                                    {pendingPhotos.length > 0 && (
-                                        <div style={{ padding: '0 12px 6px', display: 'flex', gap: '8px', overflowX: 'auto' }}>
-                                            {pendingPhotos.map((p, i) => (
-                                                <div key={i} style={{ position: 'relative', flexShrink: 0 }}>
-                                                    <img src={p} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', border: '1px solid var(--border)' }} alt={`Attachment ${i}`} />
-                                                    <div onClick={(e) => { e.stopPropagation(); removePendingPhoto(i); }} style={{ position: 'absolute', top: '-4px', right: '-4px', background: 'var(--red)', color: 'white', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid white' }}>×</div>
+                                        <div className="kb-entry-body">
+                                            <div className="kb-card">
+                                                <span className={`kb-currency ${entryType === 'debit' ? 'red' : 'green'}`}>₹</span>
+                                                <input 
+                                                    type="text" 
+                                                    inputMode="decimal"
+                                                    value={amtInp}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/[^0-9.]/g, '');
+                                                        if ((val.match(/\./g) || []).length <= 1) setAmtInp(val);
+                                                    }}
+                                                    placeholder="0"
+                                                    className={`kb-amt-input ${entryType === 'debit' ? 'red' : 'green'}`}
+                                                    autoFocus
+                                                    autoComplete="off"
+                                                />
+                                            </div>
+
+                                            <div className="kb-card kb-no-pad">
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Enter details (Items, bill no., quantity, etc.)" 
+                                                    value={entryNote} 
+                                                    onChange={e => setEntryNote(e.target.value)} 
+                                                    className="kb-note-input"
+                                                />
+                                            </div>
+
+                                            <div className="kb-row-split">
+                                                <div className="kb-card kb-date-card">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+                                                    <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} className="kb-date-input" />
                                                 </div>
-                                            ))}
+                                                
+                                                <label htmlFor="billFileGalleryNew" className="kb-card kb-attach-card">
+                                                    <span className="kb-new-badge">NEW</span>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                                    <span>Attach bills</span>
+                                                    <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                                </label>
+                                            </div>
+
+                                            {pendingPhotos.length > 0 && (
+                                                <div className="kb-photos-preview">
+                                                    {pendingPhotos.map((p, i) => (
+                                                        <div key={i} className="kb-photo-item">
+                                                            <img src={p} alt={`Attachment ${i}`} />
+                                                            <div onClick={(e) => { e.stopPropagation(); removePendingPhoto(i); }} className="kb-photo-remove">×</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                    <div className="extra-field-row" style={{ padding: '6px 12px' }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-                                        <div style={{ flex: 1, display: 'flex', gap: '10px' }}>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ fontSize: '9px', color: 'var(--ink4)' }}>Entry Date</div>
-                                                <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: '12px', color: '#000000', colorScheme: 'light' }} />
-                                            </div>
-                                            <div style={{ flex: 1, borderLeft: '1px solid var(--border)', paddingLeft: '10px' }}>
-                                                <div style={{ fontSize: '9px', color: 'var(--red)' }}>Due Date (Optional)</div>
-                                                <input type="date" value={entryDueDate} onChange={e => setEntryDueDate(e.target.value)} style={{ width: '100%', background: 'none', border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: '12px', color: '#dc2626', colorScheme: 'light' }} />
-                                            </div>
+
+                                        <div className="kb-entry-footer">
+                                            <button className={`kb-save-btn ${entryType === 'debit' ? 'red' : 'green'}`} onClick={() => { saveEntry(); closeNumpad(); }}>
+                                                SAVE
+                                            </button>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Custom numpad removed */}
-
-                                <div className={`confirm-row ${isAddEntryOpen ? 'show' : ''}`} style={{ padding: '8px 20px 16px' }}>
-                                    <button className="btn-back-entry" onClick={closeNumpad}>← Back</button>
-                                    <button className={`btn-confirm ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`} onClick={() => {
-                                        saveEntry();
-                                        closeNumpad();
-                                    }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
-                                        Confirm
-                                    </button>
-                                </div>
-
-                                <div className="action-row" style={{ display: isAddEntryOpen ? 'none' : 'grid' }}>
-                                    <button className="action-btn given-btn" onClick={() => openNumpad('debit')}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
-                                        Given
-                                    </button>
-                                    <button className="action-btn advance-btn" onClick={() => openNumpad('advance')}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                                        Advance
-                                    </button>
-                                    <button className="action-btn received-btn" onClick={() => openNumpad('credit')}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M19 12l-7 7-7-7" /></svg>
-                                        Received
-                                    </button>
-                                </div>
+                                ) : (
+                                    <div className="action-row" style={{ display: 'grid', background: 'var(--white)', borderRadius: '16px', boxShadow: '0 10px 50px rgba(0, 0, 0, 0.25)', border: '1.5px solid var(--border)' }}>
+                                        <button className="action-btn given-btn" onClick={() => openNumpad('debit')}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+                                            Given
+                                        </button>
+                                        <button className="action-btn advance-btn" onClick={() => openNumpad('advance')}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                            Advance
+                                        </button>
+                                        <button className="action-btn received-btn" onClick={() => openNumpad('credit')}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M19 12l-7 7-7-7" /></svg>
+                                            Received
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                         </div>
