@@ -1270,8 +1270,8 @@ export default function BusinessExpensesPage() {
                                 <button className="qa-btn excel" onClick={downloadCustomerExcel}>📊 Excel Download</button>
                             </div>
                             <div className="spacer" style={{ height: '100px' }}></div>
-                            <div className="add-panel" id="addPanel" style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
-                                <div className="action-row" style={{ display: isAddEntryOpen ? 'none' : 'grid', background: 'var(--white)', borderRadius: '16px', boxShadow: '0 10px 50px rgba(0, 0, 0, 0.25)', border: '1.5px solid var(--border)' }}>
+                            <div className="add-panel" id="addPanel">
+                                <div className="action-row" style={{ display: isAddEntryOpen ? 'none' : 'grid' }}>
                                     <button className="action-btn given-btn" onClick={() => openNumpad('debit')}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
                                         Given
