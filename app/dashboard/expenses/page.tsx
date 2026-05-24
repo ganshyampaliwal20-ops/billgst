@@ -1389,10 +1389,23 @@ export default function BusinessExpensesPage() {
                             </div>
                         )}
                         <div className="kb-footer-btns">
-                            <button className="kb-cancel-btn" onClick={closeNumpad}>
-                                CANCEL
-                            </button>
-                            <button className={`kb-save-btn ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`} onClick={() => { saveEntry(); closeNumpad(); }}>
+                            {editTxnId && (
+                                <button className="kb-cancel-btn" style={{ color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }} onClick={() => { 
+                                    const txn = currentCust?.txns?.find((t:any) => t.id === editTxnId);
+                                    if(txn) {
+                                        deleteTxn(txn.id, txn.amt, txn.type);
+                                        closeNumpad();
+                                    }
+                                }}>
+                                    DELETE
+                                </button>
+                            )}
+                            {!editTxnId && (
+                                <button className="kb-cancel-btn" onClick={closeNumpad}>
+                                    CANCEL
+                                </button>
+                            )}
+                            <button className="kb-save-btn blue" onClick={() => { saveEntry(); closeNumpad(); }}>
                                 SAVE
                             </button>
                         </div>
