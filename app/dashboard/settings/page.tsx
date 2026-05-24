@@ -636,102 +636,6 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* WhatsApp AI Bot Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
-                                <FaBolt className="text-xl" />
-                            </div>
-                            <h2 className="text-lg font-bold text-gray-800">WhatsApp AI Agent (Beta)</h2>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                className="sr-only peer"
-                                checked={localSettings.whatsappBotEnabled || false}
-                                onChange={(e) => setLocalSettings({ ...localSettings, whatsappBotEnabled: e.target.checked })}
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                        </label>
-                    </div>
-
-                    <div className={`space-y-4 transition-all ${localSettings.whatsappBotEnabled ? 'opacity-100' : 'opacity-40 grayscale'}`}>
-                        <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                            <p className="text-xs font-bold text-emerald-800 mb-2 uppercase tracking-tight">How it works:</p>
-                            <p className="text-xs text-emerald-700 leading-relaxed italic">
-                                Jab aapka customer aapko WhatsApp karega, hamara AI Agent unhe reply dega. Wo unka pending balance bata sakta hai, invoice bhej sakta hai aur payment QR bhi dikha sakta hai.
-                            </p>
-                        </div>
-
-                        {localSettings.whatsappBotEnabled && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                                <div className={`border-2 rounded-xl p-6 text-center space-y-4 transition-all ${botStatus.connected ? 'border-emerald-500 bg-emerald-50' : 'border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50/50 to-white'}`}>
-                                    {/* Icon */}
-                                    <div className="flex justify-center">
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${botStatus.connected ? 'bg-emerald-500 text-white shadow-lg' : 'bg-emerald-100 text-emerald-500'}`}>
-                                            <FaWhatsapp className="text-3xl" />
-                                        </div>
-                                    </div>
-
-                                    {/* Badge */}
-                                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${botStatus.connected ? 'bg-emerald-100 border-emerald-200' : 'bg-amber-100 border-amber-200'}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${botStatus.connected ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                                        <span className={`text-[10px] font-black uppercase tracking-wider ${botStatus.connected ? 'text-emerald-700' : 'text-amber-700'}`}>
-                                            {botStatus.connected ? 'CONNECTED & ACTIVE' :
-                                                botStatus.status === 'STARTING_SERVICE' ? 'INITIALIZING SERVICE...' :
-                                                    botStatus.status === 'QR_READY' ? 'READY TO SCAN' : 'WAITING FOR SERVICE'}
-                                        </span>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-sm font-bold text-gray-800 mb-1">
-                                            {botStatus.connected ? 'AI Bot is LIVE!' : 'WhatsApp Device Linking'}
-                                        </h3>
-                                        <p className="text-xs text-gray-500 leading-relaxed px-2">
-                                            {botStatus.connected
-                                                ? `Aapka number registered hai. Ab aapke customers ko AI auto-reply milega.`
-                                                : `Apne phone ke WhatsApp → Linked Devices → Link a Device se scan karein.`
-                                            }
-                                        </p>
-                                    </div>
-
-                                    {/* Real QR Display */}
-                                    {!botStatus.connected && (
-                                        <div className="flex flex-col items-center gap-4">
-                                            {botStatus.qr ? (
-                                                <div className="p-3 bg-white rounded-2xl border-2 border-emerald-200 shadow-lg inline-block">
-                                                    <QRCodeCanvas value={botStatus.qr} size={160} level="H" />
-                                                </div>
-                                            ) : (
-                                                <div className="w-40 h-40 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4">
-                                                    <FaSync className="text-slate-300 text-2xl animate-spin mb-2" />
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Terminal par service start karein...</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {botStatus.connected && (
-                                        <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-sm text-left">
-                                            <p className="text-[10px] font-black text-emerald-600 uppercase mb-2">Bot Statistics:</p>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                                                    <p className="text-[8px] text-slate-400 uppercase font-black">Status</p>
-                                                    <p className="text-xs font-bold text-slate-700">Online</p>
-                                                </div>
-                                                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                                                    <p className="text-[8px] text-slate-400 uppercase font-black">Uptime</p>
-                                                    <p className="text-xs font-bold text-slate-700">Live Now</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
 
                 {/* Automatic Payment Reminders Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
@@ -793,44 +697,7 @@ export default function SettingsPage() {
                             </div>
                         </div>
 
-                        {localSettings.autoRemindersEnabled && (
-                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4 animate-in fade-in duration-500">
-                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">WhatsApp Gateway Config (For Automation)</h3>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Your WhatsApp Number (Sender)</label>
-                                        <input
-                                            type="tel"
-                                            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold"
-                                            placeholder="e.g. 919876543210"
-                                            value={localSettings.whatsappSenderNumber || ''}
-                                            onChange={(e) => setLocalSettings({ ...localSettings, whatsappSenderNumber: e.target.value })}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">UltraMsg Instance ID : API Token</label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold"
-                                            placeholder="instance12345 : tokenabcde"
-                                            value={localSettings.whatsappApiKey || ''}
-                                            onChange={(e) => setLocalSettings({ ...localSettings, whatsappApiKey: e.target.value })}
-                                        />
-                                        <p className="text-[10px] text-blue-500 mt-1 font-bold">Format: InstanceID:Token (Beech me ":" zaroori hai)</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg border border-emerald-100 mt-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                                    <p className="text-[9px] text-emerald-700 font-bold uppercase tracking-tight">
-                                        {!localSettings.whatsappApiKey ? 'Platform Shared Gateway Active (Free)' : 'Private API Gateway Active (Pro)'}
-                                    </p>
-                                </div>
-                                <p className="text-[9px] text-slate-400 italic mt-3 px-1">
-                                    <b>Note:</b> Agar aap apni branding use karna chahte hain, tabhi API Key bharein. Warna ise khali chhod dein.
-                                </p>
-                            </div>
-                        )}
 
                         <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl border border-amber-100">
                             <FaBolt className="text-amber-500 text-xs" />

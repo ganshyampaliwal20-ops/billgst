@@ -781,16 +781,8 @@ export default function BusinessExpensesPage() {
 
                 const action = isDebit ? 'Udhaar (Given)' : 'Jama (Received)';
                 const txt = `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} kiye gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nDhanyawad!`;
-                
-                const formData = new FormData();
-                formData.append('phone', phone);
-                formData.append('message', txt);
-                
-                // Silent background queue to the bot
-                fetch('/api/whatsapp/send-media', {
-                    method: 'POST',
-                    body: formData
-                }).catch(() => {});
+                // Option 2: Open WhatsApp app directly (using location.href prevents popup blockers on mobile)
+                window.location.href = `https://wa.me/91${phone}?text=${encodeURIComponent(txt)}`;
             }
         }
     };
@@ -1288,7 +1280,33 @@ export default function BusinessExpensesPage() {
                                             <button onClick={closeNumpad} style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '12px', fontWeight: 800, padding: '4px 12px', borderRadius: '20px', cursor: 'pointer' }}>Cancel ✕</button>
                                         )}
                                     </div>
-                                    <div className="amount-display"><span className="curr">₹</span><span>{new Intl.NumberFormat('en-IN').format(parseFloat(amtInp || '0')) + (amtInp.endsWith('.') ? '.' : '')}</span></div>
+                                    <div className="amount-display" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <span className="curr">₹</span>
+                                        <input 
+                                            type="text" 
+                                            inputMode="decimal"
+                                            value={amtInp}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/[^0-9.]/g, '');
+                                                if ((val.match(/\./g) || []).length <= 1) {
+                                                    setAmtInp(val);
+                                                }
+                                            }}
+                                            placeholder="0"
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                outline: 'none',
+                                                fontSize: 'inherit',
+                                                fontWeight: 'inherit',
+                                                color: 'inherit',
+                                                width: '200px',
+                                                textAlign: 'left'
+                                            }}
+                                            autoFocus={isAddEntryOpen}
+                                            autoComplete="off"
+                                        />
+                                    </div>
                                     {isAddEntryOpen && (
                                         <div style={{ fontSize: '12px', color: 'var(--ink3)', marginBottom: '8px' }}>
                                             New Balance: ₹{new Intl.NumberFormat('en-IN').format(Math.abs((currentCust?.balance || 0) + (entryType !== 'credit' ? parseFloat(amtInp || '0') : -parseFloat(amtInp || '0'))))}
@@ -1361,22 +1379,7 @@ export default function BusinessExpensesPage() {
                                     </div>
                                 </div>
 
-                                <div className={`numpad ${isAddEntryOpen ? 'show' : ''}`}>
-                                    <button className="num-key" onClick={() => numPress('1')}>1</button>
-                                    <button className="num-key" onClick={() => numPress('2')}>2</button>
-                                    <button className="num-key" onClick={() => numPress('3')}>3</button>
-                                    <button className="num-key" onClick={() => numPress('4')}>4</button>
-                                    <button className="num-key" onClick={() => numPress('5')}>5</button>
-                                    <button className="num-key" onClick={() => numPress('6')}>6</button>
-                                    <button className="num-key" onClick={() => numPress('7')}>7</button>
-                                    <button className="num-key" onClick={() => numPress('8')}>8</button>
-                                    <button className="num-key" onClick={() => numPress('9')}>9</button>
-                                    <button className="num-key decimal" onClick={() => numPress('.')}>.</button>
-                                    <button className="num-key zero" onClick={() => numPress('0')}>0</button>
-                                    <button className="num-key backspace" onClick={() => numBackspace()}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z" /><line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" /></svg>
-                                    </button>
-                                </div>
+                                {/* Custom numpad removed */}
 
                                 <div className={`confirm-row ${isAddEntryOpen ? 'show' : ''}`}>
                                     <button className="btn-back-entry" onClick={closeNumpad}>← Back</button>

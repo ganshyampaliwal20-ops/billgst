@@ -58,7 +58,7 @@ async function createClient(userId, userEmail) {
             dataPath: AUTH_ROOT
         }),
         puppeteer: {
-            headless: 'new',
+            headless: false,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
