@@ -55,7 +55,7 @@
   "isMetaQuest": false,
   "fullScopeUrl": "https://billgst.in/",
   "minSdkVersion": 21,
-  "orientation": "portrait",
+  "orientation": "default",
   "fingerprints": [],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],

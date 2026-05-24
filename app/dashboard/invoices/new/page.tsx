@@ -706,8 +706,24 @@ export default function NewInvoicePage() {
 
                 .item-card { background: var(--faint); border: 2px solid var(--border); border-radius: 16px; padding: 20px; position: relative; margin-bottom: 12px; }
                 .i-num { width: 30px; height: 30px; background: var(--indigo); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; position: absolute; left: -10px; top: -10px; box-shadow: 0 4px 10px rgba(91,94,244,0.3); }
-                .add-item-btn { padding: 8px 16px; border: 2px dashed var(--indigo); border-radius: 12px; color: var(--indigo); font-weight: 700; background: #eef2ff; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
-                .add-item-btn:hover { background: #e0e7ff; }
+                .add-actions-wrapper { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; padding: 0 4px; }
+                .action-row { display: flex; gap: 14px; }
+                .premium-add-btn { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 18px 12px; border-radius: 18px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; z-index: 1; letter-spacing: -0.2px; }
+                .premium-add-btn::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s ease; z-index: -1; }
+                .premium-add-btn:hover { transform: translateY(-4px); }
+                .premium-add-btn:active { transform: translateY(0); }
+                .premium-add-btn svg { width: 18px; height: 18px; transition: transform 0.3s; }
+                .premium-add-btn:hover svg { transform: scale(1.15) rotate(5deg); }
+                .btn-manual { background: linear-gradient(135deg, #f8fafc, #f1f5f9); color: #3b82f6; border: 2px dashed #cbd5e1; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+                .btn-manual:hover { border-style: solid; border-color: #3b82f6; box-shadow: 0 8px 25px rgba(59,130,246,0.15); color: #2563eb; background: #eff6ff; }
+                .btn-inventory { background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #d97706; border: 2px solid #fde68a; box-shadow: 0 4px 15px rgba(217,119,6,0.05); }
+                .btn-inventory:hover { border-color: #f59e0b; box-shadow: 0 8px 25px rgba(245,158,11,0.2); color: #b45309; background: #fef3c7; }
+                .btn-voice { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; box-shadow: 0 8px 25px rgba(79,70,229,0.35); width: 100%; padding: 20px; font-size: 15px; }
+                .btn-voice::before { background: linear-gradient(135deg, #4338ca, #6d28d9); }
+                .btn-voice:hover { box-shadow: 0 12px 35px rgba(79,70,229,0.45); }
+                .btn-voice:hover::before { opacity: 1; }
+                .voice-pulse { animation: voicePulse 1.5s infinite; background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); border: none; width: 100%; padding: 20px; font-size: 15px; }
+                @keyframes voicePulse { 0% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
                 .totals-box { background: linear-gradient(135deg,#0b0f1e,#1c2340,#2d2f6b); padding: 25px; border-radius: 20px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
                 .t-val { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 600; color: #a5b4fc; }
@@ -863,11 +879,7 @@ export default function NewInvoicePage() {
                         <p className="ph-sub">Generate a digital GST bill in seconds</p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                        <div className="flex flex-row w-full md:w-auto gap-2 overflow-x-auto pb-1 no-scrollbar">
-                            <button type="button" onClick={startVoiceBilling} className={`fbadge fb-voice whitespace-nowrap ${isListening ? 'animate-pulse' : ''}`}><FaMicrophone /> {isListening ? 'Listening...' : 'Voice Bill'}</button>
-                            <button type="button" onClick={handleMagicScan} className="fbadge fb-scan whitespace-nowrap"><FaMagic /> Magic Scan</button>
-                        </div>
-                        <div className="voice-note text-[11px] text-slate-200 mt-2">Button se awaaz play nahi hoti. Pehle dabayein, phir bolen. Agar mic prompt aaye to allow karein.</div>
+                        {/* Top action buttons removed */}
 
                     </div>
                 </div>
@@ -1046,22 +1058,22 @@ export default function NewInvoicePage() {
                             {safeProducts.map(p => <option key={p.id} value={p.name}>{p.price ? `₹${p.price}` : ''}</option>)}
                         </datalist>
 
-                        <div className="flex flex-col gap-3 mt-6">
-                            <div className="flex flex-row gap-3">
-                                <button type="button" onClick={addItem} className="add-item-btn flex-1 h-[48px]">
+                        <div className="add-actions-wrapper">
+                            <div className="action-row">
+                                <button type="button" onClick={addItem} className="premium-add-btn btn-manual">
                                     <FaPlus /> {t.addNewItem}
                                 </button>
-                                <button type="button" onClick={() => setShowQuickAdd(true)} className="add-item-btn flex-1 h-[48px] bg-amber-50 border-amber-200 text-amber-600">
-                                    <FaBox /> Browse Inventory
+                                <button type="button" onClick={() => setShowQuickAdd(true)} className="premium-add-btn btn-inventory">
+                                    <FaBox /> {t.browseInventory || 'Browse Inventory'}
                                 </button>
                             </div>
                             <button
                                 type="button"
                                 onClick={startVoiceBilling}
-                                className={`add-item-btn w-full h-[48px] flex justify-center items-center gap-2 ${isListening ? 'animate-pulse bg-indigo-600 text-white border-solid' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}
+                                className={`premium-add-btn ${isListening ? 'voice-pulse' : 'btn-voice'}`}
                                 title="Add by Voice"
                             >
-                                <FaMicrophone /> {isListening ? 'Listening...' : 'Add Item by Voice'}
+                                <FaMicrophone /> {isListening ? (t.voiceListening || 'Listening...') : (t.addItemByVoice || 'Add Item by Voice')}
                             </button>
                         </div>
                     </div>
@@ -1070,9 +1082,9 @@ export default function NewInvoicePage() {
                     <div className="totals-box mb-6">
                         <div className="space-y-4">
                             <div className="flex justify-between items-center opacity-60"><span className="text-xs">{t.subtotal}</span><span className="t-val">₹{totals.subtotal.toFixed(2)}</span></div>
-                            <div className="flex justify-between items-center opacity-60"><span className="text-xs">Discount</span><span className="t-val text-green-400">- ₹{totals.discountAmt.toFixed(2)}</span></div>
-                            <div className="flex justify-between items-center opacity-60"><span className="text-xs">GST Total</span><span className="t-val">₹{totals.gst.toFixed(2)}</span></div>
-                            <div className="flex justify-between items-center opacity-60"><span className="text-xs">Other Charges</span><span className="t-val">₹{(Number(extraCharge) + Number(shippingCharge)).toFixed(2)}</span></div>
+                            <div className="flex justify-between items-center opacity-60"><span className="text-xs">{t.discountLabel || 'Discount'}</span><span className="t-val text-green-400">- ₹{totals.discountAmt.toFixed(2)}</span></div>
+                            <div className="flex justify-between items-center opacity-60"><span className="text-xs">{t.gstTotal || 'GST Total'}</span><span className="t-val">₹{totals.gst.toFixed(2)}</span></div>
+                            <div className="flex justify-between items-center opacity-60"><span className="text-xs">{t.otherCharges || 'Other Charges'}</span><span className="t-val">₹{(Number(extraCharge) + Number(shippingCharge)).toFixed(2)}</span></div>
                             <div className="border-t border-white/10 pt-4 mt-2">
                                 <span className="text-[10px] font-black uppercase text-indigo-300 tracking-widest block">{t.totalAmount}</span>
                                 <span className="grand-total">₹{totals.grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
@@ -1082,17 +1094,17 @@ export default function NewInvoicePage() {
 
                     {/* Extra Charges */}
                     <div className="card">
-                        <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> Discount & Shipping</div>
+                        <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> {t.discountShippingTitle || 'Discount & Shipping'}</div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div><label className="fl">Discount (%)</label><input type="number" className="fi text-slate-900" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
-                            <div><label className="fl">Extra Fee (₹)</label><input type="number" className="fi text-slate-900" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
+                            <div><label className="fl">{t.discountPercentage || 'Discount (%)'}</label><input type="number" className="fi text-slate-900" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
+                            <div><label className="fl">{t.extraFee || 'Extra Fee (₹)'}</label><input type="number" className="fi text-slate-900" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
                         </div>
-                        <div><label className="fl">Shipping (₹)</label><input type="number" className="fi text-slate-900" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
+                        <div><label className="fl">{t.shippingCharge || 'Shipping (₹)'}</label><input type="number" className="fi text-slate-900" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
                     </div>
 
                     {/* Payment Info */}
                     <div className="card">
-                        <div className="c-title"><div className="c-icon" style={{ background: '#fef9c3', color: '#854d0e' }}><FaReceipt /></div> Payment Details</div>
+                        <div className="c-title"><div className="c-icon" style={{ background: '#fef9c3', color: '#854d0e' }}><FaReceipt /></div> {t.paymentDetails || 'Payment Details'}</div>
                         <div className="pay-grid mb-6">
                             {['Cash', 'UPI', 'Bank', 'Credit'].map(m => (
                                 <div key={m} className={`p-mode ${paymentMode === m ? 'active' : ''}`} onClick={() => setPaymentMode(m)}>{m}</div>
@@ -1250,8 +1262,8 @@ export default function NewInvoicePage() {
                                     </svg>
                                 </div>
                                 <div className="qap-titles">
-                                    <div className="qap-title">Naya Grahak Jodo</div>
-                                    <div className="qap-sub">Grahak ki details bharke save karo</div>
+                                    <div className="qap-title">{t.newCustomerSheetTitle || 'Add New Customer'}</div>
+                                    <div className="qap-sub">{t.newCustomerSheetSubtitle || 'Fill customer details and save'}</div>
                                 </div>
                                 <button type="button" className="qap-close" onClick={() => setShowCustomerModal(false)}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
@@ -1272,12 +1284,12 @@ export default function NewInvoicePage() {
                                     <path d="M9 7h6M9 11h4" />
                                 </svg>
                                 <div>
-                                    <div className="qap-phone-suggest-text">📱 Phone Book se Uthao</div>
-                                    <div className="qap-phone-suggest-sub">Contact list se seedha naam aur number lo</div>
+                                    <div className="qap-phone-suggest-text">{t.phoneBookPrompt || '📱 Select from Phone Book'}</div>
+                                    <div className="qap-phone-suggest-sub">{t.phoneBookSub || 'Pick name and number directly from contacts'}</div>
                                 </div>
                             </div>
 
-                            <div className="qap-sec-label">Pichle Grahak</div>
+                            <div className="qap-sec-label">{t.recentCustomers || 'Recent Customers'}</div>
                             <div className="qap-recent-chips">
                                 {safeCustomers.slice(-4).map((c: any, i: number) => {
                                     const colors = [
@@ -1299,35 +1311,35 @@ export default function NewInvoicePage() {
                                 })}
                             </div>
 
-                            <div className="qap-sec-label">Zaroori Jaankari</div>
+                            <div className="qap-sec-label">{t.requiredInfo || 'Required Information'}</div>
 
                             <div className={`qap-field ${newCustName.length >= 2 ? 'valid filled' : (newCustName.length > 0 ? 'error' : '')}`}>
                                 <div className="qap-field-icon" style={{ background: newCustName.length >= 2 ? '' : 'var(--indigo-lt)' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                                 </div>
                                 <div className="qap-field-inner">
-                                    <span className="qap-field-lbl">Naam <span className="req">*</span></span>
-                                    <input type="text" placeholder="Grahak ka poora naam" value={newCustName} onChange={e => setNewCustName(e.target.value)} />
+                                    <span className="qap-field-lbl">{t.nameLabel || 'Name'} <span className="req">*</span></span>
+                                    <input type="text" placeholder={t.nameLabel || 'Name'} value={newCustName} onChange={e => setNewCustName(e.target.value)} />
                                 </div>
                                 <div className="qap-field-check">
                                     <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                                 </div>
                             </div>
-                            <div className="qap-field-err" style={{ display: (newCustName.length > 0 && newCustName.length < 2) ? 'block' : 'none' }}>⚠ Naam zaroori hai</div>
+                            <div className="qap-field-err" style={{ display: (newCustName.length > 0 && newCustName.length < 2) ? 'block' : 'none' }}>⚠ {t.nameLabel || 'Name'} required</div>
 
                             <div className={`qap-field ${newCustPhone.length === 10 ? 'valid filled' : (newCustPhone.length > 0 ? 'error' : '')}`}>
                                 <div className="qap-field-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z" /></svg>
                                 </div>
                                 <div className="qap-field-inner">
-                                    <span className="qap-field-lbl">Phone Number <span className="qap-opt-tag">Optional</span></span>
+                                    <span className="qap-field-lbl">{t.phoneNumberLabel || 'Phone Number'} <span className="qap-opt-tag">{t.optional || 'Optional'}</span></span>
                                     <input type="tel" placeholder="10 digit mobile number" value={newCustPhone} maxLength={10} onChange={e => setNewCustPhone(e.target.value.replace(/\D/g, ''))} />
                                 </div>
                                 <div className="qap-field-check">
                                     <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                                 </div>
                             </div>
-                            <div className="qap-field-err" style={{ display: (newCustPhone.length > 0 && newCustPhone.length < 10) ? 'block' : 'none' }}>⚠ Sahi 10 digit number dalo</div>
+                            <div className="qap-field-err" style={{ display: (newCustPhone.length > 0 && newCustPhone.length < 10) ? 'block' : 'none' }}>⚠ Invalid phone</div>
 
                             <div className="qap-row-2">
                                 <div className="qap-field" style={{ marginBottom: 0 }}>
@@ -1335,11 +1347,11 @@ export default function NewInvoicePage() {
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg>
                                     </div>
                                     <div className="qap-field-inner">
-                                        <span className="qap-field-lbl">Prakar</span>
+                                        <span className="qap-field-lbl">{t.typeLabel || 'Type'}</span>
                                         <select value={newCustType} onChange={e => setNewCustType(e.target.value)}>
-                                            <option>Grahak</option>
-                                            <option>Supplier</option>
-                                            <option>Dono</option>
+                                            <option value="Grahak">Customer</option>
+                                            <option value="Supplier">Supplier</option>
+                                            <option value="Dono">Both</option>
                                         </select>
                                     </div>
                                     <div className="qap-sel-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg></div>
@@ -1350,7 +1362,7 @@ export default function NewInvoicePage() {
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
                                     </div>
                                     <div className="qap-field-inner">
-                                        <span className="qap-field-lbl">Rajya</span>
+                                        <span className="qap-field-lbl">{t.stateLabel || 'State'}</span>
                                         <select value={newCustState} onChange={e => setNewCustState(e.target.value)}>
                                             <option>Rajasthan</option>
                                             <option>Gujarat</option>
@@ -1365,14 +1377,14 @@ export default function NewInvoicePage() {
                                 </div>
                             </div>
 
-                            <div className="qap-sec-label" style={{ marginTop: 16 }}>Anya Jaankari <span className="qap-opt-tag">Optional</span></div>
+                            <div className="qap-sec-label" style={{ marginTop: 16 }}>{t.otherInfo || 'Other Information'} <span className="qap-opt-tag">{t.optional || 'Optional'}</span></div>
 
                             <div className={`qap-field ${newCustGstin.length === 15 ? 'valid filled' : ''}`}>
                                 <div className="qap-field-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" /></svg>
                                 </div>
                                 <div className="qap-field-inner">
-                                    <span className="qap-field-lbl">GSTIN <span className="qap-opt-tag">Optional</span></span>
+                                    <span className="qap-field-lbl">GSTIN <span className="qap-opt-tag">{t.optional || 'Optional'}</span></span>
                                     <input type="text" placeholder="22AAAAA0000A1Z5" value={newCustGstin} maxLength={15} onChange={e => setNewCustGstin(e.target.value.toUpperCase())} style={{ textTransform: 'uppercase' }} />
                                 </div>
                                 <div className="qap-field-check">
@@ -1385,7 +1397,7 @@ export default function NewInvoicePage() {
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
                                 </div>
                                 <div className="qap-field-inner">
-                                    <span className="qap-field-lbl">Email <span className="qap-opt-tag">Optional</span></span>
+                                    <span className="qap-field-lbl">Email <span className="qap-opt-tag">{t.optional || 'Optional'}</span></span>
                                     <input type="email" placeholder="email@example.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} />
                                 </div>
                             </div>
@@ -1395,8 +1407,8 @@ export default function NewInvoicePage() {
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                                 </div>
                                 <div className="qap-field-inner">
-                                    <span className="qap-field-lbl">Pata <span className="qap-opt-tag">Optional</span></span>
-                                    <textarea placeholder="Poora address likho..." value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)}></textarea>
+                                    <span className="qap-field-lbl">{t.address || 'Address'} <span className="qap-opt-tag">{t.optional || 'Optional'}</span></span>
+                                    <textarea placeholder={t.address || 'Address'} value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)}></textarea>
                                 </div>
                             </div>
 
@@ -1407,8 +1419,8 @@ export default function NewInvoicePage() {
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" /></svg>
                                     </div>
                                     <div>
-                                        <div className="qap-toggle-text">Credit Limit Set Karo</div>
-                                        <div className="qap-toggle-sub">Kitna udhar de sakte ho</div>
+                                        <div className="qap-toggle-text">Set Credit Limit</div>
+                                        <div className="qap-toggle-sub">Maximum allowed due amount</div>
                                     </div>
                                 </div>
                                 <label className="qap-tswitch">
@@ -1423,7 +1435,7 @@ export default function NewInvoicePage() {
                                 </div>
                                 <div className="qap-field-inner">
                                     <span className="qap-field-lbl">Credit Limit (₹)</span>
-                                    <input type="number" placeholder="Jaise: 20000" value={newCustLimit} onChange={e => setNewCustLimit(e.target.value)} />
+                                    <input type="number" placeholder="Eg: 20000" value={newCustLimit} onChange={e => setNewCustLimit(e.target.value)} />
                                 </div>
                             </div>
 
@@ -1432,24 +1444,24 @@ export default function NewInvoicePage() {
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
                                 </div>
                                 <div className="qap-field-inner">
-                                    <span className="qap-field-lbl">Shuruati Bakaya (₹) <span className="qap-opt-tag">Optional</span></span>
+                                    <span className="qap-field-lbl">{t.balanceAmount || 'Opening Balance'} (₹) <span className="qap-opt-tag">{t.optional || 'Optional'}</span></span>
                                     <input type="number" placeholder="0" value={newCustOb} onChange={e => setNewCustOb(e.target.value)} />
                                 </div>
                             </div>
                             <div style={{ fontSize: 11, color: '#b8bbd0', padding: '0 4px', marginBottom: 16, fontWeight: 600 }}>
-                                💡 Agar grahak par pehle se kuch baaki hai to yahan daalo
+                                💡 If customer has previous pending balance, enter it here
                             </div>
 
                         </div>
 
                         <div className="qap-footer">
-                            <button type="button" className="qap-cancel-btn" onClick={() => setShowCustomerModal(false)}>Ruko</button>
+                            <button type="button" className="qap-cancel-btn" onClick={() => setShowCustomerModal(false)}>{t.cancel || 'Cancel'}</button>
                             <button type="button" className="qap-save-btn" onClick={handleAddCustomer}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
                                     <path d="M17 21v-8H7v8M7 3v5h8" />
                                 </svg>
-                                Save & Invoice Banao
+                                {t.save || 'Save'}
                             </button>
                         </div>
                     </div>

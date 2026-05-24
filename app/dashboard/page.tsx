@@ -438,7 +438,7 @@ export default function DashboardPage() {
                     <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">{t.addCustomer}</span></Link>
                     <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">{t.addProduct}</span></Link>
                     <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">{t.viewReports}</span></Link>
-                    <Link href="/dashboard/staff" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">👥</span><span className="qa-label">Attendance</span></Link>
+                    <Link href="/dashboard/staff" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">👥</span><span className="qa-label">{t.attendance || 'Attendance'}</span></Link>
                     <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
                 </div>
 
@@ -503,6 +503,7 @@ export default function DashboardPage() {
                                             <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
                                             <div className={`inv-status ${sClass}`}>{inv.status}</div>
                                         </div>
+
                                         <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
                                     </div>
                                 );
@@ -519,8 +520,8 @@ export default function DashboardPage() {
                         <div className="card" style={{ animationDelay: ".25s" }}>
                             <div className="card-hdr">
                                 <div>
-                                    <div className="card-title">💚 Collection Center</div>
-                                    <div className="card-sub">Manage pending payments</div>
+                                    <div className="card-title">💚 {t.collectionCenter || 'Collection Center'}</div>
+                                    <div className="card-sub">{t.managePendingPayments || 'Manage pending payments'}</div>
                                 </div>
                                 <span className="see-all" onClick={() => router.push('/dashboard/customers')}>{pendingCustomersList.length} →</span>
                             </div>
@@ -582,7 +583,7 @@ export default function DashboardPage() {
                                 </div>
                             );
                         })}
-                        {topProducts.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>No Products Sold</div>}
+                        {topProducts.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>}
                     </div>
                 </div>
 

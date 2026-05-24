@@ -48,7 +48,7 @@ def twaManifest = [
     // Use webview fallback so the app stays inside the shell instead of opening a Chrome tab.
     fallbackType: 'webview',
     enableSiteSettingsShortcut: 'true',
-    orientation: 'portrait',
+    orientation: 'default',
 ]
 
 android {

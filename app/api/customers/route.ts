@@ -111,3 +111,36 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 });
     }
 }
+
+export async function DELETE(request: Request) {
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
+        }
+
+        const client = await pool.connect();
+        try {
+            await client.query('DELETE FROM customers WHERE id = $1 AND created_by = $2', [id, session.user.id]);
+            client.release();
+            return NextResponse.json({ success: true });
+        } catch (dbError: any) {
+            client.release();
+            // Code 23503 is foreign key violation (e.g. if invoices exist for this customer)
+            if (dbError.code === '23503') {
+                return NextResponse.json({ error: 'Cannot delete customer because they have existing invoices. Please delete their invoices first.' }, { status: 400 });
+            }
+            throw dbError;
+        }
+    } catch (error) {
+        console.error('API Error deleting customer:', error);
+        return NextResponse.json({ error: 'Failed to delete customer' }, { status: 500 });
+    }
+}

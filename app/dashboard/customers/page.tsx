@@ -186,53 +186,67 @@ export default function CustomersPage() {
 
 .topbar {
   background: linear-gradient(135deg, #0c0f1a 0%, #1a2040 100%);
-  padding: 18px 20px 22px;
+  padding: 16px 16px 20px;
   position: sticky;
   top: 0;
   z-index: 50;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .topbar-row1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 .back-btn {
-  width: 36px; height: 36px;
+  width: 38px; height: 38px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   color: #fff;
-  font-size: 18px;
+  font-size: 20px;
+  flex-shrink: 0;
   transition: all 0.2s;
   text-decoration: none;
 }
 .back-btn:hover { background: rgba(255,255,255,0.15); }
 
-.topbar-title { text-align: center; flex: 1; }
-.topbar-title h1 { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.3px; margin: 0; }
-.topbar-title p  { font-size: 10px; font-weight: 500; color: var(--teal); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 1px; margin-bottom: 0; }
+.topbar-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.topbar-title h1 {
+  font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.3px; margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.topbar-title p  {
+  font-size: 11px; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; margin-bottom: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
-.topbar-icons { display: flex; gap: 8px; }
+.topbar-icons { display: flex; gap: 8px; flex-shrink: 0; }
 .icon-btn {
-  width: 36px; height: 36px;
+  width: 38px; height: 38px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 16px; position: relative;
+  cursor: pointer; font-size: 18px; position: relative;
   transition: all 0.2s;
   color: #fff;
 }
 .icon-btn:hover { background: rgba(255,255,255,0.15); }
 .icon-btn .badge {
-  position: absolute; top: -4px; right: -4px;
-  width: 16px; height: 16px;
+  position: absolute; top: -5px; right: -5px;
+  width: 18px; height: 18px;
   background: var(--red);
   border-radius: 50%;
-  font-size: 9px; font-weight: 700; color: #fff;
+  font-size: 10px; font-weight: 700; color: #fff;
   display: flex; align-items: center; justify-content: center;
   border: 2px solid #1a2040;
 }
@@ -240,27 +254,26 @@ export default function CustomersPage() {
 .tabs {
   display: flex;
   background: rgba(255,255,255,0.06);
-  border-radius: 10px;
-  padding: 3px;
-  margin-top: 4px;
+  border-radius: 12px;
+  padding: 4px;
+  width: 100%;
 }
 .tab {
   flex: 1;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.8px;
-  color: rgba(255,255,255,0.4);
-  border-radius: 8px;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.5);
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s;
-  text-transform: uppercase;
 }
 .tab.active {
   background: var(--teal);
   color: #fff;
-  box-shadow: 0 3px 10px rgba(0,196,167,0.4);
+  box-shadow: 0 4px 12px rgba(0,196,167,0.3);
 }
 
 .search-wrap { padding: 14px 16px 4px; }

@@ -612,20 +612,20 @@ function ReportsContent() {
                     <div className="topbar-left">
                         <button className="back-btn" onClick={() => window.history.back()}>‹</button>
                         <div>
-                            <h1>{t.businessReports}</h1>
-                            <p>{t.analyzeBusinessData}</p>
+                            <h1>{t.reports || 'Reports'}</h1>
+                            <p>{t.businessOverview || 'Business Overview'}</p>
                         </div>
                     </div>
                     <div className="topbar-right">
-                        <select className="period-select" value={period} onChange={(e) => { setPeriod(e.target.value); toast(`${t.periodChanged}: ${e.target.value}`); }}>
-                            <option>{t.periodThisMonth}</option>
-                            <option>{t.periodLastMonth}</option>
-                            <option>{t.periodThisQuarter}</option>
-                            <option>{t.periodThisYear}</option>
-                            <option>{t.periodCustomRange}</option>
+                        <select className="period-select" value={period} onChange={(e) => { setPeriod(e.target.value); toast(`${t.periodChanged || 'Period Changed'}: ${e.target.value}`); }}>
+                            <option>{t.periodThisMonth || 'This Month'}</option>
+                            <option>{t.periodLastMonth || 'Last Month'}</option>
+                            <option>{t.periodThisQuarter || 'This Quarter'}</option>
+                            <option>{t.periodThisYear || 'This Year'}</option>
+                            <option>{t.periodCustomRange || 'Custom Range'}</option>
                         </select>
-                        <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml}</button>
-                        <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel}</button>
+                        <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml || 'Tally XML'}</button>
+                        <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel || 'Excel'}</button>
                     </div>
                 </div>
 
@@ -633,11 +633,11 @@ function ReportsContent() {
                     <div className="advisory-left">
                         <span className="advisory-icon">💡</span>
                         <div className="advisory-text">
-                            <p>{t.advisory}</p>
-                            <h3>{t.hsnComplianceHint}</h3>
+                            <p>{t.advisory || 'ADVISORY'}</p>
+                            <h3>{t.hsnComplianceHint || 'Ensure HSN codes for GST compliance'}</h3>
                         </div>
                     </div>
-                    <div className="advisory-badge" onClick={() => toast(t.itcMaximizeToast)}>{t.maximizeItc}</div>
+                    <div className="advisory-badge" onClick={() => toast(t.itcMaximizeToast || 'Claim ITC efficiently')}>{t.maximizeItc || 'Maximize ITC'}</div>
                 </div>
 
                 <div className="page-content-box" style={{ paddingBottom: '80px' }}>
@@ -714,8 +714,8 @@ function ReportsContent() {
                         <div className="chart-card" style={{ animationDelay: ".2s" }}>
                             <div className="chart-header">
                                 <div>
-                                    <div className="chart-title">{t.revenueTrend}</div>
-                                    <div className="chart-sub">{t.weeklyBreakdown}</div>
+                                    <div className="chart-title">{t.revenueTrend || 'Revenue Trend'}</div>
+                                    <div className="chart-sub">{t.weeklyBreakdown || 'Weekly breakdown'}</div>
                                 </div>
                                 <div className="chart-legend">
                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#4f46e5" }} />Revenue</div>
@@ -761,22 +761,22 @@ function ReportsContent() {
                     </div>
 
                     <div className="download-section" style={{ animation: "fadeUp .5s .35s ease both" }}>
-                        <div className="section-title">{t.downloadReports}</div>
+                        <div className="section-title">{t.downloadReports || 'Download Reports'}</div>
                         <div className="download-grid">
                             <div className="dl-btn tally" onClick={handleTallyXML}>
                                 <span className="dl-icon">📊</span>
-                                <span className="dl-name">{t.tallyXml}</span>
-                                <span className="dl-desc">{t.forTallySoftware}</span>
+                                <span className="dl-name">{t.tallyXml || 'Tally XML'}</span>
+                                <span className="dl-desc">{t.forTallySoftware || 'For Tally ERP / Prime'}</span>
                             </div>
                             <div className="dl-btn excel" onClick={handleDownloadExcel}>
                                 <span className="dl-icon">📗</span>
-                                <span className="dl-name">{t.excel}</span>
-                                <span className="dl-desc">{t.spreadsheetFormat}</span>
+                                <span className="dl-name">{t.excel || 'Excel'}</span>
+                                <span className="dl-desc">{t.spreadsheetFormat || 'Spreadsheet format'}</span>
                             </div>
                             <div className="dl-btn pdf" onClick={handlePDF}>
                                 <span className="dl-icon">📄</span>
-                                <span className="dl-name">{t.pdfReport}</span>
-                                <span className="dl-desc">{t.printReadyFormat}</span>
+                                <span className="dl-name">{t.pdfReport || 'PDF Report'}</span>
+                                <span className="dl-desc">{t.printReadyFormat || 'Print ready format'}</span>
                             </div>
                             <div className="dl-btn csv" onClick={handleCSV}>
                                 <span className="dl-icon">🗂️</span>

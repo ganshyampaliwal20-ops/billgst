@@ -134,7 +134,7 @@ export default function DashboardLayout({
     }
 
     if (canSeeStaff) {
-        menuItems.push({ icon: FaIdCard, label: 'Staff & Attendance', href: '/dashboard/staff' });
+        menuItems.push({ icon: FaIdCard, label: t.staffAttendance || 'Staff & Attendance', href: '/dashboard/staff' });
     }
 
     if (canSeeAccounting) {

@@ -113,6 +113,7 @@ const DEFAULT_DATA = [
 
 export default function BusinessExpensesPage() {
     const [isMounted, setIsMounted] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(true);
     const [canSave, setCanSave] = useState(false);
     const [customers, setCustomers] = useState<any[]>([]);
     const [activeScreen, setActiveScreen] = useState<'list' | 'detail'>('list');
@@ -137,6 +138,7 @@ export default function BusinessExpensesPage() {
     const [entryNote, setEntryNote] = useState('');
     const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
     const [editTxnId, setEditTxnId] = useState<number | null>(null);
+    const [autoWhatsApp, setAutoWhatsApp] = useState(true);
     const [isScanning, setIsScanning] = useState(false);
     const [autoAiScan, setAutoAiScan] = useState(true);
 
@@ -161,12 +163,17 @@ export default function BusinessExpensesPage() {
     }, [isAddCustOpen]);
 
     useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
         if (status === 'loading') return;
 
         const loadData = async () => {
             // Reset flag so saving is blocked during this load
             loadCompleted.current = false;
             setCanSave(false);
+            setIsLoadingData(true);
 
             try {
                 const { idb } = await import('../../../lib/idb');
@@ -257,15 +264,14 @@ export default function BusinessExpensesPage() {
                     setCustomers(session?.user?.id ? [] : DEFAULT_DATA);
                 }
 
-
-                setIsMounted(true);
                 loadCompleted.current = true;
+                setIsLoadingData(false);
                 // Allow saves only after load is fully done
                 setTimeout(() => setCanSave(true), 800);
             } catch (e) {
                 console.error("Storage init error", e);
-                setIsMounted(true);
                 loadCompleted.current = true;
+                setIsLoadingData(false);
                 setTimeout(() => setCanSave(true), 800);
             }
         };
@@ -455,14 +461,75 @@ export default function BusinessExpensesPage() {
 
     const [txnSortAsc, setTxnSortAsc] = useState(false);
 
-    const sendWhatsAppRemind = (cust: any, amount: number) => {
-        const phone = cust.phone?.replace(/\\D/g, '') || '';
+    const sendWhatsAppRemind = async (cust: any, amount: number) => {
+        const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
             showToast('📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
             return;
         }
-        const txt = `Namaste ${cust.name}, \nAapka ${Math.abs(amount)} Rs due hai. Kripya payment karein.`;
-        window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(txt)}`, '_blank');
+        
+        showToast('⏳ PDF Reminder ban raha hai...');
+        try {
+            if (session?.user?.id) {
+                try {
+                    await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) });
+                } catch (e) {}
+            }
+
+            let c = 0, d = 0;
+            (cust.txns || []).forEach((t: any) => {
+                if (t.type === 'credit') c += t.amt;
+                else d += t.amt;
+            });
+            const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
+            
+            const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
+            if (!doc) {
+                showToast('❌ PDF nahi ban paya!');
+                return;
+            }
+
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], `Reminder_${cust.name}.pdf`, { type: 'application/pdf' });
+            
+            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
+            const textMsg = `*Namaste ${cust.name}*,\n\nAapka ${Math.abs(amount)} Rs due hai. Kripya payment karein.\nSath me Hisaab-Kitab PDF bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+
+            // Native Web Share API
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: `Reminder_${cust.name}.pdf`,
+                        text: textMsg
+                    });
+                    showToast('✅ WhatsApp pe share ho gaya!');
+                    return;
+                } catch (e) {
+                    console.log('Share cancelled', e);
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('message', textMsg);
+            formData.append('file', file);
+
+            showToast('⏳ WhatsApp Bot se bhej rahe hain...');
+            const sendRes = await fetch('/api/whatsapp/send-media', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (sendRes.ok) {
+                showToast('✅ WhatsApp pe PDF chala gaya!');
+            } else {
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
+            }
+        } catch (err) {
+            showToast('❌ Error in sending request!');
+        }
     };
 
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
@@ -702,6 +769,30 @@ export default function BusinessExpensesPage() {
         setIsAddEntryOpen(false);
         setEditTxnId(null);
         showToast(editTxnId ? '✅ Entry update ho gayi!' : '✅ Entry save ho gayi!');
+
+        // Auto WhatsApp notification for NEW entries
+        if (!editTxnId && currentCustomer?.phone && autoWhatsApp) {
+            const phone = currentCustomer.phone.replace(/\D/g, '');
+            if (phone) {
+                const isDebit = entryType !== 'credit';
+                // Recalculate projected balance based on current transaction
+                let newBalance = currentCustomer.balance;
+                newBalance += (isDebit ? amt : -amt);
+
+                const action = isDebit ? 'Udhaar (Given)' : 'Jama (Received)';
+                const txt = `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} kiye gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nDhanyawad!`;
+                
+                const formData = new FormData();
+                formData.append('phone', phone);
+                formData.append('message', txt);
+                
+                // Silent background queue to the bot
+                fetch('/api/whatsapp/send-media', {
+                    method: 'POST',
+                    body: formData
+                }).catch(() => {});
+            }
+        }
     };
 
     // Customer Sheet Handlers
@@ -927,7 +1018,13 @@ export default function BusinessExpensesPage() {
                 </div>
 
                 <div className="cust-list">
-                    {!displayList.length ? (
+                    {isLoadingData ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+                            <div className="spinner" style={{ width: '30px', height: '30px', border: '3px solid var(--border)', borderTop: '3px solid var(--ink)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                            <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text3)', fontWeight: 600 }}>Loading data...</div>
+                            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                        </div>
+                    ) : !displayList.length ? (
                         <div className="empty-state">
                             <div className="empty-ico">🔍</div>
                             <div className="empty-title">Koi customer nahi mila</div>
@@ -1014,10 +1111,6 @@ export default function BusinessExpensesPage() {
                         </div>
 
                         <div className="quick-actions">
-                            <button className="qa-btn remind" onClick={() => sendWhatsAppRemind(currentCust, custStats.net)}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
-                                Remind
-                            </button>
                             <button className="qa-btn statement" onClick={exportPDF}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
                                 Statement
@@ -1206,6 +1299,15 @@ export default function BusinessExpensesPage() {
                                 </div>
 
                                 <div className={`extra-fields ${isAddEntryOpen ? 'show' : ''}`}>
+                                    <div className="extra-field-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: autoWhatsApp ? '#f0fdf4' : '#f8fafc', border: autoWhatsApp ? '1px solid #bbf7d0' : '1px solid var(--border)' }} onClick={() => setAutoWhatsApp(!autoWhatsApp)}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style={{ color: autoWhatsApp ? '#16a34a' : 'var(--ink3)' }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.116 1.523 5.845L.057 23.057l5.33-1.397A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" /></svg>
+                                            <span style={{ fontSize: '13px', fontWeight: 600, color: autoWhatsApp ? '#16a34a' : 'var(--ink3)' }}>Auto WhatsApp SMS</span>
+                                        </div>
+                                        <div style={{ width: '40px', height: '22px', borderRadius: '12px', background: autoWhatsApp ? '#16a34a' : '#cbd5e1', position: 'relative', transition: '0.2s' }}>
+                                            <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '2px', left: autoWhatsApp ? '20px' : '2px', transition: '0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}></div>
+                                        </div>
+                                    </div>
                                     <div className="extra-field-row" style={{ backgroundColor: '#ffffff' }}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: entryType === 'credit' ? '#16a34a' : '#dc2626' }}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                                         <input type="text" placeholder="Add note (optional)" value={entryNote} onChange={e => setEntryNote(e.target.value)} style={{ fontWeight: 'bold', color: entryType === 'credit' ? '#16a34a' : '#dc2626' }} />
