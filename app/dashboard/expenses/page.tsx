@@ -631,7 +631,7 @@ export default function BusinessExpensesPage() {
     const openAddEntry = (type: 'credit' | 'debit' | 'advance', prepopulateAmt?: string) => {
         setEditTxnId(null);
         setEntryType(type);
-        setAmtInp(prepopulateAmt || '');
+        setAmtInp(prepopulateAmt || '0');
         setEntryName('');
         setEntryNote('');
         setEntryDate(new Date().toISOString().split('T')[0]);
@@ -1324,8 +1324,11 @@ export default function BusinessExpensesPage() {
                                 inputMode="decimal"
                                 value={amtInp}
                                 onChange={(e) => {
-                                    const val = e.target.value.replace(/[^0-9.]/g, '');
-                                    if ((val.match(/\./g) || []).length <= 1) setAmtInp(val);
+                                    let val = e.target.value.replace(/[^0-9.]/g, '');
+                                    if (val.length > 1 && val.startsWith('0') && !val.startsWith('0.')) val = val.substring(1);
+                                    if ((val.match(/\./g) || []).length <= 1) {
+                                        setAmtInp(val === '' ? '0' : val);
+                                    }
                                 }}
                                 placeholder="0"
                                 className={`kb-amt-input ${entryType === 'debit' ? 'red' : 'green'}`}
