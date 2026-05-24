@@ -86,7 +86,7 @@ export default function DashboardLayout({
     if (status === 'unauthenticated') return null;
 
     // Get current translations based on store setting
-    const t = translations[settings.language as keyof typeof translations] || translations.en;
+    const t: any = translations[settings.language as keyof typeof translations] || translations.en;
 
     interface MenuItem {
         icon: any;

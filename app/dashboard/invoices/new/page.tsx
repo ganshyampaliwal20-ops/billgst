@@ -51,7 +51,7 @@ export default function NewInvoicePage() {
 
     const [isClient, setIsClient] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-    const t = translations[settings.language as keyof typeof translations] || translations.en;
+    const t: any = translations[settings.language as keyof typeof translations] || translations.en;
 
     // Form State
     const [customerId, setCustomerId] = useState('');

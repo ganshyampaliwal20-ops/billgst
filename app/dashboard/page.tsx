@@ -34,7 +34,7 @@ export default function DashboardPage() {
 
     const router = useRouter();
     const miniChartRef = useRef<HTMLCanvasElement>(null);
-    const t = getTranslations(settings?.language);
+    const t: any = getTranslations(settings?.language);
 
     const handleShareStore = () => {
         if (!businessProfile.id) return;
