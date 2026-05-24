@@ -1316,7 +1316,7 @@ export default function BusinessExpensesPage() {
                                     <div className={`amount-underline ${entryType === 'debit' ? 'given' : entryType === 'credit' ? 'received' : 'advance'}`}></div>
                                 </div>
 
-                                <div className={`extra-fields ${isAddEntryOpen ? 'show' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: '10px' }}>
+                                <div className={`extra-fields ${isAddEntryOpen ? 'show' : ''}`} style={{ display: isAddEntryOpen ? 'flex' : 'none', flexDirection: 'column', gap: '6px', paddingBottom: '10px' }}>
                                     <div className="extra-field-row" style={{ backgroundColor: '#ffffff', padding: '6px 12px', minHeight: '36px' }}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ color: entryType === 'credit' ? '#16a34a' : '#dc2626' }}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                                         <input type="text" placeholder="Add note (optional)" value={entryNote} onChange={e => setEntryNote(e.target.value)} style={{ fontWeight: 'bold', color: entryType === 'credit' ? '#16a34a' : '#dc2626', fontSize: '13px' }} />
