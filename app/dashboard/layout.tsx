@@ -396,7 +396,6 @@ export default function DashboardLayout({
                             </div>
                         </div>
 
-                        {/* Workspace Switcher & Logout */}
                         <div className="mt-4 px-2 flex flex-col gap-2">
                             <WorkspaceSwitcher />
                             <button
@@ -406,6 +405,9 @@ export default function DashboardLayout({
                                 <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
                                 <span>Logout Safe</span>
                             </button>
+                            <div className="text-[9px] text-slate-400 text-center mt-2 px-1 leading-tight">
+                                <strong>Disclaimer:</strong> BillGST is a private app, not a government entity. For official GST info, visit <a href="https://www.gst.gov.in/" target="_blank" rel="noopener" className="text-blue-500 hover:underline">gst.gov.in</a>
+                            </div>
                         </div>
                     </div>
                 </div>

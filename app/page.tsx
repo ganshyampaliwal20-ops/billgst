@@ -522,9 +522,14 @@ export default function LandingPage() {
                         <div className="f-col"><h5>Company</h5><ul><li><a href="/about">About Us</a></li><li><a href="/blog">Blog</a></li></ul></div>
                         <div className="f-col"><h5>Support</h5><ul><li><a href="/dashboard/referral">Refer & Earn</a></li><li><a href="#">Help</a></li><li><a href="/privacy">Privacy Policy</a></li></ul></div>
                     </div>
-                    <div className="foot-btm">
-                        <span>© {new Date().getFullYear()} BillGST · All rights reserved</span>
-                        <span>🇮🇳 Made with ❤️ in India</span>
+                    <div className="foot-btm" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div style={{ padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.7)', textAlign: 'left', lineHeight: '1.6', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <strong>Disclaimer:</strong> BillGST is an independent, privately-owned software utility designed to assist businesses with invoicing and stock management. <strong>BillGST is NOT affiliated with, endorsed by, or authorized by any government entity.</strong> The GST rates and tax-related calculations provided within this app are for convenience and based on publicly available information. For official government information, verified tax rates, and regulatory details, please visit the official Goods and Services Tax (GST) portal at <a href="https://www.gst.gov.in/" target="_blank" rel="noopener" style={{ color: '#4F8EF7', textDecoration: 'underline' }}>https://www.gst.gov.in/</a>.
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
+                            <span>© {new Date().getFullYear()} BillGST · All rights reserved</span>
+                            <span>🇮🇳 Made with ❤️ in India</span>
+                        </div>
                     </div>
                 </div>
             </footer>
