@@ -54,6 +54,19 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Native App Feel */
+  -webkit-touch-callout: none; /* Disable long press context menu */
+  -webkit-user-select: none; /* Disable text selection for native feel */
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; /* Remove blue tap highlight */
+  overscroll-behavior-y: none; /* Disable pull-to-refresh bounce */
+}
+
+/* Allow text selection only on inputs */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: auto !important;
+  user-select: auto !important;
 }
 
 /* Custom scrollbar */
