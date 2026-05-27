@@ -5,6 +5,8 @@ import './hisaab.css';
 import { generateHisaabPDF } from '../../../lib/pdf-generator';
 import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
+import useStore from '../../../lib/store';
+import { getVisitingCardText } from '../../../lib/whatsapp-utils';
 
 // ─── HELPERS ───
 async function compressImage(dataUrl: string, maxWidth = 800, quality = 0.6): Promise<string> {
@@ -121,6 +123,7 @@ export default function BusinessExpensesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentFilter, setCurrentFilter] = useState('all');
     const { data: session, status } = useSession();
+    const { businessProfile } = useStore();
 
     // Drawer / Modals
     const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
@@ -494,7 +497,8 @@ export default function BusinessExpensesPage() {
             
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            const textMsg = `*Namaste ${cust.name}*,\n\nAapka ${Math.abs(amount)} Rs due hai. Kripya payment karein.\nSath me Hisaab-Kitab PDF bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            let textMsg = `*Namaste ${cust.name}*,\n\nAapka ${Math.abs(amount)} Rs due hai. Kripya payment karein.\nSath me Hisaab-Kitab PDF bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            textMsg += getVisitingCardText(businessProfile);
 
             // Native Web Share API
             if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -565,7 +569,8 @@ export default function BusinessExpensesPage() {
             
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            const textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            textMsg += getVisitingCardText(businessProfile);
 
             // Native Web Share API
             if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -780,7 +785,8 @@ export default function BusinessExpensesPage() {
                 newBalance += (isDebit ? amt : -amt);
 
                 const action = isDebit ? 'Udhaar (Given)' : 'Jama (Received)';
-                const txt = `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} kiye gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nDhanyawad!`;
+                let txt = `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} kiye gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nDhanyawad!`;
+                txt += getVisitingCardText(businessProfile);
                 // Option 2: Open WhatsApp app directly (using location.href prevents popup blockers on mobile)
                 window.location.href = `https://wa.me/91${phone}?text=${encodeURIComponent(txt)}`;
             }

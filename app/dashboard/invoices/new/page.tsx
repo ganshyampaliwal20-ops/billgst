@@ -18,6 +18,7 @@ import { calculateInvoiceTotal } from '@/lib/gst-calculator';
 import { DOC_TYPES, DOC_LABELS } from '@/lib/constants';
 import Tesseract from 'tesseract.js';
 import { generateInvoicePDF } from '@/lib/pdf-generator';
+import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 // Proper UUID v4 generator
 function generateId() {
@@ -604,7 +605,9 @@ export default function NewInvoicePage() {
                                 const formData = new FormData();
                                 formData.append('file', pdfBlob, `Invoice-${invoiceNumber}.pdf`);
                                 formData.append('phone', customer.phone);
-                                formData.append('message', `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`);
+                                let msgText = `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`;
+                                msgText += getVisitingCardText(businessProfile);
+                                formData.append('message', msgText);
 
                                 const sendRes = await fetch('/api/whatsapp/send-media', {
                                     method: 'POST',

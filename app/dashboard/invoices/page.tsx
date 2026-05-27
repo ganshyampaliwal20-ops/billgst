@@ -10,6 +10,7 @@ import {
 import { generateInvoicePDF } from '../../../lib/pdf-generator';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../lib/utils';
+import { getVisitingCardText } from '../../../lib/whatsapp-utils';
 import { useRouter } from 'next/navigation';
 
 export default function InvoicesPage() {
@@ -134,7 +135,8 @@ export default function InvoicesPage() {
             const fileName = `Invoice_${invoice.invoice_number || '001'}.pdf`;
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             
-            const text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
+            let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
+            text += getVisitingCardText(businessProfile);
             
             if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 try {

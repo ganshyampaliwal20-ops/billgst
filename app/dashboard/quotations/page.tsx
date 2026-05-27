@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { generateQuotationPDF } from '@/lib/pdf-generator';
 import { toast } from 'react-hot-toast';
+import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 export default function QuotationsPage() {
     const router = useRouter();
@@ -83,7 +84,8 @@ export default function QuotationsPage() {
             if (!pdfDoc) return;
             const blob = pdfDoc.output('blob');
             const file = new File([blob], `Quotation-${q.quotation_number}.pdf`, { type: 'application/pdf' });
-            const message = `Hi ${q.customer_name}, here is your quotation ${q.quotation_number} for ₹${parseFloat(q.total_amount).toLocaleString('en-IN')}`;
+            let message = `Hi ${q.customer_name}, here is your quotation ${q.quotation_number} for ₹${parseFloat(q.total_amount).toLocaleString('en-IN')}`;
+            message += getVisitingCardText(businessProfile);
 
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: 'Quotation', text: message });
