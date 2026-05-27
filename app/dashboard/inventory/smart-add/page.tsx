@@ -315,8 +315,8 @@ export default function SmartAddPage() {
 
                     {/* Review Step */}
                     {step === 'review' && (
-                        <motion.div key="review" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                            <div className="flex justify-between items-center mb-2 px-2">
+                        <motion.div key="review" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                            <div className="flex justify-between items-center mb-4 px-2">
                                 <div className="text-sm font-bold text-slate-300">Found {parsedItems.length} Items</div>
                                 <button onClick={() => setStep('upload')} className="text-xs text-indigo-400 font-bold bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
                                     Scan Another
@@ -332,8 +332,8 @@ export default function SmartAddPage() {
                                     className={`bg-slate-900 rounded-3xl py-4 px-[5px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
                                 >
                                     {/* Header & GST */}
-                                    <div className="flex justify-between items-start mb-4 gap-3">
-                                        <div className="flex items-start gap-3 flex-1">
+                                    <div className="flex justify-between items-start mb-5 gap-4">
+                                        <div className="flex items-start gap-4 flex-1">
                                             <div 
                                                 className={`w-6 h-6 rounded-md border flex items-center justify-center flex-shrink-0 mt-1 cursor-pointer transition-colors ${item.selected ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-800 border-slate-600'}`}
                                                 onClick={() => updateItem(item.id, 'selected', !item.selected)}
@@ -374,7 +374,7 @@ export default function SmartAddPage() {
                                     </div>
 
                                     {/* Qty & Unit */}
-                                    <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="grid grid-cols-2 gap-4 mb-5">
                                         <div className="bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 min-w-0">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">QTY</label>
                                             <input 
@@ -397,7 +397,7 @@ export default function SmartAddPage() {
                                     </div>
 
                                     {/* Pricing */}
-                                    <div className="grid grid-cols-3 gap-2 items-end">
+                                    <div className="grid grid-cols-3 gap-3 items-end">
                                         <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">Purchase</label>
                                             <input 
