@@ -27,7 +27,7 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg py-3' : 'bg-transparent py-5'
+        <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 pt-[env(safe-area-inset-top)] ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg pb-3 pt-[calc(env(safe-area-inset-top)+12px)]' : 'bg-transparent pb-5 pt-[calc(env(safe-area-inset-top)+20px)]'
             }`}>
             <div className="max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">

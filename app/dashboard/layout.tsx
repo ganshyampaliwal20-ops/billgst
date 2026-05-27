@@ -186,7 +186,7 @@ export default function DashboardLayout({
         <div className="min-h-screen bg-[#f1f5f9] flex">
             {/* Sidebar */}
             <aside
-                className={`fixed inset-y-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 shadow-2xl md:shadow-none ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed inset-y-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen md:sticky md:top-0 shadow-2xl md:shadow-none pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 <div className="h-full flex flex-col">
@@ -426,7 +426,7 @@ export default function DashboardLayout({
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header - Sticky on top */}
-                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
+                <header className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center pt-[env(safe-area-inset-top)]">
                     <div className="px-8 sm:px-6 lg:px-8 w-full" style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '0px' }}>
                         <div className="flex items-center justify-between h-12 md:h-16 relative">
                             {/* Left Side: Logo + Business Name */}
