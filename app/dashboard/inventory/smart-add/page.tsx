@@ -356,60 +356,60 @@ export default function SmartAddPage() {
 
                                     {/* Qty & Unit */}
                                     <div className="grid grid-cols-2 gap-3 mb-4">
-                                        <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px]">QTY</label>
+                                        <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50 min-w-0">
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px] truncate">QTY</label>
                                             <input 
                                                 type="number" 
                                                 value={item.quantity}
                                                 onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                                                className="w-full text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none"
+                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none"
                                             />
                                         </div>
-                                        <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px]">UNIT</label>
+                                        <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50 min-w-0">
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px] truncate">UNIT</label>
                                             <input 
                                                 type="text" 
                                                 value={item.unit}
                                                 onChange={(e) => updateItem(item.id, 'unit', e.target.value.toUpperCase())}
-                                                className="w-full text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none uppercase"
+                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none uppercase"
                                                 placeholder="PCS"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Pricing */}
-                                    <div className="grid grid-cols-3 gap-3 items-end">
-                                        <div className="col-span-1">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px]">Purchase (₹)</label>
+                                    <div className="grid grid-cols-3 gap-2 items-end">
+                                        <div className="col-span-1 min-w-0">
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[2px] truncate">Purchase (₹)</label>
                                             <input 
                                                 type="number" 
                                                 value={item.purchasePrice}
                                                 onChange={(e) => updateItem(item.id, 'purchasePrice', Number(e.target.value))}
-                                                className="w-full text-sm font-bold text-white bg-transparent border-b border-slate-700 focus:border-indigo-400 p-0 px-[5px] pb-1 focus:ring-0 outline-none"
+                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-b border-slate-700 focus:border-indigo-400 p-0 px-[5px] pb-1 focus:ring-0 outline-none"
                                             />
                                         </div>
                                         
-                                        <div className="col-span-1">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 text-center">Markup %</label>
-                                            <div className="flex items-center bg-slate-800 rounded-lg px-2 py-1 border border-slate-700 justify-center">
+                                        <div className="col-span-1 min-w-0">
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 text-center truncate">Markup %</label>
+                                            <div className="flex items-center bg-slate-800 rounded-lg px-1 py-1 border border-slate-700 justify-center">
                                                 <span className="text-xs text-emerald-400 font-bold">+</span>
                                                 <input 
                                                     type="number" 
                                                     value={item.markup}
                                                     onChange={(e) => updateItem(item.id, 'markup', Number(e.target.value))}
-                                                    className="w-10 text-center text-xs font-bold text-emerald-400 bg-transparent border-none p-0 focus:ring-0 outline-none"
+                                                    className="w-full min-w-0 text-center text-xs font-bold text-emerald-400 bg-transparent border-none p-0 focus:ring-0 outline-none"
                                                 />
                                                 <span className="text-xs text-emerald-400 font-bold">%</span>
                                             </div>
                                         </div>
 
-                                        <div className="col-span-1 text-right">
-                                            <label className="text-[9px] font-bold text-emerald-500/80 uppercase block mb-1 px-[5px]">Selling (₹)</label>
+                                        <div className="col-span-1 text-right min-w-0">
+                                            <label className="text-[9px] font-bold text-emerald-500/80 uppercase block mb-1 px-[2px] truncate">Selling (₹)</label>
                                             <input 
                                                 type="number" 
                                                 value={item.sellingPrice}
                                                 onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
-                                                className="w-full text-lg font-black text-emerald-400 bg-transparent border-b border-emerald-900 focus:border-emerald-500 p-0 px-[5px] pb-1 focus:ring-0 outline-none text-right"
+                                                className="w-full min-w-0 text-lg font-black text-emerald-400 bg-transparent border-b border-emerald-900 focus:border-emerald-500 p-0 px-[5px] pb-1 focus:ring-0 outline-none text-right"
                                             />
                                         </div>
                                     </div>
