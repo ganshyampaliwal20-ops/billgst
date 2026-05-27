@@ -326,11 +326,11 @@ export default function SmartAddPage() {
                                                     type="text" 
                                                     value={item.name}
                                                     onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                                    className="w-full text-base font-bold text-white bg-transparent border-b border-dashed border-slate-600 focus:border-emerald-400 focus:outline-none pb-1"
+                                                    className="w-full text-base font-bold text-white bg-transparent border-b border-dashed border-slate-600 focus:border-emerald-400 focus:outline-none pb-1 px-[5px]"
                                                     placeholder="Product Name"
                                                 />
                                                 {item.isExisting && (
-                                                    <div className="text-[10px] text-emerald-400 mt-1.5 font-bold flex items-center gap-1">
+                                                    <div className="text-[10px] text-emerald-400 mt-1.5 font-bold flex items-center gap-1 px-[5px]">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Existing (Stock: {item.currentStock})
                                                     </div>
                                                 )}
@@ -357,21 +357,21 @@ export default function SmartAddPage() {
                                     {/* Qty & Unit */}
                                     <div className="grid grid-cols-2 gap-3 mb-4">
                                         <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">QTY</label>
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px]">QTY</label>
                                             <input 
                                                 type="number" 
                                                 value={item.quantity}
                                                 onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                                                className="w-full text-sm font-bold text-white bg-transparent border-none p-0 focus:ring-0 outline-none"
+                                                className="w-full text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none"
                                             />
                                         </div>
                                         <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">UNIT</label>
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px]">UNIT</label>
                                             <input 
                                                 type="text" 
                                                 value={item.unit}
                                                 onChange={(e) => updateItem(item.id, 'unit', e.target.value.toUpperCase())}
-                                                className="w-full text-sm font-bold text-white bg-transparent border-none p-0 focus:ring-0 outline-none uppercase"
+                                                className="w-full text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none uppercase"
                                                 placeholder="PCS"
                                             />
                                         </div>
@@ -380,12 +380,12 @@ export default function SmartAddPage() {
                                     {/* Pricing */}
                                     <div className="grid grid-cols-3 gap-3 items-end">
                                         <div className="col-span-1">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Purchase (₹)</label>
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px]">Purchase (₹)</label>
                                             <input 
                                                 type="number" 
                                                 value={item.purchasePrice}
                                                 onChange={(e) => updateItem(item.id, 'purchasePrice', Number(e.target.value))}
-                                                className="w-full text-sm font-bold text-white bg-transparent border-b border-slate-700 focus:border-indigo-400 p-0 pb-1 focus:ring-0 outline-none"
+                                                className="w-full text-sm font-bold text-white bg-transparent border-b border-slate-700 focus:border-indigo-400 p-0 px-[5px] pb-1 focus:ring-0 outline-none"
                                             />
                                         </div>
                                         
@@ -404,12 +404,12 @@ export default function SmartAddPage() {
                                         </div>
 
                                         <div className="col-span-1 text-right">
-                                            <label className="text-[9px] font-bold text-emerald-500/80 uppercase block mb-1">Selling (₹)</label>
+                                            <label className="text-[9px] font-bold text-emerald-500/80 uppercase block mb-1 px-[5px]">Selling (₹)</label>
                                             <input 
                                                 type="number" 
                                                 value={item.sellingPrice}
                                                 onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
-                                                className="w-full text-lg font-black text-emerald-400 bg-transparent border-b border-emerald-900 focus:border-emerald-500 p-0 pb-1 focus:ring-0 outline-none text-right"
+                                                className="w-full text-lg font-black text-emerald-400 bg-transparent border-b border-emerald-900 focus:border-emerald-500 p-0 px-[5px] pb-1 focus:ring-0 outline-none text-right"
                                             />
                                         </div>
                                     </div>
