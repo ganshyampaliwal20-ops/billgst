@@ -720,8 +720,32 @@ export default function InventoryPage() {
                         <span className="hero-eyebrow-dot"></span>
                         BillGST Smart System
                     </div>
-                    <div className="hero-title">⚡ {t.smartInventory}</div>
-                    <div className="hero-sub">{t.manageProductsStock}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                        <div style={{ textAlign: 'left' }}>
+                            <div className="hero-title" style={{ marginBottom: '4px' }}>⚡ {t.smartInventory}</div>
+                            <div className="hero-sub" style={{ marginBottom: 0 }}>{t.manageProductsStock}</div>
+                        </div>
+                        <button 
+                            onClick={() => router.push('/dashboard/inventory/smart-add')}
+                            style={{
+                                background: 'linear-gradient(135deg, #4f46e5, #8b5cf6)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '10px',
+                                padding: '8px 12px',
+                                fontSize: '11px',
+                                fontWeight: '800',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            ✨ AI Scanner
+                        </button>
+                    </div>
 
                     <div className="stats-grid">
                         <div className="stat-card">

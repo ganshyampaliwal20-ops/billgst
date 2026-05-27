@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaUpload, FaCamera, FaSpinner, FaCheck, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic, FaInfoCircle } from 'react-icons/fa';
+import { FaUpload, FaCamera, FaSpinner, FaCheck, FaCheckCircle, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic, FaInfoCircle, FaMobileAlt, FaCloudUploadAlt } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,6 +15,7 @@ export default function SmartAddPage() {
     const [loading, setLoading] = useState(false);
     const [parsedItems, setParsedItems] = useState<any[]>([]);
     const [step, setStep] = useState<'upload' | 'processing' | 'review'>('upload');
+    const [failedItems, setFailedItems] = useState<{name: string, reason: string}[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,18 +139,26 @@ export default function SmartAddPage() {
 
         const loadToast = toast.loading('Saving items to inventory...');
         let successCount = 0;
+        let failures: {name: string, reason: string}[] = [];
+        let successfulItemIds: string[] = [];
 
         for (const item of itemsToSave) {
             try {
                 if (item.isExisting && item.existingId) {
-                    await updateProduct(item.existingId, {
+                    const res = await updateProduct(item.existingId, {
                         stock_quantity: item.currentStock + item.quantity,
                         purchase_price: item.purchasePrice,
                         price: item.sellingPrice || item.purchasePrice,
                         unit: item.unit
                     });
+                    if (res?.error) {
+                        failures.push({ name: item.name, reason: res.error });
+                    } else {
+                        successCount++;
+                        successfulItemIds.push(item.id);
+                    }
                 } else {
-                    await addProduct({
+                    const res = await addProduct({
                         id: crypto.randomUUID(),
                         name: item.name,
                         price: item.sellingPrice || item.purchasePrice,
@@ -160,16 +169,33 @@ export default function SmartAddPage() {
                         type: 'PRODUCT',
                         created_at: new Date().toISOString()
                     });
+                    if (res?.error) {
+                        failures.push({ name: item.name, reason: res.error });
+                    } else {
+                        successCount++;
+                        successfulItemIds.push(item.id);
+                    }
                 }
-                successCount++;
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Error saving item:', item.name, err);
+                failures.push({ name: item.name, reason: err.message || 'Unknown error' });
             }
         }
 
         toast.dismiss(loadToast);
-        toast.success(`Successfully saved ${successCount} items!`);
-        router.push('/dashboard/inventory');
+        
+        if (failures.length > 0) {
+            setFailedItems(failures);
+            if (successCount > 0) {
+                toast.success(`Successfully saved ${successCount} items! Some items failed.`);
+                setParsedItems(prev => prev.filter(p => !successfulItemIds.includes(p.id)));
+            } else {
+                toast.error(`Failed to save items.`);
+            }
+        } else {
+            toast.success(`Successfully saved ${successCount} items!`);
+            router.push('/dashboard/inventory');
+        }
     };
 
     const updateItem = (id: string, field: string, value: any) => {
@@ -217,6 +243,25 @@ export default function SmartAddPage() {
                     90% { opacity: 1; }
                     100% { top: 120%; opacity: 0; }
                 }
+                .upload-scanner {
+                    position: absolute;
+                    top: -100px;
+                    left: -50%;
+                    width: 200%;
+                    height: 5px;
+                    background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.9), rgba(59, 130, 246, 0.9), transparent);
+                    box-shadow: 0 0 25px 8px rgba(59, 130, 246, 0.4);
+                    transform: rotate(5deg);
+                    animation: uploadScan 3s infinite linear;
+                    z-index: 0;
+                    pointer-events: none;
+                }
+                @keyframes uploadScan {
+                    0% { top: -50px; opacity: 0; }
+                    10% { opacity: 1; }
+                    90% { opacity: 1; }
+                    100% { top: 110%; opacity: 0; }
+                }
                 input::-webkit-outer-spin-button,
                 input::-webkit-inner-spin-button {
                   -webkit-appearance: none;
@@ -227,17 +272,17 @@ export default function SmartAddPage() {
                 }
             `}} />
 
-            <div className="w-full max-w-[480px] mx-auto relative z-10 flex flex-col font-body pb-28">
+            <div className={`w-full mx-auto relative z-10 flex flex-col flex-1 font-body pb-16 ${step === 'processing' ? 'max-w-5xl' : 'max-w-[480px]'}`}>
                 
                 {/* Header */}
-                <div className="flex items-center justify-center mb-8 relative overflow-hidden rounded-[2rem] bg-slate-900/40 py-5 px-6 border border-slate-800 backdrop-blur-xl">
+                <div className="flex items-center justify-center mb-8 relative overflow-hidden rounded-[2rem] bg-slate-900/40 py-10 px-8 border border-slate-800 backdrop-blur-xl min-h-[160px]">
                     <div className="hero-scanner"></div>
-                    <button onClick={() => router.push('/dashboard/inventory')} className="absolute left-6 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 z-10">
+                    <button onClick={() => router.push('/dashboard/inventory')} className="absolute left-6 top-1/2 -translate-y-1/2 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 z-10">
                         <FaArrowLeft className="text-white" />
                     </button>
                     <div className="z-10 text-center">
-                        <h1 className="text-2xl font-syne font-extrabold text-white">Smart Scan</h1>
-                        <p className="text-[11px] text-emerald-400 font-bold mt-1 tracking-wider uppercase">AI Powered Entry</p>
+                        <h1 className="text-3xl font-body font-bold text-white uppercase tracking-widest">SMART SCANNER</h1>
+                        <p className="text-[12px] text-emerald-400 font-bold mt-2 tracking-[0.2em] uppercase">AI Powered Entry</p>
                     </div>
                 </div>
 
@@ -249,67 +294,206 @@ export default function SmartAddPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-slate-900/60 rounded-[2rem] border border-slate-800 p-6 text-center mt-4"
+                            className="bg-transparent flex-1 flex flex-col w-full relative z-10"
                         >
-                            <div 
-                                className="border-2 border-dashed border-indigo-500/30 hover:border-indigo-400 bg-indigo-500/5 rounded-[1.5rem] py-14 px-6 cursor-pointer transition-all flex flex-col items-center group mb-8" 
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <div className="w-20 h-20 bg-indigo-500/20 rounded-[1.2rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-                                    <FaCamera className="text-3xl text-indigo-400" />
-                                </div>
-                                <h2 className="text-xl font-syne font-bold text-white mb-2">Upload Bill Image</h2>
-                                <p className="text-xs text-slate-400 mb-8 px-4">Take a photo or upload PDF of your supplier invoice</p>
-                                <button className="bg-gradient-to-r from-indigo-500 to-emerald-500 text-white font-bold py-3.5 px-8 rounded-xl text-sm hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all flex items-center gap-2">
-                                    <FaUpload /> Choose File
-                                </button>
-                            </div>
-                            
-                            {/* Description Box */}
-                            <motion.div 
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
-                                className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl py-5 px-[5px] text-left flex gap-3 items-start"
-                            >
-                                <div className="text-emerald-400 mt-0.5 ml-1">
-                                    <FaInfoCircle className="text-xl" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-emerald-400 mb-1.5 font-syne">How it works?</h3>
-                                    <p className="text-[11px] text-slate-300 leading-relaxed font-medium">
-                                        Smart AI Scanner automatically reads products, quantities, prices, and GST from your supplier invoices. No need to manually type everything. Just upload and verify!
+                            {/* The Upload Card Wrapper (Flex 1 to center vertically) */}
+                            <div className="flex-1 flex flex-col justify-center items-center w-full max-w-[400px] mx-auto pb-6 self-center">
+                                {/* The Upload Card */}
+                                <div className="border-[1.5px] border-dashed border-purple-500/50 bg-white/5 hover:bg-purple-500/10 rounded-[20px] p-6 pb-5 transition-all flex flex-col items-center relative group w-full overflow-hidden" onClick={() => fileInputRef.current?.click()}>
+                                    
+                                    {/* Inner Glow */}
+                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(138,92,246,0.1)_0%,transparent_65%)] pointer-events-none rounded-[20px]"></div>
+
+                                    {/* Scanner Animation */}
+                                    <div className="upload-scanner"></div>
+
+                                    {/* Icon */}
+                                    <div className="w-[70px] h-[70px] bg-gradient-to-br from-purple-600 to-purple-400 rounded-[18px] flex items-center justify-center mb-4 shadow-[0_4px_20px_rgba(124,58,237,0.4)] relative z-10">
+                                        <FaFileInvoice className="text-[32px] text-white" />
+                                    </div>
+
+                                    <h3 className="text-xl font-bold text-white mb-2 relative z-10">Upload Supplier Invoice</h3>
+                                    <p className="text-[13px] text-slate-400 mb-5 leading-relaxed relative z-10 text-center">
+                                        Photo, scan, ya PDF upload karo apne bill ki.<br />
+                                        Vision AI turant products, quantities<br />
+                                        aur prices detect kar lega.
                                     </p>
+
+                                    {/* Format Badges */}
+                                    <div className="flex justify-center gap-2 mb-6 relative z-10">
+                                        <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5">📷 Photo</span>
+                                        <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5">📄 Scan</span>
+                                        <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5">📑 PDF</span>
+                                    </div>
+
+                                    {/* Main Button */}
+                                    <button 
+                                        className="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3.5 px-8 rounded-full text-[15px] hover:-translate-y-[1px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] transition-all flex items-center justify-center gap-2 relative z-10"
+                                    >
+                                        <FaCamera className="text-xl" /> Browse or Take Photo
+                                    </button>
+
+                                    {/* Divider */}
+                                    <div className="flex items-center justify-center gap-3 w-full my-4 relative z-10">
+                                        <div className="h-[1px] w-12 bg-white/10"></div>
+                                        <span className="text-[12px] font-semibold text-slate-500">ya inse upload karo</span>
+                                        <div className="h-[1px] w-12 bg-white/10"></div>
+                                    </div>
+
+                                    {/* Secondary Options */}
+                                    <div className="grid grid-cols-2 gap-3 w-full relative z-10">
+                                        <button onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }} className="flex flex-col items-center justify-center gap-1.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/40 rounded-xl py-3 transition-colors text-purple-300">
+                                            <FaMobileAlt className="text-[22px]" />
+                                            <span className="text-[12px] font-semibold text-slate-400">Gallery se</span>
+                                        </button>
+                                        <button onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }} className="flex flex-col items-center justify-center gap-1.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/40 rounded-xl py-3 transition-colors text-purple-300">
+                                            <FaCloudUploadAlt className="text-[22px]" />
+                                            <span className="text-[12px] font-semibold text-slate-400">Files se</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </motion.div>
+                            </div>
+
+                            {/* Feature Chips Pinned to Bottom */}
+                            <div className="mt-auto flex justify-center gap-2 w-full pt-4">
+                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/25 rounded-xl py-2 px-1 text-center flex flex-col items-center justify-center gap-1">
+                                    <FaMagic className="text-emerald-400 text-lg" />
+                                    <span className="text-[11px] font-semibold text-emerald-300">Instant Scan</span>
+                                </div>
+                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/25 rounded-xl py-2 px-1 text-center flex flex-col items-center justify-center gap-1">
+                                    <FaCheck className="text-emerald-400 text-lg" />
+                                    <span className="text-[11px] font-semibold text-emerald-300">Auto Items</span>
+                                </div>
+                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/25 rounded-xl py-2 px-1 text-center flex flex-col items-center justify-center gap-1">
+                                    <FaCheckCircle className="text-emerald-400 text-lg" />
+                                    <span className="text-[11px] font-semibold text-emerald-300">Accurate</span>
+                                </div>
+                            </div>
 
                             <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                         </motion.div>
                     )}
 
                     {/* Processing Step */}
+                    {/* Processing Step */}
                     {step === 'processing' && (
                         <motion.div 
                             key="processing"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="bg-slate-900/60 rounded-[2rem] border border-slate-800 p-12 text-center flex flex-col items-center min-h-[400px] justify-center"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.05 }}
+                            className="bg-transparent flex-1 flex flex-col items-center justify-center w-full relative z-10 min-h-[500px]"
                         >
-                            <div className="relative w-28 h-36 bg-slate-800 rounded-xl mb-8 overflow-hidden border border-slate-700">
-                                <motion.div 
-                                    animate={{ top: ['0%', '100%', '0%'] }}
-                                    transition={{ duration: 2.5, ease: "linear", repeat: Infinity }}
-                                    className="absolute inset-x-0 h-1 bg-emerald-400 shadow-[0_0_15px_3px_rgba(16,185,129,0.5)] z-10"
-                                />
-                                <div className="absolute inset-x-4 top-6 space-y-3">
-                                    <div className="h-1.5 bg-slate-600 rounded w-3/4" />
-                                    <div className="h-1.5 bg-slate-600 rounded w-full" />
-                                    <div className="h-1.5 bg-slate-600 rounded w-5/6" />
+                            {/* New Design Card matching the image */}
+                            <div className="w-full max-w-[800px] min-h-[600px] md:min-h-[750px] mx-auto bg-[#13161c] border border-slate-800/80 rounded-3xl p-8 sm:p-12 flex flex-col items-center justify-center shadow-2xl mt-4 relative overflow-hidden">
+                                
+                                {/* Abstract Document Animation */}
+                                <div className="relative w-56 h-72 mb-12">
+                                    {/* Corner Brackets */}
+                                    <div className="absolute -top-4 -left-4 w-8 h-8 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl"></div>
+                                    <div className="absolute -top-4 -right-4 w-8 h-8 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr"></div>
+                                    <div className="absolute -bottom-4 -left-4 w-8 h-8 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl"></div>
+                                    <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br"></div>
+
+                                    {/* Document Body */}
+                                    <div className="w-full h-full bg-slate-800/80 rounded-sm relative overflow-hidden shadow-lg">
+                                        {/* Folded Corner */}
+                                        <div className="absolute top-0 right-0 w-12 h-12 bg-[#13161c] z-20 border-b border-l border-slate-800 rounded-bl-sm"></div>
+                                        <div className="absolute top-0 right-0 w-12 h-12 bg-slate-700/50 z-10" style={{ clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }}></div>
+
+                                        {/* Text lines */}
+                                        <div className="absolute inset-x-6 top-16 flex flex-col gap-4 z-10 opacity-70">
+                                            <div className="w-3/4 h-2 bg-emerald-400 rounded-full"></div>
+                                            <div className="w-full h-2 bg-slate-500 rounded-full"></div>
+                                            <div className="w-5/6 h-2 bg-slate-500 rounded-full"></div>
+                                            <div className="w-2/3 h-2 bg-slate-500 rounded-full"></div>
+                                            <div className="w-4/5 h-2 bg-slate-500 rounded-full mt-2"></div>
+                                            <div className="w-full h-2 bg-slate-500 rounded-full"></div>
+                                            <div className="w-3/4 h-2 bg-slate-500 rounded-full"></div>
+                                        </div>
+
+                                        {/* Floating particles */}
+                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, repeat: Infinity }} className="absolute top-1/4 left-1/4 w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,1)] z-20"></motion.div>
+                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: 0.5, repeat: Infinity }} className="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,1)] z-20"></motion.div>
+                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: 1, repeat: Infinity }} className="absolute top-2/3 right-1/3 w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,1)] z-20"></motion.div>
+                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: 1.5, repeat: Infinity }} className="absolute bottom-1/3 left-1/3 w-1 h-1 bg-emerald-400 rounded-full shadow-[0_0_5px_rgba(52,211,153,1)] z-20"></motion.div>
+
+                                        {/* Laser Glow animating up and down */}
+                                        <motion.div 
+                                            animate={{ top: ['0%', '90%', '0%'] }}
+                                            transition={{ duration: 4, ease: "linear", repeat: Infinity }}
+                                            className="absolute left-0 right-0 h-[2px] bg-emerald-400 shadow-[0_0_20px_5px_rgba(16,185,129,0.8)] z-30"
+                                        >
+                                            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-t from-emerald-500/40 to-transparent transform -translate-y-full"></div>
+                                            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-emerald-500/40 to-transparent"></div>
+                                        </motion.div>
+                                    </div>
+                                </div>
+
+                                {/* Status Text */}
+                                <h2 className="text-3xl font-extrabold text-emerald-400 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wide">
+                                    Extracting Details...
+                                </h2>
+                                
+                                {/* Animated Extraction Feed */}
+                                <div className="h-6 overflow-hidden relative w-full mb-10 text-center flex justify-center">
+                                    <motion.div 
+                                        animate={{ y: ['0%', '-20%', '-40%', '-60%', '-80%'] }} 
+                                        transition={{ duration: 8, ease: "linear", repeat: Infinity }}
+                                        className="flex flex-col text-[15px] font-medium"
+                                    >
+                                        <div className="h-6 flex items-center justify-center gap-2 text-slate-400">Please wait while Vision AI reads your bill</div>
+                                        <div className="h-6 flex items-center justify-center gap-2 text-emerald-400">Extracting Product Names...</div>
+                                        <div className="h-6 flex items-center justify-center gap-2 text-emerald-400">Checking Bill Qty & Rates...</div>
+                                        <div className="h-6 flex items-center justify-center gap-2 text-emerald-400">Calculating Total Amount...</div>
+                                        <div className="h-6 flex items-center justify-center gap-2 text-slate-400">Please wait while Vision AI reads your bill</div>
+                                    </motion.div>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <div className="w-full h-1.5 bg-slate-800 rounded-full mb-10 overflow-hidden relative border border-slate-700/50 z-10">
+                                    <motion.div 
+                                        animate={{ width: ['0%', '100%'] }} 
+                                        transition={{ duration: 4, ease: "linear", repeat: Infinity }} 
+                                        className="h-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,1)] rounded-full"
+                                    />
+                                </div>
+
+                                {/* Steps Grid */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-8 z-10">
+                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-slate-800 text-emerald-500/70">
+                                        <FaCamera className="text-2xl mb-3" />
+                                        <span className="text-[13px] font-semibold tracking-wide">Scanning</span>
+                                    </div>
+                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-emerald-500 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-emerald-500/5"></div>
+                                        <FaRobot className="text-2xl mb-3 relative z-10" />
+                                        <span className="text-[13px] font-semibold tracking-wide relative z-10">Reading</span>
+                                    </div>
+                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-slate-800 text-slate-600">
+                                        <FaFileInvoice className="text-2xl mb-3" />
+                                        <span className="text-[13px] font-semibold tracking-wide">Items</span>
+                                    </div>
+                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-slate-800 text-slate-600">
+                                        <FaCheck className="text-2xl mb-3" />
+                                        <span className="text-[13px] font-semibold tracking-wide">Done</span>
+                                    </div>
+                                </div>
+
+                                {/* Tag */}
+                                <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#171a23] border border-emerald-500/30 text-emerald-400 text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.1)] z-10">
+                                    <FaCheckCircle className="text-lg" /> Products
+                                </div>
+
+                                {/* Bottom Blue/Orange Animated Scanner Line */}
+                                <div className="absolute bottom-0 inset-x-0 h-1.5 bg-slate-900 overflow-hidden">
+                                    <motion.div 
+                                        animate={{ x: ['-100%', '200%'] }}
+                                        transition={{ duration: 2.5, ease: "linear", repeat: Infinity }}
+                                        className="w-1/2 h-full bg-gradient-to-r from-transparent via-blue-500 to-orange-500 shadow-[0_0_20px_5px_rgba(59,130,246,0.8)]"
+                                    />
                                 </div>
                             </div>
-                            <h2 className="text-xl font-syne font-bold text-emerald-400 mb-2">Extracting Details...</h2>
-                            <p className="text-xs text-slate-400">Please wait while Vision AI reads your bill</p>
                         </motion.div>
                     )}
 
@@ -329,7 +513,7 @@ export default function SmartAddPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.05 }}
                                     key={item.id} 
-                                    className={`bg-slate-900 rounded-3xl py-4 px-[5px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
+                                    className={`bg-slate-900 rounded-3xl py-6 px-[5px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
                                 >
                                     {/* Header & GST */}
                                     <div className="flex justify-between items-start mb-5 gap-4">
@@ -374,8 +558,8 @@ export default function SmartAddPage() {
                                     </div>
 
                                     {/* Qty & Unit */}
-                                    <div className="grid grid-cols-2 gap-4 mb-5">
-                                        <div className="bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 min-w-0">
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        <div className="bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50 min-w-0">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">QTY</label>
                                             <input 
                                                 type="number" 
@@ -384,7 +568,7 @@ export default function SmartAddPage() {
                                                 className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-2 focus:ring-0 outline-none"
                                             />
                                         </div>
-                                        <div className="bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 min-w-0">
+                                        <div className="bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50 min-w-0">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">UNIT</label>
                                             <input 
                                                 type="text" 
@@ -398,7 +582,7 @@ export default function SmartAddPage() {
 
                                     {/* Pricing */}
                                     <div className="grid grid-cols-3 gap-3 items-end">
-                                        <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50">
+                                        <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">Purchase</label>
                                             <input 
                                                 type="number" 
@@ -408,7 +592,7 @@ export default function SmartAddPage() {
                                             />
                                         </div>
                                         
-                                        <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 flex flex-col justify-between h-full">
+                                        <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50 flex flex-col justify-between h-full">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 text-center px-2 truncate">Markup %</label>
                                             <div className="flex items-center justify-center flex-1 px-2">
                                                 <span className="text-xs text-emerald-400 font-bold">+</span>
@@ -422,7 +606,7 @@ export default function SmartAddPage() {
                                             </div>
                                         </div>
 
-                                        <div className="col-span-1 min-w-0 bg-indigo-900/40 rounded-xl p-[5px] border border-indigo-500/30 text-right">
+                                        <div className="col-span-1 min-w-0 bg-indigo-900/40 rounded-xl py-3 px-[5px] border border-indigo-500/30 text-right flex flex-col justify-between h-full">
                                             <label className="text-[9px] font-bold text-indigo-300 uppercase block mb-1 px-2 truncate">Selling</label>
                                             <input 
                                                 type="number" 
@@ -455,6 +639,49 @@ export default function SmartAddPage() {
                     </motion.button>
                 </div>
             )}
+
+            {/* Failed Items Modal */}
+            <AnimatePresence>
+                {failedItems.length > 0 && (
+                    <motion.div 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-slate-900 border border-slate-700 rounded-3xl p-6 w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+                        >
+                            <div className="flex items-center gap-3 text-red-400 mb-4 pb-4 border-b border-slate-800">
+                                <div className="p-2 bg-red-500/10 rounded-full">
+                                    <FaInfoCircle className="text-xl" />
+                                </div>
+                                <div>
+                                    <h3 className="font-syne font-bold text-lg text-white">Some items failed to save</h3>
+                                    <p className="text-xs">Please check the reasons below</p>
+                                </div>
+                            </div>
+                            
+                            <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                                {failedItems.map((item, idx) => (
+                                    <div key={idx} className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                                        <div className="font-bold text-sm text-white mb-1">{item.name}</div>
+                                        <div className="text-xs text-red-400 font-medium bg-red-500/10 p-2 rounded-lg border border-red-500/20">{item.reason}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <div className="mt-6 pt-4 border-t border-slate-800">
+                                <button 
+                                    onClick={() => setFailedItems([])}
+                                    className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all"
+                                >
+                                    Close & Review
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

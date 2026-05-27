@@ -83,7 +83,22 @@ export async function POST(request: Request) {
                 `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, created_at) 
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url, data.expiry_date || null, data.expiry_alert_days || 10]
+                [
+                    data.id, 
+                    data.name, 
+                    data.description ?? null, 
+                    data.hsn_code ?? null, 
+                    data.unit ?? 'PCS', 
+                    price, 
+                    purchasePrice, 
+                    gst, 
+                    stock, 
+                    userId, 
+                    productType, 
+                    data.image_url ?? null, 
+                    data.expiry_date ?? null, 
+                    data.expiry_alert_days ?? 10
+                ]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -107,16 +122,31 @@ export async function POST(request: Request) {
                     `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, created_at) 
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.description, data.hsn_code, data.unit, price, purchasePrice, gst, stock, userId, productType, data.image_url, data.expiry_date || null, data.expiry_alert_days || 10]
+                    [
+                        data.id, 
+                        data.name, 
+                        data.description ?? null, 
+                        data.hsn_code ?? null, 
+                        data.unit ?? 'PCS', 
+                        price, 
+                        purchasePrice, 
+                        gst, 
+                        stock, 
+                        userId, 
+                        productType, 
+                        data.image_url ?? null, 
+                        data.expiry_date ?? null, 
+                        data.expiry_alert_days ?? 10
+                    ]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
             }
             throw dbError;
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating product:', error);
-        return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+        return NextResponse.json({ error: error.detail || error.message || 'Failed to create product' }, { status: 500 });
     }
 }
 
