@@ -1054,13 +1054,39 @@ export default function BusinessExpensesPage() {
                     </div>
                 </div>
 
-                <div style={{ background: 'var(--bg2)', padding: '10px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                        <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text)' }}>📗 Business Expenses</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600 }}>Expense Ledger</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '7px' }}>
-                        <button className="tb-add" onClick={() => setIsAddCustOpen(true)}>＋ Customer</button>
+                {/* Professional CTA Banner for Adding Customer/Party */}
+                <div className="mx-4 mt-5 mb-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 shadow-xl border border-white/20">
+                    {/* Decorative Background Elements */}
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -ml-10 -mb-10 pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
+                    
+                    <div className="relative p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                        <div className="flex items-center gap-4">
+                            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-inner relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50"></div>
+                                <span className="text-2xl drop-shadow-md">🤝</span>
+                            </div>
+                            <div>
+                                <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight mb-1 drop-shadow-sm">
+                                    Add New Party / Vendor
+                                </h3>
+                                <p className="text-indigo-50 text-xs sm:text-sm font-medium opacity-90 leading-snug">
+                                    Track expenses, advance payments, and supplier accounts.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <button 
+                            onClick={() => setIsAddCustOpen(true)}
+                            className="w-full sm:w-auto relative group overflow-hidden rounded-xl bg-white text-indigo-700 font-extrabold text-sm px-6 py-3 shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_25px_rgba(255,255,255,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-2 border-b-4 border-indigo-100"
+                        >
+                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700">
+                                <span className="text-lg leading-none -mt-0.5">+</span>
+                            </div>
+                            <span>Add Account</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
+                        </button>
                     </div>
                 </div>
 
