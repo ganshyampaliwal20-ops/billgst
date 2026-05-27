@@ -183,12 +183,17 @@ export default function DashboardLayout({
     };
 
     return (
-        <div className="min-h-screen bg-[#f1f5f9] flex">
+        <div className="h-[100dvh] bg-slate-900 flex flex-col overflow-hidden">
+            {/* 1. Safe Area Protector (Top) - Separates Status Bar */}
+            <div className="w-full bg-[#f1f5f9] shrink-0" style={{ height: 'env(safe-area-inset-top)' }}></div>
+            
+            {/* 2. Main Flex Container */}
+            <div className="flex-1 flex overflow-hidden bg-[#f1f5f9] relative">
+            
             {/* Sidebar */}
             <aside
-                className={`fixed bottom-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:sticky shadow-2xl md:shadow-none pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`absolute md:relative inset-y-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
-                style={{ top: 'env(safe-area-inset-top)', height: 'calc(100vh - env(safe-area-inset-top))' }}
             >
                 <div className="h-full flex flex-col">
                     {/* Logo Section */}
@@ -424,10 +429,10 @@ export default function DashboardLayout({
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Header - Sticky on top, below safe area */}
-                <header className="sticky z-50 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center" style={{ top: 'env(safe-area-inset-top)' }}>
+            {/* Right Side Content Area */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Header - Fixed inside the flex container, below safe area automatically */}
+                <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
                     <div className="px-8 sm:px-6 lg:px-8 w-full" style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '0px' }}>
                         <div className="flex items-center justify-between h-12 md:h-16 relative">
                             {/* Left Side: Logo + Business Name */}
@@ -487,12 +492,17 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 scroll-smooth overflow-auto flex flex-col relative">
-                    <div className="max-w-[1600px] mx-auto w-full animate-fadeIn">
+                <main className="flex-1 overflow-y-auto scroll-smooth relative">
+                    <div className="max-w-[1600px] mx-auto w-full animate-fadeIn pb-12">
                         {children}
                     </div>
                 </main>
             </div>
+            
+            </div> {/* Close Main Flex Container */}
+
+            {/* 3. Safe Area Protector (Bottom) */}
+            <div className="w-full bg-white shrink-0" style={{ height: 'env(safe-area-inset-bottom)' }}></div>
 
             {/* Mobile Overlay */}
             {isSidebarOpen && (
