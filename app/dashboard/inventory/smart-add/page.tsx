@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaUpload, FaCamera, FaSpinner, FaCheck, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic } from 'react-icons/fa';
+import { FaUpload, FaCamera, FaSpinner, FaCheck, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic, FaInfoCircle } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -230,14 +230,14 @@ export default function SmartAddPage() {
             <div className="w-full max-w-[480px] mx-auto relative z-10 flex flex-col font-body pb-28">
                 
                 {/* Header */}
-                <div className="flex items-center gap-3 mb-8 relative overflow-hidden rounded-[2rem] bg-slate-900/40 p-6 border border-slate-800 backdrop-blur-xl">
+                <div className="flex items-center justify-center mb-8 relative overflow-hidden rounded-[2rem] bg-slate-900/40 py-5 px-6 border border-slate-800 backdrop-blur-xl">
                     <div className="hero-scanner"></div>
-                    <button onClick={() => router.push('/dashboard/inventory')} className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 z-10">
+                    <button onClick={() => router.push('/dashboard/inventory')} className="absolute left-6 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 z-10">
                         <FaArrowLeft className="text-white" />
                     </button>
-                    <div className="z-10">
+                    <div className="z-10 text-center">
                         <h1 className="text-2xl font-syne font-extrabold text-white">Smart Scan</h1>
-                        <p className="text-xs text-slate-400 font-medium">Add bills via AI instantly</p>
+                        <p className="text-[11px] text-emerald-400 font-bold mt-1 tracking-wider uppercase">AI Powered Entry</p>
                     </div>
                 </div>
 
@@ -249,21 +249,35 @@ export default function SmartAddPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-slate-900/60 rounded-[2rem] border border-slate-800 p-8 text-center"
+                            className="bg-slate-900/60 rounded-[2rem] border border-slate-800 p-6 text-center"
                         >
                             <div 
-                                className="border-2 border-dashed border-indigo-500/30 hover:border-indigo-400 bg-indigo-500/5 rounded-[1.5rem] p-10 cursor-pointer transition-all flex flex-col items-center group" 
+                                className="border-2 border-dashed border-indigo-500/30 hover:border-indigo-400 bg-indigo-500/5 rounded-[1.5rem] py-14 px-6 cursor-pointer transition-all flex flex-col items-center group mb-6" 
                                 onClick={() => fileInputRef.current?.click()}
                             >
                                 <div className="w-20 h-20 bg-indigo-500/20 rounded-[1.2rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <FaCamera className="text-3xl text-indigo-400" />
                                 </div>
                                 <h2 className="text-xl font-syne font-bold text-white mb-2">Upload Bill Image</h2>
-                                <p className="text-xs text-slate-400 mb-6 px-4">Take a photo or upload PDF of your supplier invoice</p>
-                                <button className="bg-white text-black font-bold py-3 px-6 rounded-xl w-full text-sm">
+                                <p className="text-xs text-slate-400 mb-8 px-4">Take a photo or upload PDF of your supplier invoice</p>
+                                <button className="bg-white text-black font-bold py-3 px-8 rounded-xl text-sm hover:bg-slate-200 transition-colors">
                                     Choose File
                                 </button>
                             </div>
+                            
+                            {/* Description Box */}
+                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5 text-left flex gap-4 items-start">
+                                <div className="text-emerald-400 mt-0.5">
+                                    <FaInfoCircle className="text-xl" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-emerald-400 mb-1.5 font-syne">How it works?</h3>
+                                    <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                                        Smart AI Scanner automatically reads products, quantities, prices, and GST from your supplier invoices. No need to manually type everything. Just upload and verify!
+                                    </p>
+                                </div>
+                            </div>
+
                             <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                         </motion.div>
                     )}
