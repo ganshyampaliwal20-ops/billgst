@@ -184,9 +184,6 @@ export default function DashboardLayout({
 
     return (
         <div className="min-h-screen bg-[#f1f5f9] flex">
-            {/* Safe Area Protector for Status Bar */}
-            <div className="fixed top-0 inset-x-0 bg-slate-900 z-[100]" style={{ height: 'env(safe-area-inset-top)' }} />
-            
             {/* Sidebar */}
             <aside
                 className={`fixed bottom-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:sticky shadow-2xl md:shadow-none pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
