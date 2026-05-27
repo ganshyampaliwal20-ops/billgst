@@ -249,34 +249,39 @@ export default function SmartAddPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-slate-900/60 rounded-[2rem] border border-slate-800 p-6 text-center"
+                            className="bg-slate-900/60 rounded-[2rem] border border-slate-800 p-6 text-center mt-4"
                         >
                             <div 
-                                className="border-2 border-dashed border-indigo-500/30 hover:border-indigo-400 bg-indigo-500/5 rounded-[1.5rem] py-14 px-6 cursor-pointer transition-all flex flex-col items-center group mb-6" 
+                                className="border-2 border-dashed border-indigo-500/30 hover:border-indigo-400 bg-indigo-500/5 rounded-[1.5rem] py-14 px-6 cursor-pointer transition-all flex flex-col items-center group mb-8" 
                                 onClick={() => fileInputRef.current?.click()}
                             >
-                                <div className="w-20 h-20 bg-indigo-500/20 rounded-[1.2rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <div className="w-20 h-20 bg-indigo-500/20 rounded-[1.2rem] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                                     <FaCamera className="text-3xl text-indigo-400" />
                                 </div>
                                 <h2 className="text-xl font-syne font-bold text-white mb-2">Upload Bill Image</h2>
                                 <p className="text-xs text-slate-400 mb-8 px-4">Take a photo or upload PDF of your supplier invoice</p>
-                                <button className="bg-white text-black font-bold py-3 px-8 rounded-xl text-sm hover:bg-slate-200 transition-colors">
-                                    Choose File
+                                <button className="bg-gradient-to-r from-indigo-500 to-emerald-500 text-white font-bold py-3.5 px-8 rounded-xl text-sm hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all flex items-center gap-2">
+                                    <FaUpload /> Choose File
                                 </button>
                             </div>
                             
                             {/* Description Box */}
-                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5 text-left flex gap-4 items-start">
-                                <div className="text-emerald-400 mt-0.5">
+                            <motion.div 
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
+                                className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl py-5 px-[5px] text-left flex gap-3 items-start"
+                            >
+                                <div className="text-emerald-400 mt-0.5 ml-1">
                                     <FaInfoCircle className="text-xl" />
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-bold text-emerald-400 mb-1.5 font-syne">How it works?</h3>
-                                    <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                                    <p className="text-[11px] text-slate-300 leading-relaxed font-medium">
                                         Smart AI Scanner automatically reads products, quantities, prices, and GST from your supplier invoices. No need to manually type everything. Just upload and verify!
                                     </p>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                         </motion.div>
