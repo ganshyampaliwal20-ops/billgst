@@ -144,6 +144,8 @@ export default function BusinessExpensesPage() {
     const [autoWhatsApp, setAutoWhatsApp] = useState(true);
     const [isScanning, setIsScanning] = useState(false);
     const [autoAiScan, setAutoAiScan] = useState(true);
+    const expenseFileInputRef = useRef<HTMLInputElement>(null);
+    const [isExpenseScanning, setIsExpenseScanning] = useState(false);
 
     // Expand toggle state per transaction ID
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
@@ -646,6 +648,48 @@ export default function BusinessExpensesPage() {
         setIsAddEntryOpen(true);
     };
 
+    const handleExpenseAiScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsExpenseScanning(true);
+        try {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const base64 = event.target?.result as string;
+                const compressedBase64 = await compressImage(base64, 800, 0.7);
+                
+                try {
+                    const res = await fetch('/api/vision-expense', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ imageBase64: compressedBase64 })
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (data && data.totalAmount) {
+                        openAddEntry('debit', data.totalAmount.toString());
+                        setEntryDate(data.expenseDate || new Date().toISOString().split('T')[0]);
+                        setEntryNote(data.description || '');
+                        showToast('✅ Bill scanned successfully!');
+                    } else {
+                        showToast('❌ Failed to extract details from bill');
+                    }
+                } catch (error) {
+                    showToast('❌ Error parsing bill details');
+                } finally {
+                    setIsExpenseScanning(false);
+                    if (expenseFileInputRef.current) expenseFileInputRef.current.value = '';
+                }
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            setIsExpenseScanning(false);
+            showToast('❌ Error reading file');
+        }
+    };
+
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) showToast('⏳ Photo load ho rahi hai...');
@@ -1109,6 +1153,10 @@ export default function BusinessExpensesPage() {
                         </div>
 
                         <div className="quick-actions">
+                            <button className="qa-btn" style={{ background: 'linear-gradient(135deg, #6366f1, #10b981)', color: 'white', border: 'none', position: 'relative', overflow: 'hidden' }} onClick={() => expenseFileInputRef.current?.click()}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                AI Scan
+                            </button>
                             <button className="qa-btn statement" onClick={exportPDF}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
                                 Statement
@@ -1297,6 +1345,23 @@ export default function BusinessExpensesPage() {
                     </div>
 
                     <div className="spacer"></div>
+                    
+                    <input type="file" accept="image/*,.pdf" className="hidden" ref={expenseFileInputRef} onChange={handleExpenseAiScan} />
+
+                    {isExpenseScanning && (
+                        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ position: 'relative', width: '112px', height: '144px', background: '#1e293b', borderRadius: '12px', marginBottom: '32px', overflow: 'hidden', border: '1px solid #334155' }}>
+                                <div style={{ position: 'absolute', inset: 0, height: '4px', background: '#34d399', boxShadow: '0 0 15px 3px rgba(52,211,153,0.5)', zIndex: 10, animation: 'heroScan 2.5s linear infinite' }} />
+                                <div style={{ position: 'absolute', inset: '24px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div style={{ height: '6px', background: '#475569', borderRadius: '4px', width: '75%' }} />
+                                    <div style={{ height: '6px', background: '#475569', borderRadius: '4px', width: '100%' }} />
+                                    <div style={{ height: '6px', background: '#475569', borderRadius: '4px', width: '83%' }} />
+                                </div>
+                            </div>
+                            <h2 style={{ fontSize: '20px', fontFamily: 'Syne, sans-serif', fontWeight: 'bold', color: '#34d399', marginBottom: '8px' }}>Extracting Details...</h2>
+                            <p style={{ fontSize: '12px', color: '#94a3b8' }}>Please wait while Vision AI reads your bill</p>
+                        </div>
+                    )}
 
                 </div>
             ) : (
