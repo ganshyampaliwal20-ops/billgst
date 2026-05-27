@@ -310,7 +310,7 @@ export default function SmartAddPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.05 }}
                                     key={item.id} 
-                                    className={`bg-slate-900 rounded-3xl p-5 border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
+                                    className={`bg-slate-900 rounded-3xl py-4 px-[5px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
                                 >
                                     {/* Header & GST */}
                                     <div className="flex justify-between items-start mb-4 gap-3">
