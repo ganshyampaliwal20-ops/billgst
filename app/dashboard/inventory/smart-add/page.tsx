@@ -357,21 +357,21 @@ export default function SmartAddPage() {
                                     {/* Qty & Unit */}
                                     <div className="grid grid-cols-2 gap-3 mb-4">
                                         <div className="bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 min-w-0">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 truncate">QTY</label>
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px] truncate">QTY</label>
                                             <input 
                                                 type="number" 
                                                 value={item.quantity}
                                                 onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 focus:ring-0 outline-none"
+                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none"
                                             />
                                         </div>
                                         <div className="bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 min-w-0">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 truncate">UNIT</label>
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px] truncate">UNIT</label>
                                             <input 
                                                 type="text" 
                                                 value={item.unit}
                                                 onChange={(e) => updateItem(item.id, 'unit', e.target.value.toUpperCase())}
-                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 focus:ring-0 outline-none uppercase"
+                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none uppercase"
                                                 placeholder="PCS"
                                             />
                                         </div>
@@ -380,18 +380,18 @@ export default function SmartAddPage() {
                                     {/* Pricing */}
                                     <div className="grid grid-cols-3 gap-2 items-end">
                                         <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 truncate">Purchase</label>
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-[5px] truncate">Purchase</label>
                                             <input 
                                                 type="number" 
                                                 value={item.purchasePrice}
                                                 onChange={(e) => updateItem(item.id, 'purchasePrice', Number(e.target.value))}
-                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 focus:ring-0 outline-none"
+                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none"
                                             />
                                         </div>
                                         
                                         <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl p-[5px] border border-slate-700/50 flex flex-col justify-between h-full">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 text-center truncate">Markup %</label>
-                                            <div className="flex items-center justify-center flex-1">
+                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 text-center px-[5px] truncate">Markup %</label>
+                                            <div className="flex items-center justify-center flex-1 px-[5px]">
                                                 <span className="text-xs text-emerald-400 font-bold">+</span>
                                                 <input 
                                                     type="number" 
@@ -404,12 +404,12 @@ export default function SmartAddPage() {
                                         </div>
 
                                         <div className="col-span-1 min-w-0 bg-indigo-900/40 rounded-xl p-[5px] border border-indigo-500/30 text-right">
-                                            <label className="text-[9px] font-bold text-indigo-300 uppercase block mb-1 truncate">Selling</label>
+                                            <label className="text-[9px] font-bold text-indigo-300 uppercase block mb-1 px-[5px] truncate">Selling</label>
                                             <input 
                                                 type="number" 
                                                 value={item.sellingPrice}
                                                 onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
-                                                className="w-full min-w-0 text-lg font-black text-indigo-300 bg-transparent border-none p-0 focus:ring-0 outline-none text-right"
+                                                className="w-full min-w-0 text-lg font-black text-indigo-300 bg-transparent border-none p-0 px-[5px] focus:ring-0 outline-none text-right"
                                             />
                                         </div>
                                     </div>
