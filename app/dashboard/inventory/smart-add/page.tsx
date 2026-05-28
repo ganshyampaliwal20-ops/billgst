@@ -385,31 +385,31 @@ export default function SmartAddPage() {
                             className="bg-transparent flex-1 flex flex-col items-center justify-center w-full relative z-10 min-h-[500px]"
                         >
                             {/* New Design Card matching the image */}
-                            <div className="w-full max-w-[800px] min-h-[600px] md:min-h-[750px] mx-auto bg-[#13161c] border border-slate-800/80 rounded-3xl p-8 sm:p-12 flex flex-col items-center justify-center shadow-2xl mt-4 relative overflow-hidden">
+                            <div className="w-full max-w-[600px] min-h-[400px] md:min-h-[500px] mx-auto bg-[#13161c] border border-slate-800/80 rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center shadow-2xl mt-4 relative overflow-hidden">
                                 
                                 {/* Abstract Document Animation */}
-                                <div className="relative w-56 h-72 mb-12">
+                                <div className="relative w-40 h-52 mb-8">
                                     {/* Corner Brackets */}
-                                    <div className="absolute -top-4 -left-4 w-8 h-8 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl"></div>
-                                    <div className="absolute -top-4 -right-4 w-8 h-8 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr"></div>
-                                    <div className="absolute -bottom-4 -left-4 w-8 h-8 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl"></div>
-                                    <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br"></div>
+                                    <div className="absolute -top-3 -left-3 w-6 h-6 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl"></div>
+                                    <div className="absolute -top-3 -right-3 w-6 h-6 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr"></div>
+                                    <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl"></div>
+                                    <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br"></div>
 
                                     {/* Document Body */}
                                     <div className="w-full h-full bg-slate-800/80 rounded-sm relative overflow-hidden shadow-lg">
                                         {/* Folded Corner */}
-                                        <div className="absolute top-0 right-0 w-12 h-12 bg-[#13161c] z-20 border-b border-l border-slate-800 rounded-bl-sm"></div>
-                                        <div className="absolute top-0 right-0 w-12 h-12 bg-slate-700/50 z-10" style={{ clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }}></div>
+                                        <div className="absolute top-0 right-0 w-8 h-8 bg-[#13161c] z-20 border-b border-l border-slate-800 rounded-bl-sm"></div>
+                                        <div className="absolute top-0 right-0 w-8 h-8 bg-slate-700/50 z-10" style={{ clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }}></div>
 
                                         {/* Text lines */}
-                                        <div className="absolute inset-x-6 top-16 flex flex-col gap-4 z-10 opacity-70">
-                                            <div className="w-3/4 h-2 bg-emerald-400 rounded-full"></div>
-                                            <div className="w-full h-2 bg-slate-500 rounded-full"></div>
-                                            <div className="w-5/6 h-2 bg-slate-500 rounded-full"></div>
-                                            <div className="w-2/3 h-2 bg-slate-500 rounded-full"></div>
-                                            <div className="w-4/5 h-2 bg-slate-500 rounded-full mt-2"></div>
-                                            <div className="w-full h-2 bg-slate-500 rounded-full"></div>
-                                            <div className="w-3/4 h-2 bg-slate-500 rounded-full"></div>
+                                        <div className="absolute inset-x-4 top-10 flex flex-col gap-3 z-10 opacity-70">
+                                            <div className="w-3/4 h-1.5 bg-emerald-400 rounded-full"></div>
+                                            <div className="w-full h-1.5 bg-slate-500 rounded-full"></div>
+                                            <div className="w-5/6 h-1.5 bg-slate-500 rounded-full"></div>
+                                            <div className="w-2/3 h-1.5 bg-slate-500 rounded-full"></div>
+                                            <div className="w-4/5 h-1.5 bg-slate-500 rounded-full mt-2"></div>
+                                            <div className="w-full h-1.5 bg-slate-500 rounded-full"></div>
+                                            <div className="w-3/4 h-1.5 bg-slate-500 rounded-full"></div>
                                         </div>
 
                                         {/* Floating particles */}
@@ -431,7 +431,7 @@ export default function SmartAddPage() {
                                 </div>
 
                                 {/* Status Text */}
-                                <h2 className="text-3xl font-extrabold text-emerald-400 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wide">
+                                <h2 className="text-xl md:text-2xl font-extrabold text-emerald-400 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wide">
                                     Extracting Details...
                                 </h2>
                                 
@@ -500,7 +500,7 @@ export default function SmartAddPage() {
                     {/* Review Step */}
                     {step === 'review' && (
                         <motion.div key="review" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                            <div className="flex justify-between items-center mb-4 px-2">
+                            <div className="flex justify-between items-center mb-4 px-[8px]">
                                 <div className="text-sm font-bold text-slate-300">Found {parsedItems.length} Items</div>
                                 <button onClick={() => setStep('upload')} className="text-xs text-indigo-400 font-bold bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
                                     Scan Another
@@ -513,7 +513,7 @@ export default function SmartAddPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.05 }}
                                     key={item.id} 
-                                    className={`bg-slate-900 rounded-3xl py-6 px-[5px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
+                                    className={`bg-slate-900 rounded-3xl py-6 px-[8px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
                                 >
                                     {/* Header & GST */}
                                     <div className="flex justify-between items-start mb-5 gap-4">
@@ -618,6 +618,8 @@ export default function SmartAddPage() {
                                     </div>
                                 </motion.div>
                             ))}
+                            {/* Extra space at bottom to prevent save button overlap */}
+                            <div className="h-28 md:h-24 w-full"></div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -625,17 +627,17 @@ export default function SmartAddPage() {
             
             {/* Sticky FAB Button */}
             {step === 'review' && (
-                <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14] to-transparent z-50 pointer-events-none">
+                <div className="fixed bottom-0 left-0 right-0 p-4 pb-10 md:pb-6 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14_60%] to-transparent z-50 pointer-events-none">
                     <motion.button 
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleSave}
-                        className="w-full max-w-[448px] mx-auto bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-syne font-black py-4 px-6 rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2 border-2 border-emerald-400 pointer-events-auto"
+                        className="w-full max-w-[448px] mx-auto bg-green-500 hover:bg-green-600 text-white font-body font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 pointer-events-auto transition-colors"
                     >
                         <FaSave className="text-lg" />
-                        SAVE TO INVENTORY ({parsedItems.filter(i => i.selected).length})
+                        <span>SAVE TO INVENTORY ({parsedItems.filter(i => i.selected).length})</span>
                     </motion.button>
                 </div>
             )}
