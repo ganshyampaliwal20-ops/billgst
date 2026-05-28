@@ -736,7 +736,7 @@ export default function NewInvoicePage() {
                 .p-mode { background: var(--faint); border: 2px solid var(--border); padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
                 .p-mode.active { border-color: var(--teal); background: #e0f9ff; color: #0891b2; }
 
-                .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
+                .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 15px 40px calc(15px + env(safe-area-inset-bottom, 12px)); display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.05); }
                 .bb-save { background: linear-gradient(135deg,var(--indigo),var(--violet)); color: white; padding: 16px 40px; border-radius: 15px; font-weight: 900; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(91,94,244,0.4); display: flex; align-items: center; gap: 12px; transition: 0.2s; }
                 .bb-save:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(91,94,244,0.5); }
 
@@ -763,7 +763,7 @@ export default function NewInvoicePage() {
                   .s-line { min-width: 20px; }
                   .card { padding: 12px; border-radius: 12px; margin-bottom: 10px; }
                   .c-title { margin-bottom: 12px; }
-                  .bottom-bar { padding: 10px 15px; height: auto; flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; }
+                  .bottom-bar { padding: 10px 15px calc(10px + env(safe-area-inset-bottom, 15px)); height: auto; flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; }
                   .bb-save { justify-content: center; padding: 10px 20px; font-size: 13px; }
                   .doc-tabs { grid-template-columns: repeat(5, 1fr); gap: 5px; }
                   .dtab { padding: 8px 4px; }
