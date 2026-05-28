@@ -549,96 +549,95 @@ export default function BusinessExpensesPage() {
         }
         
         showToast('⏳ PDF Statement ban raha hai...');
-        setTimeout(async () => {
-            try {
-                if (session?.user?.id) {
-                    try {
-                        await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) });
-                    } catch (e) {}
-                }
-
-                let c = 0, d = 0;
-                (cust.txns || []).forEach((t: any) => {
-                    if (t.type === 'credit') c += t.amt;
-                    else d += t.amt;
-                });
-                const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
-                
-                const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
-                if (!doc) {
-                    showToast('❌ PDF nahi ban paya!');
-                    return;
-                }
-
-                const pdfBlob = doc.output('blob');
-                const file = new File([pdfBlob], `Statement_${cust.name}.pdf`, { type: 'application/pdf' });
-                
-                const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-                const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-                let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
-                textMsg += getVisitingCardText(businessProfile);
-
-                // Native Web Share API
-                if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: `Statement_${cust.name}.pdf`,
-                            text: textMsg
-                        });
-                        showToast('✅ WhatsApp pe share ho gaya!');
-                        return;
-                    } catch (e) {
-                        console.log('Share cancelled', e);
-                    }
-                }
-
-                const formData = new FormData();
-                formData.append('phone', phone);
-                formData.append('message', textMsg);
-                formData.append('file', file);
-
-                showToast('⏳ WhatsApp Bot se bhej rahe hain...');
-                const sendRes = await fetch('/api/whatsapp/send-media', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (sendRes.ok) {
-                    showToast('✅ WhatsApp pe PDF chala gaya!');
-                } else {
-                    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
-                }
-            } catch (err) {
-                showToast('❌ Error in sending request!');
+        try {
+            if (session?.user?.id) {
+                try {
+                    await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) });
+                } catch (e) {}
             }
-        }, 50);
-    };
 
-    const exportPDF = () => {
-        showToast('⏳ PDF ban raha hai...');
-        setTimeout(async () => {
-            const doc = await generateHisaabPDF(currentCust, { name: 'BillGST Pro - Ledger' }, custStats, false);
+            let c = 0, d = 0;
+            (cust.txns || []).forEach((t: any) => {
+                if (t.type === 'credit') c += t.amt;
+                else d += t.amt;
+            });
+            const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
+            
+            const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
             if (!doc) {
                 showToast('❌ PDF nahi ban paya!');
                 return;
             }
+
             const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], `Ledger_${currentCust?.name}.pdf`, { type: 'application/pdf' });
+            const file = new File([pdfBlob], `Statement_${cust.name}.pdf`, { type: 'application/pdf' });
             
+            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
+            let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            textMsg += getVisitingCardText(businessProfile);
+
+            // Native Web Share API
             if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 try {
-                    await navigator.share({ files: [file], title: `Ledger_${currentCust?.name}.pdf` });
-                    showToast('✅ PDF ready!');
-                } catch(e) { console.log(e); }
-            } else {
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Ledger_${currentCust?.name}.pdf`;
-                a.click();
+                    await navigator.share({
+                        files: [file],
+                        title: `Statement_${cust.name}.pdf`,
+                        text: textMsg
+                    });
+                    showToast('✅ WhatsApp pe share ho gaya!');
+                    return;
+                } catch (e) {
+                    console.log('Share cancelled', e);
+                }
             }
-        }, 50);
+
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('message', textMsg);
+            formData.append('file', file);
+
+            showToast('⏳ WhatsApp Bot se bhej rahe hain...');
+            const sendRes = await fetch('/api/whatsapp/send-media', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (sendRes.ok) {
+                showToast('✅ WhatsApp pe PDF chala gaya!');
+            } else {
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
+            }
+        } catch (err) {
+            showToast('❌ Error in sending request!');
+        }
+    };
+
+    const exportPDF = async () => {
+        showToast('⏳ PDF ban raha hai...');
+        const doc = await generateHisaabPDF(currentCust, { name: 'BillGST Pro - Ledger' }, custStats, false);
+        if (!doc) {
+            showToast('❌ PDF nahi ban paya!');
+            return;
+        }
+        const pdfBlob = doc.output('blob');
+        const file = new File([pdfBlob], `Ledger_${currentCust?.name}.pdf`, { type: 'application/pdf' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            try {
+                await navigator.share({ files: [file], title: `Ledger_${currentCust?.name}.pdf` });
+                showToast('✅ PDF ready!');
+            } catch(e) { console.log(e); }
+        } else {
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Ledger_${currentCust?.name}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     };
 
     const openEditCust = (cust: any) => {
@@ -914,66 +913,68 @@ export default function BusinessExpensesPage() {
     };
 
     // Excel Export Handlers
-    const downloadAllExcel = () => {
+    const downloadAllExcel = async () => {
         showToast('⏳ All Excel ban raha hai...');
-        setTimeout(async () => {
-            let csv = "Customer Name,Phone,Type,Total Given (Debit),Total Received (Credit),Net Balance\n";
-            customers.forEach(c => {
-                let cr = 0, db = 0;
-                (c.txns || []).forEach((t: any) => { if (t.type === 'credit') cr += t.amt; else db += t.amt; });
-                csv += `"${c.name}",${c.phone},${c.type},${db},${cr},${Math.abs(c.balance)} ${c.balance < 0 ? 'Dena' : 'Lena'}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const file = new File([blob], `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
-            
-            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({ files: [file], title: file.name });
-                    showToast('✅ Excel Shared!');
-                } catch(e) {}
-            } else {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = file.name;
-                a.click();
-                showToast('✅ Excel Downloaded!');
-            }
-        }, 50);
+        let csv = "Customer Name,Phone,Type,Total Given (Debit),Total Received (Credit),Net Balance\n";
+        customers.forEach(c => {
+            let cr = 0, db = 0;
+            (c.txns || []).forEach((t: any) => { if (t.type === 'credit') cr += t.amt; else db += t.amt; });
+            csv += `"${c.name}",${c.phone},${c.type},${db},${cr},${Math.abs(c.balance)} ${c.balance < 0 ? 'Dena' : 'Lena'}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const file = new File([blob], `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            try {
+                await navigator.share({ files: [file], title: file.name });
+                showToast('✅ Excel Shared!');
+            } catch(e) {}
+        } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('✅ Excel Downloaded!');
+        }
     };
 
-    const downloadCustomerExcel = () => {
+    const downloadCustomerExcel = async () => {
         if (!currentCust) return;
         showToast('⏳ Customer Excel ban raha hai...');
-        setTimeout(async () => {
-            let csv = "Date,Description,Type,Credit (Received),Debit (Given)\n";
-            const sortedTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        let csv = "Date,Description,Type,Credit (Received),Debit (Given)\n";
+        const sortedTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-            sortedTxns.forEach(t => {
-                const isCr = t.type === 'credit';
-                const crAmt = isCr ? t.amt : 0;
-                const dbAmt = !isCr ? t.amt : 0;
-                const date = new Date(t.date).toLocaleDateString();
-                csv += `${date},"${t.name || t.type}",${t.type},${crAmt},${dbAmt}\n`;
-            });
+        sortedTxns.forEach(t => {
+            const isCr = t.type === 'credit';
+            const crAmt = isCr ? t.amt : 0;
+            const dbAmt = !isCr ? t.amt : 0;
+            const date = new Date(t.date).toLocaleDateString();
+            csv += `${date},"${t.name || t.type}",${t.type},${crAmt},${dbAmt}\n`;
+        });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const file = new File([blob], `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
-            
-            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({ files: [file], title: file.name });
-                    showToast('✅ Excel Shared!');
-                } catch(e) {}
-            } else {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = file.name;
-                a.click();
-                showToast('✅ Excel Downloaded!');
-            }
-        }, 50);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const file = new File([blob], `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            try {
+                await navigator.share({ files: [file], title: file.name });
+                showToast('✅ Excel Shared!');
+            } catch(e) {}
+        } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('✅ Excel Downloaded!');
+        }
     };
 
     const handleCustPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1428,7 +1429,7 @@ export default function BusinessExpensesPage() {
                     <input type="file" accept="image/*" className="hidden" ref={expenseFileInputGalleryRef} onChange={handleExpenseAiScan} />
 
                     {isAiScanMenuOpen && (
-                        <div className="kb-entry-overlay" style={{ zIndex: 9998, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setIsAiScanMenuOpen(false)}>
+                        <div className="kb-entry-overlay" style={{ zIndex: 9998, background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' }} onClick={() => setIsAiScanMenuOpen(false)}>
                             <div className="action-sheet" style={{ width: '100%', maxWidth: '400px', background: 'white', borderTopLeftRadius: '16px', borderTopRightRadius: '16px', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }} onClick={e => e.stopPropagation()}>
                                 <div style={{ fontSize: '18px', fontWeight: 600, color: '#1e293b', marginBottom: '8px', textAlign: 'center' }}>Choose Bill Photo</div>
                                 <button onClick={() => expenseFileInputCameraRef.current?.click()} style={{ width: '100%', padding: '16px', background: '#f1f5f9', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 500, color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
