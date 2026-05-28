@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaUpload, FaCamera, FaSpinner, FaCheck, FaCheckCircle, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic, FaInfoCircle, FaMobileAlt, FaCloudUploadAlt } from 'react-icons/fa';
+import { FaUpload, FaCamera, FaSpinner, FaCheck, FaCheckCircle, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic, FaInfoCircle, FaMobileAlt, FaCloudUploadAlt, FaEdit, FaTimes } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -216,6 +216,14 @@ export default function SmartAddPage() {
 
             return newItem;
         }));
+    };
+
+    const handleEditAll = () => {
+        setParsedItems(prev => prev.map(item => ({ ...item, selected: true })));
+    };
+
+    const handleDeselectAll = () => {
+        setParsedItems(prev => prev.map(item => ({ ...item, selected: false })));
     };
 
     return (
@@ -625,23 +633,83 @@ export default function SmartAddPage() {
                 </AnimatePresence>
             </div>
             
-            {/* Sticky FAB Button */}
+            {/* ✅ PROFESSIONAL BOTTOM ACTION BAR - Safe Area Protected */}
             {step === 'review' && (
-                <div className="fixed bottom-0 left-0 right-0 p-4 pt-10 pb-10 md:pb-8 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14_80%] to-transparent z-50 pointer-events-none">
-                    <motion.button 
-                        initial={{ y: 50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleSave}
-                        disabled={loading}
-                        className="w-full max-w-[448px] mx-auto mb-16 md:mb-0 bg-green-500 hover:bg-green-600 text-white font-body font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 pointer-events-auto transition-colors"
-                    >
-                        <FaSave className="text-lg" />
-                        <span>SAVE TO INVENTORY ({parsedItems.filter(i => i.selected).length})</span>
-                    </motion.button>
-                </div>
-            )}
+                <div
+                    className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
+                    style={{
+                        background: 'linear-gradient(to top, #0a0c12 65%, transparent)',
+                        paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+                        paddingTop: '24px',
+                        paddingLeft: '12px',
+                        paddingRight: '12px',
+                    }}
+                >
+                    <div className="flex items-center gap-2 max-w-[480px] mx-auto pointer-events-auto">
+                        
+                        {/* Edit All Button */}
+                        <motion.button
+                                            whileTap={{ scale: 0.94 }}
+                                            onClick={handleEditAll}
+                                            title="Edit All Items"
+                                            className="flex-none w-[48px] h-[52px] rounded-[14px] flex items-center justify-center
+                                                       bg-[#1e2130] border border-[#2a2d38] text-gray-400
+                                                       hover:bg-[#252838] hover:text-white hover:border-[#3d4157] transition-colors"
+                                        >
+                                            <FaEdit className="text-[16px]" />
+                                        </motion.button>
+
+                                        {/* Deselect All Button */}
+                                        <motion.button
+                                            whileTap={{ scale: 0.94 }}
+                                            onClick={handleDeselectAll}
+                                            title="Deselect All"
+                                            className="flex-none w-[48px] h-[52px] rounded-[14px] flex items-center justify-center
+                                                       bg-[#1e1520] border border-[#3d2040] text-pink-400
+                                                       hover:bg-[#251828] transition-colors"
+                                        >
+                                            <FaTimes className="text-[15px]" />
+                                        </motion.button>
+
+                                        {/* Main Save Button */}
+                                        <motion.button
+                                            initial={{ y: 50, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            whileTap={{ scale: 0.97 }}
+                                            onClick={handleSave}
+                                            disabled={loading || parsedItems.filter(i => i.selected).length === 0}
+                                            className="flex-1 h-[52px] rounded-[14px] flex items-center justify-center gap-2
+                                                       bg-gradient-to-r from-emerald-600 to-emerald-500
+                                                       disabled:opacity-50 disabled:cursor-not-allowed
+                                                       relative overflow-hidden transition-all"
+                                            style={{
+                                                boxShadow: '0 0 24px rgba(16,185,129,0.3)',
+                                            }}
+                                        >
+                                            {/* Shine overlay */}
+                                            <span className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent rounded-[14px]" />
+
+                                            {loading ? (
+                                                <FaSpinner className="text-white text-lg animate-spin relative z-10" />
+                                            ) : (
+                                                <FaSave className="text-white text-[17px] relative z-10" />
+                                            )}
+
+                                            <span className="text-white font-bold text-[13px] tracking-wide relative z-10">
+                                                {loading ? 'SAVING...' : 'SAVE TO INVENTORY'}
+                                            </span>
+
+                                            {/* Count Badge */}
+                                            {!loading && (
+                                                <span className="relative z-10 bg-white/25 text-white text-[11px] font-bold
+                                                                 w-[22px] h-[22px] rounded-full flex items-center justify-center">
+                                                    {parsedItems.filter(i => i.selected).length}
+                                                </span>
+                                            )}
+                                        </motion.button>
+                                    </div>
+                                </div>
+                            )}
 
             {/* Failed Items Modal */}
             <AnimatePresence>
