@@ -158,7 +158,7 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
             XLSX.writeFile(wb, `Business_Report_${period}.xlsx`);
-            toast.success(t.excelDownloaded);
+            toast.success(t.excelDownloaded + ' (Check Downloads folder)', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadExcel);
         }
@@ -182,7 +182,7 @@ function ReportsContent() {
             const ws = XLSX.utils.json_to_sheet(excelData);
             const csv = XLSX.utils.sheet_to_csv(ws);
             downloadFile(csv, `Business_Report_${period}.csv`, 'text/csv');
-            toast.success('CSV downloaded!');
+            toast.success('CSV downloaded! (Check Downloads folder)', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadCsv);
         }
@@ -212,7 +212,7 @@ function ReportsContent() {
             });
 
             doc.save(`Business_Report_${period}.pdf`);
-            toast.success(t.pdfDownloaded);
+            toast.success(t.pdfDownloaded + ' (Check Downloads folder)', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadPdf);
         }
@@ -242,7 +242,7 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
             XLSX.writeFile(wb, `GST_Report_${period}.xlsx`);
-            toast.success(t.gstReportDownloaded);
+            toast.success(t.gstReportDownloaded + ' (Check Downloads folder)', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadGstExcel);
         }
@@ -255,7 +255,7 @@ function ReportsContent() {
         }
         const xml = generateTallyXML(invoices, 'Business');
         downloadFile(xml, `Tally_Sales_${period}.xml`, 'text/xml');
-        toast.success(t.tallyXmlDownloaded);
+        toast.success(t.tallyXmlDownloaded + ' (Check Downloads folder)', { duration: 5000 });
     };
 
     const colors = ['#4f46e5', '#10b981', '#f59e0b', '#0ea5e9', '#8b5cf6'];
