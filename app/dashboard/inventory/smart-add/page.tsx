@@ -627,7 +627,7 @@ export default function SmartAddPage() {
             
             {/* Sticky FAB Button */}
             {step === 'review' && (
-                <div className="fixed bottom-10 md:bottom-0 left-0 right-0 p-4 pb-6 md:pb-8 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14_80%] to-transparent z-50 pointer-events-none">
+                <div className="fixed bottom-0 left-0 right-0 p-4 pt-10 pb-10 md:pb-8 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14_80%] to-transparent z-50 pointer-events-none">
                     <motion.button 
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -635,7 +635,7 @@ export default function SmartAddPage() {
                         whileTap={{ scale: 0.98 }}
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="w-full max-w-[448px] mx-auto bg-green-500 hover:bg-green-600 text-white font-body font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 pointer-events-auto transition-colors"
+                        className="w-full max-w-[448px] mx-auto mb-16 md:mb-0 bg-green-500 hover:bg-green-600 text-white font-body font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 pointer-events-auto transition-colors"
                     >
                         <FaSave className="text-lg" />
                         <span>SAVE TO INVENTORY ({parsedItems.filter(i => i.selected).length})</span>
