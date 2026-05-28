@@ -619,7 +619,7 @@ export default function SmartAddPage() {
                                 </motion.div>
                             ))}
                             {/* Extra space at bottom to prevent save button overlap */}
-                            <div className="h-28 md:h-24 w-full"></div>
+                            <div className="h-40 md:h-28 w-full"></div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -627,7 +627,7 @@ export default function SmartAddPage() {
             
             {/* Sticky FAB Button */}
             {step === 'review' && (
-                <div className="fixed bottom-0 left-0 right-0 p-4 pb-10 md:pb-6 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14_60%] to-transparent z-50 pointer-events-none">
+                <div className="fixed bottom-0 left-0 right-0 p-4 pb-20 md:pb-8 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14_60%] to-transparent z-50 pointer-events-none">
                     <motion.button 
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
