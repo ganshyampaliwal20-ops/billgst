@@ -634,7 +634,7 @@ export default function SmartAddPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleSave}
-                        disabled={isSaving}
+                        disabled={loading}
                         className="w-full max-w-[448px] mx-auto mb-16 md:mb-0 bg-green-500 hover:bg-green-600 text-white font-body font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 pointer-events-auto transition-colors"
                     >
                         <FaSave className="text-lg" />
