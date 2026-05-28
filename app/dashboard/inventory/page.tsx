@@ -707,7 +707,7 @@ export default function InventoryPage() {
                 .field-label { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--ink3); margin-bottom:6px; display:block; }
                 .field-input { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:11px; font-family:'DM Sans',sans-serif; font-size:13px; color:#000 !important; outline:none; background:var(--bg); }
                 .field-input:focus { border-color:var(--green); background:var(--white); color:#000 !important; }
-                .modal-footer { padding:16px 24px 20px; display:flex; gap:10px; flex-shrink:0; border-top:1px solid var(--border); background:var(--white); }
+                .modal-footer { padding:16px 24px calc(20px + env(safe-area-inset-bottom, 20px)); display:flex; gap:10px; flex-shrink:0; border-top:1px solid var(--border); background:var(--white); }
                 .mf-btn { flex:1; padding:13px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; border:none; }
                 .mf-cancel { background:var(--bg); color:var(--ink2); border:1.5px solid var(--border); }
                 .mf-save { background:linear-gradient(135deg,var(--green),#059669); color:#fff; }
