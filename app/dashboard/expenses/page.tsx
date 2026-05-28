@@ -577,18 +577,15 @@ export default function BusinessExpensesPage() {
             let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
             textMsg += getVisitingCardText(businessProfile);
 
-            // Native Web Share API
-            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
-                    await navigator.share({
-                        files: [file],
-                        title: `Statement_${cust.name}.pdf`,
-                        text: textMsg
-                    });
+                    await navigator.share({ files: [file], title: `Statement_${cust.name}.pdf`, text: textMsg });
                     showToast('✅ WhatsApp pe share ho gaya!');
                     return;
-                } catch (e) {
-                    console.log('Share cancelled', e);
+                } catch (e: any) {
+                    if (e.name !== 'AbortError') {
+                        showToast('⚠️ Share error: ' + (e.message || 'Unknown'));
+                    }
                 }
             }
 
@@ -598,37 +595,27 @@ export default function BusinessExpensesPage() {
             formData.append('file', file);
 
             showToast('⏳ WhatsApp Bot se bhej rahe hain...');
-            const sendRes = await fetch('/api/whatsapp/send-media', {
-                method: 'POST',
-                body: formData
-            });
+            const sendRes = await fetch('/api/whatsapp/send-media', { method: 'POST', body: formData });
 
             if (sendRes.ok) {
                 showToast('✅ WhatsApp pe PDF chala gaya!');
             } else {
                 window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             }
-        } catch (err) {
-            showToast('❌ Error in sending request!');
+        } catch (err: any) {
+            showToast('❌ Error: ' + (err.message || 'Unknown'));
         }
     };
 
     const exportPDF = async () => {
         showToast('⏳ PDF ban raha hai...');
-        const doc = await generateHisaabPDF(currentCust, { name: 'BillGST Pro - Ledger' }, custStats, false);
-        if (!doc) {
-            showToast('❌ PDF nahi ban paya!');
-            return;
-        }
-        const pdfBlob = doc.output('blob');
-        const file = new File([pdfBlob], `Ledger_${currentCust?.name}.pdf`, { type: 'application/pdf' });
-        
-        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            try {
-                await navigator.share({ files: [file], title: `Ledger_${currentCust?.name}.pdf` });
-                showToast('✅ PDF ready!');
-            } catch(e) { console.log(e); }
-        } else {
+        try {
+            const doc = await generateHisaabPDF(currentCust, { name: 'BillGST Pro - Ledger' }, custStats, false);
+            if (!doc) {
+                showToast('❌ PDF nahi ban paya!');
+                return;
+            }
+            const pdfBlob = doc.output('blob');
             const url = URL.createObjectURL(pdfBlob);
             const a = document.createElement('a');
             a.href = url;
@@ -637,6 +624,9 @@ export default function BusinessExpensesPage() {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showToast('✅ PDF Downloaded!');
+        } catch (err: any) {
+            showToast('❌ PDF Error: ' + (err.message || 'Unknown'));
         }
     };
 
@@ -915,21 +905,16 @@ export default function BusinessExpensesPage() {
     // Excel Export Handlers
     const downloadAllExcel = async () => {
         showToast('⏳ All Excel ban raha hai...');
-        let csv = "Customer Name,Phone,Type,Total Given (Debit),Total Received (Credit),Net Balance\n";
-        customers.forEach(c => {
-            let cr = 0, db = 0;
-            (c.txns || []).forEach((t: any) => { if (t.type === 'credit') cr += t.amt; else db += t.amt; });
-            csv += `"${c.name}",${c.phone},${c.type},${db},${cr},${Math.abs(c.balance)} ${c.balance < 0 ? 'Dena' : 'Lena'}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const file = new File([blob], `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
-        
-        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            try {
-                await navigator.share({ files: [file], title: file.name });
-                showToast('✅ Excel Shared!');
-            } catch(e) {}
-        } else {
+        try {
+            let csv = "Customer Name,Phone,Type,Total Given (Debit),Total Received (Credit),Net Balance\n";
+            customers.forEach(c => {
+                let cr = 0, db = 0;
+                (c.txns || []).forEach((t: any) => { if (t.type === 'credit') cr += t.amt; else db += t.amt; });
+                csv += `"${c.name}",${c.phone},${c.type},${db},${cr},${Math.abs(c.balance)} ${c.balance < 0 ? 'Dena' : 'Lena'}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const file = new File([blob], `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
+            
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -939,32 +924,29 @@ export default function BusinessExpensesPage() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             showToast('✅ Excel Downloaded!');
+        } catch (e: any) {
+            showToast('❌ Excel Error: ' + (e.message || 'Unknown'));
         }
     };
 
     const downloadCustomerExcel = async () => {
         if (!currentCust) return;
         showToast('⏳ Customer Excel ban raha hai...');
-        let csv = "Date,Description,Type,Credit (Received),Debit (Given)\n";
-        const sortedTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        try {
+            let csv = "Date,Description,Type,Credit (Received),Debit (Given)\n";
+            const sortedTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        sortedTxns.forEach(t => {
-            const isCr = t.type === 'credit';
-            const crAmt = isCr ? t.amt : 0;
-            const dbAmt = !isCr ? t.amt : 0;
-            const date = new Date(t.date).toLocaleDateString();
-            csv += `${date},"${t.name || t.type}",${t.type},${crAmt},${dbAmt}\n`;
-        });
+            sortedTxns.forEach(t => {
+                const isCr = t.type === 'credit';
+                const crAmt = isCr ? t.amt : 0;
+                const dbAmt = !isCr ? t.amt : 0;
+                const date = new Date(t.date).toLocaleDateString();
+                csv += `${date},"${t.name || t.type}",${t.type},${crAmt},${dbAmt}\n`;
+            });
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const file = new File([blob], `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
-        
-        if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            try {
-                await navigator.share({ files: [file], title: file.name });
-                showToast('✅ Excel Shared!');
-            } catch(e) {}
-        } else {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const file = new File([blob], `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
+            
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -974,6 +956,8 @@ export default function BusinessExpensesPage() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             showToast('✅ Excel Downloaded!');
+        } catch (e: any) {
+            showToast('❌ Excel Error: ' + (e.message || 'Unknown'));
         }
     };
 
