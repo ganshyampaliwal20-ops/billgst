@@ -277,7 +277,16 @@ export default function LandingPage() {
                             <span className="dot r"></span><span className="dot y"></span><span className="dot g"></span>
                             <div className="db-url">app.billgst.in/<b>dashboard</b></div>
                         </div>
-                        <img src="/dashboard-preview.png" alt="BillGST Dashboard Preview" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            src="https://www.youtube.com/embed/CMzc3B2kilk?autoplay=1&mute=1&loop=1&playlist=CMzc3B2kilk&controls=0&modestbranding=1&rel=0&showinfo=0" 
+                            title="BillGST Dashboard Preview" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                            style={{ aspectRatio: '16/9', display: 'block', objectFit: 'cover', pointerEvents: 'none' }}
+                        ></iframe>
                     </div>
                 </div>
 
