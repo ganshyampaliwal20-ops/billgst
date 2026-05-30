@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
     FaPlus, FaTrash, FaSave, FaArrowLeft, FaMicrophone, FaMagic,
     FaRobot, FaCheck, FaTimes, FaCamera, FaUserPlus, FaFileInvoice,
-    FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaChevronLeft
+    FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaChevronLeft, FaEye
 } from 'react-icons/fa';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -91,6 +91,7 @@ export default function NewInvoicePage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDuplicating, setIsDuplicating] = useState(false);
     const [activeStep, setActiveStep] = useState(2); // Default to Items step as per design
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
 
     // New Customer State
     const [newCustName, setNewCustName] = useState('');
@@ -570,6 +571,12 @@ export default function NewInvoicePage() {
         } catch (e) {
             toast.error('Galti hui add karne me');
         }
+    };
+
+    const handlePreview = async () => {
+        if (!customerId && !newCustName) return toast.error('Please select or add a customer to preview');
+        if (selectedItems.length === 0 || !selectedItems[0].product_name) return toast.error('Add at least one item');
+        setShowPreviewModal(true);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -1407,6 +1414,9 @@ export default function NewInvoicePage() {
             <div className="bottom-bar">
                 <button type="button" onClick={() => router.back()} className="text-[12px] font-black uppercase text-rose-500 hover:bg-rose-50 px-6 py-3 rounded-xl transition-all">✕ Cancel</button>
                 <div className="flex gap-4">
+                    <button type="button" onClick={handlePreview} className="bb-preview" style={{ background: '#f8fafc', color: '#334155', border: '2px solid #e2e8f0', padding: '16px 24px', borderRadius: '15px', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: '0.2s', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+                        <FaEye /> PREVIEW
+                    </button>
                     <button type="button" onClick={handleSubmit} disabled={isSubmitting} className="bb-save">
                         {isSubmitting ? <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span> : <FaSave />}
                         {isSubmitting ? 'Saving...' : 'SAVE INVOICE'}
@@ -1714,6 +1724,113 @@ export default function NewInvoicePage() {
             <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={onFileChange} />
             <RegistrationPopup />
             {showLoginPrompt && <LoginPrompt message="Login to cloud for full safe mode sync." returnUrl="/dashboard/invoices/new" />}
+            {/* HTML PREVIEW MODAL */}
+            {showPreviewModal && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '16px 20px', background: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', flexShrink: 0 }}>
+                        <span style={{ fontWeight: 800, fontSize: '16px' }}>Invoice Preview</span>
+                        <button onClick={() => setShowPreviewModal(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '8px 16px', borderRadius: '8px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Close Preview</button>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+                        <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', maxWidth: '800px', margin: '0 auto', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', fontFamily: 'Arial, sans-serif' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '20px' }}>
+                                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 5px 0', textTransform: 'uppercase' }}>{businessProfile?.name || 'Your Business Name'}</h1>
+                                {businessProfile?.address && <p style={{ margin: '0', color: '#475569', fontSize: '14px' }}>{businessProfile.address}</p>}
+                                {businessProfile?.phone && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>Phone: {businessProfile.phone}</p>}
+                                {businessProfile?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px', fontWeight: 'bold' }}>GSTIN: {businessProfile.gstin}</p>}
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 10px 0', fontWeight: 800 }}>Billed To:</h3>
+                                    <h2 style={{ fontSize: '18px', color: '#0f172a', margin: '0 0 5px 0', fontWeight: 700 }}>{selectedCustomer?.name || newCustName || 'Cash Customer'}</h2>
+                                    {(selectedCustomer?.phone || newCustPhone) && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>Phone: {selectedCustomer?.phone || newCustPhone}</p>}
+                                    {(selectedCustomer?.address || newCustAddress) && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>{selectedCustomer?.address || newCustAddress}</p>}
+                                    {(selectedCustomer?.gstin || newCustGstin) && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>GSTIN: {selectedCustomer?.gstin || newCustGstin}</p>}
+                                </div>
+                                <div style={{ textAlign: 'right', flex: 1 }}>
+                                    <h1 style={{ fontSize: '24px', color: '#3b82f6', margin: '0 0 15px 0', fontWeight: 900, textTransform: 'uppercase' }}>{docType.replace('_', ' ')}</h1>
+                                    <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Invoice No:</strong> {invoiceNumber || 'Auto-generated'}</p>
+                                    <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Date:</strong> {invoiceDate}</p>
+                                </div>
+                            </div>
+
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+                                <thead>
+                                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
+                                        <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '5%' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '45%' }}>Item Description</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', color: '#0f172a', fontSize: '13px', width: '15%' }}>Qty</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '15%' }}>Rate</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '20%' }}>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {selectedItems.filter(i => i.product_name).map((item, idx) => {
+                                        const qty = Number(item.quantity) || 1;
+                                        const rate = Number(item.unit_price) || 0;
+                                        const amt = qty * rate;
+                                        return (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                                <td style={{ padding: '12px', color: '#475569', fontSize: '14px' }}>{idx + 1}</td>
+                                                <td style={{ padding: '12px', color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{item.product_name}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{qty} {item.unit}</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>₹{rate.toFixed(2)}</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '14px', fontWeight: 700 }}>₹{amt.toFixed(2)}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <div style={{ width: '300px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                        <span>Subtotal:</span>
+                                        <span style={{ fontWeight: 600, color: '#0f172a' }}>₹{totals.subtotal.toFixed(2)}</span>
+                                    </div>
+                                    {options.showGstBreakup && totals.gst > 0 && (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                            <span>Tax Amount (GST):</span>
+                                            <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{totals.gst.toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    {discountPct > 0 && (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#ef4444', fontSize: '14px' }}>
+                                            <span>Discount ({discountPct}%):</span>
+                                            <span style={{ fontWeight: 600 }}>- ₹{totals.discountAmt.toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    {extraCharge > 0 && (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                            <span>Extra Charges:</span>
+                                            <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{Number(extraCharge).toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    {shippingCharge > 0 && (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                            <span>Shipping:</span>
+                                            <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{Number(shippingCharge).toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', color: '#0f172a', fontSize: '20px', fontWeight: 900 }}>
+                                        <span>Total:</span>
+                                        <span style={{ color: '#3b82f6' }}>₹{totals.grandTotal.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {notes && (
+                                <div style={{ marginTop: '30px', padding: '15px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                    <h4 style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Notes / Terms</h4>
+                                    <p style={{ margin: '0', fontSize: '13px', color: '#334155', whiteSpace: 'pre-wrap' }}>{notes}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

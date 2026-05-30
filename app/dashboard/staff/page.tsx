@@ -37,6 +37,7 @@ export default function SmartAttendance() {
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [isEditingStaff, setIsEditingStaff] = useState(false);
     const [editStaffData, setEditStaffData] = useState({ daily_wage: 0, advance: 0, role: '' });
+    const [expandedStaffId, setExpandedStaffId] = useState<string | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -618,21 +619,22 @@ export default function SmartAttendance() {
             .sal-row:last-child{border-bottom:none;}
             .sal-lbl{font-size:14px;color:var(--ink3);font-weight:600;}
             .sal-val{font-size:15px;font-weight:800;}
+            
+            @media (max-width: 500px) {
+                .att-btn-new {
+                    padding: 8px 2px;
+                    font-size: 10px;
+                    gap: 2px;
+                }
+            }
             `}} />
 
             <div className="sa-container">
                 {/* TOPBAR */}
-                <div className="topbar" style={{ display: 'flex', flexDirection: 'column', position: 'relative', paddingBottom: '16px' }}>
-
-                    <div className="logo-box" style={{ margin: '0 auto', background: 'linear-gradient(135deg, #eef2ff, #f5f3ff)', border: '1px solid #e0e7ff', boxShadow: '0 4px 15px rgba(79,70,229,0.05)', borderRadius: '16px', flexDirection: 'column', gap: '4px', marginBottom: '8px', padding: '12px 24px', minWidth: '200px', display: 'flex', alignItems: 'center' }}>
-                        {businessProfile?.logo && (
-                            <div className="logo-sq" style={{ padding: '0', width: '40px', height: '40px', marginBottom: '4px' }}>
-                                <img src={businessProfile.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} />
-                            </div>
-                        )}
-                        <span className="logo-nm" style={{ fontSize: '24px', fontWeight: 900, background: 'linear-gradient(135deg, #4f46e5, #9333ea)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{businessProfile?.name || 'BillGST'}</span>
-                    </div>
-                    <span className="tb-title" style={{ fontSize: '14px', fontWeight: 900, color: 'white', letterSpacing: '1px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '6px 16px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(79,70,229,0.3)' }}>Attendance</span>
+                <div className="topbar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '16px' }}>
+                    <span className="tb-title" style={{ fontSize: '18px', fontWeight: 900, color: 'white', letterSpacing: '1.5px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '10px 24px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(79,70,229,0.3)', textAlign: 'center', flex: 'none' }}>
+                        ATTENDANCE
+                    </span>
                 </div>
                 
                 {/* ACTION BUTTONS */}
@@ -739,16 +741,27 @@ export default function SmartAttendance() {
                                             <span style={{color:'#3b82f6', fontWeight: 600}}>L: {cl}</span>
                                         </div>
                                     </div>
-                                    <div className="att-btns">
-                                    {deleteStaff && (
-                                        <button className="delete-btn" onClick={async () => {
-                                            if (window.confirm(`Delete ${member.name}?`)) {
-                                                await deleteStaff(member.id);
-                                                fetchStaff();
-                                                toast.success('Staff removed');
-                                            }
-                                        }} title="Delete Staff">🗑</button>
-                                    )}
+                                    <div className="att-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        {deleteStaff && (
+                                            <button className="delete-btn" onClick={async () => {
+                                                if (window.confirm(`Delete ${member.name}?`)) {
+                                                    await deleteStaff(member.id);
+                                                    fetchStaff();
+                                                    toast.success('Staff removed');
+                                                }
+                                            }} title="Delete Staff">🗑</button>
+                                        )}
+                                        <button 
+                                            onClick={() => setExpandedStaffId(expandedStaffId === member.id ? null : member.id)}
+                                            style={{
+                                                padding: '6px 12px', background: expandedStaffId === member.id ? '#eef2ff' : '#f8fafc',
+                                                border: `1px solid ${expandedStaffId === member.id ? '#4f46e5' : 'rgba(0,0,0,0.08)'}`,
+                                                borderRadius: '8px', fontSize: '12px', fontWeight: 700, color: expandedStaffId === member.id ? '#4f46e5' : '#64748b',
+                                                cursor: 'pointer', transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            {expandedStaffId === member.id ? 'Close' : 'Details ⬇'}
+                                        </button>
                                     </div>
                                 </div>
                                 
@@ -758,36 +771,38 @@ export default function SmartAttendance() {
                                     <button className={`att-btn-new ${status === 'HALF_DAY' ? 'active-h' : ''}`} onClick={() => handleSetAtt(member.id, 'HALF_DAY')}>½ Half Day</button>
                                     <button className={`att-btn-new ${status === 'LEAVE' ? 'active-l' : ''}`} onClick={() => handleSetAtt(member.id, 'LEAVE')}>🏖 Leave</button>
                                 </div>
-                                
-                                {(status === 'PRESENT' || status === 'HALF_DAY') && (
-                                    <div style={{ padding: '8px 14px', background: '#fafbff', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time</label>
-                                                <input type="time" value={times.in_time} onChange={(e) => handleSetAtt(member.id, status, e.target.value, times.out_time, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
-                                            </div>
-                                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time</label>
-                                                <input type="time" value={times.out_time} onChange={(e) => handleSetAtt(member.id, status, times.in_time, e.target.value, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Note / Remark (Optional)</label>
-                                            <input type="text" placeholder="Example: 1 hour late..." defaultValue={times.note} onBlur={(e) => { if(e.target.value !== times.note) handleSetAtt(member.id, status, times.in_time, times.out_time, e.target.value) }} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px', width: '100%' }} />
-                                        </div>
-                                    </div>
-                                )}
 
-                                
-                                {isOwnerOrAccountant && (
-                                    <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Worker' }); setIsEditingStaff(false); setSheet('detail'); }}>
-                                        <div className="sal-info">
-                                            <div>
-                                                <div className="sal-label">Rate / Details</div>
-                                                <div className="sal-amt">₹{member.daily_wage || 0} / day</div>
+                                {expandedStaffId === member.id && (
+                                    <div style={{ animation: 'slideDown 0.3s ease-out' }}>
+                                        {(status === 'PRESENT' || status === 'HALF_DAY') && (
+                                            <div style={{ padding: '8px 14px', background: '#fafbff', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                        <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time</label>
+                                                        <input type="time" value={times.in_time} onChange={(e) => handleSetAtt(member.id, status, e.target.value, times.out_time, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                                    </div>
+                                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                        <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time</label>
+                                                        <input type="time" value={times.out_time} onChange={(e) => handleSetAtt(member.id, status, times.in_time, e.target.value, times.note)} style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px' }} />
+                                                    </div>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Note / Remark (Optional)</label>
+                                                    <input type="text" placeholder="Example: 1 hour late..." defaultValue={times.note} onBlur={(e) => { if(e.target.value !== times.note) handleSetAtt(member.id, status, times.in_time, times.out_time, e.target.value) }} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '12px', width: '100%' }} />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <button className="pay-btn">View Salary →</button>
+                                        )}
+                                        {isOwnerOrAccountant && (
+                                            <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Worker' }); setIsEditingStaff(false); setSheet('detail'); }}>
+                                                <div className="sal-info">
+                                                    <div>
+                                                        <div className="sal-label">Rate / Details</div>
+                                                        <div className="sal-amt">₹{member.daily_wage || 0} / day</div>
+                                                    </div>
+                                                </div>
+                                                <button className="pay-btn">View Salary →</button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

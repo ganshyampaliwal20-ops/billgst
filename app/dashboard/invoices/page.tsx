@@ -9,7 +9,7 @@ import { getVisitingCardText } from '../../../lib/whatsapp-utils';
 import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
 import {
-    FaFilePdf, FaWhatsapp, FaTrash, FaCopy
+    FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye
 } from 'react-icons/fa';
 
 export default function InvoicesPage() {
@@ -31,7 +31,9 @@ export default function InvoicesPage() {
     const [activeTab, setActiveTab] = useState('all');
     const [sortOrder, setSortOrder] = useState('newest');
     const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+    const [isPreviewing, setIsPreviewing] = useState(false);
     const [expandedCustomers, setExpandedCustomers] = useState<Record<string, boolean>>({});
+    const [isScrolled, setIsScrolled] = useState(false);
     
     // Payment Recording State
     const [paymentAmount, setPaymentAmount] = useState('');
@@ -40,6 +42,16 @@ export default function InvoicesPage() {
     useEffect(() => {
         setIsClient(true);
         if (fetchInvoices) fetchInvoices();
+
+        const handleScroll = () => {
+            if (window.scrollY > 120) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, [fetchInvoices]);
 
     const safeInvoices = Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [];
@@ -388,15 +400,17 @@ export default function InvoicesPage() {
                 .recv-pill-val { color: #fff; font-size: 18px; font-weight: 600; line-height: 1; }
                 .recv-pill-label { color: rgba(255,255,255,0.65); font-size: 11px; margin-top: 3px; }
 
-                .toolbar { background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); flex-wrap: wrap; }
-                .search-wrap { flex: 1; min-width: 200px; position: relative; }
+                .toolbar { background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+                .search-sort-row { display: flex; gap: 10px; width: 100%; align-items: center; }
+                .search-wrap { flex: 1; position: relative; }
                 .search-wrap input { width: 100%; padding: 8px 10px 8px 16px; border: 1px solid rgba(0,0,0,0.13); border-radius: 8px; font-size: 13px; font-family: inherit; background: #f8f9fc; color: #111827; outline: none; }
                 .search-wrap input:focus { border-color: #4338ca; background: #fff; }
-                .filter-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
-                .tab { padding: 7px 13px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; color: #6b7280; font-weight: 500; transition: all 0.12s; }
+                .sort-select { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; font-size: 13px; color: #6b7280; outline: none; cursor: pointer; flex-shrink: 0; }
+                
+                .filter-tabs { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
+                .tab { padding: 7px 13px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; color: #6b7280; font-weight: 500; transition: all 0.12s; white-space: nowrap; }
                 .tab:hover:not(.active) { background: #f5f6fa; color: #111827; }
                 .tab.active { background: #4338ca; color: #fff; border-color: #4338ca; }
-                .sort-select { padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; font-size: 13px; color: #6b7280; outline: none; cursor: pointer; }
 
                 .invoice-card { background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
                 
@@ -447,12 +461,46 @@ export default function InvoicesPage() {
                 .btn-action { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; background: #f8f9fc; border: 1px solid rgba(0,0,0,0.08); color: #111827; cursor: pointer; font-size: 11px; font-weight: 600; }
                 .btn-action:hover { background: rgba(0,0,0,0.04); }
 
+                .plus-btn {
+                    background: #4338ca; color: #fff; border: none; border-radius: 8px; width: 34px; height: 34px; 
+                    font-size: 24px; font-weight: 500; display: flex; align-items: center; justify-content: center; 
+                    cursor: pointer; flex-shrink: 0; line-height: 1; transition: background 0.2s;
+                }
+                .plus-btn:hover { background: #3730a3; }
+
+                .fab-animated {
+                    position: fixed;
+                    bottom: 24px;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(150px);
+                    background: #4338ca;
+                    color: #fff;
+                    padding: 14px 32px;
+                    border-radius: 30px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    box-shadow: 0 6px 16px rgba(67,56,202,0.4);
+                    z-index: 1000;
+                    cursor: pointer;
+                    border: none;
+                    width: max-content;
+                    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+                .fab-animated.show {
+                    transform: translateX(-50%) translateY(0);
+                }
+
                 @media (max-width: 700px) {
                     .topbar { padding: 10px 16px; }
-                    .tb-btn { padding: 7px 10px; font-size: 12px; }
+                    .tb-btn { display: none; } /* Hide right topbar btn */
                     .topbar-name { font-size: 14px; }
                     .topbar-tag { display: none; }
-                    
+
                     .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
                     .stat-card { padding: 8px 4px; border-radius: 8px; }
                     .stat-icon { width: 24px; height: 24px; margin: 0 auto 4px; border-radius: 6px; }
@@ -462,7 +510,17 @@ export default function InvoicesPage() {
                     .stat-footer { display: none; }
                     
                     .recv-pills { display: none; }
-                    .content { padding: 12px; }
+                    .content { padding: 12px; padding-bottom: 80px; }
+
+                    .search-sort-row { flex-wrap: nowrap; gap: 6px; width: 100%; display: flex; align-items: center; }
+                    .search-wrap { flex: 1; min-width: 0; }
+                    .search-wrap input { font-size: 12px; padding: 6px 10px; width: 100%; min-width: 0; }
+                    .sort-select { font-size: 11px; padding: 6px 8px; max-width: 90px; flex-shrink: 0; }
+                    .plus-btn { width: 32px; height: 32px; font-size: 20px; flex-shrink: 0; }
+
+                    .filter-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; gap: 4px; }
+                    .filter-tabs::-webkit-scrollbar { display: none; }
+                    .tab { padding: 5px 8px; font-size: 11px; flex-shrink: 0; }
                     
                     .cust-right > div:first-child { display: none; }
                     .table-header, .invoice-row { grid-template-columns: 1fr 1fr 80px; }
@@ -470,19 +528,7 @@ export default function InvoicesPage() {
                 }
             ` }} />
 
-            {/* TOPBAR */}
-            <div className="topbar">
-                <div className="topbar-left">
-                    <div className="topbar-logo">🧾</div>
-                    <span className="topbar-name">{businessProfile?.name || 'BillGST'}</span>
-                </div>
-                <div className="topbar-right">
-                    <button className="tb-btn primary" onClick={() => router.push('/dashboard/invoices/new')}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        New Invoice
-                    </button>
-                </div>
-            </div>
+
 
             <div className="content">
                 {/* PAGE HEADER */}
@@ -546,13 +592,22 @@ export default function InvoicesPage() {
 
                 {/* TOOLBAR */}
                 <div className="toolbar">
-                    <div className="search-wrap">
-                        <input 
-                            type="text" 
-                            placeholder={isHi ? 'Customer ya invoice search karein...' : 'Search customer or invoice...'} 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    <div className="search-sort-row">
+                        <div className="search-wrap">
+                            <input 
+                                type="text" 
+                                placeholder={isHi ? 'Search karein...' : 'Search customer or invoice...'} 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <select className="sort-select" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+                            <option value="newest">{isHi ? 'Naya pehle' : 'Newest'}</option>
+                            <option value="amount-high">{isHi ? 'Zyada amount' : 'High Amount'}</option>
+                            <option value="amount-low">{isHi ? 'Kam amount' : 'Low Amount'}</option>
+                            <option value="name">{isHi ? 'Naam A–Z' : 'Name A–Z'}</option>
+                        </select>
+                        <button className="plus-btn" onClick={() => router.push('/dashboard/invoices/new')}>+</button>
                     </div>
                     <div className="filter-tabs">
                         <div className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>{t.all || 'All'} ({kpiData.total})</div>
@@ -560,12 +615,6 @@ export default function InvoicesPage() {
                         <div className={`tab ${activeTab === 'p' ? 'active' : ''}`} onClick={() => setActiveTab('p')}>{isHi ? 'Aadha' : 'Partial'} ({kpiData.partial})</div>
                         <div className={`tab ${activeTab === 'd' ? 'active' : ''}`} onClick={() => setActiveTab('d')}>{t.amountReceived || 'Paid'} ({kpiData.paid})</div>
                     </div>
-                    <select className="sort-select" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-                        <option value="newest">{isHi ? 'Sabse naya pehle' : 'Newest First'}</option>
-                        <option value="amount-high">{isHi ? 'Rakam: Zyada se kam' : 'Amount: High to Low'}</option>
-                        <option value="amount-low">{isHi ? 'Rakam: Kam se zyada' : 'Amount: Low to High'}</option>
-                        <option value="name">{isHi ? 'Naam A–Z' : 'Name A–Z'}</option>
-                    </select>
                 </div>
 
                 {/* INVOICE TABLE GROUPED BY CUSTOMER */}
@@ -660,6 +709,25 @@ export default function InvoicesPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Centered New Invoice Button below Table Footer */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>
+                    <button 
+                        onClick={() => router.push('/dashboard/invoices/new')} 
+                        style={{ 
+                            display: 'flex', alignItems: 'center', gap: '8px', 
+                            padding: '16px 36px', fontSize: '16px', fontWeight: 600, 
+                            borderRadius: '30px', background: '#4338ca', color: '#fff', 
+                            border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(67,56,202,0.3)' 
+                        }}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        {t.newInvoice || 'Create New Invoice'}
+                    </button>
+                </div>
             </div>
 
             {selectedInvoice && (
@@ -681,6 +749,13 @@ export default function InvoicesPage() {
                                 <FaFilePdf size={20} color="#dc2626" />
                                 Download PDF
                             </button>
+                            <button className="btn-action" onClick={() => setIsPreviewing(true)}>
+                                <FaEye size={20} color="#3b82f6" />
+                                Preview
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                             <button className="btn-action" onClick={() => router.push(`/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`)}>
                                 <FaCopy size={20} color="#4338ca" />
                                 Duplicate
@@ -724,8 +799,123 @@ export default function InvoicesPage() {
                             Close
                         </button>
                     </div>
+                    </div>
                 </div>
             )}
+
+            {/* HTML PREVIEW MODAL */}
+            {isPreviewing && selectedInvoice && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '16px 20px', background: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', flexShrink: 0 }}>
+                        <span style={{ fontWeight: 800, fontSize: '16px' }}>Invoice Preview</span>
+                        <button onClick={() => setIsPreviewing(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '8px 16px', borderRadius: '8px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Close</button>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+                        <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', maxWidth: '800px', margin: '0 auto', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', fontFamily: 'Arial, sans-serif' }}>
+                            <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '20px' }}>
+                                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 5px 0', textTransform: 'uppercase' }}>{businessProfile?.name || 'Your Business'}</h1>
+                                {businessProfile?.address && <p style={{ margin: '0', color: '#475569', fontSize: '14px' }}>{businessProfile.address}</p>}
+                                {businessProfile?.phone && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>Phone: {businessProfile.phone}</p>}
+                                {businessProfile?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px', fontWeight: 'bold' }}>GSTIN: {businessProfile.gstin}</p>}
+                            </div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 10px 0', fontWeight: 800 }}>Billed To:</h3>
+                                    <h2 style={{ fontSize: '18px', color: '#0f172a', margin: '0 0 5px 0', fontWeight: 700 }}>{selectedInvoice.customer?.name}</h2>
+                                    {selectedInvoice.customer?.phone && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>Phone: {selectedInvoice.customer.phone}</p>}
+                                    {selectedInvoice.customer?.address && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>{selectedInvoice.customer.address}</p>}
+                                    {selectedInvoice.customer?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>GSTIN: {selectedInvoice.customer.gstin}</p>}
+                                </div>
+                                <div style={{ textAlign: 'right', flex: 1 }}>
+                                    <h1 style={{ fontSize: '24px', color: '#3b82f6', margin: '0 0 15px 0', fontWeight: 900, textTransform: 'uppercase' }}>{(selectedInvoice.type || 'TAX_INVOICE').replace('_', ' ')}</h1>
+                                    <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Invoice No:</strong> {selectedInvoice.invoice_number}</p>
+                                    <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Date:</strong> {selectedInvoice.invoice_date}</p>
+                                    {selectedInvoice.due_date && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Due Date:</strong> {selectedInvoice.due_date}</p>}
+                                </div>
+                            </div>
+
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+                                <thead>
+                                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
+                                        <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '5%' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '45%' }}>Item Description</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', color: '#0f172a', fontSize: '13px', width: '15%' }}>Qty</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '15%' }}>Rate</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '20%' }}>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(selectedInvoice.items || []).map((item: any, idx: number) => {
+                                        const qty = Number(item.quantity) || 1;
+                                        const rate = Number(item.unit_price) || 0;
+                                        const amt = qty * rate;
+                                        return (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                                <td style={{ padding: '12px', color: '#475569', fontSize: '14px' }}>{idx + 1}</td>
+                                                <td style={{ padding: '12px', color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{item.product_name}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{qty} {item.unit || 'PCS'}</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>₹{rate.toFixed(2)}</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '14px', fontWeight: 700 }}>₹{amt.toFixed(2)}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <div style={{ width: '300px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                        <span>Subtotal:</span>
+                                        <span style={{ fontWeight: 600, color: '#0f172a' }}>₹{Number(selectedInvoice.subtotal || 0).toFixed(2)}</span>
+                                    </div>
+                                    {(Number(selectedInvoice.cgst_amount) > 0 || Number(selectedInvoice.igst_amount) > 0) && (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                            <span>Tax Amount (GST):</span>
+                                            <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{(Number(selectedInvoice.cgst_amount || 0) + Number(selectedInvoice.sgst_amount || 0) + Number(selectedInvoice.igst_amount || 0)).toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    {Number(selectedInvoice.discount_pct || 0) > 0 && (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#ef4444', fontSize: '14px' }}>
+                                            <span>Discount ({selectedInvoice.discount_pct}%):</span>
+                                            <span style={{ fontWeight: 600 }}>- ₹{(Number(selectedInvoice.subtotal || 0) * (Number(selectedInvoice.discount_pct) / 100)).toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', color: '#0f172a', fontSize: '20px', fontWeight: 900 }}>
+                                        <span>Total:</span>
+                                        <span style={{ color: '#3b82f6' }}>₹{Number(selectedInvoice.total_amount || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#16a34a', fontSize: '14px', fontWeight: 700 }}>
+                                        <span>Paid:</span>
+                                        <span>₹{Number(selectedInvoice.paid_amount || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#ef4444', fontSize: '14px', fontWeight: 700 }}>
+                                        <span>Balance:</span>
+                                        <span>₹{(Number(selectedInvoice.total_amount || 0) - Number(selectedInvoice.paid_amount || 0)).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {selectedInvoice.notes && (
+                                <div style={{ marginTop: '30px', padding: '15px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                    <h4 style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Notes / Terms</h4>
+                                    <p style={{ margin: '0', fontSize: '13px', color: '#334155', whiteSpace: 'pre-wrap' }}>{selectedInvoice.notes}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Animated Bottom FAB */}
+            <button className={`fab-animated ${isScrolled ? 'show' : ''}`} onClick={() => router.push('/dashboard/invoices/new')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                {t.newInvoice || 'New Invoice'}
+            </button>
         </div>
     );
 }

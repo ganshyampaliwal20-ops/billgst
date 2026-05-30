@@ -142,21 +142,21 @@ export default function NewQuotationPage() {
 
                 .quo-wrapper {
                     font-family: 'Plus Jakarta Sans', sans-serif;
-                    background: var(--bg); min-height: 100vh; margin: -2rem; padding: 20px; color: var(--ink);
+                    background: var(--bg); min-height: 100vh; padding: 15px; color: var(--ink);
+                    width: 100%; box-sizing: border-box; overflow-x: hidden;
                 }
 
                 .quo-card {
                     max-width: 850px; margin: 0 auto; background: var(--white);
                     border-radius: 24px; box-shadow: 0 12px 40px rgba(12,14,26,0.1);
-                    border: 1px solid var(--border); overflow: hidden;
+                    border: 1px solid var(--border); overflow: hidden; width: 100%;
                 }
 
                 .quo-head {
                     background: linear-gradient(135deg, #0f1235 0%, #1e2460 100%);
-                    padding: 30px; color: white; display: flex; justify-content: space-between; align-items: center;
+                    padding: 24px; color: white; display: flex; justify-content: center; align-items: center;
                 }
-                .quo-head h1 { font-size: 24px; font-weight: 800; margin: 0; }
-                .quo-id-pill { background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 13px; }
+                .quo-head h1 { font-size: 22px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 1.5px; }
 
                 .quo-main { padding: 30px; }
                 .sec-title { font-size: 13px; font-weight: 700; color: var(--ink4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: block; }
@@ -198,23 +198,23 @@ export default function NewQuotationPage() {
                 .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--ink4); }
                 .grand-total { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 15px; padding-top: 15px; font-size: 22px; font-weight: 800; color: var(--green); }
 
-                .actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 40px; }
-                .btn-act { padding: 14px 28px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; }
-                .btn-p { background: var(--bg); color: var(--ink); }
+                .actions-wrapper { display: flex; flex-direction: column; gap: 12px; margin-top: 40px; }
+                .action-row { display: flex; gap: 12px; width: 100%; }
+                .btn-act { flex: 1; padding: 14px 10px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+                .btn-p { background: var(--bg); color: var(--ink); border: 1px solid var(--border); }
                 .btn-b { background: var(--ink); color: white; }
                 .btn-s { background: var(--indigo); color: white; }
 
                 @media (max-width: 600px) { 
+                    .quo-main { padding: 15px; }
                     .form-grid, .summary-grid { grid-template-columns: 1fr; } 
                     .row-bottom { grid-template-columns: 1fr 1fr; }
-                    .actions { flex-direction: column; } .btn-act { width: 100%; justify-content: center; } 
                 }
             ` }} />
 
             <div className="quo-card">
                 <div className="quo-head">
-                    <h1>New Quotation</h1>
-                    <div className="quo-id-pill">{quoNumber}</div>
+                    <h1>Quotation</h1>
                 </div>
 
                 <div className="quo-main">
@@ -291,11 +291,15 @@ export default function NewQuotationPage() {
                         </div>
                     </div>
 
-                    <div className="actions">
-                        <button className="btn-act btn-p" onClick={handlePreview}><FaEye /> Preview</button>
-                        <button className="btn-act btn-b" style={{ background: '#f8fafc', color: 'var(--ink)' }} onClick={handleDownload}><FaDownload /> PDF</button>
-                        <button className="btn-act btn-b" onClick={() => handleSave(true)} disabled={loading}><FaFileInvoice /> {loading ? 'Wait' : 'Make Bill'}</button>
-                        <button className="btn-act btn-s" onClick={() => handleSave(false)} disabled={loading}><FaCheckCircle /> {loading ? 'Wait' : 'Save'}</button>
+                    <div className="actions-wrapper">
+                        <div className="action-row">
+                            <button className="btn-act btn-p" onClick={handlePreview}><FaEye /> Preview</button>
+                            <button className="btn-act btn-s" onClick={() => handleSave(false)} disabled={loading}><FaCheckCircle /> {loading ? 'Wait' : 'Save'}</button>
+                        </div>
+                        <div className="action-row">
+                            <button className="btn-act btn-p" style={{ background: '#f8fafc', color: 'var(--ink)' }} onClick={handleDownload}><FaDownload /> PDF</button>
+                            <button className="btn-act btn-b" onClick={() => handleSave(true)} disabled={loading}><FaFileInvoice /> {loading ? 'Wait' : 'Make Bill'}</button>
+                        </div>
                     </div>
                 </div>
             </div>
