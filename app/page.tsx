@@ -645,13 +645,13 @@ export default function LandingPage() {
                         </div>
                         
                         <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Internet band ho toh kya hoga?</h4>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>BillGST offline mode support karta hai. Agar aapki dukan mein internet chala jaye, tab bhi aap bill bana sakte hain. Jaise hi net aayega, data apne aap cloud par save ho jayega.</p>
+                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Kya ye mobile aur computer dono par chalta hai?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>Haan, BillGST ek fast aur secure cloud-based software hai. Aap apne mobile app aur computer (web) dono se login kar sakte hain aur aapka data hamesha auto-sync rahega.</p>
                         </div>
 
                         <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Kya ye Tally ya Vyapar se better hai?</h4>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>Tally thoda complex hai aur computer par chalta hai. Vyapar accha hai par expensive hai. BillGST mobile aur PC dono par chalta hai, isme Voice Billing (bol kar bill banana) aur WhatsApp Bot jaisi modern features hain jo saste daam me aapka samay bachati hain.</p>
+                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> BillGST baaki billing apps se behtar kyun hai?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>BillGST mein AI Voice Billing (bol kar bill banana) aur 1-Click WhatsApp Sharing jaisi modern features hain. Ye chalaane mein bahut hi aasan hai, jisse aapka bahut samay bachta hai aur pricing bhi sabse affordable hai.</p>
                         </div>
 
                         <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
