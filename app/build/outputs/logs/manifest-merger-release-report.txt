@@ -46,16 +46,20 @@ MERGED from [androidx.annotation:annotation-experimental:1.4.0] C:\Users\Ghanshy
 	xmlns:android
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:22:11-69
 uses-permission#android.permission.POST_NOTIFICATIONS
-ADDED from F:\bill\app\src\main\AndroidManifest.xml:25:9-80
+ADDED from F:\bill\app\src\main\AndroidManifest.xml:24:9-80
 	android:name
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:25:26-78
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:24:26-78
+uses-permission#android.permission.RECORD_AUDIO
+ADDED from F:\bill\app\src\main\AndroidManifest.xml:25:9-75
+	android:name
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:25:26-72
 uses-permission#com.google.android.gms.permission.AD_ID
-ADDED from F:\bill\app\src\main\AndroidManifest.xml:28:5-78
+ADDED from F:\bill\app\src\main\AndroidManifest.xml:27:5-78
 	android:name
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:28:22-76
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:27:22-76
 application
-ADDED from F:\bill\app\src\main\AndroidManifest.xml:34:5-226:19
-INJECTED from F:\bill\app\src\main\AndroidManifest.xml:34:5-226:19
+ADDED from F:\bill\app\src\main\AndroidManifest.xml:33:5-226:19
+INJECTED from F:\bill\app\src\main\AndroidManifest.xml:33:5-226:19
 MERGED from [com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\593b5c6ac746f2d018d003b97d4c054c\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:10:5-12:19
 MERGED from [com.google.androidbrowserhelper:locationdelegation:1.1.2] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\593b5c6ac746f2d018d003b97d4c054c\workspace\transformed\locationdelegation-1.1.2\AndroidManifest.xml:10:5-12:19
 MERGED from [com.android.billingclient:billing:7.1.1] C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\756bc1ef58b520f6518689bae7da3357\workspace\transformed\billing-7.1.1\AndroidManifest.xml:21:5-36:19
@@ -87,17 +91,19 @@ MERGED from [com.google.android.datatransport:transport-runtime:3.1.8] C:\Users\
 	android:supportsRtl
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:42:9-35
 	android:label
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:38:9-40
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:37:9-40
+	android:resizeableActivity
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:38:9-42
 	android:manageSpaceActivity
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:40:9-105
 	android:icon
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:37:9-43
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:36:9-43
 	android:allowBackup
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:36:9-35
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:35:9-35
 	android:theme
 		ADDED from F:\bill\app\src\main\AndroidManifest.xml:43:9-68
 	android:name
-		ADDED from F:\bill\app\src\main\AndroidManifest.xml:35:9-50
+		ADDED from F:\bill\app\src\main\AndroidManifest.xml:34:9-50
 meta-data#asset_statements
 ADDED from F:\bill\app\src\main\AndroidManifest.xml:45:9-47:58
 	android:resource

@@ -11,6 +11,63 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
     {
+        slug: 'gst-kaise-file-karein-step-by-step',
+        title: 'GST Kaise File Karein: Small Business Ke Liye Step-by-Step Guide',
+        description: 'GST return file karna ab bahut asaan hai. Janein GSTR-1 aur GSTR-3B file karne ka aasaan tarika aur galti se kaise bachein.',
+        date: 'May 30, 2026',
+        author: 'BillGST Team',
+        category: 'GST Guide',
+        content: `
+# GST Kaise File Karein: Small Business Ke Liye Step-by-Step Guide
+
+Bohot se dukandaar GST ke naam se ghabrate hain, lekin sach to yeh hai ki ek sahi software ke saath GST return file karna bahut asaan ho gaya hai.
+
+## GST Return Ke Types
+Mainly har chhote businessman ko do tarah ke return file karne hote hain:
+1. **GSTR-1**: Isme aapki har mahine ki saari Sales ki jankari hoti hai. Iski aakhri tarikh aamtaur par agle mahine ki 11 tarikh hoti hai.
+2. **GSTR-3B**: Isme aapki Sales aur Purchases ki summary hoti hai, jisse yeh tay hota hai ki aapko kitna tax dena hai. Ise 20 tarikh tak jama karna hota hai.
+
+## File Karne Ke Steps
+
+1. **Sahi Software Chunein**: Excel me manual bill banakar GST portal par upload karna purana aur muskil tarika hai. BillGST jaisa software istemaal karein.
+2. **Humesha GST Bill Banayein**: Dhyan rahe ki aap har sale ka GST invoice banayein. BillGST me har bill ka data automatically GSTR report me chala jata hai.
+3. **1-Click Download**: Mahine ke aakhir me BillGST se 'GSTR-1' ki Excel report download karein.
+4. **CA ko Bhejein ya Khud Upload Karein**: Yeh report direct apne CA ko WhatsApp kar dein, ya GST portal (gst.gov.in) par jakar khud upload kar dein.
+
+Bina kisi jhanjhat ke GST filing ke liye aaj hi BillGST istemaal karna shuru karein.
+        `
+    },
+    {
+        slug: 'small-business-best-billing-tips',
+        title: 'Small Business Ke Liye 5 Best Billing Tips: Kaise Badhayein Apna Munafa',
+        description: 'Apni dukan aur chote business ko smart banayein. In 5 billing tips se aapka time bachega aur payment bhi jaldi aayegi.',
+        date: 'May 30, 2026',
+        author: 'BillGST Team',
+        category: 'Business Growth',
+        content: `
+# Small Business Ke Liye 5 Best Billing Tips
+
+Ek chota dukandaar din bhar me bahut se kaam karta hai. Aise me manual billing me time kharab karna aur udhaar bhool jana aam baat hai. In tips ko apna kar apna business smart banayein:
+
+## 1. Hamesha Digital Invoice De
+Kagaz ki parchi par bill dena professional nahi lagta aur hisaab bhi ghum ho jata hai. Digital invoice se aapka brand accha dikhta hai aur customer trust badhta hai.
+
+## 2. WhatsApp Par Bill Share Karein
+Customer ko turant WhatsApp par PDF bill bhejein. Isse paper ka kharch bachta hai aur customer ko bill sambhalne me aasaani hoti hai. BillGST se aap ek click me WhatsApp bill bhej sakte hain.
+
+## 3. Udhaar Ka Pura Record Rakhein
+"Baad me de dunga" keh kar aksar payment ruk jati hai. Digital system me 'Payment Status' track karein aur automatically Reminder bhejein. Isse aapka cash flow sudhrega.
+
+## 4. Stock Alarms Ka Istemaal Karein
+Aisa kitni baar hua hai ki customer aaya par aapke paas saaman khatam tha? Best billing software aapko low-stock warning dete hain, taaki aap pehle se naya maal manga sakein.
+
+## 5. Daily Sales Report Dekhein
+Din ke aakhir me check karein ki aaj kitni sale hui aur kitna profit bacha. Data ke bina business badhana namumkin hai. 
+
+**Smart business, smart tools mangta hai. Aaj hi BillGST apnaayein aur apna munafa badhayein!**
+        `
+    },
+    {
         slug: 'why-billgst-is-the-best-free-gst-billing-software',
         title: 'Why BillGST is the Best Free GST Billing Software?',
         description: 'Learn how to manage inventory, create GST bills, and grow your small business with our free billing software guide.',

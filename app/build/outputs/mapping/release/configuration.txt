@@ -1,6 +1,8 @@
 # The proguard configuration file for the following section is F:\bill\app\build\intermediates\aapt_proguard_file\release\processReleaseResources\aapt_rules.txt
 -keep class androidx.core.app.CoreComponentFactory { <init>(); }
 -keep class androidx.core.content.FileProvider { <init>(); }
+-keep class androidx.profileinstaller.ProfileInstallReceiver { <init>(); }
+-keep class androidx.startup.InitializationProvider { <init>(); }
 -keep class com.android.billingclient.api.ProxyBillingActivity { <init>(); }
 -keep class com.android.billingclient.api.ProxyBillingActivityV2 { <init>(); }
 -keep class com.google.android.datatransport.runtime.backends.TransportBackendDiscovery { <init>(); }
@@ -13,10 +15,10 @@
 -keep class com.google.androidbrowserhelper.trusted.FocusActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity { <init>(); }
--keep class com.google.androidbrowserhelper.trusted.WebViewFallbackActivity { <init>(); }
 -keep class in.billgst.app.Application { <init>(); }
 -keep class in.billgst.app.DelegationService { <init>(); }
 -keep class in.billgst.app.LauncherActivity { <init>(); }
+-keep class in.billgst.app.WebViewFallbackActivity { <init>(); }
 -keep class androidx.browser.browseractions.BrowserActionsFallbackMenuView { <init>(android.content.Context, android.util.AttributeSet); }
 
 
@@ -248,30 +250,41 @@
 
 
 # End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\8ffe1c2e2e3939f6c79666996c09fe37\workspace\transformed\play-services-basement-18.4.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\c47b02e7d3e7f3657e10442b9c8b73b2\workspace\transformed\core-1.2.0\proguard.txt
-# aapt2 is not (yet) keeping FQCNs defined in the appComponentFactory <application> attribute
--keep class androidx.core.app.CoreComponentFactory
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\813d47a39351d8e522b34a1f433d1e71\workspace\transformed\savedstate-1.2.1\proguard.txt
+# Copyright (C) 2019 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\c47b02e7d3e7f3657e10442b9c8b73b2\workspace\transformed\core-1.2.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\7b2d734251b29ded7c845c3a36aa76c6\workspace\transformed\versionedparcelable-1.1.0\proguard.txt
--keep public class * implements androidx.versionedparcelable.VersionedParcelable
--keep public class android.support.**Parcelizer { *; }
--keep public class androidx.**Parcelizer { *; }
--keep public class androidx.versionedparcelable.ParcelImpl
+-keepclassmembers,allowobfuscation class * implements androidx.savedstate.SavedStateRegistry$AutoRecreated {
+    <init>();
+}
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\7b2d734251b29ded7c845c3a36aa76c6\workspace\transformed\versionedparcelable-1.1.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\proguard.txt
--dontwarn com.google.auto.value.AutoValue
--dontwarn com.google.auto.value.AutoValue$Builder
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\813d47a39351d8e522b34a1f433d1e71\workspace\transformed\savedstate-1.2.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4a1f57247fc036464e49712cd9f5d83f\workspace\transformed\lifecycle-viewmodel-2.6.2\proguard.txt
+-keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
+    <init>();
+}
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\f3370b3b0700ba19313e3a367850a066\workspace\transformed\transport-api-3.0.0\proguard.txt
--dontwarn com.google.auto.value.AutoValue
--dontwarn com.google.auto.value.AutoValue$Builder
+-keepclassmembers,allowobfuscation class * extends androidx.lifecycle.AndroidViewModel {
+    <init>(android.app.Application);
+}
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\f3370b3b0700ba19313e3a367850a066\workspace\transformed\transport-api-3.0.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e043f9ab23b8e33c70e3cb137e5e2ccf\workspace\transformed\lifecycle-runtime-2.3.1\proguard.txt
--keepattributes *Annotation*
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4a1f57247fc036464e49712cd9f5d83f\workspace\transformed\lifecycle-viewmodel-2.6.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\83d06e84d8dddd1a96d10186dec705ab\workspace\transformed\lifecycle-runtime-2.6.2\proguard.txt
+-keepattributes AnnotationDefault,
+                RuntimeVisibleAnnotations,
+                RuntimeVisibleParameterAnnotations,
+                RuntimeVisibleTypeAnnotations
 
 -keepclassmembers enum androidx.lifecycle.Lifecycle$Event {
     <fields>;
@@ -291,8 +304,8 @@
 # this rule is need to work properly when app is compiled with api 28, see b/142778206
 # Also this rule prevents registerIn from being inlined.
 -keepclassmembers class androidx.lifecycle.ReportFragment$LifecycleCallbacks { *; }
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e043f9ab23b8e33c70e3cb137e5e2ccf\workspace\transformed\lifecycle-runtime-2.3.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\9830145b01d25f54617fe3144190b129\workspace\transformed\lifecycle-viewmodel-savedstate-2.3.1\proguard.txt
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\83d06e84d8dddd1a96d10186dec705ab\workspace\transformed\lifecycle-runtime-2.6.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\c6ba137c1b233e2a8795ab39f466d199\workspace\transformed\lifecycle-viewmodel-savedstate-2.6.2\proguard.txt
 -keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
     <init>(androidx.lifecycle.SavedStateHandle);
 }
@@ -301,41 +314,62 @@
     <init>(android.app.Application,androidx.lifecycle.SavedStateHandle);
 }
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\9830145b01d25f54617fe3144190b129\workspace\transformed\lifecycle-viewmodel-savedstate-2.3.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\a89c211e03c3d41986ae855068aff932\workspace\transformed\lifecycle-viewmodel-2.3.1\proguard.txt
--keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\c6ba137c1b233e2a8795ab39f466d199\workspace\transformed\lifecycle-viewmodel-savedstate-2.6.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\proguard.txt
+# Never inline methods, but allow shrinking and obfuscation.
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.ViewCompat$Api* {
+  <methods>;
+}
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.WindowInsetsCompat$*Impl* {
+  <methods>;
+}
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.app.NotificationCompat$*$Api*Impl {
+  <methods>;
+}
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.os.UserHandleCompat$Api*Impl {
+  <methods>;
+}
+-keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.widget.EdgeEffectCompat$Api*Impl {
+  <methods>;
+}
+
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\34a6c016aa83420b044cc5ef2c667b2d\workspace\transformed\core-1.13.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\a96179964773bed38e89ac75706c9f29\workspace\transformed\startup-runtime-1.1.1\proguard.txt
+# It's important that we preserve initializer names, given they are used in the AndroidManifest.xml.
+-keepnames class * extends androidx.startup.Initializer
+
+# These Proguard rules ensures that ComponentInitializers are are neither shrunk nor obfuscated,
+# and are a part of the primary dex file. This is because they are discovered and instantiated
+# during application startup.
+-keep class * extends androidx.startup.Initializer {
+    # Keep the public no-argument constructor while allowing other methods to be optimized.
     <init>();
 }
 
--keepclassmembers,allowobfuscation class * extends androidx.lifecycle.AndroidViewModel {
-    <init>(android.app.Application);
-}
+-assumenosideeffects class androidx.startup.StartupLogger { public static <methods>; }
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\a89c211e03c3d41986ae855068aff932\workspace\transformed\lifecycle-viewmodel-2.3.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4f6937b351329520c26513694d698d19\workspace\transformed\savedstate-1.1.0\proguard.txt
-# Copyright (C) 2019 The Android Open Source Project
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\a96179964773bed38e89ac75706c9f29\workspace\transformed\startup-runtime-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\de138ad6917b184ac96ce128964ff739\workspace\transformed\versionedparcelable-1.1.1\proguard.txt
+-keep class * implements androidx.versionedparcelable.VersionedParcelable
+-keep public class android.support.**Parcelizer { *; }
+-keep public class androidx.**Parcelizer { *; }
+-keep public class androidx.versionedparcelable.ParcelImpl
 
--keepclassmembers,allowobfuscation class * implements androidx.savedstate.SavedStateRegistry$AutoRecreated {
-    <init>();
-}
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\de138ad6917b184ac96ce128964ff739\workspace\transformed\versionedparcelable-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\proguard.txt
+-dontwarn com.google.auto.value.AutoValue
+-dontwarn com.google.auto.value.AutoValue$Builder
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\4f6937b351329520c26513694d698d19\workspace\transformed\savedstate-1.1.0\proguard.txt
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e1d8f71b399a04aa6138905f901d4ed7\workspace\transformed\transport-backend-cct-3.1.8\proguard.txt
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\f3370b3b0700ba19313e3a367850a066\workspace\transformed\transport-api-3.0.0\proguard.txt
+-dontwarn com.google.auto.value.AutoValue
+-dontwarn com.google.auto.value.AutoValue$Builder
+
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\f3370b3b0700ba19313e3a367850a066\workspace\transformed\transport-api-3.0.0\proguard.txt
 # The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ca208fa7b83d580c815899ec6db43e6a\workspace\transformed\firebase-encoders-json-18.0.0\proguard.txt
 
 # End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\ca208fa7b83d580c815899ec6db43e6a\workspace\transformed\firebase-encoders-json-18.0.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\cf0290c0d0522f28372b7f67dfa78b7d\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e68dd9ef8b0ead6cd1dd6a64c7663f83\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
 -keep,allowobfuscation @interface androidx.annotation.Keep
 -keep @androidx.annotation.Keep class * {*;}
 
@@ -355,7 +389,62 @@
   @androidx.annotation.DoNotInline <methods>;
 }
 
-# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\cf0290c0d0522f28372b7f67dfa78b7d\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\e68dd9ef8b0ead6cd1dd6a64c7663f83\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\6eacfc6415386de3111298c99fe89df0\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\coroutines.pro
+# When editing this file, update the following files as well:
+# - META-INF/proguard/coroutines.pro
+# - META-INF/com.android.tools/proguard/coroutines.pro
+
+# Most of volatile fields are updated with AFU and should not be mangled
+-keepclassmembers class kotlinx.coroutines.** {
+    volatile <fields>;
+}
+
+# Same story for the standard library's SafeContinuation that also uses AtomicReferenceFieldUpdater
+-keepclassmembers class kotlin.coroutines.SafeContinuation {
+    volatile <fields>;
+}
+
+# These classes are only required by kotlinx.coroutines.debug.AgentPremain, which is only loaded when
+# kotlinx-coroutines-core is used as a Java agent, so these are not needed in contexts where ProGuard is used.
+-dontwarn java.lang.instrument.ClassFileTransformer
+-dontwarn sun.misc.SignalHandler
+-dontwarn java.lang.instrument.Instrumentation
+-dontwarn sun.misc.Signal
+
+# Only used in `kotlinx.coroutines.internal.ExceptionsConstructor`.
+# The case when it is not available is hidden in a `try`-`catch`, as well as a check for Android.
+-dontwarn java.lang.ClassValue
+
+# An annotation used for build tooling, won't be directly accessed.
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\6eacfc6415386de3111298c99fe89df0\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\coroutines.pro
+# The proguard configuration file for the following section is C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\df702f7b3b2adf9a122d92c166ad4a25\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
+# Allow R8 to optimize away the FastServiceLoader.
+# Together with ServiceLoader optimization in R8
+# this results in direct instantiation when loading Dispatchers.Main
+-assumenosideeffects class kotlinx.coroutines.internal.MainDispatcherLoader {
+    boolean FAST_SERVICE_LOADER_ENABLED return false;
+}
+
+-assumenosideeffects class kotlinx.coroutines.internal.FastServiceLoaderKt {
+    boolean ANDROID_DETECTED return true;
+}
+
+# Disable support for "Missing Main Dispatcher", since we always have Android main dispatcher
+-assumenosideeffects class kotlinx.coroutines.internal.MainDispatchersKt {
+    boolean SUPPORT_MISSING return false;
+}
+
+# Statically turn off all debugging facilities and assertions
+-assumenosideeffects class kotlinx.coroutines.DebugKt {
+    boolean getASSERTIONS_ENABLED() return false;
+    boolean getDEBUG() return false;
+    boolean getRECOVER_STACK_TRACES() return false;
+}
+
+# End of content from C:\Users\Ghanshyam\.gradle\caches\9.1.0\transforms\df702f7b3b2adf9a122d92c166ad4a25\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
 # The proguard configuration file for the following section is <unknown>
 
 # End of content from <unknown>

@@ -18,10 +18,24 @@ export default function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isEnglish, setIsEnglish] = useState(false);
+    const [showExitPopup, setShowExitPopup] = useState(false);
 
     // Form States
     const [loginData, setLoginData] = useState({ email: '', password: '' });
     const [signupData, setSignupData] = useState({ name: '', email: '', password: '', refCode: '' });
+
+    // Exit Intent Logic
+    useEffect(() => {
+        const handleMouseLeave = (e: MouseEvent) => {
+            if (e.clientY <= 0 && !sessionStorage.getItem('exitPopupShown')) {
+                setShowExitPopup(true);
+                sessionStorage.setItem('exitPopupShown', 'true');
+            }
+        };
+        document.addEventListener('mouseleave', handleMouseLeave);
+        return () => document.removeEventListener('mouseleave', handleMouseLeave);
+    }, []);
 
     // Prices Data
     const prices = [{ m: 0, y: 0 }, { m: 99, y: 99 }, { m: 299, y: 299 }];
@@ -172,7 +186,9 @@ export default function LandingPage() {
                 </ul>
                 <div className="nav-end">
                     <div className="lang-wrap">
-                        <button className="lang-btn">🌐 Hindi</button>
+                        <button className="lang-btn" onClick={() => setIsEnglish(!isEnglish)}>
+                            {isEnglish ? '🌐 English' : '🌐 Hindi'}
+                        </button>
                     </div>
                     <button className="btn-ghost" onClick={() => openM('login')}>Login</button>
                     <button className="btn-cta" onClick={() => openM('signup')}>Free Signup</button>
@@ -199,83 +215,127 @@ export default function LandingPage() {
                     <span className="chip">New</span>
                     <span>Voice Billing AI is now live! 🎙️</span>
                 </div>
-                <h1 className="fi">
-                    India की दुकान के लिए <br />
-                    <span className="g1">Smart Billing Software</span> <br />
-                    पर अब <span className="g2">GST</span> की कोई टेंशन नहीं।
+                <h1 className="">
+                    {isEnglish ? (
+                        <>
+                            Smart Billing Software for <br />
+                            <span className="g1">India's Businesses</span> <br />
+                            No More <span className="g2">GST</span> Tension.
+                        </>
+                    ) : (
+                        <>
+                            India की दुकान के लिए <br />
+                            <span className="g1">Smart Billing Software</span> <br />
+                            पर अब <span className="g2">GST</span> की कोई टेंशन नहीं।
+                        </>
+                    )}
                 </h1>
-                <p className="hero-desc fi">
-                    BillGST एक आसान Billing & Inventory App है जो आपकी दुकान को Digital बनाता है।
-                    Free Invoices, Stock Alert, और WhatsApp Billing के साथ।
+                <p className="hero-desc">
+                    {isEnglish ? 
+                        "BillGST is an easy Billing & Inventory App that makes your business digital. With Free Invoices, Stock Alerts, and WhatsApp Billing." :
+                        "BillGST एक आसान Billing & Inventory App है जो आपकी दुकान को Digital बनाता है। Free Invoices, Stock Alert, और WhatsApp Billing के साथ।"
+                    }
                 </p>
-                <div className="hero-actions fi">
-                    <button className="btn-hero" onClick={() => openM('signup')}>🚀 अभी मुफ्त शुरू करें</button>
-                    <button className="btn-hero2" onClick={() => openM('login')}>Login करें →</button>
+                <div className="hero-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                    <button className="btn-hero" style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)', padding: '18px 36px', fontSize: '20px', fontWeight: '900', boxShadow: '0 10px 30px rgba(234, 88, 12, 0.5)', width: '100%', maxWidth: '400px' }} onClick={() => openM('signup')}>
+                        🚀 {isEnglish ? "Start for Free Now — No Card Required" : "Abhi Free Mein Shuru Karein — No Card Required"}
+                    </button>
+
+                    <a href="https://play.google.com/store/apps/details?id=in.billgst.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', color: '#fff', padding: '10px 24px', borderRadius: '12px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.15)', width: '100%', maxWidth: '400px', justifyContent: 'center', transition: '0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+                        <svg viewBox="0 0 512 512" width="28" height="28"><path fill="#4caf50" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z"/><path fill="#03a9f4" d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z"/><path fill="#ffeb3b" d="M472.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8z"/><path fill="#f44336" d="M104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
+                        <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, lineHeight: 1 }}>GET IT ON</div>
+                            <div style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1.2 }}>Google Play</div>
+                        </div>
+                    </a>
+
+                    <button className="btn-hero2" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.8)', padding: '12px 24px' }} onClick={() => openM('login')}>{isEnglish ? "Already have an account? Login →" : "Pehle se account hai? Login karein →"}</button>
                 </div>
-                <p className="hero-note fi">✦ Starter plan में <span>30 GST Bills</span> हर महीने बिल्कुल मुफ्त</p>
+                <p className="hero-note" style={{ marginBottom: '20px' }}>✦ {isEnglish ? "Starter plan includes 30 free GST Bills every month" : "Starter plan में 30 GST Bills हर महीने बिल्कुल मुफ्त"}</p>
+
+                {/* TRUST SIGNALS */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px', marginTop: '10px', marginBottom: '50px', position: 'relative', zIndex: 10, animation: 'fadeUp 0.6s ease 0.5s both' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.1)', padding: '8px 18px', borderRadius: '50px', border: '1px solid rgba(16, 185, 129, 0.25)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.1)' }}>
+                        <span style={{ fontSize: '18px' }}>🔒</span>
+                        <span style={{ fontSize: '14px', color: '#10b981', fontWeight: '700', letterSpacing: '0.3px' }}>100% Secure & Encrypted</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(79, 142, 247, 0.1)', padding: '8px 18px', borderRadius: '50px', border: '1px solid rgba(79, 142, 247, 0.25)', boxShadow: '0 4px 15px rgba(79, 142, 247, 0.1)' }}>
+                        <span style={{ fontSize: '18px' }}>🛡️</span>
+                        <span style={{ fontSize: '14px', color: '#4F8EF7', fontWeight: '700', letterSpacing: '0.3px' }}>Bank-Level Security</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(245, 158, 11, 0.1)', padding: '8px 18px', borderRadius: '50px', border: '1px solid rgba(245, 158, 11, 0.25)', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.1)' }}>
+                        <span style={{ fontSize: '18px' }}>📜</span>
+                        <span style={{ fontSize: '14px', color: '#fbbf24', fontWeight: '700', letterSpacing: '0.3px' }}>Independent (Not Govt. Affiliated)</span>
+                    </div>
+                </div>
 
                 {/* DASHBOARD PREVIEW */}
-                <div className="db-wrap fi">
-                    <div className="db-glow"></div>
-                    <div className="db-frame">
+                <div className="db-wrap" style={{ background: 'transparent', padding: '0', border: 'none', boxShadow: 'none' }}>
+                    <div className="db-glow" style={{ top: '20%', height: '60%' }}></div>
+                    <div className="db-frame" style={{ background: '#0f172a', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}>
                         <div className="db-bar">
                             <span className="dot r"></span><span className="dot y"></span><span className="dot g"></span>
                             <div className="db-url">app.billgst.in/<b>dashboard</b></div>
                         </div>
-                        <div className="db-content">
-                            <div className="db-side">
-                                <div className="si on">📊 Reports</div>
-                                <div className="si">🧾 Invoices</div>
-                                <div className="si">📦 Inventory</div>
-                                <div className="si">👥 Customers</div>
-                                <div className="si">⚙️ Settings</div>
-                            </div>
-                            <div className="db-main">
-                                <div className="kpi-row">
-                                    <div className="kpi"><div className="k-lbl">Total Sales</div><div className="k-val">₹4,82,500</div><div className="k-ch up">↑ 12%</div></div>
-                                    <div className="kpi"><div className="k-lbl">New Bills</div><div className="k-val">128</div><div className="k-ch up">↑ 4%</div></div>
-                                    <div className="kpi"><div className="k-lbl">Profit</div><div className="k-val">₹92,400</div><div className="k-ch up">↑ 8%</div></div>
-                                    <div className="kpi"><div className="k-lbl">Due Udhar</div><div className="k-val">₹12,400</div><div className="k-ch dn">↓ 20%</div></div>
+                        <img src="/dashboard-preview.png" alt="BillGST Dashboard Preview" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                    </div>
+                </div>
+
+                {/* REFER & EARN SECTION */}
+                <div style={{ marginTop: '80px', width: '100%', maxWidth: '800px', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.1), rgba(249, 115, 22, 0.05))', border: '1px solid rgba(234, 88, 12, 0.3)', borderRadius: '20px', padding: '30px', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+                    <div style={{ fontSize: '32px', marginBottom: '10px' }}>🎁</div>
+                    <h3 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px', color: '#fff' }}>Refer & Earn Program</h3>
+                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', marginBottom: '20px', lineHeight: '1.6' }}>
+                        Dost ko refer karo aur dono pao ₹500 ka seedha discount apne Premium Plan par. Koi limit nahi, jitne refer karoge utna kamaoge!
+                    </p>
+                    <button className="btn-hero" style={{ margin: '0 auto', background: '#ea580c', padding: '12px 28px', fontSize: '16px' }} onClick={() => openM('signup')}>
+                        Generate Referral Link
+                    </button>
+                </div>
+            </section>
+
+            {/* TESTIMONIALS */}
+            <section className="sec" id="testimonials" style={{ background: '#0a0f1c' }}>
+                <div className="sec-in">
+                    <div className="tc">
+                        <div className="tag">Customer Love</div>
+                        <h2 className="sec-h">भारत के हज़ारों दुकानदारों की पहली पसंद</h2>
+                    </div>
+                    <div className="testi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '40px' }}>
+                        <div className="testi-card" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ color: '#fbbf24', fontSize: '20px', marginBottom: '12px' }}>★★★★★</div>
+                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', lineHeight: '1.6', marginBottom: '20px' }}>"Pehle copy me hisab likhne me bahut time jata tha. BillGST se ab 10 second me WhatsApp par bill bhej deta hu. Stock bhi maintain rahata hai."</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#4F8EF7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>R</div>
+                                <div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '15px' }}>Ramesh Gupta</div>
+                                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Ramesh Kirana Store, Pune</div>
                                 </div>
-                                <div className="mid-row">
-                                    <div className="chart-card">
-                                        <h5>Monthly Growth</h5>
-                                        <div className="bars">
-                                            <div className="bar" style={{ height: '30%', background: '#4F8EF7' }}></div>
-                                            <div className="bar" style={{ height: '45%', background: '#4F8EF7' }}></div>
-                                            <div className="bar" style={{ height: '65%', background: '#4F8EF7' }}></div>
-                                            <div className="bar" style={{ height: '85%', background: 'var(--grad)' }}></div>
-                                        </div>
-                                    </div>
-                                    <div className="bills-card">
-                                        <h5>Recent Activity</h5>
-                                        <div className="bill-row2"><span className="bname">Gaurav Sharma</span><span className="badge paid">Paid</span></div>
-                                        <div className="bill-row2"><span className="bname">Amit Traders</span><span className="badge pend">Unpaid</span></div>
-                                        <div className="bill-row2"><span className="bname">Ravi Kumar</span><span className="badge paid">Paid</span></div>
-                                    </div>
+                            </div>
+                        </div>
+                        <div className="testi-card" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ color: '#fbbf24', fontSize: '20px', marginBottom: '12px' }}>★★★★★</div>
+                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', lineHeight: '1.6', marginBottom: '20px' }}>"Voice billing feature toh kamaal hai! Tyohar ke time bhid me bas bol ke bill ban jata hai. Bahut easy software hai."</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>A</div>
+                                <div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '15px' }}>Amit Sharma</div>
+                                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Sharma Electronics, Delhi</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="testi-card" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ color: '#fbbf24', fontSize: '20px', marginBottom: '12px' }}>★★★★★</div>
+                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', lineHeight: '1.6', marginBottom: '20px' }}>"Udhar ka hisab rakhna bahut asan ho gaya hai. Ek click me party ko udhar ka PDF chala jata hai. Must use app for shopkeepers!"</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>V</div>
+                                <div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '15px' }}>Vikash Patel</div>
+                                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Patel Garments, Surat</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-
-            {/* TRUST */}
-            <section className="trust">
-                <div className="trust-in">
-                    <p className="trust-lbl">Trusted by 50,000+ Smart Retailers</p>
-                    <div className="trust-logos">
-                        <span className="tl">KIRANA STORES</span><span className="tl">ELECTRICAL SHOP</span>
-                        <span className="tl">MEDICAL PHARMACY</span><span className="tl">RESTAURANTS</span>
-                    </div>
-                </div>
-            </section>
-
-            {/* STATS */}
-            <section className="stats">
-                <div className="stats-in">
-                    <div className="stat"><div className="stat-n">50k+</div><div className="stat-l">Active Users</div></div>
-                    <div className="stat"><div className="stat-n">1M+</div><div className="stat-l">Bills Created</div></div>
                 </div>
             </section>
 
@@ -284,23 +344,23 @@ export default function LandingPage() {
                 <div className="sec-in">
                     <div className="tc">
                         <div className="tag">Quick Guide</div>
-                        <h2 className="sec-h fi">BillGST का उपयोग करना बहुत आसान है</h2>
-                        <p className="sec-p fi">सिर्फ 3 आसान स्टेप्स में अपनी दुकान डिजिटल बनाएं।</p>
+                        <h2 className="sec-h">BillGST का उपयोग करना बहुत आसान है</h2>
+                        <p className="sec-p">सिर्फ 3 आसान स्टेप्स में अपनी दुकान डिजिटल बनाएं।</p>
                     </div>
                     <div className="step-grid">
-                        <div className="step-card fi">
+                        <div className="step-card">
                             <div className="s-num">1</div>
                             <div className="s-icon">📦</div>
                             <h4>Product Add करें</h4>
                             <p>बस "Add Product" पर क्लिक करें, नाम और रेट डालें। आपका Stock तैयार है!</p>
                         </div>
-                        <div className="step-card fi">
+                        <div className="step-card">
                             <div className="s-num">2</div>
                             <div className="s-icon">📝</div>
                             <h4>Invoice बनाएं</h4>
                             <p>Customer और Items चुनें। GST अपने आप कैलकुलेट हो जाएगा।</p>
                         </div>
-                        <div className="step-card fi">
+                        <div className="step-card">
                             <div className="s-num">3</div>
                             <div className="s-icon">📲</div>
                             <h4>WhatsApp भेजें</h4>
@@ -316,25 +376,25 @@ export default function LandingPage() {
                     <div className="magic-flex">
                         <div className="magic-content">
                             <div className="tag magic-tag">AI Powered</div>
-                            <h2 className="sec-h fi">BillGST AI — बोलकर बिल बनाएं</h2>
-                            <p className="magic-p fi">टाइप करने की कोई ज़रूरत नहीं! हमारी AI तकनीक से आप वैसे ही बिल बना सकते हैं जैसे आप किसी से बात करते हैं।</p>
+                            <h2 className="sec-h">BillGST AI — बोलकर बिल बनाएं</h2>
+                            <p className="magic-p">टाइप करने की कोई ज़रूरत नहीं! हमारी AI तकनीक से आप वैसे ही बिल बना सकते हैं जैसे आप किसी से बात करते हैं।</p>
 
                             <div className="magic-features-list">
-                                <div className="mf-item fi">
+                                <div className="mf-item">
                                     <div className="mf-icon">🎙️</div>
                                     <div className="mf-text">
                                         <h4>Voice Billing</h4>
                                         <p>"1 किलो चीनी और 2 पैकेट बिस्किट" बोलें, और बिल अपने आप बन जाएगा।</p>
                                     </div>
                                 </div>
-                                <div className="mf-item fi">
+                                <div className="mf-item">
                                     <div className="mf-icon">🪄</div>
                                     <div className="mf-text">
                                         <h4>Magic Invoice</h4>
                                         <p>किसी भी पुराने बिल या फोटो से डेटा अपने आप खींचकर डिजिटल इनवॉइस बनाएं।</p>
                                     </div>
                                 </div>
-                                <div className="mf-item fi">
+                                <div className="mf-item">
                                     <div className="mf-icon">📊</div>
                                     <div className="mf-text">
                                         <h4>Smart Insights</h4>
@@ -343,7 +403,7 @@ export default function LandingPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="magic-visual fi">
+                        <div className="magic-visual">
                             <div className="v-card">
                                 <div className="v-shimmer"></div>
                                 <div className="v-mic">🎙️</div>
@@ -366,21 +426,21 @@ export default function LandingPage() {
                 <div className="sec-in">
                     <div className="tc">
                         <div className="tag">Powerful Tools</div>
-                        <h2 className="sec-h fi">Everything you need to manage your business</h2>
-                        <p className="sec-p fi">All the features to make your shop smart and digital.</p>
+                        <h2 className="sec-h">Everything you need to manage your business</h2>
+                        <p className="sec-p">All the features to make your shop smart and digital.</p>
                     </div>
                     <div className="core-grid">
-                        <div className="core-card fi">
+                        <div className="core-card">
                             <div className="c-icon blue">🧾</div>
                             <h4>GST & Non-GST Billing</h4>
                             <p>Create professional GST compliant invoices in seconds with our easy-to-use interface. Support for all thermal and regular printers.</p>
                         </div>
-                        <div className="core-card fi">
+                        <div className="core-card">
                             <div className="c-icon green">📦</div>
                             <h4>Inventory Management</h4>
                             <p>Track stock levels in real-time, get low-stock alerts, and manage product variants effortlessly.</p>
                         </div>
-                        <div className="core-card fi">
+                        <div className="core-card">
                             <div className="c-icon purple">💬</div>
                             <h4>WhatsApp Integration</h4>
                             <p>Automate your business on WhatsApp. Send invoices, payment reminders, and status updates instantly to your customers.</p>
@@ -394,16 +454,65 @@ export default function LandingPage() {
                 <div className="sec-in">
                     <div className="tc">
                         <div className="tag">For Everyone</div>
-                        <h2 className="sec-h fi">हर दुकानदार के लिए, हर भाषा में</h2>
-                        <p className="sec-p fi">चाहे आपकी किराना दुकान हो या बड़ा शोरूम — BillGST आपके लिए बना है।</p>
+                        <h2 className="sec-h">हर दुकानदार के लिए, हर भाषा में</h2>
+                        <p className="sec-p">चाहे आपकी किराना दुकान हो या बड़ा शोरूम — BillGST आपके लिए बना है।</p>
                     </div>
                     <div className="who-grid">
-                        <div className="who fi"><span className="who-icon">🛒</span><h4>General Store</h4><p>Fast Billing</p></div>
-                        <div className="who fi"><span className="who-icon">💡</span><h4>Electric Shop</h4><p>Serial Number</p></div>
-                        <div className="who fi"><span className="who-icon">👕</span><h4>Garments</h4><p>Size & Color</p></div>
-                        <div className="who fi"><span className="who-icon">💊</span><h4>Medical</h4><p>Expiry Alert</p></div>
-                        <div className="who fi"><span className="who-icon">🍔</span><h4>Restaurant</h4><p>Table Support</p></div>
-                        <div className="who fi"><span className="who-icon">🔧</span><h4>Automobile</h4><p>Service Job</p></div>
+                        <div className="who"><span className="who-icon">🛒</span><h4>General Store</h4><p>Fast Billing</p></div>
+                        <div className="who"><span className="who-icon">💡</span><h4>Electric Shop</h4><p>Serial Number</p></div>
+                        <div className="who"><span className="who-icon">👕</span><h4>Garments</h4><p>Size & Color</p></div>
+                        <div className="who"><span className="who-icon">💊</span><h4>Medical</h4><p>Expiry Alert</p></div>
+                        <div className="who"><span className="who-icon">🍔</span><h4>Restaurant</h4><p>Table Support</p></div>
+                        <div className="who"><span className="who-icon">🔧</span><h4>Automobile</h4><p>Service Job</p></div>
+                    </div>
+                </div>
+            </section>
+
+            {/* COMPETITOR COMPARISON */}
+            <section className="sec" id="compare" style={{ background: '#0a0f1c' }}>
+                <div className="sec-in">
+                    <div className="tc">
+                        <div className="tag">Why Choose Us?</div>
+                        <h2 className="sec-h">BillGST vs Vyapar vs Tally</h2>
+                        <p className="sec-p">Dekhiye hum kyu behtar hain!</p>
+                    </div>
+                    <div style={{ overflowX: 'auto', marginTop: '30px' }}>
+                        <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', background: '#121a2f', borderRadius: '16px', overflow: 'hidden' }}>
+                            <thead>
+                                <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <th style={{ padding: '20px', textAlign: 'left', color: '#fff', fontSize: '18px' }}>Features</th>
+                                    <th style={{ padding: '20px', textAlign: 'center', color: '#10b981', fontSize: '20px', fontWeight: 'bold' }}>BillGST</th>
+                                    <th style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Vyapar</th>
+                                    <th style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Tally</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <td style={{ padding: '16px 20px', color: '#fff' }}>Free GST Bills</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>30/Month Free</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Paid</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Paid</td>
+                                </tr>
+                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <td style={{ padding: '16px 20px', color: '#fff' }}>Ease of Use</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>Very Easy (No Training)</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#fbbf24' }}>Moderate</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Requires Training</td>
+                                </tr>
+                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <td style={{ padding: '16px 20px', color: '#fff' }}>WhatsApp Billing</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>✅ Native</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981' }}>✅ Yes</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>❌ Add-on</td>
+                                </tr>
+                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <td style={{ padding: '16px 20px', color: '#fff' }}>Cloud Sync (Multi-Device)</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>✅ Free</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Paid Add-on</td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Complicated setup</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -413,9 +522,10 @@ export default function LandingPage() {
                 <div className="pricing-in">
                     <div className="tc">
                         <div className="tag">Simple Pricing</div>
-                        <h2 className="sec-h fi">Transparent Pricing — कोई hidden charge नहीं</h2>
-                        <p className="sec-p fi">शुरुआत करें, दुकान बढ़े तो upgrade करें। Yearly लो और 30% बचाओ।</p>
+                        <h2 className="sec-h">Transparent Pricing — कोई hidden charge नहीं</h2>
+                        <p className="sec-p">शुरुआत करें, दुकान बढ़े तो upgrade करें। Yearly लो और 30% बचाओ।</p>
                     </div>
+
                     <div className="toggle-row">
                         <span className={`tog-l ${!yearly ? 'active' : ''}`}>Monthly</span>
                         <button className={`tog ${yearly ? 'on' : ''}`} onClick={() => setYearly(!yearly)}></button>
@@ -423,7 +533,7 @@ export default function LandingPage() {
                     </div>
                     <div className="p-grid">
                         {prices.map((p, i) => (
-                            <div key={i} className={`p-card ${i === 1 ? 'pop' : ''} fi`}>
+                            <div key={i} className={`p-card ${i === 1 ? 'pop' : ''}`}>
                                 {i === 1 && <div className="pp-badge">⭐ Most Popular</div>}
                                 <div className="p-name">{i === 0 ? 'Free Plan' : i === 1 ? 'Premium Growth' : 'Yearly Pro'}</div>
                                 <div className="p-amount">₹<span>{yearly ? p.y : p.m}</span></div>
@@ -431,7 +541,7 @@ export default function LandingPage() {
                                 <div className="p-save">{yearly && p.m > p.y ? `₹${(p.m - p.y) * 12} saved per year` : ''}</div>
                                 <div className="p-divider"></div>
                                 <ul className="p-features">
-                                    <li className="yes">{i === 0 ? '30 Invoices / month' : 'Unlimited Bills'}</li>
+                                    <li className="yes">{i === 0 ? <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Max 30 Invoices / mo</span> : 'Unlimited Bills'}</li>
                                     <li className="yes">GST + GSTR-1 Report</li>
                                     <li className={i === 0 ? 'no' : 'yes'}>Full Stock Management</li>
                                     <li className={i === 2 ? 'yes' : 'no'}>Voice Billing (AI)</li>
@@ -439,8 +549,100 @@ export default function LandingPage() {
                                 <button className={i === 1 ? 'btn-pf' : 'btn-po'} onClick={() => openM('signup')}>
                                     {i === 1 ? 'अभी शुरू करें →' : 'Get Started'}
                                 </button>
+                                <a href="#compare-plans" style={{ display: 'block', textAlign: 'center', marginTop: '16px', fontSize: '13.5px', color: '#7CB3FF', textDecoration: 'none', fontWeight: '600' }}>View full comparison ↓</a>
                             </div>
                         ))}
+                    </div>
+
+                    <div id="compare-plans" className="pricing-comp" style={{ maxWidth: '900px', margin: '60px auto 0', background: '#0B0F1A', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', scrollMarginTop: '100px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)', fontWeight: 'bold', padding: '20px', textAlign: 'center', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px', fontSize: '18px', color: '#F0F4FF' }}>Feature Comparison</div>
+                            <div style={{ color: '#94a3b8', fontSize: '18px' }}>Free Plan</div>
+                            <div style={{ color: '#4F8EF7', fontSize: '18px' }}>Premium Plan</div>
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: '600' }}>Invoices & Billing</div>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Number of bills you can create</div>
+                            </div>
+                            <div style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '14px', background: 'rgba(239, 68, 68, 0.1)', padding: '6px 12px', borderRadius: '8px', display: 'inline-block', margin: '0 auto' }}>Max 30 Invoices / Month</div>
+                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>Unlimited 🚀</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: '600' }}>Inventory Management</div>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Stock tracking & alerts</div>
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: '15px' }}>Basic (Add/Edit only)</div>
+                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>Full + Low Stock Alerts 📦</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: '600' }}>AI Voice Billing</div>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Create bills by just speaking</div>
+                            </div>
+                            <div style={{ color: '#64748b', fontSize: '15px' }}>❌ Not Available</div>
+                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>✅ Included 🎙️</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: '600' }}>WhatsApp Auto-Share</div>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>1-click invoice sharing</div>
+                            </div>
+                            <div style={{ color: '#94a3b8', fontSize: '15px' }}>Manual Share</div>
+                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>1-Click Auto Share 📲</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: '600' }}>GST Reports (GSTR-1, 3B)</div>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>1-click filing reports</div>
+                            </div>
+                            <div style={{ color: '#10b981', fontSize: '15px' }}>✅ Included</div>
+                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>✅ Included + CA Export</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', textAlign: 'center', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                <div style={{ fontSize: '15px', fontWeight: '600' }}>Priority Support</div>
+                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Help via WhatsApp & Call</div>
+                            </div>
+                            <div style={{ color: '#64748b', fontSize: '15px' }}>Email Only</div>
+                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>24/7 Priority Support 📞</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* FAQ SECTION */}
+            <section className="sec" id="faq">
+                <div className="sec-in">
+                    <div className="tc">
+                        <div className="tag">Got Questions?</div>
+                        <h2 className="sec-h">Frequently Asked Questions</h2>
+                        <p className="sec-p">आपके सभी सवालों के जवाब</p>
+                    </div>
+                    <div className="faq-grid" style={{ maxWidth: '800px', margin: '40px auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>Kya ye government approved hai?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>हां, BillGST से जेनरेट होने वाले सभी Invoices पूरी तरह से GST Compliant हैं और सरकार के नियमों (GSTR-1, GSTR-3B) के अनुसार बने हैं। आप इन्हें बेझिझक इस्तेमाल कर सकते हैं।</p>
+                        </div>
+                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>Mera Data kitna safe hai?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>आपका डेटा 100% सुरक्षित और Encrypted है। यह क्लाउड पर सेव होता है ताकि अगर आपका फोन या कंप्यूटर खराब भी हो जाए, तो भी आपका हिसाब सुरक्षित रहे।</p>
+                        </div>
+                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>WhatsApp kaise connect kare?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>बहुत ही आसान है! बस अपने डैशबोर्ड में जाएं, 'Settings' &gt; 'WhatsApp' पर क्लिक करें और QR Code स्कैन करें। एक बार कनेक्ट होने के बाद आप सीधे WhatsApp से बिल भेज पाएंगे।</p>
+                        </div>
+                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>Free plan kab tak chalega?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>Free Plan हमेशा के लिए फ्री है। इसमें आप हर महीने 30 Bills बना सकते हैं। अगर आपकी दुकान बड़ी है और ज्यादा बिल बनते हैं, तो आप Premium पर अपग्रेड कर सकते हैं।</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -533,6 +735,30 @@ export default function LandingPage() {
                     </div>
                 </div>
             </footer>
+
+            {/* EXIT INTENT POPUP */}
+            {showExitPopup && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: '#121a2f', border: '1px solid rgba(255,255,255,0.1)', padding: '40px', borderRadius: '20px', textAlign: 'center', maxWidth: '400px', width: '90%' }}>
+                        <div style={{ fontSize: '48px', marginBottom: '10px' }}>🛑</div>
+                        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px', color: '#fff' }}>Rukiye!</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', marginBottom: '25px' }}>
+                            Kahin mat jayiye. Pehle 30 free bills try karein aur dekhein ki BillGST aapka kaam kitna aasaan kar sakta hai!
+                        </p>
+                        <button className="btn-hero" style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)', width: '100%', marginBottom: '15px', justifyContent: 'center' }} onClick={() => { setShowExitPopup(false); openM('signup'); }}>
+                            Free Mein Shuru Karein
+                        </button>
+                        <button className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setShowExitPopup(false)}>
+                            Nahi, fir kabhi
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* FLOATING WHATSAPP */}
+            <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999, background: '#25D366', color: '#fff', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)', transition: 'transform 0.2s' }}>
+                <svg viewBox="0 0 24 24" width="35" height="35"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </a>
 
             {/* MODALS */}
             {isLoginOpen && (

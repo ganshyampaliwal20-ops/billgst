@@ -23,16 +23,16 @@
     
   </string>
     <string name="fallbackType" translatable="false">webview</string>
-    <string name="fullScopeUrl" translatable="false">https://billgst.in/</string>
+    <string name="fullScopeUrl" translatable="false">https://www.billgst.in/</string>
     <string name="generatorApp" translatable="false">bubblewrap-cli</string>
-    <string name="hostName" translatable="false">billgst.in</string>
-    <string name="launchUrl" translatable="false">https://billgst.in/</string>
+    <string name="hostName" translatable="false">www.billgst.in</string>
+    <string name="launchUrl" translatable="false">https://www.billgst.in/</string>
     <string name="launcherName" translatable="false">BillGST</string>
-    <string name="orientation" translatable="false">portrait</string>
+    <string name="orientation" translatable="false">default</string>
     <string name="providerAuthority" translatable="false">in.billgst.app.fileprovider</string>
     <string name="shortcut_name_0" translatable="false">New Invoice</string>
     <string name="shortcut_name_1" translatable="false">Dashboard</string>
     <string name="shortcut_short_name_0" translatable="false">Invoice</string>
     <string name="shortcut_short_name_1" translatable="false">Dashboard</string>
-    <string name="webManifestUrl" translatable="false">https://billgst.in/manifest.json</string>
+    <string name="webManifestUrl" translatable="false">https://www.billgst.in/manifest.json</string>
 </resources>

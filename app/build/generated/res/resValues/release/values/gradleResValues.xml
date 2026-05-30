@@ -28,17 +28,17 @@
     <!-- Value from default config. -->
     <string name="fallbackType" translatable="false">webview</string>
     <!-- Value from default config. -->
-    <string name="fullScopeUrl" translatable="false">https://billgst.in/</string>
+    <string name="fullScopeUrl" translatable="false">https://www.billgst.in/</string>
     <!-- Value from default config. -->
     <string name="generatorApp" translatable="false">bubblewrap-cli</string>
     <!-- Value from default config. -->
-    <string name="hostName" translatable="false">billgst.in</string>
+    <string name="hostName" translatable="false">www.billgst.in</string>
     <!-- Value from default config. -->
-    <string name="launchUrl" translatable="false">https://billgst.in/</string>
+    <string name="launchUrl" translatable="false">https://www.billgst.in/</string>
     <!-- Value from default config. -->
     <string name="launcherName" translatable="false">BillGST</string>
     <!-- Value from default config. -->
-    <string name="orientation" translatable="false">portrait</string>
+    <string name="orientation" translatable="false">default</string>
     <!-- Value from default config. -->
     <string name="providerAuthority" translatable="false">in.billgst.app.fileprovider</string>
     <!-- Value from default config. -->
@@ -50,6 +50,6 @@
     <!-- Value from default config. -->
     <string name="shortcut_short_name_1" translatable="false">Dashboard</string>
     <!-- Value from default config. -->
-    <string name="webManifestUrl" translatable="false">https://billgst.in/manifest.json</string>
+    <string name="webManifestUrl" translatable="false">https://www.billgst.in/manifest.json</string>
 
 </resources>

@@ -105,24 +105,65 @@ export default function CustomersPage() {
         return `₹${val}`;
     };
 
-    const handleDownloadReport = () => {
+    const handleDownloadReport = async () => {
         try {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Name,Phone,Tag,Status,Balance\n";
+            let csvContent = "Name,Phone,Tag,Status,Balance\n";
             finalList.forEach((c: any) => {
                 const row = `"${c.name}","${c.phone}","${c.tag}","${c.status}","${c.balance}"`;
                 csvContent += row + "\n";
             });
-            const encodedUri = encodeURI(csvContent);
+            const fileName = `Balance_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            if (typeof window !== 'undefined') {
+                try {
+                    const { Capacitor } = await import('@capacitor/core');
+                    if (Capacitor.isNativePlatform()) {
+                        const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem');
+                        const { Share } = await import('@capacitor/share');
+                        const { LocalNotifications } = await import('@capacitor/local-notifications');
+                        
+                        const savedFile = await Filesystem.writeFile({
+                            path: fileName,
+                            data: csvContent,
+                            directory: Directory.Documents,
+                            encoding: Encoding.UTF8
+                        });
+                        
+                        try {
+                            await LocalNotifications.requestPermissions();
+                            await LocalNotifications.schedule({
+                                notifications: [{
+                                    title: 'Report Downloaded',
+                                    body: `${fileName} saved to Documents folder.`,
+                                    id: Math.floor(Math.random() * 100000),
+                                }]
+                            });
+                        } catch(e) {}
+                        
+                        try {
+                            await Share.share({
+                                title: 'Share Report',
+                                url: savedFile.uri,
+                                dialogTitle: 'Share or Open Report'
+                            });
+                        } catch (e) {}
+                        toast.success(t.balanceReportDownloaded || 'Report Downloaded!');
+                        return;
+                    }
+                } catch(e) { console.error('Capacitor Error:', e); }
+            }
+            
+            // Fallback for Web
+            const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Balance_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", fileName);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            toast.success(t.balanceReportDownloaded);
+            toast.success(t.balanceReportDownloaded || 'Report Downloaded!');
         } catch (error) {
-            toast.error(t.errorDownloadingReport);
+            toast.error(t.errorDownloadingReport || 'Error downloading report');
         }
     };
 

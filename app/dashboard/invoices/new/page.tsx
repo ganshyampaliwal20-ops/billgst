@@ -48,6 +48,7 @@ export default function NewInvoicePage() {
     const fetchCustomers = useStore((state: any) => state.fetchCustomers);
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
+    const saveBusinessProfile = useStore((state: any) => state.saveBusinessProfile);
     const invoices = useStore((state: any) => state.invoices) || [];
 
     const [isClient, setIsClient] = useState(false);
@@ -76,6 +77,8 @@ export default function NewInvoicePage() {
         emailInvoice: false,
         recurring: false
     });
+    const [selectedPdfSize, setSelectedPdfSize] = useState('A4');
+    const [showPrintFormat, setShowPrintFormat] = useState(false);
 
     // UI States
     const [isListening, setIsListening] = useState(false);
@@ -128,6 +131,8 @@ export default function NewInvoicePage() {
         if (fetchProducts) fetchProducts();
         if (fetchCustomers) fetchCustomers();
         if (fetchInvoices) fetchInvoices();
+        
+        if (businessProfile?.pdf_size) setSelectedPdfSize(businessProfile.pdf_size);
 
         const today = new Date().toISOString().split('T')[0];
         setInvoiceDate(today);
@@ -251,15 +256,53 @@ export default function NewInvoicePage() {
         return due;
     };
 
-    const startVoiceBilling = () => {
+    const startVoiceBilling = async () => {
         if (typeof window === 'undefined') return;
+        if (isListening) return;
+
+        try {
+            const { Capacitor } = await import('@capacitor/core');
+            if (Capacitor.isNativePlatform()) {
+                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
+                const hasPerm = await SpeechRecognition.checkPermissions();
+                if (hasPerm.speechRecognition !== 'granted') {
+                    await SpeechRecognition.requestPermissions();
+                }
+                
+                setIsListening(true);
+                toast.loading('🎙️ Listening... Bolye', { id: 'voice-toast' });
+                
+                try {
+                    const result = await SpeechRecognition.start({
+                        language: 'en-IN',
+                        maxResults: 5,
+                        prompt: 'Bolye...',
+                        partialResults: false,
+                        popup: false,
+                    });
+                    
+                    setIsListening(false);
+                    toast.dismiss('voice-toast');
+                    if (result.matches && result.matches.length > 0) {
+                        const transcripts = result.matches.map((m: string) => m.toLowerCase().trim());
+                        processVoiceTranscripts(transcripts);
+                    } else {
+                        toast.error('Awaaz samajh nahi aayi.');
+                    }
+                } catch(e: any) {
+                    setIsListening(false);
+                    toast.dismiss('voice-toast');
+                    toast.error('Voice error: ' + (e.message || 'Could not recognize speech'));
+                }
+                return;
+            }
+        } catch(e) { console.log('Capacitor speech not available', e); }
+
         const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognitionClass) {
             toast.error('Voice billing browser support missing. Use Chrome / Edge on HTTPS and allow microphone access.');
             return;
         }
-
-        if (isListening) return;
 
         try {
             const rec = new SpeechRecognitionClass();
@@ -598,7 +641,8 @@ export default function NewInvoicePage() {
                     } else {
                         toast.loading('Sharing PDF on WhatsApp...');
                         try {
-                            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+                            const updatedProfileForPdf = { ...businessProfile, pdf_size: selectedPdfSize };
+                            const doc = await generateInvoicePDF(invoice, updatedProfileForPdf, false);
                             if (doc) {
                                 const pdfBlob = doc.output('blob');
 
@@ -630,6 +674,13 @@ export default function NewInvoicePage() {
                             console.error('Bot share failed:', err);
                             toast.error(`WhatsApp Bot fail: ${err.message || 'Make sure whatsapp-service.js is running and phone is correct.'}`);
                         }
+                    }
+                }
+
+                // Save selected PDF size to business profile if it changed
+                if (selectedPdfSize !== (businessProfile?.pdf_size || 'A4')) {
+                    if (saveBusinessProfile) {
+                        saveBusinessProfile({ ...businessProfile, pdf_size: selectedPdfSize });
                     }
                 }
 
@@ -1029,9 +1080,15 @@ export default function NewInvoicePage() {
                                                 <label className="text-[9px] font-black text-slate-400 uppercase block mb-1">Qty & Unit</label>
                                                 <div className="flex gap-1">
                                                     <input type="number" className="fi text-slate-900" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
-                                                    <select className="fi px-2 text-slate-900" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value)}>
-                                                        <option>PCS</option><option>KG</option><option>BOX</option><option>MTR</option>
-                                                    </select>
+                                                    <input 
+                                                        type="text" 
+                                                        list="unit-list"
+                                                        className="fi px-2 text-slate-900 uppercase" 
+                                                        style={{ width: '80px' }}
+                                                        placeholder="Unit"
+                                                        value={item.unit} 
+                                                        onChange={e => updateItem(idx, 'unit', e.target.value.toUpperCase())} 
+                                                    />
                                                 </div>
                                             </div>
                                             <div>
@@ -1059,6 +1116,10 @@ export default function NewInvoicePage() {
                         
                         <datalist id="product-list">
                             {safeProducts.map(p => <option key={p.id} value={p.name}>{p.price ? `₹${p.price}` : ''}</option>)}
+                        </datalist>
+
+                        <datalist id="unit-list">
+                            {['PCS', 'NOS', 'KG', 'GM', 'LTR', 'ML', 'MTR', 'CM', 'MM', 'BOX', 'BAG', 'PKT', 'ROLL', 'PAIR', 'FEET', 'SQM', 'TABLETS', 'BOTTLES', 'CANS', 'DOZEN'].map(u => <option key={u} value={u} />)}
                         </datalist>
 
                         <div className="add-actions-wrapper">
@@ -1131,6 +1192,175 @@ export default function NewInvoicePage() {
 
                 {/* Right Column */}
                 <div className="right-col">
+                    {/* PDF Size Preview */}
+                    <div className="card">
+                        <div 
+                            className="flex justify-between items-center cursor-pointer pb-1" 
+                            onClick={() => {
+                                setShowPrintFormat(!showPrintFormat);
+                                if (!showPrintFormat) {
+                                    setTimeout(() => {
+                                        document.getElementById('pdf-live-demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }, 100);
+                                }
+                            }}
+                        >
+                            <div className="c-title mb-0" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                                <div className="c-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FaFileInvoice /></div> 
+                                Print Format
+                                <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">{selectedPdfSize}</span>
+                            </div>
+                            <div className={`p-1 rounded-full bg-slate-50 text-slate-400 text-xs transition-transform ${showPrintFormat ? 'rotate-180' : ''}`}>
+                                ▼
+                            </div>
+                        </div>
+
+                        {showPrintFormat && (
+                            <div className="animate-in slide-in-from-top-2 duration-200 border-t border-slate-100 pt-3 mt-2">
+                        <div className="grid grid-cols-3 gap-2 mb-2">
+                            {[
+                                { id: 'A4', name: 'A4', icon: '📄' },
+                                { id: 'A5', name: 'A5', icon: '📝' },
+                                { id: 'THERMAL', name: 'Receipt', icon: '🖨️' },
+                            ].map((size) => (
+                                <button
+                                    key={size.id}
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedPdfSize(size.id);
+                                        setTimeout(() => {
+                                            document.getElementById('pdf-live-demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }, 100);
+                                    }}
+                                    className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl border-2 transition-all ${selectedPdfSize === size.id
+                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
+                                        : 'border-slate-100 text-slate-500 hover:border-slate-200 hover:bg-slate-50'
+                                        }`}
+                                >
+                                    <span className="text-xl">{size.icon}</span>
+                                    <span className="text-[10px] font-bold uppercase">{size.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                        
+                        {/* Live Demo Graphic */}
+                        <div id="pdf-live-demo" className="mt-4 p-4 bg-slate-100 rounded-xl border border-slate-300 flex justify-center items-center overflow-hidden relative shadow-inner" style={{ minHeight: '220px' }}>
+                            {selectedPdfSize === 'A4' && (
+                                <div className="bg-white shadow-lg border border-slate-200 flex flex-col relative" style={{ width: '140px', height: '198px', padding: '10px' }}>
+                                    {/* Header */}
+                                    <div className="flex justify-between items-start mb-2 border-b border-slate-100 pb-2">
+                                        <div>
+                                            <div className="text-[6px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
+                                            <div className="text-[4px] text-slate-500">{businessProfile?.phone || 'Phone Number'}</div>
+                                        </div>
+                                        <div className="text-[5px] font-bold text-indigo-600 border border-indigo-200 px-1 rounded">{docType === 'QUOTATION' ? 'ESTIMATE' : 'TAX INVOICE'}</div>
+                                    </div>
+                                    {/* Bill To */}
+                                    <div className="mb-2">
+                                        <div className="text-[4px] text-slate-400">BILL TO</div>
+                                        <div className="text-[5px] font-bold text-slate-700">{selectedCustomer?.name || newCustName || 'Customer Name'}</div>
+                                    </div>
+                                    {/* Table */}
+                                    <div className="border border-slate-200 rounded-sm overflow-hidden mb-2">
+                                        <div className="bg-slate-100 flex text-[4px] font-bold p-1 text-slate-700">
+                                            <div className="flex-1">Item</div>
+                                            <div className="w-4 text-center">Qty</div>
+                                            <div className="w-8 text-right">Amt</div>
+                                        </div>
+                                        {(selectedItems.length ? selectedItems.slice(0,2) : [{product_name: 'Sample Item', quantity: 1, unit_price: 100}]).map((it, i) => (
+                                            <div key={i} className="flex text-[4.5px] p-1 border-t border-slate-100 text-slate-600">
+                                                <div className="flex-1 truncate">{it.product_name || 'Item Name'}</div>
+                                                <div className="w-4 text-center">{it.quantity}</div>
+                                                <div className="w-8 text-right">{(Number(it.quantity || 1)*Number(it.unit_price || 0)).toFixed(0)}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {/* Footer */}
+                                    <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-2">
+                                        <div className="h-6 w-6 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">UPI QR</div>
+                                        <div className="text-right">
+                                            <div className="text-[4px] text-slate-400">Total Amount</div>
+                                            <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedPdfSize === 'A5' && (
+                                <div className="bg-white shadow-lg border border-slate-200 flex flex-col relative" style={{ width: '140px', height: '99px', padding: '8px' }}>
+                                    {/* Header */}
+                                    <div className="flex justify-between items-center mb-1">
+                                        <div className="text-[5.5px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
+                                        <div className="text-[4px] font-bold text-indigo-600">{docType === 'QUOTATION' ? 'ESTIMATE' : 'INVOICE'}</div>
+                                    </div>
+                                    {/* Bill To */}
+                                    <div className="mb-1">
+                                        <div className="text-[4.5px] font-bold text-slate-700">To: {selectedCustomer?.name || newCustName || 'Customer'}</div>
+                                    </div>
+                                    {/* Table */}
+                                    <div className="border border-slate-200 rounded-sm overflow-hidden mb-1">
+                                        <div className="bg-slate-100 flex text-[3.5px] font-bold px-1 py-0.5 text-slate-700">
+                                            <div className="flex-1">Item Name</div>
+                                            <div className="w-6 text-right">Amt</div>
+                                        </div>
+                                        {(selectedItems.length ? selectedItems.slice(0,1) : [{product_name: 'Sample Item', quantity: 1, unit_price: 100}]).map((it, i) => (
+                                            <div key={i} className="flex text-[4px] px-1 py-0.5 border-t border-slate-100 text-slate-600">
+                                                <div className="flex-1 truncate">{it.product_name || 'Item Name'} x{it.quantity}</div>
+                                                <div className="w-6 text-right">{(Number(it.quantity || 1)*Number(it.unit_price || 0)).toFixed(0)}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {/* Footer */}
+                                    <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-1">
+                                        <div className="h-5 w-5 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">QR</div>
+                                        <div className="text-right">
+                                            <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedPdfSize === 'THERMAL' && (
+                                <div className="bg-white shadow-sm border border-slate-300 flex flex-col relative" style={{ width: '80px', minHeight: '160px', padding: '10px 6px', borderBottom: '2px dashed #cbd5e1' }}>
+                                    {/* Header */}
+                                    <div className="text-center mb-1">
+                                        <div className="text-[6px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
+                                        <div className="text-[4px] text-slate-500">Ph: {businessProfile?.phone || 'Phone'}</div>
+                                    </div>
+                                    <div className="text-center text-[5px] font-bold border-y border-dashed border-slate-300 py-1 mb-1 text-slate-700">
+                                        {docType === 'QUOTATION' ? 'ESTIMATE' : 'TAX INVOICE'}
+                                    </div>
+                                    <div className="text-[4px] mb-1 font-bold text-slate-600">To: {selectedCustomer?.name || newCustName || 'Customer'}</div>
+                                    {/* Items */}
+                                    <div className="border-b border-dashed border-slate-300 pb-1 mb-1">
+                                        <div className="flex justify-between text-[4px] font-bold text-slate-700 mb-0.5"><span>Item</span><span>Amt</span></div>
+                                        {(selectedItems.length ? selectedItems.slice(0,3) : [{product_name: 'Sample Item', quantity: 1, unit_price: 100}]).map((it, i) => (
+                                            <div key={i} className="flex justify-between text-[4px] mt-0.5 text-slate-600">
+                                                <span className="truncate w-10">{it.product_name || 'Item Name'} x{it.quantity}</span>
+                                                <span>{(Number(it.quantity || 1)*Number(it.unit_price || 0)).toFixed(0)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {/* Total */}
+                                    <div className="flex justify-between text-[5px] font-black mb-2 text-slate-800">
+                                        <span>TOTAL</span>
+                                        <span>₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</span>
+                                    </div>
+                                    <div className="mt-auto text-center">
+                                        <div className="h-8 w-8 border border-slate-200 bg-slate-50 mx-auto flex items-center justify-center text-[4px] text-slate-400 mb-1">UPI QR</div>
+                                        <div className="text-[4px] text-slate-500">Thank You!</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="text-center mt-2 text-[10px] text-slate-400 font-medium">
+                            {selectedPdfSize === 'A4' && 'Standard Print (210 x 297mm)'}
+                            {selectedPdfSize === 'A5' && 'Half-Size Print (148 x 210mm)'}
+                            {selectedPdfSize === 'THERMAL' && 'Receipt Printer (80mm width)'}
+                        </div>
+                        </div>
+                        )}
+                    </div>
                     {/* Advanced Options */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>⚙️</div> Options</div>

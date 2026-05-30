@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'BillGST',
   webDir: 'out',
   server: {
-    url: 'https://billgst.in',
+    url: 'https://www.billgst.in',
     cleartext: true,
     allowNavigation: [
       "billgst.in",

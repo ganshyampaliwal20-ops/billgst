@@ -513,6 +513,30 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">PDF Print Size</label>
+                        <div className="grid grid-cols-3 gap-3">
+                            {[
+                                { id: 'A4', name: 'A4 Size (Default)', icon: '📄' },
+                                { id: 'A5', name: 'A5 Size (Half)', icon: '📝' },
+                                { id: 'THERMAL', name: 'Thermal Receipt', icon: '🖨️' },
+                            ].map((size) => (
+                                <button
+                                    key={size.id}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, pdf_size: size.id })}
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${(!formData.pdf_size && size.id === 'A4') || formData.pdf_size === size.id
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
+                                        : 'border-gray-50 text-gray-400 hover:border-gray-200 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <span className="text-xl">{size.icon}</span>
+                                    <span className="text-[10px] font-bold uppercase text-center">{size.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="mt-8"></div>
 
                     {/* LIVE PREVIEW SECTION */}

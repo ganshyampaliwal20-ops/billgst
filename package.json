@@ -15,9 +15,13 @@
     "start:all": "node scripts/start-all.js"
   },
   "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
     "@capacitor/android": "^8.0.2",
     "@capacitor/cli": "^7.4.5",
     "@capacitor/core": "^8.0.2",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/local-notifications": "^8.2.0",
+    "@capacitor/share": "^8.0.1",
     "@google/generative-ai": "^0.24.1",
     "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^2.4.3",
