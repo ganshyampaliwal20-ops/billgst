@@ -479,54 +479,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* COMPETITOR COMPARISON */}
-            <section className="sec" id="compare" style={{ background: '#0a0f1c' }}>
-                <div className="sec-in">
-                    <div className="tc">
-                        <div className="tag">Why Choose Us?</div>
-                        <h2 className="sec-h">BillGST vs Vyapar vs Tally</h2>
-                        <p className="sec-p">Dekhiye hum kyu behtar hain!</p>
-                    </div>
-                    <div style={{ overflowX: 'auto', marginTop: '30px' }}>
-                        <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', background: '#121a2f', borderRadius: '16px', overflow: 'hidden' }}>
-                            <thead>
-                                <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                    <th style={{ padding: '20px', textAlign: 'left', color: '#fff', fontSize: '18px' }}>Features</th>
-                                    <th style={{ padding: '20px', textAlign: 'center', color: '#10b981', fontSize: '20px', fontWeight: 'bold' }}>BillGST</th>
-                                    <th style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Vyapar</th>
-                                    <th style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>Tally</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '16px 20px', color: '#fff' }}>Free GST Bills</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>30/Month Free</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Paid</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Paid</td>
-                                </tr>
-                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '16px 20px', color: '#fff' }}>Ease of Use</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>Very Easy (No Training)</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#fbbf24' }}>Moderate</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Requires Training</td>
-                                </tr>
-                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '16px 20px', color: '#fff' }}>WhatsApp Billing</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>✅ Native</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981' }}>✅ Yes</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>❌ Add-on</td>
-                                </tr>
-                                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '16px 20px', color: '#fff' }}>Cloud Sync (Multi-Device)</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#10b981', fontWeight: 'bold' }}>✅ Free</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Paid Add-on</td>
-                                    <td style={{ padding: '16px 20px', textAlign: 'center', color: '#ef4444' }}>Complicated setup</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
 
             {/* PRICING */}
             <section className="pricing-sec" id="pricing">
