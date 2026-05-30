@@ -652,7 +652,6 @@ export default function SmartAttendance() {
                               ))}
                           </datalist>
                       </div>
-                    </div>
                     
                     <button 
                         onClick={generateMasterReportPDF} 
