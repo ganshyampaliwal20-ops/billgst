@@ -704,16 +704,17 @@ export default function NewInvoicePage() {
     const selectedCustomer = safeCustomers.find(c => c.id === customerId);
 
     return (
-        <div className="new-invoice-page">
+        <div className="new-invoice-page text-slate-900">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
                 :root {
-                    --ink:#ffffff; --bg:#000000; --white:#000000; --border:#ffffff; --muted:#a1a1aa; --faint:#000000;
+                    color-scheme: light;
+                    --ink:#0d0f1c; --bg:#f0f2fa; --white:#fff; --border:#e4e7f4; --muted:#8892b0; --faint:#f7f8fd;
                     --indigo:#5b5ef4; --indigo2:#4340d4; --iglow:rgba(91,94,244,.15);
                     --violet:#8b5cf6; --green:#0fba81; --red:#f04e5e; --amber:#f5a623; --teal:#06b6d4;
-                    --sh:0 4px 20px rgba(0,0,0,.5),0 1px 4px rgba(0,0,0,.2);
-                    --sh-lg:0 12px 40px rgba(0,0,0,.8),0 2px 8px rgba(0,0,0,.4);
+                    --sh:0 4px 20px rgba(13,15,28,.08),0 1px 4px rgba(13,15,28,.04);
+                    --sh-lg:0 12px 40px rgba(13,15,28,.13),0 2px 8px rgba(13,15,28,.06);
                 }
                 .new-invoice-page { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
                 .page-hdr { background: linear-gradient(135deg,#0b0f1e,#1c2340,#1e3a5f); padding: 30px 40px; border-bottom: 1px solid rgba(255,255,255,.05); margin-bottom: 2rem; color: white; }
@@ -742,14 +743,22 @@ export default function NewInvoicePage() {
                 
                 .doc-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
                 .dtab { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--faint); cursor: pointer; transition: 0.2s; }
-                .dtab.active { background: rgba(91,94,244,0.2); border-color: var(--indigo); color: var(--indigo); font-weight: 700; }
+                .dtab.active { background: #eef2ff; border-color: var(--indigo); color: var(--indigo); font-weight: 700; }
                 .dt-label { font-size: 10px; text-transform: uppercase; text-align: center; color: var(--ink); }
                 
                 .fg { margin-bottom: 20px; }
                 .fl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
-                .fi { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; transition: 0.2s; background: var(--faint); outline: none; color: #ffffff !important; }
-                .fi:focus { border-color: var(--indigo); background: var(--bg); box-shadow: 0 0 0 4px var(--iglow); }
-                .fi::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+                
+                /* Explicitly force inputs to be light-themed and visible in Android Webview */
+                .fi { 
+                    width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; 
+                    font-size: 14px; transition: 0.2s; background: var(--faint); outline: none; 
+                    color: #0f172a !important; 
+                    background-color: #ffffff !important;
+                    -webkit-text-fill-color: #0f172a !important;
+                }
+                .fi:focus { border-color: var(--indigo); box-shadow: 0 0 0 4px var(--iglow); }
+                .fi::placeholder { color: #8892b0 !important; -webkit-text-fill-color: #8892b0 !important; }
 
                 .inv-pill { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
                 .ip-num { font-family: 'DM Mono', monospace; font-weight: 600; color: var(--indigo); }
