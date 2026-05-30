@@ -15,6 +15,7 @@ const THEMES = {
     TEMPLATE_4: { accent: '#c2410c', title: '#f97316' }, // Energetic Orange
     TEMPLATE_5: { accent: '#059669', title: '#10b981' }, // Classic Green
     TEMPLATE_6: { accent: '#be123c', title: '#e11d48' }, // Rose Pink
+    TEMPLATE_7: { accent: '#111827', title: '#4b5563' }, // Classic Black/White
 };
 
 import { optimizeImage } from '@/lib/utils';
@@ -422,6 +423,7 @@ export default function SettingsPage() {
                             { id: 'TEMPLATE_4', name: 'Energetic Orange', color: 'bg-orange-600' },
                             { id: 'TEMPLATE_5', name: 'Classic Green', color: 'bg-green-600' },
                             { id: 'TEMPLATE_6', name: 'Rose Pink', color: 'bg-rose-600' },
+                            { id: 'TEMPLATE_7', name: 'Classic B&W', color: 'bg-white border border-gray-200' },
                         ].map((tpl) => (
                             <button
                                 key={tpl.id}
@@ -513,29 +515,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100">
-                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">PDF Print Size</label>
-                        <div className="grid grid-cols-3 gap-3">
-                            {[
-                                { id: 'A4', name: 'A4 Size (Default)', icon: '📄' },
-                                { id: 'A5', name: 'A5 Size (Half)', icon: '📝' },
-                                { id: 'THERMAL', name: 'Thermal Receipt', icon: '🖨️' },
-                            ].map((size) => (
-                                <button
-                                    key={size.id}
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, pdf_size: size.id })}
-                                    className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${(!formData.pdf_size && size.id === 'A4') || formData.pdf_size === size.id
-                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
-                                        : 'border-gray-50 text-gray-400 hover:border-gray-200 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <span className="text-xl">{size.icon}</span>
-                                    <span className="text-[10px] font-bold uppercase text-center">{size.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
 
                     <div className="mt-8"></div>
 
@@ -600,15 +579,15 @@ export default function SettingsPage() {
                                 <div className="px-[8px] pb-6 mt-2">
                                     <table className={`w-full text-left text-[9px] border-collapse ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>
                                         <thead style={{
-                                            backgroundColor: formData.invoice_table_format === 'FORMAT_3' ? 'transparent' : (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088'),
-                                            color: formData.invoice_table_format === 'FORMAT_3' ? (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088') : '#fff'
+                                            backgroundColor: (formData.invoice_table_format === 'FORMAT_3' || formData.invoice_table_format === 'FORMAT_2') ? 'transparent' : (THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || '#5d5088'),
+                                            color: (formData.invoice_table_format === 'FORMAT_3' || formData.invoice_table_format === 'FORMAT_2') ? '#000' : '#fff'
                                         }}>
                                             <tr className={formData.invoice_table_format === 'FORMAT_3' ? 'border-b-2' : ''} style={{ borderColor: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent }}>
-                                                <th className={`p-[8px] font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>#</th>
-                                                <th className={`p-[8px] font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Item Name</th>
-                                                <th className={`p-[8px] font-black text-center ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Qty</th>
-                                                <th className={`p-[8px] font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Price</th>
-                                                <th className={`p-[8px] font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border text-black' : ''}`}>Amount</th>
+                                                <th className={`p-[8px] font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r border-b text-black' : ''}`}>#</th>
+                                                <th className={`p-[8px] font-black ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r border-b text-black' : ''}`}>Item Name</th>
+                                                <th className={`p-[8px] font-black text-center ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r border-b text-black' : ''}`}>Qty</th>
+                                                <th className={`p-[8px] font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r border-b text-black' : ''}`}>Price</th>
+                                                <th className={`p-[8px] font-black text-right ${formData.invoice_table_format === 'FORMAT_2' ? 'border-b text-black' : ''}`}>Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -617,14 +596,27 @@ export default function SettingsPage() {
                                                 { n: 'Office Table Lamp', q: 1, p: 850 },
                                             ].map((it, i) => (
                                                 <tr key={i} className={`
-                                                    ${formData.invoice_table_format === 'FORMAT_4' && i % 2 !== 0 ? 'bg-slate-50' : ''}
                                                     ${formData.invoice_table_format === 'FORMAT_3' || formData.invoice_table_format === 'FORMAT_2' ? 'border-b' : ''}
-                                                `}>
-                                                    <td className={`p-[8px] font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{i + 1}</td>
-                                                    <td className={`p-[8px] font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.n}</td>
-                                                    <td className={`p-[8px] text-center font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>{it.q}</td>
-                                                    <td className={`p-[8px] text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{it.p.toFixed(2)}</td>
-                                                    <td className={`p-[8px] text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border' : ''}`}>₹{(it.q * it.p).toFixed(2)}</td>
+                                                `} style={{
+                                                    backgroundColor: (formData.invoice_table_format === 'FORMAT_4' && i % 2 !== 0) 
+                                                        ? `${THEMES[formData.invoice_template as keyof typeof THEMES]?.accent}1A` 
+                                                        : undefined
+                                                }}>
+                                                    <td className={`p-[8px] font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r' : ''}`}>{i + 1}</td>
+                                                    <td className={`p-[8px] font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r' : ''}`}>{it.n}</td>
+                                                    <td className={`p-[8px] text-center font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r' : ''}`}>{it.q}</td>
+                                                    <td className={`p-[8px] text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''} ${formData.invoice_table_format === 'FORMAT_2' ? 'border-r' : ''}`}>₹{it.p.toFixed(2)}</td>
+                                                    <td className={`p-[8px] text-right font-bold ${formData.invoice_table_format === 'FORMAT_5' ? 'py-1' : ''}`}>₹{(it.q * it.p).toFixed(2)}</td>
+                                                </tr>
+                                            ))}
+                                            {/* Padding for Grid Box to show extended lines */}
+                                            {formData.invoice_table_format === 'FORMAT_2' && Array.from({ length: 8 }).map((_, i) => (
+                                                <tr key={`pad-${i}`}>
+                                                    <td className="p-[8px] border-r h-[20px]"></td>
+                                                    <td className="p-[8px] border-r"></td>
+                                                    <td className="p-[8px] border-r"></td>
+                                                    <td className="p-[8px] border-r"></td>
+                                                    <td className="p-[8px]"></td>
                                                 </tr>
                                             ))}
                                         </tbody>

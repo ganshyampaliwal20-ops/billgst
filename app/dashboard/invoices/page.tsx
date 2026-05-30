@@ -6,6 +6,7 @@ import { generateInvoicePDF } from '../../../lib/pdf-generator';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../lib/utils';
 import { getVisitingCardText } from '../../../lib/whatsapp-utils';
+import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
 import {
     FaFilePdf, FaWhatsapp, FaTrash, FaCopy
@@ -19,6 +20,10 @@ export default function InvoicesPage() {
     const deleteInvoice = useStore((state: any) => state.deleteInvoice);
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
+    const settings = useStore((state: any) => state.settings) || { language: 'en' };
+    
+    const t = (translations as any)[settings?.language || 'en'] || translations.en;
+    const isHi = settings?.language === 'hi';
 
     // Local State
     const [isClient, setIsClient] = useState(false);
@@ -26,6 +31,11 @@ export default function InvoicesPage() {
     const [activeTab, setActiveTab] = useState('all');
     const [sortOrder, setSortOrder] = useState('newest');
     const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+    const [expandedCustomers, setExpandedCustomers] = useState<Record<string, boolean>>({});
+    
+    // Payment Recording State
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -56,6 +66,38 @@ export default function InvoicesPage() {
         const dateB = new Date(b.created_at || b.invoice_date).getTime();
         return dateB - dateA;
     });
+
+    const groupedInvoices = useMemo(() => {
+        return Object.values(
+            filteredInvoices.reduce((acc: any, inv: any) => {
+                const key = inv.customer?.phone || inv.customer?.name || 'Local Sale';
+                if (!acc[key]) {
+                    acc[key] = {
+                        customer: inv.customer,
+                        invoices: [],
+                        totalAmount: 0,
+                        dueAmount: 0,
+                        statusCount: { paid: 0, unpaid: 0, partial: 0 }
+                    };
+                }
+                acc[key].invoices.push(inv);
+                acc[key].totalAmount += Number(inv.total_amount || 0);
+                const pAmount = Number(inv.paid_amount || 0);
+                acc[key].dueAmount += (Number(inv.total_amount || 0) - pAmount);
+                
+                const st = (inv.status || 'UNPAID').toLowerCase();
+                if (st === 'paid') acc[key].statusCount.paid++;
+                else if (st === 'partial') acc[key].statusCount.partial++;
+                else acc[key].statusCount.unpaid++;
+                
+                return acc;
+            }, {})
+        );
+    }, [filteredInvoices]);
+
+    const toggleCustomer = (key: string) => {
+        setExpandedCustomers(prev => ({...prev, [key]: !prev[key]}));
+    };
 
     // KPI Counters
     const kpiData = {
@@ -110,7 +152,7 @@ export default function InvoicesPage() {
             const fileName = `Invoice_${invoice.invoice_number || '001'}.pdf`;
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             
-            let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *₹${invoice.total_amount}* is ready.\n\nRegards,\n${businessProfile.name}`;
+            let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *${formatCurrency(invoice.total_amount)}* is ready.\n\nRegards,\n${businessProfile.name}`;
             text += getVisitingCardText(businessProfile);
             
             if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -148,8 +190,104 @@ export default function InvoicesPage() {
         }
     };
 
-    const handleBulkReminder = () => {
-        toast.success('Bulk reminder feature comming soon!');
+    const handleRecordPayment = async () => {
+        if(!paymentAmount || isNaN(Number(paymentAmount))) return;
+        const amountToAdd = Number(paymentAmount);
+        if(amountToAdd <= 0) return;
+        
+        setIsSubmittingPayment(true);
+        const currentPaid = Number(selectedInvoice.paid_amount || 0);
+        const totalAmount = Number(selectedInvoice.total_amount);
+        let newPaid = currentPaid + amountToAdd;
+        if(newPaid > totalAmount) newPaid = totalAmount;
+        
+        let newStatus = 'PARTIAL';
+        if(newPaid >= totalAmount) newStatus = 'PAID';
+        
+        const toastId = toast.loading('Recording payment...');
+        try {
+            const payload = {
+                id: selectedInvoice.id,
+                paid_amount: newPaid,
+                status: newStatus
+            };
+            const res = await fetch('/api/invoices', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if(res.ok) {
+                toast.success('Payment recorded successfully', { id: toastId });
+                if(fetchInvoices) fetchInvoices(true);
+                setSelectedInvoice(null);
+                setPaymentAmount('');
+            } else {
+                toast.error('Failed to record payment', { id: toastId });
+            }
+        } catch(e) {
+            toast.error('Error recording payment', { id: toastId });
+        }
+        setIsSubmittingPayment(false);
+    };
+
+    const handleBulkReminder = async () => {
+        const dueInvoices = filteredInvoices.filter((i:any) => ['unpaid', 'partial'].includes((i.status || 'unpaid').toLowerCase()));
+        
+        if(dueInvoices.length === 0) {
+            toast.error('Koi pending invoice nahi hai!');
+            return;
+        }
+        
+        const toastId = toast.loading('Sending bulk reminders...');
+        
+        // Group by customer to send only ONE message per customer
+        const customerDues: Record<string, { name: string, phone: string, invoices: string[], totalDue: number }> = {};
+        
+        for (const inv of dueInvoices) {
+            const phone = (inv.customer?.phone || '').replace(/\D/g, '');
+            if (!phone || phone.length < 10) continue;
+            
+            const dueAmount = Number(inv.total_amount) - Number(inv.paid_amount || 0);
+            if (dueAmount <= 0) continue;
+            
+            if (!customerDues[phone]) {
+                customerDues[phone] = {
+                    name: inv.customer?.name || 'Customer',
+                    phone: phone,
+                    invoices: [],
+                    totalDue: 0
+                };
+            }
+            customerDues[phone].invoices.push(inv.invoice_number);
+            customerDues[phone].totalDue += dueAmount;
+        }
+        
+        const customersToRemind = Object.values(customerDues);
+        if (customersToRemind.length === 0) {
+            toast.dismiss(toastId);
+            toast.error('Koi valid phone number nahi mila!');
+            return;
+        }
+
+        let success = 0;
+        for (const cust of customersToRemind) {
+            const invList = cust.invoices.join(', #');
+            let text = `Namaste ${cust.name},\n\nAapke Invoices (#${invList}) ka total balance *${formatCurrency(cust.totalDue)}* due hai. Kripya samay par pay karein.\n\nRegards,\n${businessProfile?.name || 'BillGST'}`;
+            
+            const formData = new FormData();
+            formData.append('phone', cust.phone);
+            formData.append('message', text);
+            
+            try {
+                const res = await fetch('/api/whatsapp/send-media', {
+                    method: 'POST',
+                    body: formData
+                });
+                if(res.ok) success++;
+            } catch(e) { }
+        }
+        
+        toast.success(`${success} customers ko reminder bhej diya!`, { id: toastId });
     };
 
     const handleExportExcel = async () => {
@@ -196,11 +334,13 @@ export default function InvoicesPage() {
 
                 .topbar {
                     background: #4338ca;
-                    padding: 0 24px;
-                    height: 56px;
+                    padding: 10px 24px;
+                    min-height: 56px;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 12px;
                     position: sticky;
                     top: 0;
                     z-index: 100;
@@ -209,22 +349,23 @@ export default function InvoicesPage() {
                 .topbar-logo { width: 34px; height: 34px; border-radius: 9px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
                 .topbar-name { color: #fff; font-size: 15px; font-weight: 600; }
                 .topbar-tag { color: rgba(255,255,255,0.65); font-size: 11px; background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 20px; }
-                .topbar-right { display: flex; align-items: center; gap: 8px; }
+                .topbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
                 .tb-btn { background: rgba(255,255,255,0.13); border: none; border-radius: 8px; color: #fff; padding: 7px 13px; font-size: 13px; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
                 .tb-btn:hover { background: rgba(255,255,255,0.22); }
                 .tb-btn.primary { background: #fff; color: #4338ca; font-weight: 600; }
                 .tb-btn.primary:hover { background: #eef2ff; }
                 
-                .content { padding: 24px; max-width: 1100px; margin: 0 auto; }
+                .content { padding: 24px; max-width: 100%; }
 
-                .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+                .page-header { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; text-align: center; }
                 .page-title { font-size: 20px; font-weight: 600; }
                 .page-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
                 .reminder-btn { background: #25d366; border: none; border-radius: 8px; color: #fff; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: background 0.15s; }
                 .reminder-btn:hover { background: #1ebe5d; }
 
                 .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
-                .stat-card { background: #ffffff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+                .stat-card { background: #ffffff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.2s; }
+                .stat-card.active-card { border-color: #4338ca; background: #eef2ff; box-shadow: 0 4px 6px rgba(67,56,202,0.1); transform: translateY(-2px); }
                 .stat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
                 .stat-icon.blue { background: #eef2ff; color: #4338ca; }
                 .stat-icon.green { background: #f0fdf4; color: #16a34a; }
@@ -251,19 +392,27 @@ export default function InvoicesPage() {
                 .search-wrap { flex: 1; min-width: 200px; position: relative; }
                 .search-wrap input { width: 100%; padding: 8px 10px 8px 16px; border: 1px solid rgba(0,0,0,0.13); border-radius: 8px; font-size: 13px; font-family: inherit; background: #f8f9fc; color: #111827; outline: none; }
                 .search-wrap input:focus { border-color: #4338ca; background: #fff; }
-                .filter-tabs { display: flex; gap: 4px; }
+                .filter-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
                 .tab { padding: 7px 13px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; color: #6b7280; font-weight: 500; transition: all 0.12s; }
                 .tab:hover:not(.active) { background: #f5f6fa; color: #111827; }
                 .tab.active { background: #4338ca; color: #fff; border-color: #4338ca; }
                 .sort-select { padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; font-size: 13px; color: #6b7280; outline: none; cursor: pointer; }
 
                 .invoice-card { background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-                .table-header { display: grid; grid-template-columns: 2.2fr 0.8fr 1fr 0.9fr 90px; gap: 8px; padding: 10px 16px; background: #f8f9fc; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 11px; font-weight: 600; text-transform: uppercase; color: #6b7280; letter-spacing: 0.05em; }
-                .invoice-row { display: grid; grid-template-columns: 2.2fr 0.8fr 1fr 0.9fr 90px; gap: 8px; padding: 13px 16px; border-bottom: 1px solid rgba(0,0,0,0.08); align-items: center; cursor: pointer; transition: background 0.1s; }
+                
+                .customer-group { border-bottom: 1px solid rgba(0,0,0,0.08); }
+                .customer-group:last-child { border-bottom: none; }
+                .customer-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fff; cursor: pointer; transition: background 0.1s; gap: 10px; }
+                .customer-row:hover { background: #fafbff; }
+                .cust-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+                .cust-right { display: flex; align-items: center; gap: 16px; text-align: right; }
+                
+                .invoices-container { background: #f8f9fc; padding: 0; border-top: 1px solid rgba(0,0,0,0.05); }
+                .table-header { display: grid; grid-template-columns: 1.5fr 1fr 1fr 90px; gap: 8px; padding: 10px 16px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 11px; font-weight: 600; text-transform: uppercase; color: #6b7280; letter-spacing: 0.05em; }
+                .invoice-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 90px; gap: 8px; padding: 13px 16px; border-bottom: 1px solid rgba(0,0,0,0.08); align-items: center; cursor: pointer; transition: background 0.1s; }
                 .invoice-row:last-child { border-bottom: none; }
-                .invoice-row:hover { background: #fafbff; }
+                .invoice-row:hover { background: #eef2ff; }
 
-                .cust-wrap { display: flex; align-items: center; gap: 10px; }
                 .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
                 .av-1 { background: #ede9fe; color: #5b21b6; }
                 .av-2 { background: #dbeafe; color: #1d4ed8; }
@@ -283,7 +432,7 @@ export default function InvoicesPage() {
                 .badge-partial { background: #fffbeb; color: #d97706; }
 
                 .row-actions { display: flex; gap: 6px; }
-                .act-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid rgba(0,0,0,0.13); background: #f8f9fc; color: #6b7280; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s; }
+                .act-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid rgba(0,0,0,0.13); background: #ffffff; color: #6b7280; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s; }
                 .act-btn:hover { background: #eef2ff; color: #4338ca; border-color: #4338ca; }
                 .act-btn svg { width: 14px; height: 14px; }
                 .act-btn.wa:hover { background: #f0fdf4; color: #16a34a; border-color: #16a34a; }
@@ -293,18 +442,31 @@ export default function InvoicesPage() {
                 .export-btn:hover { background: #eef2ff; }
 
                 .modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-end; }
-                .modal-sheet { background: #ffffff; width: 100%; border-radius: 24px 24px 0 0; padding: 2rem 1.25rem; transform: translateY(0); animation: slideUp 0.3s ease; }
+                .modal-sheet { background: #ffffff; width: 100%; border-radius: 24px 24px 0 0; padding: 2rem 1.25rem; transform: translateY(0); animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto;}
                 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
                 .btn-action { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; background: #f8f9fc; border: 1px solid rgba(0,0,0,0.08); color: #111827; cursor: pointer; font-size: 11px; font-weight: 600; }
                 .btn-action:hover { background: rgba(0,0,0,0.04); }
 
                 @media (max-width: 700px) {
-                    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-                    .table-header, .invoice-row { grid-template-columns: 2fr 1fr 80px; }
-                    .table-header span:nth-child(2), .invoice-row > div:nth-child(2),
-                    .table-header span:nth-child(5), .invoice-row > div:nth-child(5) { display: none; }
+                    .topbar { padding: 10px 16px; }
+                    .tb-btn { padding: 7px 10px; font-size: 12px; }
+                    .topbar-name { font-size: 14px; }
+                    .topbar-tag { display: none; }
+                    
+                    .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+                    .stat-card { padding: 8px 4px; border-radius: 8px; }
+                    .stat-icon { width: 24px; height: 24px; margin: 0 auto 4px; border-radius: 6px; }
+                    .stat-icon svg { width: 14px; height: 14px; }
+                    .stat-label { font-size: 9px; text-align: center; margin-bottom: 2px; letter-spacing: 0; }
+                    .stat-val { font-size: 16px; text-align: center; }
+                    .stat-footer { display: none; }
+                    
                     .recv-pills { display: none; }
-                    .content { padding: 16px; }
+                    .content { padding: 12px; }
+                    
+                    .cust-right > div:first-child { display: none; }
+                    .table-header, .invoice-row { grid-template-columns: 1fr 1fr 80px; }
+                    .table-header span:nth-child(3), .invoice-row > div:nth-child(3) { display: none; }
                 }
             ` }} />
 
@@ -313,13 +475,8 @@ export default function InvoicesPage() {
                 <div className="topbar-left">
                     <div className="topbar-logo">🧾</div>
                     <span className="topbar-name">{businessProfile?.name || 'BillGST'}</span>
-                    <span className="topbar-tag">Professional Billing</span>
                 </div>
                 <div className="topbar-right">
-                    <button className="tb-btn" onClick={() => router.push('/dashboard/settings')}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-                        Settings
-                    </button>
                     <button className="tb-btn primary" onClick={() => router.push('/dashboard/invoices/new')}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         New Invoice
@@ -331,62 +488,58 @@ export default function InvoicesPage() {
                 {/* PAGE HEADER */}
                 <div className="page-header">
                     <div>
-                        <div className="page-title">Manage Invoices</div>
-                        <div className="page-sub">Track payments &middot; Reminders &middot; Analytics</div>
+                        <div className="page-title">{t.manageInvoices || 'Manage Invoices'}</div>
+                        <div className="page-sub">{t.invoiceSubtext || 'Track payments · Reminders · Analytics'}</div>
                     </div>
-                    <button className="reminder-btn" onClick={handleBulkReminder}>
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                        Bulk Reminder
-                    </button>
                 </div>
 
                 {/* STATS */}
                 <div className="stats-grid">
-                    <div className="stat-card" onClick={() => setActiveTab('all')} style={{cursor: 'pointer'}}>
+                    <div className={`stat-card ${activeTab === 'all' ? 'active-card' : ''}`} onClick={() => setActiveTab('all')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-                        <div className="stat-label">Total Invoices</div>
+                        <div className="stat-label">{t.totalInvoices || 'Total Invoices'}</div>
                         <div className="stat-val blue">{kpiData.total}</div>
-                        <div className="stat-footer">Is mahine</div>
+                        <div className="stat-footer">{isHi ? 'Is mahine' : 'This month'}</div>
                     </div>
-                    <div className="stat-card" onClick={() => setActiveTab('d')} style={{cursor: 'pointer'}}>
+                    <div className={`stat-card ${activeTab === 'd' ? 'active-card' : ''}`} onClick={() => setActiveTab('d')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-                        <div className="stat-label">Paid Full</div>
+                        <div className="stat-label">{t.amountReceived || 'Paid Full'}</div>
                         <div className="stat-val green">{kpiData.paid}</div>
-                        <div className="stat-footer">₹{formatCurrency(kpiData.totalBilled - kpiData.receivable)} collect hua</div>
+                        <div className="stat-footer">{formatCurrency(kpiData.totalBilled - kpiData.receivable)} {isHi ? 'Jama hua' : 'Collected'}</div>
                     </div>
-                    <div className="stat-card" onClick={() => setActiveTab('u')} style={{cursor: 'pointer'}}>
+                    <div className={`stat-card ${activeTab === 'u' ? 'active-card' : ''}`} onClick={() => setActiveTab('u')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-                        <div className="stat-label">Unpaid</div>
+                        <div className="stat-label">{t.due || 'Unpaid'}</div>
                         <div className="stat-val red">{kpiData.unpaid}</div>
-                        <div className="stat-footer">Follow up karo</div>
+                        <div className="stat-footer">{isHi ? 'Follow up karo' : 'Follow up'}</div>
                     </div>
-                    <div className="stat-card" onClick={() => setActiveTab('p')} style={{cursor: 'pointer'}}>
+                    <div className={`stat-card ${activeTab === 'p' ? 'active-card' : ''}`} onClick={() => setActiveTab('p')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                        <div className="stat-label">Partial</div>
+                        <div className="stat-label">{isHi ? 'Aadha Jama' : 'Partial'}</div>
                         <div className="stat-val amber">{kpiData.partial}</div>
-                        <div className="stat-footer">Balance baaki</div>
+                        <div className="stat-footer">{t.balanceAmount || 'Balance baaki'}</div>
                     </div>
                 </div>
 
                 {/* RECEIVABLE BANNER */}
                 <div className="recv-banner">
                     <div>
-                        <div className="recv-label">💰 Total Receivable</div>
-                        <div className="recv-val">₹{formatCurrency(kpiData.receivable)}</div>
-                        <div className="recv-sub">{kpiData.unpaid + kpiData.partial} invoices pending &middot; Abhi update hua</div>
+                        <div className="recv-label">💰 {t.totalDueLabel || 'Total Receivable'}</div>
+                        <div className="recv-val">{formatCurrency(kpiData.receivable)}</div>
+                        <div className="recv-sub">{kpiData.unpaid + kpiData.partial} {isHi ? 'invoices pending · Abhi update hua' : 'invoices pending · Just updated'}</div>
                     </div>
                     <div className="recv-pills">
                         <div className="recv-pill">
                             <div className="recv-pill-val">{collectionRate}%</div>
-                            <div className="recv-pill-label">Collection Rate</div>
+                            <div className="recv-pill-label">{isHi ? 'Vasuli Dar' : 'Collection Rate'}</div>
                         </div>
                         <div className="recv-pill">
                             <div className="recv-pill-val">{uniqueCustomers}</div>
-                            <div className="recv-pill-label">Customers</div>
+                            <div className="recv-pill-label">{t.customers || 'Customers'}</div>
                         </div>
                         <div className="recv-pill">
-                            <div className="recv-pill-val">₹{formatCurrency(avgInvoice)}</div>
-                            <div className="recv-pill-label">Avg Invoice</div>
+                            <div className="recv-pill-val">{formatCurrency(avgInvoice)}</div>
+                            <div className="recv-pill-label">{isHi ? 'Ausat Bill' : 'Avg Invoice'}</div>
                         </div>
                     </div>
                 </div>
@@ -396,86 +549,110 @@ export default function InvoicesPage() {
                     <div className="search-wrap">
                         <input 
                             type="text" 
-                            placeholder="Customer ya invoice search karein..." 
+                            placeholder={isHi ? 'Customer ya invoice search karein...' : 'Search customer or invoice...'} 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div className="filter-tabs">
-                        <div className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>Sab ({kpiData.total})</div>
-                        <div className={`tab ${activeTab === 'u' ? 'active' : ''}`} onClick={() => setActiveTab('u')}>Unpaid ({kpiData.unpaid})</div>
-                        <div className={`tab ${activeTab === 'p' ? 'active' : ''}`} onClick={() => setActiveTab('p')}>Partial ({kpiData.partial})</div>
-                        <div className={`tab ${activeTab === 'd' ? 'active' : ''}`} onClick={() => setActiveTab('d')}>Paid ({kpiData.paid})</div>
+                        <div className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>{t.all || 'All'} ({kpiData.total})</div>
+                        <div className={`tab ${activeTab === 'u' ? 'active' : ''}`} onClick={() => setActiveTab('u')}>{t.due || 'Unpaid'} ({kpiData.unpaid})</div>
+                        <div className={`tab ${activeTab === 'p' ? 'active' : ''}`} onClick={() => setActiveTab('p')}>{isHi ? 'Aadha' : 'Partial'} ({kpiData.partial})</div>
+                        <div className={`tab ${activeTab === 'd' ? 'active' : ''}`} onClick={() => setActiveTab('d')}>{t.amountReceived || 'Paid'} ({kpiData.paid})</div>
                     </div>
                     <select className="sort-select" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-                        <option value="newest">Newest First</option>
-                        <option value="amount-high">Amount: High to Low</option>
-                        <option value="amount-low">Amount: Low to High</option>
-                        <option value="name">Name A–Z</option>
+                        <option value="newest">{isHi ? 'Sabse naya pehle' : 'Newest First'}</option>
+                        <option value="amount-high">{isHi ? 'Rakam: Zyada se kam' : 'Amount: High to Low'}</option>
+                        <option value="amount-low">{isHi ? 'Rakam: Kam se zyada' : 'Amount: Low to High'}</option>
+                        <option value="name">{isHi ? 'Naam A–Z' : 'Name A–Z'}</option>
                     </select>
                 </div>
 
-                {/* INVOICE TABLE */}
+                {/* INVOICE TABLE GROUPED BY CUSTOMER */}
                 <div className="invoice-card">
-                    <div className="table-header">
-                        <span>Customer</span>
-                        <span>Bill No</span>
-                        <span>Amount</span>
-                        <span>Status</span>
-                        <span>Actions</span>
-                    </div>
-
-                    {filteredInvoices.map((inv: any, idx: number) => {
-                        const status = (inv.status || 'UNPAID').toLowerCase();
-                        let badgeClass = 'badge-unpaid';
-                        let statusText = 'Unpaid';
-                        if (status === 'paid') { badgeClass = 'badge-paid'; statusText = 'Paid'; }
-                        if (status === 'partial') { badgeClass = 'badge-partial'; statusText = 'Partial'; }
-                        
-                        const dueText = status === 'paid' ? 'Clear' : (status === 'partial' ? 'Balance baaki' : 'Due: Aaj');
+                    {groupedInvoices.map((group: any, idx: number) => {
+                        const key = group.customer?.phone || group.customer?.name || `local-${idx}`;
+                        const isExpanded = expandedCustomers[key];
                         const avatarClass = `av-${(idx % 5) + 1}`;
-                        const firstChar = inv.customer?.name ? inv.customer.name.charAt(0).toUpperCase() : '#';
-
+                        const firstChar = group.customer?.name ? group.customer.name.charAt(0).toUpperCase() : '#';
+                        
                         return (
-                            <div className="invoice-row" key={inv.id} onClick={() => setSelectedInvoice(inv)}>
-                                <div className="cust-wrap">
-                                    <div className={`avatar ${avatarClass}`}>{firstChar}</div>
-                                    <div>
-                                        <div className="cust-name">{inv.customer?.name || 'Local Sale'}</div>
-                                        <div className="cust-phone" style={{ color: !inv.customer?.phone ? '#9ca3af' : '' }}>
-                                            {inv.customer?.phone ? `📞 ${inv.customer.phone}` : 'No phone'}
+                            <div key={key} className="customer-group">
+                                <div className="customer-row" onClick={() => toggleCustomer(key)}>
+                                    <div className="cust-left">
+                                        <div className={`avatar ${avatarClass}`}>{firstChar}</div>
+                                        <div>
+                                            <div className="cust-name">{group.customer?.name || 'Local Sale'}</div>
+                                            <div className="cust-phone" style={{ color: !group.customer?.phone ? '#9ca3af' : '' }}>
+                                                {group.customer?.phone ? `📞 ${group.customer.phone}` : 'No phone'} &middot; {group.invoices.length} invoices
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="cust-right">
+                                        <div>
+                                            <div className="amount-val">{formatCurrency(group.totalAmount)}</div>
+                                            <div className="amount-due" style={{ color: group.dueAmount > 0 ? '#dc2626' : '#16a34a', fontWeight: group.dueAmount > 0 ? 600 : 'normal' }}>
+                                                {group.dueAmount > 0 ? `Due: ${formatCurrency(group.dueAmount)}` : 'All Paid'}
+                                            </div>
+                                        </div>
+                                        <div style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#6b7280' }}>
+                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="inv-count">#{inv.invoice_number}</div>
-                                <div>
-                                    <div className="amount-val">₹{formatCurrency(inv.total_amount)}</div>
-                                    <div className="amount-due" style={{ color: status === 'unpaid' ? '#dc2626' : '', fontWeight: status === 'unpaid' ? 600 : 'normal' }}>
-                                        {dueText}
+                                
+                                {isExpanded && (
+                                    <div className="invoices-container">
+                                        <div className="table-header">
+                                            <span>Bill No</span>
+                                            <span>Amount</span>
+                                            <span>Status</span>
+                                            <span>Actions</span>
+                                        </div>
+                                        {group.invoices.map((inv: any) => {
+                                            const status = (inv.status || 'UNPAID').toLowerCase();
+                                            let badgeClass = 'badge-unpaid';
+                                            let statusText = t.due || 'Unpaid';
+                                            if (status === 'paid') { badgeClass = 'badge-paid'; statusText = t.amountReceived || 'Paid'; }
+                                            if (status === 'partial') { badgeClass = 'badge-partial'; statusText = isHi ? 'Aadha' : 'Partial'; }
+                                            
+                                            return (
+                                                <div className="invoice-row" key={inv.id} onClick={() => setSelectedInvoice(inv)}>
+                                                    <div className="inv-count">#{inv.invoice_number}</div>
+                                                    <div>
+                                                        <div className="amount-val">{formatCurrency(inv.total_amount)}</div>
+                                                    </div>
+                                                    <div><span className={`badge ${badgeClass}`}>{statusText}</span></div>
+                                                    <div className="row-actions" onClick={e => e.stopPropagation()}>
+                                                        <button className="act-btn wa" title="WhatsApp reminder" onClick={(e) => handleWhatsApp(inv, e)}>
+                                                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                                                        </button>
+                                                        <button className="act-btn" title="View invoice" onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}>
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                </div>
-                                <div><span className={`badge ${badgeClass}`}>{statusText}</span></div>
-                                <div className="row-actions" onClick={e => e.stopPropagation()}>
-                                    <button className="act-btn wa" title="WhatsApp reminder" onClick={(e) => handleWhatsApp(inv, e)}>
-                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                                    </button>
-                                    <button className="act-btn" title="View invoice" onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         );
                     })}
 
-                    {filteredInvoices.length === 0 && (
+                    {groupedInvoices.length === 0 && (
                         <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
                             Koi invoice nahi mila.
                         </div>
                     )}
 
                     <div className="table-footer">
-                        <span>{filteredInvoices.length} invoices &middot; ₹{formatCurrency(kpiData.receivable)} total pending</span>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <span>{filteredInvoices.length} invoices &middot; {formatCurrency(kpiData.receivable)} total pending</span>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            <button className="reminder-btn" onClick={handleBulkReminder} style={{ padding: '5px 12px', fontSize: '12px' }}>
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                                Bulk Reminder
+                            </button>
                             <button className="export-btn" onClick={handleExportExcel}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
                                 Excel Export
@@ -491,11 +668,11 @@ export default function InvoicesPage() {
                         <div style={{ width: '40px', height: '4px', background: 'rgba(0,0,0,0.1)', borderRadius: '2px', margin: '0 auto 1.5rem' }} />
                         <div style={{ marginBottom: '1.5rem' }}>
                             <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Invoice #{selectedInvoice.invoice_number}</div>
-                            <div style={{ fontSize: '24px', fontWeight: 800 }}>₹{formatCurrency(selectedInvoice.total_amount)}</div>
+                            <div style={{ fontSize: '24px', fontWeight: 800 }}>{formatCurrency(selectedInvoice.total_amount)}</div>
                             <div style={{ fontSize: '13px', color: '#6b7280' }}>{selectedInvoice.customer?.name}</div>
                         </div>
                         
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             <button className="btn-action" onClick={(e) => handleWhatsApp(selectedInvoice, e)}>
                                 <FaWhatsapp size={20} color="#16a34a" />
                                 WhatsApp
@@ -513,6 +690,32 @@ export default function InvoicesPage() {
                                 Delete
                             </button>
                         </div>
+                        
+                        {/* RECORD PAYMENT SECTION */}
+                        {((selectedInvoice.status || 'UNPAID').toLowerCase() !== 'paid') && (
+                            <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f8f9fc', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.08)' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>Record Payment</div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Amount received (₹)" 
+                                        value={paymentAmount}
+                                        onChange={(e) => setPaymentAmount(e.target.value)}
+                                        style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.13)', outline: 'none' }}
+                                    />
+                                    <button 
+                                        onClick={handleRecordPayment}
+                                        disabled={isSubmittingPayment}
+                                        style={{ background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        {isSubmittingPayment ? 'Saving...' : 'Add'}
+                                    </button>
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px' }}>
+                                    Balance Due: {formatCurrency(Number(selectedInvoice.total_amount) - Number(selectedInvoice.paid_amount || 0))}
+                                </div>
+                            </div>
+                        )}
                         
                         <button 
                             style={{ width: '100%', marginTop: '1.5rem', height: '50px', background: '#4338ca', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer' }}

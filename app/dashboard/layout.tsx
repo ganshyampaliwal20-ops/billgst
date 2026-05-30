@@ -217,7 +217,6 @@ export default function DashboardLayout({
                                 <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                                     BillGST
                                 </h1>
-                                <p className="text-[8px] text-slate-500 font-semibold tracking-wider uppercase">Professional Billing</p>
                             </div>
                         </Link>
                         <button
@@ -449,11 +448,8 @@ export default function DashboardLayout({
                                             }}
                                         />
                                     </div>
-                                    <div className="flex flex-row items-baseline gap-2">
-                                        <h2 className="text-sm md:text-lg font-bold text-white tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm">
-                                            {businessProfile.name || 'BillGST'}
-                                        </h2>
-                                        <p className="text-[10px] text-indigo-100/70 font-medium hidden md:block">Professional Billing</p>
+                                    <div className="flex flex-col max-w-[120px] md:max-w-[200px]">
+                                        <h1 className="font-bold text-white text-sm md:text-base truncate tracking-tight">{businessProfile?.name || 'BillGST'}</h1>
                                     </div>
                                 </Link>
                             </div>
