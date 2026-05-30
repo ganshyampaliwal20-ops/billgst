@@ -210,6 +210,10 @@ export default function SmartAttendance() {
         ds.net = ds.gross - ds.deduct - advance;
     }
 
+    
+    // Calculate unique roles for filter
+    const uniqueRoles = Array.from(new Set((staff || []).map((s: any) => s.role || 'Worker'))).filter(Boolean);
+
     const handleUpdateStaffInfo = async () => {
         if (!selectedStaff) return;
         await updateStaff(selectedStaff.id, { 
@@ -626,9 +630,9 @@ export default function SmartAttendance() {
                                 <img src={businessProfile.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} />
                             </div>
                         )}
-                        <span className="logo-nm" style={{ fontSize: '20px', fontWeight: 900, color: '#1e1b4b' }}>{businessProfile?.name || 'BillGST'}</span>
+                        <span className="logo-nm" style={{ fontSize: '24px', fontWeight: 900, background: 'linear-gradient(135deg, #4f46e5, #9333ea)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>{businessProfile?.name || 'BillGST'}</span>
                     </div>
-                    <span className="tb-title" style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ink3)', letterSpacing: '1px', textTransform: 'uppercase' }}>Attendance</span>
+                    <span className="tb-title" style={{ fontSize: '14px', fontWeight: 900, color: 'white', letterSpacing: '1px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '6px 16px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(79,70,229,0.3)' }}>Attendance</span>
                 </div>
 
                 {/* SELECT FILTER & ACTION BUTTONS */}
@@ -667,15 +671,15 @@ export default function SmartAttendance() {
 
 
                 {/* STATS */}
-                <div className="stats-row">
-                    <div className="stat-box"><div className="stat-num sn-g">{todayStats.P}</div><div className="stat-lbl sl">Present</div></div>
-                    <div className="stat-box"><div className="stat-num sn-r">{todayStats.A}</div><div className="stat-lbl sl">Absent</div></div>
-                    <div className="stat-box"><div className="stat-num sn-a">{todayStats.H}</div><div className="stat-lbl sl">Half Day</div></div>
-                    <div className="stat-box"><div className="stat-num sn-b">{todayStats.L}</div><div className="stat-lbl sl">Leave</div></div>
+                <div className="stats-row" style={{ gap: '16px', padding: '0 20px', marginBottom: '24px' }}>
+                    <div className="stat-box" style={{ borderLeft: '5px solid #10b981', background: '#f0fdf4', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(16,185,129,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-g" style={{ fontSize: '24px', fontWeight: 900, color: '#065f46' }}>{todayStats.P}</div><div className="stat-lbl sl" style={{ color: '#047857', fontWeight: 700 }}>Present</div></div>
+                    <div className="stat-box" style={{ borderLeft: '5px solid #ef4444', background: '#fef2f2', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(239,68,68,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-r" style={{ fontSize: '24px', fontWeight: 900, color: '#991b1b' }}>{todayStats.A}</div><div className="stat-lbl sl" style={{ color: '#b91c1c', fontWeight: 700 }}>Absent</div></div>
+                    <div className="stat-box" style={{ borderLeft: '5px solid #f59e0b', background: '#fffbeb', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(245,158,11,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-a" style={{ fontSize: '24px', fontWeight: 900, color: '#92400e' }}>{todayStats.H}</div><div className="stat-lbl sl" style={{ color: '#b45309', fontWeight: 700 }}>Half Day</div></div>
+                    <div className="stat-box" style={{ borderLeft: '5px solid #3b82f6', background: '#eff6ff', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(59,130,246,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-b" style={{ fontSize: '24px', fontWeight: 900, color: '#1e40af' }}>{todayStats.L}</div><div className="stat-lbl sl" style={{ color: '#1d4ed8', fontWeight: 700 }}>Leave</div></div>
                 </div>
 
                 {/* CONTROLS */}
-                <div className="controls">
+                <div className="controls" style={{ position: 'sticky', top: '0', zIndex: 10, background: 'rgba(244, 247, 251, 0.95)', backdropFilter: 'blur(10px)', padding: '10px 20px', margin: '0 -20px 16px -20px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <div className="sbox">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
                         <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
@@ -943,17 +947,15 @@ export default function SmartAttendance() {
                                     <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg></div>
                                     <div className="aw-inner" style={{ position: 'relative' }}>
                                         <div className="aw-lbl">Role</div>
-                                        <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', fontWeight: 700, color: 'var(--ink)', appearance: 'none', padding: '0', cursor: 'pointer' }}>
-                                            <option value="Worker">Worker</option>
-                                            <option value="Driver">Driver</option>
-                                            <option value="Guard">Guard</option>
-                                            <option value="Cleaner">Cleaner</option>
-                                            <option value="Manager">Manager</option>
-                                            <option value="Student">Student</option>
-                                        </select>
-                                        <div style={{ position: 'absolute', right: '0', top: '18px', pointerEvents: 'none', color: 'var(--ink3)' }}>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M6 9l6 6 6-6" /></svg>
-                                        </div>
+                                        <input type="text" list="rolesList" placeholder="e.g. Manager" value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', fontWeight: 700, color: 'var(--ink)' }} />
+                                        <datalist id="rolesList">
+                                            <option value="Worker" />
+                                            <option value="Driver" />
+                                            <option value="Guard" />
+                                            <option value="Cleaner" />
+                                            <option value="Manager" />
+                                            <option value="Student" />
+                                        </datalist>
                                     </div>
                                 </div>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
