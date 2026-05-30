@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
@@ -533,8 +533,14 @@ export default function LandingPage() {
                 <div className="pricing-in">
                     <div className="tc">
                         <div className="tag">Simple Pricing</div>
-                        <h2 className="sec-h">Transparent Pricing — कोई hidden charge नहीं</h2>
-                        <p className="sec-p">शुरुआत करें, दुकान बढ़े तो upgrade करें। Yearly लो और 30% बचाओ।</p>
+                        <h2 className="sec-h">Transparent Pricing — Koi hidden charge nahi</h2>
+                        <p className="sec-p">Abhi free mein shuru karein, baad mein jab zarurat ho upgrade karein. Yearly lene par 30% bachat.</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginTop: '20px', marginBottom: '20px' }}>
+                            <span style={{ fontSize: '13px', color: '#cbd5e1', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>🔒 256-bit SSL Secured</span>
+                            <span style={{ fontSize: '13px', color: '#cbd5e1', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>🇮🇳 Made in India</span>
+                            <span style={{ fontSize: '13px', color: '#cbd5e1', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>✅ No Credit Card Required</span>
+                            <span style={{ fontSize: '13px', color: '#cbd5e1', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>📞 Free Support on WhatsApp</span>
+                        </div>
                     </div>
 
                     <div className="toggle-row">

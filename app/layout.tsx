@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.billgst.in"),
   title: "BillGST - Free GST Billing & Stock Management",
-  description: "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
+  description: "BillGST — India ka Free GST Billing Software. 50,000+ dukandaar use karte hain. Voice billing, WhatsApp invoice, stock management — sab free mein.",
   keywords: "free gst bill, billgst, gstbill, invoice generator, billing software, inventory management, small business billing, gst invoice maker",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
