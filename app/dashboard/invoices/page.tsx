@@ -152,6 +152,32 @@ export default function InvoicesPage() {
         toast.success('Bulk reminder feature comming soon!');
     };
 
+    const handleExportExcel = async () => {
+        try {
+            const toastId = toast.loading('Generating Excel file...');
+            const XLSX = await import('xlsx');
+            const data = filteredInvoices.map((inv: any) => ({
+                'Invoice No': inv.invoice_number,
+                'Date': new Date(inv.invoice_date || inv.created_at).toLocaleDateString(),
+                'Customer Name': inv.customer?.name || 'Local Sale',
+                'Customer Phone': inv.customer?.phone || '',
+                'Total Amount (Rs)': Number(inv.total_amount),
+                'Paid Amount (Rs)': Number(inv.paid_amount || 0),
+                'Balance Due (Rs)': Number(inv.total_amount) - Number(inv.paid_amount || 0),
+                'Status': inv.status || 'UNPAID'
+            }));
+            
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
+            XLSX.writeFile(workbook, "Invoices_Export.xlsx");
+            toast.success("Excel file downloaded!", { id: toastId });
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to export Excel");
+        }
+    };
+
     if (!isClient) return <div style={{ background: '#f5f6fa', minHeight: '100vh' }} />;
 
     return (
@@ -450,7 +476,7 @@ export default function InvoicesPage() {
                     <div className="table-footer">
                         <span>{filteredInvoices.length} invoices &middot; ₹{formatCurrency(kpiData.receivable)} total pending</span>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                            <button className="export-btn" onClick={() => toast.success('Excel export jald aa raha hai!')}>
+                            <button className="export-btn" onClick={handleExportExcel}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
                                 Excel Export
                             </button>
