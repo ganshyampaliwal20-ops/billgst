@@ -694,18 +694,9 @@ export default function SmartAttendance() {
                 {/* DEPT TABS */}
                 <div className="dept-tabs">
                     <button className={`dtab ${deptFilter === 'all' ? 'on' : ''}`} onClick={() => setDeptFilter('all')}>All</button>
-                    <button className={`dtab ${deptFilter === 'worker' ? 'on' : ''}`} onClick={() => setDeptFilter('worker')}>Worker</button>
-                    <button className={`dtab ${deptFilter === 'driver' ? 'on' : ''}`} onClick={() => setDeptFilter('driver')}>Driver</button>
-                    <button className={`dtab ${deptFilter === 'guard' ? 'on' : ''}`} onClick={() => setDeptFilter('guard')}>Guard</button>
-                    <button className={`dtab ${deptFilter === 'cleaner' ? 'on' : ''}`} onClick={() => setDeptFilter('cleaner')}>Cleaner</button>
-                    <div className="custom-role-filter">
-                        <input 
-                            type="text" 
-                            placeholder="Type role..." 
-                            value={!['all','worker','driver','guard','cleaner'].includes(deptFilter) ? deptFilter : ''} 
-                            onChange={e => setDeptFilter(e.target.value.toLowerCase() || 'all')} 
-                        />
-                    </div>
+                    {uniqueRoles.map((role: any) => (
+                        <button key={role} className={`dtab ${deptFilter === role.toLowerCase() ? 'on' : ''}`} onClick={() => setDeptFilter(role.toLowerCase())}>{role}</button>
+                    ))}
                 </div>
 
                 {/* WORKERS LIST */}
