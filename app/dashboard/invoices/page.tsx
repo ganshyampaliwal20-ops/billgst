@@ -799,7 +799,6 @@ export default function InvoicesPage() {
                             Close
                         </button>
                     </div>
-                    </div>
                 </div>
             )}
 
