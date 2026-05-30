@@ -5,11 +5,13 @@ import { useStore } from '@/lib/store';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Chart from 'chart.js/auto';
+import { generateHisaabPDF } from '@/lib/pdf-generator';
+import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 export default function CustomerDetailPage() {
     const { id } = useParams();
     const router = useRouter();
-    const { customers, invoices, fetchInvoices, fetchCustomers, updateCustomer } = useStore() as any;
+    const { customers, invoices, fetchInvoices, fetchCustomers, updateCustomer, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
     // Payment State
@@ -170,6 +172,70 @@ export default function CustomerDetailPage() {
             setPaymentAmount('');
         } catch (error) {
             toast.error('An error occurred');
+        }
+    };
+
+    const handleWhatsApp = async () => {
+        const phone = (customer.phone || '').replace(/\D/g, '');
+        if (!phone) {
+            toast.error('Pahle customer ka mobile number add karein.', { icon: '📱' });
+            return;
+        }
+
+        const toastId = toast.loading('WhatsApp ke liye Ledger ban raha hai...');
+        try {
+            const custStats = {
+                credit: totalPaid,
+                debit: totalSales,
+                net: totalDue,
+                isNeg: totalDue > 0
+            };
+
+            const doc = await generateHisaabPDF(customer, businessProfile, custStats, false);
+            if (!doc) {
+                toast.error('PDF Generate fail!', { id: toastId });
+                return;
+            }
+
+            const pdfBlob = doc.output('blob');
+            const fileName = `Ledger_${customer.name || 'Customer'}.pdf`;
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+            
+            let text = `Hi ${customer.name || 'Customer'},\n\nAapka Ledger statement ready hai. Total outstanding amount: *₹${totalDue.toLocaleString('en-IN')}* hai.\n\nKripya isey jald se jald clear karein.\n\nRegards,\n${businessProfile?.name || 'BillGST Pro'}`;
+            text += getVisitingCardText(businessProfile || {});
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: fileName,
+                        text: text
+                    });
+                    toast.success('WhatsApp par share open ho gaya!', { id: toastId });
+                    return;
+                } catch (e) {
+                    console.log('Share cancelled', e);
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('message', text);
+            formData.append('file', file);
+
+            const res = await fetch('/api/whatsapp/send-media', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                toast.success('WhatsApp Bot ne Ledger bhej diya! ✅', { id: toastId });
+            } else {
+                toast.dismiss(toastId);
+                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(text)}`, '_blank');
+            }
+        } catch (error) {
+            toast.error('WhatsApp Share Error', { id: toastId });
         }
     };
 
@@ -407,7 +473,7 @@ canvas{max-height:140px; width: 100%;}
                         <div className="qa-btn call" onClick={() => toast('Calling ' + customer.phone + '…')}>
                             <span className="qa-icon">📞</span><span className="qa-label">Call</span>
                         </div>
-                        <div className="qa-btn whatsapp" onClick={() => toast('WhatsApp open ho raha hai…')}>
+                        <div className="qa-btn whatsapp" onClick={handleWhatsApp}>
                             <span className="qa-icon">💬</span><span className="qa-label">WhatsApp</span>
                         </div>
                         <div className="qa-btn sms" onClick={() => toast('SMS bhej raha hai…')}>
