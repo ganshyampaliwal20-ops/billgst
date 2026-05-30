@@ -589,72 +589,85 @@ export default function LandingPage() {
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
-                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
-                                <div style={{ fontSize: '15px', fontWeight: '600' }}>AI Voice Billing</div>
-                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Create bills by just speaking</div>
-                            </div>
-                            <div style={{ color: '#64748b', fontSize: '15px' }}>❌ Not Available</div>
-                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>✅ Included 🎙️</div>
+                              <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                  <div style={{ fontSize: '15px', fontWeight: '600' }}>AI Voice Billing</div>
+                                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Create bills by just speaking</div>
+                              </div>
+                              <div style={{ color: '#64748b', fontSize: '15px' }}>❌ Not Available</div>
+                              <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>Unlimited AI Bills 🎙️</div>
                         </div>
-
+                          
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center' }}>
-                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
-                                <div style={{ fontSize: '15px', fontWeight: '600' }}>WhatsApp Auto-Share</div>
-                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>1-click invoice sharing</div>
-                            </div>
-                            <div style={{ color: '#94a3b8', fontSize: '15px' }}>Manual Share</div>
-                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>1-Click Auto Share 📲</div>
+                              <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                  <div style={{ fontSize: '15px', fontWeight: '600' }}>Staff Management</div>
+                                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Add staff with permissions</div>
+                              </div>
+                              <div style={{ color: '#64748b', fontSize: '15px' }}>❌ Not Available</div>
+                              <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>Up to 5 Staff Members 👥</div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', alignItems: 'center', background: 'rgba(255,255,255,0.01)' }}>
-                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
-                                <div style={{ fontSize: '15px', fontWeight: '600' }}>GST Reports (GSTR-1, 3B)</div>
-                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>1-click filing reports</div>
-                            </div>
-                            <div style={{ color: '#10b981', fontSize: '15px' }}>✅ Included</div>
-                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>✅ Included + CA Export</div>
+                              <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                  <div style={{ fontSize: '15px', fontWeight: '600' }}>Data Backup & Sync</div>
+                                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Multi-device support & cloud sync</div>
+                              </div>
+                              <div style={{ color: '#94a3b8', fontSize: '15px' }}>Single Device / Local</div>
+                              <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>Cloud Auto-Sync ☁️</div>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '16px 20px', textAlign: 'center', alignItems: 'center' }}>
-                            <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
-                                <div style={{ fontSize: '15px', fontWeight: '600' }}>Priority Support</div>
-                                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Help via WhatsApp & Call</div>
-                            </div>
-                            <div style={{ color: '#64748b', fontSize: '15px' }}>Email Only</div>
-                            <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>24/7 Priority Support 📞</div>
+                              <div style={{ textAlign: 'left', paddingLeft: '15px' }}>
+                                  <div style={{ fontSize: '15px', fontWeight: '600' }}>Customer Support</div>
+                                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Help when you need it</div>
+                              </div>
+                              <div style={{ color: '#94a3b8', fontSize: '15px' }}>Email Only (Slow)</div>
+                              <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '15px' }}>Priority WhatsApp Support ⚡</div>
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* FAQ SECTION */}
-            <section className="sec" id="faq">
-                <div className="sec-in">
+            <section className="sec" id="faq" style={{ background: '#0B0F1A' }}>
+                <div className="sec-in" style={{ maxWidth: '800px' }}>
                     <div className="tc">
-                        <div className="tag">Got Questions?</div>
+                        <div className="tag">Common Doubts</div>
                         <h2 className="sec-h">Frequently Asked Questions</h2>
-                        <p className="sec-p">आपके सभी सवालों के जवाब</p>
+                        <p className="sec-p">Aapke sabhi sawalon ke jawab yahan hain</p>
                     </div>
-                    <div className="faq-grid" style={{ maxWidth: '800px', margin: '40px auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>Kya ye government approved hai?</h4>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>हां, BillGST से जेनरेट होने वाले सभी Invoices पूरी तरह से GST Compliant हैं और सरकार के नियमों (GSTR-1, GSTR-3B) के अनुसार बने हैं। आप इन्हें बेझिझक इस्तेमाल कर सकते हैं।</p>
+                    
+                    <div className="faq-grid" style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '40px' }}>
+                        <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Kya mera data safe hai?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>Haan, 100% safe hai. Aapka data bank-level encryption ke sath cloud par store hota hai. Aapke alawa koi aur aapka data nahi dekh sakta, hum bhi nahi.</p>
                         </div>
-                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>Mera Data kitna safe hai?</h4>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>आपका डेटा 100% सुरक्षित और Encrypted है। यह क्लाउड पर सेव होता है ताकि अगर आपका फोन या कंप्यूटर खराब भी हो जाए, तो भी आपका हिसाब सुरक्षित रहे।</p>
+                        
+                        <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Internet band ho toh kya hoga?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>BillGST offline mode support karta hai. Agar aapki dukan mein internet chala jaye, tab bhi aap bill bana sakte hain. Jaise hi net aayega, data apne aap cloud par save ho jayega.</p>
                         </div>
-                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>WhatsApp kaise connect kare?</h4>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>बहुत ही आसान है! बस अपने डैशबोर्ड में जाएं, 'Settings' &gt; 'WhatsApp' पर क्लिक करें और QR Code स्कैन करें। एक बार कनेक्ट होने के बाद आप सीधे WhatsApp से बिल भेज पाएंगे।</p>
+
+                        <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Kya ye Tally ya Vyapar se better hai?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>Tally thoda complex hai aur computer par chalta hai. Vyapar accha hai par expensive hai. BillGST mobile aur PC dono par chalta hai, isme Voice Billing (bol kar bill banana) aur WhatsApp Bot jaisi modern features hain jo saste daam me aapka samay bachati hain.</p>
                         </div>
-                        <div className="faq-card" style={{ background: '#121a2f', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <h4 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#F0F4FF' }}>Free plan kab tak chalega?</h4>
-                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', lineHeight: '1.5' }}>Free Plan हमेशा के लिए फ्री है। इसमें आप हर महीने 30 Bills बना सकते हैं। अगर आपकी दुकान बड़ी है और ज्यादा बिल बनते हैं, तो आप Premium पर अपग्रेड कर सकते हैं।</p>
+
+                        <div className="faq-item" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <h4 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '10px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#4F8EF7' }}>Q.</span> Kya isse GST return file hogi?</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.6' }}>Aap GSTR-1, GSTR-3B aur GSTR-4 ki reports single click mein Excel aur JSON format mein download kar sakte hain jisse CA ko bhejna ya directly portal par upload karna bahut aasan ho jata hai.</p>
                         </div>
                     </div>
                 </div>
             </section>
+
+            {/* TRUST BADGE SECTION BEFORE FOOTER */}
+            <div style={{ background: '#0a0f1c', padding: '40px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap', opacity: 0.8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ fontSize: '24px' }}>🔒</span> <span style={{ color: '#fff', fontWeight: 'bold' }}>100% Secure Data</span></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ fontSize: '24px' }}>🛡️</span> <span style={{ color: '#fff', fontWeight: 'bold' }}>Bank-Level Security</span></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ fontSize: '24px' }}>📜</span> <span style={{ color: '#fff', fontWeight: 'bold' }}>Independent Private Software (Not Govt Affiliated)</span></div>
+                </div>
+            </div>
 
             {/* FOOTER */}
             <footer className="landing-footer">
