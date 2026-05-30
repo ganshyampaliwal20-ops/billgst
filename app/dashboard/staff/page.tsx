@@ -619,10 +619,7 @@ export default function SmartAttendance() {
             <div className="sa-container">
                 {/* TOPBAR */}
                 <div className="topbar" style={{ display: 'flex', flexDirection: 'column', position: 'relative', paddingBottom: '16px' }}>
-                    <button 
-                        onClick={() => router.push('/dashboard')}
-                        style={{ position: 'absolute', left: '20px', top: '24px', width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(255,255,255,0.8)', border: '1px solid #e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--indigo)', fontSize: '24px', lineHeight: 1 }}
-                    >‹</button>
+
                     <div className="logo-box" style={{ margin: '0 auto', background: 'linear-gradient(135deg, #eef2ff, #f5f3ff)', border: '1px solid #e0e7ff', boxShadow: '0 4px 15px rgba(79,70,229,0.05)', borderRadius: '16px', flexDirection: 'column', gap: '4px', marginBottom: '8px', padding: '12px 24px', minWidth: '200px', display: 'flex', alignItems: 'center' }}>
                         {businessProfile?.logo && (
                             <div className="logo-sq" style={{ padding: '0', width: '40px', height: '40px', marginBottom: '4px' }}>

@@ -495,7 +495,7 @@ export default function CustomersPage() {
                 <div className="shell">
                     <div className="topbar">
                         <div className="topbar-row1">
-                            <button className="back-btn" onClick={() => window.history.back()}>‹</button>
+
                             <div className="topbar-title">
                                 <h1>{t.allCustomers}</h1>
                                 <p>{t.manageYourCustomers}</p>

@@ -610,7 +610,7 @@ function ReportsContent() {
             <div className="report-wrapper">
                 <div className="topbar">
                     <div className="topbar-left">
-                        <button className="back-btn" onClick={() => window.history.back()}>‹</button>
+
                         <div>
                             <h1>{t.reports || 'Reports'}</h1>
                             <p>{t.businessOverview || 'Business Overview'}</p>
