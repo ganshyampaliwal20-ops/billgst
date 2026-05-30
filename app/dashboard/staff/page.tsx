@@ -634,41 +634,24 @@ export default function SmartAttendance() {
                     </div>
                     <span className="tb-title" style={{ fontSize: '14px', fontWeight: 900, color: 'white', letterSpacing: '1px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '6px 16px', borderRadius: '8px', boxShadow: '0 4px 10px rgba(79,70,229,0.3)' }}>Attendance</span>
                 </div>
-
-                {/* SELECT FILTER & ACTION BUTTONS */}
-                <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <div style={{ flex: 1, position: 'relative' }}>
-                          <input 
-                              type="text"
-                              list="filterRolesList"
-                              placeholder="Search by Role (e.g. Manager)"
-                              value={deptFilter === 'all' ? '' : deptFilter} 
-                              onChange={(e) => setDeptFilter(e.target.value.toLowerCase() || 'all')}
-                              style={{ width: '100%', padding: '12px 14px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.05)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--ink)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}
-                          />
-                          <datalist id="filterRolesList">
-                              {uniqueRoles.map((role: any) => (
-                                  <option key={role} value={role.toLowerCase()}>{role}</option>
-                              ))}
-                          </datalist>
-                      </div>
-                    
-                    <button 
-                        onClick={generateMasterReportPDF} 
-                        style={{ width: '46px', height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: 'var(--indigo)' }}
-                        title="Download PDF"
-                    >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
-                    </button>
-                    
-                    <button 
-                        onClick={() => setSheet('add')}
-                        style={{ width: '46px', height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 8px 20px rgba(79,70,229,0.3)' }}
-                        title="Add New Staff"
-                    >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M12 5v14M5 12h14" /></svg>
-                    </button>
-                </div>
+                
+                {/* ACTION BUTTONS */}
+                <div style={{ padding: '0 20px 16px', display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <button 
+                            onClick={generateMasterReportPDF} 
+                            style={{ flex: 1, height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: 'var(--indigo)', fontWeight: 800, fontSize: '14px' }}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+                            Download PDF
+                        </button>
+                        
+                        <button 
+                            onClick={() => setSheet('add')}
+                            style={{ flex: 1, height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg, #4f46e5, #9333ea)', color: '#fff', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none', boxShadow: '0 4px 15px rgba(79,70,229,0.3)' }}
+                        >
+                            <span style={{ fontSize: '20px' }}>+</span> Add New Staff
+                        </button>
+                    </div>
 
 
                 {/* STATS */}
