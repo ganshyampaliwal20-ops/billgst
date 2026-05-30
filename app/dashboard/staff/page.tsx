@@ -638,18 +638,20 @@ export default function SmartAttendance() {
                 {/* SELECT FILTER & ACTION BUTTONS */}
                 <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <div style={{ flex: 1, position: 'relative' }}>
-                        <select 
-                            value={activeTab} 
-                            onChange={(e) => setActiveTab(e.target.value)}
-                            style={{ width: '100%', padding: '12px 14px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.05)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--ink)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', appearance: 'none', cursor: 'pointer' }}
-                        >
-                            <option value="workers">👷 Workers</option>
-                            <option value="school">🎓 Students</option>
-                            <option value="salary">💰 Salary</option>
-                        </select>
-                        <div style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--ink3)' }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M6 9l6 6 6-6" /></svg>
-                        </div>
+                          <input 
+                              type="text"
+                              list="filterRolesList"
+                              placeholder="Search by Role (e.g. Manager)"
+                              value={deptFilter === 'all' ? '' : deptFilter} 
+                              onChange={(e) => setDeptFilter(e.target.value.toLowerCase() || 'all')}
+                              style={{ width: '100%', padding: '12px 14px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.05)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--ink)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}
+                          />
+                          <datalist id="filterRolesList">
+                              {uniqueRoles.map((role: any) => (
+                                  <option key={role} value={role.toLowerCase()}>{role}</option>
+                              ))}
+                          </datalist>
+                      </div>
                     </div>
                     
                     <button 
