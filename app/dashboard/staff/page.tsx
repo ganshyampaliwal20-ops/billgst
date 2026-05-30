@@ -725,6 +725,19 @@ export default function SmartAttendance() {
                                           member.role === 'Chowkidar' ? { bg: '#e8faf3', text: '#10b981' } : 
                                           member.role === 'Safai' ? { bg: '#eff6ff', text: '#3b82f6' } : 
                                           { bg: '#eef0ff', text: '#4f46e5' };
+                        
+                        // Calculate stats for this month
+                        const memberMonthRecords = attendance?.filter((a: any) => 
+                            a.staff_id === member.id && 
+                            a.date.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}`)
+                        ) || [];
+                        let cp=0, ca=0, cl=0, ch=0;
+                        memberMonthRecords.forEach((r: any) => {
+                            if(r.status==='PRESENT') cp++;
+                            if(r.status==='ABSENT') ca++;
+                            if(r.status==='LEAVE') cl++;
+                            if(r.status==='HALF_DAY') ch++;
+                        });
                                           
                         const ringColor = status === 'PRESENT' ? 'or-green' : 
                                           status === 'ABSENT' ? 'or-red' : 
@@ -743,6 +756,12 @@ export default function SmartAttendance() {
                                         <div className="wmeta">
                                             <span className="wrole" style={{ background: roleColor.bg, color: roleColor.text }}>{member.role || 'Worker'}</span>
                                             {isOwnerOrAccountant && <span className="wsalary">₹{member.daily_wage || 0}/day</span>}
+                                        </div>
+                                        <div style={{ marginTop: '4px', fontSize: '11px', display: 'flex', gap: '8px' }}>
+                                            <span style={{color:'#10b981', fontWeight: 600}}>P: {cp}</span>
+                                            <span style={{color:'#ef4444', fontWeight: 600}}>A: {ca}</span>
+                                            <span style={{color:'#f59e0b', fontWeight: 600}}>H: {ch}</span>
+                                            <span style={{color:'#3b82f6', fontWeight: 600}}>L: {cl}</span>
                                         </div>
                                     </div>
                                     <div className="att-btns">
@@ -902,9 +921,9 @@ export default function SmartAttendance() {
                                 ) : (
                                     <>
                                         <div className="sal-row"><span className="sal-lbl">Daily wage</span><span className="sal-val">₹{ds.rate}</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Present days</span><span className="sal-val" style={{ color: '#10b981' }}>{ds.p + (ds.h * 0.5)} days</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Paid days (Incl. Leave)</span><span className="sal-val" style={{ color: '#10b981' }}>{ds.p + (ds.h * 0.5) + ds.l} days</span></div>
                                         <div className="sal-row"><span className="sal-lbl">Gross salary</span><span className="sal-val">₹{ds.gross}</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Deduction (Absence)</span><span className="sal-val" style={{ color: '#ef4444' }}>-₹{ds.deduct}</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">Deduction (Absence)</span><span className="sal-val" style={{ color: '#ef4444' }}>₹0</span></div>
                                         <div className="sal-row"><span className="sal-lbl">Advance Taken</span><span className="sal-val" style={{ color: '#f59e0b' }}>-₹{selectedStaff.advance || 0}</span></div>
                                         <div className="sal-row" style={{ borderTop: '2px dashed #e0e3f0', marginTop: '5px', paddingTop: '10px' }}><span className="sal-lbl" style={{ fontWeight: 800, color: '#0d0f1c' }}>Net Salary</span><span className="sal-val" style={{ color: '#4f46e5', fontSize: '15px' }}>₹{ds.net}</span></div>
                                     </>
