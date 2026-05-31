@@ -46,6 +46,13 @@ export default function CustomersPage() {
         (c.phone && c.phone.includes(searchTerm))
     );
 
+    const uniqueMap = new Map();
+    filteredCustomers.forEach((c: any) => {
+        const key = c.phone ? c.phone.trim() : c.name.trim().toLowerCase();
+        if (!uniqueMap.has(key)) uniqueMap.set(key, c);
+    });
+    filteredCustomers = Array.from(uniqueMap.values());
+
     const processedList = filteredCustomers.map((c: any, index: number) => {
         const gbal = getCustomerBalance(c.id);
         return {
@@ -71,6 +78,11 @@ export default function CustomersPage() {
     const handleAdd = () => {
         if (!newName || newPhone.length < 10) {
             toast.error('Name aur 10-digit phone zaroori hai!');
+            return;
+        }
+        const existing = customers.find((c: any) => c.phone === newPhone);
+        if (existing) {
+            toast.error('Is phone number se pehle hi ek customer maujud hai: ' + existing.name);
             return;
         }
         addCustomer({

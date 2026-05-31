@@ -565,10 +565,10 @@ export default function SmartAttendance() {
             .custom-role-filter input{border:none;outline:none;background:none;font-size:12px;font-weight:800;color:var(--ink);width:100px;}
             
             .workers{padding:0 20px 100px;display:flex;flex-direction:column;gap:14px;}
-            .wcard{background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border-radius:24px;border:1px solid #fff;box-shadow:var(--sh);overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+            .wcard{background:linear-gradient(135deg, #ffffff, #eef2ff, #ffffff);background-size:200% 200%;animation:gradientAnim 4s ease infinite;border-radius:16px;border:1px solid #fff;box-shadow:var(--sh);overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
             .wcard:hover{transform:translateY(-2px);box-shadow:var(--shmd);}
-            .wcard-top{display:flex;align-items:center;gap:14px;padding:16px 18px;}
-            .wavt{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;position:relative;flex-shrink:0;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+            .wcard-top{display:flex;align-items:center;gap:10px;padding:10px 14px;}
+            .wavt{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;position:relative;flex-shrink:0;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
             .online-ring{position:absolute;bottom:-3px;right:-3px;width:16px;height:16px;border-radius:50%;border:3px solid #fff;}
             .or-green{background:var(--green);} .or-red{background:var(--red);} .or-amber{background:var(--amber);} .or-blue{background:var(--blue);}
             .winfo{flex:1;min-width:0;}
@@ -577,12 +577,13 @@ export default function SmartAttendance() {
             .wrole{font-size:10px;font-weight:900;text-transform:uppercase;padding:3px 8px;border-radius:6px;letter-spacing:0.5px;}
             .wsalary{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink3);font-weight:700;background:rgba(0,0,0,0.03);padding:3px 8px;border-radius:6px;}
             
-            .att-btn-new{flex:1;padding:10px 4px;border-radius:12px;border:1px solid rgba(0,0,0,0.04);background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:12px;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);gap:4px;color:var(--ink3);box-shadow:0 2px 8px rgba(0,0,0,0.02);}
+            @keyframes gradientAnim { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+            .att-btn-new{flex:1;padding:8px 2px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:11px;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);gap:2px;color:var(--ink3);box-shadow:0 2px 8px rgba(0,0,0,0.02);}
             .att-btn-new:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(0,0,0,0.05);background:#fff;}
-            .att-btn-new.active-p{background:linear-gradient(135deg,var(--green),var(--green-dk));border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(16,185,129,0.3);}
-            .att-btn-new.active-a{background:linear-gradient(135deg,var(--red),#be123c);border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(239,68,68,0.3);}
-            .att-btn-new.active-h{background:linear-gradient(135deg,var(--amber),#d97706);border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(245,158,11,0.3);}
-            .att-btn-new.active-l{background:linear-gradient(135deg,var(--blue),#2563eb);border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(59,130,246,0.3);}
+            .att-btn-new.active-p{background:linear-gradient(135deg,var(--green),var(--green-dk),var(--green));background-size:200% 200%;animation:gradientAnim 3s ease infinite;border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(16,185,129,0.3);}
+            .att-btn-new.active-a{background:linear-gradient(135deg,var(--red),#be123c,var(--red));background-size:200% 200%;animation:gradientAnim 3s ease infinite;border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(239,68,68,0.3);}
+            .att-btn-new.active-h{background:linear-gradient(135deg,var(--amber),#d97706,var(--amber));background-size:200% 200%;animation:gradientAnim 3s ease infinite;border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(245,158,11,0.3);}
+            .att-btn-new.active-l{background:linear-gradient(135deg,var(--blue),#2563eb,var(--blue));background-size:200% 200%;animation:gradientAnim 3s ease infinite;border-color:transparent;color:#fff;box-shadow:0 6px 15px rgba(59,130,246,0.3);}
             .delete-btn{padding:8px;border-radius:12px;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:14px;transition:all 0.2s;box-shadow:0 2px 8px rgba(225,29,72,0.1);}
             .delete-btn:hover{background:#ffe4e6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(225,29,72,0.2);}
             
@@ -622,9 +623,9 @@ export default function SmartAttendance() {
             
             @media (max-width: 500px) {
                 .att-btn-new {
-                    padding: 8px 2px;
-                    font-size: 10px;
-                    gap: 2px;
+                    padding: 6px 1px;
+                    font-size: 9.5px;
+                    gap: 1px;
                 }
             }
             `}} />
@@ -730,46 +731,43 @@ export default function SmartAttendance() {
                                     </div>
                                     <div className="winfo">
                                         <div className="wname">{member.name}</div>
-                                        <div className="wmeta">
-                                            <span className="wrole" style={{ background: roleColor.bg, color: roleColor.text }}>{member.role || 'Worker'}</span>
-                                            {isOwnerOrAccountant && <span className="wsalary">₹{member.daily_wage || 0}/day</span>}
+                                        <div style={{ marginTop: '2px', fontSize: '11px', display: 'flex', gap: '8px' }}>
+                                            <span style={{color:'#10b981', fontWeight: 700}}>P: {cp}</span>
+                                            <span style={{color:'#ef4444', fontWeight: 700}}>A: {ca}</span>
+                                            <span style={{color:'#f59e0b', fontWeight: 700}}>H: {ch}</span>
+                                            <span style={{color:'#3b82f6', fontWeight: 700}}>L: {cl}</span>
                                         </div>
-                                        <div style={{ marginTop: '4px', fontSize: '11px', display: 'flex', gap: '8px' }}>
-                                            <span style={{color:'#10b981', fontWeight: 600}}>P: {cp}</span>
-                                            <span style={{color:'#ef4444', fontWeight: 600}}>A: {ca}</span>
-                                            <span style={{color:'#f59e0b', fontWeight: 600}}>H: {ch}</span>
-                                            <span style={{color:'#3b82f6', fontWeight: 600}}>L: {cl}</span>
-                                        </div>
-                                    </div>
-                                    <div className="att-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                        {deleteStaff && (
-                                            <button className="delete-btn" onClick={async () => {
-                                                if (window.confirm(`Delete ${member.name}?`)) {
-                                                    await deleteStaff(member.id);
-                                                    fetchStaff();
-                                                    toast.success('Staff removed');
-                                                }
-                                            }} title="Delete Staff">🗑</button>
-                                        )}
-                                        <button 
-                                            onClick={() => setExpandedStaffId(expandedStaffId === member.id ? null : member.id)}
-                                            style={{
-                                                padding: '6px 12px', background: expandedStaffId === member.id ? '#eef2ff' : '#f8fafc',
-                                                border: `1px solid ${expandedStaffId === member.id ? '#4f46e5' : 'rgba(0,0,0,0.08)'}`,
-                                                borderRadius: '8px', fontSize: '12px', fontWeight: 700, color: expandedStaffId === member.id ? '#4f46e5' : '#64748b',
-                                                cursor: 'pointer', transition: 'all 0.2s'
-                                            }}
-                                        >
-                                            {expandedStaffId === member.id ? 'Close' : 'Details ⬇'}
-                                        </button>
                                     </div>
                                 </div>
                                 
-                                <div style={{ padding: '0 14px 12px 14px', display: 'flex', gap: '6px' }}>
+                                <div style={{ padding: '0 8px 12px 8px', display: 'flex', gap: '4px' }}>
                                     <button className={`att-btn-new ${status === 'PRESENT' ? 'active-p' : ''}`} onClick={() => handleSetAtt(member.id, 'PRESENT')}>✓ Present</button>
                                     <button className={`att-btn-new ${status === 'ABSENT' ? 'active-a' : ''}`} onClick={() => handleSetAtt(member.id, 'ABSENT')}>✕ Absent</button>
                                     <button className={`att-btn-new ${status === 'HALF_DAY' ? 'active-h' : ''}`} onClick={() => handleSetAtt(member.id, 'HALF_DAY')}>½ Half Day</button>
                                     <button className={`att-btn-new ${status === 'LEAVE' ? 'active-l' : ''}`} onClick={() => handleSetAtt(member.id, 'LEAVE')}>🏖 Leave</button>
+                                </div>
+
+                                <div className="att-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', padding: '0 14px 10px 14px' }}>
+                                    {deleteStaff && (
+                                        <button className="delete-btn" style={{flex:1, padding:'6px 8px'}} onClick={async () => {
+                                            if (window.confirm(`Delete ${member.name}?`)) {
+                                                await deleteStaff(member.id);
+                                                fetchStaff();
+                                                toast.success('Staff removed');
+                                            }
+                                        }} title="Delete Staff">🗑 Delete</button>
+                                    )}
+                                    <button 
+                                        onClick={() => setExpandedStaffId(expandedStaffId === member.id ? null : member.id)}
+                                        style={{
+                                            flex:1, padding: '6px 8px', background: expandedStaffId === member.id ? '#eef2ff' : '#f8fafc',
+                                            border: `1px solid ${expandedStaffId === member.id ? '#4f46e5' : 'rgba(0,0,0,0.08)'}`,
+                                            borderRadius: '10px', fontSize: '12px', fontWeight: 700, color: expandedStaffId === member.id ? '#4f46e5' : '#64748b',
+                                            cursor: 'pointer', transition: 'all 0.2s', display: 'flex', justifyContent: 'center', alignItems: 'center'
+                                        }}
+                                    >
+                                        {expandedStaffId === member.id ? 'Close' : 'Details ⬇'}
+                                    </button>
                                 </div>
 
                                 {expandedStaffId === member.id && (
@@ -951,7 +949,7 @@ export default function SmartAttendance() {
                             </div>
 
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
                                     <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg></div>
                                     <div className="aw-inner" style={{ position: 'relative' }}>

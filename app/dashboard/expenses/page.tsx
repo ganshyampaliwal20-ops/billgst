@@ -154,6 +154,9 @@ export default function BusinessExpensesPage() {
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
     const [hideZeroBalance, setHideZeroBalance] = useState(false);
     const [entryCategory, setEntryCategory] = useState('General');
+    const [hideAlerts, setHideAlerts] = useState(false);
+    const [isBulkMode, setIsBulkMode] = useState(false);
+    const [bulkSelected, setBulkSelected] = useState<Set<number>>(new Set());
 
     // Add Cust Form state
     const [acName, setAcName] = useState('');
@@ -472,73 +475,82 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppRemind = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
-            showToast('📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
+            showToast('📱 Pahle customer ka mobile number add karein.');
             return;
         }
         
-        showToast('⏳ PDF Reminder ban raha hai...');
+        showToast('⏳ Generating Link...');
         try {
             if (session?.user?.id) {
-                try {
-                    await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) });
-                } catch (e) {}
+                try { await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }); } catch (e) {}
             }
 
-            let c = 0, d = 0;
-            (cust.txns || []).forEach((t: any) => {
-                if (t.type === 'credit') c += t.amt;
-                else d += t.amt;
-            });
-            const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
-            
-            const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
-            if (!doc) {
-                showToast('❌ PDF nahi ban paya!');
-                return;
-            }
-
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], `Reminder_${cust.name}.pdf`, { type: 'application/pdf' });
-            
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            let textMsg = `*Namaste ${cust.name}*,\n\nAapka ${Math.abs(amount)} Rs due hai. Kripya payment karein.\nSath me Hisaab-Kitab PDF bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            let textMsg = `*Namaste ${cust.name}*,\n\nAapka ₹${Math.abs(amount)} due hai. Kripya payment karein.\nOnline Hisaab dekhne ke liye click karein: 👇\n${shareUrl}`;
             textMsg += getVisitingCardText(businessProfile);
 
-            // Native Web Share API
-            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: `Reminder_${cust.name}.pdf`,
-                        text: textMsg
-                    });
-                    showToast('✅ WhatsApp pe share ho gaya!');
-                    return;
-                } catch (e) {
-                    console.log('Share cancelled', e);
-                }
-            }
-
-            const formData = new FormData();
-            formData.append('phone', phone);
-            formData.append('message', textMsg);
-            formData.append('file', file);
-
-            showToast('⏳ WhatsApp Bot se bhej rahe hain...');
-            const sendRes = await fetch('/api/whatsapp/send-media', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (sendRes.ok) {
-                showToast('✅ WhatsApp pe PDF chala gaya!');
-            } else {
-                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
-            }
+            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
+            showToast('✅ WhatsApp Opened!');
         } catch (err) {
-            showToast('❌ Error in sending request!');
+            showToast('❌ Error in generating link!');
         }
+    };
+
+    const handleBulkRemind = async () => {
+        if (bulkSelected.size === 0) {
+            showToast('⚠️ Koi customer select nahi kiya!');
+            return;
+        }
+        
+        showToast(`⏳ Sending ${bulkSelected.size} reminders...`);
+        setIsBulkMode(false);
+        const selectedIds = Array.from(bulkSelected);
+        setBulkSelected(new Set());
+
+        let successCount = 0;
+        for (const cid of selectedIds) {
+            const cust = customers.find(c => c.id === cid);
+            if (!cust) continue;
+            const phone = cust.phone?.replace(/\D/g, '') || '';
+            if (!phone) continue;
+
+            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
+            let textMsg = `*Namaste ${cust.name}*,\n\nAapka ₹${Math.abs(cust.balance)} due hai. Kripya payment karein.\nOnline Hisaab dekhne ke liye click karein: 👇\n${shareUrl}`;
+            textMsg += getVisitingCardText(businessProfile);
+
+            try {
+                let c = 0, d = 0;
+                (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
+                const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
+                
+                const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
+                if (!doc) continue;
+                const pdfBlob = doc.output('blob');
+                const file = new File([pdfBlob], `Reminder_${cust.name}.pdf`, { type: 'application/pdf' });
+                
+                const formData = new FormData();
+                formData.append('phone', phone);
+                formData.append('message', textMsg);
+                formData.append('file', file);
+
+                const res = await fetch('/api/whatsapp/send-media', { method: 'POST', body: formData });
+                if (res.ok) successCount++;
+            } catch (e) {
+                console.error('Bulk send error', e);
+            }
+        }
+        showToast(`✅ ${successCount} Reminders Sent via Bot!`);
+    };
+
+    const toggleBulkSelect = (id: number) => {
+        setBulkSelected(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) newSet.delete(id);
+            else newSet.add(id);
+            return newSet;
+        });
     };
 
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
@@ -1039,41 +1051,7 @@ export default function BusinessExpensesPage() {
                     </div>
                 </div>
 
-                {/* Professional CTA Banner for Adding Customer/Party */}
-                <div className="mx-4 mt-5 mb-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 shadow-xl border border-white/20">
-                    {/* Decorative Background Elements */}
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -ml-10 -mb-10 pointer-events-none"></div>
-                    <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
-                    
-                    <div className="relative p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
-                        <div className="flex items-center gap-4">
-                            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-inner relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50"></div>
-                                <span className="text-2xl drop-shadow-md">🤝</span>
-                            </div>
-                            <div>
-                                <h3 className="text-white font-extrabold text-lg sm:text-xl tracking-tight mb-1 drop-shadow-sm">
-                                    Add New Party / Vendor
-                                </h3>
-                                <p className="text-indigo-50 text-xs sm:text-sm font-medium opacity-90 leading-snug">
-                                    Track expenses, advance payments, and supplier accounts.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <button 
-                            onClick={() => setIsAddCustOpen(true)}
-                            className="w-full sm:w-auto relative group overflow-hidden rounded-xl bg-white text-indigo-700 font-extrabold text-sm px-6 py-3 shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_25px_rgba(255,255,255,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-2 border-b-4 border-indigo-100"
-                        >
-                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700">
-                                <span className="text-lg leading-none -mt-0.5">+</span>
-                            </div>
-                            <span>Add Account</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
-                        </button>
-                    </div>
-                </div>
+
 
                 <div className="kpi-strip">
                     <div className="kpi-item">
@@ -1090,10 +1068,11 @@ export default function BusinessExpensesPage() {
                     </div>
                 </div>
 
-                {criticalDues.length > 0 && (
+                {!hideAlerts && criticalDues.length > 0 && (
                     <div className="alerts-container">
-                        <div className="alerts-header">
+                        <div className="alerts-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span>🚨 {criticalDues.length} Pending Payments</span>
+                            <button onClick={() => setHideAlerts(true)} style={{ background: 'none', border: 'none', color: 'var(--ink4)', fontSize: '18px', cursor: 'pointer', lineHeight: 1 }}>✕</button>
                         </div>
                         <div className="alerts-scroll">
                             {criticalDues.slice(0, 3).map((c: any) => (
@@ -1117,7 +1096,10 @@ export default function BusinessExpensesPage() {
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
                         <input type="text" placeholder="Customer dhundho..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
-                    <button className={`sort-btn ${hideZeroBalance ? 'active' : ''}`} onClick={() => setHideZeroBalance(!hideZeroBalance)} style={{ background: hideZeroBalance ? 'var(--ink)' : 'transparent', color: hideZeroBalance ? '#fff' : 'inherit' }}>
+                    <button className={`sort-btn ${isBulkMode ? 'active' : ''}`} onClick={() => { setIsBulkMode(!isBulkMode); setBulkSelected(new Set()); }} style={{ background: isBulkMode ? '#10b981' : 'transparent', color: isBulkMode ? '#fff' : 'inherit', marginRight: '5px', padding: '0 8px', borderRadius: '8px' }}>
+                        {isBulkMode ? 'Cancel Bulk' : 'Bulk Msg'}
+                    </button>
+                    <button className={`sort-btn ${hideZeroBalance ? 'active' : ''}`} onClick={() => setHideZeroBalance(!hideZeroBalance)} style={{ background: hideZeroBalance ? 'var(--ink)' : 'transparent', color: hideZeroBalance ? '#fff' : 'inherit', padding: '0 8px', borderRadius: '8px' }}>
                         {hideZeroBalance ? 'Show All' : 'Hide 0'}
                     </button>
                 </div>
@@ -1146,9 +1128,13 @@ export default function BusinessExpensesPage() {
                                 const lastTxn = sortedTxns[0];
                                 const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
                                 return (
-                                    <div className="cust-item" key={c.id} onClick={() => handleOpenDetail(c.id)}>
-                                        <div className="cust-av" style={{ background: c.photo ? 'transparent' : getColor(c.name) }}>
-                                            {c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)}
+                                    <div className="cust-item" key={c.id} onClick={() => isBulkMode ? toggleBulkSelect(c.id) : handleOpenDetail(c.id)} style={{ background: isBulkMode && bulkSelected.has(c.id) ? '#f0fdf4' : 'var(--white)', border: isBulkMode && bulkSelected.has(c.id) ? '1px solid #bbf7d0' : 'none' }}>
+                                        <div className="cust-av" style={{ background: isBulkMode ? (bulkSelected.has(c.id) ? '#10b981' : '#e5e7eb') : (c.photo ? 'transparent' : getColor(c.name)) }}>
+                                            {isBulkMode ? (
+                                                bulkSelected.has(c.id) ? <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" width="20" height="20"><polyline points="20 6 9 17 4 12" /></svg> : null
+                                            ) : (
+                                                c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)
+                                            )}
                                         </div>
                                         <div className="cust-mid">
                                             <div className="cust-name">{c.name}</div>
@@ -1167,6 +1153,24 @@ export default function BusinessExpensesPage() {
                             })
                     )}
                 </div>
+                
+                {isBulkMode ? (
+                    bulkSelected.size > 0 && (
+                        <button 
+                            onClick={handleBulkRemind}
+                            className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[240px] h-[55px] rounded-[20px] bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center shadow-[0_10px_25px_rgba(16,185,129,.5)] text-white font-bold text-lg z-[150] cursor-pointer transition-all duration-300 hover:scale-105"
+                        >
+                            Send {bulkSelected.size} Reminders 🚀
+                        </button>
+                    )
+                ) : (
+                    <button 
+                        onClick={() => setIsAddCustOpen(true)}
+                        className="fixed bottom-8 right-6 sm:right-[calc(50%-230px)] w-[60px] h-[60px] rounded-[20px] bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-[0_10px_25px_rgba(79,70,229,.5)] text-white z-[150] cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="32" height="32"><path d="M12 5v14M5 12h14" /></svg>
+                    </button>
+                )}
             </div>
 
             {/* ════════ SCREEN 2: DETAIL ════════ */}

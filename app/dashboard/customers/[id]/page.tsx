@@ -56,21 +56,65 @@ export default function CustomerDetailPage() {
         fetchCustPayments();
     }, [isClient, id]);
 
+    const customerInvoices = invoices
+        .filter((inv: any) => inv.customer_id === id || inv.customer?.id === id)
+        .sort((a: any, b: any) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime());
+
+    const totalSales = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.total_amount || 0), 0);
+    const totalPaid = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.paid_amount || 0), 0);
+    const totalDue = Math.max(0, totalSales - totalPaid);
+
     useEffect(() => {
         if (!isClient || !chartRef.current) return;
+
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const labels: string[] = [];
+        const billedData = [0, 0, 0, 0, 0, 0];
+        const paidData = [0, 0, 0, 0, 0, 0];
+
+        const today = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            labels.push(monthNames[d.getMonth()]);
+        }
+
+        customerInvoices.forEach((inv: any) => {
+            if (!inv.invoice_date) return;
+            const invDate = new Date(inv.invoice_date);
+            for (let i = 0; i < 6; i++) {
+                const bDate = new Date(today.getFullYear(), today.getMonth() - 5 + i, 1);
+                if (bDate.getFullYear() === invDate.getFullYear() && bDate.getMonth() === invDate.getMonth()) {
+                    billedData[i] += parseFloat(inv.total_amount || 0);
+                    paidData[i] += parseFloat(inv.paid_amount || 0);
+                    break;
+                }
+            }
+        });
+
+        fetchedPayments.forEach((p: any) => {
+            if (!p.payment_date) return;
+            const pDate = new Date(p.payment_date);
+            for (let i = 0; i < 6; i++) {
+                const bDate = new Date(today.getFullYear(), today.getMonth() - 5 + i, 1);
+                if (bDate.getFullYear() === pDate.getFullYear() && bDate.getMonth() === pDate.getMonth()) {
+                    paidData[i] += parseFloat(p.amount || 0);
+                    break;
+                }
+            }
+        });
 
         const chart = new Chart(chartRef.current, {
             type: 'bar',
             data: {
-                labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                labels: labels,
                 datasets: [
-                    { label: 'Billed', data: [60000, 95000, 120000, 80000, 175000, 45000], backgroundColor: 'rgba(79,70,229,0.15)', borderColor: '#4f46e5', borderWidth: 2, borderRadius: 6, borderSkipped: false },
-                    { label: 'Paid', data: [60000, 80000, 120000, 80000, 160000, 0], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6, borderSkipped: false }
+                    { label: 'Billed', data: billedData, backgroundColor: 'rgba(79,70,229,0.15)', borderColor: '#4f46e5', borderWidth: 2, borderRadius: 6, borderSkipped: false },
+                    { label: 'Paid', data: paidData, backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6, borderSkipped: false }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + (ctx.raw as number / 1000).toFixed(0) + 'K' } } },
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + (ctx.raw as number / 1000).toFixed(1) + 'K' } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
                     y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 1000) + 'K' } }
@@ -79,7 +123,7 @@ export default function CustomerDetailPage() {
         });
 
         return () => chart.destroy();
-    }, [isClient, customer]);
+    }, [isClient, customer, invoices, fetchedPayments]);
 
     if (!isClient) return null;
 
@@ -91,14 +135,6 @@ export default function CustomerDetailPage() {
             </div>
         );
     }
-
-    const customerInvoices = invoices
-        .filter((inv: any) => inv.customer_id === id || inv.customer?.id === id)
-        .sort((a: any, b: any) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime());
-
-    const totalSales = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.total_amount || 0), 0);
-    const totalPaid = customerInvoices.reduce((sum: number, inv: any) => sum + parseFloat(inv.paid_amount || 0), 0);
-    const totalDue = Math.max(0, totalSales - totalPaid);
 
     const formatLakhs = (val: number) => {
         if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
@@ -167,7 +203,7 @@ export default function CustomerDetailPage() {
             if (Math.abs(amount - Math.max(0, totalSales - totalPaid)) < 0.1) {
                 await updateCustomer(id, { promise_date: null });
             }
-            await fetchInvoices();
+            await fetchInvoices(true);
             setShowPaymentModal(false);
             setPaymentAmount('');
         } catch (error) {
@@ -204,19 +240,8 @@ export default function CustomerDetailPage() {
             let text = `Hi ${customer.name || 'Customer'},\n\nAapka Ledger statement ready hai. Total outstanding amount: *₹${totalDue.toLocaleString('en-IN')}* hai.\n\nKripya isey jald se jald clear karein.\n\nRegards,\n${businessProfile?.name || 'BillGST Pro'}`;
             text += getVisitingCardText(businessProfile || {});
             
-            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: fileName,
-                        text: text
-                    });
-                    toast.success('WhatsApp par share open ho gaya!', { id: toastId });
-                    return;
-                } catch (e) {
-                    console.log('Share cancelled', e);
-                }
-            }
+            // Removed navigator.share because it opens share sheet instead of direct chat.
+            // Will fallback to bot or direct wa.me link with text.
 
             const formData = new FormData();
             formData.append('phone', phone);
@@ -236,6 +261,22 @@ export default function CustomerDetailPage() {
             }
         } catch (error) {
             toast.error('WhatsApp Share Error', { id: toastId });
+        }
+    };
+
+    const handleDownloadStatement = async () => {
+        const toastId = toast.loading('Statement download ho raha hai...');
+        try {
+            const custStats = {
+                credit: totalPaid,
+                debit: totalSales,
+                net: totalDue,
+                isNeg: totalDue > 0
+            };
+            await generateHisaabPDF(customer, businessProfile, custStats, true);
+            toast.success('Statement download ho gaya!', { id: toastId });
+        } catch (error) {
+            toast.error('Download fail ho gaya', { id: toastId });
         }
     };
 
@@ -312,13 +353,32 @@ export default function CustomerDetailPage() {
 .cust-summary-wrapper *, .cust-summary-wrapper *::before, .cust-summary-wrapper *::after{box-sizing:border-box;margin:0;padding:0}
 .cust-summary-wrapper{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 
-.shell{max-width:440px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:70px}
+.shell{max-width:1000px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:70px;box-shadow:0 0 40px rgba(0,0,0,0.03)}
 
 .appbar{
   background:linear-gradient(135deg,#0b0f1e 0%,#1c2340 70%,#2d3561 100%);
-  padding:12px 14px;
+  padding:12px 20px;
   display:flex;align-items:center;justify-content:space-between;
+  position: relative;
+  overflow: hidden;
 }
+.appbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #4f46e5, #0ea5e9, #10b981, #ec4899, #4f46e5);
+  background-size: 400% 100%;
+  animation: glowLine 3s linear infinite;
+  box-shadow: 0 -3px 15px rgba(14,165,233,0.5);
+}
+@keyframes glowLine {
+  0% { background-position: 100% 0; }
+  100% { background-position: -300% 0; }
+}
+.appbar-brand, .date-chip { position: relative; z-index: 2; }
 .appbar-brand{display:flex;align-items:center;gap:8px}
 .app-icon{width:28px;height:28px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px; color: #fff;}
 .app-name{font-size:13px;font-weight:800;color:#fff}
@@ -328,7 +388,7 @@ export default function CustomerDetailPage() {
 
 .cust-header{
   background:linear-gradient(135deg,#1e3a5f 0%,#1e40af 60%,#2563eb 100%);
-  padding:12px 14px 10px;
+  padding:16px 20px 14px;
   position:relative;overflow:hidden;
 }
 .cust-header::before{content:'';position:absolute;width:120px;height:120px;background:rgba(255,255,255,0.04);border-radius:50%;top:-40px;right:-20px}
@@ -352,12 +412,12 @@ export default function CustomerDetailPage() {
 .stat-num.green{color:#34d399}
 .stat-num.amber{color:#fbbf24}
 
-.body{padding:10px 10px 0}
+.body{padding:14px 20px 0}
 
-.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-.qa-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;background:var(--white);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
-.qa-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);border-color:transparent}
-.qa-icon{font-size:16px}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.qa-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;background:var(--white);border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.qa-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:#cbd5e1}
+.qa-icon{font-size:20px}
 .qa-label{font-size:9.5px;font-weight:700;color:var(--slate);text-align:center;line-height:1.2}
 
 .card{background:var(--white);border-radius:12px;padding:12px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;animation:fadeUp .4s ease both}
@@ -404,9 +464,9 @@ canvas{max-height:140px; width: 100%;}
 
 .bottom-bar{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:440px;
+  width:100%;max-width:1000px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  padding:10px 14px;
+  padding:14px 20px;
   display:flex;align-items:center;justify-content:center;gap:8px;
   cursor:pointer;
   box-shadow:0 -4px 16px rgba(79,70,229,0.2);
@@ -428,16 +488,33 @@ canvas{max-height:140px; width: 100%;}
 .modal-btn{flex:1;padding:10px;border-radius:9px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;}
 .modal-btn.cancel{background:var(--faint);color:var(--slate);border:1px solid var(--border)}
 .modal-btn.confirm{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;}
+
+@media (min-width: 768px) {
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .quick-actions {
+    grid-column: 1 / -1;
+    margin-bottom: 6px;
+  }
+  .card {
+    margin-bottom: 0;
+    height: 100%;
+  }
+  .stats-bar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
             ` }} />
 
             <div className="shell">
                 <div className="appbar">
                     <div className="appbar-brand">
                         <div className="app-icon">💼</div>
-                        <div>
-                            <div className="app-name">Business</div>
-                            <div className="app-sub" suppressHydrationWarning>Professional Billing</div>
-                        </div>
+                        <div className="app-name">Business</div>
                     </div>
                     <div className="date-chip" suppressHydrationWarning><div className="date-dot"></div>{currentDate}</div>
                 </div>
@@ -470,16 +547,16 @@ canvas{max-height:140px; width: 100%;}
 
                 <div className="body">
                     <div className="quick-actions" style={{ animation: "fadeUp .3s .05s ease both" }}>
-                        <div className="qa-btn call" onClick={() => toast('Calling ' + customer.phone + '…')}>
+                        <a href={`tel:${customer.phone}`} className="qa-btn call" style={{ textDecoration: 'none' }}>
                             <span className="qa-icon">📞</span><span className="qa-label">Call</span>
-                        </div>
+                        </a>
                         <div className="qa-btn whatsapp" onClick={handleWhatsApp}>
                             <span className="qa-icon">💬</span><span className="qa-label">WhatsApp</span>
                         </div>
-                        <div className="qa-btn sms" onClick={() => toast('SMS bhej raha hai…')}>
+                        <a href={`sms:${customer.phone}?body=${encodeURIComponent('Hi ' + customer.name + ', \n\nPlease clear your outstanding balance of ₹' + totalDue)}`} className="qa-btn sms" style={{ textDecoration: 'none' }}>
                             <span className="qa-icon">✉️</span><span className="qa-label">Send SMS</span>
-                        </div>
-                        <div className="qa-btn statement" onClick={() => toast('Statement download ho raha hai…')}>
+                        </a>
+                        <div className="qa-btn statement" onClick={handleDownloadStatement}>
                             <span className="qa-icon">📄</span><span className="qa-label">Statement</span>
                         </div>
                     </div>
