@@ -490,8 +490,8 @@ export default function BusinessExpensesPage() {
             let textMsg = `*Namaste ${cust.name}*,\n\nAapka ₹${Math.abs(amount)} due hai. Kripya payment karein.\nOnline Hisaab dekhne ke liye click karein: 👇\n${shareUrl}`;
             textMsg += getVisitingCardText(businessProfile);
 
-            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
-            showToast('✅ WhatsApp Opened!');
+            window.location.href = `whatsapp://send?phone=91${phone}&text=${encodeURIComponent(textMsg)}`;
+            showToast('✅ Opening WhatsApp...');
         } catch (err) {
             showToast('❌ Error in generating link!');
         }
@@ -1068,6 +1068,15 @@ export default function BusinessExpensesPage() {
                     </div>
                 </div>
 
+                <div style={{ display: 'flex', gap: '10px', padding: '0 16px', marginTop: '16px', marginBottom: '8px' }}>
+                    <button onClick={() => { setIsBulkMode(!isBulkMode); setBulkSelected(new Set()); }} style={{ background: isBulkMode ? '#10b981' : 'var(--white)', color: isBulkMode ? '#fff' : 'var(--ink)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border)', flex: 1, display: 'flex', justifyContent: 'center', fontWeight: 800, fontSize: '13px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                        {isBulkMode ? '✕ Cancel Bulk Mode' : '📦 Send Bulk Msg'}
+                    </button>
+                    <button onClick={() => setHideZeroBalance(!hideZeroBalance)} style={{ background: hideZeroBalance ? 'var(--ink)' : 'var(--white)', color: hideZeroBalance ? '#fff' : 'var(--ink)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border)', flex: 1, display: 'flex', justifyContent: 'center', fontWeight: 800, fontSize: '13px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                        {hideZeroBalance ? '👁 Show All' : '🙈 Hide 0 Bal'}
+                    </button>
+                </div>
+
                 {!hideAlerts && criticalDues.length > 0 && (
                     <div className="alerts-container">
                         <div className="alerts-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1096,12 +1105,6 @@ export default function BusinessExpensesPage() {
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
                         <input type="text" placeholder="Customer dhundho..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
-                    <button className={`sort-btn ${isBulkMode ? 'active' : ''}`} onClick={() => { setIsBulkMode(!isBulkMode); setBulkSelected(new Set()); }} style={{ background: isBulkMode ? '#10b981' : 'transparent', color: isBulkMode ? '#fff' : 'inherit', marginRight: '5px', padding: '0 8px', borderRadius: '8px' }}>
-                        {isBulkMode ? 'Cancel Bulk' : 'Bulk Msg'}
-                    </button>
-                    <button className={`sort-btn ${hideZeroBalance ? 'active' : ''}`} onClick={() => setHideZeroBalance(!hideZeroBalance)} style={{ background: hideZeroBalance ? 'var(--ink)' : 'transparent', color: hideZeroBalance ? '#fff' : 'inherit', padding: '0 8px', borderRadius: '8px' }}>
-                        {hideZeroBalance ? 'Show All' : 'Hide 0'}
-                    </button>
                 </div>
 
                 <div className="cust-list">
@@ -1128,7 +1131,7 @@ export default function BusinessExpensesPage() {
                                 const lastTxn = sortedTxns[0];
                                 const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
                                 return (
-                                    <div className="cust-item" key={c.id} onClick={() => isBulkMode ? toggleBulkSelect(c.id) : handleOpenDetail(c.id)} style={{ background: isBulkMode && bulkSelected.has(c.id) ? '#f0fdf4' : 'var(--white)', border: isBulkMode && bulkSelected.has(c.id) ? '1px solid #bbf7d0' : 'none' }}>
+                                    <div className="cust-item" key={c.id} onClick={() => isBulkMode ? toggleBulkSelect(c.id) : handleOpenDetail(c.id)} style={{ border: isBulkMode && bulkSelected.has(c.id) ? '2px solid #10b981' : '2px solid transparent', transition: 'all 0.2s' }}>
                                         <div className="cust-av" style={{ background: isBulkMode ? (bulkSelected.has(c.id) ? '#10b981' : '#e5e7eb') : (c.photo ? 'transparent' : getColor(c.name)) }}>
                                             {isBulkMode ? (
                                                 bulkSelected.has(c.id) ? <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" width="20" height="20"><polyline points="20 6 9 17 4 12" /></svg> : null
