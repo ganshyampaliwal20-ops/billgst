@@ -14,7 +14,7 @@ import autoTable from 'jspdf-autotable';
 function ReportsContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { getAnalytics, fetchInvoices, invoices, customers, settings } = useStore() as any;
+    const { getAnalytics, fetchInvoices, invoices, customers, settings, fetchExpenses, expenses } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('This Month');
     const t = getTranslations(settings?.language || 'en');
@@ -26,10 +26,77 @@ function ReportsContent() {
     useEffect(() => {
         setIsClient(true);
         fetchInvoices();
-    }, [fetchInvoices]);
+        fetchExpenses();
+    }, [fetchInvoices, fetchExpenses]);
 
     useEffect(() => {
         if (!isClient) return;
+
+        const today = new Date();
+        const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+        const weeklySales = [0, 0, 0, 0];
+        const weeklyExpenses = [0, 0, 0, 0];
+
+        (invoices || []).forEach((inv: any) => {
+            if (!inv.invoice_date) return;
+            const d = new Date(inv.invoice_date);
+            const diffWeeks = Math.floor((today.getTime() - d.getTime()) / MS_PER_WEEK);
+            if (diffWeeks >= 0 && diffWeeks < 4 && inv.status !== 'CANCELLED') {
+                weeklySales[3 - diffWeeks] += parseFloat(inv.total_amount) || 0;
+            }
+        });
+
+        (expenses || []).forEach((exp: any) => {
+            if (!exp.expense_date) return;
+            const d = new Date(exp.expense_date);
+            const diffWeeks = Math.floor((today.getTime() - d.getTime()) / MS_PER_WEEK);
+            if (diffWeeks >= 0 && diffWeeks < 4) {
+                weeklyExpenses[3 - diffWeeks] += parseFloat(exp.amount) || 0;
+            }
+        });
+
+        const weeklyProfit = weeklySales.map((s, i) => s - weeklyExpenses[i]);
+
+        const currentYear = today.getFullYear();
+        const monthlySales = Array(12).fill(0);
+        const monthlyExpenses = Array(12).fill(0);
+
+        (invoices || []).forEach((inv: any) => {
+            if (!inv.invoice_date) return;
+            const d = new Date(inv.invoice_date);
+            if (d.getFullYear() === currentYear && inv.status !== 'CANCELLED') {
+                monthlySales[d.getMonth()] += parseFloat(inv.total_amount) || 0;
+            }
+        });
+
+        (expenses || []).forEach((exp: any) => {
+            if (!exp.expense_date) return;
+            const d = new Date(exp.expense_date);
+            if (d.getFullYear() === currentYear) {
+                monthlyExpenses[d.getMonth()] += parseFloat(exp.amount) || 0;
+            }
+        });
+
+        const monthlyProfit = monthlySales.map((s, i) => s - monthlyExpenses[i]);
+        const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        const currentMonthIndex = today.getMonth();
+        const displayMonthLabels = monthLabels.slice(0, currentMonthIndex + 1);
+        const displayMonthlySales = monthlySales.slice(0, currentMonthIndex + 1);
+        const displayMonthlyExpenses = monthlyExpenses.slice(0, currentMonthIndex + 1);
+        const displayMonthlyProfit = monthlyProfit.slice(0, currentMonthIndex + 1);
+
+        const formatTooltip = (val: number) => {
+            if (val >= 100000) return '₹' + (val / 100000).toFixed(2) + ' L';
+            if (val >= 1000) return '₹' + (val / 1000).toFixed(2) + ' K';
+            return '₹' + val.toFixed(0);
+        };
+
+        const formatAxis = (val: number) => {
+            if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + ' L';
+            if (val >= 1000) return '₹' + (val / 1000).toFixed(0) + ' K';
+            return '₹' + val;
+        };
 
         let revenueChart: any;
         if (revenueChartRef.current) {
@@ -39,7 +106,7 @@ function ReportsContent() {
                     labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [1800000, 2700000, 3500000, 3200000],
+                        data: weeklySales,
                         borderColor: '#4f46e5',
                         backgroundColor: 'rgba(79,70,229,0.08)',
                         borderWidth: 2.5,
@@ -50,10 +117,10 @@ function ReportsContent() {
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lac' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatTooltip(ctx.raw as number) } } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000) + ' Lac' } }
+                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
                     }
                 }
             });
@@ -66,16 +133,16 @@ function ReportsContent() {
                 data: {
                     labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
                     datasets: [
-                        { label: 'Sales', data: [1800000, 2700000, 3500000, 1000000], backgroundColor: 'rgba(79,70,229,0.8)', borderRadius: 6, borderSkipped: false },
-                        { label: 'Profit', data: [180000, 270000, 350000, 100000], backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 6, borderSkipped: false }
+                        { label: 'Sales', data: weeklySales, backgroundColor: 'rgba(79,70,229,0.8)', borderRadius: 6, borderSkipped: false },
+                        { label: 'Profit', data: weeklyProfit, backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 6, borderSkipped: false }
                     ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lac' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatTooltip(ctx.raw as number) } } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000) + ' Lac' } }
+                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
                     }
                 }
             });
@@ -86,19 +153,19 @@ function ReportsContent() {
             monthlyChart = new Chart(monthlyChartRef.current, {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar'],
+                    labels: displayMonthLabels,
                     datasets: [
-                        { label: 'Sales', data: [6200000, 7400000, 8738000], backgroundColor: 'rgba(14,165,233,0.8)', borderRadius: 8, borderSkipped: false },
-                        { label: 'Expenses', data: [4800000, 5200000, 6100000], backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 8, borderSkipped: false },
-                        { label: 'Profit', data: [1400000, 2200000, 2638000], backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 8, borderSkipped: false }
+                        { label: 'Sales', data: displayMonthlySales, backgroundColor: 'rgba(14,165,233,0.8)', borderRadius: 8, borderSkipped: false },
+                        { label: 'Expenses', data: displayMonthlyExpenses, backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 8, borderSkipped: false },
+                        { label: 'Profit', data: displayMonthlyProfit, backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 8, borderSkipped: false }
                     ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ₹' + (ctx.raw as number / 100000).toFixed(2) + ' Lac' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatTooltip(ctx.raw as number) } } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 12 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => '₹' + (v as number / 100000).toFixed(0) + ' Lac' } }
+                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
                     }
                 }
             });
@@ -109,7 +176,7 @@ function ReportsContent() {
             if (profitChart) profitChart.destroy();
             if (monthlyChart) monthlyChart.destroy();
         }
-    }, [isClient]);
+    }, [isClient, invoices, expenses]);
 
     if (!isClient) return null;
 
