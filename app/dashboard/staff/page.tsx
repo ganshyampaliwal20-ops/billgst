@@ -632,26 +632,23 @@ export default function SmartAttendance() {
 
             <div className="sa-container">
                 {/* TOPBAR */}
-                <div className="topbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px' }}>
+                <div className="topbar" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: '16px', gap: '16px' }}>
                     <span className="tb-title" style={{ fontSize: '16px', fontWeight: 900, color: 'white', letterSpacing: '1px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '10px 16px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(79,70,229,0.3)', textAlign: 'center', flex: 'none' }}>
                         ATTENDANCE
                     </span>
-                    <input 
-                        type="date" 
-                        value={selectedDate} 
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            if(val) {
-                                setSelectedDate(val);
-                                setCurrentMonth(new Date(val));
-                            }
-                        }} 
-                        style={{ padding: '8px 12px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', background: '#fff', fontSize: '13px', fontWeight: 800, color: 'var(--indigo)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', cursor: 'pointer' }}
-                    />
-                </div>
-                
-                {/* ACTION BUTTONS */}
-                <div style={{ padding: '0 20px 16px', display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ width: '100%', display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                        <input 
+                            type="date" 
+                            value={selectedDate} 
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if(val) {
+                                    setSelectedDate(val);
+                                    setCurrentMonth(new Date(val));
+                                }
+                            }} 
+                            style={{ flex: 1, height: '46px', padding: '8px 12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--indigo)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', cursor: 'pointer' }}
+                        />
                         <button 
                             onClick={generateMasterReportPDF} 
                             style={{ flex: 1, height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: 'var(--indigo)', fontWeight: 800, fontSize: '14px' }}
@@ -659,14 +656,8 @@ export default function SmartAttendance() {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
                             Download PDF
                         </button>
-                        
-                        <button 
-                            onClick={() => setSheet('add')}
-                            style={{ flex: 1, height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg, #4f46e5, #9333ea)', color: '#fff', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none', boxShadow: '0 4px 15px rgba(79,70,229,0.3)' }}
-                        >
-                            <span style={{ fontSize: '20px' }}>+</span> Add New Staff
-                        </button>
                     </div>
+                </div>
 
 
                 {/* STATS */}
@@ -993,6 +984,11 @@ export default function SmartAttendance() {
                         </div>
                     </div>
                 )}
+
+                {/* Floating Add Staff Button */}
+                <button className="fab" onClick={() => setSheet('add')} title="Add New Staff">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="28" height="28"><path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
             </div>
         </>
     );

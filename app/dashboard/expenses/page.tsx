@@ -620,11 +620,10 @@ export default function BusinessExpensesPage() {
     };
 
     const handleBack = () => {
+        setActiveScreen('list');
+        setCurCid(null);
         if (window.location.hash.includes('detail')) {
-            window.history.back();
-        } else {
-            setActiveScreen('list');
-            setCurCid(null);
+            window.history.replaceState(null, '', window.location.pathname);
         }
     };
 
