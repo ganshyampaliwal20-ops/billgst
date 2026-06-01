@@ -632,10 +632,22 @@ export default function SmartAttendance() {
 
             <div className="sa-container">
                 {/* TOPBAR */}
-                <div className="topbar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '16px' }}>
-                    <span className="tb-title" style={{ fontSize: '18px', fontWeight: 900, color: 'white', letterSpacing: '1.5px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '10px 24px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(79,70,229,0.3)', textAlign: 'center', flex: 'none' }}>
+                <div className="topbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px' }}>
+                    <span className="tb-title" style={{ fontSize: '16px', fontWeight: 900, color: 'white', letterSpacing: '1px', textTransform: 'uppercase', background: 'linear-gradient(135deg, var(--indigo), var(--purple))', padding: '10px 16px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(79,70,229,0.3)', textAlign: 'center', flex: 'none' }}>
                         ATTENDANCE
                     </span>
+                    <input 
+                        type="date" 
+                        value={selectedDate} 
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if(val) {
+                                setSelectedDate(val);
+                                setCurrentMonth(new Date(val));
+                            }
+                        }} 
+                        style={{ padding: '8px 12px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', background: '#fff', fontSize: '13px', fontWeight: 800, color: 'var(--indigo)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', cursor: 'pointer' }}
+                    />
                 </div>
                 
                 {/* ACTION BUTTONS */}
