@@ -490,7 +490,7 @@ export default function BusinessExpensesPage() {
             let textMsg = `*Namaste ${cust.name}*,\n\nAapka ₹${Math.abs(amount)} due hai. Kripya payment karein.\nOnline Hisaab dekhne ke liye click karein: 👇\n${shareUrl}`;
             textMsg += getVisitingCardText(businessProfile);
 
-            window.location.href = `whatsapp://send?phone=91${phone}&text=${encodeURIComponent(textMsg)}`;
+            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
         } catch (err) {
             showToast('❌ Error in generating link!');
@@ -537,11 +537,18 @@ export default function BusinessExpensesPage() {
 
                 const res = await fetch('/api/whatsapp/send-media', { method: 'POST', body: formData });
                 if (res.ok) successCount++;
+                
+                if (selectedIds.length === 1) {
+                    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
+                }
             } catch (e) {
                 console.error('Bulk send error', e);
+                if (selectedIds.length === 1) {
+                    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
+                }
             }
         }
-        showToast(`✅ ${successCount} Reminders Sent via Bot!`);
+        showToast(`✅ ${successCount} Reminders Queued!`);
     };
 
     const toggleBulkSelect = (id: number) => {
@@ -560,7 +567,6 @@ export default function BusinessExpensesPage() {
             return;
         }
         
-        showToast('⏳ PDF Statement ban raha hai...');
         try {
             if (session?.user?.id) {
                 try {
@@ -568,52 +574,13 @@ export default function BusinessExpensesPage() {
                 } catch (e) {}
             }
 
-            let c = 0, d = 0;
-            (cust.txns || []).forEach((t: any) => {
-                if (t.type === 'credit') c += t.amt;
-                else d += t.amt;
-            });
-            const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
-            
-            const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
-            if (!doc) {
-                showToast('❌ PDF nahi ban paya!');
-                return;
-            }
-
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], `Statement_${cust.name}.pdf`, { type: 'application/pdf' });
-            
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab PDF ke roop me bheja gaya hai.\nOnline dekhne ke liye click karein: 👇\n${shareUrl}`;
+            let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab niche di gayi link par uplabdh hai.\nOnline dekhne ya PDF download karne ke liye yahan click karein: 👇\n${shareUrl}`;
             textMsg += getVisitingCardText(businessProfile);
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({ files: [file], title: `Statement_${cust.name}.pdf`, text: textMsg });
-                    showToast('✅ WhatsApp pe share ho gaya!');
-                    return;
-                } catch (e: any) {
-                    if (e.name !== 'AbortError') {
-                        showToast('⚠️ Share error: ' + (e.message || 'Unknown'));
-                    }
-                }
-            }
-
-            const formData = new FormData();
-            formData.append('phone', phone);
-            formData.append('message', textMsg);
-            formData.append('file', file);
-
-            showToast('⏳ WhatsApp Bot se bhej rahe hain...');
-            const sendRes = await fetch('/api/whatsapp/send-media', { method: 'POST', body: formData });
-
-            if (sendRes.ok) {
-                showToast('✅ WhatsApp pe PDF chala gaya!');
-            } else {
-                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
-            }
+            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
+            showToast('✅ Opening WhatsApp...');
         } catch (err: any) {
             showToast('❌ Error: ' + (err.message || 'Unknown'));
         }
@@ -1040,13 +1007,62 @@ export default function BusinessExpensesPage() {
 
     return (
         <div className="hisaab-root">
+            <style>{`
+                @keyframes spin3d {
+                    100% { transform: rotate(360deg); }
+                }
+                @keyframes text3d {
+                    0%, 100% { text-shadow: 0px 1px 0px #cbd5e1, 0px 2px 0px #94a3b8, 0px 3px 0px #64748b, 0px 4px 4px rgba(0,0,0,0.25); transform: translateY(0); }
+                    50% { text-shadow: 0px 1px 0px #cbd5e1, 0px 2px 2px rgba(0,0,0,0.15); transform: translateY(3px); }
+                }
+                .animated-border-3d {
+                    position: relative;
+                    border-radius: 12px;
+                    padding: 5px 20px;
+                    overflow: hidden;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 2px 5px rgba(255,255,255,0.4);
+                    background: var(--bg);
+                }
+                .animated-border-3d::before {
+                    content: '';
+                    position: absolute;
+                    width: 300%;
+                    height: 300%;
+                    background: conic-gradient(transparent, transparent, transparent, #3b82f6, #8b5cf6, transparent 40%);
+                    animation: spin3d 2s linear infinite;
+                    z-index: 0;
+                }
+                .animated-border-3d::after {
+                    content: '';
+                    position: absolute;
+                    inset: 3px;
+                    background: var(--white);
+                    border-radius: 9px;
+                    z-index: 1;
+                }
+                .animated-text-3d {
+                    position: relative;
+                    z-index: 2;
+                    font-size: 16px;
+                    font-weight: 900;
+                    color: #3b82f6;
+                    animation: text3d 2s ease-in-out infinite;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                }
+            `}</style>
             {/* ════════ SCREEN 1: LIST ════════ */}
             <div className={`screen ${activeScreen === 'list' ? 'active' : ''}`} id="screen-list">
-                <div className="topbar">
-                    <div className="tb-brand">
-                        <div className="tb-name">Expenses billgst</div>
+                <div className="topbar" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div className="tb-brand" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                        <div className="animated-border-3d">
+                            <div className="animated-text-3d">EXPENSES</div>
+                        </div>
                     </div>
-                    <div className="tb-acts">
+                    <div className="tb-acts" style={{ position: 'absolute', right: '16px' }}>
                         <div className="tb-btn" onClick={downloadAllExcel}>📊</div>
                     </div>
                 </div>
@@ -1071,9 +1087,6 @@ export default function BusinessExpensesPage() {
                 <div style={{ display: 'flex', gap: '10px', padding: '0 16px', marginTop: '16px', marginBottom: '8px' }}>
                     <button onClick={() => { setIsBulkMode(!isBulkMode); setBulkSelected(new Set()); }} style={{ background: isBulkMode ? '#10b981' : 'var(--white)', color: isBulkMode ? '#fff' : 'var(--ink)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border)', flex: 1, display: 'flex', justifyContent: 'center', fontWeight: 800, fontSize: '13px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                         {isBulkMode ? '✕ Cancel Bulk Mode' : '📦 Send Bulk Msg'}
-                    </button>
-                    <button onClick={() => setHideZeroBalance(!hideZeroBalance)} style={{ background: hideZeroBalance ? 'var(--ink)' : 'var(--white)', color: hideZeroBalance ? '#fff' : 'var(--ink)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border)', flex: 1, display: 'flex', justifyContent: 'center', fontWeight: 800, fontSize: '13px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                        {hideZeroBalance ? '👁 Show All' : '🙈 Hide 0 Bal'}
                     </button>
                 </div>
 

@@ -264,18 +264,25 @@ function ReportsContent() {
             const doc = new jsPDF();
             doc.text(`Business Report - ${period}`, 14, 15);
 
+            const totalAmount = invoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0), 0);
+            const totalPending = invoices.filter((inv: any) => inv.status !== 'PAID').reduce((sum: number, inv: any) => sum + ((parseFloat(inv.total_amount) || 0) - (parseFloat(inv.paid_amount) || 0)), 0);
+
+            doc.setFontSize(10);
+            doc.text(`Total Sales: Rs. ${totalAmount.toFixed(2)} | Total Pending: Rs. ${totalPending.toFixed(2)}`, 14, 22);
+
             const tableData = invoices.map((inv: any) => [
                 inv.invoice_number,
                 new Date(inv.invoice_date).toLocaleDateString('en-IN'),
                 inv.customer?.name || 'Unknown',
-                inv.total_amount || 0,
+                (parseFloat(inv.total_amount) || 0).toFixed(2),
                 inv.status || 'PENDING'
             ]);
 
             autoTable(doc, {
                 head: [['Invoice No', 'Date', 'Customer', 'Amount', 'Status']],
                 body: tableData,
-                startY: 20,
+                foot: [['', '', 'GRAND TOTAL', totalAmount.toFixed(2), '']],
+                startY: 28,
             });
 
             doc.save(`Business_Report_${period}.pdf`);
@@ -478,7 +485,7 @@ function ReportsContent() {
   margin-bottom: 20px;
 }
 @media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(2,1fr)} }
-@media(max-width:500px){ .kpi-grid{grid-template-columns:1fr 1fr} }
+@media(max-width:500px){ .kpi-grid{grid-template-columns:repeat(3, 1fr); gap: 8px;} }
 
 .kpi-card {
   background: var(--white);
@@ -500,11 +507,7 @@ function ReportsContent() {
   border-radius: 16px 16px 0 0;
 }
 .kpi-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
-@media(max-width: 500px) {
-  .kpi-card { padding: 14px 12px; }
-  .kpi-value { font-size: 18px; }
-  .kpi-icon { width: 34px; height: 34px; font-size: 16px; }
-}
+/* Mobile KPI styles are defined below */
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 .kpi-card:nth-child(1){animation-delay:.05s}
@@ -545,6 +548,15 @@ function ReportsContent() {
   font-size: 10.5px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.8px;
   color: var(--muted);
+}
+
+@media(max-width: 500px) {
+  .kpi-card { padding: 10px 8px; border-radius: 12px; }
+  .kpi-value { font-size: 13px; margin-bottom: 2px; }
+  .kpi-icon { width: 26px; height: 26px; font-size: 13px; border-radius: 8px; }
+  .kpi-label { font-size: 8px; letter-spacing: 0; line-height: 1.1; }
+  .kpi-top { margin-bottom: 6px; }
+  .kpi-trend { font-size: 8px; padding: 2px 4px; border-radius: 4px; }
 }
 
 .charts-grid {
@@ -693,6 +705,7 @@ function ReportsContent() {
                         </select>
                         <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml || 'Tally XML'}</button>
                         <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel || 'Excel'}</button>
+                        <button className="back-btn" onClick={() => router.push('/dashboard')} style={{width: '36px', height: '36px', flexShrink: 0, marginLeft: '4px'}}>✕</button>
                     </div>
                 </div>
 

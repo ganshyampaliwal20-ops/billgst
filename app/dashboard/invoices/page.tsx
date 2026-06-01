@@ -807,7 +807,7 @@ export default function InvoicesPage() {
                 <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ padding: '16px 20px', background: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', flexShrink: 0 }}>
                         <span style={{ fontWeight: 800, fontSize: '16px' }}>Invoice Preview</span>
-                        <button onClick={() => setIsPreviewing(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '8px 16px', borderRadius: '8px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Close</button>
+                        <button onClick={() => setIsPreviewing(false)} style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', padding: '8px 16px', borderRadius: '8px', color: '#f87171', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>✕ Close</button>
                     </div>
                     
                     <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
@@ -819,49 +819,51 @@ export default function InvoicesPage() {
                                 {businessProfile?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px', fontWeight: 'bold' }}>GSTIN: {businessProfile.gstin}</p>}
                             </div>
                             
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
-                                <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '20px', marginBottom: '30px' }}>
+                                <div style={{ flex: '1 1 200px' }}>
                                     <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 10px 0', fontWeight: 800 }}>Billed To:</h3>
                                     <h2 style={{ fontSize: '18px', color: '#0f172a', margin: '0 0 5px 0', fontWeight: 700 }}>{selectedInvoice.customer?.name}</h2>
                                     {selectedInvoice.customer?.phone && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>Phone: {selectedInvoice.customer.phone}</p>}
                                     {selectedInvoice.customer?.address && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>{selectedInvoice.customer.address}</p>}
                                     {selectedInvoice.customer?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>GSTIN: {selectedInvoice.customer.gstin}</p>}
                                 </div>
-                                <div style={{ textAlign: 'right', flex: 1 }}>
-                                    <h1 style={{ fontSize: '24px', color: '#3b82f6', margin: '0 0 15px 0', fontWeight: 900, textTransform: 'uppercase' }}>{(selectedInvoice.type || 'TAX_INVOICE').replace('_', ' ')}</h1>
+                                <div style={{ textAlign: 'right', flex: '1 1 200px' }}>
+                                    <h1 style={{ fontSize: 'clamp(18px, 5vw, 24px)', color: '#3b82f6', margin: '0 0 15px 0', fontWeight: 900, textTransform: 'uppercase' }}>{(selectedInvoice.type || 'TAX_INVOICE').replace('_', ' ')}</h1>
                                     <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Invoice No:</strong> {selectedInvoice.invoice_number}</p>
                                     <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Date:</strong> {selectedInvoice.invoice_date}</p>
                                     {selectedInvoice.due_date && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Due Date:</strong> {selectedInvoice.due_date}</p>}
                                 </div>
                             </div>
 
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
-                                <thead>
-                                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
-                                        <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '5%' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '45%' }}>Item Description</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', color: '#0f172a', fontSize: '13px', width: '15%' }}>Qty</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '15%' }}>Rate</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '20%' }}>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(selectedInvoice.items || []).map((item: any, idx: number) => {
-                                        const qty = Number(item.quantity) || 1;
-                                        const rate = Number(item.unit_price) || 0;
-                                        const amt = qty * rate;
-                                        return (
-                                            <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                                <td style={{ padding: '12px', color: '#475569', fontSize: '14px' }}>{idx + 1}</td>
-                                                <td style={{ padding: '12px', color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{item.product_name}</td>
-                                                <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{qty} {item.unit || 'PCS'}</td>
-                                                <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>₹{rate.toFixed(2)}</td>
-                                                <td style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '14px', fontWeight: 700 }}>₹{amt.toFixed(2)}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                            <div style={{ overflowX: 'auto', width: '100%', marginBottom: '30px' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '450px' }}>
+                                    <thead>
+                                        <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
+                                            <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '5%' }}>#</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '45%' }}>Item Description</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', color: '#0f172a', fontSize: '13px', width: '15%' }}>Qty</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '15%' }}>Rate</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '20%' }}>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {(selectedInvoice.items || []).map((item: any, idx: number) => {
+                                            const qty = Number(item.quantity) || 1;
+                                            const rate = Number(item.unit_price) || 0;
+                                            const amt = qty * rate;
+                                            return (
+                                                <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                                    <td style={{ padding: '12px', color: '#475569', fontSize: '14px' }}>{idx + 1}</td>
+                                                    <td style={{ padding: '12px', color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{item.product_name}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{qty} {item.unit || 'PCS'}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>₹{rate.toFixed(2)}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '14px', fontWeight: 700 }}>₹{amt.toFixed(2)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                 <div style={{ width: '300px' }}>
@@ -902,6 +904,12 @@ export default function InvoicesPage() {
                                     <p style={{ margin: '0', fontSize: '13px', color: '#334155', whiteSpace: 'pre-wrap' }}>{selectedInvoice.notes}</p>
                                 </div>
                             )}
+
+                            <div style={{ marginTop: '30px', textAlign: 'center' }}>
+                                <button onClick={() => setIsPreviewing(false)} style={{ background: '#0f172a', border: 'none', padding: '12px 24px', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                                    ✕ Close Preview
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
