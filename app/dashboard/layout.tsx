@@ -75,15 +75,10 @@ export default function DashboardLayout({
             router.push('/login?callbackUrl=' + encodeURIComponent(pathname));
         }
 
-        // Refresh staff data periodically
-        const staffTimer = setInterval(() => {
-            if (status === 'authenticated') {
-                fetchStaff();
-                fetchAttendance();
-            }
-        }, 5 * 60 * 1000); // Every 5 minutes
-
-        return () => clearInterval(staffTimer);
+        // Background polling disabled to improve app performance
+        // Data is fetched on-demand when components mount
+        
+        return () => {};
     }, [status]); // Only re-run when authentication status changes
 
     const [currentTime, setCurrentTime] = useState(new Date());

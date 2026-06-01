@@ -26,6 +26,10 @@ export default function InventoryPage() {
     const [filterCategory, setFilterCategory] = useState("all");
     const [filterGst, setFilterGst] = useState("all");
 
+    // Pagination
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     // Modal controls
     const [showAddModal, setShowAddModal] = useState(false);
     const [showQrModal, setShowQrModal] = useState(false);
@@ -53,7 +57,7 @@ export default function InventoryPage() {
 
     useEffect(() => {
         setIsClient(true);
-        if (fetchProducts) fetchProducts();
+        if (fetchProducts) fetchProducts(false, 1);
     }, []);
 
     // ── HELPER FUNCTIONS ──
@@ -171,6 +175,18 @@ export default function InventoryPage() {
                 acc + parseFloat(p.price || 0) * (parseFloat(p.stock_quantity) || 0),
             0
         );
+
+    const handleLoadMore = async () => {
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            if (fetchProducts) await fetchProducts(true, nextPage);
+            setPage(nextPage);
+        } catch(e) {
+            console.error(e);
+        }
+        setIsLoadingMore(false);
+    };
 
     // ── ACTIONS ──
     const handleEdit = (p: any) => {
@@ -904,6 +920,23 @@ export default function InventoryPage() {
                             style={{ marginTop: '20px', background: 'var(--ink)', color: '#fff', padding: '10px 20px', borderRadius: '10px', border: 'none', fontWeight: '700' }}
                         >
                             + {t.addFirstProduct}
+                        </button>
+                    </div>
+                )}
+
+                {/* Centered Load More Button */}
+                {filteredProducts?.length >= 20 && filteredProducts.length % 20 === 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gridColumn: '1 / -1' }}>
+                        <button 
+                            onClick={handleLoadMore}
+                            disabled={isLoadingMore}
+                            style={{ 
+                                padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
+                                borderRadius: '8px', background: 'var(--blue-lt)', color: 'var(--blue)', 
+                                border: '1px solid var(--border2)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
+                            }}
+                        >
+                            {isLoadingMore ? 'Loading...' : 'Load More Products'}
                         </button>
                     </div>
                 )}

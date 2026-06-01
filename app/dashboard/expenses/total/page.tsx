@@ -12,11 +12,13 @@ export default function TotalExpensesPage() {
     const router = useRouter();
     const { expenses, fetchExpenses, deleteExpense, settings } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const t = getTranslations(settings?.language || 'en');
 
     useEffect(() => {
         setIsClient(true);
-        fetchExpenses();
+        if (fetchExpenses) fetchExpenses(false, 1);
     }, []);
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
@@ -25,6 +27,18 @@ export default function TotalExpensesPage() {
             await deleteExpense(id);
             toast.success(t.expenseDeleted);
         }
+    };
+
+    const handleLoadMore = async () => {
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            if (fetchExpenses) await fetchExpenses(true, nextPage);
+            setPage(nextPage);
+        } catch(e) {
+            console.error(e);
+        }
+        setIsLoadingMore(false);
     };
 
     if (!isClient) return null;
@@ -97,6 +111,22 @@ export default function TotalExpensesPage() {
                             </div>
                         );
                     })
+                )}
+                {/* Centered Load More Button */}
+                {expenses?.length >= 20 && expenses.length % 20 === 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '20px' }}>
+                        <button 
+                            onClick={handleLoadMore}
+                            disabled={isLoadingMore}
+                            style={{ 
+                                padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
+                                borderRadius: '8px', background: '#ffedd5', color: '#ea580c', 
+                                border: '1px solid #fed7aa', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
+                            }}
+                        >
+                            {isLoadingMore ? 'Loading...' : 'Load More Old Expenses'}
+                        </button>
+                    </div>
                 )}
                 <div className="h-24"></div>
             </div>

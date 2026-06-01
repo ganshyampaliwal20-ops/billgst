@@ -4,8 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '500');
+        const offset = (page - 1) * limit;
+
         const session: any = await getServerSession(authOptions as any);
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -29,7 +34,7 @@ export async function GET() {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS email VARCHAR(255)');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS created_by VARCHAR(255)');
 
-        const result = await client.query('SELECT * FROM staff WHERE created_by = $1 ORDER BY created_at DESC', [userId]);
+        const result = await client.query('SELECT * FROM staff WHERE created_by = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3', [userId, limit, offset]);
         client.release();
         return NextResponse.json(result.rows);
     } catch (error) {

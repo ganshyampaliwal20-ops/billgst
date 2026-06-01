@@ -35,13 +35,17 @@ export default function InvoicesPage() {
     const [expandedCustomers, setExpandedCustomers] = useState<Record<string, boolean>>({});
     const [isScrolled, setIsScrolled] = useState(false);
     
+    // Pagination State
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    
     // Payment Recording State
     const [paymentAmount, setPaymentAmount] = useState('');
     const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
-        if (fetchInvoices) fetchInvoices();
+        if (fetchInvoices) fetchInvoices(false, 1);
 
         const handleScroll = () => {
             if (window.scrollY > 120) {
@@ -134,6 +138,18 @@ export default function InvoicesPage() {
                 setSelectedInvoice(null);
             } catch (err) { toast.error('Delete failed'); }
         }
+    };
+
+    const handleLoadMore = async () => {
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            await fetchInvoices(true, nextPage);
+            setPage(nextPage);
+        } catch(e) {
+            console.error(e);
+        }
+        setIsLoadingMore(false);
     };
 
     const handleDownload = async (invoice: any) => {
@@ -709,6 +725,23 @@ export default function InvoicesPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Centered Load More Button */}
+                {safeInvoices.length >= 20 && safeInvoices.length % 20 === 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                        <button 
+                            onClick={handleLoadMore}
+                            disabled={isLoadingMore}
+                            style={{ 
+                                padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
+                                borderRadius: '8px', background: '#eef2ff', color: '#4338ca', 
+                                border: '1px solid rgba(67,56,202,0.2)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
+                            }}
+                        >
+                            {isLoadingMore ? (isHi ? 'Load ho raha hai...' : 'Loading...') : (isHi ? 'Aur Invoices Dekhein' : 'Load More Old Invoices')}
+                        </button>
+                    </div>
+                )}
 
                 {/* Centered New Invoice Button below Table Footer */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>

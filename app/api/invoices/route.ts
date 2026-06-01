@@ -5,8 +5,13 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { checkLimit } from "@/lib/subscription";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '500'); // 500 fallback if no limit
+        const offset = (page - 1) * limit;
+
         const session: any = await getServerSession(authOptions as any);
 
         if (!session?.user?.id) {
@@ -18,7 +23,7 @@ export async function GET() {
 
         const client = await pool.connect();
         try {
-            // Fetch invoices for the user
+            // Fetch invoices for the user with pagination
             const result = await client.query(`
           SELECT i.*, 
                  CASE 
@@ -40,7 +45,8 @@ export async function GET() {
           LEFT JOIN customers c ON i.customer_id = c.id
           WHERE i.created_by = $1
           ORDER BY i.created_at DESC
-        `, [userId]);
+          LIMIT $2 OFFSET $3
+        `, [userId, limit, offset]);
 
             client.release();
             return NextResponse.json(result.rows);

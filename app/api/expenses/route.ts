@@ -4,8 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '500');
+        const offset = (page - 1) * limit;
+
         const session: any = await getServerSession(authOptions as any);
 
         if (!session?.user?.id) {
@@ -24,15 +29,17 @@ export async function GET() {
             query = `
                 SELECT * FROM expenses
                 ORDER BY expense_date DESC, created_at DESC
+                LIMIT $1 OFFSET $2
             `;
-            params = [];
+            params = [limit, offset];
         } else {
             query = `
                 SELECT * FROM expenses
                 WHERE created_by = $1
                 ORDER BY expense_date DESC, created_at DESC
+                LIMIT $2 OFFSET $3
             `;
-            params = [userId];
+            params = [userId, limit, offset];
         }
 
         let result;

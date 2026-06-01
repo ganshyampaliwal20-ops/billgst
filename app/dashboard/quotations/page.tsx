@@ -17,9 +17,13 @@ export default function QuotationsPage() {
     const [openCards, setOpenCards] = useState<string[]>([]);
     const [selectedQuo, setSelectedQuo] = useState<any>(null);
     const [showDetail, setShowDetail] = useState(false);
+    
+    // Pagination
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     useEffect(() => {
-        fetchQuotations();
+        if (fetchQuotations) fetchQuotations(false, 1);
     }, []);
 
     const toggleCard = (name: string) => {
@@ -93,6 +97,18 @@ export default function QuotationsPage() {
                 window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
             }
         } catch (e) { toast.error('Share failed'); }
+    };
+
+    const handleLoadMore = async () => {
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            if (fetchQuotations) await fetchQuotations(true, nextPage);
+            setPage(nextPage);
+        } catch(e) {
+            console.error(e);
+        }
+        setIsLoadingMore(false);
     };
 
     return (
@@ -268,6 +284,23 @@ export default function QuotationsPage() {
                     </div>
                 ))}
             </div>
+
+            {/* Centered Load More Button */}
+            {quotations?.length >= 20 && quotations.length % 20 === 0 && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '20px' }}>
+                    <button 
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        style={{ 
+                            padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
+                            borderRadius: '8px', background: 'var(--blue-lt)', color: 'var(--blue)', 
+                            border: '1px solid var(--border2)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
+                        }}
+                    >
+                        {isLoadingMore ? 'Loading...' : 'Load More Quotations'}
+                    </button>
+                </div>
+            )}
 
             <Link href="/dashboard/quotations/new" className="fab">
                 <FaPlus />

@@ -27,6 +27,10 @@ export default function SmartAttendance() {
     const [selectedDate, setSelectedDate] = useState(getLocalISODate());
     const [isSaving, setIsSaving] = useState(false);
     
+    // Pagination
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    
     // UI State
     const [searchQuery, setSearchQuery] = useState('');
     const [deptFilter, setDeptFilter] = useState('all');
@@ -52,7 +56,7 @@ export default function SmartAttendance() {
 
     useEffect(() => {
         setIsClient(true);
-        fetchStaff();
+        if (fetchStaff) fetchStaff(false, 1);
         fetchAttendance();
         
         // Scroll to today if available
@@ -158,6 +162,18 @@ export default function SmartAttendance() {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleLoadMore = async () => {
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            if (fetchStaff) await fetchStaff(true, nextPage);
+            setPage(nextPage);
+        } catch(e) {
+            console.error(e);
+        }
+        setIsLoadingMore(false);
     };
 
     // Calculate Stats for Selected Date
@@ -661,11 +677,11 @@ export default function SmartAttendance() {
 
 
                 {/* STATS */}
-                <div className="stats-row" style={{ gap: '16px', padding: '0 20px', marginBottom: '24px' }}>
-                    <div className="stat-box" style={{ borderLeft: '5px solid #10b981', background: '#f0fdf4', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(16,185,129,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-g" style={{ fontSize: '24px', fontWeight: 900, color: '#065f46' }}>{todayStats.P}</div><div className="stat-lbl sl" style={{ color: '#047857', fontWeight: 700 }}>Present</div></div>
-                    <div className="stat-box" style={{ borderLeft: '5px solid #ef4444', background: '#fef2f2', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(239,68,68,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-r" style={{ fontSize: '24px', fontWeight: 900, color: '#991b1b' }}>{todayStats.A}</div><div className="stat-lbl sl" style={{ color: '#b91c1c', fontWeight: 700 }}>Absent</div></div>
-                    <div className="stat-box" style={{ borderLeft: '5px solid #f59e0b', background: '#fffbeb', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(245,158,11,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-a" style={{ fontSize: '24px', fontWeight: 900, color: '#92400e' }}>{todayStats.H}</div><div className="stat-lbl sl" style={{ color: '#b45309', fontWeight: 700 }}>Half Day</div></div>
-                    <div className="stat-box" style={{ borderLeft: '5px solid #3b82f6', background: '#eff6ff', borderRadius: '12px', padding: '16px', flex: 1, boxShadow: '0 4px 10px rgba(59,130,246,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-b" style={{ fontSize: '24px', fontWeight: 900, color: '#1e40af' }}>{todayStats.L}</div><div className="stat-lbl sl" style={{ color: '#1d4ed8', fontWeight: 700 }}>Leave</div></div>
+                <div className="stats-row" style={{ gap: '8px', padding: '0 10px', marginBottom: '20px' }}>
+                    <div className="stat-box" style={{ borderLeft: '3px solid #10b981', background: '#f0fdf4', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(16,185,129,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-g" style={{ fontSize: '18px', fontWeight: 900, color: '#065f46' }}>{todayStats.P}</div><div className="stat-lbl sl" style={{ color: '#047857', fontWeight: 700, fontSize: '9px' }}>Present</div></div>
+                    <div className="stat-box" style={{ borderLeft: '3px solid #ef4444', background: '#fef2f2', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(239,68,68,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-r" style={{ fontSize: '18px', fontWeight: 900, color: '#991b1b' }}>{todayStats.A}</div><div className="stat-lbl sl" style={{ color: '#b91c1c', fontWeight: 700, fontSize: '9px' }}>Absent</div></div>
+                    <div className="stat-box" style={{ borderLeft: '3px solid #f59e0b', background: '#fffbeb', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(245,158,11,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-a" style={{ fontSize: '18px', fontWeight: 900, color: '#92400e' }}>{todayStats.H}</div><div className="stat-lbl sl" style={{ color: '#b45309', fontWeight: 700, fontSize: '9px' }}>Half Day</div></div>
+                    <div className="stat-box" style={{ borderLeft: '3px solid #3b82f6', background: '#eff6ff', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(59,130,246,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-b" style={{ fontSize: '18px', fontWeight: 900, color: '#1e40af' }}>{todayStats.L}</div><div className="stat-lbl sl" style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '9px' }}>Leave</div></div>
                 </div>
 
                 {/* CONTROLS */}
@@ -810,6 +826,23 @@ export default function SmartAttendance() {
                         );
                     })}
                 </div>
+
+                {/* Centered Load More Button */}
+                {filteredStaff?.length >= 20 && filteredStaff.length % 20 === 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '10px' }}>
+                        <button 
+                            onClick={handleLoadMore}
+                            disabled={isLoadingMore}
+                            style={{ 
+                                padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
+                                borderRadius: '12px', background: 'var(--indigo-lt)', color: 'var(--indigo)', 
+                                border: '1px solid var(--indigo)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s', boxShadow: '0 4px 12px rgba(79,70,229,0.1)'
+                            }}
+                        >
+                            {isLoadingMore ? 'Loading...' : 'Load More Staff'}
+                        </button>
+                    </div>
+                )}
 
                 <div style={{ paddingBottom: '20px' }}></div>
 

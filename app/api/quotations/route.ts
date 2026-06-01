@@ -7,8 +7,13 @@ import { checkLimit } from "@/lib/subscription";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '500');
+        const offset = (page - 1) * limit;
+
         const session: any = await getServerSession(authOptions as any);
 
         if (!session?.user?.id) {
@@ -24,7 +29,8 @@ export async function GET() {
             FROM quotations q
             WHERE q.created_by = $1
             ORDER BY q.created_at DESC
-        `, [userId]);
+            LIMIT $2 OFFSET $3
+        `, [userId, limit, offset]);
 
         client.release();
         return NextResponse.json(result.rows);

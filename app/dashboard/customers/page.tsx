@@ -9,7 +9,7 @@ import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 export default function CustomersPage() {
     const router = useRouter();
-    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings } = useStore() as any;
+    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings, fetchCustomers } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
 
@@ -20,13 +20,19 @@ export default function CustomersPage() {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
 
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
     const [newName, setNewName] = useState('');
     const [newPhone, setNewPhone] = useState('');
     const [newBal, setNewBal] = useState('');
 
-    useEffect(() => { setIsClient(true); }, []);
+    useEffect(() => { 
+        setIsClient(true); 
+        if (fetchCustomers) fetchCustomers(false, 1);
+    }, []);
 
     if (!isClient) return null;
 
@@ -185,6 +191,18 @@ export default function CustomersPage() {
             deleteCustomer(id);
             toast.success(`${name} delete ho gaya.`);
         }
+    };
+
+    const handleLoadMore = async () => {
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            if (fetchCustomers) await fetchCustomers(true, nextPage);
+            setPage(nextPage);
+        } catch(e) {
+            console.error(e);
+        }
+        setIsLoadingMore(false);
     };
 
     return (
@@ -589,6 +607,23 @@ export default function CustomersPage() {
                             </div>
                         ))
                     )}                  </div>
+
+                    {/* Centered Load More Button */}
+                    {customers?.length >= 20 && customers.length % 20 === 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '80px' }}>
+                            <button 
+                                onClick={handleLoadMore}
+                                disabled={isLoadingMore}
+                                style={{ 
+                                    padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
+                                    borderRadius: '8px', background: 'var(--teal-glow)', color: 'var(--teal-dark)', 
+                                    border: '1.5px solid var(--teal)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
+                                }}
+                            >
+                                {isLoadingMore ? 'Loading...' : 'Load More Customers'}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <button className="fab" onClick={() => setShowAddModal(true)}>＋</button>
