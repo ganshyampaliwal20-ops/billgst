@@ -8,6 +8,7 @@ import { formatCurrency } from '../../../lib/utils';
 import { getVisitingCardText } from '../../../lib/whatsapp-utils';
 import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
     FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye
 } from 'react-icons/fa';
@@ -623,7 +624,7 @@ export default function InvoicesPage() {
                             <option value="amount-low">{isHi ? 'Kam amount' : 'Low Amount'}</option>
                             <option value="name">{isHi ? 'Naam A–Z' : 'Name A–Z'}</option>
                         </select>
-                        <button className="plus-btn" onClick={() => router.push('/dashboard/invoices/new')}>+</button>
+                        <Link href="/dashboard/invoices/new" className="plus-btn" style={{ textDecoration: 'none', color: '#fff' }}>+</Link>
                     </div>
                     <div className="filter-tabs">
                         <div className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>{t.all || 'All'} ({kpiData.total})</div>
@@ -745,13 +746,13 @@ export default function InvoicesPage() {
 
                 {/* Centered New Invoice Button below Table Footer */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>
-                    <button 
-                        onClick={() => router.push('/dashboard/invoices/new')} 
+                    <Link 
+                        href="/dashboard/invoices/new" 
                         style={{ 
                             display: 'flex', alignItems: 'center', gap: '8px', 
                             padding: '16px 36px', fontSize: '16px', fontWeight: 600, 
                             borderRadius: '30px', background: '#4338ca', color: '#fff', 
-                            border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(67,56,202,0.3)' 
+                            textDecoration: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(67,56,202,0.3)' 
                         }}
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
@@ -759,7 +760,7 @@ export default function InvoicesPage() {
                             <line x1="5" y1="12" x2="19" y2="12"/>
                         </svg>
                         {t.newInvoice || 'Create New Invoice'}
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -789,10 +790,10 @@ export default function InvoicesPage() {
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                            <button className="btn-action" onClick={() => router.push(`/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`)}>
+                            <Link href={`/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`} className="btn-action" style={{ textDecoration: 'none' }}>
                                 <FaCopy size={20} color="#4338ca" />
                                 Duplicate
-                            </button>
+                            </Link>
                             <button className="btn-action" onClick={() => handleDelete(selectedInvoice)}>
                                 <FaTrash size={20} color="#6b7280" />
                                 Delete
@@ -949,13 +950,13 @@ export default function InvoicesPage() {
             )}
 
             {/* Animated Bottom FAB */}
-            <button className={`fab-animated ${isScrolled ? 'show' : ''}`} onClick={() => router.push('/dashboard/invoices/new')}>
+            <Link href="/dashboard/invoices/new" className={`fab-animated ${isScrolled ? 'show' : ''}`} style={{ textDecoration: 'none' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
                 {t.newInvoice || 'New Invoice'}
-            </button>
+            </Link>
         </div>
     );
 }

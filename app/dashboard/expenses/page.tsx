@@ -472,6 +472,42 @@ export default function BusinessExpensesPage() {
 
     const [txnSortAsc, setTxnSortAsc] = useState(false);
 
+    const generateHisaabWhatsAppText = (cust: any, amount: number, shareUrl: string, isReminder: boolean = false) => {
+        let c = 0, d = 0;
+        (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
+        const netAmt = Math.abs(amount);
+        const statusStr = amount < 0 ? 'Aapko Dena Hai' : 'Aapko Lena Hai';
+        const bizName = businessProfile?.name || 'Business Account';
+        const bizPhone = businessProfile?.phone || '';
+        const bizEmail = businessProfile?.email || '';
+        const upiId = businessProfile?.upi_id || '';
+
+        let msg = `🏢 *${bizName} — Hisaab Statement*\n━━━━━━━━━━━━━━━━━\n\n`;
+        msg += `🙏 *Namaste ${cust.name},*\n\n`;
+        if (isReminder) {
+            msg += `Aapka ₹${netAmt} due hai. Kripya payment karein.\n\n`;
+        } else {
+            msg += `Aapka Hisaab-Kitab taiyar ho gaya hai.\n\n`;
+        }
+        msg += `💰 *Net Balance: ₹${netAmt}*\n`;
+        msg += `⚠️ Status: *${statusStr}*\n\n`;
+        msg += `📊 Diya: ₹${d} | Liya: ₹${c}\n`;
+        msg += `🔢 Transactions: ${(cust.txns || []).length}\n\n`;
+        msg += `━━━━━━━━━━━━━━━━━\n`;
+        msg += `📱 *Poora hisaab dekhein:*\n`;
+        msg += `👇 Neeche link par click karein\n\n🔗 ${shareUrl}\n\n`;
+        msg += `━━━━━━━━━━━━━━━━━\n`;
+        msg += `💠 *${bizName}* 💠\n`;
+        if (bizPhone) msg += `📞 ${bizPhone}\n`;
+        if (bizEmail) msg += `📧 ${bizEmail}\n`;
+        if (upiId) {
+            msg += `\n💳 *UPI Pay:* ${upiId}\n`;
+            msg += `⚡ Tap to Pay: upi://pay?pa=${upiId}\n`;
+        }
+        msg += `\n━━━━━━━━━━━━━━━━━\n🙏 *Dhanyawad!*\n_Powered by BillGST.in_`;
+        return msg;
+    };
+
     const sendWhatsAppRemind = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
@@ -487,8 +523,7 @@ export default function BusinessExpensesPage() {
 
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            let textMsg = `*Namaste ${cust.name}*,\n\nAapka ₹${Math.abs(amount)} due hai. Kripya payment karein.\nOnline Hisaab dekhne ke liye click karein: 👇\n${shareUrl}`;
-            textMsg += getVisitingCardText(businessProfile);
+            let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
@@ -517,8 +552,7 @@ export default function BusinessExpensesPage() {
 
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            let textMsg = `*Namaste ${cust.name}*,\n\nAapka ₹${Math.abs(cust.balance)} due hai. Kripya payment karein.\nOnline Hisaab dekhne ke liye click karein: 👇\n${shareUrl}`;
-            textMsg += getVisitingCardText(businessProfile);
+            let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             try {
                 let c = 0, d = 0;
@@ -576,8 +610,7 @@ export default function BusinessExpensesPage() {
 
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
-            let textMsg = `*Namaste ${cust.name}*,\n\nAapka Hisaab-Kitab niche di gayi link par uplabdh hai.\nOnline dekhne ya PDF download karne ke liye yahan click karein: 👇\n${shareUrl}`;
-            textMsg += getVisitingCardText(businessProfile);
+            let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
@@ -1060,9 +1093,6 @@ export default function BusinessExpensesPage() {
                         <div className="animated-border-3d">
                             <div className="animated-text-3d">EXPENSES</div>
                         </div>
-                    </div>
-                    <div className="tb-acts" style={{ position: 'absolute', right: '16px' }}>
-                        <div className="tb-btn" onClick={downloadAllExcel}>📊</div>
                     </div>
                 </div>
 

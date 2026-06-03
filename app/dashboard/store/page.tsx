@@ -483,7 +483,7 @@ export default function StoreManagerPage() {
                                             <div className="sprod-price">{p.price}</div>
                                             <div className="sprod-stock">{p.status === 'out' ? '⚠ ' + p.stock + ' in stock' : '📦 ' + p.stock + ' in stock'}</div>
                                             <div className="sprod-actions">
-                                                <div className="sprod-act-btn" onClick={(e) => { e.stopPropagation(); router.push('/dashboard/inventory') }}>✏️ Edit</div>
+                                                <Link href="/dashboard/inventory" className="sprod-act-btn" onClick={(e) => e.stopPropagation()} style={{ textDecoration: 'none' }}>✏️ Edit</Link>
                                                 <div className="sprod-act-btn" onClick={(e) => handleProductAction(e, p)}>
                                                     {p.status === 'out' ? '📦 Restock' : '👁 Hide'}
                                                 </div>
@@ -494,7 +494,7 @@ export default function StoreManagerPage() {
                             </div>
 
                             <div style={{ textAlign: "center", marginTop: "14px" }}>
-                                <button style={{ background: "var(--faint)", border: "1.5px solid var(--border)", color: "var(--slate)", padding: "10px 24px", borderRadius: "10px", fontFamily: "'Sora', sans-serif", fontSize: "13px", fontWeight: 700, cursor: "pointer" }} onClick={() => router.push('/dashboard/inventory')}>View All Products →</button>
+                                <Link href="/dashboard/inventory" style={{ display: 'inline-block', background: "var(--faint)", border: "1.5px solid var(--border)", color: "var(--slate)", padding: "10px 24px", borderRadius: "10px", fontFamily: "'Sora', sans-serif", fontSize: "13px", fontWeight: 700, cursor: "pointer", textDecoration: "none" }}>View All Products →</Link>
                             </div>
                         </div>
                     </div>

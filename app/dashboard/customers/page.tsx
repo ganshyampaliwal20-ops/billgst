@@ -5,6 +5,7 @@ import { useStore } from '@/lib/store';
 import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 export default function CustomersPage() {
@@ -580,7 +581,7 @@ export default function CustomersPage() {
                         </div>
                     ) : (
                         finalList.map((c: any, i: number) => (
-                            <div key={c.id} className="customer-card" style={{ animationDelay: `${i * 0.04}s` }} onClick={() => router.push('/dashboard/customers/' + c.id)}>
+                            <Link key={c.id} href={'/dashboard/customers/' + c.id} className="customer-card" style={{ animationDelay: `${i * 0.04}s`, textDecoration: 'none', color: 'inherit', display: 'block' }}>
                                 <div className="card-top">
                                     <div className="avatar" style={{ background: getColor(i) }}>
                                         {getInitials(c.name)}                                          <div className="num">{i + 1}</div>
@@ -604,7 +605,7 @@ export default function CustomersPage() {
                                     <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 {t.call}</a>
                                     <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ {t.delete}</button>
                                     <span className="view-label">{t.view} →</span>                                  </div>
-                            </div>
+                            </Link>
                         ))
                     )}                  </div>
 

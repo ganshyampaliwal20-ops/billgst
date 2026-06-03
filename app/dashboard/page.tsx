@@ -457,26 +457,26 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="kpi-strip">
-                    <div className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer" }} onClick={() => router.push('/dashboard/reports?period=daily')}>
+                    <Link href="/dashboard/reports?period=daily" className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(79,70,229,0.1)" }}>💰</div><div className="kpi-trend trend-up">Now</div></div>
                         <div className="kpi-val" style={{ color: "var(--indigo)" }}>{formatCompactNumber(todaySales)}</div>
                         <div className="kpi-lbl">{t.todaysSales}</div>
-                    </div>
-                    <div className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer" }} onClick={() => router.push('/dashboard/reports')}>
+                    </Link>
+                    <Link href="/dashboard/reports" className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(16,185,129,0.1)" }}>📈</div><div className="kpi-trend trend-up">Total</div></div>
                         <div className="kpi-val" style={{ color: "var(--green)" }}>{formatCompactNumber(totalSales)}</div>
                         <div className="kpi-lbl">{t.totalRevenue}</div>
-                    </div>
-                    <div className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer" }} onClick={() => router.push('/dashboard/invoices')}>
+                    </Link>
+                    <Link href="/dashboard/invoices" className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(14,165,233,0.1)" }}>🧾</div><div className="kpi-trend trend-up">All</div></div>
                         <div className="kpi-val" style={{ color: "var(--teal)" }}>{formatCompactNumber(invoiceCount)}</div>
                         <div className="kpi-lbl">{t.totalInvoices}</div>
-                    </div>
-                    <div className="kpi-card k4" style={{ animationDelay: ".22s", cursor: "pointer" }} onClick={() => router.push('/dashboard/inventory')}>
+                    </Link>
+                    <Link href="/dashboard/inventory" className="kpi-card k4" style={{ animationDelay: ".22s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                         <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(239,68,68,0.1)" }}>⚠️</div>{lowStockItems > 0 ? <div className="kpi-trend trend-down">Act</div> : <div className="kpi-trend trend-up">OK</div>}</div>
                         <div className="kpi-val" style={{ color: "var(--red)" }}>{lowStockItems}</div>
                         <div className="kpi-lbl">{t.lowStock}</div>
-                    </div>
+                    </Link>
                 </div>
 
                 <div className="main-grid">
@@ -486,14 +486,14 @@ export default function DashboardPage() {
                                 <div className="card-title">{t.recentInvoices}</div>
                                 <div className="card-sub">{t.latestBillingActivity || 'Latest billing activity'}</div>
                             </div>
-                            <span className="see-all" onClick={() => router.push('/dashboard/invoices')}>{t.viewAll} →</span>
+                            <Link href="/dashboard/invoices" className="see-all" style={{ textDecoration: "none" }}>{t.viewAll} →</Link>
                         </div>
                         <div>
                             {recentInvoices.map((inv: any, idx: number) => {
                                 const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
                                 const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
                                 return (
-                                    <div className="inv-row" key={inv.id} onClick={() => router.push('/dashboard/invoices')}>
+                                    <Link href="/dashboard/invoices" className="inv-row" key={inv.id} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
                                         <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
                                         <div className="inv-info">
                                             <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
@@ -504,8 +504,8 @@ export default function DashboardPage() {
                                             <div className={`inv-status ${sClass}`}>{inv.status}</div>
                                         </div>
 
-                                        <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
-                                    </div>
+                                        <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
+                                    </Link>
                                 );
                             })}
                             {recentInvoices.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold">{t.noInvoices}</div>}
@@ -523,7 +523,7 @@ export default function DashboardPage() {
                                     <div className="card-title">💚 {t.collectionCenter || 'Collection Center'}</div>
                                     <div className="card-sub">{t.managePendingPayments || 'Manage pending payments'}</div>
                                 </div>
-                                <span className="see-all" onClick={() => router.push('/dashboard/customers')}>{pendingCustomersList.length} →</span>
+                                <Link href="/dashboard/customers" className="see-all" style={{ textDecoration: "none" }}>{pendingCustomersList.length} →</Link>
                             </div>
                             <div style={{ marginBottom: "10px" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--faint)", border: "1.5px solid var(--border)", borderRadius: "10px", padding: "9px 12px" }}>
@@ -533,7 +533,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="coll-grid">
                                 {pendingCustomersList.slice(0, 4).map((c: any, i: number) => (
-                                    <div className="coll-card" key={c.id} onClick={() => router.push('/dashboard/customers/' + c.id)}>
+                                    <Link href={'/dashboard/customers/' + c.id} className="coll-card" key={c.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                                         <div className="coll-top">
                                             <div className="coll-num">{i + 1}</div>
                                             <div className="coll-bills">{c.invoiceCount} {t.bills}</div>
@@ -542,13 +542,13 @@ export default function DashboardPage() {
                                         <div className="coll-last">{t.lastInvoice}: {new Date(c.lastInvoiceDate).toLocaleDateString()}</div>
                                         <div className="coll-amt">{formatCompactNumber(c.totalPending)}</div>
                                         <div className="coll-bottom">
-                                            <button className="wa-btn" onClick={(e) => { e.stopPropagation(); handleSendReminder(c); }}>💬</button>
+                                            <button className="wa-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(c); }}>💬</button>
                                             <input type="checkbox" className="select-box" checked={selectedCustomers.includes(c.id)} onChange={(e) => {
                                                 e.stopPropagation();
                                                 setSelectedCustomers(prev => e.target.checked ? [...prev, c.id] : prev.filter(id => id !== c.id));
                                             }} onClick={(e) => e.stopPropagation()} />
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))}
                                 {pendingCustomersList.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noPendingCollections}</div>}
                             </div>
@@ -566,7 +566,7 @@ export default function DashboardPage() {
                             <div className="card-title">🏆 {t.topSellingProducts}</div>
                             <div className="card-sub">{t.bestSellersThisMonth || 'Your best sellers this month'}</div>
                         </div>
-                        <span className="see-all" onClick={() => router.push('/dashboard/inventory')}>{t.viewAllProducts} {topProducts.length} →</span>
+                        <Link href="/dashboard/inventory" className="see-all" style={{ textDecoration: "none" }}>{t.viewAllProducts} {topProducts.length} →</Link>
                     </div>
                     <div className="prod-grid">
                         {topProducts.slice(0, 6).map((p: any, i: number) => {
@@ -574,13 +574,13 @@ export default function DashboardPage() {
                             const badge = i === 0 ? t.bestSeller : t.topProduct;
                             const bc = i === 0 ? 'badge-best' : 'badge-top';
                             return (
-                                <div className="prod-card" key={i} onClick={() => router.push('/dashboard/inventory')}>
+                                <Link href="/dashboard/inventory" className="prod-card" key={i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                                     <div className={`prod-rank ${rankClass}`}>{i + 1}</div>
                                     <span className={`prod-badge ${bc}`}>{badge}</span>
                                     <div className="prod-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
                                     <div className="prod-sold">{Math.round(p.quantity)} SOLD</div>
                                     <div className="prod-amt">{formatLakhs(p.sales)}</div>
-                                </div>
+                                </Link>
                             );
                         })}
                         {topProducts.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>}
@@ -588,19 +588,19 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="bottom-grid">
-                    <div style={{ animation: "fadeUp .5s .35s ease both", cursor: "pointer" }} onClick={() => router.push('/dashboard/store')}>
+                    <Link href="/dashboard/store" style={{ animation: "fadeUp .5s .35s ease both", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                         <div className="store-card">
                             <div className="store-icon">🌐</div>
                             <div className="store-info" style={{ flex: 1 }}>
                                 <div className="store-title">{t.yourOnlineStore}</div>
                                 <div className="store-sub">{t.manageAndShareOnlineStore}</div>
                                 <div className="store-btns">
-                                    <button className="store-btn btn-open" onClick={(e) => { e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ {t.manage}</button>
-                                    <button className="store-btn btn-share" onClick={(e) => { e.stopPropagation(); handleShareStore() }}>📤 {t.share}</button>
+                                    <button className="store-btn btn-open" onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ {t.manage}</button>
+                                    <button className="store-btn btn-share" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleShareStore() }}>📤 {t.share}</button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Link>
 
                     <div className="gst-quick" style={{ animation: "fadeUp .5s .4s ease both" }}>
                         <div className="card-hdr">
@@ -608,7 +608,7 @@ export default function DashboardPage() {
                                 <div className="card-title">🏛️ {t.gstQuickSummary}</div>
                                 <div className="card-sub">{t.currentPeriod}</div>
                             </div>
-                            <span className="see-all" onClick={() => router.push('/dashboard/gst-returns')}>{t.file} →</span>
+                            <Link href="/dashboard/gst-returns" className="see-all" style={{ textDecoration: "none" }}>{t.file} →</Link>
                         </div>
                         <div className="gst-row"><span className="gst-key">{t.taxableAmount}</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
                         <div className="gst-row"><span className="gst-key">{t.totalTax}</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
@@ -618,14 +618,14 @@ export default function DashboardPage() {
                 </div>
 
                 <div style={{ marginTop: "20px" }}>
-                    <div className="store-card" style={{ background: "linear-gradient(135deg, #10b981, #059669)", cursor: "pointer", animation: "fadeUp .5s .45s ease both" }} onClick={() => router.push('/dashboard/referral')}>
+                    <Link href="/dashboard/referral" className="store-card" style={{ background: "linear-gradient(135deg, #10b981, #059669)", cursor: "pointer", animation: "fadeUp .5s .45s ease both", display: "flex", textDecoration: "none", color: "inherit" }}>
                         <div className="store-icon" style={{ background: "rgba(255,255,255,0.2)" }}>🎁</div>
                         <div className="store-info" style={{ flex: 1 }}>
                             <div className="store-title">{t.referEarnTitle}</div>
                             <div className="store-sub">{t.referEarnSubtitle}</div>
                         </div>
                         <span className="see-all" style={{ color: "#fff", background: "rgba(0,0,0,0.15)", padding: "8px 14px", borderRadius: "8px", textDecoration: "none" }}>{t.referNow}</span>
-                    </div>
+                    </Link>
                 </div>
 
                 <div className="follow-grid">

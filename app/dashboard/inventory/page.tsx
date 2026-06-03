@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { getTranslations } from "@/lib/translations";
+import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { generateCatalogPDF } from "@/lib/pdf-generator";
@@ -741,12 +742,12 @@ export default function InventoryPage() {
                             <div className="hero-title" style={{ marginBottom: '4px' }}>⚡ {t.smartInventory}</div>
                             <div className="hero-sub" style={{ marginBottom: 0 }}>{t.manageProductsStock}</div>
                         </div>
-                        <button 
-                            onClick={() => router.push('/dashboard/inventory/smart-add')}
+                        <Link 
+                            href="/dashboard/inventory/smart-add"
                             style={{
                                 background: 'linear-gradient(135deg, #4f46e5, #8b5cf6)',
                                 color: '#fff',
-                                border: 'none',
+                                textDecoration: 'none',
                                 borderRadius: '10px',
                                 padding: '8px 12px',
                                 fontSize: '11px',
@@ -760,7 +761,7 @@ export default function InventoryPage() {
                             }}
                         >
                             ✨ AI Scanner
-                        </button>
+                        </Link>
                     </div>
 
                     <div className="stats-grid">
@@ -943,15 +944,15 @@ export default function InventoryPage() {
             </div>
             {/* AI Smart Scanner Button */}
             <div style={{ padding: '0 14px', marginTop: '20px' }}>
-                <button 
-                    onClick={() => router.push('/dashboard/inventory/smart-add')}
+                <Link 
+                    href="/dashboard/inventory/smart-add"
                     style={{
                         width: '100%',
                         padding: '14px',
                         background: 'linear-gradient(135deg, #4f46e5, #8b5cf6)',
                         color: '#fff',
+                        textDecoration: 'none',
                         borderRadius: '12px',
-                        border: 'none',
                         fontWeight: '800',
                         fontSize: '14px',
                         display: 'flex',
@@ -964,7 +965,7 @@ export default function InventoryPage() {
                 >
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
                     ✨ Smart Add via AI Scanner
-                </button>
+                </Link>
             </div>
 
             {/* ══ ACTIONS AT BOTTOM (As requested) ══ */}
