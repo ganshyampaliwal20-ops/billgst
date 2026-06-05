@@ -1,15 +1,90 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUpload, FaCamera, FaSpinner, FaCheck, FaCheckCircle, FaSave, FaTrash, FaRobot, FaArrowLeft, FaFileInvoice, FaMagic, FaInfoCircle, FaMobileAlt, FaCloudUploadAlt, FaEdit, FaTimes } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
+
+const scannerTranslations: any = {
+    en: {
+        smartScanner: 'Smart Scanner', aiPowered: 'AI Powered Entry', scanAgain: 'Scan Again',
+        profitMarginSet: 'Set Profit Margin', applyToAll: 'Apply % to All Items', itemsFound: 'Items Found',
+        selectAll: 'Select All', addMore: 'Add More', qty: 'QTY', unit: 'UNIT',
+        purchase: 'Purchase (₹)', markup: 'Markup %', selling: 'Selling (₹)', profit: 'Profit',
+        cancel: 'Cancel', saveItems: 'Items Save to Inventory',
+        uploadTitle: 'Upload Supplier Invoice', 
+        uploadDesc: 'Upload photo, scan, or PDF of your bill.\nVision AI will automatically detect products, quantities and prices.',
+        browseBtn: 'Browse or Take Photo', extracting: 'Extracting Details...',
+        waitMsg: 'Please wait while Vision AI reads your bill',
+        extName: 'Extracting Product Names...',
+        checkQty: 'Checking Bill Qty & Rates...',
+        calcTotal: 'Calculating Total Amount...',
+        failedTitle: 'Some items failed to save',
+        failedSub: 'Please check the reasons below',
+        closeBtn: 'Close & Review'
+    },
+    hi: {
+        smartScanner: 'स्मार्ट स्कैनर', aiPowered: 'एआई द्वारा एंट्री', scanAgain: 'फिर से स्कैन करें',
+        profitMarginSet: 'प्रॉफिट मार्जिन सेट करें', applyToAll: 'यही % सभी आइटम पर लागू करें', itemsFound: 'आइटम मिले',
+        selectAll: 'सब सेलेक्ट', addMore: 'और जोड़ें', qty: 'मात्रा (QTY)', unit: 'इकाई (UNIT)',
+        purchase: 'खरीद मूल्य (₹)', markup: 'मार्जिन %', selling: 'बिक्री मूल्य (₹)', profit: 'फायदा',
+        cancel: 'रद्द करें', saveItems: 'आइटम इन्वेंटरी में सेव करें',
+        uploadTitle: 'सप्लायर का बिल अपलोड करें', 
+        uploadDesc: 'फोटो, स्कैन, या PDF अपलोड करें।\nVision AI तुरंत प्रोडक्ट और कीमत निकाल लेगा।',
+        browseBtn: 'फोटो लें या फाइल चुनें', extracting: 'डिटेल्स निकाल रहे हैं...',
+        waitMsg: 'कृपया प्रतीक्षा करें, Vision AI बिल पढ़ रहा है',
+        extName: 'प्रोडक्ट के नाम निकाल रहे हैं...',
+        checkQty: 'मात्रा और रेट चेक कर रहे हैं...',
+        calcTotal: 'कुल राशि जोड़ रहे हैं...',
+        failedTitle: 'कुछ आइटम सेव नहीं हो सके',
+        failedSub: 'कृपया नीचे दिए गए कारण जांचें',
+        closeBtn: 'बंद करें और चेक करें'
+    },
+    gu: {
+        smartScanner: 'સ્માર્ટ સ્કેનર', aiPowered: 'AI દ્વારા એન્ટ્રી', scanAgain: 'ફરીથી સ્કેન કરો',
+        profitMarginSet: 'નફો સેટ કરો', applyToAll: 'આ % બધા પર લાગુ કરો', itemsFound: 'વસ્તુઓ મળી',
+        selectAll: 'બધું પસંદ કરો', addMore: 'વધુ ઉમેરો', qty: 'માત્રા (QTY)', unit: 'એકમ (UNIT)',
+        purchase: 'ખરીદ કિંમત (₹)', markup: 'માર્જિન %', selling: 'વેચાણ કિંમત (₹)', profit: 'નફો',
+        cancel: 'રદ કરો', saveItems: 'વસ્તુઓ ઇન્વેન્ટરીમાં સાચવો',
+        uploadTitle: 'બિલ અપલોડ કરો', 
+        uploadDesc: 'ફોટો, સ્કેન અથવા PDF અપલોડ કરો.\nVision AI આપમેળે ઉત્પાદનો શોધી લેશે.',
+        browseBtn: 'ફોટો લો અથવા પસંદ કરો', extracting: 'વિગતો કાઢી રહ્યા છીએ...',
+        waitMsg: 'કૃપા કરીને રાહ જુઓ...',
+        extName: 'ઉત્પાદન નામ કાઢી રહ્યા છીએ...',
+        checkQty: 'માત્રા અને કિંમત ચકાસી રહ્યા છીએ...',
+        calcTotal: 'કુલ રકમ ગણતરી કરી રહ્યા છીએ...',
+        failedTitle: 'કેટલીક વસ્તુઓ સાચવી શકાઈ નથી',
+        failedSub: 'કૃપા કરીને નીચેના કારણો તપાસો',
+        closeBtn: 'બંધ કરો અને તપાસો'
+    },
+    mr: {
+        smartScanner: 'स्मार्ट स्कॅनर', aiPowered: 'AI द्वारे एंट्री', scanAgain: 'पुन्हा स्कॅन करा',
+        profitMarginSet: 'नफा मार्जिन सेट करा', applyToAll: 'हे % सर्वांवर लागू करा', itemsFound: 'वस्तू सापडल्या',
+        selectAll: 'सर्व निवडा', addMore: 'आणखी जोडा', qty: 'प्रमाण (QTY)', unit: 'एकक (UNIT)',
+        purchase: 'खरेदी किंमत (₹)', markup: 'मार्जिन %', selling: 'विक्री किंमत (₹)', profit: 'नफा',
+        cancel: 'रद्द करा', saveItems: 'वस्तू इन्व्हेंटरीमध्ये सेव्ह करा',
+        uploadTitle: 'सप्लायर बिल अपलोड करा', 
+        uploadDesc: 'फोटो, स्कॅन किंवा PDF अपलोड करा.\nVision AI आपोआप उत्पादने शोधेल.',
+        browseBtn: 'फोटो घ्या किंवा निवडा', extracting: 'तपशील काढत आहे...',
+        waitMsg: 'कृपया प्रतीक्षा करा...',
+        extName: 'उत्पादनाचे नाव काढत आहे...',
+        checkQty: 'प्रमाण आणि दर तपासत आहे...',
+        calcTotal: 'एकूण रक्कम मोजत आहे...',
+        failedTitle: 'काही वस्तू सेव्ह झाल्या नाहीत',
+        failedSub: 'कृपया खालील कारणे तपासा',
+        closeBtn: 'बंद करा आणि तपासा'
+    }
+};
+
+
 export default function SmartAddPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct } = useStore() as any;
+    const { products, addProduct, updateProduct, settings } = useStore() as any;
+    const lang = settings?.language || 'en';
+    const st = scannerTranslations[lang] || scannerTranslations.en;
     
     const [image, setImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -17,6 +92,10 @@ export default function SmartAddPage() {
     const [step, setStep] = useState<'upload' | 'processing' | 'review'>('upload');
     const [failedItems, setFailedItems] = useState<{name: string, reason: string}[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    // New states for profit
+    const [globalProfit, setGlobalProfit] = useState<number>(20);
+    const [isProfitOpen, setIsProfitOpen] = useState(true);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -88,7 +167,8 @@ export default function SmartAddPage() {
 
             if (data.items && data.items.length > 0) {
                 const mappedItems = data.items.map((item: any) => {
-                    const existingProduct = products?.find((p: any) => p.name.toLowerCase().trim() === (item.name || '').toLowerCase().trim());
+                    const normalizedItemName = (item.name || '').replaceAll(' ', '').toLowerCase();
+                    const existingProduct = products?.find((p: any) => (p.name || '').replaceAll(' ', '').toLowerCase() === normalizedItemName);
                     
                     const purchasePrice = Number(item.purchasePrice) || existingProduct?.purchase_price || 0;
                     const sellingPrice = existingProduct?.price || (purchasePrice ? purchasePrice * 1.2 : 0);
@@ -105,7 +185,7 @@ export default function SmartAddPage() {
                         purchasePrice: purchasePrice,
                         sellingPrice: sellingPrice,
                         markup: markup,
-                        gstRate: Number(item.gstRate) || existingProduct?.gst_rate || 18,
+                        gstRate: Number(item.gstRate) || existingProduct?.gst_rate || 0, // Using 0 as default to match user's UI
                         totalAmount: Number(item.totalAmount) || 0,
                         selected: true,
                         isExisting: !!existingProduct,
@@ -142,11 +222,14 @@ export default function SmartAddPage() {
         let failures: {name: string, reason: string}[] = [];
         let successfulItemIds: string[] = [];
 
+        const stockUpdates: Record<string, number> = {};
+
         for (const item of itemsToSave) {
             try {
                 if (item.isExisting && item.existingId) {
+                    const extraQty = stockUpdates[item.existingId] || 0;
                     const res = await updateProduct(item.existingId, {
-                        stock_quantity: item.currentStock + item.quantity,
+                        stock_quantity: item.currentStock + extraQty + item.quantity,
                         purchase_price: item.purchasePrice,
                         price: item.sellingPrice || item.purchasePrice,
                         unit: item.unit
@@ -155,6 +238,7 @@ export default function SmartAddPage() {
                         failures.push({ name: item.name, reason: res.error });
                     } else {
                         successCount++;
+                        stockUpdates[item.existingId] = extraQty + item.quantity;
                         successfulItemIds.push(item.id);
                     }
                 } else {
@@ -204,18 +288,42 @@ export default function SmartAddPage() {
 
             const newItem = { ...item, [field]: value };
 
-            if (field === 'purchasePrice') {
-                newItem.sellingPrice = Number((value * (1 + newItem.markup / 100)).toFixed(2));
-            } else if (field === 'markup') {
-                newItem.sellingPrice = Number((newItem.purchasePrice * (1 + value / 100)).toFixed(2));
+            if (field === 'purchasePrice' || field === 'markup' || field === 'gstRate') {
+                const pur = Number(newItem.purchasePrice) || 0;
+                const mkp = Number(newItem.markup) || 0;
+                const gst = Number(newItem.gstRate) || 0;
+                const baseSelling = pur * (1 + mkp / 100);
+                // User HTML calculates selling as sellingWithGst = baseSelling * (1 + gst / 100)
+                newItem.sellingPrice = Number((baseSelling * (1 + gst / 100)).toFixed(2));
             } else if (field === 'sellingPrice') {
+                // If they edit selling price directly
                 if (newItem.purchasePrice > 0) {
-                    newItem.markup = Number(((value - newItem.purchasePrice) / newItem.purchasePrice * 100).toFixed(2));
+                    const gst = Number(newItem.gstRate) || 0;
+                    const baseSelling = value / (1 + gst / 100);
+                    newItem.markup = Number(((baseSelling - newItem.purchasePrice) / newItem.purchasePrice * 100).toFixed(2));
                 }
+            } else if (field === 'name') {
+                const normalizedValue = (value || '').replaceAll(' ', '').toLowerCase();
+                const existingProduct = products?.find((p: any) => (p.name || '').replaceAll(' ', '').toLowerCase() === normalizedValue);
+                newItem.isExisting = !!existingProduct;
+                newItem.existingId = existingProduct?.id || null;
+                newItem.currentStock = parseInt(existingProduct?.stock_quantity || 0);
             }
 
             return newItem;
         }));
+    };
+
+    const handleApplyProfit = () => {
+        setParsedItems(prev => prev.map(item => {
+            const newItem = { ...item, markup: globalProfit };
+            const pur = Number(newItem.purchasePrice) || 0;
+            const gst = Number(newItem.gstRate) || 0;
+            const baseSelling = pur * (1 + globalProfit / 100);
+            newItem.sellingPrice = Number((baseSelling * (1 + gst / 100)).toFixed(2));
+            return newItem;
+        }));
+        toast.success(`${globalProfit}% applied to all ${parsedItems.length} items!`);
     };
 
     const handleEditAll = () => {
@@ -226,31 +334,324 @@ export default function SmartAddPage() {
         setParsedItems(prev => prev.map(item => ({ ...item, selected: false })));
     };
 
+    const handleRemoveItem = (id: string) => {
+        setParsedItems(prev => prev.filter(i => i.id !== id));
+        toast('Item removed');
+    };
+
     return (
-        <div className="relative min-h-[calc(100vh-60px)] bg-[#0c0e14] text-slate-100 overflow-hidden flex flex-col items-center py-6 px-4">
+        <div className="smart-scanner-page relative overflow-x-hidden">
             <style dangerouslySetInnerHTML={{ __html: `
-                @import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-                .font-syne { font-family: 'Syne', sans-serif; }
-                .font-body { font-family: 'Plus Jakarta Sans', sans-serif; }
-                .hero-scanner {
-                    position: absolute;
-                    top: -100px;
-                    left: -50%;
-                    width: 200%;
-                    height: 10px;
-                    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.8), transparent);
-                    box-shadow: 0 0 30px 10px rgba(16, 185, 129, 0.3);
-                    transform: rotate(15deg);
-                    animation: heroScan 4s infinite linear;
-                    z-index: 0;
-                    pointer-events: none;
+                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+                :root {
+                  --bg: #080b14;
+                  --s1: #0e1120;
+                  --s2: #141829;
+                  --s3: #1a1f35;
+                  --border: rgba(255,255,255,0.07);
+                  --border2: rgba(255,255,255,0.12);
+                  --text: #f0f2ff;
+                  --text2: #8b90b8;
+                  --text3: #4a5070;
+                  --green: #22c55e;
+                  --green-glow: rgba(34,197,94,0.15);
+                  --cyan: #06b6d4;
+                  --cyan-glow: rgba(6,182,212,0.12);
+                  --amber: #f59e0b;
+                  --amber-glow: rgba(245,158,11,0.12);
+                  --red: #f43f5e;
+                  --red-glow: rgba(244,63,94,0.12);
+                  --purple: #8b5cf6;
+                  --purple-glow: rgba(139,92,246,0.12);
+                  --accent: #6366f1;
                 }
-                @keyframes heroScan {
-                    0% { top: -200px; opacity: 0; }
-                    10% { opacity: 1; }
-                    90% { opacity: 1; }
-                    100% { top: 120%; opacity: 0; }
+                .smart-scanner-page {
+                  font-family: 'Outfit', sans-serif;
+                  background: var(--bg);
+                  min-height: calc(100vh - 60px);
+                  max-width: 480px;
+                  margin: 0 auto;
+                  color: var(--text);
+                  -webkit-font-smoothing: antialiased;
+                  overflow-x: hidden;
+                  overflow-y: auto;
                 }
+                .smart-scanner-page * { scrollbar-width: none; }
+                .smart-scanner-page *::-webkit-scrollbar { display: none; }
+
+                /* ── TOPBAR ── */
+                .topbar {
+                  padding: 16px 18px 14px;
+                  display: flex; align-items: center; gap: 10px;
+                  border-bottom: 1px solid var(--border);
+                  background: var(--s1);
+                  position: sticky; top: 0; z-index: 100;
+                }
+                .back-btn {
+                  width: 36px; height: 36px; border-radius: 10px;
+                  background: var(--s2); border: 1px solid var(--border2);
+                  display: flex; align-items: center; justify-content: center;
+                  cursor: pointer; flex-shrink: 0; transition: all .15s;
+                }
+                .back-btn:hover { background: var(--s3); }
+                .back-btn svg { width: 17px; height: 17px; color: var(--text2); }
+                .tb-center { flex: 1; }
+                .tb-title { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -.2px; }
+                .tb-sub { font-size: 11px; color: var(--text3); font-weight: 500; margin-top: 1px; }
+                .scan-again-btn {
+                  display: flex; align-items: center; gap: 6px;
+                  background: var(--cyan-glow); border: 1px solid rgba(6,182,212,.3);
+                  border-radius: 10px; padding: 8px 13px;
+                  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700;
+                  color: var(--cyan); cursor: pointer; transition: all .15s;
+                }
+                .scan-again-btn:hover { background: rgba(6,182,212,.2); }
+                .scan-again-btn svg { width: 14px; height: 14px; }
+
+                /* ── HERO SECTION ── */
+                .hero {
+                  padding: 22px 18px 18px;
+                  background: linear-gradient(160deg, #0e1120, #0a1628);
+                  border-bottom: 1px solid var(--border);
+                  position: relative; overflow: hidden;
+                }
+                .hero::before {
+                  content: ''; position: absolute;
+                  top: -60px; right: -40px; width: 200px; height: 200px; border-radius: 50%;
+                  background: radial-gradient(circle, rgba(6,182,212,.08), transparent 70%);
+                }
+                .hero::after {
+                  content: ''; position: absolute;
+                  bottom: -30px; left: -20px; width: 140px; height: 140px; border-radius: 50%;
+                  background: radial-gradient(circle, rgba(99,102,241,.06), transparent 70%);
+                }
+                .hero-inner { position: relative; z-index: 1; }
+
+                /* Scanner icon */
+                .scanner-icon-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+                .scanner-icon {
+                  width: 46px; height: 46px; border-radius: 14px;
+                  background: linear-gradient(135deg, #06b6d4, #6366f1);
+                  display: flex; align-items: center; justify-content: center;
+                  box-shadow: 0 0 28px rgba(6,182,212,.3);
+                }
+                .scanner-icon svg { width: 22px; height: 22px; color: #fff; }
+                .scanner-title-block {}
+                .scanner-title { font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: -.5px; line-height: 1; }
+                .scanner-ai-tag {
+                  display: inline-flex; align-items: center; gap: 4px;
+                  font-size: 10px; font-weight: 700; color: var(--cyan);
+                  letter-spacing: 1px; text-transform: uppercase; margin-top: 3px;
+                }
+                .ai-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); animation: blink 1.5s infinite; }
+                @keyframes blink { 0%,100% {opacity:1; transform:scale(1);} 50% {opacity:.4; transform:scale(.7);} }
+
+                /* Profit margin setting bar */
+                .profit-bar {
+                  background: var(--s2); border: 1px solid var(--border2);
+                  border-radius: 14px; padding: 14px 16px; margin-bottom: 0;
+                }
+                .pb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+                .pb-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--text); }
+                .pb-title svg { width: 15px; height: 15px; color: var(--amber); }
+                .pb-current {
+                  font-family: 'DM Mono', monospace;
+                  font-size: 22px; font-weight: 600; color: var(--amber);
+                  background: var(--amber-glow); border: 1px solid rgba(245,158,11,.25);
+                  padding: 4px 12px; border-radius: 8px;
+                }
+
+                /* Preset buttons */
+                .preset-row { display: flex; gap: 6px; margin-bottom: 12px; }
+                .preset-btn {
+                  flex: 1; padding: 8px 4px; border-radius: 9px;
+                  background: var(--s3); border: 1.5px solid var(--border2);
+                  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 800;
+                  color: var(--text2); cursor: pointer; transition: all .15s; text-align: center;
+                }
+                .preset-btn:hover { border-color: var(--amber); color: var(--amber); }
+                .preset-btn.active { background: var(--amber-glow); border-color: var(--amber); color: var(--amber); }
+
+                /* Custom slider */
+                .slider-wrap { display: flex; align-items: center; gap: 10px; }
+                .slider-minus, .slider-plus {
+                  width: 32px; height: 32px; border-radius: 8px;
+                  background: var(--s3); border: 1px solid var(--border2);
+                  display: flex; align-items: center; justify-content: center;
+                  cursor: pointer; font-size: 18px; font-weight: 700; color: var(--text2);
+                  transition: all .12s; flex-shrink: 0; user-select: none;
+                }
+                .slider-minus:hover, .slider-plus:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+                .profit-slider {
+                  flex: 1; -webkit-appearance: none; appearance: none;
+                  height: 6px; border-radius: 3px; outline: none; cursor: pointer;
+                }
+                .profit-slider::-webkit-slider-thumb {
+                  -webkit-appearance: none; width: 20px; height: 20px;
+                  border-radius: 50%; background: var(--amber);
+                  border: 3px solid var(--bg);
+                  box-shadow: 0 0 12px rgba(245,158,11,.5); cursor: pointer;
+                }
+
+                /* Apply btn */
+                .apply-btn {
+                  width: 100%; margin-top: 12px; padding: 11px; border-radius: 10px;
+                  background: linear-gradient(135deg, var(--amber), #d97706);
+                  border: none; font-family: 'Outfit', sans-serif;
+                  font-size: 13px; font-weight: 800; color: #fff; cursor: pointer;
+                  display: flex; align-items: center; justify-content: center; gap: 7px;
+                  box-shadow: 0 4px 16px rgba(245,158,11,.3); transition: all .15s;
+                }
+                .apply-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,158,11,.4); }
+                .apply-btn svg { width: 14px; height: 14px; }
+
+                /* ── RESULTS HEADER ── */
+                .results-header { padding: 14px 18px 10px; display: flex; align-items: center; justify-content: space-between; }
+                .found-badge {
+                  display: inline-flex; align-items: center; gap: 6px;
+                  background: var(--green-glow); border: 1px solid rgba(34,197,94,.25);
+                  border-radius: 99px; padding: 5px 12px;
+                  font-size: 12px; font-weight: 700; color: var(--green);
+                }
+                .found-badge svg { width: 12px; height: 12px; }
+                .results-actions { display: flex; gap: 6px; }
+                .ract {
+                  display: flex; align-items: center; gap: 5px;
+                  background: var(--s2); border: 1px solid var(--border2);
+                  border-radius: 8px; padding: 6px 11px;
+                  font-size: 11px; font-weight: 700; color: var(--text2);
+                  cursor: pointer; transition: all .12s;
+                }
+                .ract:hover { border-color: var(--accent); color: var(--text); }
+                .ract svg { width: 13px; height: 13px; }
+
+                /* ── ITEM CARDS ── */
+                .items-list { padding: 0 14px 100px; display: flex; flex-direction: column; gap: 12px; }
+
+                .item-card {
+                  background: var(--s1); border: 1px solid var(--border);
+                  border-radius: 18px; overflow: hidden;
+                  animation: cardUp .4s ease both;
+                  transition: border-color .2s,box-shadow .2s;
+                }
+                .item-card:hover { border-color: var(--border2); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+
+                @keyframes cardUp { from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+                /* card top bar */
+                .card-topbar {
+                  display: flex; align-items: center; justify-content: space-between;
+                  padding: 12px 14px 10px; border-bottom: 1px solid var(--border);
+                  background: rgba(255,255,255,.02);
+                }
+                .card-check {
+                  width: 22px; height: 22px; border-radius: 6px;
+                  background: var(--green-glow); border: 1.5px solid var(--green);
+                  display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;
+                }
+                .card-check.unselected {
+                  background: transparent; border-color: var(--border2);
+                }
+                .card-check svg { width: 11px; height: 11px; color: var(--green); }
+                .card-product-name {
+                  flex: 1; margin: 0 10px; font-size: 13px; font-weight: 700; color: var(--text);
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; outline: none; background: transparent; border: none;
+                }
+                .card-product-name:focus { border-bottom: 1px dashed var(--cyan); }
+                .gst-badge {
+                  display: inline-flex; align-items: center; gap: 3px;
+                  background: rgba(99,102,241,.15); border: 1px solid rgba(99,102,241,.3);
+                  border-radius: 6px; padding: 3px 8px; font-size: 10px; font-weight: 700; color: var(--accent); white-space: nowrap;
+                }
+                .remove-btn {
+                  width: 24px; height: 24px; border-radius: 6px;
+                  background: var(--red-glow); border: 1px solid rgba(244,63,94,.2);
+                  display: flex; align-items: center; justify-content: center;
+                  cursor: pointer; margin-left: 6px; transition: all .12s; flex-shrink: 0;
+                }
+                .remove-btn:hover { background: rgba(244,63,94,.25); }
+                .remove-btn svg { width: 11px; height: 11px; color: var(--red); }
+
+                /* card fields grid */
+                .card-fields { padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+                .cf-label { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
+                .cf-input {
+                  background: var(--s2); border: 1px solid var(--border2);
+                  border-radius: 9px; padding: 8px 10px;
+                  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text);
+                  width: 100%; outline: none; transition: border-color .15s;
+                }
+                .cf-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(6,182,212,.08); }
+                .cf-input.unit-input { background: var(--s3); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13px; }
+
+                /* price row */
+                .card-price-row { padding: 0 14px 14px; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 8px; }
+                .pf-label { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px; }
+                .pf-input {
+                  background: var(--s2); border: 1px solid var(--border2);
+                  border-radius: 9px; padding: 8px 10px;
+                  font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--text);
+                  width: 100%; outline: none; transition: border-color .15s;
+                }
+                .pf-input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(245,158,11,.08); }
+                .price-op { font-size: 16px; font-weight: 700; color: var(--text3); text-align: center; padding-top: 18px; }
+                .pf-input.selling {
+                  background: linear-gradient(135deg, rgba(34,197,94,.1), rgba(6,182,212,.06));
+                  border-color: rgba(34,197,94,.3);
+                  color: var(--green); font-weight: 600; font-size: 14px;
+                }
+
+                /* profit indicator */
+                .profit-indicator {
+                  margin: 0 14px 12px; background: var(--green-glow); border: 1px solid rgba(34,197,94,.2);
+                  border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;
+                }
+                .pi-left { display: flex; align-items: center; gap: 7px; }
+                .pi-icon { width: 20px; height: 20px; border-radius: 6px; background: rgba(34,197,94,.2); display: flex; align-items: center; justify-content: center; }
+                .pi-icon svg { width: 10px; height: 10px; color: var(--green); }
+                .pi-text { font-size: 11px; font-weight: 700; color: var(--green); }
+                .pi-amt { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--green); }
+
+                /* ── BOTTOM ACTION BAR ── */
+                .bottom-bar {
+                  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+                  width: 100%; max-width: 480px;
+                  background: rgba(8,11,20,.95); backdrop-filter: blur(20px);
+                  border-top: 1px solid var(--border2);
+                  padding: 14px 16px 18px; display: flex; gap: 10px; z-index: 200;
+                }
+                .discard-btn {
+                  padding: 13px 20px; border-radius: 12px;
+                  background: var(--s2); border: 1px solid var(--border2);
+                  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700;
+                  color: var(--text2); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center;
+                }
+                .discard-btn:hover { border-color: var(--red); color: var(--red); }
+                .save-btn {
+                  flex: 1; padding: 13px; border-radius: 12px;
+                  background: linear-gradient(135deg, #22c55e, #16a34a);
+                  border: none; font-family: 'Outfit', sans-serif;
+                  font-size: 14px; font-weight: 800; color: #fff; cursor: pointer;
+                  display: flex; align-items: center; justify-content: center; gap: 8px;
+                  box-shadow: 0 4px 20px rgba(34,197,94,.35); transition: all .18s;
+                }
+                .save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(34,197,94,.45); }
+                .save-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+                .save-btn svg { width: 16px; height: 16px; }
+
+                /* Profit panel collapse toggle */
+                .profit-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+                .pt-arrow {
+                  width: 20px; height: 20px; border-radius: 5px; background: var(--s3);
+                  display: flex; align-items: center; justify-content: center; transition: transform .25s;
+                }
+                .pt-arrow.open { transform: rotate(180deg); }
+                .pt-arrow svg { width: 11px; height: 11px; color: var(--text3); }
+
+                .profit-collapsible { overflow: hidden; max-height: 0; transition: max-height .35s cubic-bezier(.22,1,.36,1); }
+                .profit-collapsible.open { max-height: 300px; }
+
+                /* Old processing scanner styles */
                 .upload-scanner {
                     position: absolute;
                     top: -100px;
@@ -270,446 +671,259 @@ export default function SmartAddPage() {
                     90% { opacity: 1; }
                     100% { top: 110%; opacity: 0; }
                 }
-                input::-webkit-outer-spin-button,
-                input::-webkit-inner-spin-button {
-                  -webkit-appearance: none;
-                  margin: 0;
-                }
-                input[type=number] {
-                  -moz-appearance: textfield;
-                }
             `}} />
 
-            <div className={`w-full mx-auto relative z-10 flex flex-col flex-1 font-body pb-16 ${step === 'processing' ? 'max-w-5xl' : 'max-w-[480px]'}`}>
-                
-                {/* Header */}
-                <div className="flex items-center justify-center mb-8 relative overflow-hidden rounded-[2rem] bg-slate-900/40 py-10 px-8 border border-slate-800 backdrop-blur-xl min-h-[160px]">
-                    <div className="hero-scanner"></div>
-                    <button onClick={() => router.push('/dashboard/inventory')} className="absolute left-6 top-1/2 -translate-y-1/2 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 z-10">
-                        <FaArrowLeft className="text-white" />
-                    </button>
-                    <div className="z-10 text-center">
-                        <h1 className="text-3xl font-body font-bold text-white uppercase tracking-widest">SMART SCANNER</h1>
-                        <p className="text-[12px] text-emerald-400 font-bold mt-2 tracking-[0.2em] uppercase">AI Powered Entry</p>
-                    </div>
+            {/* TOPBAR */}
+            <div className="topbar">
+                <button className="back-btn" onClick={() => router.push('/dashboard/inventory')}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </button>
+                <div className="tb-center">
+                    <div className="tb-title">{st.smartScanner}</div>
+                    <div className="tb-sub">{st.aiPowered}</div>
                 </div>
+                {step === 'review' && (
+                    <button className="scan-again-btn" onClick={() => setStep('upload')}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>{st.scanAgain}</button>
+                )}
+            </div>
 
-                <AnimatePresence mode="wait">
-                    {/* Upload Step */}
-                    {step === 'upload' && (
-                        <motion.div 
-                            key="upload"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-transparent flex-1 flex flex-col w-full relative z-10"
-                        >
-                            {/* The Upload Card Wrapper (Flex 1 to center vertically) */}
-                            <div className="flex-1 flex flex-col justify-center items-center w-full max-w-[400px] mx-auto pb-6 self-center">
-                                {/* The Upload Card */}
-                                <div className="border-[1.5px] border-dashed border-purple-500/50 bg-white/5 hover:bg-purple-500/10 rounded-[20px] p-6 pb-5 transition-all flex flex-col items-center relative group w-full overflow-hidden" onClick={() => fileInputRef.current?.click()}>
-                                    
-                                    {/* Inner Glow */}
-                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(138,92,246,0.1)_0%,transparent_65%)] pointer-events-none rounded-[20px]"></div>
-
-                                    {/* Scanner Animation */}
-                                    <div className="upload-scanner"></div>
-
-                                    {/* Icon */}
-                                    <div className="w-[70px] h-[70px] bg-gradient-to-br from-purple-600 to-purple-400 rounded-[18px] flex items-center justify-center mb-4 shadow-[0_4px_20px_rgba(124,58,237,0.4)] relative z-10">
-                                        <FaFileInvoice className="text-[32px] text-white" />
-                                    </div>
-
-                                    <h3 className="text-xl font-bold text-white mb-2 relative z-10">Upload Supplier Invoice</h3>
-                                    <p className="text-[13px] text-slate-400 mb-5 leading-relaxed relative z-10 text-center">
-                                        Photo, scan, ya PDF upload karo apne bill ki.<br />
-                                        Vision AI turant products, quantities<br />
-                                        aur prices detect kar lega.
-                                    </p>
-
-                                    {/* Format Badges */}
-                                    <div className="flex justify-center gap-2 mb-6 relative z-10">
-                                        <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5">📷 Photo</span>
-                                        <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5">📄 Scan</span>
-                                        <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5">📑 PDF</span>
-                                    </div>
-
-                                    {/* Main Button */}
-                                    <button 
-                                        className="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3.5 px-8 rounded-full text-[15px] hover:-translate-y-[1px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] transition-all flex items-center justify-center gap-2 relative z-10"
-                                    >
-                                        <FaCamera className="text-xl" /> Browse or Take Photo
-                                    </button>
-
-                                    {/* Divider */}
-                                    <div className="flex items-center justify-center gap-3 w-full my-4 relative z-10">
-                                        <div className="h-[1px] w-12 bg-white/10"></div>
-                                        <span className="text-[12px] font-semibold text-slate-500">ya inse upload karo</span>
-                                        <div className="h-[1px] w-12 bg-white/10"></div>
-                                    </div>
-
-                                    {/* Secondary Options */}
-                                    <div className="grid grid-cols-2 gap-3 w-full relative z-10">
-                                        <button onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }} className="flex flex-col items-center justify-center gap-1.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/40 rounded-xl py-3 transition-colors text-purple-300">
-                                            <FaMobileAlt className="text-[22px]" />
-                                            <span className="text-[12px] font-semibold text-slate-400">Gallery se</span>
-                                        </button>
-                                        <button onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }} className="flex flex-col items-center justify-center gap-1.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/40 rounded-xl py-3 transition-colors text-purple-300">
-                                            <FaCloudUploadAlt className="text-[22px]" />
-                                            <span className="text-[12px] font-semibold text-slate-400">Files se</span>
-                                        </button>
-                                    </div>
-                                </div>
+            {/* HERO */}
+            <div className="hero">
+                <div className="hero-inner">
+                    <div className="scanner-icon-wrap">
+                        <div className="scanner-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+                                <rect x="7" y="7" width="10" height="10" rx="1"/>
+                            </svg>
+                        </div>
+                        <div className="scanner-title-block">
+                            <div className="scanner-title">{st.smartScanner}</div>
+                            <div className="scanner-ai-tag">
+                                <span className="ai-dot"></span>
+                                AI Powered Entry
                             </div>
+                        </div>
+                    </div>
 
-                            {/* Feature Chips Pinned to Bottom */}
-                            <div className="mt-auto flex justify-center gap-2 w-full pt-4">
-                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/25 rounded-xl py-2 px-1 text-center flex flex-col items-center justify-center gap-1">
-                                    <FaMagic className="text-emerald-400 text-lg" />
-                                    <span className="text-[11px] font-semibold text-emerald-300">Instant Scan</span>
-                                </div>
-                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/25 rounded-xl py-2 px-1 text-center flex flex-col items-center justify-center gap-1">
-                                    <FaCheck className="text-emerald-400 text-lg" />
-                                    <span className="text-[11px] font-semibold text-emerald-300">Auto Items</span>
-                                </div>
-                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/25 rounded-xl py-2 px-1 text-center flex flex-col items-center justify-center gap-1">
-                                    <FaCheckCircle className="text-emerald-400 text-lg" />
-                                    <span className="text-[11px] font-semibold text-emerald-300">Accurate</span>
-                                </div>
-                            </div>
-
-                            <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
-                        </motion.div>
-                    )}
-
-                    {/* Processing Step */}
-                    {/* Processing Step */}
-                    {step === 'processing' && (
-                        <motion.div 
-                            key="processing"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 1.05 }}
-                            className="bg-transparent flex-1 flex flex-col items-center justify-center w-full relative z-10 min-h-[500px]"
-                        >
-                            {/* New Design Card matching the image */}
-                            <div className="w-full max-w-[600px] min-h-[400px] md:min-h-[500px] mx-auto bg-[#13161c] border border-slate-800/80 rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center shadow-2xl mt-4 relative overflow-hidden">
-                                
-                                {/* Abstract Document Animation */}
-                                <div className="relative w-40 h-52 mb-8">
-                                    {/* Corner Brackets */}
-                                    <div className="absolute -top-3 -left-3 w-6 h-6 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl"></div>
-                                    <div className="absolute -top-3 -right-3 w-6 h-6 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr"></div>
-                                    <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl"></div>
-                                    <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br"></div>
-
-                                    {/* Document Body */}
-                                    <div className="w-full h-full bg-slate-800/80 rounded-sm relative overflow-hidden shadow-lg">
-                                        {/* Folded Corner */}
-                                        <div className="absolute top-0 right-0 w-8 h-8 bg-[#13161c] z-20 border-b border-l border-slate-800 rounded-bl-sm"></div>
-                                        <div className="absolute top-0 right-0 w-8 h-8 bg-slate-700/50 z-10" style={{ clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }}></div>
-
-                                        {/* Text lines */}
-                                        <div className="absolute inset-x-4 top-10 flex flex-col gap-3 z-10 opacity-70">
-                                            <div className="w-3/4 h-1.5 bg-emerald-400 rounded-full"></div>
-                                            <div className="w-full h-1.5 bg-slate-500 rounded-full"></div>
-                                            <div className="w-5/6 h-1.5 bg-slate-500 rounded-full"></div>
-                                            <div className="w-2/3 h-1.5 bg-slate-500 rounded-full"></div>
-                                            <div className="w-4/5 h-1.5 bg-slate-500 rounded-full mt-2"></div>
-                                            <div className="w-full h-1.5 bg-slate-500 rounded-full"></div>
-                                            <div className="w-3/4 h-1.5 bg-slate-500 rounded-full"></div>
-                                        </div>
-
-                                        {/* Floating particles */}
-                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, repeat: Infinity }} className="absolute top-1/4 left-1/4 w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,1)] z-20"></motion.div>
-                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: 0.5, repeat: Infinity }} className="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,1)] z-20"></motion.div>
-                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: 1, repeat: Infinity }} className="absolute top-2/3 right-1/3 w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_8px_rgba(52,211,153,1)] z-20"></motion.div>
-                                        <motion.div animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: 1.5, repeat: Infinity }} className="absolute bottom-1/3 left-1/3 w-1 h-1 bg-emerald-400 rounded-full shadow-[0_0_5px_rgba(52,211,153,1)] z-20"></motion.div>
-
-                                        {/* Laser Glow animating up and down */}
-                                        <motion.div 
-                                            animate={{ top: ['0%', '90%', '0%'] }}
-                                            transition={{ duration: 4, ease: "linear", repeat: Infinity }}
-                                            className="absolute left-0 right-0 h-[2px] bg-emerald-400 shadow-[0_0_20px_5px_rgba(16,185,129,0.8)] z-30"
-                                        >
-                                            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-t from-emerald-500/40 to-transparent transform -translate-y-full"></div>
-                                            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-emerald-500/40 to-transparent"></div>
-                                        </motion.div>
-                                    </div>
-                                </div>
-
-                                {/* Status Text */}
-                                <h2 className="text-xl md:text-2xl font-extrabold text-emerald-400 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wide">
-                                    Extracting Details...
-                                </h2>
-                                
-                                {/* Animated Extraction Feed */}
-                                <div className="h-6 overflow-hidden relative w-full mb-10 text-center flex justify-center">
-                                    <motion.div 
-                                        animate={{ y: ['0%', '-20%', '-40%', '-60%', '-80%'] }} 
-                                        transition={{ duration: 8, ease: "linear", repeat: Infinity }}
-                                        className="flex flex-col text-[15px] font-medium"
-                                    >
-                                        <div className="h-6 flex items-center justify-center gap-2 text-slate-400">Please wait while Vision AI reads your bill</div>
-                                        <div className="h-6 flex items-center justify-center gap-2 text-emerald-400">Extracting Product Names...</div>
-                                        <div className="h-6 flex items-center justify-center gap-2 text-emerald-400">Checking Bill Qty & Rates...</div>
-                                        <div className="h-6 flex items-center justify-center gap-2 text-emerald-400">Calculating Total Amount...</div>
-                                        <div className="h-6 flex items-center justify-center gap-2 text-slate-400">Please wait while Vision AI reads your bill</div>
-                                    </motion.div>
-                                </div>
-
-                                {/* Progress Bar */}
-                                <div className="w-full h-1.5 bg-slate-800 rounded-full mb-10 overflow-hidden relative border border-slate-700/50 z-10">
-                                    <motion.div 
-                                        animate={{ width: ['0%', '100%'] }} 
-                                        transition={{ duration: 4, ease: "linear", repeat: Infinity }} 
-                                        className="h-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,1)] rounded-full"
-                                    />
-                                </div>
-
-                                {/* Steps Grid */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-8 z-10">
-                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-slate-800 text-emerald-500/70">
-                                        <FaCamera className="text-2xl mb-3" />
-                                        <span className="text-[13px] font-semibold tracking-wide">Scanning</span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-emerald-500 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)] relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-emerald-500/5"></div>
-                                        <FaRobot className="text-2xl mb-3 relative z-10" />
-                                        <span className="text-[13px] font-semibold tracking-wide relative z-10">Reading</span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-slate-800 text-slate-600">
-                                        <FaFileInvoice className="text-2xl mb-3" />
-                                        <span className="text-[13px] font-semibold tracking-wide">Items</span>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-5 px-2 rounded-xl bg-[#171a23] border border-slate-800 text-slate-600">
-                                        <FaCheck className="text-2xl mb-3" />
-                                        <span className="text-[13px] font-semibold tracking-wide">Done</span>
-                                    </div>
-                                </div>
-
-                                {/* Tag */}
-                                <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#171a23] border border-emerald-500/30 text-emerald-400 text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.1)] z-10">
-                                    <FaCheckCircle className="text-lg" /> Products
-                                </div>
-
-                                {/* Bottom Blue/Orange Animated Scanner Line */}
-                                <div className="absolute bottom-0 inset-x-0 h-1.5 bg-slate-900 overflow-hidden">
-                                    <motion.div 
-                                        animate={{ x: ['-100%', '200%'] }}
-                                        transition={{ duration: 2.5, ease: "linear", repeat: Infinity }}
-                                        className="w-1/2 h-full bg-gradient-to-r from-transparent via-blue-500 to-orange-500 shadow-[0_0_20px_5px_rgba(59,130,246,0.8)]"
-                                    />
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* Review Step */}
+                    {/* Profit Margin Setting (Only in Review Step) */}
                     {step === 'review' && (
-                        <motion.div key="review" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                            <div className="flex justify-between items-center mb-4 px-[8px]">
-                                <div className="text-sm font-bold text-slate-300">Found {parsedItems.length} Items</div>
-                                <button onClick={() => setStep('upload')} className="text-xs text-indigo-400 font-bold bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
-                                    Scan Another
+                        <div className="profit-bar">
+                            <div className="pb-top">
+                                <div className="profit-toggle" onClick={() => setIsProfitOpen(!isProfitOpen)}>
+                                    <div className="pb-title">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <line x1="12" y1="1" x2="12" y2="23"/>
+                                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                                        </svg>
+                                        {st.profitMarginSet}
+                                    </div>
+                                    <div className={`pt-arrow ${isProfitOpen ? 'open' : ''}`}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                                    </div>
+                                </div>
+                                <div className="pb-current">{globalProfit}%</div>
+                            </div>
+
+                            <div className={`profit-collapsible ${isProfitOpen ? 'open' : ''}`}>
+                                {/* Presets */}
+                                <div className="preset-row">
+                                    {[5, 10, 15, 20, 25, 30].map(pct => (
+                                        <button 
+                                            key={pct}
+                                            className={`preset-btn ${globalProfit === pct ? 'active' : ''}`}
+                                            onClick={() => setGlobalProfit(pct)}
+                                        >
+                                            {pct}%
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Slider */}
+                                <div className="slider-wrap">
+                                    <div className="slider-minus" onClick={() => setGlobalProfit(Math.max(0, globalProfit - 1))}>−</div>
+                                    <input 
+                                        type="range" 
+                                        className="profit-slider" 
+                                        min="0" max="100" 
+                                        value={globalProfit} 
+                                        onChange={(e) => setGlobalProfit(Number(e.target.value))}
+                                        style={{ background: `linear-gradient(90deg, #f59e0b ${globalProfit}%, rgba(255,255,255,0.1) ${globalProfit}%)` }}
+                                    />
+                                    <div className="slider-plus" onClick={() => setGlobalProfit(Math.min(100, globalProfit + 1))}>+</div>
+                                </div>
+
+                                <button className="apply-btn" onClick={handleApplyProfit}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                                    {st.applyToAll}
                                 </button>
                             </div>
-                            
-                            {parsedItems.map((item, index) => (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    key={item.id} 
-                                    className={`bg-slate-900 rounded-3xl py-6 px-[8px] border-2 transition-all ${item.selected ? 'border-emerald-500/40 shadow-[0_4px_20px_rgba(16,185,129,0.05)]' : 'border-slate-800 opacity-60'}`}
-                                >
-                                    {/* Header & GST */}
-                                    <div className="flex justify-between items-start mb-5 gap-4">
-                                        <div className="flex items-start gap-4 flex-1">
-                                            <div 
-                                                className={`w-6 h-6 rounded-md border flex items-center justify-center flex-shrink-0 mt-1 cursor-pointer transition-colors ${item.selected ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-800 border-slate-600'}`}
-                                                onClick={() => updateItem(item.id, 'selected', !item.selected)}
-                                            >
-                                                <FaCheck className={`text-white text-[10px] ${item.selected ? 'opacity-100' : 'opacity-0'}`} />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <input 
-                                                    type="text" 
-                                                    value={item.name}
-                                                    onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                                    className="w-full text-base font-bold text-white bg-transparent border-b border-dashed border-slate-600 focus:border-emerald-400 focus:outline-none pb-1 px-2"
-                                                    placeholder="Product Name"
-                                                />
-                                                {item.isExisting && (
-                                                    <div className="text-[10px] text-emerald-400 mt-1.5 font-bold flex items-center gap-1 px-2">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Existing (Stock: {item.currentStock})
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="flex-shrink-0">
-                                            <div className="bg-slate-800 rounded-lg p-1 px-2 border border-slate-700 flex items-center gap-1">
-                                                <span className="text-[9px] font-bold text-slate-400">GST</span>
-                                                <select 
-                                                    value={item.gstRate}
-                                                    onChange={(e) => updateItem(item.id, 'gstRate', Number(e.target.value))}
-                                                    className="text-xs font-bold text-white bg-transparent border-none p-0 focus:ring-0 outline-none appearance-none cursor-pointer text-center"
-                                                >
-                                                    <option value="0" className="bg-slate-800">0%</option>
-                                                    <option value="5" className="bg-slate-800">5%</option>
-                                                    <option value="12" className="bg-slate-800">12%</option>
-                                                    <option value="18" className="bg-slate-800">18%</option>
-                                                    <option value="28" className="bg-slate-800">28%</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Qty & Unit */}
-                                    <div className="grid grid-cols-2 gap-4 mb-6">
-                                        <div className="bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50 min-w-0">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">QTY</label>
-                                            <input 
-                                                type="number" 
-                                                value={item.quantity}
-                                                onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-2 focus:ring-0 outline-none"
-                                            />
-                                        </div>
-                                        <div className="bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50 min-w-0">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">UNIT</label>
-                                            <input 
-                                                type="text" 
-                                                value={item.unit}
-                                                onChange={(e) => updateItem(item.id, 'unit', e.target.value.toUpperCase())}
-                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-2 focus:ring-0 outline-none uppercase"
-                                                placeholder="PCS"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Pricing */}
-                                    <div className="grid grid-cols-3 gap-3 items-end">
-                                        <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 px-2 truncate">Purchase</label>
-                                            <input 
-                                                type="number" 
-                                                value={item.purchasePrice}
-                                                onChange={(e) => updateItem(item.id, 'purchasePrice', Number(e.target.value))}
-                                                className="w-full min-w-0 text-sm font-bold text-white bg-transparent border-none p-0 px-2 focus:ring-0 outline-none"
-                                            />
-                                        </div>
-                                        
-                                        <div className="col-span-1 min-w-0 bg-slate-800/50 rounded-xl py-3 px-[5px] border border-slate-700/50 flex flex-col justify-between h-full">
-                                            <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1 text-center px-2 truncate">Markup %</label>
-                                            <div className="flex items-center justify-center flex-1 px-2">
-                                                <span className="text-xs text-emerald-400 font-bold">+</span>
-                                                <input 
-                                                    type="number" 
-                                                    value={item.markup}
-                                                    onChange={(e) => updateItem(item.id, 'markup', Number(e.target.value))}
-                                                    className="w-full min-w-0 text-center text-xs font-bold text-emerald-400 bg-transparent border-none p-0 focus:ring-0 outline-none"
-                                                />
-                                                <span className="text-xs text-emerald-400 font-bold">%</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-span-1 min-w-0 bg-indigo-900/40 rounded-xl py-3 px-[5px] border border-indigo-500/30 text-right flex flex-col justify-between h-full">
-                                            <label className="text-[9px] font-bold text-indigo-300 uppercase block mb-1 px-2 truncate">Selling</label>
-                                            <input 
-                                                type="number" 
-                                                value={item.sellingPrice}
-                                                onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))}
-                                                className="w-full min-w-0 text-lg font-black text-indigo-300 bg-transparent border-none p-0 px-2 focus:ring-0 outline-none text-right"
-                                            />
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                            {/* Extra space at bottom to prevent save button overlap */}
-                            <div className="h-40 md:h-28 w-full"></div>
-                        </motion.div>
+                        </div>
                     )}
-                </AnimatePresence>
+                </div>
             </div>
-            
-            {/* ✅ PROFESSIONAL BOTTOM ACTION BAR - Safe Area Protected */}
-            {step === 'review' && (
-                <div
-                    className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none"
-                    style={{
-                        background: 'linear-gradient(to top, #0a0c12 65%, transparent)',
-                        paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
-                        paddingTop: '24px',
-                        paddingLeft: '12px',
-                        paddingRight: '12px',
-                    }}
-                >
-                    <div className="flex items-center gap-2 max-w-[480px] mx-auto pointer-events-auto">
-                        
-                        {/* Edit All Button */}
-                        <motion.button
-                                            whileTap={{ scale: 0.94 }}
-                                            onClick={handleEditAll}
-                                            title="Edit All Items"
-                                            className="flex-none w-[48px] h-[52px] rounded-[14px] flex items-center justify-center
-                                                       bg-[#1e2130] border border-[#2a2d38] text-gray-400
-                                                       hover:bg-[#252838] hover:text-white hover:border-[#3d4157] transition-colors"
-                                        >
-                                            <FaEdit className="text-[16px]" />
-                                        </motion.button>
 
-                                        {/* Deselect All Button */}
-                                        <motion.button
-                                            whileTap={{ scale: 0.94 }}
-                                            onClick={handleDeselectAll}
-                                            title="Deselect All"
-                                            className="flex-none w-[48px] h-[52px] rounded-[14px] flex items-center justify-center
-                                                       bg-[#1e1520] border border-[#3d2040] text-pink-400
-                                                       hover:bg-[#251828] transition-colors"
-                                        >
-                                            <FaTimes className="text-[15px]" />
-                                        </motion.button>
+            <AnimatePresence mode="wait">
+                {/* Upload Step */}
+                {step === 'upload' && (
+                    <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="p-4 flex flex-col items-center justify-center pt-10">
+                        <div className="border-[1.5px] border-dashed border-purple-500/50 bg-white/5 hover:bg-purple-500/10 rounded-[20px] p-6 pb-5 transition-all flex flex-col items-center relative group w-full max-w-[400px] overflow-hidden cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(138,92,246,0.1)_0%,transparent_65%)] pointer-events-none rounded-[20px]"></div>
+                            <div className="upload-scanner"></div>
+                            <div className="w-[70px] h-[70px] bg-gradient-to-br from-purple-600 to-purple-400 rounded-[18px] flex items-center justify-center mb-4 shadow-[0_4px_20px_rgba(124,58,237,0.4)] relative z-10">
+                                <FaFileInvoice className="text-[32px] text-white" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2 relative z-10">Upload Supplier Invoice</h3>
+                            <p className="text-[13px] text-slate-400 mb-5 leading-relaxed relative z-10 text-center font-['Outfit']">
+                                {st.uploadDesc.split('\n').map((line: string, i: number) => <span key={i}>{line}<br/></span>)}
+                            </p>
+                            <div className="flex justify-center gap-2 mb-6 relative z-10">
+                                <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 font-['Outfit']">📷 Photo</span>
+                                <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 font-['Outfit']">📄 Scan</span>
+                                <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 font-['Outfit']">📑 PDF</span>
+                            </div>
+                            <button className="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3.5 px-8 rounded-full text-[15px] hover:-translate-y-[1px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] transition-all flex items-center justify-center gap-2 relative z-10 font-['Outfit']">
+                                <FaCamera className="text-xl" /> Browse or Take Photo
+                            </button>
+                        </div>
+                        <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
+                    </motion.div>
+                )}
 
-                                        {/* Main Save Button */}
-                                        <motion.button
-                                            initial={{ y: 50, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            whileTap={{ scale: 0.97 }}
-                                            onClick={handleSave}
-                                            disabled={loading || parsedItems.filter(i => i.selected).length === 0}
-                                            className="flex-1 h-[52px] rounded-[14px] flex items-center justify-center gap-2
-                                                       bg-gradient-to-r from-emerald-600 to-emerald-500
-                                                       disabled:opacity-50 disabled:cursor-not-allowed
-                                                       relative overflow-hidden transition-all"
-                                            style={{
-                                                boxShadow: '0 0 24px rgba(16,185,129,0.3)',
-                                            }}
-                                        >
-                                            {/* Shine overlay */}
-                                            <span className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent rounded-[14px]" />
-
-                                            {loading ? (
-                                                <FaSpinner className="text-white text-lg animate-spin relative z-10" />
-                                            ) : (
-                                                <FaSave className="text-white text-[17px] relative z-10" />
-                                            )}
-
-                                            <span className="text-white font-bold text-[13px] tracking-wide relative z-10">
-                                                {loading ? 'SAVING...' : 'SAVE TO INVENTORY'}
-                                            </span>
-
-                                            {/* Count Badge */}
-                                            {!loading && (
-                                                <span className="relative z-10 bg-white/25 text-white text-[11px] font-bold
-                                                                 w-[22px] h-[22px] rounded-full flex items-center justify-center">
-                                                    {parsedItems.filter(i => i.selected).length}
-                                                </span>
-                                            )}
-                                        </motion.button>
+                {/* Processing Step */}
+                {step === 'processing' && (
+                    <motion.div key="processing" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="p-4 flex flex-col items-center justify-center pt-10">
+                        <div className="w-full max-w-[400px] min-h-[400px] bg-[#13161c] border border-slate-800/80 rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
+                            <div className="relative w-32 h-40 md:w-40 md:h-52 mb-10 md:mb-12 flex-shrink-0">
+                                <div className="absolute -top-3 -left-3 w-6 h-6 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl"></div>
+                                <div className="absolute -top-3 -right-3 w-6 h-6 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr"></div>
+                                <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl"></div>
+                                <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br"></div>
+                                <div className="w-full h-full bg-slate-800/80 rounded-sm relative overflow-hidden shadow-lg">
+                                    <div className="absolute inset-x-4 top-8 md:top-10 flex flex-col gap-2 md:gap-3 z-10 opacity-70">
+                                        <div className="w-3/4 h-1.5 bg-emerald-400 rounded-full"></div>
+                                        <div className="w-full h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-5/6 h-1.5 bg-slate-500 rounded-full"></div>
+                                        <div className="w-2/3 h-1.5 bg-slate-500 rounded-full"></div>
                                     </div>
+                                    <motion.div animate={{ top: ['0%', '90%', '0%'] }} transition={{ duration: 4, ease: "linear", repeat: Infinity }} className="absolute left-0 right-0 h-[2px] bg-emerald-400 shadow-[0_0_20px_5px_rgba(16,185,129,0.8)] z-30"></motion.div>
                                 </div>
-                            )}
+                            </div>
+                            <h2 className="mt-4 md:mt-6 text-lg md:text-2xl font-extrabold text-emerald-400 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wide flex-shrink-0 font-['Outfit']">Extracting Details...</h2>
+                            <div className="h-5 md:h-6 overflow-hidden relative w-full mb-6 md:mb-10 text-center flex justify-center flex-shrink-0">
+                                <motion.div animate={{ y: ['0%', '-20%', '-40%', '-60%', '-80%'] }} transition={{ duration: 8, ease: "linear", repeat: Infinity }} className="flex flex-col text-[13px] md:text-[15px] font-medium font-['Outfit']">
+                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-slate-400">{st.waitMsg}</div>
+                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-emerald-400">Extracting Product Names...</div>
+                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-emerald-400">Checking Bill Qty & Rates...</div>
+                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-emerald-400">Calculating Total Amount...</div>
+                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-slate-400">{st.waitMsg}</div>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Review Step */}
+                {step === 'review' && (
+                    <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        {/* RESULTS HEADER */}
+                        <div className="results-header">
+                            <div className="found-badge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                                {parsedItems.length} {st.itemsFound}
+                            </div>
+                            <div className="results-actions">
+                                <button className="ract" onClick={handleEditAll}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>{st.selectAll}</button>
+                                <button className="ract" onClick={() => setStep('upload')}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>{st.addMore}</button>
+                            </div>
+                        </div>
+
+                        {/* ITEM CARDS */}
+                        <div className="items-list">
+                            {parsedItems.map((item, index) => {
+                                const profit = (item.sellingPrice || 0) - (item.purchasePrice || 0);
+                                const totalMargin = profit * (item.quantity || 1);
+
+                                return (
+                                    <div key={item.id} className="item-card" style={{ animationDelay: `${index * 0.06}s` }}>
+                                        <div className="card-topbar">
+                                            <div className={`card-check ${!item.selected ? 'unselected' : ''}`} onClick={() => updateItem(item.id, 'selected', !item.selected)}>
+                                                {item.selected && <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                            </div>
+                                            <input 
+                                                className="card-product-name" 
+                                                value={item.name} 
+                                                onChange={(e) => updateItem(item.id, 'name', e.target.value)}
+                                            />
+                                            <div className="gst-badge">GST {item.gstRate}%</div>
+                                            <button className="remove-btn" onClick={() => handleRemoveItem(item.id)}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+
+                                        <div className="card-fields">
+                                            <div className="card-field">
+                                                <div className="cf-label">{st.qty}</div>
+                                                <input className="cf-input" type="number" value={item.quantity} onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))} />
+                                            </div>
+                                            <div className="card-field">
+                                                <div className="cf-label">{st.unit}</div>
+                                                <input className="cf-input unit-input" type="text" value={item.unit} onChange={(e) => updateItem(item.id, 'unit', e.target.value.toUpperCase())} />
+                                            </div>
+                                            <div className="card-field">
+                                                <div className="cf-label">GST %</div>
+                                                <input className="cf-input" type="number" value={item.gstRate} onChange={(e) => updateItem(item.id, 'gstRate', Number(e.target.value))} />
+                                            </div>
+                                        </div>
+
+                                        <div className="card-price-row">
+                                            <div className="price-field">
+                                                <div className="pf-label">{st.purchase}</div>
+                                                <input className="pf-input" type="number" value={item.purchasePrice} onChange={(e) => updateItem(item.id, 'purchasePrice', Number(e.target.value))} />
+                                            </div>
+                                            <div className="price-op">+</div>
+                                            <div className="price-field">
+                                                <div className="pf-label">Markup %</div>
+                                                <input className="pf-input" type="number" value={item.markup} onChange={(e) => updateItem(item.id, 'markup', Number(e.target.value))} />
+                                            </div>
+                                            <div className="price-op">=</div>
+                                            <div className="price-field">
+                                                <div className="pf-label">{st.selling}</div>
+                                                <input className="pf-input selling" type="number" value={item.sellingPrice} onChange={(e) => updateItem(item.id, 'sellingPrice', Number(e.target.value))} />
+                                            </div>
+                                        </div>
+
+                                        <div className="profit-indicator">
+                                            <div className="pi-left">
+                                                <div className="pi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                                                <div className="pi-text">{st.profit}: ₹{profit.toFixed(1)} ({item.markup}%)</div>
+                                            </div>
+                                            <div className="pi-amt">₹{totalMargin.toFixed(1)}</div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* BOTTOM ACTION BAR */}
+                        <div className="bottom-bar">
+                            <button className="discard-btn" onClick={() => setStep('upload')}>{st.cancel}</button>
+                            <button className="save-btn" onClick={handleSave} disabled={loading || parsedItems.filter(i => i.selected).length === 0}>
+                                {loading ? <FaSpinner className="animate-spin text-lg" /> : (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                                        <path d="M17 21v-8H7v8M7 3v5h8"/>
+                                    </svg>
+                                )}
+                                {loading ? 'Saving...' : `${parsedItems.filter(i => i.selected).length} {st.saveItems}`}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Failed Items Modal */}
             <AnimatePresence>
@@ -727,16 +941,16 @@ export default function SmartAddPage() {
                                     <FaInfoCircle className="text-xl" />
                                 </div>
                                 <div>
-                                    <h3 className="font-syne font-bold text-lg text-white">Some items failed to save</h3>
-                                    <p className="text-xs">Please check the reasons below</p>
+                                    <h3 className="font-bold text-lg text-white font-['Outfit']">Some items failed to save</h3>
+                                    <p className="text-xs font-['Outfit']">Please check the reasons below</p>
                                 </div>
                             </div>
                             
                             <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                                 {failedItems.map((item, idx) => (
                                     <div key={idx} className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                                        <div className="font-bold text-sm text-white mb-1">{item.name}</div>
-                                        <div className="text-xs text-red-400 font-medium bg-red-500/10 p-2 rounded-lg border border-red-500/20">{item.reason}</div>
+                                        <div className="font-bold text-sm text-white mb-1 font-['Outfit']">{item.name}</div>
+                                        <div className="text-xs text-red-400 font-medium bg-red-500/10 p-2 rounded-lg border border-red-500/20 font-['Outfit']">{item.reason}</div>
                                     </div>
                                 ))}
                             </div>
@@ -744,10 +958,8 @@ export default function SmartAddPage() {
                             <div className="mt-6 pt-4 border-t border-slate-800">
                                 <button 
                                     onClick={() => setFailedItems([])}
-                                    className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all"
-                                >
-                                    Close & Review
-                                </button>
+                                    className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all font-['Outfit']"
+                                >{st.closeBtn}</button>
                             </div>
                         </motion.div>
                     </motion.div>
