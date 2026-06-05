@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
@@ -190,8 +190,8 @@ export default function LandingPage() {
                             {isEnglish ? '🌐 English' : '🌐 Hindi'}
                         </button>
                     </div>
-                    <button className="btn-ghost" onClick={() => openM('login')}>Login</button>
-                    <button className="btn-cta" onClick={() => openM('signup')}>Free Signup</button>
+                    <button className="btn-ghost" onClick={() => openM('login')}>{isEnglish ? 'Login' : 'लॉगिन'}</button>
+                    <button className="btn-cta" onClick={() => openM('signup')}>{isEnglish ? 'Free Signup' : 'मुफ्त साइन अप'}</button>
                 </div>
                 <div className="ham" onClick={() => setIsMobMenuOpen(!isMobMenuOpen)}>
                     <span style={{ transform: isMobMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : '' }}></span>
@@ -206,7 +206,8 @@ export default function LandingPage() {
                 <a href="#pricing" onClick={() => setIsMobMenuOpen(false)}>Pricing</a>
                 <a href="/about" onClick={() => setIsMobMenuOpen(false)}>About Us</a>
                 <a href="/privacy" onClick={() => setIsMobMenuOpen(false)}>Privacy Policy</a>
-                <button className="btn-hero" onClick={() => openM('signup')} style={{ marginTop: '10px' }}>Sign Up</button>
+                <button className="btn-ghost" onClick={() => { openM('login'); setIsMobMenuOpen(false); }} style={{ marginTop: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#fff', border: '1px solid rgba(59, 130, 246, 0.5)', padding: '10px 20px', borderRadius: '8px', width: '100%' }}>{isEnglish ? 'Login' : 'लॉगिन'}</button>
+                <button className="btn-hero" onClick={() => { openM('signup'); setIsMobMenuOpen(false); }} style={{ marginTop: '10px', width: '100%' }}>{isEnglish ? 'Sign Up' : 'साइन अप'}</button>
             </div>
 
             {/* HERO */}
@@ -237,8 +238,12 @@ export default function LandingPage() {
                     }
                 </p>
                 <div className="hero-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                    <button className="btn-hero2" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#fff', border: '1px solid rgba(59, 130, 246, 0.5)', padding: '14px 28px', fontSize: '18px', borderRadius: '12px', width: '100%', maxWidth: '400px', fontWeight: 'bold' }} onClick={() => openM('login')}>
+                        {isEnglish ? "Already have an account? Login Here" : "क्या आपके पास पहले से अकाउंट है? यहाँ लॉगिन करें"}
+                    </button>
+
                     <button className="btn-hero" style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)', padding: '18px 36px', fontSize: '20px', fontWeight: '900', boxShadow: '0 10px 30px rgba(234, 88, 12, 0.5)', width: '100%', maxWidth: '400px' }} onClick={() => openM('signup')}>
-                        🚀 {isEnglish ? "Start for Free Now — No Card Required" : "Abhi Free Mein Shuru Karein — No Card Required"}
+                        🚀 {isEnglish ? "Start for Free Now — No Card Required" : "अभी मुफ्त में शुरू करें — कार्ड की जरूरत नहीं"}
                     </button>
 
                     <a href="https://play.google.com/store/apps/details?id=in.billgst.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', color: '#fff', padding: '10px 24px', borderRadius: '12px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.15)', width: '100%', maxWidth: '400px', justifyContent: 'center', transition: '0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
@@ -248,8 +253,6 @@ export default function LandingPage() {
                             <div style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1.2 }}>Google Play</div>
                         </div>
                     </a>
-
-                    <button className="btn-hero2" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.8)', padding: '12px 24px' }} onClick={() => openM('login')}>{isEnglish ? "Already have an account? Login →" : "Pehle se account hai? Login karein →"}</button>
                 </div>
                 <p className="hero-note" style={{ marginBottom: '20px' }}>✦ {isEnglish ? "Starter plan includes 30 free GST Bills every month" : "Starter plan में 30 GST Bills हर महीने बिल्कुल मुफ्त"}</p>
 
@@ -280,12 +283,12 @@ export default function LandingPage() {
                         <iframe 
                             width="100%" 
                             height="100%" 
-                            src="https://www.youtube.com/embed/CMzc3B2kilk?autoplay=1&mute=1&loop=1&playlist=CMzc3B2kilk&controls=0&modestbranding=1&rel=0&showinfo=0" 
+                            src="https://www.youtube.com/embed/CMzc3B2kilk?autoplay=1&mute=0&loop=1&playlist=CMzc3B2kilk&controls=1&modestbranding=1&rel=0&showinfo=0" 
                             title="BillGST Dashboard Preview" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
-                            style={{ aspectRatio: '16/9', display: 'block', objectFit: 'cover', pointerEvents: 'none' }}
+                            style={{ aspectRatio: '16/9', display: 'block', objectFit: 'cover' }}
                         ></iframe>
                     </div>
                 </div>
