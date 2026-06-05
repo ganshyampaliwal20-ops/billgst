@@ -431,8 +431,8 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header - Fixed inside the flex container, below safe area automatically */}
                 <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
-                    <div className="px-8 sm:px-6 lg:px-8 w-full" style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '0px' }}>
-                        <div className="flex items-center justify-between h-12 md:h-16 relative">
+                    <div className="w-full flex items-center justify-between px-3 h-[calc(env(safe-area-inset-top,0px)+60px)] pt-[env(safe-area-inset-top,0px)]">
+                        <div className="flex items-center justify-between w-full h-full relative">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
                                 <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">

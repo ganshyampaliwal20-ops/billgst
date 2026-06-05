@@ -7,8 +7,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
+import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { drawFreeBranding } from '../../../lib/pdf-generator';
 
 export default function SmartAttendance() {
     const router = useRouter();
@@ -250,7 +252,7 @@ export default function SmartAttendance() {
         toast.success('Staff Details Updated!');
     };
 
-    const generateSalarySlipPDF = () => {
+    const generateSalarySlipPDF = async () => {
         if (!selectedStaff) return;
         const doc = new jsPDF();
         
@@ -369,11 +371,17 @@ export default function SmartAttendance() {
             }
         });
 
-        const footerText = 'Generated securely via BillGST.in';
+        const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
         const pageHeight = doc.internal.pageSize.getHeight();
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text(footerText, 14, pageHeight - 10);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        if (!isPremium) {
+            await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
+        } else {
+            const footerText = 'Generated securely via BillGST.in';
+            doc.setFontSize(10);
+            doc.setTextColor(150);
+            doc.text(footerText, 14, pageHeight - 10);
+        }
 
         const filename = `${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {
@@ -464,11 +472,17 @@ export default function SmartAttendance() {
             styles: { fontSize: 13, fontStyle: 'bold', textColor: [16, 185, 129] }
         });
 
-        const footerText = 'Generated securely via BillGST.in';
+        const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
         const pageHeight = doc.internal.pageSize.getHeight();
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text(footerText, 14, pageHeight - 10);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        if (!isPremium) {
+            await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
+        } else {
+            const footerText = 'Generated securely via BillGST.in';
+            doc.setFontSize(10);
+            doc.setTextColor(150);
+            doc.text(footerText, 14, pageHeight - 10);
+        }
 
         const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {

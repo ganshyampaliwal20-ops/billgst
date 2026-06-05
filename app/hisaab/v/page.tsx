@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { generateHisaabPDF } from '../../../lib/pdf-generator';
 
@@ -11,6 +11,7 @@ function fmt(n: number) {
 
 function HisaabViewer() {
     const searchParams = useSearchParams();
+    const params = useParams();
     const [data, setData] = useState<any>(null);
     const [rawData, setRawData] = useState<any>(null);
     const [error, setError] = useState(false);
@@ -22,11 +23,11 @@ function HisaabViewer() {
         setMounted(true);
         const fetchData = async () => {
             const dataStr = searchParams?.get('d');
-            const idStr = searchParams?.get('id');
+            const idStr = searchParams?.get('id') || params?.id as string;
 
             if (idStr) {
                 try {
-                    const res = await fetch(`/api/hisaab/share/${idStr}`);
+                    const res = await fetch(`/api/hisaab/share/${idStr}?t=${Date.now()}`, { cache: 'no-store' });
                     if(!res.ok) throw new Error('Not found');
                     const json = await res.json();
                     

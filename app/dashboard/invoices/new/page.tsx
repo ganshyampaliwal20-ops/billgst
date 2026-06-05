@@ -725,7 +725,10 @@ export default function NewInvoicePage() {
                     --sh-lg:0 12px 40px rgba(13,15,28,.13),0 2px 8px rgba(13,15,28,.06);
                 }
                 .new-invoice-page { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
-                .page-hdr { background: linear-gradient(135deg,#0b0f1e,#1c2340,#1e3a5f); padding: 30px 40px; border-bottom: 1px solid rgba(255,255,255,.05); margin-bottom: 2rem; color: white; }
+                .page-hdr { background: linear-gradient(135deg,#0b0f1e,#1c2340,#1e3a5f); padding: 30px 40px; border-bottom: 1px solid rgba(255,255,255,.05); margin-bottom: 2rem; color: white; margin-top: 10px; border-radius: 12px; }
+                @media (max-width: 768px) {
+                    .page-hdr { padding: 20px 15px; margin-top: 0; border-radius: 0; }
+                }
                 .ph-title { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
                 .ph-sub { font-size: 13px; color: rgba(255,255,255,.5); }
                 .fbadge { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
@@ -1080,8 +1083,15 @@ export default function NewInvoicePage() {
                                                             }
                                                         }}
                                                     />
-                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">
-                                                        <FaBox size={12} />
+                                                    <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={startVoiceBilling}
+                                                            title="Add by Voice"
+                                                            className={`p-1.5 rounded-lg flex items-center justify-center transition-colors ${isListening ? 'bg-indigo-100 text-indigo-600 voice-pulse' : 'text-slate-400 hover:text-indigo-500 hover:bg-slate-100'}`}
+                                                        >
+                                                            <FaMicrophone size={14} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1140,14 +1150,6 @@ export default function NewInvoicePage() {
                                     <FaBox /> {t.browseInventory || 'Browse Inventory'}
                                 </button>
                             </div>
-                            <button
-                                type="button"
-                                onClick={startVoiceBilling}
-                                className={`premium-add-btn ${isListening ? 'voice-pulse' : 'btn-voice'}`}
-                                title="Add by Voice"
-                            >
-                                <FaMicrophone /> {isListening ? (t.voiceListening || 'Listening...') : (t.addItemByVoice || 'Add Item by Voice')}
-                            </button>
                         </div>
                     </div>
 

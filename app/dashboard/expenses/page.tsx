@@ -123,6 +123,8 @@ export default function BusinessExpensesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentFilter, setCurrentFilter] = useState('all');
     const { data: session, status } = useSession();
+    const settings = useStore((state: any) => state.settings) || { language: 'en' };
+    const isHi = settings?.language === 'hi';
     const { businessProfile } = useStore();
 
     // Drawer / Modals
@@ -476,7 +478,7 @@ export default function BusinessExpensesPage() {
         let c = 0, d = 0;
         (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
         const netAmt = Math.abs(amount);
-        const statusStr = amount < 0 ? 'Aapko Dena Hai' : 'Aapko Lena Hai';
+        const statusStr = amount < 0 ? (isHi ? 'Aapko Dena Hai' : 'You Will Give') : (isHi ? 'Aapko Lena Hai' : 'You Will Get');
         const bizName = businessProfile?.name || 'Business Account';
         const bizPhone = businessProfile?.phone || '';
         const bizEmail = businessProfile?.email || '';
@@ -521,8 +523,15 @@ export default function BusinessExpensesPage() {
                 try { await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }); } catch (e) {}
             }
 
-            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
+            let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            try {
+                if (session?.user?.id) {
+                    const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: cust.id }) });
+                    const json = await res.json();
+                    if (json.shortId) shareId = json.shortId;
+                }
+            } catch(e) {}
+            const shareUrl = `${window.location.origin}/h/${shareId}`;
             let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
@@ -550,8 +559,15 @@ export default function BusinessExpensesPage() {
             const phone = cust.phone?.replace(/\D/g, '') || '';
             if (!phone) continue;
 
-            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
+            let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            try {
+                if (session?.user?.id) {
+                    const resLink = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: cust.id }) });
+                    const json = await resLink.json();
+                    if (json.shortId) shareId = json.shortId;
+                }
+            } catch(e) {}
+            const shareUrl = `${window.location.origin}/h/${shareId}`;
             let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             try {
@@ -608,8 +624,15 @@ export default function BusinessExpensesPage() {
                 } catch (e) {}
             }
 
-            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-            const shareUrl = `${window.location.origin}/hisaab/v?id=${shareId}`;
+            let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            try {
+                if (session?.user?.id) {
+                    const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: cust.id }) });
+                    const json = await res.json();
+                    if (json.shortId) shareId = json.shortId;
+                }
+            } catch(e) {}
+            const shareUrl = `${window.location.origin}/h/${shareId}`;
             let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
@@ -904,9 +927,21 @@ export default function BusinessExpensesPage() {
         showToast('✅ Customer add ho gaya!');
     };
 
-    const deleteCustomer = () => {
+    const deleteCustomer = async () => {
         if (!currentCust) return;
         if (!window.confirm(`Kya aap sach mein ${currentCust.name} ko delete karna chahte hain? Unka poora hisaab hamesha ke liye delete ho jayega.`)) return;
+
+        try {
+            if (session?.user?.id) {
+                await fetch('/api/hisaab/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ custId: curCid })
+                });
+            }
+        } catch (e) {
+            console.error('Failed to delete from server', e);
+        }
 
         setCustomers(customers.filter(c => c.id !== curCid));
         handleBack();
@@ -1101,15 +1136,15 @@ export default function BusinessExpensesPage() {
                 <div className="kpi-strip">
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--green)' }}>{fmt(totalStats.received)}</div>
-                        <div className="kpi-lbl">Total Lena Hai</div>
+                        <div className="kpi-lbl">{isHi ? 'Total Lena Hai' : 'Total To Receive'}</div>
                     </div>
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--red)' }}>{fmt(totalStats.given)}</div>
-                        <div className="kpi-lbl">Total Dena Hai</div>
+                        <div className="kpi-lbl">{isHi ? 'Total Dena Hai' : 'Total To Pay'}</div>
                     </div>
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--amber)' }}>{fmt(Math.abs(totalStats.net))}</div>
-                        <div className="kpi-lbl">Net {totalStats.net >= 0 ? '(Lena Hai)' : '(Dena Hai)'}</div>
+                        <div className="kpi-lbl">Net {totalStats.net >= 0 ? (isHi ? '(Lena Hai)' : '(To Receive)') : (isHi ? '(Dena Hai)' : '(To Pay)')}</div>
                     </div>
                 </div>
 
@@ -1191,7 +1226,7 @@ export default function BusinessExpensesPage() {
                                         </div>
                                         <div className="cust-right">
                                             <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
-                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? 'Dena Hai' : 'Baki Hai'}</div>
+                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (isHi ? 'Dena Hai' : 'To Pay') : (isHi ? 'Baki Hai' : 'Pending')}</div>
                                         </div>
                                     </div>
                                 );
@@ -1287,8 +1322,8 @@ export default function BusinessExpensesPage() {
                             <div className="pending-status-box">
                                 <div className="psb-icon">⏳</div>
                                 <div className="psb-text">
-                                    <strong>₹{fmt(Math.abs(custStats.net))}</strong> abhi paka hai.
-                                    <span>Last payment {formatDateShort(currentCust.txns[0]?.date || '')} ko hui thi.</span>
+                                    <strong>₹{fmt(Math.abs(custStats.net))}</strong> {isHi ? 'abhi baki hai.' : 'is currently pending.'}
+                                    <span>{isHi ? 'Last payment' : 'Last payment was on'} {formatDateShort(currentCust.txns[0]?.date || '')} {isHi ? 'ko hui thi.' : '.'}</span>
                                 </div>
                             </div>
                         )}
@@ -1390,7 +1425,7 @@ export default function BusinessExpensesPage() {
                                                             <div>
                                                                 <div className="txn-balance-label">Balance</div>
                                                                 <div className={`txn-balance-val ${t.runningBal < 0 ? '' : 'positive'}`}>
-                                                                    ₹{fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? 'Dena Hai' : 'Baki Hai'}
+                                                                    ₹{fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? (isHi ? 'Dena Hai' : 'To Pay') : (isHi ? 'Baki Hai' : 'Pending')}
                                                                 </div>
                                                             </div>
                                                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>

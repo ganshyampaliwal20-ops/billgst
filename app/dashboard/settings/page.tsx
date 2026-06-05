@@ -58,11 +58,18 @@ export default function SettingsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Save to database via new function - merging local settings
-        await saveBusinessProfile({ ...formData, ...localSettings });
-
-        // Also update local store settings (though store already has them)
+        // Optimistic update so it feels instant
+        updateProfile(formData);
         updateSettings(localSettings);
+        
+        const savePromise = saveBusinessProfile({ ...formData, ...localSettings });
+        
+        // We use toast.promise for instant feedback without blocking UI
+        toast.promise(savePromise, {
+            loading: 'Saving your settings...',
+            success: 'Settings saved perfectly!',
+            error: 'Could not save settings'
+        });
     };
 
     const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,10 +89,10 @@ export default function SettingsPage() {
     if (!isClient) return null;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 px-4 md:px-8 pb-10">
-            <h1 className="text-2xl font-bold text-gray-800">Business Settings</h1>
+        <div className="w-full max-w-6xl mx-auto space-y-8 px-6 md:px-10 lg:px-12 pt-8 pb-10">
+            <h1 className="text-3xl font-black text-gray-800 tracking-tight">Business Settings</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Tax Settings (Non-GST Mode) */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
@@ -758,13 +765,13 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Save Button */}
-                <div className="flex justify-end">
+                <div className="flex justify-center w-full mt-10">
                     <button
                         type="submit"
-                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2"
+                        className="w-full md:w-3/4 py-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-black text-xl rounded-2xl shadow-2xl shadow-blue-500/40 hover:shadow-blue-500/60 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 tracking-wide"
                     >
-                        <FaSave />
-                        Save Settings
+                        <FaSave className="text-2xl" />
+                        SAVE ALL SETTINGS
                     </button>
                 </div>
             </form>

@@ -525,22 +525,13 @@ export default function CustomersPage() {
             <div className="shell_wrapper">
                 <div className="shell">
                     <div className="topbar">
-                        <div className="topbar-row1">
-
-                            <div className="topbar-title">
+                        <div className="topbar-row1" style={{ justifyContent: 'center', marginBottom: 0 }}>
+                            <div className="topbar-title" style={{ alignItems: 'center', textAlign: 'center' }}>
                                 <h1>{t.allCustomers}</h1>
                                 <p>{t.manageYourCustomers}</p>
                             </div>
-                            <div className="topbar-icons">
-                                <div className="icon-btn" onClick={() => toast('No new messages')}>💬<span className="badge">0</span></div>
-                                <div className="icon-btn" onClick={() => toast('No new notifications')}>🔔<span className="badge">0</span></div>
-                            </div>
                         </div>
-                        <div className="tabs">
-                            <div className={`tab ${activeTab === 'Parties' ? 'active' : ''}`} onClick={() => setActiveTab('Parties')}>{t.parties}</div>
-                            <div className={`tab ${activeTab === 'Groups' ? 'active' : ''}`} onClick={() => setActiveTab('Groups')}>{t.groups}</div>
-                            <div className={`tab ${activeTab === 'Reports' ? 'active' : ''}`} onClick={() => setActiveTab('Reports')}>{t.reports}</div>
-                        </div>                  </div>
+                    </div>
 
                     <div className="search-wrap">                      <div className="search-box">
                         <span style={{ fontSize: '15px', color: '#c0c8da' }}>🔍</span>

@@ -10,11 +10,12 @@ import * as XLSX from 'xlsx';
 import Chart from 'chart.js/auto';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { drawFreeBranding } from '../../../lib/pdf-generator';
 
 function ReportsContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { getAnalytics, fetchInvoices, invoices, customers, settings, fetchExpenses, expenses } = useStore() as any;
+    const { getAnalytics, fetchInvoices, invoices, customers, settings, fetchExpenses, expenses, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('This Month');
     const t = getTranslations(settings?.language || 'en');
@@ -255,7 +256,7 @@ function ReportsContent() {
         }
     };
 
-    const handlePDF = () => {
+    const handlePDF = async () => {
         try {
             if (!invoices || invoices.length === 0) {
                 toast.error(t.noDataToExport);
@@ -284,6 +285,18 @@ function ReportsContent() {
                 foot: [['', '', 'GRAND TOTAL', totalAmount.toFixed(2), '']],
                 startY: 28,
             });
+
+            const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            if (!isPremium) {
+                await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
+            } else {
+                const footerText = 'Generated securely via BillGST.in';
+                doc.setFontSize(10);
+                doc.setTextColor(150);
+                doc.text(footerText, 14, pageHeight - 10);
+            }
 
             doc.save(`Business_Report_${period}.pdf`);
             toast.success(t.pdfDownloaded + ' (Check Downloads folder)', { duration: 5000 });
@@ -380,33 +393,30 @@ function ReportsContent() {
 
 .topbar {
   background: linear-gradient(135deg, #0b0f1e 0%, #1c2340 60%, #2d3561 100%);
-  padding: 14px 20px;
+  padding: 18px 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   position: sticky; top: 0; z-index: 50;
   box-shadow: 0 4px 24px rgba(11,15,30,0.3);
+  perspective: 1000px;
+  animation: dropIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+@keyframes dropIn3D {
+  from { opacity: 0; transform: rotateX(-30deg) translateY(-40px); }
+  to { opacity: 1; transform: rotateX(0) translateY(0); }
 }
 @media(max-width: 768px) {
-  .topbar { flex-direction: column; align-items: flex-start; gap: 12px; padding: 12px 16px; }
-  .topbar-right { width: 100%; justify-content: space-between; overflow-x: auto; padding-bottom: 4px; }
-  .topbar-right::-webkit-scrollbar { display: none; }
+  .topbar { padding: 16px; gap: 14px; }
+  .topbar-right { justify-content: center; width: 100%; flex-wrap: wrap; }
 }
-.topbar-left { display: flex; align-items: center; gap: 14px; }
-.back-btn {
-  width: 38px; height: 38px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 18px; cursor: pointer; text-decoration: none;
-  transition: all 0.2s;
-}
-.back-btn:hover { background: rgba(255,255,255,0.16); }
-.topbar h1 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.4px; margin: 0; }
+.topbar-left { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.topbar h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.4px; margin: 0; }
 .topbar p  { font-size: 11.5px; color: rgba(255,255,255,0.45); font-weight: 400; margin-top: 1px; margin-bottom: 0;}
 
-.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-right { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .period-select {
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.15);
@@ -424,17 +434,18 @@ function ReportsContent() {
 
 .export-btn {
   display: flex; align-items: center; gap: 7px;
-  padding: 9px 18px;
+  padding: 9px 14px;
   border-radius: 10px;
   border: none;
   font-family: 'Sora', sans-serif;
-  font-size: 13px; font-weight: 700;
+  font-size: 13px; font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
 }
 .btn-tally { background: linear-gradient(135deg, #dc4a1a, #f97316); color: #fff; box-shadow: 0 4px 14px rgba(249,115,22,0.35); }
 .btn-excel { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
-.export-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.export-btn:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.15); box-shadow: 0 10px 20px rgba(0,0,0,0.25); }
 @media(max-width: 500px) {
   .export-btn { padding: 8px 12px; font-size: 11px; gap: 4px; }
   .period-select { padding: 8px 10px; font-size: 11px; }
@@ -473,9 +484,20 @@ function ReportsContent() {
   transition: all 0.2s; flex-shrink: 0;
 }
 .advisory-badge:hover { background: rgba(255,255,255,0.25); }
-.page-content-box { padding: 14px 16px 40px; }
+.page-content-box { 
+  padding: 24px 16px 40px; 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  animation: scaleIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; 
+  transform-origin: top center;
+  perspective: 1000px;
+}
+@keyframes scaleIn3D {
+  from { opacity: 0; transform: scale(0.9) rotateX(15deg) translateY(30px); }
+  to { opacity: 1; transform: scale(1) rotateX(0) translateY(0); }
+}
 @media(min-width: 769px) {
-  .page-content-box { padding: 20px 24px 40px; }
+  .page-content-box { padding: 28px 24px 40px; }
 }
 
 .kpi-grid {
@@ -705,7 +727,6 @@ function ReportsContent() {
                         </select>
                         <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml || 'Tally XML'}</button>
                         <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel || 'Excel'}</button>
-                        <button className="back-btn" onClick={() => router.push('/dashboard')} style={{width: '36px', height: '36px', flexShrink: 0, marginLeft: '4px'}}>✕</button>
                     </div>
                 </div>
 

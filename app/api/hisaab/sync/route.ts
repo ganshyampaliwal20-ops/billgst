@@ -66,16 +66,18 @@ export async function POST(request: Request) {
                 
                 const customerId = cust.id.toString();
                 const globalId = `${userId}_${customerId}`;
+                const shortId = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
                 
                 await client.query(`
-                    INSERT INTO hisaab_shares (id, user_id, data, updated_at)
-                    VALUES ($1, $2, $3, NOW())
+                    INSERT INTO hisaab_shares (id, user_id, data, updated_at, short_id)
+                    VALUES ($1, $2, $3, NOW(), $4)
                     ON CONFLICT (id) DO UPDATE 
-                    SET data = EXCLUDED.data, updated_at = NOW(), user_id = EXCLUDED.user_id
+                    SET data = EXCLUDED.data, updated_at = NOW(), user_id = EXCLUDED.user_id, short_id = COALESCE(hisaab_shares.short_id, EXCLUDED.short_id)
                 `, [
                     globalId,
                     userId,
-                    JSON.stringify(cust)
+                    JSON.stringify(cust),
+                    shortId
                 ]);
             }
             
