@@ -314,15 +314,20 @@ export default function SmartAddPage() {
         }));
     };
 
-    const handleApplyProfit = () => {
+    const updateGlobalProfitAndApply = (newProfit: number) => {
+        setGlobalProfit(newProfit);
         setParsedItems(prev => prev.map(item => {
-            const newItem = { ...item, markup: globalProfit };
+            const newItem = { ...item, markup: newProfit };
             const pur = Number(newItem.purchasePrice) || 0;
             const gst = Number(newItem.gstRate) || 0;
-            const baseSelling = pur * (1 + globalProfit / 100);
+            const baseSelling = pur * (1 + newProfit / 100);
             newItem.sellingPrice = Number((baseSelling * (1 + gst / 100)).toFixed(2));
             return newItem;
         }));
+    };
+
+    const handleApplyProfit = () => {
+        updateGlobalProfitAndApply(globalProfit);
         toast.success(`${globalProfit}% applied to all ${parsedItems.length} items!`);
     };
 
@@ -733,7 +738,7 @@ export default function SmartAddPage() {
                                         <button 
                                             key={pct}
                                             className={`preset-btn ${globalProfit === pct ? 'active' : ''}`}
-                                            onClick={() => setGlobalProfit(pct)}
+                                            onClick={() => updateGlobalProfitAndApply(pct)}
                                         >
                                             {pct}%
                                         </button>
@@ -742,16 +747,16 @@ export default function SmartAddPage() {
 
                                 {/* Slider */}
                                 <div className="slider-wrap">
-                                    <div className="slider-minus" onClick={() => setGlobalProfit(Math.max(0, globalProfit - 1))}>−</div>
+                                    <div className="slider-minus" onClick={() => updateGlobalProfitAndApply(Math.max(0, globalProfit - 1))}>−</div>
                                     <input 
                                         type="range" 
                                         className="profit-slider" 
                                         min="0" max="100" 
                                         value={globalProfit} 
-                                        onChange={(e) => setGlobalProfit(Number(e.target.value))}
+                                        onChange={(e) => updateGlobalProfitAndApply(Number(e.target.value))}
                                         style={{ background: `linear-gradient(90deg, #f59e0b ${globalProfit}%, rgba(255,255,255,0.1) ${globalProfit}%)` }}
                                     />
-                                    <div className="slider-plus" onClick={() => setGlobalProfit(Math.min(100, globalProfit + 1))}>+</div>
+                                    <div className="slider-plus" onClick={() => updateGlobalProfitAndApply(Math.min(100, globalProfit + 1))}>+</div>
                                 </div>
 
                                 <button className="apply-btn" onClick={handleApplyProfit}>
