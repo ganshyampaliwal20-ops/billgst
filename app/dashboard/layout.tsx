@@ -266,6 +266,7 @@ export default function DashboardLayout({
                                                         <Link
                                                             key={sub.href}
                                                             href={sub.href}
+                                                            prefetch={true}
                                                             onClick={() => setIsSidebarOpen(false)}
                                                             className={`
                                                                 flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold transition-all border-2
@@ -285,6 +286,7 @@ export default function DashboardLayout({
                                     <Link
                                         key={item.label}
                                         href={item.href}
+                                        prefetch={true}
                                         onClick={(e) => {
                                             if (item.onClick) {
                                                 e.preventDefault();
@@ -332,6 +334,7 @@ export default function DashboardLayout({
                                 <Link
                                     key={item.href}
                                     href={item.href}
+                                    prefetch={true}
                                     onClick={() => setIsSidebarOpen(false)}
                                     className={`
                                         flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
@@ -359,6 +362,7 @@ export default function DashboardLayout({
                         {/* Settings Button */}
                         <Link
                             href="/dashboard/settings"
+                            prefetch={true}
                             onClick={() => setIsSidebarOpen(false)}
                             className={`
                                 flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
