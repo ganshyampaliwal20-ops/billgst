@@ -828,7 +828,7 @@ export default function SmartAttendance() {
                                             </div>
                                         )}
                                         {isOwnerOrAccountant && (
-                                            <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Worker' }); setIsEditingStaff(false); setSheet('detail'); }}>
+                                            <div className="salary-row" onClick={() => { setSelectedStaff(member); setEditStaffData({ daily_wage: member.daily_wage || 0, advance: member.advance || 0, role: member.role || 'Worker', salary_type: member.salary_type || 'daily', monthly_salary: member.monthly_salary || 0 }); setIsEditingStaff(false); setSheet('detail'); }}>
                                                 <div className="sal-info">
                                                     <div>
                                                         <div className="sal-label">Rate / Details</div>

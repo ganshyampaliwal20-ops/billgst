@@ -247,14 +247,14 @@ export default function DashboardLayout({
                                                     bg-blue-600 text-white font-bold border-blue-700 shadow-lg
                                                 `}
                                             >
-                                                <div className={`
+                                                <div className={`p-3 pl-2 pr-2
                                                     p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                                     ${isActive
                                                         ? 'bg-white/20 text-white'
                                                         : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                                     }
                                                 `}>
-                                                    <Icon className={`text-base transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                                    <Icon className={`text-base ml-2 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
                                                 </div>
                                                 <span className="text-xs tracking-wide flex-1 relative z-10 truncate pl-2">{item.label}</span>
                                                 {isInvoiceOpen ? <FaChevronUp className="text-[10px]" /> : <FaChevronDown className="text-[10px]" />}
@@ -305,13 +305,13 @@ export default function DashboardLayout({
                                         `}
                                     >
                                         <div className={`
-                                            p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
+                                            p-3 pl-2 pr-2 rounded-lg transition-all duration-300 relative z-10 shrink-0
                                             ${isActive
                                                 ? 'bg-white/20 text-white'
                                                 : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
                                             }
                                         `}>
-                                            <Icon className={`text-base transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                            <Icon className={`text-base ml-2 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
                                         </div>
                                         <span className="text-xs tracking-wide flex-1 relative z-10 truncate pl-2">{item.label}</span>
 
