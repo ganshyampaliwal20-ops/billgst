@@ -32,6 +32,7 @@ export async function GET(request: Request) {
                 await client.query(`
                     ALTER TABLE products 
                     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
+                    ADD COLUMN IF NOT EXISTS barcode VARCHAR(255),
                     ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE';
                 `);
                 const result = await client.query(`
@@ -83,8 +84,8 @@ export async function POST(request: Request) {
         try {
             const productType = data.type || 'PRODUCT';
             const result = await client.query(
-                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()) 
+                `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, barcode, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW()) 
            RETURNING *`,
                 [
                     data.id, 
@@ -100,7 +101,8 @@ export async function POST(request: Request) {
                     productType, 
                     data.image_url ?? null, 
                     data.expiry_date ?? null, 
-                    data.expiry_alert_days ?? 10
+                    data.expiry_alert_days ?? 10,
+                    data.barcode ?? null
                 ]
             );
             client.release();
@@ -117,13 +119,14 @@ export async function POST(request: Request) {
                     ADD COLUMN IF NOT EXISTS image_url TEXT,
                     ADD COLUMN IF NOT EXISTS expiry_date DATE,
                     ADD COLUMN IF NOT EXISTS expiry_alert_days INTEGER DEFAULT 10,
+                    ADD COLUMN IF NOT EXISTS barcode VARCHAR(255),
                     ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE';
                 `);
                 // Retry
                 const productType = data.type || 'PRODUCT';
                 const result = await client.query(
-                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, created_at) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW()) 
+                    `INSERT INTO products (id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, created_by, type, image_url, expiry_date, expiry_alert_days, barcode, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW()) 
                RETURNING *`,
                     [
                         data.id, 
@@ -139,7 +142,8 @@ export async function POST(request: Request) {
                         productType, 
                         data.image_url ?? null, 
                         data.expiry_date ?? null, 
-                        data.expiry_alert_days ?? 10
+                        data.expiry_alert_days ?? 10,
+                        data.barcode ?? null
                     ]
                 );
                 client.release();
@@ -162,7 +166,7 @@ export async function PUT(request: Request) {
 
     try {
         const data = await request.json();
-        const { id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, image_url } = data;
+        const { id, name, description, hsn_code, unit, price, purchase_price, gst_rate, stock_quantity, image_url, barcode } = data;
 
         if (!id) {
             return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
@@ -183,10 +187,10 @@ export async function PUT(request: Request) {
 
         const result = await client.query(
             `UPDATE products 
-             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, image_url = $10, expiry_date = $11, expiry_alert_days = $12, updated_at = NOW()
-             WHERE id = $13 AND created_by = $14
+             SET name = $1, description = $2, hsn_code = $3, unit = $4, price = $5, purchase_price = $6, gst_rate = $7, stock_quantity = $8, type = $9, image_url = $10, expiry_date = $11, expiry_alert_days = $12, barcode = $13, updated_at = NOW()
+             WHERE id = $14 AND created_by = $15
              RETURNING *`,
-            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', image_url, data.expiry_date || null, data.expiry_alert_days || 10, id, userId]
+            [name, description, hsn_code, unit, price, purchase_price || 0, gst_rate, stock_quantity, data.type || 'PRODUCT', image_url, data.expiry_date || null, data.expiry_alert_days || 10, barcode || null, id, userId]
         );
         client.release();
 

@@ -3,11 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
-import {
-    FaPlus, FaTrash, FaSave, FaArrowLeft, FaMicrophone, FaMagic,
-    FaRobot, FaCheck, FaTimes, FaCamera, FaUserPlus, FaFileInvoice,
-    FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaChevronLeft, FaEye
-} from 'react-icons/fa';
+import { FaPlus, FaTrash, FaCheck, FaTimes, FaFileInvoice, FaUserPlus, FaBox, FaSearch, FaEllipsisV, FaCogs, FaTruck, FaReceipt, FaMicrophone, FaQrcode } from "react-icons/fa";
+import { Html5QrcodeScanner } from "html5-qrcode";
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { translations } from '@/lib/translations';
@@ -82,12 +79,12 @@ export default function NewInvoicePage() {
 
     // UI States
     const [isListening, setIsListening] = useState(false);
+    // Modal states
     const [showQuickAdd, setShowQuickAdd] = useState(false);
-    const [quickSearch, setQuickSearch] = useState('');
-    const [quickQty, setQuickQty] = useState(1);
-    const [isScanning, setIsScanning] = useState(false);
-    const [scanProgress, setScanProgress] = useState(0);
     const [showCustomerModal, setShowCustomerModal] = useState(false);
+    const [showCameraScanner, setShowCameraScanner] = useState(false);
+    const [scannerInput, setScannerInput] = useState("");
+    const scannerInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDuplicating, setIsDuplicating] = useState(false);
     const [activeStep, setActiveStep] = useState(2); // Default to Items step as per design
@@ -213,6 +210,72 @@ export default function NewInvoicePage() {
             }
         }
     }, [isClient, isDuplicating, quotations]);
+
+    // ================= SCANNER LOGIC =================
+
+    // For Camera Scanner
+    useEffect(() => {
+        let scanner: Html5QrcodeScanner | null = null;
+        if (showCameraScanner) {
+            scanner = new Html5QrcodeScanner("reader-invoice", { fps: 10, qrbox: 250 }, false);
+            scanner.render((decodedText) => {
+                scanner?.clear();
+                setShowCameraScanner(false);
+                processBarcode(decodedText);
+            }, (error) => {
+                // Ignore errors
+            });
+        }
+        return () => {
+            if (scanner) {
+                scanner.clear().catch(e => console.error(e));
+            }
+        };
+    }, [showCameraScanner]);
+
+    // For USB / Keyboard Scanner
+    const handleScannerInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const code = scannerInput.trim();
+            if (code) {
+                processBarcode(code);
+                setScannerInput("");
+            }
+        }
+    };
+
+    const processBarcode = (code: string) => {
+        if (!safeProducts) return;
+        const prod = safeProducts.find((p: any) => p.barcode === code || p.hsn_code === code);
+        if (prod) {
+            // Check if already in bill
+            const existingIdx = selectedItems.findIndex(it => it.product_id === prod.id);
+            if (existingIdx >= 0) {
+                const currentQty = Number(selectedItems[existingIdx].quantity) || 0;
+                updateItem(existingIdx, 'quantity', currentQty + 1);
+                toast.success(`Quantity updated: ${prod.name}`);
+            } else {
+                setSelectedItems([...selectedItems, {
+                    product_id: prod.id,
+                    product_name: prod.name,
+                    quantity: 1,
+                    unit_price: parseFloat(prod.price) || 0,
+                    gst_rate: parseFloat(prod.gst_rate) || 0,
+                    unit: prod.unit || 'PCS'
+                }]);
+                toast.success(`Added: ${prod.name}`);
+            }
+        } else {
+            toast.error(`No product found for barcode: ${code}`);
+        }
+        // Refocus scanner input if it exists
+        if (scannerInputRef.current) {
+            scannerInputRef.current.focus();
+        }
+    };
+
+    // ================= DATA FETCHING =================
 
     // Totals Calculation
     const calculateTotals = () => {
@@ -1065,10 +1128,44 @@ export default function NewInvoicePage() {
 
                     {/* Items Section */}
                     <div className="card">
-                        <div className="flex justify-between items-center mb-6">
+                        <div className="flex justify-between items-center mb-4">
                             <div className="c-title" style={{ marginBottom: 0 }}><div className="c-icon" style={{ background: '#ecfdf5', color: '#10b981' }}><FaBox /></div> Invoice Items</div>
                             <div className="text-[12px] font-black text-slate-400 uppercase tracking-widest">{selectedItems.length} Products</div>
                         </div>
+
+                        {/* Scanner Bar */}
+                        <div className="bg-slate-50 border-2 border-indigo-100 rounded-xl p-3 mb-6 flex flex-col md:flex-row gap-3 items-center">
+                            <div className="flex-1 w-full relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
+                                    <FaQrcode />
+                                </div>
+                                <input
+                                    ref={scannerInputRef}
+                                    type="text"
+                                    className="fi pl-10 border-indigo-200 focus:border-indigo-500 bg-white"
+                                    placeholder="Click here and scan barcode with USB Scanner..."
+                                    value={scannerInput}
+                                    onChange={e => setScannerInput(e.target.value)}
+                                    onKeyDown={handleScannerInput}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowCameraScanner(true)}
+                                className="flex-shrink-0 bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition w-full md:w-auto justify-center shadow-md"
+                            >
+                                <FaQrcode /> Mobile Camera
+                            </button>
+                        </div>
+
+                        {showCameraScanner && (
+                            <div className="mb-6 p-4 bg-white border-2 border-indigo-500 rounded-xl relative shadow-lg">
+                                <button type="button" onClick={() => setShowCameraScanner(false)} className="absolute top-2 right-2 bg-rose-100 text-rose-500 p-2 rounded-lg z-10 font-bold hover:bg-rose-200">
+                                    Close
+                                </button>
+                                <div id="reader-invoice" style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}></div>
+                            </div>
+                        )}
 
                         <div className="space-y-4">
                             {selectedItems.map((item, idx) => (

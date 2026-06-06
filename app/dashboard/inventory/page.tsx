@@ -54,6 +54,7 @@ export default function InventoryPage() {
         image_url: "",
         expiry_date: "",
         expiry_alert_days: "10",
+        barcode: "",
     });
 
     useEffect(() => {
@@ -205,6 +206,7 @@ export default function InventoryPage() {
             image_url: p.image_url || "",
             expiry_date: p.expiry_date ? new Date(p.expiry_date).toISOString().split('T')[0] : "",
             expiry_alert_days: p.expiry_alert_days || "10",
+            barcode: p.barcode || "",
         });
         setEditingId(p.id);
         const commonRates = ["0", "5", "12", "18", "28"];
@@ -267,6 +269,7 @@ export default function InventoryPage() {
             image_url: "",
             expiry_date: "",
             expiry_alert_days: "10",
+            barcode: "",
         });
         setEditingId(null);
         setShowCustomGst(false);
@@ -352,14 +355,14 @@ export default function InventoryPage() {
     };
 
     const handleScannedCode = (code: string) => {
-        const existing = products.find((p: any) => p.hsn_code === code);
+        const existing = products.find((p: any) => p.barcode === code || p.hsn_code === code);
         if (existing) {
             toast.success(`Found: ${existing.name}`);
             handleEdit(existing);
         } else {
             toast(`New Item Scanned: ${code}`, { icon: '✨' });
             openAddModal();
-            setFormData(prev => ({ ...prev, hsn_code: code }));
+            setFormData(prev => ({ ...prev, barcode: code }));
         }
     };
 
@@ -1015,8 +1018,26 @@ export default function InventoryPage() {
                                     <input className="field-input" type="text" placeholder="e.g. iPhone 15" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                                 </div>
                                 <div>
+                                    <label className="field-label">Barcode (Scan/Type)</label>
+                                    <div style={{ display: "flex", gap: "5px" }}>
+                                        <input className="field-input" type="text" placeholder="Scan barcode..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="field-row">
+                                <div>
                                     <label className="field-label">HSN Code</label>
                                     <input className="field-input" type="text" placeholder="e.g. 8517" value={formData.hsn_code} onChange={e => setFormData({ ...formData, hsn_code: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="field-label">Unit</label>
+                                    <select className="field-input" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })}>
+                                        <option value="PCS">PCS</option>
+                                        <option value="KG">KG</option>
+                                        <option value="LTR">LTR</option>
+                                        <option value="BOX">BOX</option>
+                                        <option value="MTR">MTR</option>
+                                    </select>
                                 </div>
                             </div>
 
