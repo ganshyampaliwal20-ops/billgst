@@ -13,11 +13,24 @@ import autoTable from 'jspdf-autotable';
 import { drawFreeBranding } from '../../../lib/pdf-generator';
 
 function ReportsContent() {
+    const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
+    const [chartView, setChartView] = useState<'revenue'|'profit'|'monthly'|null>(null);
+    const revenueRef = useRef<HTMLDivElement>(null);
+    const profitRef = useRef<HTMLDivElement>(null);
+    const monthlyRef = useRef<HTMLDivElement>(null);
+    const scrollToChart = (ref: React.RefObject<HTMLDivElement>) => {
+        if (ref.current) {
+            ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+    const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
     const { getAnalytics, fetchInvoices, invoices, customers, settings, fetchExpenses, expenses, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('This Month');
+    const [customStart, setCustomStart] = useState('');
+    const [customEnd, setCustomEnd] = useState('');
     const t = getTranslations(settings?.language || 'en');
 
     const revenueChartRef = useRef<HTMLCanvasElement>(null);
@@ -41,6 +54,11 @@ function ReportsContent() {
         (invoices || []).forEach((inv: any) => {
             if (!inv.invoice_date) return;
             const d = new Date(inv.invoice_date);
+            if (period === 'Custom' && customStart && customEnd) {
+                const start = new Date(customStart);
+                const end = new Date(customEnd);
+                if (d < start || d > end) return;
+            }
             const diffWeeks = Math.floor((today.getTime() - d.getTime()) / MS_PER_WEEK);
             if (diffWeeks >= 0 && diffWeeks < 4 && inv.status !== 'CANCELLED') {
                 weeklySales[3 - diffWeeks] += parseFloat(inv.total_amount) || 0;
@@ -50,6 +68,11 @@ function ReportsContent() {
         (expenses || []).forEach((exp: any) => {
             if (!exp.expense_date) return;
             const d = new Date(exp.expense_date);
+            if (period === 'Custom' && customStart && customEnd) {
+                const start = new Date(customStart);
+                const end = new Date(customEnd);
+                if (d < start || d > end) return;
+            }
             const diffWeeks = Math.floor((today.getTime() - d.getTime()) / MS_PER_WEEK);
             if (diffWeeks >= 0 && diffWeeks < 4) {
                 weeklyExpenses[3 - diffWeeks] += parseFloat(exp.amount) || 0;
@@ -65,6 +88,11 @@ function ReportsContent() {
         (invoices || []).forEach((inv: any) => {
             if (!inv.invoice_date) return;
             const d = new Date(inv.invoice_date);
+            if (period === 'Custom' && customStart && customEnd) {
+                const start = new Date(customStart);
+                const end = new Date(customEnd);
+                if (d < start || d > end) return;
+            }
             if (d.getFullYear() === currentYear && inv.status !== 'CANCELLED') {
                 monthlySales[d.getMonth()] += parseFloat(inv.total_amount) || 0;
             }
@@ -73,6 +101,11 @@ function ReportsContent() {
         (expenses || []).forEach((exp: any) => {
             if (!exp.expense_date) return;
             const d = new Date(exp.expense_date);
+            if (period === 'Custom' && customStart && customEnd) {
+                const start = new Date(customStart);
+                const end = new Date(customEnd);
+                if (d < start || d > end) return;
+            }
             if (d.getFullYear() === currentYear) {
                 monthlyExpenses[d.getMonth()] += parseFloat(exp.amount) || 0;
             }
@@ -177,7 +210,7 @@ function ReportsContent() {
             if (profitChart) profitChart.destroy();
             if (monthlyChart) monthlyChart.destroy();
         }
-    }, [isClient, invoices, expenses]);
+    }, [isClient, invoices, expenses, period, customStart, customEnd]);
 
     if (!isClient) return null;
 
@@ -185,6 +218,7 @@ function ReportsContent() {
     if (period === 'This Month') mappedPeriod = 'monthly';
     else if (period === 'This Year') mappedPeriod = 'yearly';
     else if (period === 'This Quarter') mappedPeriod = 'monthly';
+    else if (period === 'Custom') mappedPeriod = 'custom';
 
     let { totalSales, totalProfit, invoiceCount } = getAnalytics(mappedPeriod, null);
 
@@ -725,6 +759,15 @@ function ReportsContent() {
                             <option>{t.periodThisYear || 'This Year'}</option>
                             <option>{t.periodCustomRange || 'Custom Range'}</option>
                         </select>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} className="period-select" style={{ padding: '6px 8px', fontSize: '12px' }} />
+                            <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} className="period-select" style={{ padding: '6px 8px', fontSize: '12px' }} />
+                            <button className="export-btn btn-excel" onClick={() => { if (customStart && customEnd) { setPeriod('Custom'); toast(`${t.periodCustomRange || 'Custom Range'}: ${customStart} → ${customEnd}`); } else { toast('Select start and end dates'); } }} style={{ padding: '6px 10px', fontSize: '12px' }}>Apply</button>
+                        </div>
+                        {/* New navigation buttons */}
+                        <button className="export-btn" style={{ marginLeft: '4px' }} onClick={() => { scrollToChart(revenueRef); setChartView('revenue'); }}>Revenue Trend</button>
+                        <button className="export-btn" style={{ marginLeft: '4px' }} onClick={() => { scrollToChart(profitRef); setChartView('profit'); }}>Profit vs Sales</button>
+                        <button className="export-btn" style={{ marginLeft: '4px' }} onClick={() => { scrollToChart(monthlyRef); setChartView('monthly'); }}>Monthly Sale Overview</button>
                         <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml || 'Tally XML'}</button>
                         <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel || 'Excel'}</button>
                     </div>
@@ -742,9 +785,8 @@ function ReportsContent() {
                 </div>
 
                 <div className="page-content-box" style={{ paddingBottom: '80px' }}>
-
                     <div className="kpi-grid">
-                        <div className="kpi-card indigo">
+                        <div className="kpi-card indigo" onClick={() => setSelectedKpi('totalRevenue') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon indigo">💰</div>
                                 <div className="kpi-trend up">↑ 12.4%</div>
@@ -752,7 +794,7 @@ function ReportsContent() {
                             <div className="kpi-value">{formatLakhs(totalSales)}</div>
                             <div className="kpi-label">{t.totalRevenue}</div>
                         </div>
-                        <div className="kpi-card green" style={{ animationDelay: ".1s" }}>
+                        <div className="kpi-card green" style={{ animationDelay: ".1s" }} onClick={() => setSelectedKpi('netProfit') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon green">📈</div>
                                 <div className="kpi-trend up">↑ 8.1%</div>
@@ -760,7 +802,7 @@ function ReportsContent() {
                             <div className="kpi-value">{formatLakhs(totalProfit)}</div>
                             <div className="kpi-label">{t.netProfit}</div>
                         </div>
-                        <div className="kpi-card teal" style={{ animationDelay: ".15s" }}>
+                        <div className="kpi-card teal" style={{ animationDelay: ".15s" }} onClick={() => setSelectedKpi('totalInvoices') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon teal">🧾</div>
                                 <div className="kpi-trend down">↓ 3.2%</div>
@@ -768,7 +810,7 @@ function ReportsContent() {
                             <div className="kpi-value">{invoiceCount}</div>
                             <div className="kpi-label">{t.totalInvoices}</div>
                         </div>
-                        <div className="kpi-card amber" style={{ animationDelay: ".2s" }}>
+                        <div className="kpi-card amber" style={{ animationDelay: ".2s" }} onClick={() => setSelectedKpi('avgOrderValue') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon amber">🛒</div>
                                 <div className="kpi-trend up">↑ 5.6%</div>
@@ -776,8 +818,7 @@ function ReportsContent() {
                             <div className="kpi-value">{formatLakhs(avgOrderValue)}</div>
                             <div className="kpi-label">{t.avgOrderValue}</div>
                         </div>
-
-                        <div className="kpi-card red" style={{ animationDelay: ".25s" }}>
+                        <div className="kpi-card red" style={{ animationDelay: ".25s" }} onClick={() => setSelectedKpi('paymentPending') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon red">⚠️</div>
                                 <div className="kpi-trend down">↓ 2.1%</div>
@@ -785,7 +826,7 @@ function ReportsContent() {
                             <div className="kpi-value">{formatLakhs(paymentPending)}</div>
                             <div className="kpi-label">{t.paymentPending}</div>
                         </div>
-                        <div className="kpi-card purple" style={{ animationDelay: ".3s" }}>
+                        <div className="kpi-card purple" style={{ animationDelay: ".3s" }} onClick={() => setSelectedKpi('activeCustomers') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon purple">👥</div>
                                 <div className="kpi-trend up">↑ 18%</div>
@@ -793,11 +834,38 @@ function ReportsContent() {
                             <div className="kpi-value">{activeCustomers}</div>
                             <div className="kpi-label">{t.activeCustomers}</div>
                         </div>
-                        <div className="kpi-card teal" style={{ animationDelay: ".35s" }}>
+                        <div className="kpi-card teal" style={{ animationDelay: ".35s" }} onClick={() => setSelectedKpi('totalSale') }>
                             <div className="kpi-top">
                                 <div className="kpi-icon teal">💸</div>
                                 <div className="kpi-trend up">↑ 4.3%</div>
                             </div>
+                            <div className="kpi-value">{formatLakhs(totalSales)}</div>
+                            <div className="kpi-label">Total Sale</div>
+                        </div>
+                        <div className="kpi-card amber" style={{ animationDelay: ".4s" }} onClick={() => setSelectedKpi('itemsSold') }>
+                            <div className="kpi-top">
+                                <div className="kpi-icon amber">📦</div>
+                                <div className="kpi-trend up">↑ 6.7%</div>
+                            </div>
+                            <div className="kpi-value">{itemsSold}</div>
+                            <div className="kpi-label">Items Sold</div>
+                        </div>
+                    </div>
+                    {selectedKpi && (
+                        <div className="kpi-detail" style={{ marginTop: '24px', padding: '16px', background: 'var(--faint)', borderRadius: '12px', boxShadow: 'var(--shadow)' }}>
+                            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>Details</h3>
+                            <p style={{ fontSize: '14px' }}><strong>{selectedKpi}</strong>: {
+                                selectedKpi === 'totalRevenue' && formatLakhs(totalSales)
+                                || selectedKpi === 'netProfit' && formatLakhs(totalProfit)
+                                || selectedKpi === 'totalInvoices' && invoiceCount
+                                || selectedKpi === 'avgOrderValue' && formatLakhs(avgOrderValue)
+                                || selectedKpi === 'paymentPending' && formatLakhs(paymentPending)
+                                || selectedKpi === 'activeCustomers' && activeCustomers
+                                || selectedKpi === 'totalSale' && formatLakhs(totalSales)
+                                || selectedKpi === 'itemsSold' && itemsSold
+                            }</p>
+                        </div>
+                    )}
                             <div className="kpi-value">{formatLakhs(totalSales)}</div>
                             <div className="kpi-label">{t.totalSales}</div>
                         </div>
@@ -812,7 +880,7 @@ function ReportsContent() {
                     </div>
 
                     <div className="charts-grid">
-                        <div className="chart-card" style={{ animationDelay: ".2s" }}>
+                        <div className="chart-card" ref={revenueChartRef} id="revenue-chart" style={{ animationDelay: ".2s" }}>
                             <div className="chart-header">
                                 <div>
                                     <div className="chart-title">{t.revenueTrend || 'Revenue Trend'}</div>
