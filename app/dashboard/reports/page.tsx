@@ -866,18 +866,7 @@ function ReportsContent() {
                             }</p>
                         </div>
                     )}
-                            <div className="kpi-value">{formatLakhs(totalSales)}</div>
-                            <div className="kpi-label">{t.totalSales}</div>
-                        </div>
-                        <div className="kpi-card green" style={{ animationDelay: ".4s" }}>
-                            <div className="kpi-top">
-                                <div className="kpi-icon green">📦</div>
-                                <div className="kpi-trend up">↑ 9.7%</div>
-                            </div>
-                            <div className="kpi-value">{itemsSold}</div>
-                            <div className="kpi-label">{t.itemsSold}</div>
-                        </div>
-                    </div>
+                    
 
                     <div className="charts-grid">
                         <div className="chart-card" ref={revenueChartRef} id="revenue-chart" style={{ animationDelay: ".2s" }}>
