@@ -223,6 +223,10 @@ function ReportsContent() {
     const activeCustomers = customers?.filter((c:any)=> c.isActive).length||0;
     const totalSales = totalRevenue;
     const itemsSold = invoices?.reduce((a:any,i:any)=> a+ (i.items?.length||0),0)||0;
+const totalTaxable = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.subtotal||0),0)||0;
+const totalCGST = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.cgst_amount||0),0)||0;
+const totalSGST = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.sgst_amount||0),0)||0;
+const totalIGST = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.igst_amount||0),0)||0;
 
     const formatLakhs = (num:number)=>{
         if(num>=100000) return (num/100000).toFixed(2)+' L';
