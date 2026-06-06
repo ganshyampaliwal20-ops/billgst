@@ -23,7 +23,7 @@ function ReportsContent() {
             ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     };
-    const [selectedKpi, setSelectedKpi] = useState<string | null>(null);
+
     const searchParams = useSearchParams();
     const router = useRouter();
     const { getAnalytics, fetchInvoices, invoices, customers, settings, fetchExpenses, expenses, businessProfile } = useStore() as any;
@@ -1006,11 +1006,11 @@ function ReportsContent() {
                                 <div className="compliance-bar"><div className="compliance-fill" /></div>
                             </div>
                         </div>
-                    </div>
 
-                </div>
-            </div>
-        </>
+
+
+
+
     );
 }
 
