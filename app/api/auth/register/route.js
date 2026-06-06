@@ -87,7 +87,7 @@ export async function POST(request) {
     } catch (error) {
         console.error('Registration error details:', error);
         return NextResponse.json(
-            { error: 'Internal server error: ' + error.message, stack: error.stack },
+            { error: 'Internal server error: ' + error.message },
             { status: 500 }
         );
     }

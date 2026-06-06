@@ -76,6 +76,7 @@ export default function NewQuotationPage() {
     const totalAmount = subtotal + taxTotal - discountAmt;
 
     const handleSave = async (convertToBill = false) => {
+        if (loading) return;
         if (!customer) { toast.error('Enter name!'); return; }
         setLoading(true);
         try {

@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
 export const maxDuration = 30; // Max duration for Vercel
 
 export async function POST(req: Request) {
     try {
+        const session: any = await getServerSession(authOptions as any);
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
             return NextResponse.json({ error: 'GEMINI_API_KEY missing' }, { status: 401 });

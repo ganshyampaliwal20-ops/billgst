@@ -47,9 +47,9 @@ export async function GET(request: Request) {
                 JOIN customers c ON i.customer_id = c.id
                 WHERE i.created_by = $1 
                 AND i.status IN ('UNPAID', 'PARTIAL', 'Pending')
-                AND i.invoice_date <= CURRENT_DATE - INTERVAL '${frequency} days'
+                AND i.invoice_date <= CURRENT_DATE - (INTERVAL '1 day' * $2)
                 ORDER BY i.invoice_date ASC
-            `, [user.id]);
+            `, [user.id, parseInt(frequency as any) || 3]);
 
             for (const inv of invoicesResult.rows) {
                 const pendingAmount = parseFloat(inv.total_amount) - parseFloat(inv.paid_amount);

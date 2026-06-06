@@ -20,11 +20,19 @@ export default function NewExpensePage() {
     const categories = ['Office Supplies', 'Travel', 'Utilities', 'Marketing', 'Salary', 'Rent', 'Other'];
     const paymentMethods = ['Cash', 'Card', 'UPI', 'Bank Transfer', 'Cheque'];
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const result = await addExpense(formData);
-        if (result.success) {
-            router.push('/dashboard/expenses');
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+        try {
+            const result = await addExpense(formData);
+            if (result.success) {
+                router.push('/dashboard/expenses');
+            }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -140,9 +148,15 @@ export default function NewExpensePage() {
                     </Link>
                     <button
                         type="submit"
-                        className="px-6 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                        disabled={isSubmitting}
+                        className="px-6 py-3 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <FaSave /> Save Expense
+                        {isSubmitting ? (
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            <FaSave />
+                        )}
+                        {isSubmitting ? 'Saving...' : 'Save Expense'}
                     </button>
                 </div>
             </form>

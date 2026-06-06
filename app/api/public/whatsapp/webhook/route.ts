@@ -11,8 +11,8 @@ export async function POST(request: Request) {
         const msg = message.toLowerCase();
 
         // 1. Security Check: Validate Bot Token
-        const expectedToken = `WHATSAPP_AI_${businessId.substring(0, 8).toUpperCase()}`;
-        if (token !== expectedToken) {
+        const cronSecret = process.env.WHATSAPP_CRON_SECRET || process.env.NEXTAUTH_SECRET;
+        if (!token || token !== cronSecret) {
             return NextResponse.json({ error: "Unauthorized: Invalid Bot Token" }, { status: 401 });
         }
 

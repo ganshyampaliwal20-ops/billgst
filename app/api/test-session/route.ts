@@ -3,14 +3,14 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
-    const session = await getServerSession(authOptions);
+    const session: any = await getServerSession(authOptions as any);
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     return NextResponse.json({
-        status: 'check',
-        session_exists: !!session,
-        user: session?.user || null,
-        message: session ? "Session is working on server!" : "No session found (Unauthorized)",
-        env_secret_set: !!process.env.NEXTAUTH_SECRET,
-        cookies: request.headers.get('cookie') || 'none'
+        status: 'ok',
+        message: 'Session is active',
+        user_id: session.user.id
     });
 }

@@ -127,14 +127,13 @@ export default function NewInvoicePage() {
     const safeCustomers = (Array.isArray(customers) ? customers : []).filter((c: any) => c?.id && c?.name);
     const safeProducts = (Array.isArray(products) ? products : []).filter((p: any) => p?.id && p?.name && p?.status !== 'INACTIVE');
 
+    // Mount effect for initialization
     useEffect(() => {
         setIsClient(true);
         if (fetchProducts) fetchProducts();
         if (fetchCustomers) fetchCustomers();
         if (fetchInvoices) fetchInvoices();
         
-        if (businessProfile?.pdf_size) setSelectedPdfSize(businessProfile.pdf_size);
-
         const today = new Date().toISOString().split('T')[0];
         setInvoiceDate(today);
         setInvoiceNumber(`INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`);
@@ -142,23 +141,37 @@ export default function NewInvoicePage() {
         const due = new Date();
         due.setDate(due.getDate() + 30);
         setDueDate(due.toISOString().split('T')[0]);
+        
+        // Add 1 empty row if none
+        if (selectedItems.length === 0) addItem();
+    }, []); // Run only once on mount
 
-        // Parameters handling
+    // Settings effect
+    useEffect(() => {
+        if (businessProfile?.pdf_size) setSelectedPdfSize(businessProfile.pdf_size);
+        if (businessProfile?.terms_and_conditions && !notes) {
+            setNotes(businessProfile.terms_and_conditions);
+        }
+    }, [businessProfile?.pdf_size, businessProfile?.terms_and_conditions]);
+
+    // Query param handling (duplicate / quotation)
+    useEffect(() => {
+        if (!isClient) return;
         const params = new URLSearchParams(window.location.search);
         const duplicateId = params.get('duplicateId');
         const quotationId = params.get('quotationId');
         const typeParam = params.get('type');
 
-        if (typeParam && Object.values(DOC_TYPES).includes(typeParam)) {
+        if (typeParam && Object.values(DOC_TYPES).includes(typeParam as any)) {
             setDocType(typeParam);
         }
 
         if (duplicateId && !isDuplicating) {
-            const invoices = useStore.getState().invoices || [];
-            const sourceInvoice = invoices.find((inv: any) => inv.id === duplicateId);
+            const storeInvoices = useStore.getState().invoices || [];
+            const sourceInvoice = storeInvoices.find((inv: any) => inv.id === duplicateId);
             if (sourceInvoice) {
                 setIsDuplicating(true);
-                setCustomerId(sourceInvoice.customer_id || '');
+                setCustomerId(sourceInvoice.customer_id || sourceInvoice.customer?.id || '');
                 setPaidAmount(sourceInvoice.paid_amount?.toString() || '');
                 setNotes(sourceInvoice.notes || '');
                 setSelectedItems((sourceInvoice.items || []).map((item: any) => ({
@@ -174,34 +187,32 @@ export default function NewInvoicePage() {
                 toast.success('Pre-filled from previous bill');
             }
         } else if (quotationId && !isDuplicating) {
-            if (quotations.length === 0) fetchQuotations();
-            const sourceQuotation = quotations.find((q: any) => q.id === quotationId);
-            if (sourceQuotation) {
-                setIsDuplicating(true);
-                setCustomerId(sourceQuotation.customer_id || '');
-                setNewCustName(sourceQuotation.customer_name || '');
-                setNewCustPhone(sourceQuotation.phone || '');
-                setNewCustAddress(sourceQuotation.address || '');
-                setNotes(sourceQuotation.notes || sourceQuotation.terms || '');
-                setSelectedItems((sourceQuotation.items || []).map((item: any) => ({
-                    ...item,
-                    product_id: item.product_id || '',
-                    product_name: item.product_name || item.product || 'Unnamed Item',
-                    quantity: item.quantity || 1,
-                    unit_price: item.unit_price || item.rate || 0,
-                    gst_rate: item.gst_rate ?? 18,
-                    hsn_code: item.hsn_code || '',
-                    unit: item.unit || 'PCS'
-                })));
-                toast.success('Pre-filled from quotation');
+            if (quotations.length === 0) {
+                if (fetchQuotations) fetchQuotations();
+            } else {
+                const sourceQuotation = quotations.find((q: any) => q.id === quotationId);
+                if (sourceQuotation) {
+                    setIsDuplicating(true);
+                    setCustomerId(sourceQuotation.customer_id || sourceQuotation.customer?.id || '');
+                    setNewCustName(sourceQuotation.customer_name || sourceQuotation.customer?.name || '');
+                    setNewCustPhone(sourceQuotation.phone || '');
+                    setNewCustAddress(sourceQuotation.address || '');
+                    setNotes(sourceQuotation.notes || sourceQuotation.terms || '');
+                    setSelectedItems((sourceQuotation.items || []).map((item: any) => ({
+                        ...item,
+                        product_id: item.product_id || '',
+                        product_name: item.product_name || item.product || 'Unnamed Item',
+                        quantity: item.quantity || 1,
+                        unit_price: item.unit_price || item.rate || 0,
+                        gst_rate: item.gst_rate ?? 18,
+                        hsn_code: item.hsn_code || '',
+                        unit: item.unit || 'PCS'
+                    })));
+                    toast.success('Pre-filled from quotation');
+                }
             }
-        } else if (businessProfile?.terms_and_conditions && !notes) {
-            setNotes(businessProfile.terms_and_conditions);
         }
-
-        // Add 1 empty row if none
-        if (selectedItems.length === 0) addItem();
-    }, [isDuplicating, quotations, businessProfile]);
+    }, [isClient, isDuplicating, quotations]);
 
     // Totals Calculation
     const calculateTotals = () => {

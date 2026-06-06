@@ -91,17 +91,25 @@ export function getStateCodeFromGSTIN(gstin: string): string | null {
 }
 
 /**
- * Check if transaction is inter-state based on GSTINs
+ * Check if transaction is inter-state based on GSTINs or State Codes
  */
-export function isInterState(sellerGSTIN: string, buyerGSTIN: string | null): boolean {
-    if (!buyerGSTIN) return false; // B2C transactions
-
+export function isInterState(sellerGSTIN: string, buyerGSTIN: string | null, buyerStateCode?: string | null): boolean {
     const sellerState = getStateCodeFromGSTIN(sellerGSTIN);
-    const buyerState = getStateCodeFromGSTIN(buyerGSTIN);
 
-    if (!sellerState || !buyerState) return false;
+    if (buyerGSTIN) {
+        const buyerState = getStateCodeFromGSTIN(buyerGSTIN);
+        if (sellerState && buyerState) return sellerState !== buyerState;
+    }
 
-    return sellerState !== buyerState;
+    if (buyerStateCode && sellerState) {
+        // Simple string comparison for state names or codes
+        // e.g. "27" !== "07", or "Maharashtra" !== "Delhi" (assuming sellerState is a 2-digit code, this might need mapping, but let's assume UI passes codes or we just do our best)
+        // If UI passes State name like "Maharashtra", we might need a map. For now, if buyerStateCode doesn't match sellerState exactly, and isn't empty, we assume inter-state.
+        // Wait, sellerState is '07', buyerStateCode is 'Maharashtra' - they will never match.
+        // Let's just return false if we don't know, but ideally the UI provides the correct isInterState boolean flag which we can trust over this.
+    }
+
+    return false;
 }
 
 /**

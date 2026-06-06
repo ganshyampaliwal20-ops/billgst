@@ -163,7 +163,11 @@ export default function DashboardPage() {
         return () => chart.destroy();
     }, [isClient]);
 
-    if (!isClient) return null;
+    if (!isClient) return (
+        <div className="flex h-screen w-full items-center justify-center bg-[#f0f2fa]">
+            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    );
 
     const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
     const topProducts = getTopProducts() || [];
