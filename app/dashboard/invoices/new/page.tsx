@@ -831,7 +831,7 @@ export default function NewInvoicePage() {
                   .page-hdr { padding: 15px 10px; margin-bottom: 0.5rem; }
                   .ph-title { font-size: 18px; }
                   .ph-sub { font-size: 10px; }
-                  .stepper { overflow-x: auto; padding-bottom: 10px; margin-top: 10px; }
+                  .stepper { overflow-x: auto; padding-bottom: 10px; margin-top: 10px; justify-content: flex-start; padding: 0 15px 10px; }
                   .s-line { min-width: 20px; }
                   .card { padding: 12px; border-radius: 12px; margin-bottom: 10px; }
                   .c-title { margin-bottom: 12px; }

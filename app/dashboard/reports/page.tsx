@@ -393,13 +393,13 @@ function ReportsContent() {
 
 .topbar {
   background: linear-gradient(135deg, #0b0f1e 0%, #1c2340 60%, #2d3561 100%);
-  padding: 18px 20px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  position: sticky; top: 0; z-index: 50;
+  gap: 10px;
+  position: relative; z-index: 50;
   box-shadow: 0 4px 24px rgba(11,15,30,0.3);
   perspective: 1000px;
   animation: dropIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
@@ -409,7 +409,7 @@ function ReportsContent() {
   to { opacity: 1; transform: rotateX(0) translateY(0); }
 }
 @media(max-width: 768px) {
-  .topbar { padding: 16px; gap: 14px; }
+  .topbar { padding: 10px 14px; gap: 8px; }
   .topbar-right { justify-content: center; width: 100%; flex-wrap: wrap; }
 }
 .topbar-left { display: flex; flex-direction: column; align-items: center; text-align: center; }

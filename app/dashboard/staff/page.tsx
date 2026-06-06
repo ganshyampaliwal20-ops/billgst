@@ -42,7 +42,7 @@ export default function SmartAttendance() {
     const [sheet, setSheet] = useState<'none'|'detail'|'add'>('none');
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [isEditingStaff, setIsEditingStaff] = useState(false);
-    const [editStaffData, setEditStaffData] = useState({ daily_wage: 0, advance: 0, role: '' });
+    const [editStaffData, setEditStaffData] = useState({ daily_wage: 0, advance: 0, role: '', salary_type: 'daily', monthly_salary: 0 });
     const [expandedStaffId, setExpandedStaffId] = useState<string | null>(null);
 
     // Form State
@@ -51,7 +51,9 @@ export default function SmartAttendance() {
         email: '',
         phone: '',
         role: 'Worker',
-        daily_wage: ''
+        daily_wage: '',
+        salary_type: 'daily',
+        monthly_salary: ''
     });
 
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -160,7 +162,7 @@ export default function SmartAttendance() {
         try {
             await addStaff(formData);
             setSheet('none');
-            setFormData({ name: '', email: '', phone: '', role: 'Worker', daily_wage: '' });
+            setFormData({ name: '', email: '', phone: '', role: 'Worker', daily_wage: '', salary_type: 'daily', monthly_salary: '' });
         } finally {
             setIsSaving(false);
         }
@@ -191,7 +193,7 @@ export default function SmartAttendance() {
     // Calculate details for Sheet
     let ds = { p: 0, a: 0, h: 0, l: 0, gross: 0, deduct: 0, net: 0, rate: 0 };
     if (selectedStaff) {
-        ds.rate = Number(selectedStaff.daily_wage) || 0;
+        ds.rate = selectedStaff.salary_type === 'monthly' ? (Number(selectedStaff.monthly_salary) / daysInMonth) : (Number(selectedStaff.daily_wage) || 0);
         // Check current month records
         const currentMonthRecords = attendance?.filter((a: any) => 
             a.staff_id === selectedStaff.id && 
@@ -202,8 +204,8 @@ export default function SmartAttendance() {
         let presentDays = 0;
         
         currentMonthRecords.forEach((r: any) => {
-            if (r.status === 'PRESENT' || r.status === 'HALF_DAY') {
-                if (r.in_time && r.out_time) {
+            if (r.status === 'PRESENT' || r.status === 'HALF_DAY' || r.status === 'LEAVE') {
+                if (r.in_time && r.out_time && r.status !== 'LEAVE') {
                     const inDate = new Date(`1970-01-01T${r.in_time}Z`);
                     const outDate = new Date(`1970-01-01T${r.out_time}Z`);
                     let diffMs = outDate.getTime() - inDate.getTime();
@@ -212,8 +214,8 @@ export default function SmartAttendance() {
                     calculatedGross += (ds.rate / 8) * hours;
                     presentDays += (hours / 8); // approximate days based on 8hr
                 } else {
-                    calculatedGross += (r.status === 'PRESENT' ? ds.rate : (ds.rate * 0.5));
-                    presentDays += (r.status === 'PRESENT' ? 1 : 0.5);
+                    calculatedGross += (r.status === 'PRESENT' || r.status === 'LEAVE' ? ds.rate : (ds.rate * 0.5));
+                    presentDays += (r.status === 'PRESENT' || r.status === 'LEAVE' ? 1 : 0.5);
                 }
             }
             if (r.status === 'PRESENT') ds.p++;
@@ -224,7 +226,7 @@ export default function SmartAttendance() {
 
         ds.gross = Math.round(calculatedGross);
         // Note: ds.p and ds.h are just counts. We use a base deduction logic if simple
-        ds.deduct = ds.a * ds.rate;
+        ds.deduct = 0;
         const advance = Number(selectedStaff.advance) || 0;
         ds.net = ds.gross - ds.deduct - advance;
     }
@@ -239,7 +241,9 @@ export default function SmartAttendance() {
             ...selectedStaff,
             daily_wage: editStaffData.daily_wage,
             advance: editStaffData.advance,
-            role: editStaffData.role
+            role: editStaffData.role,
+            salary_type: editStaffData.salary_type,
+            monthly_salary: editStaffData.monthly_salary
         });
         setIsEditingStaff(false);
         // Refresh local selectedStaff so UI updates immediately
@@ -247,7 +251,9 @@ export default function SmartAttendance() {
             ...selectedStaff, 
             daily_wage: editStaffData.daily_wage,
             advance: editStaffData.advance,
-            role: editStaffData.role
+            role: editStaffData.role,
+            salary_type: editStaffData.salary_type,
+            monthly_salary: editStaffData.monthly_salary
         });
         toast.success('Staff Details Updated!');
     };
@@ -287,7 +293,8 @@ export default function SmartAttendance() {
                 ['Name', selectedStaff.name],
                 ['Role', selectedStaff.role || 'Worker'],
                 ['Phone', selectedStaff.phone || '-'],
-                ['Daily Wage', `Rs. ${ds.rate}`],
+                ['Salary Type', selectedStaff.salary_type === 'monthly' ? 'Monthly' : 'Daily'],
+                [selectedStaff.salary_type === 'monthly' ? 'Monthly Salary' : 'Daily Wage', selectedStaff.salary_type === 'monthly' ? `Rs. ${selectedStaff.monthly_salary}` : `Rs. ${ds.rate}`],
             ],
             styles: { fontSize: 11, cellPadding: 2 }
         });
@@ -301,7 +308,7 @@ export default function SmartAttendance() {
             startY: finalY + 20,
             head: [['Present', 'Absent', 'Half Day', 'Leave', 'Total Payable Days']],
             body: [
-                [ds.p, ds.a, ds.h, ds.l, `${ds.p + (ds.h * 0.5)} days`]
+                [ds.p, ds.a, ds.h, ds.l, `${ds.p + (ds.h * 0.5) + ds.l} days`]
             ],
             theme: 'grid',
             headStyles: { fillColor: [79, 70, 229] }
@@ -316,13 +323,12 @@ export default function SmartAttendance() {
             startY: calcY + 20,
             theme: 'grid',
             body: [
-                ['Gross Salary (Present + Half Days)', `Rs. ${ds.gross}`],
-                ['Deductions (Absents)', `Rs. ${ds.deduct}`],
+                ['Gross Salary (Present + Half Days + Leave)', `Rs. ${ds.gross}`],
                 ['Advance Deducted', `Rs. ${Number(selectedStaff.advance) || 0}`],
                 ['Net Payable Salary', `Rs. ${ds.net}`],
             ],
             didParseCell: function(data) {
-                if (data.row.index === 3) {
+                if (data.row.index === 2) {
                     data.cell.styles.fontStyle = 'bold';
                     data.cell.styles.textColor = [16, 185, 129]; // Green
                 }
@@ -419,7 +425,7 @@ export default function SmartAttendance() {
         let grandTotalPresent = 0;
 
         filteredStaff.forEach((member: any) => {
-            const rate = Number(member.daily_wage) || 0;
+            const rate = member.salary_type === 'monthly' ? (Number(member.monthly_salary) / daysInMonth) : (Number(member.daily_wage) || 0);
             const currentMonthRecords = attendance?.filter((a: any) => 
                 a.staff_id === member.id && 
                 a.date.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}`)
@@ -433,18 +439,18 @@ export default function SmartAttendance() {
                 if (r.status === 'LEAVE') l++;
             });
 
-            const gross = (p * rate) + (h * rate * 0.5);
-            const deduct = a * rate;
+            const gross = Math.round((p * rate) + (h * rate * 0.5) + (l * rate));
+            const deduct = 0;
             const net = gross - deduct;
 
             grandTotalNet += net;
-            grandTotalPresent += p + (h * 0.5);
+            grandTotalPresent += p + (h * 0.5) + l;
 
             tableBody.push([
                 member.name,
                 member.role || 'Worker',
-                `${p + (h*0.5)} days`,
-                `Rs. ${rate}`,
+                `${p + (h*0.5) + l} days`,
+                member.salary_type === 'monthly' ? `Rs. ${member.monthly_salary} /mo` : `Rs. ${rate} /day`,
                 `Rs. ${net}`
             ]);
         });
@@ -687,8 +693,18 @@ export default function SmartAttendance() {
                             Download PDF
                         </button>
                     </div>
+                    {/* CONTROLS (Search & Mark All) - Moved inside sticky topbar */}
+                    <div style={{ width: '100%', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <div className="sbox" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', padding: '0 12px', height: '42px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px', color: 'var(--ink3)' }}><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
+                            <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: '13px', color: 'var(--ink)', fontWeight: 600, minWidth: 0 }} />
+                        </div>
+                        <button className="mark-all-btn" onClick={markAllPresent}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
+                            All Present
+                        </button>
+                    </div>
                 </div>
-
 
                 {/* STATS */}
                 <div className="stats-row" style={{ gap: '8px', padding: '0 10px', marginBottom: '20px' }}>
@@ -696,18 +712,6 @@ export default function SmartAttendance() {
                     <div className="stat-box" style={{ borderLeft: '3px solid #ef4444', background: '#fef2f2', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(239,68,68,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-r" style={{ fontSize: '18px', fontWeight: 900, color: '#991b1b' }}>{todayStats.A}</div><div className="stat-lbl sl" style={{ color: '#b91c1c', fontWeight: 700, fontSize: '9px' }}>Absent</div></div>
                     <div className="stat-box" style={{ borderLeft: '3px solid #f59e0b', background: '#fffbeb', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(245,158,11,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-a" style={{ fontSize: '18px', fontWeight: 900, color: '#92400e' }}>{todayStats.H}</div><div className="stat-lbl sl" style={{ color: '#b45309', fontWeight: 700, fontSize: '9px' }}>Half Day</div></div>
                     <div className="stat-box" style={{ borderLeft: '3px solid #3b82f6', background: '#eff6ff', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(59,130,246,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-b" style={{ fontSize: '18px', fontWeight: 900, color: '#1e40af' }}>{todayStats.L}</div><div className="stat-lbl sl" style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '9px' }}>Leave</div></div>
-                </div>
-
-                {/* CONTROLS */}
-                <div className="controls" style={{ position: 'sticky', top: '0', zIndex: 10, background: 'rgba(244, 247, 251, 0.95)', backdropFilter: 'blur(10px)', padding: '10px 20px', margin: '0 -20px 16px -20px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                    <div className="sbox">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
-                        <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-                    </div>
-                    <button className="mark-all-btn" onClick={markAllPresent}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
-                        All Present
-                    </button>
                 </div>
 
                 {/* DEPT TABS */}
@@ -947,9 +951,23 @@ export default function SmartAttendance() {
                                             <input type="text" list="role-options" value={editStaffData.role || ''} onChange={e => setEditStaffData({...editStaffData, role: e.target.value})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} placeholder="Example: Driver, Cleaner..." />
                                         </div>
                                         <div style={{ marginBottom: '8px' }}>
-                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Daily Wage (₹)</label>
-                                            <input type="number" value={editStaffData.daily_wage} onChange={e => setEditStaffData({...editStaffData, daily_wage: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
+                                            <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Salary Type</label>
+                                            <select value={editStaffData.salary_type} onChange={e => setEditStaffData({...editStaffData, salary_type: e.target.value})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }}>
+                                                <option value="daily">Daily Wage</option>
+                                                <option value="monthly">Fixed Monthly Salary</option>
+                                            </select>
                                         </div>
+                                        {editStaffData.salary_type === 'monthly' ? (
+                                            <div style={{ marginBottom: '8px' }}>
+                                                <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Monthly Salary (₹)</label>
+                                                <input type="number" value={editStaffData.monthly_salary} onChange={e => setEditStaffData({...editStaffData, monthly_salary: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
+                                            </div>
+                                        ) : (
+                                            <div style={{ marginBottom: '8px' }}>
+                                                <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Daily Wage (₹)</label>
+                                                <input type="number" value={editStaffData.daily_wage} onChange={e => setEditStaffData({...editStaffData, daily_wage: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
+                                            </div>
+                                        )}
                                         <div style={{ marginBottom: '10px' }}>
                                             <label style={{ fontSize: '10px', fontWeight: 800, color: '#7b7fa0', display: 'block', marginBottom: '2px' }}>Advance Given (₹)</label>
                                             <input type="number" value={editStaffData.advance} onChange={e => setEditStaffData({...editStaffData, advance: Number(e.target.value)})} style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #e0e3f0', outline: 'none', fontSize: '13px' }} />
@@ -958,10 +976,9 @@ export default function SmartAttendance() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="sal-row"><span className="sal-lbl">Daily wage</span><span className="sal-val">₹{ds.rate}</span></div>
+                                        <div className="sal-row"><span className="sal-lbl">{selectedStaff.salary_type === 'monthly' ? 'Monthly Salary' : 'Daily wage'}</span><span className="sal-val">₹{selectedStaff.salary_type === 'monthly' ? selectedStaff.monthly_salary : ds.rate}</span></div>
                                         <div className="sal-row"><span className="sal-lbl">Paid days (Incl. Leave)</span><span className="sal-val" style={{ color: '#10b981' }}>{ds.p + (ds.h * 0.5) + ds.l} days</span></div>
                                         <div className="sal-row"><span className="sal-lbl">Gross salary</span><span className="sal-val">₹{ds.gross}</span></div>
-                                        <div className="sal-row"><span className="sal-lbl">Deduction (Absence)</span><span className="sal-val" style={{ color: '#ef4444' }}>₹0</span></div>
                                         <div className="sal-row"><span className="sal-lbl">Advance Taken</span><span className="sal-val" style={{ color: '#f59e0b' }}>-₹{selectedStaff.advance || 0}</span></div>
                                         <div className="sal-row" style={{ borderTop: '2px dashed #e0e3f0', marginTop: '5px', paddingTop: '10px' }}><span className="sal-lbl" style={{ fontWeight: 800, color: '#0d0f1c' }}>Net Salary</span><span className="sal-val" style={{ color: '#4f46e5', fontSize: '15px' }}>₹{ds.net}</span></div>
                                     </>
@@ -1016,12 +1033,32 @@ export default function SmartAttendance() {
                                     </div>
                                 </div>
                                 <div className="aw-field" style={{ marginBottom: 0 }}>
-                                    <div className="aw-field-icon" style={{ fontSize: '20px', fontWeight: 900 }}>₹</div>
-                                    <div className="aw-inner">
-                                        <div className="aw-lbl">Daily Wage</div>
-                                        <input type="number" placeholder="400" value={formData.daily_wage} onChange={e => setFormData({ ...formData, daily_wage: e.target.value })} />
+                                    <div className="aw-field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg></div>
+                                    <div className="aw-inner" style={{ position: 'relative' }}>
+                                        <div className="aw-lbl">Salary Type</div>
+                                        <select value={formData.salary_type} onChange={e => setFormData({ ...formData, salary_type: e.target.value })} style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', fontWeight: 700, color: 'var(--ink)' }}>
+                                            <option value="daily">Daily Wage</option>
+                                            <option value="monthly">Fixed Monthly Salary</option>
+                                        </select>
                                     </div>
                                 </div>
+                                {formData.salary_type === 'monthly' ? (
+                                    <div className="aw-field" style={{ marginBottom: 0 }}>
+                                        <div className="aw-field-icon" style={{ fontSize: '20px', fontWeight: 900 }}>₹</div>
+                                        <div className="aw-inner">
+                                            <div className="aw-lbl">Monthly Salary</div>
+                                            <input type="number" placeholder="15000" value={formData.monthly_salary} onChange={e => setFormData({ ...formData, monthly_salary: e.target.value })} />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="aw-field" style={{ marginBottom: 0 }}>
+                                        <div className="aw-field-icon" style={{ fontSize: '20px', fontWeight: 900 }}>₹</div>
+                                        <div className="aw-inner">
+                                            <div className="aw-lbl">Daily Wage</div>
+                                            <input type="number" placeholder="400" value={formData.daily_wage} onChange={e => setFormData({ ...formData, daily_wage: e.target.value })} />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <button className="aw-save" onClick={handleSaveWorker} style={{ marginTop: '20px' }}>

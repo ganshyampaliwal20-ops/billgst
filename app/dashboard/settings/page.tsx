@@ -89,8 +89,8 @@ export default function SettingsPage() {
     if (!isClient) return null;
 
     return (
-        <div className="w-full max-w-6xl mx-auto space-y-8 px-6 md:px-10 lg:px-12 pt-8 pb-10">
-            <h1 className="text-3xl font-black text-gray-800 tracking-tight">Business Settings</h1>
+        <div className="w-full max-w-6xl mx-auto space-y-8 px-5 sm:px-6 md:px-10 lg:px-12 pt-8 pb-8 md:pb-10">
+            <h1 className="text-3xl font-black text-gray-800 tracking-tight ml-2">Business Settings</h1>
 
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Tax Settings (Non-GST Mode) */}
@@ -122,10 +122,10 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-indigo-50 rounded-xl border border-indigo-100 gap-4">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3">
+                            <div className="flex-1 w-full">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <h3 className="font-bold text-indigo-900">GST Calculation Mode</h3>
-                                    <div className="flex bg-white p-1 rounded-lg border border-indigo-200 shadow-sm">
+                                    <div className="flex bg-white p-1 rounded-lg border border-indigo-200 shadow-sm self-start sm:self-auto">
                                         <button 
                                             type="button"
                                             onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}
@@ -142,7 +142,7 @@ export default function SettingsPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <p className="text-[11px] text-indigo-600/70 mt-1 font-medium">
+                                <p className="text-[11px] text-indigo-600/70 mt-2 font-medium">
                                     {localSettings.taxType === 'INCLUSIVE' 
                                         ? 'Inclusive: MRP/Price mein GST pehle se juda hua hai. (e.g. ₹100 is Final)' 
                                         : 'Exclusive: Price par GST alag se lagega. (e.g. ₹100 + GST)'}
@@ -245,18 +245,18 @@ export default function SettingsPage() {
                                         placeholder="Person name for signature"
                                     />
 
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                                         <button
                                             type="button"
                                             onClick={() => setIsSignatureModalOpen(true)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-slate-600 font-black text-xs hover:bg-slate-100 transition-all uppercase tracking-widest"
+                                            className="flex-1 w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-slate-600 font-black text-xs hover:bg-slate-100 transition-all uppercase tracking-widest"
                                         >
                                             <FaPenNib className="text-blue-500" />
                                             {formData.signature ? 'Change Signature' : 'Draw Digital Signature'}
                                         </button>
 
                                         {formData.signature && (
-                                            <div className="w-24 h-12 bg-white border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm">
+                                            <div className="w-24 h-12 bg-white border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden p-1 shadow-sm shrink-0 self-center">
                                                 <img src={formData.signature} alt="Sign" className="max-h-full max-w-full object-contain" />
                                             </div>
                                         )}
@@ -300,7 +300,7 @@ export default function SettingsPage() {
 
                 {/* Bank Details Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
                                 <FaUniversity className="text-xl" />
@@ -308,7 +308,7 @@ export default function SettingsPage() {
                             <h2 className="text-lg font-bold text-gray-800">Bank Account Details</h2>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
                             <span className={`text-xs font-bold ${formData.show_bank_details ? 'text-emerald-600' : 'text-gray-400'}`}>
                                 {formData.show_bank_details ? 'ON' : 'OFF'}
                             </span>
@@ -391,15 +391,15 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800">Branding</h2>
                     </div>
 
-                    <div className="flex items-start gap-6">
-                        <div className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                        <div className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50 shrink-0">
                             {formData.logo ? (
                                 <img src={formData.logo} alt="Logo" className="w-full h-full object-cover" />
                             ) : (
                                 <span className="text-gray-400 text-xs text-center px-2">No Logo</span>
                             )}
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 w-full text-center sm:text-left">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Logo</label>
                             <input
                                 type="file"
@@ -422,7 +422,7 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800">Invoice Color Theme</h2>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 md:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
                         {[
                             { id: 'TEMPLATE_1', name: 'Modern Purple', color: 'bg-purple-600' },
                             { id: 'TEMPLATE_2', name: 'Royal Blue', color: 'bg-blue-600' },
@@ -462,7 +462,7 @@ export default function SettingsPage() {
                         <h2 className="text-lg font-bold text-gray-800">Invoice Table Layout</h2>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 md:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
                         {[
                             { id: 'FORMAT_1', name: 'Standard', desc: 'Default Look', icon: 'M4 4h16v16H4V4zm2 2v12h12V6H6z' },
                             { id: 'FORMAT_2', name: 'Grid Box', desc: 'Full Borders', icon: 'M4 4h16v16H4V4zm2 2v4h12V6H6zm0 6v4h12v-4H6zm0 6v2h12v-2H6z' },
@@ -526,7 +526,7 @@ export default function SettingsPage() {
                     <div className="mt-8"></div>
 
                     {/* LIVE PREVIEW SECTION */}
-                    <div className="mt-8 border-2 border-dashed border-slate-200 rounded-3xl p-2 sm:p-6 bg-slate-50/50">
+                    <div className="mt-8 border-2 border-dashed border-slate-200 rounded-3xl p-2 sm:p-6 bg-slate-50/50 overflow-hidden">
                         <div className="flex items-center justify-between mb-4 px-2">
                             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -535,10 +535,13 @@ export default function SettingsPage() {
                             <span className="text-[10px] font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100 shadow-sm">Sample Data Attached</span>
                         </div>
 
-                        {/* THE PREVIEW PAPER */}
-                        <div className={`bg-white shadow-2xl rounded-sm mx-auto overflow-hidden transition-all duration-500 border border-slate-200 w-full md:max-w-full min-h-[500px] select-none scale-[0.95] sm:scale-100 p-[8px]`}
-                            style={{ fontFamily: formData.invoice_template === 'TEMPLATE_3' ? 'serif' : 'sans-serif' }}>
-                            <div className="border border-slate-100 h-full w-full bg-white">
+                        {/* Scroll container to prevent table layout from pushing screen border */}
+                        <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+                            <div className="min-w-[550px] p-2">
+                                {/* THE PREVIEW PAPER */}
+                                <div className={`bg-white shadow-2xl rounded-sm mx-auto overflow-hidden transition-all duration-500 border border-slate-200 w-full min-h-[500px] select-none p-[8px]`}
+                                    style={{ fontFamily: formData.invoice_template === 'TEMPLATE_3' ? 'serif' : 'sans-serif' }}>
+                                    <div className="border border-slate-100 h-full w-full bg-white">
 
                                 {/* Header Section */}
                                 <div className={`px-[8px] py-4 border-b flex ${formData.logo_position === 'CENTER'
@@ -655,21 +658,23 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+                        </div> {/* Close overflow-x-auto scroll container */}
+                    </div> {/* Close min-w-[550px] wrapper */}
+                </div> {/* Close THE PREVIEW PAPER */}
+            </div> {/* Close LIVE PREVIEW SECTION */}
+        </div> {/* Close Invoice Table Layout Card */}
 
 
                 {/* Automatic Payment Reminders Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                                 <FaClock className="text-xl" />
                             </div>
                             <h2 className="text-lg font-bold text-gray-800">Automatic Payment Reminders</h2>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
                             <input
                                 type="checkbox"
                                 className="sr-only peer"
