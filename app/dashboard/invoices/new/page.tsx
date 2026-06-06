@@ -3,7 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
-import { FaPlus, FaTrash, FaCheck, FaTimes, FaFileInvoice, FaUserPlus, FaBox, FaSearch, FaEllipsisV, FaCogs, FaTruck, FaReceipt, FaMicrophone, FaQrcode } from "react-icons/fa";
+import {
+    FaPlus, FaTrash, FaSave, FaArrowLeft, FaMicrophone, FaMagic,
+    FaRobot, FaCheck, FaTimes, FaCamera, FaUserPlus, FaFileInvoice,
+    FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaChevronLeft, FaEye, FaSearch, FaEllipsisV, FaQrcode
+} from "react-icons/fa";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -81,6 +85,10 @@ export default function NewInvoicePage() {
     const [isListening, setIsListening] = useState(false);
     // Modal states
     const [showQuickAdd, setShowQuickAdd] = useState(false);
+    const [quickSearch, setQuickSearch] = useState('');
+    const [quickQty, setQuickQty] = useState(1);
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanProgress, setScanProgress] = useState(0);
     const [showCustomerModal, setShowCustomerModal] = useState(false);
     const [showCameraScanner, setShowCameraScanner] = useState(false);
     const [scannerInput, setScannerInput] = useState("");

@@ -1029,16 +1029,7 @@ export default function InventoryPage() {
                                     <label className="field-label">HSN Code</label>
                                     <input className="field-input" type="text" placeholder="e.g. 8517" value={formData.hsn_code} onChange={e => setFormData({ ...formData, hsn_code: e.target.value })} />
                                 </div>
-                                <div>
-                                    <label className="field-label">Unit</label>
-                                    <select className="field-input" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })}>
-                                        <option value="PCS">PCS</option>
-                                        <option value="KG">KG</option>
-                                        <option value="LTR">LTR</option>
-                                        <option value="BOX">BOX</option>
-                                        <option value="MTR">MTR</option>
-                                    </select>
-                                </div>
+                                <div></div>
                             </div>
 
                             <div className="field-row">
