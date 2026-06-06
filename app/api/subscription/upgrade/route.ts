@@ -16,7 +16,6 @@ export async function POST(request: Request) {
         const { planType, transactionId } = await request.json();
 
         // Optional: Store transaction ID in DB if we have a table, else log for now
-        console.log(`User ${session.user.id} upgrading to ${planType} with TXN: ${transactionId}`);
 
         // Validation
         const validPlans = ['BASIC_30', 'PREMIUM_99', 'YEARLY_299'];

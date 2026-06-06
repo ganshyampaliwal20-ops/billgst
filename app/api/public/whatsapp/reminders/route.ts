@@ -7,9 +7,10 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get('secret');
 
-        // Simple security check
-        if (secret !== process.env.NEXTAUTH_SECRET && secret !== 'admin_debug_123') {
-            // return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        // Security check - validate secret
+        const cronSecret = process.env.WHATSAPP_CRON_SECRET || process.env.NEXTAUTH_SECRET;
+        if (!secret || secret !== cronSecret) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const now = new Date();

@@ -103,7 +103,7 @@ export default function DashboardPage() {
         if (!businessProfile.id) return;
         setIsRefreshingReminders(true);
         try {
-            const res = await fetch(`/api/public/whatsapp/reminders?secret=admin_debug_123`);
+            const res = await fetch(`/api/public/whatsapp/reminders?secret=${process.env.NEXT_PUBLIC_WHATSAPP_CRON_SECRET || ''}`);
             const data = await res.json();
             if (data.success) {
                 const myReminders = data.reminders.filter((r: any) => r.business_id === businessProfile.id);
@@ -612,7 +612,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="gst-row"><span className="gst-key">{t.taxableAmount}</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
                         <div className="gst-row"><span className="gst-key">{t.totalTax}</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
-                        <div className="gst-row"><span className="gst-key">{t.dueDateLabel}</span><span className="gst-val" style={{ color: "var(--red)" }}>20 Mar 2026</span></div>
+                        <div className="gst-row"><span className="gst-key">{t.dueDateLabel}</span><span className="gst-val" style={{ color: "var(--red)" }}>{new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
                         <div className="gst-row"><span className="gst-key">{t.status}</span><span className="gst-val" style={{ color: "var(--amber)" }}>{t.pendingStatus}</span></div>
                     </div>
                 </div>

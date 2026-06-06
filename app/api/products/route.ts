@@ -28,7 +28,7 @@ export async function GET(request: Request) {
             return NextResponse.json(result.rows);
         } catch (dbError: any) {
             if (dbError?.code === '42703') {
-                console.log('Product GET API: Missing columns. Migrating...');
+
                 await client.query(`
                     ALTER TABLE products 
                     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),
@@ -55,11 +55,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     const session: any = await getServerSession(authOptions as any);
 
-    console.log('Product API Debug: Session Check', {
-        hasSession: !!session,
-        userId: session?.user?.id,
-        userRole: session?.user?.role
-    });
+
 
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Please create an account or login to continue' }, { status: 401 });
@@ -69,7 +65,7 @@ export async function POST(request: Request) {
 
     try {
         const data = await request.json();
-        console.log('API: Creating product. Received:', data);
+
 
         const client = await pool.connect();
 
@@ -112,7 +108,7 @@ export async function POST(request: Request) {
         } catch (dbError: any) {
             // Auto-migration: If column missing error (42703), add columns and retry
             if (dbError?.code === '42703') {
-                console.log('Product API: Missing columns detected. Attempting auto-migration...');
+
                 await client.query(`
                     ALTER TABLE products 
                     ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id),

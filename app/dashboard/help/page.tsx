@@ -89,16 +89,40 @@ export default function HelpPage() {
                 </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white text-center">
-                <h3 className="text-2xl font-black mb-2">Need More Help?</h3>
-                <p className="mb-6 opacity-90">Check out our comprehensive documentation</p>
-                <button
-                    disabled
-                    className="inline-block bg-white/20 text-white px-8 py-3 rounded-xl font-bold cursor-not-allowed transition-all shadow-lg backdrop-blur-sm"
-                >
-                    Coming Soon
-                </button>
+            {/* Quick Tips */}
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                <h2 className="text-xl font-black text-slate-800 mb-4">💡 Quick Tips</h2>
+                <ul className="space-y-3 text-sm text-slate-600">
+                    <li className="flex items-start gap-2"><span className="text-green-500 font-bold mt-0.5">✓</span> Invoice banane ke baad WhatsApp se directly customer ko share karein.</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 font-bold mt-0.5">✓</span> Settings → Business Profile mein apna UPI ID add karein — invoices par QR code aayega.</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 font-bold mt-0.5">✓</span> Inventory mein low stock alert set karein taaki stock khatam hone se pehle pata chale.</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 font-bold mt-0.5">✓</span> Customers page se Balance Report CSV download karein accounting ke liye.</li>
+                    <li className="flex items-start gap-2"><span className="text-green-500 font-bold mt-0.5">✓</span> Reports section mein date range filter karke monthly/yearly reports dekhein.</li>
+                </ul>
+            </div>
+
+            {/* Need More Help Banner */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 text-white text-center">
+                <h3 className="text-2xl font-black mb-2">📞 Turant Help Chahiye?</h3>
+                <p className="mb-6 opacity-90">Hamare support team se seedha baat karein — bilkul free!</p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a
+                        href="https://wa.me/7498571873?text=Hello%2C%20mujhe%20BillGST%20app%20mein%20help%20chahiye."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 bg-white text-green-700 px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:bg-green-50"
+                    >
+                        <FaWhatsapp className="text-xl" />
+                        WhatsApp Support
+                    </a>
+                    <a
+                        href="mailto:support@billgst.in?subject=BillGST%20Help%20Request"
+                        className="inline-flex items-center justify-center gap-2 bg-white/20 text-white px-6 py-3 rounded-xl font-bold transition-all hover:bg-white/30"
+                    >
+                        <FaEnvelope className="text-xl" />
+                        Email Support
+                    </a>
+                </div>
             </div>
         </div>
     );

@@ -19,8 +19,11 @@ export async function GET() {
     try {
         // 1. Check Session
         const session: any = await getServerSession(authOptions as any);
-        report.session = session ? { user_id: session.user?.id, email: session.user?.email } : 'No Session';
-        report.checks.push({ name: 'Session', status: session ? 'OK' : 'FAIL', details: report.session });
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        report.session = { user_id: session.user?.id, email: session.user?.email };
+        report.checks.push({ name: 'Session', status: 'OK', details: report.session });
 
         // 2. DB Connection
         const client = await pool.connect();

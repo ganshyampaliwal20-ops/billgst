@@ -67,7 +67,7 @@ export default function GSTReturnsPage() {
                 returnType === 'GSTR3B' ? '/api/gst-returns/gstr3b' :
                     '/api/gst-returns/gstr4';
 
-            console.log('Generating return:', { returnType, endpoint, periodFrom, periodTo });
+            // console.log('Generating return:', { returnType, endpoint, periodFrom, periodTo });
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -76,7 +76,7 @@ export default function GSTReturnsPage() {
             });
 
             const result = await response.json();
-            console.log('Generation result:', result);
+            // console.log('Generation result:', result);
 
             if (response.ok && result.success) {
                 if (result.data) {

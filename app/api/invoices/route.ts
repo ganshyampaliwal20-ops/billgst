@@ -64,10 +64,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     const session: any = await getServerSession(authOptions as any);
 
-    console.log('Invoice API Debug: Session Check', {
-        hasSession: !!session,
-        userId: session?.user?.id
-    });
+
 
     if (!session?.user?.id) {
         console.error('Invoice API Error: Unauthorized access attempt');
@@ -90,7 +87,7 @@ export async function POST(request: Request) {
 
     try {
         data = await request.json();
-        console.log('Invoice API: Received data:', JSON.stringify(data, null, 2));
+
 
         // Check QR Code Limit if QR is being used
         if (data.signed_qrcode) {
@@ -115,7 +112,7 @@ export async function POST(request: Request) {
             throw new Error('Customer ID is required');
         }
 
-        console.log('Invoice API: Extracted customer ID:', customerId);
+
 
         // Start Transaction
         await client.query('BEGIN');
@@ -167,11 +164,11 @@ export async function POST(request: Request) {
         ]);
 
         const invoiceId = invoiceResult.rows[0].id;
-        console.log('Invoice API: Invoice created with ID:', invoiceId);
+
 
         // 2. Insert Items
         if (data.items && Array.isArray(data.items)) {
-            console.log(`Invoice API: Inserting ${data.items.length} items`);
+
 
             for (const item of data.items) {
                 const quantity = Number(item.quantity);
@@ -203,17 +200,17 @@ export async function POST(request: Request) {
                 }
             }
         }
-        console.log('Invoice API: All items inserted successfully');
+
 
         await client.query('COMMIT');
         client.release();
-        console.log('Invoice API: Transaction committed successfully');
+
         return NextResponse.json({ success: true, id: invoiceId });
 
     } catch (error: any) {
         // Auto-migration: If column missing error (42703), add columns and retry
         if (error?.code === '42703') {
-            console.log('Invoice API: Missing columns detected. Attempting auto-migration...');
+
             try {
                 await client.query('ROLLBACK'); // Rollback failed transaction first
 
@@ -227,7 +224,7 @@ export async function POST(request: Request) {
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipping_charges DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_mode VARCHAR(50) DEFAULT 'Cash';
                 `);
-                console.log('Invoice API: Auto-migration successful. Retrying insertion...');
+
 
                 // Retry Insertion
                 await client.query('BEGIN');
@@ -325,8 +322,7 @@ export async function POST(request: Request) {
         client.release();
         console.error('Invoice API Transaction Error:', error);
         return NextResponse.json({
-            error: `Database Error: ${error instanceof Error ? error.message : 'Unknown Error'}`,
-            details: error instanceof Error ? error.stack : undefined
+            error: `Database Error: ${error instanceof Error ? error.message : 'Unknown Error'}`
         }, { status: 500 });
     }
 }

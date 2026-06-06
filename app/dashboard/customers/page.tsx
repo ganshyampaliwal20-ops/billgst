@@ -18,13 +18,10 @@ export default function CustomersPage() {
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const [showDetailModal, setShowDetailModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
 
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-
-    const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
     const [newName, setNewName] = useState('');
     const [newPhone, setNewPhone] = useState('');
@@ -620,17 +617,6 @@ export default function CustomersPage() {
 
                 <button className="fab" onClick={() => setShowAddModal(true)}>＋</button>
 
-                <div className={`modal-overlay ${showDetailModal ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setShowDetailModal(false); }}>
-                    <div className="modal">
-                        <div className="modal-handle"></div>                      <div className="modal-title">{selectedCustomer?.name}</div>
-                        <div>
-                            <div className="modal-detail-row"><span className="detail-key">📱 Phone</span><span className="detail-val">{selectedCustomer?.phone}</span></div>                          <div className="modal-detail-row"><span className="detail-key">💰 Balance</span><span className="detail-val" style={{ color: selectedCustomer?.status === 'pending' ? '#ff4d6d' : '#00c48c' }}>{selectedCustomer?.amountStr}</span></div>
-                            <div className="modal-detail-row"><span className="detail-key">📊 Status</span><span className="detail-val">{selectedCustomer?.status === 'pending' ? `⚠ ${t.paymentPending}` : `✓ ${t.amountReceived}`}</span></div>                          <div className="modal-detail-row"><span className="detail-key">🏷 Tag</span><span className="detail-val">{selectedCustomer?.tag || '—'}</span></div>
-                        </div>
-                        <div className="modal-actions">
-                            <button className="modal-btn outline" onClick={() => setShowDetailModal(false)}>🗑 Delete</button>                          <button className="modal-btn solid" onClick={() => { toast('Edit mode open!'); setShowDetailModal(false); }}>✏️ Edit Party</button>
-                        </div>                  </div>
-                </div>
 
                 <div className={`modal-overlay ${showAddModal ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}>
                     <div className="modal">

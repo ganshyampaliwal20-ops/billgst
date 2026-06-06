@@ -181,12 +181,39 @@ function ReportsContent() {
 
     if (!isClient) return null;
 
-    let mappedPeriod = 'monthly';
-    if (period === 'This Month') mappedPeriod = 'monthly';
-    else if (period === 'This Year') mappedPeriod = 'yearly';
-    else if (period === 'This Quarter') mappedPeriod = 'monthly';
+    const now = new Date();
+    const filterDataByPeriod = (list: any[], dateField: string) => {
+        return (list || []).filter((item: any) => {
+            if (!item[dateField]) return false;
+            const d = new Date(item[dateField]);
+            if (period === 'This Month' || period === t.periodThisMonth) {
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            } else if (period === 'Last Month' || period === t.periodLastMonth) {
+                const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+                const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+                return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
+            } else if (period === 'This Quarter' || period === t.periodThisQuarter) {
+                const quarter = Math.floor(now.getMonth() / 3);
+                return Math.floor(d.getMonth() / 3) === quarter && d.getFullYear() === now.getFullYear();
+            } else if (period === 'This Year' || period === t.periodThisYear) {
+                return d.getFullYear() === now.getFullYear();
+            }
+            return true; 
+        });
+    };
 
-    let { totalSales, totalProfit, invoiceCount } = getAnalytics(mappedPeriod, null);
+    const filteredInvoices = filterDataByPeriod(invoices, 'invoice_date');
+    const filteredExpenses = filterDataByPeriod(expenses, 'date');
+
+    const totalRevenue = filteredInvoices.filter((i: any) => i.status !== 'CANCELLED').reduce((a: any, b: any) => a + parseFloat(b.total_amount || 0), 0) || 0;
+    const totalExpenses = filteredExpenses.reduce((a: any, b: any) => a + parseFloat(b.amount || 0), 0) || 0;
+    let totalProfit = totalRevenue - totalExpenses;
+    let invoiceCount = filteredInvoices.length;
+    let totalSales = totalRevenue;
+
+    const allItems = (filteredInvoices || []).flatMap((inv: any) => inv.items || []);
+    const itemsWithHSN = allItems.filter((item: any) => item.hsn_code && item.hsn_code.trim() !== '');
+    const hsnCompliance = allItems.length > 0 ? Math.round((itemsWithHSN.length / allItems.length) * 100) : 100;
 
     let avgOrderValue = invoiceCount > 0 ? (totalSales / invoiceCount) : 0;
     let activeCustomers = customers?.length || 0;
@@ -947,9 +974,9 @@ function ReportsContent() {
                             <div className="gst-compliance">
                                 <div className="compliance-top">
                                     <span>HSN Compliance</span>
-                                    <span>92%</span>
+                                    <span>{hsnCompliance}%</span>
                                 </div>
-                                <div className="compliance-bar"><div className="compliance-fill" /></div>
+                                <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${hsnCompliance}%` }} /></div>
                             </div>
                         </div>
                     </div>

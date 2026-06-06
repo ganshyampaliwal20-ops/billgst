@@ -297,7 +297,7 @@ export default function NewInvoicePage() {
                 }
                 return;
             }
-        } catch(e) { console.log('Capacitor speech not available', e); }
+        } catch(e) { /* console.log('Capacitor speech not available', e); */ }
 
         const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognitionClass) {
@@ -386,7 +386,7 @@ export default function NewInvoicePage() {
         } catch (err: any) {
             // OFFLINE SMART FALLBACK: If API Key is missing or quota exceeded
             usedAI = false;
-            console.log("Using Offline Smart Fallback matching...");
+            // console.log("Using Offline Smart Fallback matching...");
             
             // Clean text and handle common hindi/english numbers
             let text = heard.toLowerCase()

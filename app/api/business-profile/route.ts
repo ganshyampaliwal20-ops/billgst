@@ -8,11 +8,7 @@ export async function GET() {
     let client;
     try {
         const session: any = await getServerSession(authOptions as any);
-        console.log('Business Profile GET: Session check', {
-            hasSession: !!session,
-            userId: session?.user?.id,
-            email: session?.user?.email
-        });
+
 
         if (!session?.user?.id) {
             console.warn('Business Profile GET: Unauthorized access attempt. Session missing user ID.');
@@ -67,7 +63,7 @@ export async function GET() {
         } catch (dbError: any) {
             // Missing columns handling for GET
             if (dbError?.code === '42703' || dbError?.code === '42P01') {
-                console.log('GET Profile: Missing columns detected. Running migration...');
+
                 await runMigration(client);
 
                 // Retry query once
@@ -95,10 +91,7 @@ export async function POST(request: Request) {
     let client;
     try {
         const session: any = await getServerSession(authOptions as any);
-        console.log('Business Profile POST: Session check', {
-            hasSession: !!session,
-            userId: session?.user?.id
-        });
+
 
         if (!session?.user?.id) {
             console.warn('Business Profile POST: Unauthorized access attempt.');
@@ -188,9 +181,9 @@ export async function POST(request: Request) {
             });
 
         } catch (dbError: any) {
-            console.log('POST Profile: DB error', dbError.code);
+
             if (dbError?.code === '42703' || dbError?.code === '42P01') {
-                console.log('POST Profile: Missing columns detected. Running unified migration...');
+
                 await runMigration(client);
 
                 // Retry Update

@@ -194,7 +194,7 @@ export default function InvoicesPage() {
                     toast.success('WhatsApp par share open ho gaya!', { id: toastId });
                     return;
                 } catch (e) {
-                    console.log('Share cancelled', e);
+                    // console.log('Share cancelled', e);
                 }
             }
 

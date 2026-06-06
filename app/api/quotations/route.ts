@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id;
-    console.log(`[Quotation POST] User ID: ${userId}`);
+
 
     // Check Subscription Limit
     const limitCheck = await checkLimit(userId, 'QUOTATION');
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        console.log('[Quotation POST] Payload:', JSON.stringify(body));
+
 
         // Sanitize Data
         let customerId = body.customer_id;

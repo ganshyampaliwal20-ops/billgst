@@ -240,18 +240,18 @@ export default function BusinessExpensesPage() {
                 } catch(e) {}
 
                 // Debug: log what keys were found
-                console.log('[Hisaab] IDB merge done, total customers found:', mergedCustomers.size);
+                // console.log('[Hisaab] IDB merge done, total customers found:', mergedCustomers.size);
 
                 // 3. Server se recover karo agar local data nahi mili (user logged in ho toh)
                 if (mergedCustomers.size === 0 && session?.user?.id) {
                     try {
-                        console.log('[Hisaab] Local data nahi mili, server se recover kar raha hoon...');
+                        // console.log('[Hisaab] Local data nahi mili, server se recover kar raha hoon...');
                         const res = await fetch('/api/hisaab/sync');
                         if (res.ok) {
                             const serverCustomers = await res.json();
                             if (Array.isArray(serverCustomers) && serverCustomers.length > 0) {
                                 mergeIntoMap(serverCustomers);
-                                console.log('[Hisaab] ✅ Server se', serverCustomers.length, 'customers recover ho gaye!');
+                                // console.log('[Hisaab] ✅ Server se', serverCustomers.length, 'customers recover ho gaye!');
                             }
                         }
                     } catch(e) {
@@ -269,10 +269,10 @@ export default function BusinessExpensesPage() {
                         });
                         return { ...c, balance: debitSum - creditSum };
                     });
-                    console.log('[Hisaab] ✅ Loaded', balancedData.length, 'customers from storage');
+                    // console.log('[Hisaab] ✅ Loaded', balancedData.length, 'customers from storage');
                     setCustomers(balancedData);
                 } else {
-                    console.log('[Hisaab] ⚠️ No data found anywhere. User logged in:', !!session?.user?.id);
+                    // console.log('[Hisaab] ⚠️ No data found anywhere. User logged in:', !!session?.user?.id);
                     // Only show default demo data for guest users with no data
                     setCustomers(session?.user?.id ? [] : DEFAULT_DATA);
                 }
@@ -376,7 +376,7 @@ export default function BusinessExpensesPage() {
 
         if (needsHeal) {
             setCustomers(healedCustomers);
-            console.log("Auto-healed corrupted balances!");
+            // console.log("Auto-healed corrupted balances!");
             showToast("🛠 Purani entries ka hisaab theek kar diya gaya hai!");
         }
     }, [isMounted, customers.length]); // only run once when loaded

@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 export async function GET(request: Request) {
     let client;
     try {
-        console.log("Setup API: Started");
+
 
         const dbUrl = process.env.DATABASE_URL;
 
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
         }
 
         // DIRECT CONNECTION TEST (Bypass lib/db.ts)
-        console.log("Setup API: Attempting DIRECT connection...");
+
         const { Client } = pg;
         client = new Client({
             connectionString: dbUrl,
@@ -51,14 +51,14 @@ export async function GET(request: Request) {
         });
 
         await client.connect();
-        console.log("Setup API: DB Connected (Direct)");
+
 
         // 1. Check/Create User
         const userRes = await client.query('SELECT * FROM users LIMIT 1');
         let userId;
 
         if (userRes.rows.length === 0) {
-            console.log("Setup API: Creating new Admin User");
+
             const hashedPassword = await bcrypt.hash('admin123', 10);
             const newUser = await client.query(`
                 INSERT INTO users (name, email, password, role) 
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
             `);
             userId = newUser.rows[0].id;
         } else {
-            console.log("Setup API: User already exists");
+
             userId = userRes.rows[0].id;
         }
 

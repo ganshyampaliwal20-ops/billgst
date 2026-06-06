@@ -1114,7 +1114,12 @@ export default function InventoryPage() {
                                 <div style={{ fontSize: '60px' }}>{getProductEmoji(selectedProduct)}</div>
                                 <div style={{ fontWeight: '700', marginTop: '10px' }}>{selectedProduct.name}</div>
                             </div>
-                            <p style={{ fontSize: '12px', color: 'var(--ink3)' }}>QR functionality coming soon to this view!</p>
+                            <div style={{ textAlign: 'center', padding: '12px' }}>
+                                <div style={{ fontFamily: 'JetBrains Mono', fontSize: '24px', letterSpacing: '4px', fontWeight: 700, color: '#1c2340', background: '#f5f7fd', padding: '10px 16px', borderRadius: '8px', border: '1.5px dashed #c4cadf', display: 'inline-block' }}>
+                                    ▐█▌▐█▌ {selectedProduct?.hsn_code || selectedProduct?.name?.substring(0,6).toUpperCase() || 'CODE'}
+                                </div>
+                                <p style={{ fontSize: '11px', color: '#7c88a6', marginTop: '8px' }}>HSN / Barcode — screenshot karke use karein</p>
+                            </div>
                         </div>
                     </div>
                 </div>
