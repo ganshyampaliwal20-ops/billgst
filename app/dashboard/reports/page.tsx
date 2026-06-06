@@ -18,7 +18,7 @@ function ReportsContent() {
     const revenueRef = useRef<HTMLDivElement>(null);
     const profitRef = useRef<HTMLDivElement>(null);
     const monthlyRef = useRef<HTMLDivElement>(null);
-    const scrollToChart = (ref: React.RefObject<HTMLDivElement>) => {
+    const scrollToChart = (ref: React.RefObject<HTMLDivElement | null>) => {
         if (ref.current) {
             ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
