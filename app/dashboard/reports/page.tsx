@@ -227,6 +227,7 @@ const totalTaxable = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.subtotal||0
 const totalCGST = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.cgst_amount||0),0)||0;
 const totalSGST = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.sgst_amount||0),0)||0;
 const totalIGST = invoices?.reduce((a:any,b:any)=> a+parseFloat(b.igst_amount||0),0)||0;
+const totalTax = totalCGST + totalSGST + totalIGST;
 
     const formatLakhs = (num:number)=>{
         if(num>=100000) return (num/100000).toFixed(2)+' L';
