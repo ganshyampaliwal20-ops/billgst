@@ -118,13 +118,13 @@ export default function SupportChatWidget() {
                             </div>
                         ) : (
                             messages.map((m, i) => (
-                                <div key={i} className={`flex ${!m.is_admin ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] text-sm leading-relaxed p-3 ${!m.is_admin
+                                <div key={i} className={`flex ${!m.is_admin ? 'justify-end' : 'justify-start'} mx-2`}>
+                                    <div className={`max-w-[85%] text-sm leading-relaxed p-3 break-words overflow-hidden ${!m.is_admin
                                         ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-none shadow-sm'
                                         : 'bg-white text-slate-700 border border-slate-200 rounded-2xl rounded-tl-none shadow-sm'
                                         }`}
                                     >
-                                        {m.message}
+                                        <div className="whitespace-pre-wrap break-words">{m.message}</div>
                                         <div className={`text-[9px] mt-1 ${!m.is_admin ? 'text-emerald-200 text-right' : 'text-slate-400'}`}>
                                             {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>

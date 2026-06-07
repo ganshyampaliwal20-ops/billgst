@@ -185,12 +185,12 @@ export default function SupportAdminPage() {
                             <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
                                 {messages.map((m, i) => (
                                     <div key={i} className={`flex ${m.is_admin ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[75%] p-4 ${m.is_admin
+                                        <div className={`max-w-[75%] p-4 mx-2 break-words overflow-hidden ${m.is_admin
                                             ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-none shadow-md'
                                             : 'bg-white text-slate-800 border border-slate-200 rounded-2xl rounded-tl-none shadow-sm'
                                             }`}
                                         >
-                                            <div className="text-sm leading-relaxed whitespace-pre-wrap">{m.message}</div>
+                                            <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">{m.message}</div>
                                             <div className={`text-[10px] mt-2 ${m.is_admin ? 'text-emerald-200 text-right' : 'text-slate-400'}`}>
                                                 {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
