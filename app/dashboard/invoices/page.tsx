@@ -10,7 +10,7 @@ import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-    FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye
+    FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye, FaPrint
 } from 'react-icons/fa';
 
 export default function InvoicesPage() {
@@ -159,6 +159,20 @@ export default function InvoicesPage() {
             await generateInvoicePDF(invoice, businessProfile);
             toast.success('PDF Downloaded', { id: toastId });
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
+    };
+
+    const handlePrint = async (invoice: any) => {
+        const toastId = toast.loading('Preparing print...');
+        try {
+            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+            if (doc) {
+                toast.dismiss(toastId);
+                doc.autoPrint();
+                window.open(doc.output('bloburl'), '_blank');
+            } else {
+                toast.error('Print Error', { id: toastId });
+            }
+        } catch (error) { toast.error('Print Error', { id: toastId }); }
     };
 
     const handleWhatsApp = async (invoice: any, e: any) => {
@@ -782,6 +796,10 @@ export default function InvoicesPage() {
                             <button className="btn-action" onClick={() => handleDownload(selectedInvoice)}>
                                 <FaFilePdf size={20} color="#dc2626" />
                                 Download PDF
+                            </button>
+                            <button className="btn-action" onClick={() => handlePrint(selectedInvoice)}>
+                                <FaPrint size={20} color="#000" />
+                                Print
                             </button>
                             <button className="btn-action" onClick={() => setIsPreviewing(true)}>
                                 <FaEye size={20} color="#3b82f6" />
