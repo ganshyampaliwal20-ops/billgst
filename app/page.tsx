@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import SupportChatWidget from '@/app/components/SupportChatWidget';
 import './landing.css';
 
 export default function LandingPage() {
@@ -976,6 +977,7 @@ export default function LandingPage() {
             )}
 
             <div id="toast"></div>
+            <SupportChatWidget />
         </div>
     );
 }
