@@ -11,6 +11,156 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
     {
+        slug: 'free-invoice-generator-india',
+        title: 'Best Free Invoice Generator in India: Create & Share Bills instantly',
+        description: 'Looking for a free invoice generator? BillGST helps Indian small businesses create GST bills and share them directly on WhatsApp in 10 seconds.',
+        date: 'June 07, 2026',
+        author: 'BillGST Team',
+        category: 'Features',
+        content: `
+# Best Free Invoice Generator in India
+
+Agar aap ek dukandar ya small business owner hain, toh aapko rozana bahut saare bills banane padte honge. Paper par bill banana purana aur slow tarika hai. Aise me ek **Free Invoice Generator** aapki bahut madad kar sakta hai.
+
+## BillGST: India's Top Free Invoice Generator
+BillGST ek 100% free invoice generator hai jisse aap GST aur Non-GST bills sirf 10 seconds me bana sakte hain.
+
+### Key Benefits
+- **Super Fast Billing:** Bas item select karein aur bill taiyaar.
+- **WhatsApp Integration:** 1-click me apne customer ko professional PDF invoice unke WhatsApp par bhejein.
+- **Tax Auto-Calculation:** GST (CGST/SGST/IGST) apne aap calculate ho jata hai. Galti ki koi gunjaish nahi.
+- **Multi-Format:** Thermal printer (3-inch) aur A4/A5 size me bill print karein.
+
+Aaj hi apne business ko digital banayein aur **free invoice generator** BillGST ka istemaal shuru karein.
+        `
+    },
+    {
+        slug: 'voice-billing-ai-software',
+        title: 'Voice Billing AI Software: Bol Kar Bill Banayein',
+        description: 'Type karna bhool jayein! BillGST AI Voice Billing se ab bas bol kar items add karein aur seconds me bill generate karein.',
+        date: 'June 07, 2026',
+        author: 'BillGST Team',
+        category: 'Features',
+        content: `
+# Voice Billing AI Software: Bol Kar Bill Banayein
+
+Kya tyohar ke time bhid me bill type karne me bahut waqt lagta hai? Ab typing chhoriye aur AI ka jadoo dekhiye.
+
+## Introducing Voice Billing AI
+BillGST lekar aaya hai India ka pehla **Voice Billing AI**. Ab aapko items ka naam type karne ki zaroorat nahi hai.
+
+### Kaise Kaam Karta Hai?
+1. Dashboard me mic 🎙️ icon par click karein.
+2. Bolein: *"Do kilo chini aur ek packet chai"*
+3. AI automatically aapke inventory se items dhundega, quantity match karega aur bill me add kar dega!
+
+**Fayde:**
+- **Time Saving:** Typing se 10x zyada fast.
+- **Easy to Use:** Koi bhi staff isse aasaani se chala sakta hai.
+- **Hands-free:** Customer se baat karte hue hi bill ready.
+
+BillGST ke AI voice billing software ko aaj hi try karein!
+        `
+    },
+    {
+        slug: 'inventory-management-software-india',
+        title: 'Free Inventory Management Software with Low Stock Alerts',
+        description: 'Manage your stock, get low-stock alerts, and track inventory seamlessly with BillGST free inventory management software.',
+        date: 'June 07, 2026',
+        author: 'BillGST Team',
+        category: 'Features',
+        content: `
+# Free Inventory Management Software
+
+Ek successful business ke liye sabse zyada zaroori hai apne stock (inventory) par poori nazar rakhna. Bina sahi inventory management software ke, aapka bahut saara paisa dead stock me phans sakta hai.
+
+## BillGST Inventory Manager
+BillGST sirf ek billing app nahi, balki ek complete **Inventory Management Software** hai.
+
+### Features
+- **Real-time Stock Tracking:** Jaise hi aap koi item sell karte hain, stock automatically kam ho jata hai.
+- **Low Stock Alerts:** Jab koi item khatam hone wala hota hai, software aapko pehle se warning de deta hai. Isse "Out of Stock" ki problem nahi aati.
+- **Bulk Import/Export:** Apne saare items ko Excel sheet se ek click me import karein.
+- **Multiple Units:** KG, Grams, Pieces, Boxes—kisi bhi unit me stock manage karein.
+
+Apne business ki growth ko double karein perfect inventory management ke sath.
+        `
+    },
+    {
+        slug: 'mobile-barcode-scanner-billing-app',
+        title: 'Mobile Barcode Scanner Billing App: Fast Checkout',
+        description: 'Use your smartphone camera as a barcode scanner. Scan items instantly and generate bills without a physical barcode reader.',
+        date: 'June 07, 2026',
+        author: 'BillGST Team',
+        category: 'Features',
+        content: `
+# Mobile Barcode Scanner Billing App
+
+Supermarkets ki tarah fast billing ab har choti dukan par mumkin hai, wo bhi bina mahnge hardware ke!
+
+## Mobile Camera as Barcode Scanner
+BillGST app me ek inbuilt **Mobile Barcode & QR Scanner** diya gaya hai. Aapko alag se ₹2000 ka USB scanner kharidne ki zaroorat nahi hai.
+
+### Kaise Use Karein?
+- Invoice banate time 'Mobile Camera' button par click karein.
+- Apne phone ka camera item ke barcode par point karein.
+- Item automatically bill me add ho jayega!
+
+**Hardware Support:**
+Agar aapke paas pehle se USB scanner hai, toh BillGST usko bhi fully support karta hai. Bas scanner se scan karein aur item add ho jayega.
+
+Fast checkout experience dekar apne customers ko khush karein.
+        `
+    },
+    {
+        slug: 'offline-billing-software-pwa',
+        title: 'Offline Billing Software: Bina Internet Ke Bill Banayein',
+        description: 'Internet nahi hai? Koi baat nahi! BillGST offline billing software ke sath bina internet ke invoice banayein aur save karein.',
+        date: 'June 07, 2026',
+        author: 'BillGST Team',
+        category: 'Features',
+        content: `
+# Offline Billing Software: Bina Internet Ke Bill Banayein
+
+Bharat me kai aisi jaghein hain jahan internet ka connection baar-baar tut jata hai. Aise me agar internet na hone se billing ruk jaye, toh customer pareshan ho jate hain.
+
+## BillGST Offline Mode
+BillGST ek advance PWA (Progressive Web App) hai jo **Offline Billing Software** ki tarah kaam karta hai.
+
+### Fayde
+- **No Internet Required:** Agar internet band ho jaye, toh bhi aap asani se bill bana sakte hain.
+- **Auto Sync:** Jaise hi internet wapas aayega, aapke banaye hue saare bills automatically cloud par securely sync ho jayenge.
+- **Fast Speed:** Kyunki yeh offline chalta hai, iski speed kisi bhi normal software se kai guna tez hoti hai.
+
+Bina kisi rukaawat ke apne business ko chalayein.
+        `
+    },
+    {
+        slug: 'whatsapp-billing-software',
+        title: 'Send GST Invoice on WhatsApp - Best Billing Software',
+        description: 'Save paper and share professional PDF invoices directly to your customer\'s WhatsApp in just one click.',
+        date: 'June 07, 2026',
+        author: 'BillGST Team',
+        category: 'Features',
+        content: `
+# Send GST Invoice on WhatsApp
+
+Paper bills kho jate hain aur unhe print karne me paisa bhi lagta hai. Aaj kal customers bhi digital bill pasand karte hain.
+
+## WhatsApp Billing
+BillGST ke sath aap kisi bhi customer ko seedhe **WhatsApp par bill** bhej sakte hain.
+
+### 1-Click Share
+Bill banne ke baad, bas "Share on WhatsApp" button dabayein. Customer ko ek professional PDF invoice mil jayega. 
+
+- **Paper Save Karein:** Environment aur paisa dono bachayein.
+- **Professional Look:** Digital PDF invoice aapke brand ki value badhata hai.
+- **Payment Reminders:** Udhar ke bill par aasaani se WhatsApp reminder bhejein.
+
+Aaj hi smart dukandaar banein aur WhatsApp billing shuru karein.
+        `
+    },
+    {
         slug: 'gst-kaise-file-karein-step-by-step',
         title: 'GST Kaise File Karein: Small Business Ke Liye Step-by-Step Guide',
         description: 'GST return file karna ab bahut asaan hai. Janein GSTR-1 aur GSTR-3B file karne ka aasaan tarika aur galti se kaise bachein.',

@@ -17,9 +17,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.billgst.in"),
-  title: "BillGST - Free GST Billing & Stock Management",
-  description: "BillGST — India ka Free GST Billing Software. 50,000+ dukandaar use karte hain. Voice billing, WhatsApp invoice, stock management — sab free mein.",
-  keywords: "free gst bill, billgst, gstbill, invoice generator, billing software, inventory management, small business billing, gst invoice maker",
+  title: "Free Invoice Generator & GST Billing Software India | BillGST",
+  description: "Best Free Invoice Generator and GST Billing Software in India. Create GST/Non-GST bills, manage inventory, and share PDF invoices on WhatsApp in seconds.",
+  keywords: "invoice generator, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
@@ -82,23 +82,38 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "BillGST",
-              "url": "https://www.billgst.in",
-              "logo": "https://www.billgst.in/logo.png",
-              "description": "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "IN"
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "BillGST",
+                "url": "https://www.billgst.in",
+                "logo": "https://www.billgst.in/logo.png",
+                "description": "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressCountry": "IN"
+                },
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "email": "support@billgst.in",
+                  "contactType": "customer support"
+                }
               },
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "email": "support@billgst.in",
-                "contactType": "customer support"
+              {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "BillGST Invoice Generator",
+                "applicationCategory": "BusinessApplication",
+                "operatingSystem": "Web, Android, Windows",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "INR"
+                },
+                "description": "Free Invoice Generator & GST Billing software for Indian small businesses. Create bills, share on WhatsApp, and manage stock."
               }
-            })
+            ])
           }}
         />
         <SessionWrapper>

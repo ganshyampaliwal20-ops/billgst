@@ -731,6 +731,16 @@ export default function InventoryPage() {
                 .mf-btn { flex:1; padding:13px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; border:none; }
                 .mf-cancel { background:var(--bg); color:var(--ink2); border:1.5px solid var(--border); }
                 .mf-save { background:linear-gradient(135deg,var(--green),#059669); color:#fff; }
+
+                /* HTML5 QR Code Custom Styles */
+                #reader { border: none !important; }
+                #reader a { color: var(--indigo); text-decoration: none; font-weight: 800; font-size: 13px; display: inline-block; margin: 10px 0; }
+                #reader button { background: linear-gradient(135deg, var(--indigo), #6d28d9); color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-family: 'DM Sans', sans-serif; cursor: pointer; margin: 4px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); transition: transform 0.2s; }
+                #reader button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+                #reader select { padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); font-family: 'DM Sans', sans-serif; font-weight: 600; outline: none; background: var(--bg); color: var(--ink); margin: 6px; width: calc(100% - 12px); max-width: 100%; }
+                #reader select:focus { border-color: var(--indigo); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+                #reader span { font-size: 13px; color: var(--ink3); font-weight: 600; display: block; margin: 8px 0; }
+                #reader img { border-radius: 12px; margin: 10px auto; max-width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
                 `}} />
 
             {/* ══ HERO ══ */}
@@ -1019,8 +1029,17 @@ export default function InventoryPage() {
                                 </div>
                                 <div>
                                     <label className="field-label">Barcode (Scan/Type)</label>
-                                    <div style={{ display: "flex", gap: "5px" }}>
-                                        <input className="field-input" type="text" placeholder="Scan barcode..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
+                                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                        <div style={{ position: 'relative', flex: 1 }}>
+                                            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--indigo)', background: 'var(--indigo-lt, #e0e7ff)', padding: '4px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h4v4H4zM4 16h4v4H4zM16 4h4v4h-4z"/><path d="M12 4v16M4 12h16"/></svg>
+                                            </div>
+                                            <input className="field-input" style={{ paddingLeft: '38px', fontWeight: 'bold' }} type="text" placeholder="Scan with USB..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
+                                        </div>
+                                        <button type="button" onClick={() => setShowScanner(true)} style={{ background: 'linear-gradient(135deg, var(--indigo, #4f46e5), var(--purple, #8b5cf6))', border: 'none', color: '#fff', padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                            Mobile Camera
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1150,6 +1169,12 @@ export default function InventoryPage() {
                             <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--ink3)', marginTop: '12px' }}>
                                 Position the barcode inside the box to scan
                             </p>
+                            <button 
+                                onClick={() => setShowScanner(false)} 
+                                style={{ width: '100%', marginTop: '16px', background: 'var(--bg)', color: 'var(--ink2)', padding: '12px', borderRadius: '12px', fontWeight: '800', border: '1.5px solid var(--border)', cursor: 'pointer' }}
+                            >
+                                Cancel / Close
+                            </button>
                         </div>
                     </div>
                 </div>

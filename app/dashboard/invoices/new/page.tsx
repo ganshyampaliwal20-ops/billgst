@@ -1023,6 +1023,16 @@ export default function NewInvoicePage() {
                 .qap-recent-chip:hover { border-color:#4f46e5; background:#eef0ff; }
                 .qap-chip-av { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:900; color:#fff; flex-shrink:0; }
                 .qap-chip-name { font-size:12px; font-weight:700; color:#3a3d58; }
+
+                /* HTML5 QR Code Custom Styles */
+                #reader-invoice { border: none !important; }
+                #reader-invoice a { color: #4f46e5; text-decoration: none; font-weight: 800; font-size: 13px; display: inline-block; margin: 10px 0; }
+                #reader-invoice button { background: linear-gradient(135deg, #4f46e5, #6d28d9); color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; margin: 4px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); transition: transform 0.2s; }
+                #reader-invoice button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
+                #reader-invoice select { padding: 10px; border-radius: 10px; border: 1.5px solid #e0e3f0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; outline: none; background: #f0f2f8; color: #0d0f1c; margin: 6px; width: calc(100% - 12px); max-width: 100%; }
+                #reader-invoice select:focus { border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+                #reader-invoice span { font-size: 13px; color: #475569; font-weight: 600; display: block; margin: 8px 0; }
+                #reader-invoice img { border-radius: 12px; margin: 10px auto; max-width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
             `}} />
 
             {/* Header Content */}
@@ -1141,39 +1151,9 @@ export default function NewInvoicePage() {
                             <div className="text-[12px] font-black text-slate-400 uppercase tracking-widest">{selectedItems.length} Products</div>
                         </div>
 
-                        {/* Scanner Bar */}
-                        <div className="bg-slate-50 border-2 border-indigo-100 rounded-xl p-3 mb-6 flex flex-col md:flex-row gap-3 items-center">
-                            <div className="flex-1 w-full relative">
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400">
-                                    <FaQrcode />
-                                </div>
-                                <input
-                                    ref={scannerInputRef}
-                                    type="text"
-                                    className="fi pl-10 border-indigo-200 focus:border-indigo-500 bg-white"
-                                    placeholder="Click here and scan barcode with USB Scanner..."
-                                    value={scannerInput}
-                                    onChange={e => setScannerInput(e.target.value)}
-                                    onKeyDown={handleScannerInput}
-                                />
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setShowCameraScanner(true)}
-                                className="flex-shrink-0 bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl flex items-center gap-2 hover:bg-indigo-700 transition w-full md:w-auto justify-center shadow-md"
-                            >
-                                <FaQrcode /> Mobile Camera
-                            </button>
-                        </div>
 
-                        {showCameraScanner && (
-                            <div className="mb-6 p-4 bg-white border-2 border-indigo-500 rounded-xl relative shadow-lg">
-                                <button type="button" onClick={() => setShowCameraScanner(false)} className="absolute top-2 right-2 bg-rose-100 text-rose-500 p-2 rounded-lg z-10 font-bold hover:bg-rose-200">
-                                    Close
-                                </button>
-                                <div id="reader-invoice" style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}></div>
-                            </div>
-                        )}
+
+
 
                         <div className="space-y-4">
                             {selectedItems.map((item, idx) => (
@@ -1258,6 +1238,25 @@ export default function NewInvoicePage() {
                         </datalist>
 
                         <div className="add-actions-wrapper">
+                            <div className="action-row" style={{ marginBottom: '14px' }}>
+                                <div className="premium-add-btn" style={{ padding: 0, cursor: 'text', background: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)', color: '#0f766e', border: '2px solid #99f6e4' }} onClick={() => scannerInputRef.current?.focus()}>
+                                    <div className="flex items-center justify-center w-full h-full py-[18px]">
+                                        <FaQrcode className="mr-2 text-lg" />
+                                        <input
+                                            ref={scannerInputRef}
+                                            type="text"
+                                            className="bg-transparent border-none focus:ring-0 text-teal-800 placeholder-teal-600/70 font-extrabold text-[14px] outline-none w-36 text-center"
+                                            placeholder="USB Scanner..."
+                                            value={scannerInput}
+                                            onChange={e => setScannerInput(e.target.value)}
+                                            onKeyDown={handleScannerInput}
+                                        />
+                                    </div>
+                                </div>
+                                <button type="button" onClick={() => setShowCameraScanner(true)} className="premium-add-btn" style={{ background: 'linear-gradient(135deg, #fdf4ff, #fae8ff)', color: '#a21caf', border: '2px solid #f5d0fe' }}>
+                                    <FaCamera className="text-lg" /> Mobile Camera
+                                </button>
+                            </div>
                             <div className="action-row">
                                 <button type="button" onClick={addItem} className="premium-add-btn btn-manual">
                                     <FaPlus /> {t.addNewItem}
@@ -1945,6 +1944,36 @@ export default function NewInvoicePage() {
                                     ✕ Close Preview
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Scanner Modal */}
+            {showCameraScanner && (
+                <div className="qap-backdrop" onClick={() => setShowCameraScanner(false)} style={{ zIndex: 9999 }}>
+                    <div className="qap-sheet" style={{ paddingBottom: '20px', margin: 'auto', marginBottom: '0', borderRadius: '28px 28px 0 0' }} onClick={e => e.stopPropagation()}>
+                        <div className="qap-header" style={{ padding: '20px' }}>
+                            <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                <div>
+                                    <h3 className="qap-title">📷 Mobile Scanner</h3>
+                                    <p className="qap-sub">Scan Barcode or QR Code</p>
+                                </div>
+                                <button className="qap-close" onClick={() => setShowCameraScanner(false)}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="qap-body" style={{ padding: '20px' }}>
+                            <div id="reader-invoice" style={{ width: '100%', borderRadius: '12px', overflow: 'hidden' }}></div>
+                            <p style={{ textAlign: 'center', fontSize: '12px', color: '#8892b0', marginTop: '16px', fontWeight: 'bold' }}>
+                                Position the barcode inside the box to scan
+                            </p>
+                            <button 
+                                onClick={() => setShowCameraScanner(false)} 
+                                style={{ width: '100%', marginTop: '20px', background: '#f0f2f8', color: '#7b7fa0', padding: '14px', borderRadius: '14px', fontWeight: '800', border: '1.5px solid #e0e3f0', cursor: 'pointer' }}
+                            >
+                                Cancel / Close
+                            </button>
                         </div>
                     </div>
                 </div>

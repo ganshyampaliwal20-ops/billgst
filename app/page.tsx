@@ -621,6 +621,49 @@ export default function LandingPage() {
                         </div>
                     </div>
                 </div>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "FAQPage",
+                            "mainEntity": [
+                                {
+                                    "@type": "Question",
+                                    "name": "Kya mera data safe hai?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Haan, 100% safe hai. Aapka data bank-level encryption ke sath cloud par store hota hai."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Kya ye mobile aur computer dono par chalta hai?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Haan, BillGST ek fast aur secure cloud-based software hai. Aap apne mobile app aur computer (web) dono se login kar sakte hain."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "BillGST baaki billing apps se behtar kyun hai?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "BillGST mein AI Voice Billing aur 1-Click WhatsApp Sharing jaisi modern features hain."
+                                    }
+                                },
+                                {
+                                    "@type": "Question",
+                                    "name": "Kya isse GST return file hogi?",
+                                    "acceptedAnswer": {
+                                        "@type": "Answer",
+                                        "text": "Aap GSTR-1, GSTR-3B aur GSTR-4 ki reports single click mein Excel aur JSON format mein download kar sakte hain."
+                                    }
+                                }
+                            ]
+                        })
+                    }}
+                />
             </section>
 
             {/* DEDICATED REFER & EARN SECTION */}
@@ -659,6 +702,43 @@ export default function LandingPage() {
                     <button className="btn-hero" style={{ margin: '0 auto', background: '#ea580c', padding: '16px 40px', fontSize: '18px', boxShadow: '0 10px 30px rgba(234,88,12,0.4)' }} onClick={() => openM('signup')}>
                         Generate My Referral Link Now
                     </button>
+                </div>
+            </section>
+
+            {/* FEATURES & GUIDES SECTION (SEO Internal Linking) */}
+            <section className="sec" style={{ background: '#080d18' }}>
+                <div className="sec-in">
+                    <div className="tc">
+                        <div className="tag">Features & Guides</div>
+                        <h2 className="sec-h">BillGST Free Invoice Generator Guides</h2>
+                        <p className="sec-p">Explore how our free billing software can help your small business grow.</p>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '40px' }}>
+                        <a href="/blog/free-invoice-generator-india" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', display: 'block' }}>
+                            <h4 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>Best Free Invoice Generator in India</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>Learn how to create GST/Non-GST bills instantly and share them on WhatsApp.</p>
+                        </a>
+                        <a href="/blog/inventory-management-software-india" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', display: 'block' }}>
+                            <h4 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>Free Inventory Management Software</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>Track stock in real-time, get low stock alerts, and manage your inventory flawlessly.</p>
+                        </a>
+                        <a href="/blog/voice-billing-ai-software" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', display: 'block' }}>
+                            <h4 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>Voice Billing AI Software</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>Stop typing! Just speak to create invoices seamlessly with our AI voice billing.</p>
+                        </a>
+                        <a href="/blog/mobile-barcode-scanner-billing-app" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', display: 'block' }}>
+                            <h4 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>Mobile Barcode Scanner Billing App</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>Scan product barcodes using your mobile camera for lightning-fast checkouts.</p>
+                        </a>
+                        <a href="/blog/whatsapp-billing-software" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', display: 'block' }}>
+                            <h4 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>WhatsApp Billing Software</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>Send professional PDF invoices directly to your customers on WhatsApp.</p>
+                        </a>
+                        <a href="/blog/offline-billing-software-pwa" style={{ background: '#121a2f', padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none', display: 'block' }}>
+                            <h4 style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold', marginBottom: '10px' }}>Offline Billing Software</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>No internet? No problem. Generate invoices offline with auto cloud sync.</p>
+                        </a>
+                    </div>
                 </div>
             </section>
 
