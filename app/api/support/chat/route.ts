@@ -22,7 +22,8 @@ export async function GET(request: Request) {
                 if (fetchUser) {
                     // Admin fetching specific user chat
                     const result = await client.query(`
-                        SELECT * FROM support_chats 
+                        SELECT id, user_email, message, is_admin, created_at, attachment_url, attachment_type 
+                        FROM support_chats 
                         WHERE user_email = $1 
                         ORDER BY created_at ASC
                     `, [fetchUser]);
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
                 } else {
                     // Admin fetching inbox list (latest message per user)
                     const result = await client.query(`
-                        SELECT user_email, message, created_at, is_admin 
+                        SELECT user_email, message, created_at, is_admin, attachment_url, attachment_type 
                         FROM support_chats s1
                         WHERE created_at = (
                             SELECT MAX(created_at) FROM support_chats s2 WHERE s1.user_email = s2.user_email
@@ -44,7 +45,8 @@ export async function GET(request: Request) {
             } else {
                 // Normal user fetching their own chat
                 const result = await client.query(`
-                    SELECT * FROM support_chats 
+                    SELECT id, user_email, message, is_admin, created_at, attachment_url, attachment_type 
+                    FROM support_chats 
                     WHERE user_email = $1 
                     ORDER BY created_at ASC
                 `, [session.user.email]);
@@ -73,19 +75,21 @@ export async function POST(request: Request) {
 
         // If admin is replying, they must send target_user_email. Else target is self.
         const targetEmail = isAdmin && data.target_user_email ? data.target_user_email : session.user.email;
-        const message = data.message;
+        const message = data.message || '';
+        const attachment_url = data.attachment_url || null;
+        const attachment_type = data.attachment_type || null;
 
-        if (!message) {
-            return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+        if (!message && !attachment_url) {
+            return NextResponse.json({ error: 'Message or attachment is required' }, { status: 400 });
         }
 
         const client = await pool.connect();
         try {
             const result = await client.query(`
-                INSERT INTO support_chats (user_email, message, is_admin)
-                VALUES ($1, $2, $3)
+                INSERT INTO support_chats (user_email, message, is_admin, attachment_url, attachment_type)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING *
-            `, [targetEmail, message, isAdmin]);
+            `, [targetEmail, message, isAdmin, attachment_url, attachment_type]);
             client.release();
             return NextResponse.json(result.rows[0]);
         } catch (dbError) {
