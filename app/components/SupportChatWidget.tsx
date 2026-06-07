@@ -7,13 +7,16 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function SupportChatWidget() {
-    const { status } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const email = session?.user?.email;
+    const isAdmin = email === 'gpaliwal59@gmail.com' || email === 'ganshyampaliwal20@gmail.com';
 
     // Fetch messages when opened
     useEffect(() => {
@@ -67,6 +70,8 @@ export default function SupportChatWidget() {
             setIsLoading(false);
         }
     };
+
+    if (isAdmin) return null;
 
     return (
         <>
