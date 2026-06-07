@@ -12,8 +12,7 @@ export default function AdminPaymentsPage() {
     const [loading, setLoading] = useState(true);
 
     const role = normalizeRole(session?.user?.role);
-    const adminEmails = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
-    const isSuperAdmin = adminEmails.includes(session?.user?.email || '');
+    const isSuperAdmin = session?.user?.email === 'gpaliwal59@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
 
     if (status === 'loading') return <div>Loading...</div>;
     if (!isSuperAdmin) {

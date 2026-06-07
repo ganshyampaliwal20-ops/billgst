@@ -7,7 +7,8 @@ export async function GET(request: Request) {
     try {
         const session: any = await getServerSession(authOptions as any);
         
-        if (!session?.user?.email || session.user.email !== 'ganshyampaliwal20@gmail.com') {
+        const superAdmins = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
+        if (!session?.user?.email || !superAdmins.includes(session.user.email)) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -40,7 +41,8 @@ export async function POST(request: Request) {
     try {
         const session: any = await getServerSession(authOptions as any);
         
-        if (!session?.user?.email || session.user.email !== 'ganshyampaliwal20@gmail.com') {
+        const superAdmins = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
+        if (!session?.user?.email || !superAdmins.includes(session.user.email)) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

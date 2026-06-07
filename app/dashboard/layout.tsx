@@ -105,8 +105,7 @@ export default function DashboardLayout({
     }
 
     const userRole = normalizeRole(session?.user?.role);
-    const superAdmins = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
-    const isSuperAdmin = superAdmins.includes(session?.user?.email || '');
+    const isSuperAdmin = session?.user?.email === 'gpaliwal59@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
 
     const menuItems: MenuItem[] = [];
 
