@@ -10,7 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
-    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard, FaBookOpen
+    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard, FaBookOpen, FaHeadset
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { normalizeRole, isOwnerRole, isAccountantRole, isAttendanceRole, isSalesRole, ROLE_ATTENDANCE, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
@@ -18,6 +18,7 @@ import LanguageSelector from '@/app/components/LanguageSelector';
 import { translations } from '@/lib/translations';
 import RegistrationPopup from './RegistrationPopup';
 import AIChat from '@/app/components/AIChat';
+import SupportChatWidget from '@/app/components/SupportChatWidget';
 import UpgradeModal from '@/app/components/UpgradeModal';
 import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
 
@@ -167,6 +168,7 @@ export default function DashboardLayout({
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
     if (isSuperAdmin) {
+        menuItems.push({ icon: FaHeadset, label: 'Support Inbox', href: '/dashboard/support' });
         menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
     }
 
@@ -508,6 +510,7 @@ export default function DashboardLayout({
             )}
             <RegistrationPopup />
             <AIChat />
+            <SupportChatWidget />
             <UpgradeModal />
         </div>
     );
