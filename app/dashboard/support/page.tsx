@@ -306,7 +306,9 @@ export default function SupportAdminPage() {
 .msg-row.sent { flex-direction: row-reverse; }
 .msg-avt-small { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; margin-bottom: 2px; }
 
-.bubble { max-width: 75%; padding: 10px 13px; border-radius: 18px; font-size: 13px; font-weight: 500; line-height: 1.5; position: relative; animation: bubbleIn .25s ease both; word-break: break-word; }
+.msg-content { max-width: 75%; display: flex; flex-direction: column; }
+
+.bubble { padding: 10px 13px; border-radius: 18px; font-size: 13px; font-weight: 500; line-height: 1.5; position: relative; animation: bubbleIn .25s ease both; word-wrap: break-word; overflow-wrap: break-word; width: fit-content; }
 @keyframes bubbleIn { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
 .bubble.sent { background: linear-gradient(135deg,var(--indigo),#6366f1); color: #fff; border-bottom-right-radius: 5px; box-shadow: 0 2px 12px rgba(79,70,229,.25); }
 .bubble.received { background: var(--white); color: var(--ink); border-bottom-left-radius: 5px; border: 1px solid var(--border); box-shadow: var(--sh); }
@@ -315,7 +317,7 @@ export default function SupportAdminPage() {
 .bubble.received .bubble-time { color: var(--ink4); }
 .tick svg { width: 14px; height: 14px; }
 
-.photo-bubble { max-width: 75%; border-radius: 14px; overflow: hidden; cursor: pointer; border: 2px solid var(--border); box-shadow: var(--sh); animation: bubbleIn .25s ease both; }
+.photo-bubble { border-radius: 14px; overflow: hidden; cursor: pointer; border: 2px solid var(--border); box-shadow: var(--sh); animation: bubbleIn .25s ease both; width: fit-content; }
 .photo-bubble img { width: 100%; display: block; max-height: 200px; object-fit: cover; }
 .photo-info { padding: 7px 10px; background: var(--white); font-size: 11px; color: var(--ink4); font-weight: 600; display: flex; align-items: center; gap: 5px; }
 
@@ -441,7 +443,7 @@ export default function SupportAdminPage() {
                         return (
                             <div key={i} className={`msg-row ${isSent ? 'sent' : 'received'}`}>
                                 {!isSent && <div className="msg-avt-small" style={{ background: getColor(selectedUser || '') }}>{getInitial(selectedUser || '')}</div>}
-                                <div>
+                                <div className="msg-content">
                                     {m.attachment_url ? (
                                         <div className="photo-bubble" style={{ border: isSent ? '2px solid rgba(99,102,241,.3)' : '' }}>
                                             <img src={m.attachment_url} alt="attachment" />

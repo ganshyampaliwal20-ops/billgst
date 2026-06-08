@@ -10,7 +10,7 @@ import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-    FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye, FaPrint
+    FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye, FaPrint, FaBox
 } from 'react-icons/fa';
 
 export default function InvoicesPage() {
@@ -356,6 +356,100 @@ export default function InvoicesPage() {
         } catch (error) {
             console.error(error);
             toast.error("Failed to export Excel");
+        }
+    };
+
+    const handleDownloadEwayJSON = (invoice: any) => {
+        try {
+            const isInterState = invoice.igst_amount > 0;
+            
+            const totalValue = Number(invoice.total_amount || 0);
+            const cgstValue = Number(invoice.cgst_amount || 0);
+            const sgstValue = Number(invoice.sgst_amount || 0);
+            const igstValue = Number(invoice.igst_amount || 0);
+            const subtotal = Number(invoice.subtotal || 0);
+
+            const itemList = (invoice.items || []).map((item: any) => {
+                const qty = Number(item.quantity) || 1;
+                const rate = Number(item.unit_price) || 0;
+                const taxable = qty * rate;
+                return {
+                    "productName": item.product_name,
+                    "productDesc": item.product_name,
+                    "hsnCode": parseInt(item.hsn_code) || 1234,
+                    "quantity": qty,
+                    "qtyUnit": item.unit || "NOS",
+                    "taxableAmount": taxable,
+                    "sgstRate": isInterState ? 0 : Number(item.gst_rate || 18) / 2,
+                    "cgstRate": isInterState ? 0 : Number(item.gst_rate || 18) / 2,
+                    "igstRate": isInterState ? Number(item.gst_rate || 18) : 0,
+                    "cessRate": 0
+                };
+            });
+
+            let docDate = "";
+            if (invoice.invoice_date) {
+                const parts = invoice.invoice_date.split("-");
+                if (parts.length === 3) {
+                    docDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+            }
+
+            const jsonBody = {
+                "version": "1.0.0121",
+                "billLists": [
+                    {
+                        "userGstin": businessProfile?.gstin || "URP",
+                        "supplyType": "O",
+                        "subSupplyType": 1,
+                        "docType": "INV",
+                        "docNo": invoice.invoice_number,
+                        "docDate": docDate,
+                        "fromGstin": businessProfile?.gstin || "URP",
+                        "fromTrdName": businessProfile?.name || "Business",
+                        "fromAddr1": businessProfile?.address || "Address",
+                        "fromAddr2": "",
+                        "fromPlace": businessProfile?.city || "City",
+                        "fromPincode": parseInt(businessProfile?.pincode) || 111111,
+                        "fromStateCode": parseInt((businessProfile?.gstin || "").substring(0, 2)) || 24,
+                        "toGstin": invoice.customer?.gstin || "URP",
+                        "toTrdName": invoice.customer?.name || "Customer",
+                        "toAddr1": invoice.customer?.address || "Address",
+                        "toAddr2": "",
+                        "toPlace": invoice.customer?.city || "City",
+                        "toPincode": parseInt(invoice.customer?.pincode) || 111111,
+                        "toStateCode": parseInt((invoice.customer?.gstin || "").substring(0, 2)) || parseInt((businessProfile?.gstin || "").substring(0, 2)) || 24,
+                        "totalValue": subtotal,
+                        "cgstValue": cgstValue,
+                        "sgstValue": sgstValue,
+                        "igstValue": igstValue,
+                        "cessValue": 0.0,
+                        "transporterId": invoice.transporter_id || "",
+                        "transporterName": invoice.transporter_name || "",
+                        "transDocNo": invoice.trans_doc_no || "",
+                        "transMode": parseInt(invoice.trans_mode) || 1,
+                        "transDistance": parseInt(invoice.distance) || 0,
+                        "transDocDate": "",
+                        "vehicleNo": invoice.vehicle_no || "",
+                        "vehicleType": "R",
+                        "totInvValue": totalValue,
+                        "itemList": itemList
+                    }
+                ]
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonBody, null, 2));
+            const link = document.createElement("a");
+            link.setAttribute("href", dataStr);
+            link.setAttribute("download", `EWayBill_${invoice.invoice_number}.json`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            toast.success("E-Way Bill JSON Downloaded!");
+        } catch (error) {
+            console.error("Error generating E-Way JSON:", error);
+            toast.error("Failed to generate JSON");
         }
     };
 
@@ -804,6 +898,10 @@ export default function InvoicesPage() {
                             <button className="btn-action" onClick={() => setIsPreviewing(true)}>
                                 <FaEye size={20} color="#3b82f6" />
                                 Preview
+                            </button>
+                            <button className="btn-action" onClick={() => handleDownloadEwayJSON(selectedInvoice)}>
+                                <FaBox size={20} color="#eab308" />
+                                E-Way JSON
                             </button>
                         </div>
 

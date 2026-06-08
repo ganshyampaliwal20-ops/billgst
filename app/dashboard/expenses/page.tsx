@@ -412,7 +412,7 @@ export default function BusinessExpensesPage() {
 
     const criticalDues = useMemo(() => {
         return customers
-            .filter((c: any) => c.balance < 0)
+            .filter((c: any) => c.balance > 0)
             .map((c: any) => {
                 const lastTxn = c.txns[0]; // txns are sorted newest first
                 const days = lastTxn ? Math.floor((new Date().getTime() - new Date(lastTxn.date).getTime()) / (1000 * 3600 * 24)) : 0;
