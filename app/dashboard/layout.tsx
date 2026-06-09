@@ -183,10 +183,7 @@ export default function DashboardLayout({
             {/* 2. Main Flex Container */}
             <div className="flex-1 flex overflow-hidden bg-[#f1f5f9] relative">
             
-            {/* Sidebar */}
-            <aside
-                className={`absolute md:relative inset-y-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
+
             {/* Sidebar */}
             <aside
                 className={`absolute md:relative inset-y-0 left-0 z-[60] w-[82%] max-w-[300px] md:w-72 bg-white md:border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none rounded-r-[16px] md:rounded-none overflow-hidden pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
