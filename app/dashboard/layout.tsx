@@ -180,9 +180,6 @@ export default function DashboardLayout({
 
     return (
         <div className="h-[100dvh] bg-slate-900 flex flex-col overflow-hidden">
-            {/* 1. Safe Area Protector (Top) - Separates Status Bar */}
-            <div className="w-full bg-[#f1f5f9] shrink-0" style={{ height: 'env(safe-area-inset-top)' }}></div>
-            
             {/* 2. Main Flex Container */}
             <div className="flex-1 flex overflow-hidden bg-[#f1f5f9] relative">
             
