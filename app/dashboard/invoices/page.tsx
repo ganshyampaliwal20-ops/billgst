@@ -315,7 +315,7 @@ export default function InvoicesPage() {
         let success = 0;
         for (const cust of customersToRemind) {
             const invList = cust.invoices.join(', #');
-            let text = `Namaste ${cust.name},\n\nAapke Invoices (#${invList}) ka total balance *${formatCurrency(cust.totalDue)}* due hai. Kripya samay par pay karein.\n\nRegards,\n${businessProfile?.name || 'BillGST'}`;
+            const text = `Namaste ${cust.name},\n\nAapke Invoices (#${invList}) ka total balance *${formatCurrency(cust.totalDue)}* due hai. Kripya samay par pay karein.\n\nRegards,\n${businessProfile?.name || 'BillGST'}`;
             
             const formData = new FormData();
             formData.append('phone', cust.phone);
@@ -351,7 +351,13 @@ export default function InvoicesPage() {
             const worksheet = XLSX.utils.json_to_sheet(data);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
-            XLSX.writeFile(workbook, "Invoices_Export.xlsx");
+            
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' });
+            const fileName = "Invoices_Export.xlsx";
+            
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(excelBuffer, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            
             toast.success("Excel file downloaded!", { id: toastId });
         } catch (error) {
             console.error(error);
@@ -438,13 +444,12 @@ export default function InvoicesPage() {
                 ]
             };
 
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonBody, null, 2));
-            const link = document.createElement("a");
-            link.setAttribute("href", dataStr);
-            link.setAttribute("download", `EWayBill_${invoice.invoice_number}.json`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const jsonString = JSON.stringify(jsonBody, null, 2);
+            const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+            const fileName = `EWayBill_${invoice.invoice_number}.json`;
+            
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, fileName, 'application/json');
             
             toast.success("E-Way Bill JSON Downloaded!");
         } catch (error) {

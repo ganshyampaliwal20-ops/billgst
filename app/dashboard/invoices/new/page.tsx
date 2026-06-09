@@ -231,7 +231,12 @@ export default function NewInvoicePage() {
                 setShowCameraScanner(false);
                 processBarcode(decodedText);
             }, (error) => {
-                // Ignore errors
+                // Handle permission errors explicitly
+                if (typeof error === 'string' && (error.includes('NotAllowedError') || error.includes('Permission denied'))) {
+                    scanner?.clear();
+                    setShowCameraScanner(false);
+                    toast.error('Camera access denied! Please allow Camera permission from Android Settings.');
+                }
             });
         }
         return () => {
@@ -344,40 +349,42 @@ export default function NewInvoicePage() {
         if (isListening) return;
 
         try {
-            const { Capacitor } = await import('@capacitor/core');
-            if (Capacitor.isNativePlatform()) {
-                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
-                const hasPerm = await SpeechRecognition.checkPermissions();
-                if (hasPerm.speechRecognition !== 'granted') {
-                    await SpeechRecognition.requestPermissions();
-                }
-                
-                setIsListening(true);
-                toast.loading('🎙️ Listening... Bolye', { id: 'voice-toast' });
-                
-                try {
-                    const result = await SpeechRecognition.start({
-                        language: 'en-IN',
-                        maxResults: 5,
-                        prompt: 'Bolye...',
-                        partialResults: false,
-                        popup: false,
-                    });
-                    
-                    setIsListening(false);
-                    toast.dismiss('voice-toast');
-                    if (result.matches && result.matches.length > 0) {
-                        const transcripts = result.matches.map((m: string) => m.toLowerCase().trim());
-                        processVoiceTranscripts(transcripts);
-                    } else {
-                        toast.error('Awaaz samajh nahi aayi.');
+            const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
+            if (isNativeApp()) {
+                const SpeechRecognition = getNativePlugin('SpeechRecognition');
+                if (SpeechRecognition) {
+                    const hasPerm = await SpeechRecognition.checkPermissions();
+                    if (hasPerm.speechRecognition !== 'granted') {
+                        await SpeechRecognition.requestPermissions();
                     }
-                } catch(e: any) {
-                    setIsListening(false);
-                    toast.dismiss('voice-toast');
-                    toast.error('Voice error: ' + (e.message || 'Could not recognize speech'));
+                    
+                    setIsListening(true);
+                    toast.loading('🎙️ Listening... Bolye', { id: 'voice-toast' });
+                    
+                    try {
+                        const result = await SpeechRecognition.start({
+                            language: 'en-IN',
+                            maxResults: 5,
+                            prompt: 'Bolye...',
+                            partialResults: false,
+                            popup: false,
+                        });
+                        
+                        setIsListening(false);
+                        toast.dismiss('voice-toast');
+                        if (result.matches && result.matches.length > 0) {
+                            const transcripts = result.matches.map((m: string) => m.toLowerCase().trim());
+                            processVoiceTranscripts(transcripts);
+                        } else {
+                            toast.error('Awaaz samajh nahi aayi.');
+                        }
+                    } catch(e: any) {
+                        setIsListening(false);
+                        toast.dismiss('voice-toast');
+                        toast.error('Voice error: ' + (e.message || 'Could not recognize speech'));
+                    }
+                    return;
                 }
-                return;
             }
         } catch(e) { /* console.log('Capacitor speech not available', e); */ }
 
@@ -471,7 +478,7 @@ export default function NewInvoicePage() {
             // console.log("Using Offline Smart Fallback matching...");
             
             // Clean text and handle common hindi/english numbers
-            let text = heard.toLowerCase()
+            const text = heard.toLowerCase()
                 .replace(/ek/g, '1').replace(/do/g, '2').replace(/teen/g, '3')
                 .replace(/chaar/g, '4').replace(/paanch/g, '5')
                 .replace(/aur/g, 'and').replace(/, /g, ' and ');

@@ -55,7 +55,7 @@ async function compressImage(dataUrl: string, maxWidth = 800, quality = 0.6): Pr
 const COLORS = ['#7c83ff', '#00c853', '#e53935', '#f9a825', '#0091ea', '#00bcd4', '#8e24aa'];
 function getColor(name: string) {
     let h = 0;
-    for (let c of name) h = (h * 31 + c.charCodeAt(0)) % COLORS.length;
+    for (const c of name) h = (h * 31 + c.charCodeAt(0)) % COLORS.length;
     return COLORS[Math.abs(h) % COLORS.length];
 }
 function initials(name: string) {
@@ -532,7 +532,7 @@ export default function BusinessExpensesPage() {
                 }
             } catch(e) {}
             const shareUrl = `${window.location.origin}/h/${shareId}`;
-            let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
+            const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
@@ -568,7 +568,7 @@ export default function BusinessExpensesPage() {
                 }
             } catch(e) {}
             const shareUrl = `${window.location.origin}/h/${shareId}`;
-            let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
+            const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             try {
                 let c = 0, d = 0;
@@ -633,7 +633,7 @@ export default function BusinessExpensesPage() {
                 }
             } catch(e) {}
             const shareUrl = `${window.location.origin}/h/${shareId}`;
-            let textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
+            const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
@@ -650,16 +650,13 @@ export default function BusinessExpensesPage() {
                 showToast('❌ PDF nahi ban paya!');
                 return;
             }
-            const pdfBlob = doc.output('blob');
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Ledger_${currentCust?.name}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('✅ PDF Downloaded!');
+            const base64Data = doc.output('datauristring').split(',')[1];
+            const fileName = `Ledger_${currentCust?.name}.pdf`;
+            
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, fileName, 'application/pdf');
+            
+            showToast('✅ PDF Downloaded/Shared!');
         } catch (err: any) {
             showToast('❌ PDF Error: ' + (err.message || 'Unknown'));
         }
@@ -958,18 +955,12 @@ export default function BusinessExpensesPage() {
                 (c.txns || []).forEach((t: any) => { if (t.type === 'credit') cr += t.amt; else db += t.amt; });
                 csv += `"${c.name}",${c.phone},${c.type},${db},${cr},${Math.abs(c.balance)} ${c.balance < 0 ? 'Dena' : 'Lena'}\n`;
             });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const file = new File([blob], `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
+            const fileName = `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
+            const base64Data = btoa(unescape(encodeURIComponent(csv)));
             
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('✅ Excel Downloaded!');
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, fileName, 'text/csv');
+            showToast('✅ Excel Downloaded/Shared!');
         } catch (e: any) {
             showToast('❌ Excel Error: ' + (e.message || 'Unknown'));
         }
@@ -990,18 +981,12 @@ export default function BusinessExpensesPage() {
                 csv += `${date},"${t.name || t.type}",${t.type},${crAmt},${dbAmt}\n`;
             });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const file = new File([blob], `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`, { type: 'text/csv' });
+            const fileName = `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
+            const base64Data = btoa(unescape(encodeURIComponent(csv)));
             
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('✅ Excel Downloaded!');
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, fileName, 'text/csv');
+            showToast('✅ Excel Downloaded/Shared!');
         } catch (e: any) {
             showToast('❌ Excel Error: ' + (e.message || 'Unknown'));
         }

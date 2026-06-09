@@ -138,46 +138,55 @@ export default function AIChat() {
                                         <button
                                             onClick={async () => {
                                                 try {
-                                                    const { Capacitor } = await import('@capacitor/core');
-                                                    if (Capacitor.isNativePlatform()) {
-                                                        const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
-                                                        const hasPerm = await SpeechRecognition.checkPermissions();
-                                                        if (hasPerm.speechRecognition !== 'granted') {
-                                                            const request = await SpeechRecognition.requestPermissions();
-                                                            if (request.speechRecognition !== 'granted') {
-                                                                toast.error('Microphone permission denied!');
-                                                                return;
+                                                    const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
+                                                    if (isNativeApp()) {
+                                                        const SpeechRecognition = getNativePlugin('SpeechRecognition');
+                                                        if (SpeechRecognition) {
+                                                            const hasPerm = await SpeechRecognition.checkPermissions();
+                                                            if (hasPerm.speechRecognition !== 'granted') {
+                                                                const request = await SpeechRecognition.requestPermissions();
+                                                                if (request.speechRecognition !== 'granted') {
+                                                                    toast.error('Microphone permission denied! Browser ya Settings se permission allow karein.');
+                                                                    return;
+                                                                }
                                                             }
+                                                            toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });
+                                                            const result = await SpeechRecognition.start({
+                                                                language: 'hi-IN',
+                                                                maxResults: 1,
+                                                                prompt: 'Speak now...',
+                                                                partialResults: false,
+                                                            });
+                                                            if (result.matches && result.matches.length > 0) {
+                                                                setInput(result.matches[0]);
+                                                            }
+                                                            return;
                                                         }
-                                                        toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });
-                                                        const result = await SpeechRecognition.start({
-                                                            language: 'hi-IN',
-                                                            maxResults: 1,
-                                                            prompt: 'Speak now...',
-                                                            partialResults: false,
-                                                        });
-                                                        if (result.matches && result.matches.length > 0) {
-                                                            setInput(result.matches[0]);
-                                                        }
-                                                        return;
                                                     }
                                                 } catch(e) { }
 
                                                 const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
                                                 if(!SpeechRecognitionClass) {
-                                                    toast.error('Voice typing not supported on this browser');
+                                                    toast.error('Voice typing not supported. Chrome browser use karein ya settings se Mic allow karein.');
                                                     return;
                                                 }
-                                                const recognition = new SpeechRecognitionClass();
-                                                recognition.lang = 'hi-IN';
-                                                recognition.onstart = () => {
-                                                    toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });
-                                                };
-                                                recognition.onresult = (event: any) => {
-                                                    const transcript = event.results[0][0].transcript;
-                                                    setInput(transcript);
-                                                };
-                                                recognition.start();
+                                                try {
+                                                    const recognition = new SpeechRecognitionClass();
+                                                    recognition.lang = 'hi-IN';
+                                                    recognition.onstart = () => {
+                                                        toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });
+                                                    };
+                                                    recognition.onresult = (event: any) => {
+                                                        const transcript = event.results[0][0].transcript;
+                                                        setInput(transcript);
+                                                    };
+                                                    recognition.onerror = (e: any) => {
+                                                        if(e.error === 'not-allowed') toast.error('Mic ki permission allow kare browser se.');
+                                                    };
+                                                    recognition.start();
+                                                } catch(e) {
+                                                    toast.error('Could not start mic. Check permissions.');
+                                                }
                                             }}
                                             className="p-3 text-slate-400 hover:text-indigo-600 transition-colors"
                                             title="Boliye (Voice)"

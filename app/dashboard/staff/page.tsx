@@ -191,7 +191,7 @@ export default function SmartAttendance() {
     });
 
     // Calculate details for Sheet
-    let ds = { p: 0, a: 0, h: 0, l: 0, gross: 0, deduct: 0, net: 0, rate: 0 };
+    const ds = { p: 0, a: 0, h: 0, l: 0, gross: 0, deduct: 0, net: 0, rate: 0 };
     if (selectedStaff) {
         ds.rate = selectedStaff.salary_type === 'monthly' ? (Number(selectedStaff.monthly_salary) / daysInMonth) : (Number(selectedStaff.daily_wage) || 0);
         // Check current month records
@@ -391,8 +391,10 @@ export default function SmartAttendance() {
 
         const filename = `${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {
-            doc.save(filename);
-            toast.success('Salary Slip Downloaded! (Check Downloads folder)', { duration: 5000 });
+            const base64Data = doc.output('datauristring').split(',')[1];
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, filename, 'application/pdf');
+            toast.success('Salary Slip Downloaded/Shared!', { duration: 5000 });
         } catch (err) {
             console.error('PDF Save error:', err);
             toast.error('Failed to save PDF');
@@ -492,9 +494,10 @@ export default function SmartAttendance() {
 
         const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {
-            // Most robust fallback for mobile TWA/WebView
-            doc.save(filename);
-            toast.success('Master Report Downloaded! (Check Downloads folder)', { duration: 5000 });
+            const base64Data = doc.output('datauristring').split(',')[1];
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, filename, 'application/pdf');
+            toast.success('Master Report Downloaded/Shared!', { duration: 5000 });
         } catch (err) {
             console.error('PDF Save error:', err);
             toast.error('Failed to save PDF');

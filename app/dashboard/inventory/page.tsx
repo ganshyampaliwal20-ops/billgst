@@ -343,13 +343,18 @@ export default function InventoryPage() {
     const startScanner = () => {
         setShowScanner(true);
         setTimeout(() => {
-            const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
+            let scanner: Html5QrcodeScanner | null = null;
+            scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
             scanner.render((decodedText) => {
-                scanner.clear();
+                scanner?.clear();
                 setShowScanner(false);
                 handleScannedCode(decodedText);
             }, (error) => {
-                // Ignore errors
+                if (typeof error === 'string' && (error.includes('NotAllowedError') || error.includes('Permission denied'))) {
+                    scanner?.clear();
+                    setShowScanner(false);
+                    toast.error('Camera access denied! Please allow Camera permission from Android Settings.');
+                }
             });
         }, 300);
     };

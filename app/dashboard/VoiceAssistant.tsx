@@ -90,44 +90,46 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         if (isListening || isProcessing || isEngineActive.current) return;
 
         try {
-            const { Capacitor } = await import('@capacitor/core');
-            if (Capacitor.isNativePlatform()) {
-                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
-                const hasPerm = await SpeechRecognition.checkPermissions();
-                if (hasPerm.speechRecognition !== 'granted') {
-                    const request = await SpeechRecognition.requestPermissions();
-                    if (request.speechRecognition !== 'granted') {
-                        toast.error('Microphone permission denied!');
-                        return;
+            const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
+            if (isNativeApp()) {
+                const SpeechRecognition = getNativePlugin('SpeechRecognition');
+                if (SpeechRecognition) {
+                    const hasPerm = await SpeechRecognition.checkPermissions();
+                    if (hasPerm.speechRecognition !== 'granted') {
+                        const request = await SpeechRecognition.requestPermissions();
+                        if (request.speechRecognition !== 'granted') {
+                            toast.error('Microphone permission denied! Browser ya Settings se allow karein.');
+                            return;
+                        }
                     }
-                }
-                
-                setTranscript('');
-                transcriptRef.current = '';
-                setReply('');
-                setIsListening(true);
-                
-                try {
-                    const result = await SpeechRecognition.start({
-                        language: 'hi-IN',
-                        maxResults: 1,
-                        prompt: 'Speak now...',
-                        partialResults: false,
-                        popup: false,
-                    });
                     
-                    setIsListening(false);
-                    if (result.matches && result.matches.length > 0) {
-                        const recognizedText = result.matches[0];
-                        setTranscript(recognizedText);
-                        transcriptRef.current = recognizedText;
-                        handleProcessVoice(recognizedText);
+                    setTranscript('');
+                    transcriptRef.current = '';
+                    setReply('');
+                    setIsListening(true);
+                    
+                    try {
+                        const result = await SpeechRecognition.start({
+                            language: 'hi-IN',
+                            maxResults: 1,
+                            prompt: 'Speak now...',
+                            partialResults: false,
+                            popup: false,
+                        });
+                        
+                        setIsListening(false);
+                        if (result.matches && result.matches.length > 0) {
+                            const recognizedText = result.matches[0];
+                            setTranscript(recognizedText);
+                            transcriptRef.current = recognizedText;
+                            handleProcessVoice(recognizedText);
+                        }
+                    } catch(e) {
+                        setIsListening(false);
+                        toast.error('Voice recognition failed.');
                     }
-                } catch(e) {
-                    setIsListening(false);
-                    toast.error('Voice recognition failed.');
+                    return;
                 }
-                return;
             }
         } catch(e) {}
 
