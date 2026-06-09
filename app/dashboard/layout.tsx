@@ -100,7 +100,7 @@ export default function DashboardLayout({
         href: string;
         show?: boolean;
         isAuth?: boolean;
-        subItems?: { label: string; href: string }[];
+        subItems?: { label: string; href: string; icon?: any }[];
         onClick?: () => void;
     }
 
@@ -120,12 +120,12 @@ export default function DashboardLayout({
             label: t.invoices,
             href: '/dashboard/invoices',
             subItems: [
-                { label: t.invoices, href: '/dashboard/invoices' },
-                { label: t.taxInvoice, href: '/dashboard/invoices/new?type=TAX_INVOICE' },
-                { label: t.billOfSupply, href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY' },
-                { label: t.eWayBill, href: '/dashboard/invoices/new?type=E_WAY_BILL' },
-                { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN' },
-                { label: t.quotations || 'Quotation', href: '/dashboard/quotations' },
+                { label: t.invoices, href: '/dashboard/invoices', icon: FaFileInvoice },
+                { label: t.taxInvoice, href: '/dashboard/invoices/new?type=TAX_INVOICE', icon: FaFileAlt },
+                { label: t.billOfSupply, href: '/dashboard/invoices/new?type=BILL_OF_SUPPLY', icon: FaReceipt },
+                { label: t.eWayBill, href: '/dashboard/invoices/new?type=E_WAY_BILL', icon: FaBox },
+                { label: t.deliveryChallan, href: '/dashboard/invoices/new?type=DELIVERY_CHALLAN', icon: FaFileContract },
+                { label: t.quotations || 'Quotation', href: '/dashboard/quotations', icon: FaFileAlt },
             ]
         });
     }
@@ -194,36 +194,39 @@ export default function DashboardLayout({
             >
                 <div className="h-full flex flex-col">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-6 border-b-[0.5px] border-[#e5e5e5]">
-                        <Link href="/dashboard" className="flex items-center gap-4" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="w-[46px] h-[46px] rounded-[12px] bg-[#534AB7] flex items-center justify-center text-white text-[22px] overflow-hidden relative shrink-0 shadow-md">
+                    <div className="flex flex-col items-center justify-center pt-10 pb-6 px-6 border-b-[0.5px] border-[#e5e5e5] relative">
+                        <Link href="/dashboard" className="flex flex-col items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="w-[64px] h-[64px] rounded-[16px] bg-[#534AB7] flex items-center justify-center text-white text-[28px] overflow-hidden relative shadow-lg">
                                 {businessProfile.logo ? (
-                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-0.5 bg-white" />
+                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-1 bg-white" />
                                 ) : (
                                     <FaReceipt />
                                 )}
                             </div>
-                            <span className="text-[22px] font-extrabold text-[#534AB7] tracking-tight">BillGST</span>
+                            <span className="text-[24px] font-extrabold text-[#534AB7] tracking-tight">BillGST</span>
                         </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden w-[38px] h-[38px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[18px] transition-colors hover:bg-[#ebebeb] shadow-sm"
+                            className="md:hidden absolute top-4 right-4 w-[36px] h-[36px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[16px] transition-colors hover:bg-[#ebebeb] shadow-sm"
                         >
                             <FaTimes />
                         </button>
                     </div>
 
-                    {/* Business Card - Premium Gradient Look */}
-                    <div className="mx-5 mt-6 mb-2 p-[2px] rounded-[16px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-md">
-                        <div className="bg-white rounded-[14px] px-4 py-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
-                            <div className="w-[44px] h-[44px] rounded-full bg-gradient-to-br from-[#534AB7] to-[#867DE8] flex items-center justify-center text-white text-[16px] font-bold shrink-0 shadow-inner">
-                                {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="text-[16px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
-                                <div className="text-[12px] text-gray-500 mt-[4px] flex items-center gap-1.5 truncate font-medium">
-                                    <FaCog className="text-[12px] text-indigo-400" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
-                                </div>
+                    {/* Business Card - 3D Professional Look */}
+                    <div 
+                        className="mx-5 mt-8 mb-6 bg-white rounded-[16px] p-4 flex items-center gap-4 cursor-pointer transition-all border border-gray-100 relative overflow-hidden group"
+                        style={{ boxShadow: '0 10px 25px -5px rgba(83, 74, 183, 0.15), 0 8px 10px -6px rgba(83, 74, 183, 0.1)' }}
+                        onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}
+                    >
+                        <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+                        <div className="w-[48px] h-[48px] rounded-[14px] bg-gradient-to-br from-[#534AB7] to-[#867DE8] flex items-center justify-center text-white text-[18px] font-bold shrink-0 shadow-md group-hover:shadow-lg transition-all transform group-hover:-translate-y-0.5">
+                            {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-[16px] font-bold text-[#2d3748] leading-[1.3] truncate tracking-tight">{businessProfile.name || 'Your Business'}</div>
+                            <div className="text-[13px] text-indigo-600 mt-[4px] flex items-center gap-1.5 truncate font-medium">
+                                <FaCog className="text-[13px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
                             </div>
                         </div>
                     </div>
@@ -259,8 +262,9 @@ export default function DashboardLayout({
                                         </button>
 
                                         {isInvoiceOpen && (
-                                            <div className="flex flex-col pl-[54px] pr-2 pb-2 pt-1 gap-1.5">
+                                            <div className="flex flex-col gap-2 mt-2 px-2 py-3 bg-[#fafafa] rounded-[16px] border border-slate-100 shadow-inner mx-1">
                                                 {item.subItems?.map((sub) => {
+                                                    const SubIcon = sub.icon || FaFileAlt;
                                                     const isSubActive = pathname === sub.href;
                                                     return (
                                                         <Link
@@ -268,11 +272,14 @@ export default function DashboardLayout({
                                                             href={sub.href}
                                                             prefetch={true}
                                                             onClick={() => setIsSidebarOpen(false)}
-                                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all
-                                                                ${isSubActive ? 'bg-[#EEEDFE] text-[#3C3489] font-bold shadow-sm' : 'text-[#555] hover:bg-[#f5f5f5] hover:text-[#222] font-medium'}`}
+                                                            className={`flex items-center gap-4 px-3 py-3 rounded-[12px] transition-all
+                                                                ${isSubActive ? 'bg-[#EEEDFE] shadow-sm' : 'hover:bg-white text-[#444] hover:shadow-sm'}`}
                                                         >
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-[#534AB7]' : 'bg-[#ccc]'}`} />
-                                                            <span className="text-[14px]">{sub.label}</span>
+                                                            <div className={`w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] shrink-0 transition-colors
+                                                                ${isSubActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
+                                                                <SubIcon />
+                                                            </div>
+                                                            <span className={`text-[15px] ${isSubActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{sub.label}</span>
                                                         </Link>
                                                     );
                                                 })}
