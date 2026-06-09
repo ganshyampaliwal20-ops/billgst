@@ -193,25 +193,28 @@ export default function DashboardLayout({
                     }`}
             >
                 <div className="h-full flex flex-col">
-                    {/* Combined Header & Business Card - 3D Painted Unique Design */}
-                    <div className="relative mx-4 mt-6 mb-4 p-[3px] rounded-[20px] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-[0_10px_20px_-5px_rgba(83,74,183,0.3)] group cursor-pointer" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
-                        <div className="absolute inset-0 bg-white/20 rounded-[20px] backdrop-blur-sm"></div>
-                        <div className="relative bg-white/95 backdrop-blur-md rounded-[18px] p-6 flex flex-col items-center text-center transition-all">
+                    {/* Combined Header & Business Card - Professional Royal 3D Design */}
+                    <div className="relative mx-4 mt-6 mb-4 p-[2px] rounded-[20px] bg-gradient-to-b from-[#8E84F3] to-[#4235B8] shadow-[0_12px_28px_-6px_rgba(45,36,138,0.4)] group cursor-pointer" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                        <div className="relative bg-gradient-to-br from-[#352B9C] to-[#1A1454] rounded-[18px] p-6 flex flex-col items-center text-center transition-all overflow-hidden border border-[#4A3DB5]/50">
+                            {/* Decorative background glow */}
+                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#8E84F3] rounded-full filter blur-[40px] opacity-20"></div>
+                            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#D1CFF8] rounded-full filter blur-[40px] opacity-10"></div>
+                            
                             {/* 3D Logo Container */}
-                            <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-[#534AB7] to-[#867DE8] flex items-center justify-center text-white text-[32px] overflow-hidden relative shadow-[0_8px_16px_-4px_rgba(83,74,183,0.4)] mb-4 border-2 border-white/50 group-hover:scale-105 transition-transform duration-300">
+                            <div className="w-[76px] h-[76px] rounded-[22px] bg-white flex items-center justify-center text-[#352B9C] text-[34px] overflow-hidden relative shadow-[0_8px_20px_rgba(0,0,0,0.3)] mb-4 border-[3px] border-[#8E84F3]/30 group-hover:scale-105 transition-transform duration-300 z-10">
                                 {businessProfile.logo ? (
-                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-1 bg-white" />
+                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-1" />
                                 ) : (
                                     <FaReceipt />
                                 )}
                             </div>
                             
                             {/* Business Name replacing BillGST */}
-                            <div className="w-full">
-                                <h2 className="text-[19px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-700 leading-tight truncate tracking-tight px-1">
+                            <div className="w-full relative z-10">
+                                <h2 className="text-[20px] font-extrabold text-white leading-tight truncate tracking-tight px-1 drop-shadow-md">
                                     {businessProfile.name || 'Your Business'}
                                 </h2>
-                                <div className="text-[13px] text-indigo-500/80 mt-1.5 flex items-center justify-center gap-1.5 font-medium">
+                                <div className="text-[13px] text-[#C4BFF0] mt-1.5 flex items-center justify-center gap-1.5 font-medium">
                                     <FaCog className="text-[13px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
                                 </div>
                             </div>
@@ -219,7 +222,7 @@ export default function DashboardLayout({
                             {/* Mobile Close Button */}
                             <button
                                 onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }}
-                                className="md:hidden absolute top-3 right-3 w-[32px] h-[32px] rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-slate-500 transition-colors"
+                                className="md:hidden absolute top-3 right-3 w-[32px] h-[32px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border border-white/10 z-20"
                             >
                                 <FaTimes size={14} />
                             </button>
@@ -257,7 +260,7 @@ export default function DashboardLayout({
                                         </button>
 
                                         {isInvoiceOpen && (
-                                            <div className="flex flex-col gap-2 mt-2 px-2 py-3 bg-[#fafafa] rounded-[16px] border border-slate-100 shadow-inner mx-1">
+                                            <div className="flex flex-col gap-2 mt-2 px-2 py-3 bg-[#F4F3FF] rounded-[16px] border border-[#E4E1FA] shadow-inner mx-1">
                                                 {item.subItems?.map((sub) => {
                                                     const SubIcon = sub.icon || FaFileAlt;
                                                     const isSubActive = pathname === sub.href;
@@ -268,13 +271,13 @@ export default function DashboardLayout({
                                                             prefetch={true}
                                                             onClick={() => setIsSidebarOpen(false)}
                                                             className={`flex items-center gap-4 px-3 py-3 rounded-[12px] transition-all
-                                                                ${isSubActive ? 'bg-[#EEEDFE] shadow-sm' : 'hover:bg-white text-[#444] hover:shadow-sm'}`}
+                                                                ${isSubActive ? 'bg-[#534AB7] text-white shadow-md transform scale-[1.02]' : 'bg-white hover:bg-[#EAE8FD] text-[#444] hover:text-[#3C3489] shadow-sm hover:shadow-md'}`}
                                                         >
                                                             <div className={`w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] shrink-0 transition-colors
-                                                                ${isSubActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
+                                                                ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#F4F3FF] text-[#534AB7]'}`}>
                                                                 <SubIcon />
                                                             </div>
-                                                            <span className={`text-[15px] ${isSubActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{sub.label}</span>
+                                                            <span className={`text-[15px] ${isSubActive ? 'font-bold' : 'font-semibold'}`}>{sub.label}</span>
                                                         </Link>
                                                     );
                                                 })}
