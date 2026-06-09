@@ -257,18 +257,23 @@ export default function DashboardLayout({
                                         </button>
 
                                         {isInvoiceOpen && (
-                                            <div className="flex flex-col pl-14 pr-2 pb-2 pt-2 gap-1.5">
-                                                {item.subItems?.map((sub) => (
-                                                    <Link
-                                                        key={sub.href}
-                                                        href={sub.href}
-                                                        prefetch={true}
-                                                        onClick={() => setIsSidebarOpen(false)}
-                                                        className={`py-1.5 text-[14px] ${pathname === sub.href ? 'text-[#3C3489] font-bold' : 'text-[#666] hover:text-[#333]'}`}
-                                                    >
-                                                        • {sub.label}
-                                                    </Link>
-                                                ))}
+                                            <div className="flex flex-col pl-[54px] pr-2 pb-2 pt-1 gap-1.5">
+                                                {item.subItems?.map((sub) => {
+                                                    const isSubActive = pathname === sub.href;
+                                                    return (
+                                                        <Link
+                                                            key={sub.href}
+                                                            href={sub.href}
+                                                            prefetch={true}
+                                                            onClick={() => setIsSidebarOpen(false)}
+                                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all
+                                                                ${isSubActive ? 'bg-[#EEEDFE] text-[#3C3489] font-bold shadow-sm' : 'text-[#555] hover:bg-[#f5f5f5] hover:text-[#222] font-medium'}`}
+                                                        >
+                                                            <div className={`w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-[#534AB7]' : 'bg-[#ccc]'}`} />
+                                                            <span className="text-[14px]">{sub.label}</span>
+                                                        </Link>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
