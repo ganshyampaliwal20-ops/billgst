@@ -187,144 +187,122 @@ export default function DashboardLayout({
             <aside
                 className={`absolute md:relative inset-y-0 left-0 z-[60] w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
+            {/* Sidebar */}
+            <aside
+                className={`absolute md:relative inset-y-0 left-0 z-[60] w-[82%] max-w-[300px] md:w-72 bg-white md:border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none rounded-r-[16px] md:rounded-none overflow-hidden pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
             >
                 <div className="h-full flex flex-col">
-                    {/* Logo Section */}
-                    <div className="p-4 flex items-center justify-between">
-                        <Link href="/dashboard" className="flex items-center gap-2 group" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-sm border border-slate-100 group-hover:shadow-md transition-shadow">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b-[0.5px] border-[#e5e5e5]">
+                        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="w-[38px] h-[38px] rounded-[10px] bg-[#534AB7] flex items-center justify-center text-white text-[18px] overflow-hidden relative">
                                 {businessProfile.logo ? (
-                                    <Image
-                                        src={businessProfile.logo}
-                                        alt="Logo"
-                                        fill
-                                        className="object-cover"
-                                    />
+                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                        <FaStore className="text-white text-sm" />
-                                    </div>
+                                    <FaReceipt />
                                 )}
                             </div>
-                            <div>
-                                <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                    BillGST
-                                </h1>
-                            </div>
+                            <span className="text-[18px] font-semibold text-[#534AB7] tracking-[-0.3px]">BillGST</span>
                         </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                            className="md:hidden w-[30px] h-[30px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[16px] transition-colors hover:bg-[#ebebeb]"
                         >
-                            <FaTimes size={18} />
+                            <FaTimes />
                         </button>
                     </div>
 
-                    {/* Navigation - Distributed evenly to fit layout */}
-                    <nav className="flex-1 py-2 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar" style={{ paddingLeft: '8px', paddingRight: '8px' }}>
-                        {/* Language Toggle */}
-                        <div className="flex shrink-0 mb-1" style={{ paddingLeft: '8px' }}>
-                            <LanguageSelector showLabel={true} />
+                    {/* Business Card */}
+                    <div className="mx-3 mt-3 mb-1 px-3 py-2.5 bg-[#EEEDFE] rounded-[10px] flex items-center gap-2.5 cursor-pointer hover:bg-[#e4e2fd] transition-colors" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                        <div className="w-[36px] h-[36px] rounded-full bg-[#534AB7] flex items-center justify-center text-white text-[13px] font-semibold shrink-0">
+                            {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
                         </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="text-[13px] font-semibold text-[#3C3489] leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
+                            <div className="text-[11px] text-[#7F77DD] mt-[1px] flex items-center gap-1 truncate">
+                                <FaCog className="text-[11px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                            </div>
+                        </div>
+                    </div>
 
-                        {/* Menu Items Container */}
-                        <div className="flex flex-col gap-1.5">
-                            {menuItems.filter(item => !item.isAuth).map((item) => {
-                                const Icon = item.icon;
-                                const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
-                                const hasSubItems = item.subItems && item.subItems.length > 0;
+                    {/* Language row (using existing LanguageSelector wrapped nicely) */}
+                    <div className="flex shrink-0 mb-1 mt-1 px-3">
+                        <LanguageSelector showLabel={true} />
+                    </div>
 
-                                if (hasSubItems) {
-                                    return (
-                                        <div key={item.label} className="flex flex-col gap-1">
-                                            <button
-                                                onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
-                                                className={`
-                                                    flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
-                                                    border relative overflow-hidden flex-1 min-h-[40px] w-full text-left
-                                                    bg-blue-600 text-white font-bold border-blue-700 shadow-lg
-                                                `}
-                                            >
-                                                <div className={`p-3 pl-2 pr-2
-                                                    p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                                                    ${isActive
-                                                        ? 'bg-white/20 text-white'
-                                                        : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                                    }
-                                                `}>
-                                                    <Icon className={`text-base ml-2 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
-                                                </div>
-                                                <span className="text-xs tracking-wide flex-1 relative z-10 truncate pl-2">{item.label}</span>
-                                                {isInvoiceOpen ? <FaChevronUp className="text-[10px]" /> : <FaChevronDown className="text-[10px]" />}
-                                            </button>
+                    {/* Menu Items Container */}
+                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-2 pt-1 pb-2 flex flex-col">
+                        <div className="text-[10px] font-semibold text-[#aaa] uppercase tracking-[0.07em] px-2 pt-2.5 pb-1">Menu</div>
+                        
+                        {menuItems.filter(item => !item.isAuth).map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
+                            const hasSubItems = item.subItems && item.subItems.length > 0;
 
-                                            {isInvoiceOpen && (
-                                                <div className="flex flex-col gap-1.5 mt-1.5 px-1">
-                                                    {item.subItems?.map((sub) => (
-                                                        <Link
-                                                            key={sub.href}
-                                                            href={sub.href}
-                                                            prefetch={true}
-                                                            onClick={() => setIsSidebarOpen(false)}
-                                                            className={`
-                                                                flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold transition-all border-2
-                                                                bg-orange-500 text-white border-orange-600 shadow-md hover:bg-orange-600 hover:scale-[1.02] active:scale-95
-                                                            `}
-                                                        >
-                                                            {sub.label}
-                                                        </Link>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                }
-
+                            if (hasSubItems) {
                                 return (
-                                    <Link
-                                        key={item.label}
-                                        href={item.href}
-                                        prefetch={true}
-                                        onClick={(e) => {
-                                            if (item.onClick) {
-                                                e.preventDefault();
-                                                item.onClick();
-                                            } else {
-                                                setIsSidebarOpen(false);
-                                            }
-                                        }}
-                                        className={`
-                                            flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
-                                            border relative overflow-hidden flex-shrink-0 min-h-[40px]
-                                            ${isActive
-                                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold border-indigo-700 shadow-sm'
-                                                : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
-                                            }
-                                        `}
-                                    >
-                                        <div className={`
-                                            p-3 pl-2 pr-2 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                                            ${isActive
-                                                ? 'bg-white/20 text-white'
-                                                : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                            }
-                                        `}>
-                                            <Icon className={`text-base ml-2 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
-                                        </div>
-                                        <span className="text-xs tracking-wide flex-1 relative z-10 truncate pl-2">{item.label}</span>
+                                    <div key={item.label} className="flex flex-col">
+                                        <button
+                                            onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
+                                            className={`flex items-center gap-3 px-2.5 py-[9px] rounded-[9px] cursor-pointer transition-colors mb-[2px] w-full text-left
+                                                ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                        >
+                                            <div className={`w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[17px] shrink-0 transition-colors
+                                                ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
+                                                <Icon />
+                                            </div>
+                                            <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
+                                            {isInvoiceOpen ? <FaChevronUp className="text-[#bbb] text-[12px]" /> : <FaChevronDown className="text-[#bbb] text-[12px]" />}
+                                        </button>
 
-                                        {isActive && (
-                                            <>
-                                                <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse z-10" />
-                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 animate-shine pointer-events-none" />
-                                            </>
+                                        {isInvoiceOpen && (
+                                            <div className="flex flex-col pl-10 pr-2 pb-2">
+                                                {item.subItems?.map((sub) => (
+                                                    <Link
+                                                        key={sub.href}
+                                                        href={sub.href}
+                                                        prefetch={true}
+                                                        onClick={() => setIsSidebarOpen(false)}
+                                                        className={`py-1.5 text-[13px] ${pathname === sub.href ? 'text-[#3C3489] font-semibold' : 'text-[#666] hover:text-[#333]'}`}
+                                                    >
+                                                        • {sub.label}
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         )}
-                                    </Link>
+                                    </div>
                                 );
-                            })}
-                        </div>
+                            }
 
-                        {/* Auth Items */}
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    prefetch={true}
+                                    onClick={(e) => {
+                                        if (item.onClick) {
+                                            e.preventDefault();
+                                            item.onClick();
+                                        } else {
+                                            setIsSidebarOpen(false);
+                                        }
+                                    }}
+                                    className={`flex items-center gap-3 px-2.5 py-[9px] rounded-[9px] cursor-pointer transition-colors mb-[2px]
+                                        ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                >
+                                    <div className={`w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[17px] shrink-0 transition-colors
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
+                                        <Icon />
+                                    </div>
+                                    <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
+                                </Link>
+                            );
+                        })}
+
+                        <div className="h-[0.5px] bg-[#ebebeb] mx-1.5 my-2" />
+
+                        {/* Auth / Bottom Items */}
                         {menuItems.filter(item => item.isAuth).map((item) => {
                             const Icon = item.icon;
                             const isActive = pathname === item.href;
@@ -334,93 +312,36 @@ export default function DashboardLayout({
                                     href={item.href}
                                     prefetch={true}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`
-                                        flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
-                                        border relative overflow-hidden flex-shrink-0 min-h-[40px]
-                                        ${isActive
-                                            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold border-emerald-700 shadow-sm'
-                                            : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
-                                        }
-                                    `}
+                                    className={`flex items-center gap-3 px-2.5 py-[9px] rounded-[9px] cursor-pointer transition-colors mb-[2px]
+                                        ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                 >
-                                    <div className={`
-                                        p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                                        ${isActive
-                                            ? 'bg-white/20 text-white'
-                                            : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                        }
-                                    `}>
-                                        <Icon className={`text-base transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:rotate-12'}`} />
+                                    <div className={`w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[17px] shrink-0 transition-colors
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
+                                        <Icon />
                                     </div>
-                                    <span className="text-xs tracking-wide flex-1 relative z-10 truncate pl-2">{item.label}</span>
+                                    <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
                                 </Link>
                             );
                         })}
 
-                        {/* Settings Button */}
-                        <Link
-                            href="/dashboard/settings"
-                            prefetch={true}
-                            onClick={() => setIsSidebarOpen(false)}
-                            className={`
-                                flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-300 group 
-                                border relative overflow-hidden flex-shrink-0 min-h-[40px] mt-0.5
-                                ${pathname === '/dashboard/settings'
-                                    ? 'bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold border-slate-900 shadow-sm'
-                                    : 'bg-white text-slate-600 font-semibold border-slate-200 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'
-                                }
-                            `}
-                        >
-                            <div className={`
-                                p-3 rounded-lg transition-all duration-300 relative z-10 shrink-0
-                                ${pathname === '/dashboard/settings'
-                                    ? 'bg-white/20 text-white'
-                                    : 'bg-slate-100/50 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:scale-110'
-                                }
-                            `}>
-                                <FaCog className={`text-base transition-transform duration-300 ${pathname === '/dashboard/settings' ? 'spin-slow' : 'group-hover:rotate-90'}`} />
-                            </div>
-                            <span className="text-xs tracking-wide flex-1 relative z-10 truncate pl-2">{t.settings}</span>
-                        </Link>
+                        {/* Additional Quick Action: Settings (already in menu list, so skipping duplicating it, but keeping the workspace switcher) */}
+                        <div className="mt-2 px-2">
+                            <WorkspaceSwitcher />
+                        </div>
                     </nav>
 
-                    {/* User Profile / Business Info */}
-                    <div className="p-4 pb-16 md:pb-6 border-t border-slate-200 bg-white/90 backdrop-blur-md sticky bottom-0 mt-auto">
-                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
-                                {businessProfile.logo ? (
-                                    <Image
-                                        src={businessProfile.logo}
-                                        alt="Business Logo"
-                                        width={40}
-                                        height={40}
-                                        className="object-cover w-full h-full"
-                                    />
-                                ) : (
-                                    <span className="text-base">{businessProfile.name?.charAt(0) || 'B'}</span>
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-slate-800 truncate">{businessProfile.name || 'Your Business'}</p>
-                                <p className="text-[10px] text-slate-500 truncate font-medium bg-slate-100 inline-block px-2 py-0.5 rounded-full mt-0.5">
-                                    {businessProfile.gstin || t.setupBusiness}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 px-2 flex flex-col gap-2">
-                            <WorkspaceSwitcher />
-                            <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 py-3 rounded-xl hover:from-slate-200 hover:to-slate-300 transition-all font-bold group shadow-sm"
-                            >
-                                <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" />
-                                <span>Logout Safe</span>
-                            </button>
-                            <div className="text-[9px] text-slate-400 text-center mt-2 px-1 leading-tight">
-                                <strong>Disclaimer:</strong> BillGST is a private app, not a government entity. For official GST info, visit <a href="https://www.gst.gov.in/" target="_blank" rel="noopener" className="text-blue-500 hover:underline">gst.gov.in</a>
-                            </div>
-                        </div>
+                    {/* Footer */}
+                    <div className="border-t-[0.5px] border-[#ebebeb] p-3 bg-white">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center justify-center gap-2 w-full p-2.5 rounded-[9px] bg-[#FCEBEB] border-[0.5px] border-[#F7C1C1] text-[#791F1F] text-[14px] font-medium transition-colors hover:bg-[#F7C1C1]"
+                        >
+                            <FaSignOutAlt /> Logout Safe
+                        </button>
+                        <p className="text-[10px] text-[#aaa] text-center mt-2 leading-[1.5]">
+                            BillGST ek private app hai, government entity nahi.<br />
+                            Official GST info ke liye <a href="https://gst.gov.in" target="_blank" className="text-[#534AB7] no-underline">gst.gov.in</a> dekhein.
+                        </p>
                     </div>
                 </div>
             </aside>
