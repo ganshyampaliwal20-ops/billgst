@@ -136,8 +136,39 @@ export default function AIChat() {
                                             className="flex-1 bg-transparent border-none outline-none px-4 py-3 text-sm text-slate-700 font-medium"
                                         />
                                         <button
-                                            onClick={() => {
-                                                const recognition = new ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)();
+                                            onClick={async () => {
+                                                try {
+                                                    const { Capacitor } = await import('@capacitor/core');
+                                                    if (Capacitor.isNativePlatform()) {
+                                                        const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
+                                                        const hasPerm = await SpeechRecognition.checkPermissions();
+                                                        if (hasPerm.speechRecognition !== 'granted') {
+                                                            const request = await SpeechRecognition.requestPermissions();
+                                                            if (request.speechRecognition !== 'granted') {
+                                                                toast.error('Microphone permission denied!');
+                                                                return;
+                                                            }
+                                                        }
+                                                        toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });
+                                                        const result = await SpeechRecognition.start({
+                                                            language: 'hi-IN',
+                                                            maxResults: 1,
+                                                            prompt: 'Speak now...',
+                                                            partialResults: false,
+                                                        });
+                                                        if (result.matches && result.matches.length > 0) {
+                                                            setInput(result.matches[0]);
+                                                        }
+                                                        return;
+                                                    }
+                                                } catch(e) { }
+
+                                                const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                                                if(!SpeechRecognitionClass) {
+                                                    toast.error('Voice typing not supported on this browser');
+                                                    return;
+                                                }
+                                                const recognition = new SpeechRecognitionClass();
                                                 recognition.lang = 'hi-IN';
                                                 recognition.onstart = () => {
                                                     toast.success('Main sun raha hoon... boliye!', { icon: '🎙️', style: { borderRadius: '15px' } });

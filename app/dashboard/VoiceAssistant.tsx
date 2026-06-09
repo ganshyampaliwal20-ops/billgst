@@ -23,58 +23,113 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-            recognitionRef.current = new SpeechRecognition();
-            recognitionRef.current.continuous = false;
-            recognitionRef.current.interimResults = true;
-            recognitionRef.current.lang = 'hi-IN';
-
-            recognitionRef.current.onstart = () => {
-                isEngineActive.current = true;
-            };
-
-            recognitionRef.current.onresult = (event: any) => {
-                const current = event.resultIndex;
-                const result = event.results[current][0].transcript;
-                setTranscript(result);
-                transcriptRef.current = result;
-            };
-
-            recognitionRef.current.onend = () => {
-                setIsListening(false);
-                isEngineActive.current = false;
-                if (transcriptRef.current) {
-                    handleProcessVoice(transcriptRef.current);
+        let isMounted = true;
+        const initSpeech = async () => {
+            try {
+                const { Capacitor } = await import('@capacitor/core');
+                if (Capacitor.isNativePlatform()) {
+                    // Mobile logic handled in startListening
+                    return;
                 }
-            };
+            } catch(e) {}
+            
+            if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                const SpeechRecognitionClass = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+                recognitionRef.current = new SpeechRecognitionClass();
+                recognitionRef.current.continuous = false;
+                recognitionRef.current.interimResults = true;
+                recognitionRef.current.lang = 'hi-IN';
 
-            recognitionRef.current.onerror = (event: any) => {
-                console.error('Speech recognition error', event.error);
-                setIsListening(false);
-                isEngineActive.current = false;
+                recognitionRef.current.onstart = () => {
+                    isEngineActive.current = true;
+                };
 
-                if (event.error === 'no-speech') return;
+                recognitionRef.current.onresult = (event: any) => {
+                    const current = event.resultIndex;
+                    const result = event.results[current][0].transcript;
+                    setTranscript(result);
+                    transcriptRef.current = result;
+                };
 
-                if (event.error === 'network') {
-                    toast.error('Network Error: Please check your internet connection for voice recognition.', { duration: 5000 });
-                } else if (event.error === 'not-allowed') {
-                    toast.error('Microphone access denied. Please enable it in browser settings.');
-                } else {
-                    toast.error(`Voice Error: ${event.error}. Please try again.`);
-                }
-            };
-        }
+                recognitionRef.current.onend = () => {
+                    setIsListening(false);
+                    isEngineActive.current = false;
+                    if (transcriptRef.current) {
+                        handleProcessVoice(transcriptRef.current);
+                    }
+                };
+
+                recognitionRef.current.onerror = (event: any) => {
+                    console.error('Speech recognition error', event.error);
+                    setIsListening(false);
+                    isEngineActive.current = false;
+
+                    if (event.error === 'no-speech') return;
+
+                    if (event.error === 'network') {
+                        toast.error('Network Error: Please check your internet connection for voice recognition.', { duration: 5000 });
+                    } else if (event.error === 'not-allowed') {
+                        toast.error('Microphone access denied. Please enable it in browser settings.');
+                    } else {
+                        toast.error(`Voice Error: ${event.error}. Please try again.`);
+                    }
+                };
+            }
+        };
+        initSpeech();
 
         return () => {
             if (recognitionRef.current) {
                 recognitionRef.current.stop();
             }
+            isMounted = false;
         };
     }, []);
 
-    const startListening = () => {
+    const startListening = async () => {
         if (isListening || isProcessing || isEngineActive.current) return;
+
+        try {
+            const { Capacitor } = await import('@capacitor/core');
+            if (Capacitor.isNativePlatform()) {
+                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
+                const hasPerm = await SpeechRecognition.checkPermissions();
+                if (hasPerm.speechRecognition !== 'granted') {
+                    const request = await SpeechRecognition.requestPermissions();
+                    if (request.speechRecognition !== 'granted') {
+                        toast.error('Microphone permission denied!');
+                        return;
+                    }
+                }
+                
+                setTranscript('');
+                transcriptRef.current = '';
+                setReply('');
+                setIsListening(true);
+                
+                try {
+                    const result = await SpeechRecognition.start({
+                        language: 'hi-IN',
+                        maxResults: 1,
+                        prompt: 'Speak now...',
+                        partialResults: false,
+                        popup: false,
+                    });
+                    
+                    setIsListening(false);
+                    if (result.matches && result.matches.length > 0) {
+                        const recognizedText = result.matches[0];
+                        setTranscript(recognizedText);
+                        transcriptRef.current = recognizedText;
+                        handleProcessVoice(recognizedText);
+                    }
+                } catch(e) {
+                    setIsListening(false);
+                    toast.error('Voice recognition failed.');
+                }
+                return;
+            }
+        } catch(e) {}
 
         try {
             setTranscript('');
@@ -85,7 +140,6 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         } catch (error: any) {
             console.error('Start listening error:', error);
             if (error.name === 'InvalidStateError') {
-                // Already started, sync state
                 setIsListening(true);
             } else {
                 toast.error('Could not start microphone');
