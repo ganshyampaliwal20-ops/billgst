@@ -428,8 +428,8 @@ export default function DashboardLayout({
             {/* Right Side Content Area */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header - Fixed inside the flex container, below safe area automatically */}
-                <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center">
-                    <div className="w-full max-w-[1600px] flex items-center justify-between px-6 sm:px-8 md:px-12 h-[calc(env(safe-area-inset-top,0px)+60px)] pt-[env(safe-area-inset-top,0px)]">
+                <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex justify-center pt-[env(safe-area-inset-top,32px)]">
+                    <div className="w-full max-w-[1600px] flex items-center justify-between px-5 sm:px-8 md:px-12 h-[60px]">
                         <div className="flex items-center justify-between w-full h-full relative">
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
