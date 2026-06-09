@@ -180,6 +180,9 @@ export default function DashboardLayout({
 
     return (
         <div className="h-[100dvh] bg-slate-900 flex flex-col overflow-hidden">
+            {/* Global Safe Area Protector for Status Bar (Dark background makes white icons visible) */}
+            <div className="w-full bg-slate-900 shrink-0 md:hidden z-[100]" style={{ height: 'max(env(safe-area-inset-top), 36px)' }}></div>
+            
             {/* 2. Main Flex Container */}
             <div className="flex-1 flex overflow-hidden bg-[#f1f5f9] relative">
             
@@ -347,8 +350,6 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header - Fixed inside the flex container, below safe area automatically */}
                 <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex flex-col items-center w-full">
-                    {/* Status Bar Spacer for Mobile */}
-                    <div className="w-full md:hidden shrink-0" style={{ height: 'max(env(safe-area-inset-top), 36px)' }} />
                     <div className="w-full max-w-[1600px] flex items-center justify-between px-5 sm:px-8 md:px-12 h-[60px]">
                         <div className="flex items-center justify-between w-full h-full relative">
                             {/* Left Side: Logo + Business Name */}
