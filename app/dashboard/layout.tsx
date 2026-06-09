@@ -192,48 +192,48 @@ export default function DashboardLayout({
                 className={`absolute md:relative inset-y-0 left-0 z-[60] w-[82%] max-w-[300px] md:w-72 bg-white md:border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none rounded-r-[16px] md:rounded-none overflow-hidden pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
-                <div className="h-full flex flex-col pl-2"> {/* Added 8px left padding to entire menu */}
+                <div className="h-full flex flex-col px-1 md:px-2"> {/* Added more padding on the sides for a premium look */}
                     {/* Header */}
-                    <div className="flex items-center justify-between px-3 py-3 border-b-[0.5px] border-[#e5e5e5]">
-                        <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="w-[36px] h-[36px] rounded-[10px] bg-[#534AB7] flex items-center justify-center text-white text-[18px] overflow-hidden relative shrink-0">
+                    <div className="flex items-center justify-between px-4 py-5 border-b-[0.5px] border-[#e5e5e5]">
+                        <Link href="/dashboard" className="flex items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="w-[42px] h-[42px] rounded-[12px] bg-[#534AB7] flex items-center justify-center text-white text-[20px] overflow-hidden relative shrink-0 shadow-sm">
                                 {businessProfile.logo ? (
                                     <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
                                 ) : (
                                     <FaReceipt />
                                 )}
                             </div>
-                            <span className="text-[18px] font-bold text-[#534AB7] tracking-tight">BillGST</span>
+                            <span className="text-[20px] font-bold text-[#534AB7] tracking-tight">BillGST</span>
                         </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden w-[30px] h-[30px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[16px] transition-colors hover:bg-[#ebebeb] shrink-0"
+                            className="md:hidden w-[36px] h-[36px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[18px] transition-colors hover:bg-[#ebebeb] shrink-0"
                         >
                             <FaTimes />
                         </button>
                     </div>
 
                     {/* Business Card */}
-                    <div className="mx-2 mt-3 mb-1 px-3 py-2.5 bg-[#EEEDFE] rounded-[10px] flex items-center gap-2.5 cursor-pointer hover:bg-[#e4e2fd] transition-colors" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
-                        <div className="w-[36px] h-[36px] rounded-full bg-[#534AB7] flex items-center justify-center text-white text-[13px] font-bold shrink-0">
+                    <div className="mx-3 mt-5 mb-3 px-4 py-4 bg-[#EEEDFE] rounded-[14px] flex items-center gap-3 cursor-pointer hover:bg-[#e4e2fd] transition-colors shadow-sm" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                        <div className="w-[40px] h-[40px] rounded-full bg-[#534AB7] flex items-center justify-center text-white text-[15px] font-bold shrink-0">
                             {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="text-[13px] font-bold text-[#3C3489] leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
-                            <div className="text-[11px] text-[#7F77DD] mt-[1px] flex items-center gap-1 truncate font-medium">
-                                <FaCog className="text-[11px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                            <div className="text-[15px] font-bold text-[#3C3489] leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
+                            <div className="text-[12px] text-[#7F77DD] mt-[2px] flex items-center gap-1.5 truncate font-medium">
+                                <FaCog className="text-[12px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
                             </div>
                         </div>
                     </div>
 
                     {/* Language row */}
-                    <div className="flex shrink-0 mb-1 mt-1 px-2">
+                    <div className="flex shrink-0 mb-4 mt-2 px-4">
                         <LanguageSelector showLabel={true} />
                     </div>
 
                     {/* Menu Items Container */}
-                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-2 pt-1 pb-4 flex flex-col">
-                        <div className="text-[10px] font-bold text-[#aaa] uppercase tracking-[0.07em] px-2 pt-2.5 pb-1">Menu</div>
+                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-3 pt-2 pb-6 flex flex-col gap-[8px]">
+                        <div className="text-[11px] font-bold text-[#aaa] uppercase tracking-wider px-2 pt-1 pb-1">Menu</div>
                         
                         {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
@@ -242,29 +242,29 @@ export default function DashboardLayout({
 
                             if (hasSubItems) {
                                 return (
-                                    <div key={item.label} className="flex flex-col mb-[6px]">
+                                    <div key={item.label} className="flex flex-col">
                                         <button
                                             onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
-                                            className={`flex items-center gap-3 px-2.5 py-[8px] rounded-[10px] cursor-pointer transition-all w-full text-left
-                                                ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                            className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all w-full text-left
+                                                ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                         >
-                                            <div className={`w-[32px] h-[32px] rounded-[8px] flex items-center justify-center text-[16px] shrink-0 transition-colors
-                                                ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
+                                            <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
+                                                ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
                                                 <Icon />
                                             </div>
-                                            <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
-                                            {isInvoiceOpen ? <FaChevronUp className="text-[#bbb] text-[12px]" /> : <FaChevronDown className="text-[#bbb] text-[12px]" />}
+                                            <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                            {isInvoiceOpen ? <FaChevronUp className="text-[#bbb] text-[13px]" /> : <FaChevronDown className="text-[#bbb] text-[13px]" />}
                                         </button>
 
                                         {isInvoiceOpen && (
-                                            <div className="flex flex-col pl-11 pr-2 pb-2 pt-1 gap-0.5">
+                                            <div className="flex flex-col pl-14 pr-2 pb-2 pt-2 gap-1.5">
                                                 {item.subItems?.map((sub) => (
                                                     <Link
                                                         key={sub.href}
                                                         href={sub.href}
                                                         prefetch={true}
                                                         onClick={() => setIsSidebarOpen(false)}
-                                                        className={`py-1.5 text-[13px] ${pathname === sub.href ? 'text-[#3C3489] font-medium' : 'text-[#666] hover:text-[#333]'}`}
+                                                        className={`py-1.5 text-[14px] ${pathname === sub.href ? 'text-[#3C3489] font-bold' : 'text-[#666] hover:text-[#333]'}`}
                                                     >
                                                         • {sub.label}
                                                     </Link>
@@ -288,19 +288,19 @@ export default function DashboardLayout({
                                             setIsSidebarOpen(false);
                                         }
                                     }}
-                                    className={`flex items-center gap-3 px-2.5 py-[8px] rounded-[10px] cursor-pointer transition-all mb-[6px]
-                                        ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                    className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                 >
-                                    <div className={`w-[32px] h-[32px] rounded-[8px] flex items-center justify-center text-[16px] shrink-0 transition-colors
-                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
+                                    <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
                                         <Icon />
                                     </div>
-                                    <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
+                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
                                 </Link>
                             );
                         })}
 
-                        <div className="h-[0.5px] bg-[#ebebeb] mx-1.5 my-2" />
+                        <div className="h-[1px] bg-[#ebebeb] mx-2 my-3" />
 
                         {/* Auth / Bottom Items */}
                         {menuItems.filter(item => item.isAuth).map((item) => {
@@ -312,20 +312,20 @@ export default function DashboardLayout({
                                     href={item.href}
                                     prefetch={true}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-2.5 py-[8px] rounded-[10px] cursor-pointer transition-all mb-[6px]
-                                        ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                    className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                 >
-                                    <div className={`w-[32px] h-[32px] rounded-[8px] flex items-center justify-center text-[16px] shrink-0 transition-colors
-                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
+                                    <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
                                         <Icon />
                                     </div>
-                                    <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
+                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
                                 </Link>
                             );
                         })}
 
-                        {/* Additional Quick Action: Settings (already in menu list, so skipping duplicating it, but keeping the workspace switcher) */}
-                        <div className="mt-2 px-2">
+                        {/* Additional Quick Action: Settings */}
+                        <div className="mt-4 px-3">
                             <WorkspaceSwitcher />
                         </div>
                     </nav>
