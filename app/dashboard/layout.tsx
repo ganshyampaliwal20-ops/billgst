@@ -194,46 +194,46 @@ export default function DashboardLayout({
             >
                 <div className="h-full flex flex-col">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-4 py-3 border-b-[0.5px] border-[#e5e5e5]">
-                        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="w-[38px] h-[38px] rounded-[10px] bg-[#534AB7] flex items-center justify-center text-white text-[18px] overflow-hidden relative">
+                    <div className="flex items-center justify-between px-6 py-4 border-b-[0.5px] border-[#e5e5e5]">
+                        <Link href="/dashboard" className="flex items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="w-[42px] h-[42px] rounded-[12px] bg-[#534AB7] flex items-center justify-center text-white text-[20px] overflow-hidden relative">
                                 {businessProfile.logo ? (
                                     <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
                                 ) : (
                                     <FaReceipt />
                                 )}
                             </div>
-                            <span className="text-[18px] font-semibold text-[#534AB7] tracking-[-0.3px]">BillGST</span>
+                            <span className="text-[20px] font-bold text-[#534AB7] tracking-tight">BillGST</span>
                         </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden w-[30px] h-[30px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[16px] transition-colors hover:bg-[#ebebeb]"
+                            className="md:hidden w-[34px] h-[34px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[18px] transition-colors hover:bg-[#ebebeb] shadow-sm"
                         >
                             <FaTimes />
                         </button>
                     </div>
 
                     {/* Business Card */}
-                    <div className="mx-3 mt-3 mb-1 px-3 py-2.5 bg-[#EEEDFE] rounded-[10px] flex items-center gap-2.5 cursor-pointer hover:bg-[#e4e2fd] transition-colors" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
-                        <div className="w-[36px] h-[36px] rounded-full bg-[#534AB7] flex items-center justify-center text-white text-[13px] font-semibold shrink-0">
+                    <div className="mx-5 mt-4 mb-2 px-4 py-3.5 bg-[#EEEDFE] rounded-[12px] flex items-center gap-3 cursor-pointer hover:bg-[#e4e2fd] transition-colors shadow-sm" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                        <div className="w-[40px] h-[40px] rounded-full bg-[#534AB7] flex items-center justify-center text-white text-[14px] font-bold shrink-0">
                             {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="text-[13px] font-semibold text-[#3C3489] leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
-                            <div className="text-[11px] text-[#7F77DD] mt-[1px] flex items-center gap-1 truncate">
-                                <FaCog className="text-[11px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                            <div className="text-[14px] font-bold text-[#3C3489] leading-tight truncate">{businessProfile.name || 'Your Business'}</div>
+                            <div className="text-[12px] text-[#7F77DD] mt-[2px] flex items-center gap-1 truncate font-medium">
+                                <FaCog className="text-[12px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
                             </div>
                         </div>
                     </div>
 
                     {/* Language row (using existing LanguageSelector wrapped nicely) */}
-                    <div className="flex shrink-0 mb-1 mt-1 px-3">
+                    <div className="flex shrink-0 mb-2 mt-2 px-5">
                         <LanguageSelector showLabel={true} />
                     </div>
 
                     {/* Menu Items Container */}
-                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-2 pt-1 pb-2 flex flex-col">
-                        <div className="text-[10px] font-semibold text-[#aaa] uppercase tracking-[0.07em] px-2 pt-2.5 pb-1">Menu</div>
+                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-4 pt-2 pb-4 flex flex-col">
+                        <div className="text-[11px] font-bold text-[#aaa] uppercase tracking-wider px-3 pt-3 pb-2">Menu</div>
                         
                         {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
@@ -242,29 +242,29 @@ export default function DashboardLayout({
 
                             if (hasSubItems) {
                                 return (
-                                    <div key={item.label} className="flex flex-col">
+                                    <div key={item.label} className="flex flex-col mb-1">
                                         <button
                                             onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
-                                            className={`flex items-center gap-3 px-2.5 py-[9px] rounded-[9px] cursor-pointer transition-colors mb-[2px] w-full text-left
-                                                ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                            className={`flex items-center gap-4 px-4 py-3.5 rounded-[12px] cursor-pointer transition-all w-full text-left
+                                                ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                         >
-                                            <div className={`w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[17px] shrink-0 transition-colors
+                                            <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[19px] shrink-0 transition-colors
                                                 ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
                                                 <Icon />
                                             </div>
-                                            <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
-                                            {isInvoiceOpen ? <FaChevronUp className="text-[#bbb] text-[12px]" /> : <FaChevronDown className="text-[#bbb] text-[12px]" />}
+                                            <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                            {isInvoiceOpen ? <FaChevronUp className="text-[#bbb] text-[13px]" /> : <FaChevronDown className="text-[#bbb] text-[13px]" />}
                                         </button>
 
                                         {isInvoiceOpen && (
-                                            <div className="flex flex-col pl-10 pr-2 pb-2">
+                                            <div className="flex flex-col pl-14 pr-3 pb-3 pt-1 gap-1">
                                                 {item.subItems?.map((sub) => (
                                                     <Link
                                                         key={sub.href}
                                                         href={sub.href}
                                                         prefetch={true}
                                                         onClick={() => setIsSidebarOpen(false)}
-                                                        className={`py-1.5 text-[13px] ${pathname === sub.href ? 'text-[#3C3489] font-semibold' : 'text-[#666] hover:text-[#333]'}`}
+                                                        className={`py-2 text-[14px] ${pathname === sub.href ? 'text-[#3C3489] font-bold' : 'text-[#666] hover:text-[#333] font-medium'}`}
                                                     >
                                                         • {sub.label}
                                                     </Link>
@@ -288,14 +288,14 @@ export default function DashboardLayout({
                                             setIsSidebarOpen(false);
                                         }
                                     }}
-                                    className={`flex items-center gap-3 px-2.5 py-[9px] rounded-[9px] cursor-pointer transition-colors mb-[2px]
-                                        ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-[12px] cursor-pointer transition-all mb-1
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                 >
-                                    <div className={`w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[17px] shrink-0 transition-colors
+                                    <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[19px] shrink-0 transition-colors
                                         ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
                                         <Icon />
                                     </div>
-                                    <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
+                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
                                 </Link>
                             );
                         })}
@@ -312,14 +312,14 @@ export default function DashboardLayout({
                                     href={item.href}
                                     prefetch={true}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-2.5 py-[9px] rounded-[9px] cursor-pointer transition-colors mb-[2px]
-                                        ${isActive ? 'bg-[#EEEDFE]' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                    className={`flex items-center gap-4 px-4 py-3.5 rounded-[12px] cursor-pointer transition-all mb-1
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
                                 >
-                                    <div className={`w-[34px] h-[34px] rounded-lg flex items-center justify-center text-[17px] shrink-0 transition-colors
+                                    <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[19px] shrink-0 transition-colors
                                         ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f2f2f2] text-[#666]'}`}>
                                         <Icon />
                                     </div>
-                                    <span className={`text-[14px] flex-1 ${isActive ? 'text-[#3C3489] font-medium' : 'font-normal'}`}>{item.label}</span>
+                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
                                 </Link>
                             );
                         })}
