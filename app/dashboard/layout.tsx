@@ -193,41 +193,36 @@ export default function DashboardLayout({
                     }`}
             >
                 <div className="h-full flex flex-col">
-                    {/* Header */}
-                    <div className="flex flex-col items-center justify-center pt-10 pb-6 px-6 border-b-[0.5px] border-[#e5e5e5] relative">
-                        <Link href="/dashboard" className="flex flex-col items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="w-[64px] h-[64px] rounded-[16px] bg-[#534AB7] flex items-center justify-center text-white text-[28px] overflow-hidden relative shadow-lg">
+                    {/* Combined Header & Business Card - 3D Painted Unique Design */}
+                    <div className="relative mx-4 mt-6 mb-4 p-[3px] rounded-[20px] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-[0_10px_20px_-5px_rgba(83,74,183,0.3)] group cursor-pointer" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                        <div className="absolute inset-0 bg-white/20 rounded-[20px] backdrop-blur-sm"></div>
+                        <div className="relative bg-white/95 backdrop-blur-md rounded-[18px] p-6 flex flex-col items-center text-center transition-all">
+                            {/* 3D Logo Container */}
+                            <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-[#534AB7] to-[#867DE8] flex items-center justify-center text-white text-[32px] overflow-hidden relative shadow-[0_8px_16px_-4px_rgba(83,74,183,0.4)] mb-4 border-2 border-white/50 group-hover:scale-105 transition-transform duration-300">
                                 {businessProfile.logo ? (
                                     <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-1 bg-white" />
                                 ) : (
                                     <FaReceipt />
                                 )}
                             </div>
-                            <span className="text-[24px] font-extrabold text-[#534AB7] tracking-tight">BillGST</span>
-                        </Link>
-                        <button
-                            onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden absolute top-4 right-4 w-[36px] h-[36px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[16px] transition-colors hover:bg-[#ebebeb] shadow-sm"
-                        >
-                            <FaTimes />
-                        </button>
-                    </div>
-
-                    {/* Business Card - 3D Professional Look */}
-                    <div 
-                        className="mx-5 mt-8 mb-6 bg-white rounded-[16px] p-4 flex items-center gap-4 cursor-pointer transition-all border border-gray-100 relative overflow-hidden group"
-                        style={{ boxShadow: '0 10px 25px -5px rgba(83, 74, 183, 0.15), 0 8px 10px -6px rgba(83, 74, 183, 0.1)' }}
-                        onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}
-                    >
-                        <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-                        <div className="w-[48px] h-[48px] rounded-[14px] bg-gradient-to-br from-[#534AB7] to-[#867DE8] flex items-center justify-center text-white text-[18px] font-bold shrink-0 shadow-md group-hover:shadow-lg transition-all transform group-hover:-translate-y-0.5">
-                            {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="text-[16px] font-bold text-[#2d3748] leading-[1.3] truncate tracking-tight">{businessProfile.name || 'Your Business'}</div>
-                            <div className="text-[13px] text-indigo-600 mt-[4px] flex items-center gap-1.5 truncate font-medium">
-                                <FaCog className="text-[13px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                            
+                            {/* Business Name replacing BillGST */}
+                            <div className="w-full">
+                                <h2 className="text-[19px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-700 leading-tight truncate tracking-tight px-1">
+                                    {businessProfile.name || 'Your Business'}
+                                </h2>
+                                <div className="text-[13px] text-indigo-500/80 mt-1.5 flex items-center justify-center gap-1.5 font-medium">
+                                    <FaCog className="text-[13px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                                </div>
                             </div>
+                            
+                            {/* Mobile Close Button */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }}
+                                className="md:hidden absolute top-3 right-3 w-[32px] h-[32px] rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-slate-500 transition-colors"
+                            >
+                                <FaTimes size={14} />
+                            </button>
                         </div>
                     </div>
 
