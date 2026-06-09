@@ -192,48 +192,50 @@ export default function DashboardLayout({
                 className={`absolute md:relative inset-y-0 left-0 z-[60] w-[82%] max-w-[300px] md:w-72 bg-white md:border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none rounded-r-[16px] md:rounded-none overflow-hidden pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
-                <div className="h-full flex flex-col px-1 md:px-2"> {/* Added more padding on the sides for a premium look */}
+                <div className="h-full flex flex-col">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-4 py-5 border-b-[0.5px] border-[#e5e5e5]">
-                        <Link href="/dashboard" className="flex items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
-                            <div className="w-[42px] h-[42px] rounded-[12px] bg-[#534AB7] flex items-center justify-center text-white text-[20px] overflow-hidden relative shrink-0 shadow-sm">
+                    <div className="flex items-center justify-between px-6 py-6 border-b-[0.5px] border-[#e5e5e5]">
+                        <Link href="/dashboard" className="flex items-center gap-4" onClick={() => setIsSidebarOpen(false)}>
+                            <div className="w-[46px] h-[46px] rounded-[12px] bg-[#534AB7] flex items-center justify-center text-white text-[22px] overflow-hidden relative shrink-0 shadow-md">
                                 {businessProfile.logo ? (
-                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
+                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-0.5 bg-white" />
                                 ) : (
                                     <FaReceipt />
                                 )}
                             </div>
-                            <span className="text-[20px] font-bold text-[#534AB7] tracking-tight">BillGST</span>
+                            <span className="text-[22px] font-extrabold text-[#534AB7] tracking-tight">BillGST</span>
                         </Link>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden w-[36px] h-[36px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[18px] transition-colors hover:bg-[#ebebeb] shrink-0"
+                            className="md:hidden w-[38px] h-[38px] rounded-full bg-[#f5f5f5] border-[0.5px] border-[#e0e0e0] flex items-center justify-center text-[#666] text-[18px] transition-colors hover:bg-[#ebebeb] shadow-sm"
                         >
                             <FaTimes />
                         </button>
                     </div>
 
-                    {/* Business Card */}
-                    <div className="mx-3 mt-5 mb-3 px-4 py-4 bg-[#EEEDFE] rounded-[14px] flex items-center gap-3 cursor-pointer hover:bg-[#e4e2fd] transition-colors shadow-sm" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
-                        <div className="w-[40px] h-[40px] rounded-full bg-[#534AB7] flex items-center justify-center text-white text-[15px] font-bold shrink-0">
-                            {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="text-[15px] font-bold text-[#3C3489] leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
-                            <div className="text-[12px] text-[#7F77DD] mt-[2px] flex items-center gap-1.5 truncate font-medium">
-                                <FaCog className="text-[12px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                    {/* Business Card - Premium Gradient Look */}
+                    <div className="mx-5 mt-6 mb-2 p-[2px] rounded-[16px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-md">
+                        <div className="bg-white rounded-[14px] px-4 py-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                            <div className="w-[44px] h-[44px] rounded-full bg-gradient-to-br from-[#534AB7] to-[#867DE8] flex items-center justify-center text-white text-[16px] font-bold shrink-0 shadow-inner">
+                                {businessProfile.name?.substring(0, 2).toUpperCase() || 'AE'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-[16px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600 leading-[1.3] truncate">{businessProfile.name || 'Your Business'}</div>
+                                <div className="text-[12px] text-gray-500 mt-[4px] flex items-center gap-1.5 truncate font-medium">
+                                    <FaCog className="text-[12px] text-indigo-400" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Language row */}
-                    <div className="flex shrink-0 mb-4 mt-2 px-4">
+                    <div className="flex shrink-0 mb-5 mt-3 px-6">
                         <LanguageSelector showLabel={true} />
                     </div>
 
                     {/* Menu Items Container */}
                     <nav className="flex-1 overflow-y-auto custom-scrollbar px-3 pt-2 pb-6 flex flex-col gap-[8px]">
-                        <div className="text-[11px] font-bold text-[#aaa] uppercase tracking-wider px-2 pt-1 pb-1">Menu</div>
+                        {/* Removed 'Menu' text */}
                         
                         {menuItems.filter(item => !item.isAuth).map((item) => {
                             const Icon = item.icon;
@@ -362,10 +364,10 @@ export default function DashboardLayout({
                                 <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
                                     <div className="relative w-12 h-10 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
                                         <Image
-                                            src="/logo.png"
-                                            alt="BillGST Logo"
+                                            src={businessProfile?.logo || "/logo.png"}
+                                            alt="Business Logo"
                                             fill
-                                            className="object-cover"
+                                            className={businessProfile?.logo ? "object-contain p-0.5 bg-white" : "object-cover"}
                                             onError={(e) => {
                                                 e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
                                             }}
