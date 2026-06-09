@@ -365,7 +365,7 @@ export default function InvoicesPage() {
         }
     };
 
-    const handleDownloadEwayJSON = (invoice: any) => {
+    const handleDownloadEwayJSON = async (invoice: any) => {
         try {
             const isInterState = invoice.igst_amount > 0;
             
