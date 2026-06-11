@@ -1,27 +1,36 @@
 "use client";
 
 import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
 import { App } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
 
 export default function CapacitorHandler() {
-    const router = useRouter();
-
     useEffect(() => {
-        if (!Capacitor.isNativePlatform()) return;
+        // Check if running inside Capacitor Native WebView safely
+        const isNative = typeof window !== 'undefined' && 
+                        (window as any).Capacitor && 
+                        (window as any).Capacitor.isNative;
+
+        if (!isNative) return;
+
+        console.log("✅ Capacitor Native Environment Detected. Registering back button.");
 
         const setupListener = async () => {
-            await App.removeAllListeners();
+            // Remove any existing listeners first to prevent duplicates
+            try {
+                await App.removeAllListeners();
+            } catch(e) {}
+
             App.addListener('backButton', (event) => {
                 const path = window.location.pathname;
                 
                 // Exclude specific sub-paths from exiting, only exit on exact root paths
                 if (path === '/' || path === '/dashboard' || path === '/login') {
+                    console.log("🚪 Exiting app from root path");
                     App.exitApp();
                 } else {
-                    // Use Next.js router for smooth client-side back navigation
-                    router.back();
+                    // Force browser history back (Next.js will handle the SPA route change natively via popstate)
+                    console.log("🔙 Navigating back from: " + path);
+                    window.history.back();
                 }
             });
         };
@@ -29,11 +38,11 @@ export default function CapacitorHandler() {
         setupListener();
         
         return () => {
-            if (Capacitor.isNativePlatform()) {
-                App.removeAllListeners();
+            if (isNative) {
+                App.removeAllListeners().catch(() => {});
             }
         }
-    }, [router]); // Router reference doesn't change, but it's good practice
+    }, []); // Run only once on mount
 
     return null;
 }
