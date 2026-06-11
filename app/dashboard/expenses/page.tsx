@@ -382,15 +382,23 @@ export default function BusinessExpensesPage() {
     }, [isMounted, customers.length]); // only run once when loaded
 
     useEffect(() => {
-        const handlePopState = () => {
-            if (activeScreen === 'detail') {
+        const handleHashChange = () => {
+            if (window.location.hash === '#detail') {
+                // If hash is #detail, ensure we are in detail view (if a customer is selected)
+                if (curCid) setActiveScreen('detail');
+            } else {
+                // If hash is removed (e.g., via hardware back button), go back to list
                 setActiveScreen('list');
                 setCurCid(null);
             }
         };
-        window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, [activeScreen]);
+
+        // Run once on mount to handle initial hash
+        handleHashChange();
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, [curCid]);
 
     const showToast = (msg: string) => {
         setToastMsg(msg);
@@ -439,7 +447,7 @@ export default function BusinessExpensesPage() {
         setCurCid(id);
         setCurrentFilter('all');
         setActiveScreen('detail');
-        window.history.pushState({ screen: 'detail' }, '', window.location.pathname + '#detail');
+        window.location.hash = 'detail';
         // Small timeout ensures the new screen is rendered before we scroll
         setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -673,10 +681,11 @@ export default function BusinessExpensesPage() {
     };
 
     const handleBack = () => {
-        setActiveScreen('list');
-        setCurCid(null);
         if (window.location.hash.includes('detail')) {
-            window.history.replaceState(null, '', window.location.pathname);
+            window.history.back(); // This will pop the hash state and trigger hashchange
+        } else {
+            setActiveScreen('list');
+            setCurCid(null);
         }
     };
 
