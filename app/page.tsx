@@ -181,9 +181,9 @@ export default function LandingPage() {
         return (
         <div className="landing-body" style={{ background: '#fff', color: '#111827', fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
             {/* NAV */}
-            <nav className="nav" style={{ paddingTop: isStandalone ? 'env(safe-area-inset-top, 44px)' : '14px' }}>
+            <nav className="nav" style={{ paddingTop: isStandalone ? 'calc(env(safe-area-inset-top, 44px) + 14px)' : '14px' }}>
               <div className="logo">
-                <div className="logo-icon"><i className="ti ti-receipt-2"></i></div>
+                <img src="/icon.png" width={34} height={34} alt="BillGST Logo" style={{ borderRadius: '9px' }} />
                 <span className="logo-text">BillGST</span>
               </div>
               <div className="nav-links">
@@ -194,7 +194,7 @@ export default function LandingPage() {
               </div>
               <div className="nav-btns">
                 <button className="btn-outline" onClick={() => openM('login')}>Login</button>
-                <button className="btn-primary" onClick={() => openM('signup')}>Free Sign Up</button>
+                <button className="btn-outline" onClick={() => openM('signup')}>Free Sign Up</button>
               </div>
             </nav>
 
@@ -204,13 +204,20 @@ export default function LandingPage() {
                 <div className="new-badge"><div className="new-dot"></div> Voice Billing AI is now live! 🎙️</div>
                 <h1 className="hero-h1">India की दुकान के लिए<br/><span>Smart Billing Software</span><br/>GST की टेंशन खत्म।</h1>
                 <p className="hero-sub">Free invoices, stock alerts, aur WhatsApp billing — ek hi jagah. Abhi shuru karo bilkul free mein, koi credit card nahi.</p>
-                <div className="hero-btns">
-                  <button className="btn-hero btn-hero-primary" onClick={() => openM('signup')}>
-                    <i className="ti ti-rocket"></i> Free Account Banao
-                  </button>
-                  <button className="btn-hero btn-hero-secondary" onClick={() => openM('login')}>
-                    <i className="ti ti-login"></i> Dashboard Login
-                  </button>
+                <div className="hero-btns" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <button className="btn-hero btn-hero-primary" onClick={() => openM('signup')}>
+                      <i className="ti ti-rocket"></i> Free Account Banao
+                    </button>
+                    <button className="btn-hero btn-hero-secondary" onClick={() => openM('login')}>
+                      <i className="ti ti-login"></i> Dashboard Login
+                    </button>
+                  </div>
+                  <div>
+                    <button className="btn-hero btn-hero-secondary" onClick={() => window.location.href='https://play.google.com/store/apps/details?id=in.billgst.app'} style={{ background: '#000', color: '#fff', borderColor: '#000', marginTop: '10px' }}>
+                      <i className="ti ti-brand-google-play"></i> Get it on Play Store
+                    </button>
+                  </div>
                 </div>
                 <div className="trust-row">
                   <div className="trust-item"><i className="ti ti-check"></i> 30 bills/month free</div>
@@ -218,40 +225,39 @@ export default function LandingPage() {
                   <div className="trust-item"><i className="ti ti-check"></i> Bank-level security</div>
                 </div>
               </div>
-              <div className="dash-preview">
-                <div className="dash-bar">
+              <div className="dash-preview" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
+                <div className="dash-bar" style={{ margin: 0, padding: '12px 18px', background: '#F9FAFB' }}>
                   <div className="dash-dot" style={{background:'#ff5f57'}}></div>
                   <div className="dash-dot" style={{background:'#febc2e'}}></div>
                   <div className="dash-dot" style={{background:'#28c840'}}></div>
                   <div className="dash-url">app.billgst.in/dashboard</div>
                 </div>
-                <div className="dash-metrics">
-                  <div className="metric-card">
-                    <div className="metric-label">Today's Sales</div>
-                    <div className="metric-val">₹12,480</div>
-                    <div className="metric-sub"><i className="ti ti-trending-up" style={{fontSize:'12px'}}></i> +18% vs yesterday</div>
-                  </div>
-                  <div className="metric-card">
-                    <div className="metric-label">Bills This Month</div>
-                    <div className="metric-val">247</div>
-                    <div className="metric-sub" style={{color:'#1e40af'}}><i className="ti ti-file" style={{fontSize:'12px'}}></i> 12 pending</div>
-                  </div>
-                </div>
-                <div className="inv-section-label">Recent invoices</div>
-                <div className="invoice-row">
-                  <div className="inv-avatar">RG</div>
-                  <div className="inv-name">Ramesh Gupta</div>
-                  <div className="inv-amt">₹1,240</div><div className="inv-badge inv-paid">Paid</div>
-                </div>
-                <div className="invoice-row">
-                  <div className="inv-avatar">AS</div>
-                  <div className="inv-name">Amit Sharma</div>
-                  <div className="inv-amt">₹3,870</div><div className="inv-badge inv-due">Due</div>
-                </div>
-                <div className="invoice-row">
-                  <div className="inv-avatar">VP</div>
-                  <div className="inv-name">Vikash Patel</div>
-                  <div className="inv-amt">₹740</div><div className="inv-badge inv-paid">Paid</div>
+                <div style={{ position: 'relative' }}>
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src={`https://www.youtube.com/embed/CMzc3B2kilk?autoplay=1&mute=${isVideoMuted ? 1 : 0}&loop=1&playlist=CMzc3B2kilk&controls=1&modestbranding=1&rel=0&showinfo=0`} 
+                        title="BillGST Dashboard Preview" 
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                        style={{ aspectRatio: '16/9', display: 'block', objectFit: 'cover' }}
+                    ></iframe>
+                    <button 
+                        onClick={() => setIsVideoMuted(!isVideoMuted)}
+                        style={{
+                            position: 'absolute', bottom: '24px', left: '24px', zIndex: 10,
+                            background: 'rgba(0,0,0,0.6)', color: 'white', border: '1px solid rgba(255,255,255,0.2)',
+                            padding: '10px 20px', borderRadius: '50px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px',
+                            backdropFilter: 'blur(8px)', fontWeight: 'bold', transition: 'all 0.2s',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+                    >
+                        {isVideoMuted ? '🔇 Unmute Video' : '🔊 Mute Video'}
+                    </button>
                 </div>
               </div>
             </div>

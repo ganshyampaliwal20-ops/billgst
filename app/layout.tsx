@@ -78,6 +78,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css"/>
+      </head>
       <body className="antialiased" suppressHydrationWarning={true}>
         <script
           type="application/ld+json"

@@ -134,13 +134,18 @@ a { text-decoration: none; color: inherit; }
 .social-btn:hover { background: #EEF2FF; color: #1e40af; }
 
 @media(max-width:768px){
-  .hero,.footer-top{grid-template-columns:1fr}
-  .features-grid,.pricing-grid,.reviews-grid{grid-template-columns:1fr 1fr}
-  .steps-row,.shops-grid{grid-template-columns:1fr 1fr}
+  .hero {grid-template-columns:1fr}
+  .footer-top {grid-template-columns:repeat(3, 1fr)}
+  .features-grid,.steps-row,.shops-grid{grid-template-columns:1fr 1fr}
+  .pricing-grid,.reviews-grid{grid-template-columns:1fr}
   .nav-links{display:none}
   .hero{padding:36px 20px}
   .section{padding:36px 20px}
   .divider{margin:0 20px}
+}
+@media(max-width:480px) {
+  .footer-top {grid-template-columns:repeat(2, 1fr)}
+  .features-grid,.steps-row,.shops-grid{grid-template-columns:1fr}
 }
 
 /* MODAL */
