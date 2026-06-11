@@ -34,13 +34,16 @@ export default function SettingsPage() {
 
         const checkStatus = async () => {
             try {
-                const res = await fetch('/api/public/whatsapp/bot-status');
+                const res = await fetch('/api/public/whatsapp/bot-status?t=' + Date.now());
                 const data = await res.json();
                 if (data.success) {
                     setBotStatus(data);
+                } else {
+                    setBotStatus({ status: 'ERROR', message: data.error || 'Server error' });
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error('Failed to fetch bot status');
+                setBotStatus({ status: 'ERROR', message: e.message || 'Network error' });
             }
         };
 
@@ -691,12 +694,16 @@ export default function SettingsPage() {
                             Scan this QR code from your phone's WhatsApp (Linked Devices) to connect your bot. Once connected, reminders will automatically be sent from your number.
                         </div>
 
-                        {botStatus?.status === 'LOADING' ? (
+                        {['LOADING', 'INITIALIZING', 'STARTING_SERVICE', 'STARTING'].includes(botStatus?.status) ? (
                             <div className="text-center p-4">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                                <p className="mt-2 text-sm text-gray-500">Connecting to server...</p>
+                                <p className="mt-2 text-sm text-gray-500">
+                                    {botStatus?.status === 'LOADING' ? 'Connecting to server...' : 
+                                     botStatus?.status === 'STARTING_SERVICE' ? 'Starting WhatsApp Engine...' : 
+                                     'Generating QR Code (Takes 10-15s)...'}
+                                </p>
                             </div>
-                        ) : botStatus?.status === 'READY' ? (
+                        ) : botStatus?.status === 'READY' || botStatus?.status === 'CONNECTED' ? (
                             <div className="text-center p-4 bg-green-50 border border-green-200 rounded-xl">
                                 <div className="text-green-600 font-bold text-lg mb-2">✅ Connected Successfully</div>
                                 <p className="text-xs text-green-800">Your WhatsApp Bot is active and ready to send messages.</p>
@@ -711,7 +718,7 @@ export default function SettingsPage() {
                         ) : (
                             <div className="text-center p-4 bg-red-50 border border-red-200 rounded-xl">
                                 <p className="text-sm text-red-600 font-bold">Could not generate QR code.</p>
-                                <p className="text-xs text-red-500 mt-1">Please ensure the background bot server is running.</p>
+                                <p className="text-xs text-red-500 mt-1">{botStatus?.message || 'Please ensure the background bot server is running via PM2.'}</p>
                             </div>
                         )}
                     </div>
