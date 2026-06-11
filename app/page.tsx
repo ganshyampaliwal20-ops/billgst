@@ -179,7 +179,10 @@ export default function LandingPage() {
     };
 
         return (
-        <div className="landing-body" style={{ background: '#fff', color: '#111827', fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+        <div className="landing-body">
+            <div className="bg-blob bg-blob-1"></div>
+            <div className="bg-blob bg-blob-2"></div>
+            <div className="bg-blob bg-blob-3"></div>
             {/* NAV */}
             <nav className="nav" style={{ paddingTop: isStandalone ? 'calc(env(safe-area-inset-top, 44px) + 14px)' : '14px' }}>
               <div className="logo">
@@ -193,8 +196,8 @@ export default function LandingPage() {
                 <a className="nav-link" href="/blog">Blog</a>
               </div>
               <div className="nav-btns">
-                <button className="btn-outline" onClick={() => openM('login')}>Login</button>
-                <button className="btn-outline" onClick={() => openM('signup')}>Free Sign Up</button>
+                <button className="btn-nav-login" onClick={() => openM('login')}>Login</button>
+                <button className="btn-nav-signup" onClick={() => openM('signup')}>Free Sign Up</button>
               </div>
             </nav>
 
@@ -225,14 +228,14 @@ export default function LandingPage() {
                   <div className="trust-item"><i className="ti ti-check"></i> Bank-level security</div>
                 </div>
               </div>
-              <div className="dash-preview" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
-                <div className="dash-bar" style={{ margin: 0, padding: '12px 18px', background: '#F9FAFB' }}>
-                  <div className="dash-dot" style={{background:'#ff5f57'}}></div>
-                  <div className="dash-dot" style={{background:'#febc2e'}}></div>
-                  <div className="dash-dot" style={{background:'#28c840'}}></div>
-                  <div className="dash-url">app.billgst.in/dashboard</div>
-                </div>
-                <div style={{ position: 'relative' }}>
+              <div className="video-frame">
+                <div className="video-inner">
+                  <div className="video-bar">
+                    <div className="video-dot" style={{background:'#ff5f57'}}></div>
+                    <div className="video-dot" style={{background:'#febc2e'}}></div>
+                    <div className="video-dot" style={{background:'#28c840'}}></div>
+                  </div>
+                  <div style={{ position: 'relative', aspectRatio: '16/9' }}>
                     <iframe 
                         width="100%" 
                         height="100%" 
@@ -258,9 +261,10 @@ export default function LandingPage() {
                     >
                         {isVideoMuted ? '🔇 Unmute Video' : '🔊 Mute Video'}
                     </button>
+                  </div>
                 </div>
-              </div>
             </div>
+          </div>
 
             <div className="divider"></div>
 
@@ -464,10 +468,8 @@ export default function LandingPage() {
                 <a className="footer-link" href="https://wa.me/917498571873">WhatsApp Help</a>
                 <a className="footer-link">Refer & Earn</a>
                 <a className="footer-link">FAQ</a>
-              </div>
             </div>
-            <div style={{borderTop:'1px solid #F3F4F6'}}>
-              <div className="footer-bottom">
+            <div className="footer-bottom">
                 <span className="footer-copy">© {new Date().getFullYear()} BillGST · All rights reserved · 🇮🇳 Made in India</span>
                 <div className="footer-socials">
                   <div className="social-btn" onClick={() => window.location.href='https://www.instagram.com/billgst_app'}><i className="ti ti-brand-instagram"></i></div>
