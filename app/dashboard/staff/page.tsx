@@ -124,19 +124,12 @@ export default function SmartAttendance() {
     };
 
     const handleSetAtt = async (id: string, status: string, in_time?: string | null, out_time?: string | null, note?: string | null) => {
-        if (isSaving) return;
-        setIsSaving(true);
+        // Do not block with isSaving, allow rapid fire clicks
         try {
-            const res = await markAttendance(id, selectedDate, status, in_time, out_time, note);
-            if (res && res.success) {
-                toast.success(
-                    status === 'PRESENT' ? 'Marked Present ✓' :
-                    status === 'HALF_DAY' ? 'Marked Half Day' :
-                    status === 'ABSENT' ? 'Marked Absent ✕' : 'Marked Leave 🏖'
-                );
-            }
-        } finally {
-            setIsSaving(false);
+            await markAttendance(id, selectedDate, status, in_time, out_time, note);
+            // Removed toast.success to prevent spam during rapid clicks. store.js handles error toasts.
+        } catch (e) {
+            console.error(e);
         }
     };
 
