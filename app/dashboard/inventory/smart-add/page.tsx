@@ -1089,7 +1089,7 @@ export default function SmartAddPage() {
                                         <path d="M17 21v-8H7v8M7 3v5h8"/>
                                     </svg>
                                 )}
-                                {loading ? 'Saving...' : `${parsedItems.filter(i => i.selected).length} {st.saveItems}`}
+                                {loading ? 'Saving...' : `${parsedItems.filter(i => i.selected).length} ${st.saveItems}`}
                             </button>
                         </div>
                     </motion.div>
@@ -1137,5 +1137,6 @@ export default function SmartAddPage() {
                 )}
             </AnimatePresence>
         </div>
+        </>
     );
 }
