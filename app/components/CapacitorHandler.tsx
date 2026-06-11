@@ -1,41 +1,44 @@
 "use client";
 
 import { useEffect } from 'react';
-import { App } from '@capacitor/app';
-import toast from 'react-hot-toast';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function CapacitorHandler() {
-    useEffect(() => {
-        const setupListener = async () => {
-            try {
-                await App.removeAllListeners();
-            } catch(e) {}
+    const pathname = usePathname();
+    const router = useRouter();
 
-            try {
-                App.addListener('backButton', (event) => {
-                    const path = window.location.pathname;
-                    
-                    if (path === '/' || path === '/dashboard' || path === '/login') {
-                        toast('🚪 Exiting App');
-                        setTimeout(() => App.exitApp(), 500);
-                    } else {
-                        toast('🔙 Going back from ' + path);
-                        window.history.back();
-                    }
-                });
-            } catch (err) {
-                console.error("Capacitor error", err);
+    useEffect(() => {
+        // Pure Web API Hack for Android WebViews (Bypasses missing Capacitor native plugins)
+        
+        // Ensure there is always a dummy state in the history stack
+        // so the native Android WebView consumes the hardware back button
+        // instead of exiting the app.
+        window.history.pushState({ isBackButtonTarget: true }, '', window.location.href);
+
+        const handlePopState = (event: PopStateEvent) => {
+            const currentPath = window.location.pathname;
+            
+            if (currentPath === '/' || currentPath === '/dashboard' || currentPath === '/login') {
+                // We reached the root. Let the next back button exit the app natively.
+                // We do NOT push another state here.
+            } else {
+                // User pressed back on an internal page.
+                // Navigate back via Next.js
+                router.back();
+                
+                // Immediately push a new dummy state so the NEXT back button press is also intercepted
+                setTimeout(() => {
+                    window.history.pushState({ isBackButtonTarget: true }, '', window.location.href);
+                }, 100);
             }
         };
-        
-        setupListener();
-        
+
+        window.addEventListener('popstate', handlePopState);
+
         return () => {
-            try {
-                App.removeAllListeners().catch(() => {});
-            } catch(e) {}
-        }
-    }, []);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [pathname, router]);
 
     return null;
 }
