@@ -21,6 +21,7 @@ export default function LandingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isEnglish, setIsEnglish] = useState(false);
     const [showExitPopup, setShowExitPopup] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
 
     // Form States
     const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -43,6 +44,11 @@ export default function LandingPage() {
     const prices = [{ m: 0, y: 0 }, { m: 99, y: 99 }, { m: 299, y: 299 }];
 
     useEffect(() => {
+        // Check standalone mode
+        if (typeof window !== 'undefined') {
+            setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone);
+        }
+
         // Redirect if authenticated
         if (status === 'authenticated') {
             router.push('/dashboard');
@@ -175,7 +181,13 @@ export default function LandingPage() {
     return (
         <div className="landing-body">
             {/* NAV */}
-            <nav className="landing-nav" id="nav" style={{ background: scrolled ? 'rgba(6,8,15,0.97)' : 'rgba(6,8,15,0.8)' }}>
+            <nav className="landing-nav" id="nav" style={{ 
+                background: scrolled ? 'rgba(6,8,15,0.97)' : 'rgba(6,8,15,0.8)',
+                paddingTop: isStandalone ? 'env(safe-area-inset-top, 44px)' : '0',
+                height: isStandalone ? 'auto' : '66px',
+                minHeight: '66px',
+                paddingBottom: isStandalone ? '10px' : '0'
+            }}>
                 <a href="#" className="logo">
                     <img src="/logo.png" alt="BillGST Logo" />
                     <span className="logo-name">BillGST</span>
