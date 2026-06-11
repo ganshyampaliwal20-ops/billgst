@@ -195,6 +195,7 @@ export default function LandingPage() {
                 </a>
                 <ul className="nav-links">
                     <li><a href="#features">Features</a></li>
+                    <li><a href="#testimonials">Customer Love</a></li>
                     <li><a href="#pricing">Pricing</a></li>
                     <li><a href="/about">About Us</a></li>
                     <li><a href="/privacy">Privacy Policy</a></li>
@@ -218,6 +219,7 @@ export default function LandingPage() {
             {/* MOBILE MENU */}
             <div className={`mob-menu ${isMobMenuOpen ? 'open' : ''}`}>
                 <a href="#features" onClick={() => setIsMobMenuOpen(false)}>Features</a>
+                <a href="#testimonials" onClick={() => setIsMobMenuOpen(false)}>Customer Love</a>
                 <a href="#pricing" onClick={() => setIsMobMenuOpen(false)}>Pricing</a>
                 <a href="/about" onClick={() => setIsMobMenuOpen(false)}>About Us</a>
                 <a href="/privacy" onClick={() => setIsMobMenuOpen(false)}>Privacy Policy</a>
