@@ -3,19 +3,13 @@
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 export default function CapacitorHandler() {
     const router = useRouter();
 
     useEffect(() => {
-        let isAppAvailable = false;
-        try {
-            if ((window as any).Capacitor && (window as any).Capacitor.isNative) {
-                isAppAvailable = true;
-            }
-        } catch(e) {}
-
-        if (!isAppAvailable) return;
+        if (!Capacitor.isNative) return;
 
         const setupListener = async () => {
             await App.removeAllListeners();
