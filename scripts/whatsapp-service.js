@@ -196,4 +196,33 @@ console.log('--- SYSTEM READY: Watching for user link requests ---');
 resumeSessions().then(() => {
     setInterval(pollRequests, 3000);
     setInterval(pollMediaRequests, 2000); // Check media every 2 seconds
+    
+    // Automatic Payment Reminders Cron Logic
+    let lastCronHour = -1;
+    setInterval(async () => {
+        const currentHour = new Date().getHours();
+        if (currentHour !== lastCronHour) {
+            lastCronHour = currentHour;
+            console.log(`[CRON] Triggering hourly reminder check for hour ${currentHour}...`);
+            try {
+                let cronSecret = 'say_friend_and_enter_billgst_secure_token_2026';
+                try {
+                    const envPath = path.join(ROOT, '.env.local');
+                    if (fs.existsSync(envPath)) {
+                        const envStr = fs.readFileSync(envPath, 'utf8');
+                        const secretMatch = envStr.match(/NEXTAUTH_SECRET="([^"]+)"/);
+                        if (secretMatch) cronSecret = secretMatch[1];
+                    }
+                } catch(e) {}
+
+                // Use fetch to trigger the next.js API
+                // Wait, native fetch is available in Node 18+
+                const res = await fetch(`http://localhost:3000/api/public/whatsapp/reminders?secret=${cronSecret}`);
+                const data = await res.json();
+                console.log(`[CRON] Reminder trigger result:`, data);
+            } catch (err) {
+                console.error(`[CRON] Failed to trigger reminders:`, err.message);
+            }
+        }
+    }, 60000); // Check every minute
 });
