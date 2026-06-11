@@ -61,6 +61,6 @@ export async function GET(request: Request) {
 
     } catch (error: any) {
         console.error('Error fetching WhatsApp Status:', error);
-        return NextResponse.json({ success: false, error: error.message || 'Failed' }, { status: 500 });
+        return NextResponse.json({ success: false, error: String(error) + (error.stack ? ' | ' + error.stack : '') }, { status: 500 });
     }
 }

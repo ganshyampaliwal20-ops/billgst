@@ -54,8 +54,12 @@ export default function SettingsPage() {
 
     useEffect(() => {
         setIsClient(true);
-        setFormData(businessProfile);
-        setLocalSettings(settings);
+        if (businessProfile && Object.keys(formData).length === 0) {
+            setFormData(businessProfile);
+        }
+        if (settings && Object.keys(localSettings).length === 0) {
+            setLocalSettings(settings);
+        }
     }, [businessProfile, settings]);
 
     const handleSubmit = async (e: React.FormEvent) => {
