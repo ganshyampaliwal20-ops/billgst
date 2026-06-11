@@ -46,6 +46,11 @@ export async function GET(request: Request) {
                 ? "" // In test mode, include today's invoices
                 : `AND i.invoice_date <= CURRENT_DATE - (INTERVAL '1 day' * $2)`;
 
+            const queryArgs: any[] = [user.id];
+            if (!isTest) {
+                queryArgs.push(parseInt(frequency as any) || 3);
+            }
+
             const invoicesResult = await client.query(`
                 SELECT i.id, i.invoice_number, i.total_amount, i.paid_amount, i.invoice_date,
                        c.name as customer_name, c.phone as customer_phone
@@ -55,7 +60,7 @@ export async function GET(request: Request) {
                 AND i.status IN ('UNPAID', 'PARTIAL', 'Pending')
                 ${dateCondition}
                 ORDER BY i.invoice_date ASC
-            `, [user.id, parseInt(frequency as any) || 3]);
+            `, queryArgs);
 
             for (const inv of invoicesResult.rows) {
                 const pendingAmount = parseFloat(inv.total_amount) - parseFloat(inv.paid_amount);
