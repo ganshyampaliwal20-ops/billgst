@@ -9,7 +9,7 @@ import { authOptions } from '@/lib/auth';
  */
 export async function GET(request: Request) {
     try {
-        const session = await getServerSession(authOptions as any);
+        const session: any = await getServerSession(authOptions as any);
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
         }
