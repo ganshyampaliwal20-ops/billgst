@@ -70,6 +70,7 @@ export const metadata: Metadata = {
 };
 
 import InstallAppBanner from "@/app/components/InstallAppBanner";
+import CapacitorHandler from "@/app/components/CapacitorHandler";
 
 export default function RootLayout({
   children,
@@ -123,6 +124,7 @@ export default function RootLayout({
           {children}
         </SessionWrapper>
         <InstallAppBanner />
+        <CapacitorHandler />
         <Toaster position="top-right" />
       </body>
     </html>
