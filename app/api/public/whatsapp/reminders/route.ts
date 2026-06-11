@@ -40,6 +40,12 @@ export async function GET(request: Request) {
 
             const frequency = user.reminder_frequency || 3;
 
+            const isTest = searchParams.get('test') === 'true';
+            
+            const dateCondition = isTest 
+                ? "" // In test mode, include today's invoices
+                : `AND i.invoice_date <= CURRENT_DATE - (INTERVAL '1 day' * $2)`;
+
             const invoicesResult = await client.query(`
                 SELECT i.id, i.invoice_number, i.total_amount, i.paid_amount, i.invoice_date,
                        c.name as customer_name, c.phone as customer_phone
@@ -47,7 +53,7 @@ export async function GET(request: Request) {
                 JOIN customers c ON i.customer_id = c.id
                 WHERE i.created_by = $1 
                 AND i.status IN ('UNPAID', 'PARTIAL', 'Pending')
-                AND i.invoice_date <= CURRENT_DATE - (INTERVAL '1 day' * $2)
+                ${dateCondition}
                 ORDER BY i.invoice_date ASC
             `, [user.id, parseInt(frequency as any) || 3]);
 
