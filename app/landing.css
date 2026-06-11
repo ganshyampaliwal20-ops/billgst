@@ -2389,3 +2389,7 @@ html {
         margin: 16px auto 32px;
     }
 }
+
+/* Status Bar Protector for mobile TWAs */
+.status-bar-protector { display: none; width: 100%; background: rgba(6,8,15,0.97); height: max(env(safe-area-inset-top), 36px); z-index: 1000; position: fixed; top: 0; left: 0; }
+@media(max-width:960px) { .status-bar-protector { display: block; } .landing-nav { top: max(env(safe-area-inset-top), 36px) !important; } }

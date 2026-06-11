@@ -181,12 +181,13 @@ export default function LandingPage() {
     return (
         <div className="landing-body">
             {/* NAV */}
+            <div className="status-bar-protector"></div>
             <nav className="landing-nav" id="nav" style={{ 
                 background: scrolled ? 'rgba(6,8,15,0.97)' : 'rgba(6,8,15,0.8)',
-                paddingTop: isStandalone ? 'calc(env(safe-area-inset-top, 44px) + 14px)' : '0',
-                height: isStandalone ? 'auto' : '66px',
+                
+                height: '66px',
                 minHeight: '66px',
-                paddingBottom: isStandalone ? '14px' : '0'
+                
             }}>
                 <a href="#" className="logo">
                     <img src="/logo.png" alt="BillGST Logo" />
