@@ -1,44 +1,43 @@
 "use client";
 
 import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function CapacitorHandler() {
-    const pathname = usePathname();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
-        // Pure Web API Hack for Android WebViews (Bypasses missing Capacitor native plugins)
-        
-        // Ensure there is always a dummy state in the history stack
-        // so the native Android WebView consumes the hardware back button
-        // instead of exiting the app.
-        window.history.pushState({ isBackButtonTarget: true }, '', window.location.href);
-
-        const handlePopState = (event: PopStateEvent) => {
-            const currentPath = window.location.pathname;
-            
-            if (currentPath === '/' || currentPath === '/dashboard' || currentPath === '/login') {
-                // We reached the root. Let the next back button exit the app natively.
-                // We do NOT push another state here.
-            } else {
-                // User pressed back on an internal page.
-                // Navigate back via Next.js
-                router.back();
-                
-                // Immediately push a new dummy state so the NEXT back button press is also intercepted
-                setTimeout(() => {
-                    window.history.pushState({ isBackButtonTarget: true }, '', window.location.href);
-                }, 100);
+        // We only attempt to register the Capacitor native back button listener
+        // if this app is actually running inside the Capacitor Android Webview.
+        const setupCapacitor = async () => {
+            if (typeof window !== 'undefined' && (window as any).Capacitor) {
+                try {
+                    const { App } = await import('@capacitor/app');
+                    await App.removeAllListeners();
+                    
+                    App.addListener('backButton', ({ canGoBack }) => {
+                        const currentPath = window.location.pathname;
+                        // Exit the app if we are on the root pages
+                        if (currentPath === '/' || currentPath === '/dashboard' || currentPath === '/login') {
+                            App.exitApp();
+                        } else {
+                            // Otherwise, just go back using the Next.js router
+                            router.back();
+                        }
+                    });
+                } catch (e) {
+                    console.log("Capacitor App plugin not available.", e);
+                }
             }
         };
 
-        window.addEventListener('popstate', handlePopState);
+        setupCapacitor();
+        
+        // We DO NOT use window.history.pushState hacks because it corrupts 
+        // the Next.js App Router state tree (causing nested pages to break).
 
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-        };
-    }, [pathname, router]);
+    }, [router]);
 
     return null;
 }
