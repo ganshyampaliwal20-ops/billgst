@@ -9,7 +9,7 @@ export default function CapacitorHandler() {
     const router = useRouter();
 
     useEffect(() => {
-        if (!Capacitor.isNative) return;
+        if (!Capacitor.isNativePlatform()) return;
 
         const setupListener = async () => {
             await App.removeAllListeners();
@@ -29,7 +29,7 @@ export default function CapacitorHandler() {
         setupListener();
         
         return () => {
-            if (isAppAvailable) {
+            if (Capacitor.isNativePlatform()) {
                 App.removeAllListeners();
             }
         }
