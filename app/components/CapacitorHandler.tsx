@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { App } from '@capacitor/app';
+import toast from 'react-hot-toast';
 
 export default function CapacitorHandler() {
     useEffect(() => {
@@ -14,16 +15,16 @@ export default function CapacitorHandler() {
                 App.addListener('backButton', (event) => {
                     const path = window.location.pathname;
                     
-                    // Exclude specific sub-paths from exiting, only exit on exact root paths
                     if (path === '/' || path === '/dashboard' || path === '/login') {
-                        App.exitApp();
+                        toast('🚪 Exiting App');
+                        setTimeout(() => App.exitApp(), 500);
                     } else {
-                        // Force browser history back (Next.js will handle the SPA route change natively via popstate)
+                        toast('🔙 Going back from ' + path);
                         window.history.back();
                     }
                 });
             } catch (err) {
-                // Ignore errors if not running in a native Capacitor environment
+                console.error("Capacitor error", err);
             }
         };
         
@@ -34,7 +35,7 @@ export default function CapacitorHandler() {
                 App.removeAllListeners().catch(() => {});
             } catch(e) {}
         }
-    }, []); // Run only once on mount
+    }, []);
 
     return null;
 }
