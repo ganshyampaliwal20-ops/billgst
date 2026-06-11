@@ -4,22 +4,32 @@ const { Client, LocalAuth, MessageMedia } = pkg;
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pg from 'pg';
+const { Pool } = pg;
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = process.cwd();
 const TMP = path.join(ROOT, 'tmp');
 const AUTH_ROOT = path.join(ROOT, '.wwebjs_auth');
-const REQUEST_DIR = path.join(TMP, 'requests');
-const MEDIA_DIR = path.join(TMP, 'media-requests');
+
+dotenv.config({ path: path.join(ROOT, '.env.local') });
+
+// Setup PostgreSQL pool
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+});
 
 // Map to store active clients: userId -> client
 const activeClients = new Map();
 
-console.log('--- MULTI-USER WHATSAPP SERVICE STARTING ---');
+console.log('--- MULTI-USER WHATSAPP SERVICE STARTING (DB IPC) ---');
 
 // Ensure directories exist
-[TMP, AUTH_ROOT, REQUEST_DIR, MEDIA_DIR].forEach(dir => {
+[TMP, AUTH_ROOT].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
@@ -28,29 +38,26 @@ console.log('--- MULTI-USER WHATSAPP SERVICE STARTING ---');
  */
 async function createClient(userId, userEmail) {
     if (activeClients.has(userId)) {
-        console.log(`[${userId}] Client already active.`);
         return activeClients.get(userId);
     }
 
     console.log(`[${userId}] Initializing client for ${userEmail}...`);
 
-    const userTmp = path.join(TMP, `user-${userId}`);
-    if (!fs.existsSync(userTmp)) fs.mkdirSync(userTmp, { recursive: true });
-
-    const QR_FILE = path.join(userTmp, 'qr.txt');
-    const STATUS_FILE = path.join(userTmp, 'status.json');
-
-    const updateStatus = (status, extra = {}) => {
-        fs.writeFileSync(STATUS_FILE, JSON.stringify({
-            status,
-            userId,
-            userEmail,
-            lastUpdate: Date.now(),
-            ...extra
-        }));
+    const updateStatus = async (status, qrCode = null) => {
+        try {
+            await pool.query(
+                `INSERT INTO whatsapp_bot_status (user_id, status, qr_code, last_updated) 
+                 VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+                 ON CONFLICT (user_id) DO UPDATE 
+                 SET status = EXCLUDED.status, qr_code = EXCLUDED.qr_code, last_updated = CURRENT_TIMESTAMP`,
+                [userId, status, qrCode]
+            );
+        } catch (err) {
+            console.error(`[${userId}] Failed to update DB status:`, err.message);
+        }
     };
 
-    updateStatus('STARTING');
+    await updateStatus('STARTING_SERVICE');
 
     const client = new Client({
         authStrategy: new LocalAuth({
@@ -58,7 +65,7 @@ async function createClient(userId, userEmail) {
             dataPath: AUTH_ROOT
         }),
         puppeteer: {
-            headless: false,
+            headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -66,30 +73,27 @@ async function createClient(userId, userEmail) {
                 '--disable-accelerated-2d-canvas',
                 '--no-first-run',
                 '--no-zygote',
-                '--single-process', // Standard for Cloud/Docker
+                '--single-process',
                 '--disable-gpu',
                 '--disable-blink-features=AutomationControlled'
             ],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null // Required for Render/Cloud Chrome
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
         }
     });
 
     client.on('qr', (qr) => {
         console.log(`[${userId}] NEW QR RECEIVED`);
-        // qrcode.generate(qr, { small: true }); // Removed terminal QR for multi-user clarity
-        fs.writeFileSync(QR_FILE, qr);
-        updateStatus('QR_READY', { qr });
+        updateStatus('STARTING', qr);
     });
 
     client.on('ready', () => {
-        console.log(`[${userId}] ✅ READY! Connected as: ${userEmail}`);
-        if (fs.existsSync(QR_FILE)) fs.unlinkSync(QR_FILE);
-        updateStatus('CONNECTED', { owner: userEmail });
+        console.log(`[${userId}] ✅ READY! Connected`);
+        updateStatus('READY');
     });
 
     client.on('auth_failure', (msg) => {
         console.error(`[${userId}] AUTH FAILURE:`, msg);
-        updateStatus('AUTH_FAILED', { message: msg });
+        updateStatus('ERROR');
     });
 
     client.on('disconnected', (reason) => {
@@ -110,68 +114,62 @@ async function createClient(userId, userEmail) {
         activeClients.set(userId, client);
     } catch (e) {
         console.error(`[${userId}] Failed to initialize:`, e.message);
-        updateStatus('ERROR', { error: e.message });
+        updateStatus('ERROR');
     }
 
     return client;
 }
 
 /**
- * Periodically check for new "Start Requests"
+ * Periodically check for new "Start Requests" from the Database
  */
 async function pollRequests() {
     try {
-        const files = fs.readdirSync(REQUEST_DIR);
-        for (const file of files) {
-            if (file.endsWith('.json')) {
-                const filePath = path.join(REQUEST_DIR, file);
-                try {
-                    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                    await createClient(data.userId, data.userEmail);
-                    fs.unlinkSync(filePath);
-                } catch (err) {
-                    console.error('Error processing request file:', file, err.message);
-                }
+        const result = await pool.query(`SELECT user_id, status FROM whatsapp_bot_status WHERE status = 'STARTING_SERVICE' OR status = 'STARTING'`);
+        for (const row of result.rows) {
+            // Only create if we haven't already started initializing it in memory
+            if (!activeClients.has(row.user_id)) {
+                // Fetch email from users table
+                const userRes = await pool.query('SELECT email FROM users WHERE id = $1', [row.user_id]);
+                const email = userRes.rows.length > 0 ? userRes.rows[0].email : 'Unknown';
+                await createClient(row.user_id, email);
             }
         }
-    } catch (e) { }
+    } catch (e) {
+        console.error('Error polling requests:', e.message);
+    }
 }
 
 /**
- * Periodically check for new "Media/Message Requests"
+ * Periodically check for new "Media/Message Requests" from the Database Queue
  */
 async function pollMediaRequests() {
     try {
-        const files = fs.readdirSync(MEDIA_DIR);
-        for (const file of files) {
-            if (file.endsWith('.json')) {
-                const filePath = path.join(MEDIA_DIR, file);
+        const result = await pool.query(`SELECT id, user_id, phone, message FROM whatsapp_bot_queue WHERE status = 'PENDING' LIMIT 20`);
+        
+        for (const row of result.rows) {
+            const { id, user_id, phone, message } = row;
+            
+            const client = activeClients.get(user_id);
+            if (client) {
                 try {
-                    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                    const { userId, phone, message, mediaPath } = data;
+                    const chatId = `${phone.replace(/\D/g, '')}@c.us`.replace(/^0+/, ''); // Clean phone
+                    const jid = chatId.length === 10 ? `91${chatId}@c.us` : chatId;
 
-                    const client = activeClients.get(userId);
-                    if (client) {
-                        const chatId = `${phone.replace(/\D/g, '')}@c.us`.replace(/^0+/, ''); // Clean phone
-                        const jid = chatId.length === 10 ? `91${chatId}@c.us` : chatId;
-
-                        if (mediaPath && fs.existsSync(mediaPath)) {
-                            console.log(`[${userId}] Sending media to ${jid}...`);
-                            const media = MessageMedia.fromFilePath(mediaPath);
-                            await client.sendMessage(jid, media, { caption: message, sendMediaAsDocument: true });
-                            fs.unlinkSync(mediaPath);
-                        } else {
-                            console.log(`[${userId}] Sending message to ${jid}...`);
-                            await client.sendMessage(jid, message);
-                        }
-                    }
-                    fs.unlinkSync(filePath);
-                } catch (err) {
-                    console.error('Error processing media request:', err.message);
+                    console.log(`[${user_id}] Sending DB queued message to ${jid}...`);
+                    await client.sendMessage(jid, message);
+                    
+                    // Mark as sent
+                    await pool.query(`UPDATE whatsapp_bot_queue SET status = 'SENT' WHERE id = $1`, [id]);
+                } catch (sendErr) {
+                    console.error(`[${user_id}] Failed to send DB queued message:`, sendErr.message);
+                    await pool.query(`UPDATE whatsapp_bot_queue SET status = 'FAILED' WHERE id = $1`, [id]);
                 }
             }
         }
-    } catch (e) { }
+    } catch (e) {
+        console.error('Error polling media requests:', e.message);
+    }
 }
 
 /**
@@ -185,17 +183,15 @@ async function resumeSessions() {
     for (const folder of folders) {
         if (folder.startsWith('session-user-')) {
             const userId = folder.replace('session-user-', '');
-            // We don't have the userEmail easily here, 
-            // but for resumes we can just use the session ID
             await createClient(userId, `Restored Session (${userId})`);
         }
     }
 }
 
-console.log('--- SYSTEM READY: Watching for user link requests ---');
+console.log('--- SYSTEM READY: Watching for DB requests ---');
 resumeSessions().then(() => {
-    setInterval(pollRequests, 3000);
-    setInterval(pollMediaRequests, 2000); // Check media every 2 seconds
+    setInterval(pollRequests, 5000);
+    setInterval(pollMediaRequests, 3000);
     
     // Automatic Payment Reminders Cron Logic
     let lastCronHour = -1;
@@ -205,19 +201,8 @@ resumeSessions().then(() => {
             lastCronHour = currentHour;
             console.log(`[CRON] Triggering hourly reminder check for hour ${currentHour}...`);
             try {
-                let cronSecret = 'say_friend_and_enter_billgst_secure_token_2026';
-                try {
-                    const envPath = path.join(ROOT, '.env.local');
-                    if (fs.existsSync(envPath)) {
-                        const envStr = fs.readFileSync(envPath, 'utf8');
-                        const secretMatch = envStr.match(/NEXTAUTH_SECRET="([^"]+)"/);
-                        if (secretMatch) cronSecret = secretMatch[1];
-                    }
-                } catch(e) {}
-
-                // Use fetch to trigger the next.js API
-                // Wait, native fetch is available in Node 18+
-                const res = await fetch(`http://localhost:3000/api/public/whatsapp/reminders?secret=${cronSecret}`);
+                let cronSecret = process.env.NEXTAUTH_SECRET || process.env.WHATSAPP_CRON_SECRET || 'billgst_test_123';
+                const res = await fetch(`https://www.billgst.in/api/public/whatsapp/reminders?secret=${cronSecret}`);
                 const data = await res.json();
                 console.log(`[CRON] Reminder trigger result:`, data);
             } catch (err) {

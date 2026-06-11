@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import pool from '@/lib/db';
 
 /**
  * User-Specific API to fetch WhatsApp Status
@@ -15,47 +14,35 @@ export async function GET(request: Request) {
         }
 
         const userId = session.user.id;
-        const userEmail = session.user.email;
-        const root = process.cwd();
 
-        const userTmpDir = path.join(root, 'tmp', `user-${userId}`);
-        const statusFilePath = path.join(userTmpDir, 'status.json');
-        const qrFilePath = path.join(userTmpDir, 'qr.txt');
-        const requestDir = path.join(root, 'tmp', 'requests');
-
-        // Ensure request dir exists
-        if (!fs.existsSync(requestDir)) fs.mkdirSync(requestDir, { recursive: true });
-
-        let status = 'INITIALIZING';
+        let status = 'STARTING_SERVICE';
         let qr = null;
-        let owner = null;
 
-        // 1. Check if user already has a status file
-        if (fs.existsSync(statusFilePath)) {
-            try {
-                const statusData = JSON.parse(fs.readFileSync(statusFilePath, 'utf8'));
-                status = statusData.status || status;
-                owner = statusData.owner || null;
-            } catch (e) { }
+        // Query the database for the current status
+        const result = await pool.query('SELECT status, qr_code FROM whatsapp_bot_status WHERE user_id = $1', [userId]);
+
+        if (result.rows.length > 0) {
+            const row = result.rows[0];
+            status = row.status || 'STARTING_SERVICE';
+            qr = row.qr_code || null;
+            
+            // If it's a transient state, maybe we update last_updated, but for now just read.
         } else {
-            // 2. No status file? Create a START REQUEST for the background service
-            const requestFile = path.join(requestDir, `${userId}.json`);
-            if (!fs.existsSync(requestFile)) {
-                fs.writeFileSync(requestFile, JSON.stringify({ userId, userEmail }));
-            }
+            // No status file? Create a START REQUEST for the background service by inserting a row
+            await pool.query(
+                `INSERT INTO whatsapp_bot_status (user_id, status, last_updated) 
+                 VALUES ($1, 'STARTING_SERVICE', CURRENT_TIMESTAMP) 
+                 ON CONFLICT (user_id) DO NOTHING`,
+                [userId]
+            );
             status = 'STARTING_SERVICE';
-        }
-
-        // 3. Check for QR file
-        if (fs.existsSync(qrFilePath)) {
-            qr = fs.readFileSync(qrFilePath, 'utf8');
         }
 
         return NextResponse.json({
             success: true,
             status,
             qr,
-            connected: status === 'CONNECTED',
+            connected: status === 'CONNECTED' || status === 'READY',
             userId
         });
 

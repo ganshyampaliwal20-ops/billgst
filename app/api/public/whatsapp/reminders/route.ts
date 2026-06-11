@@ -109,27 +109,15 @@ export async function GET(request: Request) {
                         console.error('Failed to auto-send via UltraMsg:', e);
                     }
                 } else {
-                    // 4. Fallback to Multi-User Bot (whatsapp-service.js)
+                    // 4. Fallback to Multi-User Bot (whatsapp-service.js via DB Queue)
                     try {
-                        const fs = require('fs');
-                        const path = require('path');
-                        const crypto = require('crypto');
-                        const MEDIA_DIR = path.join(process.cwd(), 'tmp', 'media-requests');
-                        if (!fs.existsSync(MEDIA_DIR)) {
-                            fs.mkdirSync(MEDIA_DIR, { recursive: true });
-                        }
-                        
-                        const reqData = {
-                            userId: user.id.toString(),
-                            phone: inv.customer_phone,
-                            message: message,
-                            timestamp: Date.now()
-                        };
-                        const fileName = `rem_${user.id}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.json`;
-                        fs.writeFileSync(path.join(MEDIA_DIR, fileName), JSON.stringify(reqData));
-                        console.log(`WhatsApp Status: QUEUED to Local Bot for ${inv.customer_phone}`);
+                        await client.query(
+                            `INSERT INTO whatsapp_bot_queue (user_id, phone, message) VALUES ($1, $2, $3)`,
+                            [user.id, inv.customer_phone, message]
+                        );
+                        console.log(`WhatsApp Status: QUEUED to DB for ${inv.customer_phone}`);
                     } catch (e) {
-                        console.error('Failed to queue to local bot:', e);
+                        console.error('Failed to queue to local bot DB:', e);
                     }
                 }
 
