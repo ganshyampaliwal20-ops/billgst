@@ -918,8 +918,9 @@ export default function BusinessExpensesPage() {
                 if (contacts && contacts.length > 0) {
                     const contact = contacts[0];
                     if (contact.name && contact.name[0]) setAcName(contact.name[0]);
-                    if (contact.tel && contact.tel[0]) {
-                        const num = contact.tel[0].replace(/[^\d+]/g, '');
+                    if (contact.tel && contact.tel.length > 0) {
+                        const numStr = typeof contact.tel[0] === 'string' ? contact.tel[0] : (contact.tel[0].value || '');
+                        const num = numStr.replace(/[^\d+]/g, '');
                         setAcPhone(num);
                     }
                     showToast('✅ Contact select ho gaya!');
@@ -1306,10 +1307,6 @@ export default function BusinessExpensesPage() {
                         </div>
 
                         <div className="quick-actions">
-                            <button className="qa-btn" style={{ background: 'linear-gradient(135deg, #6366f1, #10b981)', color: 'white', border: 'none', position: 'relative', overflow: 'hidden' }} onClick={() => setIsAiScanMenuOpen(true)}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                AI Scan
-                            </button>
                             <button className="qa-btn statement" onClick={exportPDF}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
                                 Statement
@@ -1436,26 +1433,6 @@ export default function BusinessExpensesPage() {
                                 });
                             })()}
 
-                            <div className="grand-total-card">
-                                <div className="gt-title">Total Hisaab Summary</div>
-                                <div className="gt-grid">
-                                    <div className="gt-item">
-                                        <div className="gt-lbl">Total Given</div>
-                                        <div className="gt-val red">{fmt(Math.abs(custStats.debit))}</div>
-                                    </div>
-                                    <div className="gt-item">
-                                        <div className="gt-lbl">Total Received</div>
-                                        <div className="gt-val green">{fmt(Math.abs(custStats.credit))}</div>
-                                    </div>
-                                </div>
-                                <div className="gt-final">
-                                    <div className="gt-lbl">Final Net Balance</div>
-                                    <div className={`gt-amt ${custStats.isNeg ? 'red' : 'green'}`}>
-                                        {fmt(Math.abs(custStats.net))}
-                                        <span>{custStats.isNeg ? 'You Will Give' : 'You Will Get'}</span>
-                                    </div>
-                                </div>
-                            </div>
 
                             <div className="export-actions">
                                 <button className="qa-btn pdf" onClick={exportPDF}>📄 PDF Download</button>
@@ -1571,17 +1548,31 @@ export default function BusinessExpensesPage() {
                                 <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} className="kb-date-input" />
                             </div>
                             
-                            <div style={{ display: 'flex', gap: '8px', flex: 1 }}>
-                                <label htmlFor="billFileCameraNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
-                                    <span className="kb-new-badge" style={{ background: '#eab308' }}>📷</span>
-                                    <span>Camera</span>
-                                    <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                </label>
-                                <label htmlFor="billFileGalleryNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                                    <span>Gallery</span>
-                                    <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                </label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <label htmlFor="billFileCameraNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
+                                        <span className="kb-new-badge" style={{ background: '#eab308' }}>📷</span>
+                                        <span>Camera</span>
+                                        <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                    </label>
+                                    <label htmlFor="billFileGalleryNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                        <span>Gallery</span>
+                                        <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                    </label>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <label htmlFor="billFileCameraAI" className="kb-card kb-attach-card" style={{ flex: 1, padding: '8px 4px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', color: 'white', border: 'none', flexDirection: 'row', justifyContent: 'center' }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                        <span style={{color:'white', fontSize:'11px', marginLeft:'4px'}}>AI Auto-Fill (Camera)</span>
+                                        <input type="file" id="billFileCameraAI" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => { closeNumpad(); handleExpenseAiScan(e); }} />
+                                    </label>
+                                    <label htmlFor="billFileGalleryAI" className="kb-card kb-attach-card" style={{ flex: 1, padding: '8px 4px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', color: 'white', border: 'none', flexDirection: 'row', justifyContent: 'center' }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                        <span style={{color:'white', fontSize:'11px', marginLeft:'4px'}}>AI Auto-Fill (Gallery)</span>
+                                        <input type="file" id="billFileGalleryAI" accept="image/*" style={{ display: 'none' }} onChange={(e) => { closeNumpad(); handleExpenseAiScan(e); }} />
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
