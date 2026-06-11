@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
 /**
  * User-Specific API to fetch WhatsApp Status
  */
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSession(authOptions as any);
         if (!session || !session.user) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
         }
@@ -59,8 +59,8 @@ export async function GET() {
             userId
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching WhatsApp Status:', error);
-        return NextResponse.json({ success: false, error: 'Failed' }, { status: 500 });
+        return NextResponse.json({ success: false, error: error.message || 'Failed' }, { status: 500 });
     }
 }
