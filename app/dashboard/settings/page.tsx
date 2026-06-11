@@ -734,6 +734,57 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
+                {/* WhatsApp Bot Connection Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                                <FaWhatsapp className="text-xl" />
+                            </div>
+                            <h2 className="text-lg font-bold text-gray-800">WhatsApp Bot Setup</h2>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer self-start sm:self-auto">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={localSettings.whatsappBotEnabled || false}
+                                onChange={(e) => setLocalSettings({ ...localSettings, whatsappBotEnabled: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
+                    </div>
+
+                    <div className={`space-y-6 transition-all ${localSettings.whatsappBotEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-600">
+                            Scan this QR code from your phone's WhatsApp (Linked Devices) to connect your bot. Once connected, reminders will automatically be sent from your number.
+                        </div>
+
+                        {botStatus?.status === 'LOADING' ? (
+                            <div className="text-center p-4">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                                <p className="mt-2 text-sm text-gray-500">Connecting to server...</p>
+                            </div>
+                        ) : botStatus?.status === 'READY' ? (
+                            <div className="text-center p-4 bg-green-50 border border-green-200 rounded-xl">
+                                <div className="text-green-600 font-bold text-lg mb-2">✅ Connected Successfully</div>
+                                <p className="text-xs text-green-800">Your WhatsApp Bot is active and ready to send messages.</p>
+                            </div>
+                        ) : botStatus?.qr ? (
+                            <div className="flex flex-col items-center justify-center p-4">
+                                <div className="p-4 bg-white rounded-2xl shadow-sm border-2 border-gray-100">
+                                    <QRCodeCanvas value={botStatus.qr} size={200} />
+                                </div>
+                                <p className="mt-4 font-bold text-gray-700 animate-pulse">Waiting for QR Scan...</p>
+                            </div>
+                        ) : (
+                            <div className="text-center p-4 bg-red-50 border border-red-200 rounded-xl">
+                                <p className="text-sm text-red-600 font-bold">Could not generate QR code.</p>
+                                <p className="text-xs text-red-500 mt-1">Please ensure the background bot server is running.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* Preferences Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
