@@ -25,6 +25,7 @@ export default function LandingPage() {
     // Form States
     const [loginData, setLoginData] = useState({ email: '', password: '' });
     const [signupData, setSignupData] = useState({ name: '', email: '', password: '', refCode: '' });
+    const [isVideoMuted, setIsVideoMuted] = useState(true);
 
     // Exit Intent Logic
     useEffect(() => {
@@ -238,16 +239,16 @@ export default function LandingPage() {
                         "BillGST एक आसान Billing & Inventory App है जो आपकी दुकान को Digital बनाता है। Free Invoices, Stock Alert, और WhatsApp Billing के साथ।"
                     }
                 </p>
-                <div className="hero-actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-                    <button className="btn-hero2" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#fff', border: '1px solid rgba(59, 130, 246, 0.5)', padding: '14px 28px', fontSize: '18px', borderRadius: '12px', width: '100%', maxWidth: '400px', fontWeight: 'bold' }} onClick={() => openM('login')}>
-                        {isEnglish ? "Already have an account? Login Here" : "क्या आपके पास पहले से अकाउंट है? यहाँ लॉगिन करें"}
+                <div className="hero-actions" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '20px', width: '100%' }}>
+                    <button className="btn-hero" style={{ background: 'linear-gradient(135deg, #4F8EF7 0%, #7C6EF7 100%)', padding: '18px 36px', fontSize: '18px', fontWeight: '800', borderRadius: '16px', boxShadow: '0 10px 30px rgba(79, 142, 247, 0.4)', color: 'white', border: 'none', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => openM('signup')}>
+                        <span style={{fontSize: '24px'}}>🚀</span> {isEnglish ? "Create Free Account" : "नया फ्री अकाउंट बनाएं"}
                     </button>
 
-                    <button className="btn-hero" style={{ background: 'linear-gradient(135deg, #ea580c, #f97316)', padding: '18px 36px', fontSize: '20px', fontWeight: '900', boxShadow: '0 10px 30px rgba(234, 88, 12, 0.5)', width: '100%', maxWidth: '400px' }} onClick={() => openM('signup')}>
-                        🚀 {isEnglish ? "Start for Free Now — No Card Required" : "अभी मुफ्त में शुरू करें — कार्ड की जरूरत नहीं"}
+                    <button className="btn-hero2" style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '18px 36px', fontSize: '18px', borderRadius: '16px', fontWeight: '600', backdropFilter: 'blur(10px)', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => openM('login')}>
+                        <span style={{fontSize: '22px'}}>👋</span> {isEnglish ? "Login to Dashboard" : "डैशबोर्ड में लॉगिन करें"}
                     </button>
 
-                    <a href="https://play.google.com/store/apps/details?id=in.billgst.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', color: '#fff', padding: '10px 24px', borderRadius: '12px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.15)', width: '100%', maxWidth: '400px', justifyContent: 'center', transition: '0.2s', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+                    <a href="https://play.google.com/store/apps/details?id=in.billgst.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', color: '#fff', padding: '12px 28px', borderRadius: '16px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.15)', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
                         <svg viewBox="0 0 512 512" width="28" height="28"><path fill="#4caf50" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z"/><path fill="#03a9f4" d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z"/><path fill="#ffeb3b" d="M472.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8z"/><path fill="#f44336" d="M104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
                         <div style={{ textAlign: 'left' }}>
                             <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, lineHeight: 1 }}>GET IT ON</div>
@@ -276,7 +277,7 @@ export default function LandingPage() {
                 {/* DASHBOARD PREVIEW */}
                 <div className="db-wrap" style={{ background: 'transparent', padding: '0', border: 'none', boxShadow: 'none' }}>
                     <div className="db-glow" style={{ top: '20%', height: '60%' }}></div>
-                    <div className="db-frame" style={{ background: '#0f172a', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}>
+                    <div className="db-frame" style={{ background: '#0f172a', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)', position: 'relative' }}>
                         <div className="db-bar">
                             <span className="dot r"></span><span className="dot y"></span><span className="dot g"></span>
                             <div className="db-url">app.billgst.in/<b>dashboard</b></div>
@@ -284,13 +285,28 @@ export default function LandingPage() {
                         <iframe 
                             width="100%" 
                             height="100%" 
-                            src="https://www.youtube.com/embed/CMzc3B2kilk?autoplay=1&mute=0&loop=1&playlist=CMzc3B2kilk&controls=1&modestbranding=1&rel=0&showinfo=0" 
+                            src={`https://www.youtube.com/embed/CMzc3B2kilk?autoplay=1&mute=${isVideoMuted ? 1 : 0}&loop=1&playlist=CMzc3B2kilk&controls=1&modestbranding=1&rel=0&showinfo=0`} 
                             title="BillGST Dashboard Preview" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowFullScreen
                             style={{ aspectRatio: '16/9', display: 'block', objectFit: 'cover' }}
                         ></iframe>
+                        <button 
+                            onClick={() => setIsVideoMuted(!isVideoMuted)}
+                            style={{
+                                position: 'absolute', bottom: '24px', left: '24px', zIndex: 10,
+                                background: 'rgba(0,0,0,0.6)', color: 'white', border: '1px solid rgba(255,255,255,0.2)',
+                                padding: '10px 20px', borderRadius: '50px', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px',
+                                backdropFilter: 'blur(8px)', fontWeight: 'bold', transition: 'all 0.2s',
+                                boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.8)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+                        >
+                            {isVideoMuted ? '🔇 Unmute Video' : '🔊 Mute Video'}
+                        </button>
                     </div>
                 </div>
             </section>

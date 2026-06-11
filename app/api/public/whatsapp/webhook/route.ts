@@ -16,7 +16,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized: Invalid Bot Token" }, { status: 401 });
         }
 
-        let client = await pool.connect();
+        const client = await pool.connect();
 
         // 2. Fetch Business Context
         const business = await client.query(

@@ -21,7 +21,7 @@ export async function GET() {
             [personalId]
         );
 
-        let workspaces = [];
+        const workspaces = [];
 
         if (personalResult.rows.length > 0) {
             const user = personalResult.rows[0];

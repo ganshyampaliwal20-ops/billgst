@@ -62,7 +62,7 @@ Output Format: { "amount": "...", "date": "...", "material": "..." }
         const result = await model.generateContent([prompt, ...imageParts]);
         const responseText = result.response.text();
         
-        let jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
         const data = JSON.parse(jsonStr);
 
         return NextResponse.json(data);

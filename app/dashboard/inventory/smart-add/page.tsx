@@ -101,6 +101,9 @@ export default function SmartAddPage() {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Reset the input value so that selecting the same file again works
+        e.target.value = '';
+
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -127,9 +130,17 @@ export default function SmartAddPage() {
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
                         setImage(compressedBase64);
                         processImage(compressedBase64);
+                    } else {
+                        toast.error("Failed to process image canvas.");
                     }
                 };
+                img.onerror = () => {
+                    toast.error("Failed to load the image file.");
+                };
                 img.src = event.target?.result as string;
+            };
+            reader.onerror = () => {
+                toast.error("Failed to read the file.");
             };
             reader.readAsDataURL(file);
         } else {
@@ -142,6 +153,9 @@ export default function SmartAddPage() {
                 const base64 = event.target?.result as string;
                 setImage(base64);
                 await processImage(base64);
+            };
+            reader.onerror = () => {
+                toast.error("Failed to read the file.");
             };
             reader.readAsDataURL(file);
         }
@@ -219,8 +233,8 @@ export default function SmartAddPage() {
 
         const loadToast = toast.loading('Saving items to inventory...');
         let successCount = 0;
-        let failures: {name: string, reason: string}[] = [];
-        let successfulItemIds: string[] = [];
+        const failures: {name: string, reason: string}[] = [];
+        const successfulItemIds: string[] = [];
 
         const stockUpdates: Record<string, number> = {};
 
@@ -345,8 +359,10 @@ export default function SmartAddPage() {
     };
 
     return (
-        <div className="smart-scanner-page relative overflow-x-hidden">
-            <style dangerouslySetInnerHTML={{ __html: `
+        <>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css"/>
+            <div className="smart-scanner-page relative overflow-x-hidden">
+                <style dangerouslySetInnerHTML={{ __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
                 :root {
                   --bg: #080b14;
@@ -676,121 +692,262 @@ export default function SmartAddPage() {
                     90% { opacity: 1; }
                     100% { top: 110%; opacity: 0; }
                 }
+
+                /* --- NEW DESIGN CSS --- */
+                .topbar {
+                  background: linear-gradient(135deg, #5B3FD9 0%, #7C5CF0 100%);
+                  padding: 14px 18px 16px; display: flex; align-items: center; gap: 12px;
+                }
+                .avatar {
+                  width: 40px; height: 40px; border-radius: 50%;
+                  background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+                  display: flex; align-items: center; justify-content: center; font-size: 20px;
+                }
+                .brand { flex: 1; }
+                .brand-name { font-size: 15px; font-weight: 600; color: #fff; }
+                .brand-sub  { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+                .topbar-icons { display: flex; gap: 8px; }
+                .icon-btn {
+                  width: 34px; height: 34px; border-radius: 9px;
+                  background: rgba(255,255,255,0.12); border: none; cursor: pointer;
+                  display: flex; align-items: center; justify-content: center;
+                  color: white; font-size: 16px;
+                }
+                .breadcrumb {
+                  display: flex; align-items: center; gap: 8px;
+                  padding: 11px 18px 10px; background: #13161E; border-bottom: 0.5px solid #1e2230;
+                }
+                .back-btn {
+                  width: 30px; height: 30px; border-radius: 8px;
+                  background: #1e2230; border: none; cursor: pointer;
+                  display: flex; align-items: center; justify-content: center;
+                  color: #8b8fa8; font-size: 14px; margin-right: 0;
+                }
+                .breadcrumb-text { font-size: 12px; color: #8b8fa8; }
+                .breadcrumb-text span { color: #c4c8e0; font-weight: 500; }
+
+                .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+                .scanner-icon-wrap {
+                  width: 46px; height: 46px; border-radius: 14px; margin-bottom: 0;
+                  background: linear-gradient(135deg, #5B3FD9, #7C5CF0);
+                  display: flex; align-items: center; justify-content: center;
+                  font-size: 22px; color: white;
+                }
+                .section-title { font-size: 19px; font-weight: 600; color: #e8eaf4; }
+                .ai-badge {
+                  display: inline-flex; align-items: center; gap: 5px;
+                  background: rgba(91,63,217,0.15); border: 0.5px solid rgba(124,92,240,0.4);
+                  border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 600; color: #a48ef5;
+                  letter-spacing: 0.5px; margin-top: 3px;
+                }
+                .dot { width: 6px; height: 6px; border-radius: 50%; background: #a48ef5; }
+
+                .content { flex: 1; padding: 20px 16px; }
+                .upload-card {
+                  background: #13161E; border: 1.5px dashed #2e3348; border-radius: 20px;
+                  padding: 26px 20px 22px; display: flex; flex-direction: column; align-items: center;
+                  margin-bottom: 16px; cursor: pointer; transition: border-color 0.25s;
+                }
+                .upload-card:hover { border-color: #7C5CF0; }
+                .upload-icon-wrap {
+                  width: 70px; height: 70px; border-radius: 20px;
+                  background: linear-gradient(135deg, #5B3FD9, #7C5CF0);
+                  display: flex; align-items: center; justify-content: center;
+                  font-size: 30px; color: white; margin-bottom: 14px;
+                  box-shadow: 0 8px 24px rgba(91,63,217,0.35);
+                }
+                .upload-title { font-size: 16px; font-weight: 600; color: #e8eaf4; margin-bottom: 8px; text-align: center; }
+                .upload-desc { font-size: 12px; color: #6b7090; text-align: center; line-height: 1.65; margin-bottom: 16px; }
+                .upload-types { display: flex; gap: 8px; }
+                .type-pill {
+                  display: flex; align-items: center; gap: 5px; background: #1a1e2e; border: 0.5px solid #2e3348;
+                  border-radius: 8px; padding: 5px 12px; font-size: 12px; color: #8b8fa8;
+                }
+                .type-pill i { font-size: 13px; color: #7C5CF0; }
+                .cta-btn {
+                  width: 100%; background: linear-gradient(135deg, #5B3FD9 0%, #7C5CF0 100%);
+                  border: none; border-radius: 14px; padding: 14px;
+                  display: flex; align-items: center; justify-content: center; gap: 8px;
+                  color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 14px;
+                  box-shadow: 0 6px 20px rgba(91,63,217,0.4); transition: opacity 0.2s;
+                }
+                .cta-btn:hover { opacity: 0.9; }
+
+                .info-row { display: flex; gap: 10px; }
+                .info-card {
+                  flex: 1; background: #13161E; border: 0.5px solid #1e2230; border-radius: 14px;
+                  padding: 13px; display: flex; flex-direction: column; gap: 6px;
+                }
+                .info-card-icon {
+                  width: 30px; height: 30px; border-radius: 9px; background: rgba(91,63,217,0.15);
+                  display: flex; align-items: center; justify-content: center; font-size: 15px; color: #a48ef5;
+                }
+                .info-card-label { font-size: 10px; color: #6b7090; }
+                .info-card-val   { font-size: 12px; font-weight: 600; color: #c4c8e0; }
+
+                .scan-area {
+                  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                  padding: 20px 16px 32px;
+                }
+                .scan-frame { width: 220px; height: 260px; position: relative; margin-bottom: 28px; }
+                .corner { position: absolute; width: 24px; height: 24px; border-color: #00D4AA; border-style: solid; }
+                .corner.tl { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 5px 0 0 0; }
+                .corner.tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 5px 0 0; }
+                .corner.bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 5px; }
+                .corner.br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 5px 0; }
+                .scan-beam {
+                  position: absolute; left: 12px; right: 12px; height: 2px;
+                  background: linear-gradient(90deg, transparent, #00D4AA, transparent);
+                  top: 20px; border-radius: 1px; box-shadow: 0 0 10px #00D4AA, 0 0 20px rgba(0,212,170,0.4);
+                  animation: beam-move 2.2s ease-in-out infinite;
+                }
+                @keyframes beam-move { 0% { top: 16px; opacity: 1; } 50% { top: 228px; opacity: 1; } 100% { top: 16px; opacity: 1; } }
+                .scan-doc {
+                  width: 170px; height: 210px; background: #1a1e2e; border-radius: 12px;
+                  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+                  padding: 22px 18px; display: flex; flex-direction: column; gap: 10px;
+                }
+                .doc-line { height: 7px; border-radius: 4px; background: #2e3348; }
+                .doc-line.scanned { background: linear-gradient(90deg, #00D4AA, #00B894); animation: pulse-line 2s ease-in-out infinite; }
+                @keyframes pulse-line { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+                .scan-label { font-size: 17px; font-weight: 600; color: #00D4AA; margin-bottom: 6px; letter-spacing: 0.3px; }
+                .scan-sub { font-size: 12px; color: #6b7090; text-align: center; line-height: 1.6; margin-bottom: 20px; }
+                .progress-wrap { width: 190px; }
+                .progress-track { height: 4px; background: #1e2230; border-radius: 2px; overflow: hidden; }
+                .progress-bar {
+                  height: 100%; border-radius: 2px; background: linear-gradient(90deg, #00D4AA, #00B894);
+                  animation: progress-anim 3.5s ease-in-out infinite;
+                }
+                @keyframes progress-anim { 0% { width: 10%; } 60% { width: 80%; } 100% { width: 96%; } }
+                .progress-pct { font-size: 11px; color: #00D4AA; font-weight: 600; text-align: right; margin-top: 6px; }
             `}} />
 
-            {/* TOPBAR */}
+            {/* ── TOP BAR ── */}
             <div className="topbar">
-                <button className="back-btn" onClick={() => router.push('/dashboard/inventory')}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                </button>
-                <div className="tb-center">
-                    <div className="tb-title">{st.smartScanner}</div>
-                    <div className="tb-sub">{st.aiPowered}</div>
+                <div className="avatar">🎭</div>
+                <div className="brand">
+                    <div className="brand-name">Ayana Enterprises</div>
+                    <div className="brand-sub">Smart Scanner</div>
                 </div>
+                <div className="topbar-icons">
+                    <button className="icon-btn" aria-label="Settings"><i className="ti ti-settings"></i></button>
+                    <button className="icon-btn" aria-label="Menu"><i className="ti ti-menu-2"></i></button>
+                </div>
+            </div>
+
+            {/* ── BREADCRUMB ── */}
+            <div className="breadcrumb">
+                <button className="back-btn" aria-label="Back" onClick={() => router.push('/dashboard/inventory')}>
+                    <i className="ti ti-arrow-left"></i>
+                </button>
+                <div className="breadcrumb-text">Home / <span>Smart Scanner</span></div>
                 {step === 'review' && (
-                    <button className="scan-again-btn" onClick={() => setStep('upload')}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>{st.scanAgain}</button>
+                    <button className="scan-again-btn" onClick={() => setStep('upload')} style={{marginLeft: 'auto'}}>
+                        <i className="ti ti-reload" style={{fontSize: '14px'}}></i> {st.scanAgain}
+                    </button>
                 )}
             </div>
 
-            {/* HERO */}
-            <div className="hero">
-                <div className="hero-inner">
-                    <div className="scanner-icon-wrap">
-                        <div className="scanner-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
-                                <rect x="7" y="7" width="10" height="10" rx="1"/>
-                            </svg>
-                        </div>
-                        <div className="scanner-title-block">
-                            <div className="scanner-title">{st.smartScanner}</div>
-                            <div className="scanner-ai-tag">
-                                <span className="ai-dot"></span>
-                                AI Powered Entry
+            {/* Profit Margin Setting (Only in Review Step) */}
+            {step === 'review' && (
+                <div className="content" style={{paddingBottom: '0'}}>
+                    <div className="profit-bar">
+                        <div className="pb-top">
+                            <div className="profit-toggle" onClick={() => setIsProfitOpen(!isProfitOpen)}>
+                                <div className="pb-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"/>
+                                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                                    </svg>
+                                    {st.profitMarginSet}
+                                </div>
+                                <div className={`pt-arrow ${isProfitOpen ? 'open' : ''}`}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                                </div>
                             </div>
+                            <div className="pb-current">{globalProfit}%</div>
+                        </div>
+
+                        <div className={`profit-collapsible ${isProfitOpen ? 'open' : ''}`}>
+                            <div className="preset-row">
+                                {[5, 10, 15, 20, 25, 30].map(pct => (
+                                    <button 
+                                        key={pct}
+                                        className={`preset-btn ${globalProfit === pct ? 'active' : ''}`}
+                                        onClick={() => updateGlobalProfitAndApply(pct)}
+                                    >
+                                        {pct}%
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="slider-wrap">
+                                <div className="slider-minus" onClick={() => updateGlobalProfitAndApply(Math.max(0, globalProfit - 1))}>−</div>
+                                <input 
+                                    type="range" 
+                                    className="profit-slider" 
+                                    min="0" max="100" 
+                                    value={globalProfit} 
+                                    onChange={(e) => updateGlobalProfitAndApply(Number(e.target.value))}
+                                    style={{ background: `linear-gradient(90deg, #f59e0b ${globalProfit}%, rgba(255,255,255,0.1) ${globalProfit}%)` }}
+                                />
+                                <div className="slider-plus" onClick={() => updateGlobalProfitAndApply(Math.min(100, globalProfit + 1))}>+</div>
+                            </div>
+
+                            <button className="apply-btn" onClick={handleApplyProfit}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                                {st.applyToAll}
+                            </button>
                         </div>
                     </div>
-
-                    {/* Profit Margin Setting (Only in Review Step) */}
-                    {step === 'review' && (
-                        <div className="profit-bar">
-                            <div className="pb-top">
-                                <div className="profit-toggle" onClick={() => setIsProfitOpen(!isProfitOpen)}>
-                                    <div className="pb-title">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <line x1="12" y1="1" x2="12" y2="23"/>
-                                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                                        </svg>
-                                        {st.profitMarginSet}
-                                    </div>
-                                    <div className={`pt-arrow ${isProfitOpen ? 'open' : ''}`}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
-                                    </div>
-                                </div>
-                                <div className="pb-current">{globalProfit}%</div>
-                            </div>
-
-                            <div className={`profit-collapsible ${isProfitOpen ? 'open' : ''}`}>
-                                {/* Presets */}
-                                <div className="preset-row">
-                                    {[5, 10, 15, 20, 25, 30].map(pct => (
-                                        <button 
-                                            key={pct}
-                                            className={`preset-btn ${globalProfit === pct ? 'active' : ''}`}
-                                            onClick={() => updateGlobalProfitAndApply(pct)}
-                                        >
-                                            {pct}%
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Slider */}
-                                <div className="slider-wrap">
-                                    <div className="slider-minus" onClick={() => updateGlobalProfitAndApply(Math.max(0, globalProfit - 1))}>−</div>
-                                    <input 
-                                        type="range" 
-                                        className="profit-slider" 
-                                        min="0" max="100" 
-                                        value={globalProfit} 
-                                        onChange={(e) => updateGlobalProfitAndApply(Number(e.target.value))}
-                                        style={{ background: `linear-gradient(90deg, #f59e0b ${globalProfit}%, rgba(255,255,255,0.1) ${globalProfit}%)` }}
-                                    />
-                                    <div className="slider-plus" onClick={() => updateGlobalProfitAndApply(Math.min(100, globalProfit + 1))}>+</div>
-                                </div>
-
-                                <button className="apply-btn" onClick={handleApplyProfit}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
-                                    {st.applyToAll}
-                                </button>
-                            </div>
-                        </div>
-                    )}
                 </div>
-            </div>
+            )}
 
             <AnimatePresence mode="wait">
                 {/* Upload Step */}
                 {step === 'upload' && (
-                    <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="p-4 flex flex-col items-center justify-center pt-10">
-                        <div className="border-[1.5px] border-dashed border-purple-500/50 bg-white/5 hover:bg-purple-500/10 rounded-[20px] p-6 pb-5 transition-all flex flex-col items-center relative group w-full max-w-[400px] overflow-hidden cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(138,92,246,0.1)_0%,transparent_65%)] pointer-events-none rounded-[20px]"></div>
-                            <div className="upload-scanner"></div>
-                            <div className="w-[70px] h-[70px] bg-gradient-to-br from-purple-600 to-purple-400 rounded-[18px] flex items-center justify-center mb-4 shadow-[0_4px_20px_rgba(124,58,237,0.4)] relative z-10">
-                                <FaFileInvoice className="text-[32px] text-white" />
+                    <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="content">
+                        <div className="section-header">
+                            <div className="scanner-icon-wrap"><i className="ti ti-scan"></i></div>
+                            <div>
+                                <div className="section-title">Smart Scanner</div>
+                                <div className="ai-badge"><div className="dot"></div> AI Powered Entry</div>
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2 relative z-10">Upload Supplier Invoice</h3>
-                            <p className="text-[13px] text-slate-400 mb-5 leading-relaxed relative z-10 text-center font-['Outfit']">
+                        </div>
+
+                        <div className="upload-card" onClick={() => fileInputRef.current?.click()}>
+                            <div className="upload-icon-wrap"><i className="ti ti-file-invoice"></i></div>
+                            <div className="upload-title">Upload Supplier Invoice</div>
+                            <div className="upload-desc">
                                 {st.uploadDesc.split('\n').map((line: string, i: number) => <span key={i}>{line}<br/></span>)}
-                            </p>
-                            <div className="flex justify-center gap-2 mb-6 relative z-10">
-                                <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 font-['Outfit']">📷 Photo</span>
-                                <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 font-['Outfit']">📄 Scan</span>
-                                <span className="bg-white/5 border border-white/10 text-[#c4c9e4] text-[12px] font-semibold px-3 py-1 rounded-lg flex items-center gap-1.5 font-['Outfit']">📑 PDF</span>
                             </div>
-                            <button className="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white font-bold py-3.5 px-8 rounded-full text-[15px] hover:-translate-y-[1px] hover:shadow-[0_6px_28px_rgba(124,58,237,0.6)] transition-all flex items-center justify-center gap-2 relative z-10 font-['Outfit']">
-                                <FaCamera className="text-xl" /> Browse or Take Photo
+                            <div className="upload-types">
+                                <div className="type-pill"><i className="ti ti-camera"></i> Photo</div>
+                                <div className="type-pill"><i className="ti ti-scan"></i> Scan</div>
+                                <div className="type-pill"><i className="ti ti-file-type-pdf"></i> PDF</div>
+                            </div>
+                            <button className="cta-btn">
+                                <i className="ti ti-camera" style={{fontSize: '17px'}}></i>
+                                Browse or Take Photo
                             </button>
+                        </div>
+
+                        <div className="info-row">
+                            <div className="info-card">
+                                <div className="info-card-icon"><i className="ti ti-bolt"></i></div>
+                                <div className="info-card-label">Auto Detect</div>
+                                <div className="info-card-val">Products &amp; Qty</div>
+                            </div>
+                            <div className="info-card">
+                                <div className="info-card-icon"><i className="ti ti-shield-check"></i></div>
+                                <div className="info-card-label">Accuracy</div>
+                                <div className="info-card-val">AI Verified</div>
+                            </div>
+                            <div className="info-card">
+                                <div className="info-card-icon"><i className="ti ti-clock"></i></div>
+                                <div className="info-card-label">Speed</div>
+                                <div className="info-card-val">Instant Entry</div>
+                            </div>
                         </div>
                         <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                     </motion.div>
@@ -798,33 +955,42 @@ export default function SmartAddPage() {
 
                 {/* Processing Step */}
                 {step === 'processing' && (
-                    <motion.div key="processing" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="p-4 flex flex-col items-center justify-center pt-10">
-                        <div className="w-full max-w-[400px] min-h-[400px] bg-[#13161c] border border-slate-800/80 rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
-                            <div className="relative w-32 h-40 md:w-40 md:h-52 mb-10 md:mb-12 flex-shrink-0">
-                                <div className="absolute -top-3 -left-3 w-6 h-6 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl"></div>
-                                <div className="absolute -top-3 -right-3 w-6 h-6 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr"></div>
-                                <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl"></div>
-                                <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br"></div>
-                                <div className="w-full h-full bg-slate-800/80 rounded-sm relative overflow-hidden shadow-lg">
-                                    <div className="absolute inset-x-4 top-8 md:top-10 flex flex-col gap-2 md:gap-3 z-10 opacity-70">
-                                        <div className="w-3/4 h-1.5 bg-emerald-400 rounded-full"></div>
-                                        <div className="w-full h-1.5 bg-slate-500 rounded-full"></div>
-                                        <div className="w-5/6 h-1.5 bg-slate-500 rounded-full"></div>
-                                        <div className="w-2/3 h-1.5 bg-slate-500 rounded-full"></div>
-                                    </div>
-                                    <motion.div animate={{ top: ['0%', '90%', '0%'] }} transition={{ duration: 4, ease: "linear", repeat: Infinity }} className="absolute left-0 right-0 h-[2px] bg-emerald-400 shadow-[0_0_20px_5px_rgba(16,185,129,0.8)] z-30"></motion.div>
-                                </div>
+                    <motion.div key="processing" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="scan-area">
+                        <div className="section-header" style={{marginBottom: '28px', alignSelf: 'flex-start', width: '100%'}}>
+                            <div className="scanner-icon-wrap"><i className="ti ti-scan"></i></div>
+                            <div>
+                                <div className="section-title">Smart Scanner</div>
+                                <div className="ai-badge"><div className="dot"></div> AI Powered Entry</div>
                             </div>
-                            <h2 className="mt-4 md:mt-6 text-lg md:text-2xl font-extrabold text-emerald-400 mb-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wide flex-shrink-0 font-['Outfit']">Extracting Details...</h2>
-                            <div className="h-5 md:h-6 overflow-hidden relative w-full mb-6 md:mb-10 text-center flex justify-center flex-shrink-0">
-                                <motion.div animate={{ y: ['0%', '-20%', '-40%', '-60%', '-80%'] }} transition={{ duration: 8, ease: "linear", repeat: Infinity }} className="flex flex-col text-[13px] md:text-[15px] font-medium font-['Outfit']">
-                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-slate-400">{st.waitMsg}</div>
-                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-emerald-400">Extracting Product Names...</div>
-                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-emerald-400">Checking Bill Qty & Rates...</div>
-                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-emerald-400">Calculating Total Amount...</div>
-                                    <div className="h-5 md:h-6 flex items-center justify-center gap-2 text-slate-400">{st.waitMsg}</div>
-                                </motion.div>
+                        </div>
+
+                        <div className="scan-frame">
+                            <div className="corner tl"></div>
+                            <div className="corner tr"></div>
+                            <div className="corner bl"></div>
+                            <div className="corner br"></div>
+                            <div className="scan-beam"></div>
+                            <div className="scan-doc">
+                                <div className="doc-line scanned" style={{width: '80%'}}></div>
+                                <div className="doc-line scanned" style={{width: '65%', animationDelay: '0.4s'}}></div>
+                                <div className="doc-line" style={{width: '90%'}}></div>
+                                <div className="doc-line" style={{width: '72%'}}></div>
+                                <div className="doc-line" style={{width: '55%'}}></div>
+                                <div className="doc-line" style={{width: '83%'}}></div>
+                                <div className="doc-line" style={{width: '60%'}}></div>
                             </div>
+                        </div>
+
+                        <div className="scan-label">Extracting Details...</div>
+                        <div className="scan-sub">{st.waitMsg}</div>
+
+                        <div className="progress-wrap">
+                            <div className="progress-track">
+                                <div className="progress-bar"></div>
+                            </div>
+                            <motion.div animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 3.5, ease: "easeInOut", repeat: Infinity }} className="progress-pct">
+                                Analyzing invoice...
+                            </motion.div>
                         </div>
                     </motion.div>
                 )}

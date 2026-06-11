@@ -207,21 +207,21 @@ function ReportsContent() {
 
     const totalRevenue = filteredInvoices.filter((i: any) => i.status !== 'CANCELLED').reduce((a: any, b: any) => a + parseFloat(b.total_amount || 0), 0) || 0;
     const totalExpenses = filteredExpenses.reduce((a: any, b: any) => a + parseFloat(b.amount || 0), 0) || 0;
-    let totalProfit = totalRevenue - totalExpenses;
-    let invoiceCount = filteredInvoices.length;
-    let totalSales = totalRevenue;
+    const totalProfit = totalRevenue - totalExpenses;
+    const invoiceCount = filteredInvoices.length;
+    const totalSales = totalRevenue;
 
     const allItems = (filteredInvoices || []).flatMap((inv: any) => inv.items || []);
     const itemsWithHSN = allItems.filter((item: any) => item.hsn_code && item.hsn_code.trim() !== '');
     const hsnCompliance = allItems.length > 0 ? Math.round((itemsWithHSN.length / allItems.length) * 100) : 100;
 
-    let avgOrderValue = invoiceCount > 0 ? (totalSales / invoiceCount) : 0;
-    let activeCustomers = customers?.length || 0;
+    const avgOrderValue = invoiceCount > 0 ? (totalSales / invoiceCount) : 0;
+    const activeCustomers = customers?.length || 0;
 
-    let paymentPending = invoices?.filter((inv: any) => inv.status !== 'PAID')
+    const paymentPending = invoices?.filter((inv: any) => inv.status !== 'PAID')
         .reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0) - (parseFloat(inv.paid_amount) || 0), 0) || 0;
 
-    let itemsSold = invoices?.reduce((sum: number, inv: any) => sum + (inv.items?.length || 1), 0) || 0;
+    const itemsSold = invoices?.reduce((sum: number, inv: any) => sum + (inv.items?.length || 1), 0) || 0;
 
     const formatLakhs = (val: number) => {
         if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
@@ -373,16 +373,16 @@ function ReportsContent() {
     };
 
     const colors = ['#4f46e5', '#10b981', '#f59e0b', '#0ea5e9', '#8b5cf6'];
-    let customersWithTotals = (customers || []).map((c: any) => {
+    const customersWithTotals = (customers || []).map((c: any) => {
         const cInvoices = (invoices || []).filter((inv: any) => inv.customer_id === c.id || inv.customer?.id === c.id);
         const total = cInvoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0), 0);
         return { ...c, total, phone: c.phone || 'N/A' };
     }).sort((a: any, b: any) => b.total - a.total).slice(0, 5);
 
-    let totalTaxable = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.subtotal) || 0), 0) || 0;
-    let totalCGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.cgst_amount) || 0), 0) || 0;
-    let totalSGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.sgst_amount) || 0), 0) || 0;
-    let totalIGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.igst_amount) || 0), 0) || 0;
+    const totalTaxable = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.subtotal) || 0), 0) || 0;
+    const totalCGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.cgst_amount) || 0), 0) || 0;
+    const totalSGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.sgst_amount) || 0), 0) || 0;
+    const totalIGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.igst_amount) || 0), 0) || 0;
 
     const totalTax = totalCGST + totalSGST + totalIGST;
 

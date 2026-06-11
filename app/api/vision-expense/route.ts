@@ -57,7 +57,7 @@ Strict Rules:
         const responseText = result.response.text();
         
         // Clean up markdown in case the model ignored instructions
-        let jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
         
         try {
             const data = JSON.parse(jsonStr);

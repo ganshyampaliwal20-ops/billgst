@@ -164,7 +164,7 @@ export default function CustomerDetailPage() {
                 const currentTotal = parseFloat(inv.total_amount);
                 const pending = currentTotal - currentPaid;
 
-                let paymentForInvoice = remainingPayment >= pending ? pending : remainingPayment;
+                const paymentForInvoice = remainingPayment >= pending ? pending : remainingPayment;
                 remainingPayment -= paymentForInvoice;
 
                 const newPaidAmount = currentPaid + paymentForInvoice;

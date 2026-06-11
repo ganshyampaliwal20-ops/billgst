@@ -32,7 +32,7 @@ export async function GET() {
             FROM users WHERE id = $1`;
 
         try {
-            let result = await client.query(fetchQuery, [userId]);
+            const result = await client.query(fetchQuery, [userId]);
             let dbRow = result.rows[0];
 
             // If the user's profile is empty/default, try to find if they are a staff member of an owner

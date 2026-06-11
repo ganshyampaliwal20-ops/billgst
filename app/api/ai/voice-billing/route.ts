@@ -50,7 +50,7 @@ If no product matches even remotely, return an empty array [].
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
         
-        let jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
         
         try {
             const extractedItems = JSON.parse(jsonStr);

@@ -40,7 +40,7 @@ export async function GET(req: Request) {
             JOIN staff s ON a.staff_id = s.id
             WHERE s.created_by = $1
         `;
-        let params: any[] = [userId];
+        const params: any[] = [userId];
 
         if (date) {
             query += ' AND a.date = $2';

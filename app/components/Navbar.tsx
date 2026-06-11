@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
     const { status } = useSession();
 
     useEffect(() => {
@@ -16,6 +17,15 @@ export default function Navbar() {
             setIsScrolled(window.scrollY > 20);
         };
         window.addEventListener('scroll', handleScroll);
+        
+        // Check if running as a PWA / Play Store TWA
+        if (typeof window !== 'undefined') {
+            setIsStandalone(
+                window.matchMedia('(display-mode: standalone)').matches || 
+                document.referrer.includes('android-app://')
+            );
+        }
+        
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -28,8 +38,8 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className={`fixed left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg py-3' : 'bg-transparent py-5'
-                }`} style={{ top: 'env(safe-area-inset-top)' }}>
+            <nav className={`fixed left-0 right-0 z-[100] transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-lg pb-3' : 'bg-transparent pb-5'
+                }`} style={{ paddingTop: isStandalone ? 'max(env(safe-area-inset-top), 44px)' : (isScrolled ? '12px' : '20px') }}>
             <div className="max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">
                     {/* Logo */}

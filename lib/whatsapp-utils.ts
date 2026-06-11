@@ -3,7 +3,7 @@ export const getVisitingCardText = (profile: any) => {
     
     let card = `\n\n🔹 *${profile.name}* 🔹\n`;
     
-    let details = [];
+    const details = [];
     if (profile.phone) details.push(`📞 ${profile.phone}`);
     if (profile.email) details.push(`📧 ${profile.email}`);
     if (details.length > 0) card += details.join(' | ') + '\n';
