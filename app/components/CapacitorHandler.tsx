@@ -11,7 +11,7 @@ export default function CapacitorHandler() {
         let isAppAvailable = false;
         try {
             // Check if running in Capacitor
-            if (window.Capacitor && window.Capacitor.isNative) {
+            if ((window as any).Capacitor && (window as any).Capacitor.isNative) {
                 isAppAvailable = true;
             }
         } catch(e) {}
