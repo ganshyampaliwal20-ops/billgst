@@ -1453,15 +1453,13 @@ export default function BusinessExpensesPage() {
                                 <button className="qa-btn excel" onClick={downloadCustomerExcel}>📊 Excel Download</button>
                             </div>
                             <div className="spacer" style={{ height: '100px' }}></div>
-                            <div className="add-panel" id="addPanel">
-                                <div className="chat-action-bar" style={{ display: isAddEntryOpen ? 'none' : 'flex' }}>
-                                    <button className="chat-btn received" onClick={() => openNumpad('credit')}>
-                                        ↓ Received
-                                    </button>
-                                    <button className="chat-btn given" onClick={() => openNumpad('debit')}>
-                                        ↑ Given
-                                    </button>
-                                </div>
+                            <div className="chat-action-bar" style={{ display: isAddEntryOpen ? 'none' : 'flex' }}>
+                                <button className="chat-btn received" onClick={() => openNumpad('credit')}>
+                                    ↓ Received
+                                </button>
+                                <button className="chat-btn given" onClick={() => openNumpad('debit')}>
+                                    ↑ Given
+                                </button>
                             </div>
 
                         </div>
