@@ -723,19 +723,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* REFER & EARN SECTION */}
-            <section className="sec" style={{ padding: '80px 20px', background: '#0a0f1c' }}>
-                <div className="sec-in" style={{ maxWidth: '800px', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.1), rgba(249, 115, 22, 0.05))', border: '1px solid rgba(234, 88, 12, 0.3)', borderRadius: '20px', padding: '40px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '15px' }}>🎁</div>
-                    <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '15px', color: '#fff' }}>Refer & Earn Program</h2>
-                    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '18px', marginBottom: '30px', lineHeight: '1.6' }}>
-                        Dost ko refer karo aur dono pao ₹500 ka seedha discount apne Premium Plan par. Koi limit nahi, jitne refer karoge utna kamaoge!
-                    </p>
-                    <button className="btn-hero" style={{ margin: '0 auto', background: '#ea580c', padding: '14px 32px', fontSize: '18px', borderRadius: '12px' }} onClick={() => openM('signup')}>
-                        Generate Referral Link
-                    </button>
-                </div>
-            </section>
+
 
 
             {/* FEATURES & GUIDES SECTION (SEO Internal Linking) */}
