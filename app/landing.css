@@ -2393,3 +2393,22 @@ html {
 /* Status Bar Protector for mobile TWAs */
 .status-bar-protector { display: none; width: 100%; background: rgba(6,8,15,0.97); height: max(env(safe-area-inset-top), 36px); z-index: 1000; position: fixed; top: 0; left: 0; }
 @media(max-width:960px) { .status-bar-protector { display: block; } .landing-nav { top: max(env(safe-area-inset-top), 36px) !important; } }
+
+@media(max-width: 600px) {
+  .hero-actions-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    justify-content: flex-start !important;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hero-actions-row > button, .hero-actions-row > a {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 12px 20px !important;
+    font-size: 15px !important;
+  }
+  .hero-actions-row svg { width: 20px !important; height: 20px !important; }
+  .hero-actions-row > a > div > div:nth-child(1) { font-size: 9px !important; }
+  .hero-actions-row > a > div > div:nth-child(2) { font-size: 14px !important; }
+}

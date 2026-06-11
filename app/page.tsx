@@ -234,13 +234,13 @@ export default function LandingPage() {
                 <h1 className="">
                     {isEnglish ? (
                         <>
-                            Smart Billing Software for <br />
+                            <span style={{ fontSize: '0.8em', opacity: 0.9 }}>Smart Billing Software for</span> <br />
                             <span className="g1">India's Businesses</span> <br />
                             No More <span className="g2">GST</span> Tension.
                         </>
                     ) : (
                         <>
-                            India की दुकान के लिए <br />
+                            <span style={{ fontSize: '0.8em', opacity: 0.9 }}>India की दुकान के लिए</span> <br />
                             <span className="g1">Smart Billing Software</span> <br />
                             पर अब <span className="g2">GST</span> की कोई टेंशन नहीं।
                         </>
@@ -252,13 +252,13 @@ export default function LandingPage() {
                         "BillGST एक आसान Billing & Inventory App है जो आपकी दुकान को Digital बनाता है। Free Invoices, Stock Alert, और WhatsApp Billing के साथ।"
                     }
                 </p>
-                <div className="hero-actions" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '20px', width: '100%' }}>
+                <div className="hero-actions hero-actions-row" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', marginTop: '20px', width: '100%' }}>
                     <button className="btn-hero" style={{ background: 'linear-gradient(135deg, #4F8EF7 0%, #7C6EF7 100%)', padding: '18px 36px', fontSize: '18px', fontWeight: '800', borderRadius: '16px', boxShadow: '0 10px 30px rgba(79, 142, 247, 0.4)', color: 'white', border: 'none', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => openM('signup')}>
-                        <span style={{fontSize: '24px'}}>🚀</span> {isEnglish ? "Create Free Account" : "नया फ्री अकाउंट बनाएं"}
+                        <span style={{fontSize: '24px'}}>🚀</span> {isEnglish ? "Free Account" : "फ्री अकाउंट"}
                     </button>
 
                     <button className="btn-hero2" style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '18px 36px', fontSize: '18px', borderRadius: '16px', fontWeight: '600', backdropFilter: 'blur(10px)', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => openM('login')}>
-                        <span style={{fontSize: '22px'}}>👋</span> {isEnglish ? "Login to Dashboard" : "डैशबोर्ड में लॉगिन करें"}
+                        <span style={{fontSize: '22px'}}>👋</span> {isEnglish ? "Login" : "लॉगिन"}
                     </button>
 
                     <a href="https://play.google.com/store/apps/details?id=in.billgst.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', color: '#fff', padding: '12px 28px', borderRadius: '16px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.15)', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
