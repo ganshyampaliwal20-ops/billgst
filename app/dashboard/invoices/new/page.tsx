@@ -1197,9 +1197,6 @@ function NewInvoiceContent() {
                           .item-num { display:flex; align-items:center; gap:8px; }
                           .num-badge { width:26px; height:26px; border-radius:7px; background:var(--indigo); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
                           .item-label { font-size:13px; font-weight:700; color:var(--ink2); }
-                          .del-btn { width:30px; height:30px; border-radius:8px; background:var(--red-lt); border:1px solid rgba(239,68,68,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; }
-                          .del-btn:hover { background:#fecaca; }
-                          .del-btn svg { width:14px; height:14px; color:var(--red); }
                           .card-body-new { padding:14px; }
                           .product-field { display:flex; align-items:center; gap:10px; background:var(--bg); border:1.5px solid var(--border2); border-radius:var(--r); padding:11px 14px; margin-bottom:12px; transition:all .18s; }
                           .product-field:focus-within { border-color:var(--indigo); background:#fff; box-shadow:0 0 0 3px rgba(79,70,229,.08); }
@@ -1232,49 +1229,23 @@ function NewInvoiceContent() {
                               overflow: hidden;
                           }
 
-                          .quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom: 20px; }
-                          .qa-card { border-radius:var(--r); padding:16px 14px; display:flex; flex-direction:column; gap:8px; cursor:pointer; border:1.5px solid transparent; transition:all .18s; }
+                          .quick-actions { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom: 20px; }
+                          .qa-card { border-radius:12px; padding:12px 6px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; cursor:pointer; border:1.5px solid transparent; transition:all .18s; }
                           .qa-card:hover { transform:translateY(-2px); }
                           .qa-card:active { transform:scale(.98); }
                           .qa-card.scanner { background:linear-gradient(135deg,#e0f2fe,#f0f9ff); border-color:rgba(6,182,212,.25); }
-                          .qa-card.scanner:hover { box-shadow:0 6px 20px rgba(6,182,212,.2); }
+                          .qa-card.scanner:hover { box-shadow:0 6px 15px rgba(6,182,212,.15); }
                           .qa-card.camera { background:linear-gradient(135deg,#f5f3ff,#ede9fe); border-color:rgba(139,92,246,.25); }
-                          .qa-card.camera:hover { box-shadow:0 6px 20px rgba(139,92,246,.2); }
-                          .qa-card.add-item { background:linear-gradient(135deg,#eef0ff,#e8ecff); border-color:rgba(79,70,229,.2); border-style:dashed; }
-                          .qa-card.add-item:hover { box-shadow:0 6px 20px rgba(79,70,229,.15); }
+                          .qa-card.camera:hover { box-shadow:0 6px 15px rgba(139,92,246,.15); }
                           .qa-card.inventory { background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:rgba(245,158,11,.25); }
-                          .qa-card.inventory:hover { box-shadow:0 6px 20px rgba(245,158,11,.2); }
-                          .qa-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-                          .qa-icon svg { width:20px; height:20px; }
+                          .qa-card.inventory:hover { box-shadow:0 6px 15px rgba(245,158,11,.15); }
+                          .qa-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+                          .qa-icon svg { width:16px; height:16px; }
                           .qi-cyan { background:rgba(6,182,212,.15); } .qi-cyan svg { color:var(--cyan); }
                           .qi-purple { background:rgba(139,92,246,.15); } .qi-purple svg { color:var(--purple); }
-                          .qi-indigo { background:rgba(79,70,229,.12); } .qi-indigo svg { color:var(--indigo); }
                           .qi-amber { background:rgba(245,158,11,.15); } .qi-amber svg { color:var(--amber); }
-                          .qa-title { font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-.2px; }
-                          .qa-sub { font-size:11px; color:var(--ink3); font-weight:500; line-height:1.4; }
-                        
-                          .bottom-actions { background:var(--white); border-top:1px solid var(--border); padding:12px 14px 20px; flex-shrink:0; box-shadow:0 -4px 20px rgba(13,15,28,.07); margin: 20px -16px -16px; border-radius: 0 0 24px 24px; }
-                          .total-strip { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border:1px solid var(--border); border-radius:var(--rsm); padding:10px 14px; margin-bottom:12px; }
-                          .total-label { font-size:12px; font-weight:700; color:var(--ink3); }
-                          .total-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:600; color:var(--indigo); letter-spacing:-.5px; }
-                          .total-items { font-size:11px; color:var(--ink4); font-weight:600; }
-                          .btn-row { display:flex; gap:8px; align-items:stretch; }
-                          .btn-cancel { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:12px 14px; border-radius:var(--r); background:var(--red-lt); border:1.5px solid rgba(239,68,68,.2); cursor:pointer; transition:all .15s; flex-shrink:0; min-width:68px; }
-                          .btn-cancel:hover { background:#fecaca; border-color:var(--red); }
-                          .btn-cancel:active { transform:scale(.97); }
-                          .btn-cancel svg { width:16px; height:16px; color:var(--red); }
-                          .btn-cancel span { font-size:10px; font-weight:800; color:var(--red); }
-                          .btn-preview { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; flex:1; padding:12px 14px; border-radius:var(--r); background:var(--bg); border:1.5px solid var(--border2); cursor:pointer; transition:all .15s; }
-                          .btn-preview:hover { border-color:var(--indigo); background:var(--indigo-lt); }
-                          .btn-preview:active { transform:scale(.98); }
-                          .btn-preview svg { width:16px; height:16px; color:var(--ink3); }
-                          .btn-preview span { font-size:11px; font-weight:800; color:var(--ink3); }
-                          .btn-preview:hover svg,.btn-preview:hover span { color:var(--indigo); }
-                          .btn-save { flex:2; display:flex; align-items:center; justify-content:center; gap:8px; padding:14px 18px; border-radius:var(--r); background:linear-gradient(135deg,#4f46e5,#6366f1); border:none; cursor:pointer; font-family:'Outfit',sans-serif; font-size:15px; font-weight:800; color:#fff; letter-spacing:-.2px; box-shadow:0 4px 20px rgba(79,70,229,.4),inset 0 1px 0 rgba(255,255,255,.15); transition:all .18s; }
-                          .btn-save:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(79,70,229,.5); }
-                          .btn-save:active { transform:scale(.98); }
-                          .btn-save svg { width:17px; height:17px; }
-                          .btn-save:disabled { opacity: 0.7; cursor: not-allowed; }
+                          .qa-title { font-size:11px; font-weight:800; color:var(--ink); letter-spacing:-.1px; line-height:1.2; }
+                          .qa-sub { display:none; }
                         `} } />
 
                         {selectedItems.map((item, idx) => {
@@ -1300,9 +1271,6 @@ function NewInvoiceContent() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                                        <button type="button" className="del-btn" onClick={(e) => { e.stopPropagation(); removeItem(idx); }}>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                                        </button>
                                     </div>
                                 </div>
 
@@ -1375,6 +1343,13 @@ function NewInvoiceContent() {
                                                     {[0, 5, 12, 18, 28].map(r => <option key={r} value={r}>{r}% GST</option>)}
                                                 </select>
                                             </div>
+                                            
+                                            <div className="flex justify-end mt-4">
+                                                <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(idx); }} className="text-red-500 text-[11px] font-bold flex items-center gap-1 opacity-80 hover:opacity-100 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
+                                                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                                                    Remove Item
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1390,9 +1365,17 @@ function NewInvoiceContent() {
                             );
                         })}
 
+                        {/* Standalone Add New Item Button */}
+                        <div className="flex justify-center mt-3 mb-1">
+                            <button type="button" onClick={() => { addItem(); setExpandedItemIndex(selectedItems.length); }} className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-6 py-2.5 rounded-full font-bold text-sm border border-indigo-100 shadow-sm active:scale-95 transition-transform">
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                                {t.addNewItem || 'Add New Item'}
+                            </button>
+                        </div>
+
                         {expandedItemIndex !== null && (
                             <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                                <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ink4)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '2px 2px 0', marginTop: '10px', marginBottom: '8px' }}>
+                                <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ink4)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '2px 2px 0', marginTop: '6px', marginBottom: '8px' }}>
                                     {t.moreOptions || 'More Options'}
                                 </div>
 
@@ -1403,10 +1386,7 @@ function NewInvoiceContent() {
                                                 <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="7" y2="12.01"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="13" y1="9" x2="13" y2="14"/><line x1="16" y1="11" x2="16" y2="14"/>
                                             </svg>
                                         </div>
-                                        <div>
-                                            <div className="qa-title">USB Scanner</div>
-                                            <div className="qa-sub">{t.scannerSub || 'Scan barcode directly'}</div>
-                                        </div>
+                                        <div className="qa-title">USB Scanner</div>
                                         <input ref={scannerInputRef} type="text" className="opacity-0 absolute w-0 h-0" value={scannerInput} onChange={e => setScannerInput(e.target.value)} onKeyDown={handleScannerInput} />
                                     </div>
 
@@ -1414,30 +1394,14 @@ function NewInvoiceContent() {
                                         <div className="qa-icon qi-purple">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                                         </div>
-                                        <div>
-                                            <div className="qa-title">Mobile Camera</div>
-                                            <div className="qa-sub">{t.cameraSub || 'Scan using your phone'}</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="qa-card add-item" onClick={() => { addItem(); setExpandedItemIndex(selectedItems.length); }}>
-                                        <div className="qa-icon qi-indigo">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                                        </div>
-                                        <div>
-                                            <div className="qa-title">{t.addNewItem || 'New Item'}</div>
-                                            <div className="qa-sub">{t.newItemSub || 'Add another product'}</div>
-                                        </div>
+                                        <div className="qa-title">Camera</div>
                                     </div>
 
                                     <div className="qa-card inventory" onClick={() => setShowQuickAdd(true)}>
                                         <div className="qa-icon qi-amber">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/><path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5"/></svg>
                                         </div>
-                                        <div>
-                                            <div className="qa-title">Inventory</div>
-                                            <div className="qa-sub">{t.inventorySub || 'Choose from saved'}</div>
-                                        </div>
+                                        <div className="qa-title">Inventory</div>
                                     </div>
                                 </div>
                             </div>
