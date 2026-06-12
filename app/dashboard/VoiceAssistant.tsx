@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { FaMicrophone, FaTimes, FaRobot, FaVolumeUp, FaArrowsAlt } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import { FaMicrophone, FaTimes, FaRobot, FaVolumeUp, FaArrowsAlt, FaStop } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 interface VoiceAssistantProps {
@@ -10,6 +11,7 @@ interface VoiceAssistantProps {
 }
 
 export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps) {
+    const router = useRouter();
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [reply, setReply] = useState('');
@@ -45,10 +47,14 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 };
 
                 recognitionRef.current.onresult = (event: any) => {
-                    const current = event.resultIndex;
-                    const result = event.results[current][0].transcript;
-                    setTranscript(result);
-                    transcriptRef.current = result;
+                    let text = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        text += event.results[i][0].transcript;
+                    }
+                    if (text) {
+                        setTranscript(text);
+                        transcriptRef.current = text;
+                    }
                 };
 
                 recognitionRef.current.onend = () => {
@@ -64,10 +70,13 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     setIsListening(false);
                     isEngineActive.current = false;
 
-                    if (event.error === 'no-speech') return;
+                    if (event.error === 'no-speech') {
+                        toast.error('Awaaz nahi aayi. Mic check karein ya type karein.');
+                        return;
+                    }
 
                     if (event.error === 'network') {
-                        toast.error('Network Error: Please check your internet connection for voice recognition.', { duration: 5000 });
+                        toast.error('Network Error: Please check your internet connection.');
                     } else if (event.error === 'not-allowed') {
                         toast.error('Microphone access denied. Please enable it in browser settings.');
                     } else {
@@ -87,7 +96,12 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     }, []);
 
     const startListening = async () => {
-        if (isListening || isProcessing || isEngineActive.current) return;
+        if (isListening || isProcessing) return;
+
+        if (!recognitionRef.current) {
+            toast.error('Voice support nahi hai. Please type karein.');
+            return;
+        }
 
         try {
             const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
@@ -126,12 +140,15 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         }
                     } catch(e) {
                         setIsListening(false);
-                        toast.error('Voice recognition failed.');
+                        toast.error('Voice recognition failed. Aap type kar sakte hain.');
                     }
                     return;
                 }
             }
         } catch(e) {}
+
+        if (isEngineActive.current) return;
+        isEngineActive.current = true;
 
         try {
             setTranscript('');
@@ -146,28 +163,44 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             } else {
                 toast.error('Could not start microphone');
                 setIsListening(false);
+                isEngineActive.current = false;
             }
         }
     };
 
     const stopListening = () => {
         setIsListening(false);
+        isEngineActive.current = false;
         recognitionRef.current?.stop();
     };
 
-    const handleProcessVoice = async (text: string) => {
+        const handleProcessVoice = async (text: string) => {
+        if (!text.trim()) return;
         setIsProcessing(true);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second strict timeout on frontend
         try {
             const response = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text }),
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             const data = await response.json();
             setReply(data.reply);
             speakOutput(data.reply);
-        } catch (error) {
-            toast.error('AI Processing error');
+
+            if (data.action && data.action.toUpperCase() === 'NAVIGATE' && data.path) {
+                toast.success('Bill banane ja raha hu...');
+                setTimeout(() => {
+                    router.push(data.path);
+                }, 1000);
+            } else if (data.action && data.action.toUpperCase() !== 'REPLY') {
+                toast.error('Action samajh nahi aaya: ' + data.action);
+            }
+        } catch (error: any) {
+            toast.error('API Error: ' + error.message);
         } finally {
             setIsProcessing(false);
         }
@@ -204,7 +237,6 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             const newX = e.clientX - dragStart.x;
             const newY = e.clientY - dragStart.y;
 
-            // Keep within viewport bounds
             const modalWidth = modalRef.current.offsetWidth;
             const modalHeight = modalRef.current.offsetHeight;
             const maxX = window.innerWidth - modalWidth;
@@ -221,15 +253,23 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         setIsDragging(false);
     };
 
-    // Initialize center position on mount
     useEffect(() => {
-        if (isOpen && modalRef.current && position.x === 0 && position.y === 0) {
-            const modalWidth = modalRef.current.offsetWidth;
-            const modalHeight = modalRef.current.offsetHeight;
-            setPosition({
-                x: (window.innerWidth - modalWidth) / 2,
-                y: (window.innerHeight - modalHeight) / 2
-            });
+        if (!isOpen) {
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+            }
+            setIsListening(false);
+            isEngineActive.current = false;
+        } else {
+            // Initialize position when opened
+            if (modalRef.current && position.x === 0 && position.y === 0) {
+                const modalWidth = modalRef.current.offsetWidth;
+                const modalHeight = modalRef.current.offsetHeight;
+                setPosition({
+                    x: (window.innerWidth - modalWidth) / 2,
+                    y: (window.innerHeight - modalHeight) / 2
+                });
+            }
         }
     }, [isOpen]);
 
@@ -247,120 +287,107 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-            <button
-                onClick={() => {
-                    window.speechSynthesis.cancel();
-                    onClose();
-                }}
-                className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-20"
-            >
-                <FaTimes size={32} />
-            </button>
-
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
             <div
                 ref={modalRef}
                 onMouseDown={handleMouseDown}
                 style={{
-                    position: 'absolute',
-                    left: `${position.x}px`,
-                    top: `${position.y}px`,
-                    cursor: isDragging ? 'grabbing' : 'default'
+                    cursor: isDragging ? 'grabbing' : 'grab'
                 }}
-                className="w-full max-w-2xl bg-gradient-to-br from-indigo-900 via-slate-900 to-black rounded-[3rem] shadow-2xl border border-white/10 relative overflow-hidden text-center"
+                className="w-full min-w-[320px] max-w-[480px] bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.4)] border border-white/60 p-6 flex flex-col items-center gap-5 relative overflow-hidden"
             >
-                {/* Drag Handle Header */}
-                <div className="drag-handle cursor-grab active:cursor-grabbing bg-white/5 border-b border-white/10 p-4 flex items-center justify-center gap-3 rounded-t-[3rem]">
-                    <FaArrowsAlt className="text-white/40 text-sm" />
-                    <p className="text-white/40 text-xs font-black uppercase tracking-widest">Drag to Move</p>
+                {/* Close Button */}
+                <button
+                    onClick={() => {
+                        window.speechSynthesis.cancel();
+                        onClose();
+                    }}
+                    className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 rounded-full p-2"
+                >
+                    <FaTimes size={16} />
+                </button>
+
+                {/* Status Indicator */}
+                <div className="flex items-center gap-2 mt-1">
+                    <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-rose-500 animate-pulse' : isProcessing ? 'bg-indigo-500 animate-bounce' : 'bg-emerald-500'}`}></div>
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+                        {isListening ? 'Listening...' : isProcessing ? 'Robo is thinking...' : 'Ready'}
+                    </span>
                 </div>
 
-                {/* Background Glow */}
-                <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px]"></div>
-                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]"></div>
-
-                <div className="relative z-10 flex flex-col items-center gap-8 p-10">
-                    <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform duration-500">
-                        <FaRobot className="text-white text-5xl" />
-                    </div>
-
-                    <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase">
-                        {isListening ? 'Listening...' : isProcessing ? 'Thinking...' : 'AI Business Advisor'}
-                    </h2>
-
-                    {/* Voice Wave Animation */}
-                    <div className="flex items-center justify-center gap-1 h-20">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                            <div
-                                key={i}
-                                className={`w-2 bg-indigo-400 rounded-full transition-all duration-300 ${isListening ? 'animate-bounce' : 'h-2 opacity-20'}`}
-                                style={{
-                                    height: isListening ? `${20 + Math.random() * 80}%` : '8px',
-                                    animationDelay: `${i * 0.1}s`
-                                }}
-                            ></div>
-                        ))}
-                    </div>
-
-                    {/* Tips, Transcript & Reply Section */}
-                    <div className="w-full space-y-6">
-                        {!transcript && !reply && !isListening && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                    <p className="text-indigo-400 text-[10px] font-black uppercase mb-1">Stock Queries</p>
-                                    <p className="text-white/60 text-xs">"Mere paas kitna maal bacha hai?"</p>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                    <p className="text-emerald-400 text-[10px] font-black uppercase mb-1">Help with Billing</p>
-                                    <p className="text-white/60 text-xs">"GST bill kaise banaye?"</p>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                    <p className="text-amber-400 text-[10px] font-black uppercase mb-1">Reports</p>
-                                    <p className="text-white/60 text-xs">"Meri aaj ki sale kitni huyi?"</p>
-                                </div>
-                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                                    <p className="text-rose-400 text-[10px] font-black uppercase mb-1">Security</p>
-                                    <p className="text-white/60 text-xs">"Kya mera data safe hai?"</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {transcript && (
-                            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-                                <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest mb-2">You Asked:</p>
-                                <p className="text-white text-xl font-bold italic">"{transcript}"</p>
-                            </div>
-                        )}
-
-                        {reply && (
-                            <div className="bg-indigo-600/20 border border-indigo-500/30 p-6 rounded-2xl animate-in slide-in-from-bottom-5">
-                                <div className="flex items-center justify-center gap-2 mb-2">
-                                    <FaVolumeUp className="text-indigo-400 animate-pulse" />
-                                    <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest">AI Suggestion:</p>
-                                </div>
-                                <p className="text-white text-lg font-medium leading-relaxed">{reply}</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Start/Stop Button */}
-                    {!isProcessing && (
-                        <button
-                            onClick={isListening ? stopListening : startListening}
-                            className={`
-                                group relative px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-2xl
-                                ${isListening
-                                    ? 'bg-rose-600 text-white hover:bg-rose-700'
-                                    : 'bg-white text-indigo-900 hover:scale-105 active:scale-95'}
-                            `}
-                        >
-                            <div className="flex items-center gap-4">
-                                <FaMicrophone className={isListening ? 'animate-pulse' : ''} />
-                                {isListening ? 'Stop Listening' : 'Click to Speak'}
-                            </div>
-                            <div className={`absolute inset-0 rounded-full border-2 border-white/20 -m-1 group-hover:-m-2 transition-all ${isListening ? 'animate-ping' : ''}`}></div>
-                        </button>
+                {/* Transcript & Reply */}
+                <div className="w-full text-center space-y-2 min-h-[50px] flex flex-col justify-center">
+                    {!transcript && !reply && (
+                        <p className="text-slate-400 text-base font-medium">Boliye, "Rahul ka 500 ka bill banao"</p>
                     )}
+                    {transcript && (
+                        <p className="text-slate-800 text-lg font-bold italic">"{transcript}"</p>
+                    )}
+                    {reply && (
+                        <p className="text-indigo-600 text-base font-semibold">{reply}</p>
+                    )}
+                </div>
+
+                {/* Controls Area */}
+                <div className="w-full flex flex-col gap-3 mt-2">
+                    
+                    {/* Row 1: Typing Input and Send Button */}
+                    <div className="w-full flex items-center gap-2">
+                        <input 
+                            type="text" 
+                            placeholder="Ya yaha type karein..." 
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm outline-none text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 transition-all shadow-inner"
+                            value={transcript}
+                            onChange={(e) => {
+                                setTranscript(e.target.value);
+                                transcriptRef.current = e.target.value;
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleProcessVoice(transcriptRef.current);
+                                }
+                            }}
+                            disabled={isListening || isProcessing}
+                        />
+                        <button
+                            onClick={() => transcript.trim() && handleProcessVoice(transcript)}
+                            disabled={!transcript.trim() || isProcessing}
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                                transcript.trim() && !isProcessing
+                                ? 'bg-green-500 hover:bg-green-600 text-white cursor-pointer shadow-md shadow-green-500/30 hover:scale-105 active:scale-95'
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            }`}
+                            title="Bhejein"
+                        >
+                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="w-5 h-5 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z"></path></svg>
+                        </button>
+                    </div>
+
+                    {/* Row 2: Full Width AI Voice Button */}
+                    <button
+                        onClick={isListening ? stopListening : startListening}
+                        disabled={isProcessing}
+                        className={`w-full p-4 rounded-2xl shadow-lg transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 font-bold text-sm ${
+                            isListening 
+                            ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse shadow-rose-500/30'
+                            : isProcessing
+                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                            : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-indigo-500/30'
+                        }`}
+                        title="Bol kar likhein"
+                    >
+                        {isListening ? (
+                            <>
+                                <FaStop size={18} />
+                                Stop Listening
+                            </>
+                        ) : (
+                            <>
+                                <FaMicrophone size={18} />
+                                Tap to Speak (AI Voice)
+                            </>
+                        )}
+                    </button>
                 </div>
             </div>
         </div>

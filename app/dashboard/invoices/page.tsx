@@ -119,11 +119,11 @@ export default function InvoicesPage() {
     // KPI Counters
     const kpiData = {
         total: safeInvoices.length,
-        paid: safeInvoices.filter(i => (i.status || '').toUpperCase() === 'PAID').length,
-        unpaid: safeInvoices.filter(i => (i.status || 'UNPAID').toUpperCase() === 'UNPAID').length,
+        paid: safeInvoices.filter(i => (i.status || 'UNPAID') === 'PAID').length,
+        unpaid: safeInvoices.filter(i => (i.status || 'UNPAID') === 'UNPAID').length,
         partial: safeInvoices.filter(i => (i.status || '').toUpperCase() === 'PARTIAL').length,
-        receivable: safeInvoices.reduce((acc, i) => acc + (Number(i.total_amount) - Number(i.paid_amount || 0)), 0),
-        totalBilled: safeInvoices.reduce((acc, i) => acc + Number(i.total_amount), 0)
+        receivable: safeInvoices.reduce((acc, i) => acc + ((Number(i.total_amount) || Number(i.subtotal) || 0) - Number(i.paid_amount || 0)), 0),
+        totalBilled: safeInvoices.reduce((acc, i) => acc + (Number(i.total_amount) || Number(i.subtotal) || 0), 0)
     };
 
     const collectionRate = kpiData.totalBilled > 0 ? Math.round(((kpiData.totalBilled - kpiData.receivable) / kpiData.totalBilled) * 100) : 0;
@@ -585,9 +585,14 @@ export default function InvoicesPage() {
                 .export-btn { background: none; border: 1px solid rgba(0,0,0,0.13); border-radius: 8px; padding: 5px 12px; font-size: 12px; color: #4338ca; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.12s; }
                 .export-btn:hover { background: #eef2ff; }
 
-                .modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-end; }
-                .modal-sheet { background: #ffffff; width: 100%; border-radius: 24px 24px 0 0; padding: 2rem 1.25rem; transform: translateY(0); animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto;}
+                .modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: flex-end; justify-content: center; }
+                .modal-sheet { background: #ffffff; width: 100%; max-width: 500px; border-radius: 24px 24px 0 0; padding: 2rem 1.25rem; transform: translateY(0); animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto;}
                 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+                @media (min-width: 640px) {
+                    .modal-ov { align-items: center; }
+                    .modal-sheet { border-radius: 24px; animation: scaleUp 0.2s ease; max-height: 85vh; }
+                }
+                @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
                 .btn-action { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; background: #f8f9fc; border: 1px solid rgba(0,0,0,0.08); color: #111827; cursor: pointer; font-size: 11px; font-weight: 600; }
                 .btn-action:hover { background: rgba(0,0,0,0.04); }
 

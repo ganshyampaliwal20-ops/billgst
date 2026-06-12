@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { FaRobot, FaPaperPlane, FaTimes, FaMinus, FaLightbulb, FaMicrophone } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 export default function AIChat() {
+    const router = useRouter();
     const { aiChatOpen: isOpen, setAiChatOpen: setIsOpen } = useStore();
     const [isHidden, setIsHidden] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
@@ -38,6 +40,13 @@ export default function AIChat() {
             });
             const data = await res.json();
             setMessages(prev => [...prev, { role: 'ai', text: data.reply || 'Main abhi dhyan nahi de paa raha hoon, kripya thodi der baad koshish karein.' }]);
+            
+            if (data.action === 'NAVIGATE' && data.path) {
+                setTimeout(() => {
+                    setIsOpen(false);
+                    router.push(data.path);
+                }, 1500);
+            }
         } catch (e) {
             setMessages(prev => [...prev, { role: 'ai', text: 'Network error. Please try again.' }]);
         } finally {

@@ -20,6 +20,7 @@ import RegistrationPopup from './RegistrationPopup';
 import SupportChatWidget from '@/app/components/SupportChatWidget';
 import UpgradeModal from '@/app/components/UpgradeModal';
 import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
+import VoiceAssistant from './VoiceAssistant';
 
 export default function DashboardLayout({
     children,
@@ -31,6 +32,7 @@ export default function DashboardLayout({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
     const { data: session, status } = useSession();
 
     // Get store values
@@ -108,9 +110,10 @@ export default function DashboardLayout({
 
     const menuItems: MenuItem[] = [];
 
-    const canSeeSales = isSalesRole(userRole) || isAccountantRole(userRole) || userRole === 'USER';
-    const canSeeAccounting = isAccountantRole(userRole) || userRole === 'USER';
-    const canSeeStaff = isAttendanceRole(userRole) || userRole === 'USER';
+    const canSeeSales = (isSalesRole(userRole) || isAccountantRole(userRole) || userRole === 'USER') && businessProfile?.modules?.invoicing !== false;
+    const canSeeAccounting = (isAccountantRole(userRole) || userRole === 'USER') && businessProfile?.modules?.accounting !== false;
+    const canSeeStaff = (isAttendanceRole(userRole) || userRole === 'USER') && businessProfile?.modules?.staff !== false;
+    const canSeeInventory = (isAccountantRole(userRole) || userRole === 'USER') && businessProfile?.modules?.inventory !== false;
     const isOwner = isOwnerRole(userRole) || userRole === 'USER';
 
     if (canSeeSales) {
@@ -141,8 +144,11 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaIdCard, label: 'Attendance', href: '/dashboard/staff' });
     }
 
-    if (canSeeAccounting) {
+    if (canSeeInventory) {
         menuItems.push({ icon: FaBox, label: t.inventory, href: '/dashboard/inventory' });
+    }
+
+    if (canSeeAccounting) {
         menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
         
         // Show GST Returns only if GST Mode is ON (nonGstMode is false)
@@ -433,6 +439,17 @@ export default function DashboardLayout({
             <RegistrationPopup />
             <SupportChatWidget />
             <UpgradeModal />
+            <VoiceAssistant isOpen={isVoiceAssistantOpen} onClose={() => setIsVoiceAssistantOpen(false)} />
+
+            {/* Floating Robot Button */}
+            <button
+                onClick={() => setIsVoiceAssistantOpen(true)}
+                className="fixed bottom-24 right-5 md:right-8 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)] flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 group border-2 border-white/20"
+                title="Voice Assistant"
+            >
+                <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                <FaRobot size={24} className="animate-pulse" />
+            </button>
         </div>
     );
 }

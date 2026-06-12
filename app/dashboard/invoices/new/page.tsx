@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useStore } from '@/lib/store';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
     FaPlus, FaTrash, FaSave, FaArrowLeft, FaMicrophone, FaMagic,
     FaRobot, FaCheck, FaTimes, FaCamera, FaUserPlus, FaFileInvoice,
@@ -33,8 +33,9 @@ function generateId() {
     });
 }
 
-export default function NewInvoicePage() {
+function NewInvoiceContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { data: session } = useSession();
 
     // Store Selectors
@@ -139,13 +140,15 @@ export default function NewInvoicePage() {
         if (fetchCustomers) fetchCustomers();
         if (fetchInvoices) fetchInvoices();
         
-        const today = new Date().toISOString().split('T')[0];
-        setInvoiceDate(today);
+        const d = new Date();
+        const localTodayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        setInvoiceDate(localTodayStr);
         setInvoiceNumber(`INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`);
 
         const due = new Date();
         due.setDate(due.getDate() + 30);
-        setDueDate(due.toISOString().split('T')[0]);
+        const localDueStr = `${due.getFullYear()}-${String(due.getMonth() + 1).padStart(2, '0')}-${String(due.getDate()).padStart(2, '0')}`;
+        setDueDate(localDueStr);
         
         // Add 1 empty row if none
         if (selectedItems.length === 0) addItem();
@@ -159,16 +162,42 @@ export default function NewInvoicePage() {
         }
     }, [businessProfile?.pdf_size, businessProfile?.terms_and_conditions]);
 
-    // Query param handling (duplicate / quotation)
+    // Query param handling (duplicate / quotation / AI Navigation)
     useEffect(() => {
         if (!isClient) return;
-        const params = new URLSearchParams(window.location.search);
-        const duplicateId = params.get('duplicateId');
-        const quotationId = params.get('quotationId');
-        const typeParam = params.get('type');
+        const duplicateId = searchParams.get('duplicateId');
+        const quotationId = searchParams.get('quotationId');
+        const typeParam = searchParams.get('type');
+        const customerNameParam = searchParams.get('customerName');
+        const amountParam = searchParams.get('amount');
 
         if (typeParam && Object.values(DOC_TYPES).includes(typeParam as any)) {
             setDocType(typeParam);
+        }
+
+        if (customerNameParam && !isDuplicating) {
+            const storeCustomers = useStore.getState().customers || [];
+            const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerNameParam.toLowerCase()));
+            if (foundCust) {
+                setCustomerId(foundCust.id);
+            } else {
+                setNewCustName(customerNameParam);
+            }
+        }
+
+        if (amountParam && !isDuplicating) {
+            const parsedAmount = parseFloat(amountParam);
+            if (!isNaN(parsedAmount)) {
+                setSelectedItems([{
+                    product_id: '',
+                    product_name: 'Custom Item',
+                    quantity: 1,
+                    unit_price: parsedAmount,
+                    gst_rate: 0,
+                    hsn_code: '',
+                    unit: 'PCS'
+                }]);
+            }
         }
 
         if (duplicateId && !isDuplicating) {
@@ -217,7 +246,7 @@ export default function NewInvoicePage() {
                 }
             }
         }
-    }, [isClient, isDuplicating, quotations]);
+    }, [isClient, isDuplicating, quotations, searchParams]);
 
     // ================= SCANNER LOGIC =================
 
@@ -672,7 +701,7 @@ export default function NewInvoicePage() {
         e.preventDefault();
         if (isSubmitting) return;
         if (!session?.user) return setShowLoginPrompt(true);
-        if (!customerId) return toast.error('Please select a customer');
+        if (!customerId && !newCustName) return toast.error('Please select a customer');
         if (selectedItems.length === 0) return toast.error('Add at least one item');
 
         setIsSubmitting(true);
@@ -1986,5 +2015,13 @@ export default function NewInvoicePage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function NewInvoicePage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center h-screen w-full"><div className="animate-pulse text-indigo-500 font-black text-xl tracking-widest uppercase">Loading...</div></div>}>
+            <NewInvoiceContent />
+        </Suspense>
     );
 }

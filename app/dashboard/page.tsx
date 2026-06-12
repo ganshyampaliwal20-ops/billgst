@@ -171,7 +171,7 @@ export default function DashboardPage() {
 
     const { totalSales, totalProfit, invoiceCount } = getAnalytics(period, customRange);
     const topProducts = getTopProducts() || [];
-    const lowStockItems = (products || []).filter((p: any) => p.stock_quantity < (p.low_stock_alert || 10)).length;
+    const lowStockItems = (products || []).filter((p: any) => Number(p.stock_quantity) < Number(p.low_stock_alert || 10)).length;
 
     const getGreeting = () => {
         const hour = currentTime.getHours();
@@ -180,10 +180,14 @@ export default function DashboardPage() {
         return t.goodEvening;
     };
 
-    const today = new Date().toDateString();
+    const todayDate = new Date();
     const todaySales = (invoices || [])
-        .filter((inv: any) => new Date(inv.invoice_date).toDateString() === today)
-        .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || 0), 0);
+        .filter((inv: any) => {
+            if (!inv.invoice_date) return false;
+            const d = new Date(inv.invoice_date);
+            return d.getFullYear() === todayDate.getFullYear() && d.getMonth() === todayDate.getMonth() && d.getDate() === todayDate.getDate();
+        })
+        .reduce((acc: number, inv: any) => acc + (parseFloat(inv.total_amount) || parseFloat(inv.subtotal) || 0), 0);
 
     const pendingInvoices = (invoices || []).filter((inv: any) => inv.status !== 'PAID');
     const pendingByCustomer = pendingInvoices.reduce((acc: any, inv: any) => {
@@ -438,14 +442,27 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="qa-grid">
-                    <Link href="/dashboard/invoices/new" className="qa-card c1" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">{t.newInvoice}</span></Link>
-                    <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">{t.addCustomer}</span></Link>
-                    <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">{t.addProduct}</span></Link>
-                    <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">{t.viewReports}</span></Link>
-                    <Link href="/dashboard/staff" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">👥</span><span className="qa-label">{t.attendance || 'Attendance'}</span></Link>
-                    <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
+                    {businessProfile?.modules?.invoicing !== false && (
+                        <>
+                            <Link href="/dashboard/invoices/new" className="qa-card c1" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">{t.newInvoice}</span></Link>
+                            <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">{t.addCustomer}</span></Link>
+                        </>
+                    )}
+                    {businessProfile?.modules?.inventory !== false && (
+                        <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">{t.addProduct}</span></Link>
+                    )}
+                    {(businessProfile?.modules?.invoicing !== false || businessProfile?.modules?.inventory !== false) && (
+                        <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">{t.viewReports}</span></Link>
+                    )}
+                    {businessProfile?.modules?.staff !== false && (
+                        <Link href="/dashboard/staff" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">👥</span><span className="qa-label">{t.attendance || 'Attendance'}</span></Link>
+                    )}
+                    {businessProfile?.modules?.accounting !== false && (
+                        <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
+                    )}
                 </div>
 
+                {businessProfile?.modules?.invoicing !== false && (
                 <div className="period-row">
                     <div>
                         <div className="section-title">{t.businessOverview}</div>
@@ -459,30 +476,38 @@ export default function DashboardPage() {
                         <div className={`ptab ${period === 'custom' ? 'active' : ''}`} onClick={() => setPeriod('custom')}>{t.custom}</div>
                     </div>
                 </div>
+                )}
 
                 <div className="kpi-strip">
-                    <Link href="/dashboard/reports?period=daily" className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
-                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(79,70,229,0.1)" }}>💰</div><div className="kpi-trend trend-up">Now</div></div>
-                        <div className="kpi-val" style={{ color: "var(--indigo)" }}>{formatCompactNumber(todaySales)}</div>
-                        <div className="kpi-lbl">{t.todaysSales}</div>
-                    </Link>
-                    <Link href="/dashboard/reports" className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
-                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(16,185,129,0.1)" }}>📈</div><div className="kpi-trend trend-up">Total</div></div>
-                        <div className="kpi-val" style={{ color: "var(--green)" }}>{formatCompactNumber(totalSales)}</div>
-                        <div className="kpi-lbl">{t.totalRevenue}</div>
-                    </Link>
-                    <Link href="/dashboard/invoices" className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
-                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(14,165,233,0.1)" }}>🧾</div><div className="kpi-trend trend-up">All</div></div>
-                        <div className="kpi-val" style={{ color: "var(--teal)" }}>{formatCompactNumber(invoiceCount)}</div>
-                        <div className="kpi-lbl">{t.totalInvoices}</div>
-                    </Link>
-                    <Link href="/dashboard/inventory" className="kpi-card k4" style={{ animationDelay: ".22s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
-                        <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(239,68,68,0.1)" }}>⚠️</div>{lowStockItems > 0 ? <div className="kpi-trend trend-down">Act</div> : <div className="kpi-trend trend-up">OK</div>}</div>
-                        <div className="kpi-val" style={{ color: "var(--red)" }}>{lowStockItems}</div>
-                        <div className="kpi-lbl">{t.lowStock}</div>
-                    </Link>
+                    {businessProfile?.modules?.invoicing !== false && (
+                        <>
+                            <Link href="/dashboard/reports?period=daily" className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
+                                <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(79,70,229,0.1)" }}>💰</div><div className="kpi-trend trend-up">Now</div></div>
+                                <div className="kpi-val" style={{ color: "var(--indigo)" }}>{formatCompactNumber(todaySales)}</div>
+                                <div className="kpi-lbl">{t.todaysSales}</div>
+                            </Link>
+                            <Link href="/dashboard/reports" className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
+                                <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(16,185,129,0.1)" }}>📈</div><div className="kpi-trend trend-up">Total</div></div>
+                                <div className="kpi-val" style={{ color: "var(--green)" }}>{formatCompactNumber(totalSales)}</div>
+                                <div className="kpi-lbl">{t.totalRevenue}</div>
+                            </Link>
+                            <Link href="/dashboard/invoices" className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
+                                <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(14,165,233,0.1)" }}>🧾</div><div className="kpi-trend trend-up">All</div></div>
+                                <div className="kpi-val" style={{ color: "var(--teal)" }}>{formatCompactNumber(invoiceCount)}</div>
+                                <div className="kpi-lbl">{t.totalInvoices}</div>
+                            </Link>
+                        </>
+                    )}
+                    {businessProfile?.modules?.inventory !== false && (
+                        <Link href="/dashboard/inventory" className="kpi-card k4" style={{ animationDelay: ".22s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
+                            <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(239,68,68,0.1)" }}>⚠️</div>{lowStockItems > 0 ? <div className="kpi-trend trend-down">Act</div> : <div className="kpi-trend trend-up">OK</div>}</div>
+                            <div className="kpi-val" style={{ color: "var(--red)" }}>{lowStockItems}</div>
+                            <div className="kpi-lbl">{t.lowStock}</div>
+                        </Link>
+                    )}
                 </div>
 
+                {businessProfile?.modules?.invoicing !== false && (
                 <div className="main-grid">
                     <div className="card" style={{ animationDelay: ".2s" }}>
                         <div className="card-hdr">
@@ -563,8 +588,10 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </div>
+                )}
 
-                <div className="card" style={{ animationDelay: ".3s", marginBottom: "0" }}>
+                {businessProfile?.modules?.inventory !== false && (
+                <div className="card" style={{ animationDelay: ".3s", marginBottom: "0", marginTop: businessProfile?.modules?.invoicing !== false ? "0" : "20px" }}>
                     <div className="card-hdr">
                         <div>
                             <div className="card-title">🏆 {t.topSellingProducts}</div>
@@ -590,7 +617,9 @@ export default function DashboardPage() {
                         {topProducts.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>}
                     </div>
                 </div>
+                )}
 
+                {businessProfile?.modules?.invoicing !== false && (
                 <div className="bottom-grid">
                     <Link href="/dashboard/store" style={{ animation: "fadeUp .5s .35s ease both", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                         <div className="store-card">
@@ -620,6 +649,7 @@ export default function DashboardPage() {
                         <div className="gst-row"><span className="gst-key">{t.status}</span><span className="gst-val" style={{ color: "var(--amber)" }}>{t.pendingStatus}</span></div>
                     </div>
                 </div>
+                )}
 
                 <div style={{ marginTop: "20px" }}>
                     <Link href="/dashboard/referral" className="store-card" style={{ background: "linear-gradient(135deg, #10b981, #059669)", cursor: "pointer", animation: "fadeUp .5s .45s ease both", display: "flex", textDecoration: "none", color: "inherit" }}>

@@ -57,7 +57,7 @@ export default function Navbar3D() {
                     <div className="flex items-center justify-between">
                         {/* Left Side: Logo + Business Name */}
                         <div className="flex items-center gap-3">
-                            <Link href="/" className="flex items-center gap-2 md:gap-3 group">
+                            <Link href="/" className="flex items-center gap-2 md:gap-3 group" style={{ paddingLeft: '11px', paddingRight: '11px', marginBottom: '0px' }}>
                                 <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
                                     <Image
                                         src="/logo.png"

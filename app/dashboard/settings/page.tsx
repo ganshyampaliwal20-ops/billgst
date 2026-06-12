@@ -165,6 +165,47 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
+                {/* Modules & Features Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                            <FaStore className="text-xl" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-800">Features & Modules</h2>
+                            <p className="text-xs text-gray-500">Turn on/off features based on your needs</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                            { id: 'invoicing', label: 'Invoicing & Sales', desc: 'Create tax invoices, quotations, manage customers' },
+                            { id: 'accounting', label: 'Accounting & Expenses', desc: 'Track daily expenses and financial reports' },
+                            { id: 'staff', label: 'Staff & Attendance', desc: 'Manage employees and track daily attendance' },
+                            { id: 'inventory', label: 'Inventory & Items', desc: 'Track products and low stock alerts' },
+                        ].map(mod => (
+                            <div key={mod.id} className="flex flex-col p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-bold text-gray-800">{mod.label}</h3>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={formData?.modules?.[mod.id] ?? true}
+                                            onChange={(e) => setFormData({ 
+                                                ...formData, 
+                                                modules: { ...formData.modules, [mod.id]: e.target.checked } 
+                                            })}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">{mod.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Business Profile Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
