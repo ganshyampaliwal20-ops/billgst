@@ -1694,7 +1694,7 @@ function NewInvoiceContent() {
             <div className="bottom-actions">
                 <div className="total-strip">
                     <div>
-                        <div className="total-label">Kul Invoice Amount</div>
+                        <div className="total-label">Grand Total</div>
                         <div className="total-items">{selectedItems.length} item{selectedItems.length > 1 ? 's' : ''}</div>
                     </div>
                     <div className="total-val">₹{totals.grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
