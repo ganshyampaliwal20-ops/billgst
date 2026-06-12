@@ -1275,9 +1275,12 @@ function NewInvoiceContent() {
                                         <div className="num-badge">{idx + 1}</div>
                                         <span className="item-label">{item.product_name || (t.productName || 'Product / Service')}</span>
                                     </div>
-                                    <button type="button" className="del-btn" onClick={(e) => { e.stopPropagation(); removeItem(idx); }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                                        <button type="button" className="del-btn" onClick={(e) => { e.stopPropagation(); removeItem(idx); }}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="card-body-new">
