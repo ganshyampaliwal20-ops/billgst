@@ -26,6 +26,7 @@ export default function SettingsPage() {
     const [localSettings, setLocalSettings] = useState(settings || {});
     const [isClient, setIsClient] = useState(false);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [isVisualSettingsOpen, setIsVisualSettingsOpen] = useState(false);
     const [botStatus, setBotStatus] = useState<any>({ status: 'LOADING', qr: null });
 
     // Polling WhatsApp Bot Status
@@ -97,7 +98,12 @@ export default function SettingsPage() {
 
     return (
         <div className="w-full max-w-6xl mx-auto space-y-8 px-5 sm:px-6 md:px-10 lg:px-12 pt-8 pb-8 md:pb-10">
-            <h1 className="text-3xl font-black text-gray-800 tracking-tight ml-2">Business Settings</h1>
+            <h1 
+                className="text-3xl font-black text-gray-800 tracking-tight ml-2"
+                style={{ paddingLeft: '15px', paddingRight: '15px', marginBottom: '5px' }}
+            >
+                Business Settings
+            </h1>
 
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Tax Settings (Non-GST Mode) */}
@@ -420,6 +426,42 @@ export default function SettingsPage() {
 
                 </div>
 
+                {/* Visual Settings Accordion */}
+                <div className={`rounded-2xl border-2 transition-all duration-300 overflow-hidden mt-8 ${isVisualSettingsOpen ? 'border-indigo-500 shadow-xl shadow-indigo-500/10' : 'border-dashed border-indigo-300 bg-indigo-50/50 hover:border-indigo-500 hover:bg-indigo-50 hover:shadow-md'}`}>
+                    <button 
+                        type="button"
+                        onClick={() => setIsVisualSettingsOpen(!isVisualSettingsOpen)}
+                        className="w-full relative flex items-center justify-between p-4 md:p-6 transition-all group"
+                    >
+                        {/* Decorative Background gradient for emphasis */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        
+                        <div className="flex items-center gap-4 relative z-10">
+                            <div className={`p-3.5 rounded-xl shadow-sm transition-all duration-300 ${isVisualSettingsOpen ? 'bg-indigo-600 text-white shadow-indigo-500/30 scale-110' : 'bg-white text-indigo-600 border border-indigo-100 group-hover:scale-110'}`}>
+                                <FaPenNib className="text-xl" />
+                            </div>
+                            <div className="text-left">
+                                <h2 className={`text-xl font-black tracking-tight transition-colors ${isVisualSettingsOpen ? 'text-indigo-900' : 'text-gray-800 group-hover:text-indigo-900'}`}>Design Your Invoice</h2>
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-500/80 mt-1 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    Color Theme, Table Layout, Logo & Preview
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 relative z-10">
+                            {!isVisualSettingsOpen && (
+                                <span className="hidden sm:flex text-[10px] font-black tracking-widest text-indigo-700 bg-indigo-100 px-4 py-2 rounded-full uppercase items-center gap-2 shadow-sm border border-indigo-200 animate-pulse">
+                                    Tap to Customize
+                                </span>
+                            )}
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-500 shadow-sm ${isVisualSettingsOpen ? 'rotate-180 bg-indigo-100 border-indigo-200 text-indigo-700' : 'bg-white border-indigo-200 text-indigo-500 group-hover:border-indigo-400 group-hover:text-indigo-700 group-hover:shadow-md'}`}>
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </button>
+                    
+                    <div className={`transition-all duration-500 ease-in-out origin-top ${isVisualSettingsOpen ? 'opacity-100 scale-y-100 max-h-[5000px]' : 'opacity-0 scale-y-0 max-h-0'}`}>
+                        <div className="p-4 md:p-6 border-t-2 border-dashed border-indigo-100 space-y-6 bg-slate-50/50">
                 {/* Invoice Templates Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div className="flex items-center gap-3 mb-6">
@@ -670,6 +712,9 @@ export default function SettingsPage() {
                 </div> {/* Close THE PREVIEW PAPER */}
             </div> {/* Close LIVE PREVIEW SECTION */}
         </div> {/* Close Invoice Table Layout Card */}
+                        </div>
+                    </div>
+                </div>
 
 
 

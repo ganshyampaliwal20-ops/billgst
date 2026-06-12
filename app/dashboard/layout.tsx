@@ -21,6 +21,7 @@ import AIChat from '@/app/components/AIChat';
 import SupportChatWidget from '@/app/components/SupportChatWidget';
 import UpgradeModal from '@/app/components/UpgradeModal';
 import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
+import VoiceAssistant from './VoiceAssistant';
 
 export default function DashboardLayout({
     children,
@@ -32,6 +33,7 @@ export default function DashboardLayout({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
     const { data: session, status } = useSession();
 
     // Get store values
@@ -139,13 +141,17 @@ export default function DashboardLayout({
     }
 
     if (canSeeStaff) {
-        menuItems.push({ icon: FaIdCard, label: t.staffAttendance || 'Staff & Attendance', href: '/dashboard/staff' });
+        menuItems.push({ icon: FaIdCard, label: 'Attendance', href: '/dashboard/staff' });
     }
 
     if (canSeeAccounting) {
         menuItems.push({ icon: FaBox, label: t.inventory, href: '/dashboard/inventory' });
         menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
-        menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
+        
+        // Show GST Returns only if GST Mode is ON (nonGstMode is false)
+        if (!settings.nonGstMode) {
+            menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
+        }
     }
 
     menuItems.push({
@@ -363,10 +369,10 @@ export default function DashboardLayout({
                 {/* Header - Fixed inside the flex container, below safe area automatically */}
                 <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex flex-col items-center w-full">
                     <div className="w-full max-w-[1600px] flex items-center justify-between px-5 sm:px-8 md:px-12 h-[60px]">
-                        <div className="flex items-center justify-between w-full h-full relative">
+                        <div className="flex items-center justify-between w-full h-full relative"> 
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
-                                <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
+                                <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group" style={{ paddingLeft: '11px', paddingRight: '11px', marginBottom: '0px' }}>
                                     <div className="relative w-12 h-10 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
                                         <Image
                                             src={businessProfile?.logo || "/logo.png"}
@@ -441,6 +447,17 @@ export default function DashboardLayout({
             <AIChat />
             <SupportChatWidget />
             <UpgradeModal />
+            <VoiceAssistant isOpen={isVoiceAssistantOpen} onClose={() => setIsVoiceAssistantOpen(false)} />
+
+            {/* Floating Robot Button */}
+            <button
+                onClick={() => setIsVoiceAssistantOpen(true)}
+                className="fixed bottom-24 right-5 md:right-8 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)] flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all z-40 group border-2 border-white/20"
+                title="Voice Assistant"
+            >
+                <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                <FaRobot size={24} className="animate-pulse" />
+            </button>
         </div>
     );
 }
