@@ -131,7 +131,8 @@ export async function POST(request: Request) {
                 whatsapp_api_url = $26,
                 business_terms_and_conditions = $27,
                 store_banner = $28,
-                business_modules = $29
+                business_modules = $29,
+                invoice_pdf_size = $30
             WHERE id = $15
             RETURNING *`;
 
@@ -164,7 +165,8 @@ export async function POST(request: Request) {
             data.whatsappApiUrl || '',
             data.terms_and_conditions || '',
             data.store_banner || null,
-            data.modules ? JSON.stringify(data.modules) : JSON.stringify({ invoicing: true, accounting: true, staff: true, inventory: true })
+            data.modules ? JSON.stringify(data.modules) : JSON.stringify({ invoicing: true, accounting: true, staff: true, inventory: true }),
+            data.pdf_size || 'A4'
         ];
 
         try {
@@ -242,6 +244,7 @@ function normalizeProfile(dbRow: any, userId: string) {
         terms_and_conditions: dbRow.business_terms_and_conditions || '',
         store_banner: dbRow.store_banner || null,
         modules: dbRow.business_modules || { invoicing: true, accounting: true, staff: true, inventory: true },
+        pdf_size: dbRow.invoice_pdf_size || 'A4',
         id: userId
     };
 }
@@ -277,7 +280,8 @@ async function runMigration(client: any) {
         ADD COLUMN IF NOT EXISTS whatsapp_api_url TEXT,
         ADD COLUMN IF NOT EXISTS business_terms_and_conditions TEXT,
         ADD COLUMN IF NOT EXISTS store_banner TEXT,
-        ADD COLUMN IF NOT EXISTS business_modules JSONB DEFAULT '{"invoicing": true, "accounting": true, "staff": true, "inventory": true}'::jsonb;
+        ADD COLUMN IF NOT EXISTS business_modules JSONB DEFAULT '{"invoicing": true, "accounting": true, "staff": true, "inventory": true}'::jsonb,
+        ADD COLUMN IF NOT EXISTS invoice_pdf_size VARCHAR(20) DEFAULT 'A4';
     `);
 }
 

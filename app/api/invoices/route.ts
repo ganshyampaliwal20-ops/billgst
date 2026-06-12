@@ -223,6 +223,7 @@ export async function POST(request: Request) {
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS extra_charges DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipping_charges DECIMAL(10,2) DEFAULT 0;
                     ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_mode VARCHAR(50) DEFAULT 'Cash';
+                    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS pdf_size VARCHAR(20) DEFAULT 'A4';
                 `);
 
 
@@ -237,8 +238,8 @@ export async function POST(request: Request) {
                         subtotal, total_amount, igst_amount, cgst_amount, sgst_amount, status, notes, 
                         paid_amount, created_by, eway_bill_no, eway_bill_date, transport_mode, distance,
                         transporter_name, transporter_id, vehicle_no, irn, ack_no, ack_date, signed_qrcode, type,
-                        discount_pct, extra_charges, shipping_charges, payment_mode, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, NOW())
+                        discount_pct, extra_charges, shipping_charges, payment_mode, pdf_size, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, NOW())
                     RETURNING id
                 `, [
                     data.id,
@@ -270,7 +271,8 @@ export async function POST(request: Request) {
                     data.discount_pct || 0,
                     data.extra_charges || 0,
                     data.shipping_charges || 0,
-                    data.payment_mode || 'Cash'
+                    data.payment_mode || 'Cash',
+                    data.pdf_size || 'A4'
                 ]);
 
                 const invoiceId = invoiceResult.rows[0].id;
