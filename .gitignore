@@ -49,3 +49,6 @@ lint_output.txt
 Android Studio/
 .wwebjs_auth/
 tmp/
+# Voice Assistant WIP
+app/dashboard/VoiceAssistant.tsx
+app/api/ai/voice-billing/
