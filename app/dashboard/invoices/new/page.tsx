@@ -64,6 +64,7 @@ function NewInvoiceContent() {
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [paidAmount, setPaidAmount] = useState('');
     const [selectedItems, setSelectedItems] = useState<any[]>([]);
+    const [expandedItemIndex, setExpandedItemIndex] = useState<number | null>(0);
     const [notes, setNotes] = useState('');
     const [docType, setDocType] = useState<string>(DOC_TYPES.TAX_INVOICE);
     const [paymentMode, setPaymentMode] = useState('Cash');
@@ -1191,9 +1192,8 @@ function NewInvoiceContent() {
                             --r: 14px; --rsm: 10px; --rxs: 7px; --sh: 0 2px 10px rgba(13,15,28,.07); --shmd: 0 6px 24px rgba(13,15,28,.11);
                           }
                           .scroll-body { flex:1; overflow-y:visible; padding:14px 0 8px; display:flex; flex-direction:column; gap:10px; }
-                          .item-card { background:var(--white); border-radius:18px; border:1px solid var(--border); box-shadow:var(--sh); overflow:hidden; animation:cardUp .35s ease both; }
-                          @keyframes cardUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-                          .card-header-new { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 10px; background:linear-gradient(135deg,rgba(79,70,229,.04),rgba(79,70,229,.01)); border-bottom:1px solid var(--border); }
+                          .item-card { background:var(--white); border-radius:18px; border:1px solid var(--border); box-shadow:var(--sh); overflow:hidden; transition:all 0.3s ease; }
+                          .card-header-new { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 10px; background:linear-gradient(135deg,rgba(79,70,229,.04),rgba(79,70,229,.01)); border-bottom:1px solid var(--border); cursor:pointer; }
                           .item-num { display:flex; align-items:center; gap:8px; }
                           .num-badge { width:26px; height:26px; border-radius:7px; background:var(--indigo); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
                           .item-label { font-size:13px; font-weight:700; color:var(--ink2); }
@@ -1204,7 +1204,7 @@ function NewInvoiceContent() {
                           .product-field { display:flex; align-items:center; gap:10px; background:var(--bg); border:1.5px solid var(--border2); border-radius:var(--r); padding:11px 14px; margin-bottom:12px; transition:all .18s; }
                           .product-field:focus-within { border-color:var(--indigo); background:#fff; box-shadow:0 0 0 3px rgba(79,70,229,.08); }
                           .product-field svg { width:16px; height:16px; color:var(--ink4); flex-shrink:0; }
-                          .product-input { flex:1; border:none; outline:none; background:none; font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; color:var(--ink); }
+                          .product-input { flex:1; border:none; outline:none; background:none; font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; color:var(--ink); width: 100%; }
                           .product-input::placeholder { color:var(--ink4); }
                           .mic-btn { width:28px; height:28px; border-radius:7px; background:var(--indigo-lt); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
                           .mic-btn svg { width:13px; height:13px; color:var(--indigo); }
@@ -1215,12 +1215,25 @@ function NewInvoiceContent() {
                           .field-input:focus { border-color:var(--indigo); background:#fff; box-shadow:0 0 0 3px rgba(79,70,229,.07); }
                           .field-select { background:var(--bg); border:1.5px solid var(--border2); border-radius:var(--rsm); padding:10px 12px; font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; color:var(--ink); width:100%; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8adcc' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; transition:all .15s; }
                           .field-select:focus { border-color:var(--indigo); background:#fff; }
-                          .amount-strip { display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg,rgba(79,70,229,.06),rgba(79,70,229,.02)); border:1px solid rgba(79,70,229,.15); border-radius:var(--rsm); padding:10px 14px; }
+                          .amount-strip { display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg,rgba(79,70,229,.06),rgba(79,70,229,.02)); border:1px solid rgba(79,70,229,.15); border-radius:var(--rsm); padding:10px 14px; margin-top:12px; cursor:pointer; }
                           .amount-label { font-size:11px; font-weight:700; color:var(--indigo); text-transform:uppercase; letter-spacing:.5px; }
                           .amount-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:600; color:var(--indigo); letter-spacing:-.5px; }
                           .gst-note { font-size:10px; color:var(--ink4); font-weight:600; margin-top:1px; }
+                          
+                          .details-dropdown {
+                              display: grid;
+                              grid-template-rows: 0fr;
+                              transition: grid-template-rows 0.3s ease-out;
+                          }
+                          .details-dropdown.expanded {
+                              grid-template-rows: 1fr;
+                          }
+                          .details-dropdown-inner {
+                              overflow: hidden;
+                          }
+
                           .quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom: 20px; }
-                          .qa-card { border-radius:var(--r); padding:16px 14px; display:flex; flex-direction:column; gap:8px; cursor:pointer; border:1.5px solid transparent; transition:all .18s; animation:cardUp .35s ease both; }
+                          .qa-card { border-radius:var(--r); padding:16px 14px; display:flex; flex-direction:column; gap:8px; cursor:pointer; border:1.5px solid transparent; transition:all .18s; }
                           .qa-card:hover { transform:translateY(-2px); }
                           .qa-card:active { transform:scale(.98); }
                           .qa-card.scanner { background:linear-gradient(135deg,#e0f2fe,#f0f9ff); border-color:rgba(6,182,212,.25); }
@@ -1239,30 +1252,7 @@ function NewInvoiceContent() {
                           .qi-amber { background:rgba(245,158,11,.15); } .qi-amber svg { color:var(--amber); }
                           .qa-title { font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-.2px; }
                           .qa-sub { font-size:11px; color:var(--ink3); font-weight:500; line-height:1.4; }
-
-                          .bottom-actions { background:var(--white); border-top:1px solid var(--border); padding:12px 14px 20px; flex-shrink:0; box-shadow:0 -4px 20px rgba(13,15,28,.07); margin: 20px -16px -16px; border-radius: 0 0 24px 24px; }
-                          .total-strip { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border:1px solid var(--border); border-radius:var(--rsm); padding:10px 14px; margin-bottom:12px; }
-                          .total-label { font-size:12px; font-weight:700; color:var(--ink3); }
-                          .total-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:600; color:var(--indigo); letter-spacing:-.5px; }
-                          .total-items { font-size:11px; color:var(--ink4); font-weight:600; }
-                          .btn-row { display:flex; gap:8px; align-items:stretch; }
-                          .btn-cancel { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:12px 14px; border-radius:var(--r); background:var(--red-lt); border:1.5px solid rgba(239,68,68,.2); cursor:pointer; transition:all .15s; flex-shrink:0; min-width:68px; }
-                          .btn-cancel:hover { background:#fecaca; border-color:var(--red); }
-                          .btn-cancel:active { transform:scale(.97); }
-                          .btn-cancel svg { width:16px; height:16px; color:var(--red); }
-                          .btn-cancel span { font-size:10px; font-weight:800; color:var(--red); }
-                          .btn-preview { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; flex:1; padding:12px 14px; border-radius:var(--r); background:var(--bg); border:1.5px solid var(--border2); cursor:pointer; transition:all .15s; }
-                          .btn-preview:hover { border-color:var(--indigo); background:var(--indigo-lt); }
-                          .btn-preview:active { transform:scale(.98); }
-                          .btn-preview svg { width:16px; height:16px; color:var(--ink3); }
-                          .btn-preview span { font-size:11px; font-weight:800; color:var(--ink3); }
-                          .btn-preview:hover svg,.btn-preview:hover span { color:var(--indigo); }
-                          .btn-save { flex:2; display:flex; align-items:center; justify-content:center; gap:8px; padding:14px 18px; border-radius:var(--r); background:linear-gradient(135deg,#4f46e5,#6366f1); border:none; cursor:pointer; font-family:'Outfit',sans-serif; font-size:15px; font-weight:800; color:#fff; letter-spacing:-.2px; box-shadow:0 4px 20px rgba(79,70,229,.4),inset 0 1px 0 rgba(255,255,255,.15); transition:all .18s; }
-                          .btn-save:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(79,70,229,.5); }
-                          .btn-save:active { transform:scale(.98); }
-                          .btn-save svg { width:17px; height:17px; }
-                          .btn-save:disabled { opacity: 0.7; cursor: not-allowed; }
-                        `}} />
+                        `} } />
 
                         {selectedItems.map((item, idx) => {
                             const qty = Number(item.quantity) || 1;
@@ -1275,15 +1265,17 @@ function NewInvoiceContent() {
                             const afterDisc = base - discAmt;
                             const gstAmt = afterDisc * (gstPct / 100);
                             const total = afterDisc + gstAmt;
+                            
+                            const isExpanded = expandedItemIndex === idx;
 
                             return (
                             <div key={idx} className="item-card">
-                                <div className="card-header-new">
+                                <div className="card-header-new" onClick={() => setExpandedItemIndex(isExpanded ? null : idx)}>
                                     <div className="item-num">
                                         <div className="num-badge">{idx + 1}</div>
-                                        <span className="item-label">Product / Service</span>
+                                        <span className="item-label">{item.product_name || (t.productName || 'Product / Service')}</span>
                                     </div>
-                                    <button type="button" className="del-btn" onClick={() => removeItem(idx)}>
+                                    <button type="button" className="del-btn" onClick={(e) => { e.stopPropagation(); removeItem(idx); }}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
                                     </button>
                                 </div>
@@ -1295,8 +1287,9 @@ function NewInvoiceContent() {
                                             className="product-input" 
                                             type="text" 
                                             list="product-list"
-                                            placeholder="Product ya service ka naam..." 
+                                            placeholder={(t.productName || 'Product or service name') + "..."} 
                                             value={item.product_name || ''}
+                                            onFocus={() => setExpandedItemIndex(idx)}
                                             onChange={e => {
                                                 const val = e.target.value;
                                                 const prod = safeProducts.find((p) => p.name === val);
@@ -1309,55 +1302,59 @@ function NewInvoiceContent() {
                                         </div>
                                     </div>
 
-                                    <div className="fields-grid">
-                                        <div className="field">
-                                            <div className="field-label">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-                                                Matra (QTY)
+                                    <div className={`details-dropdown ${isExpanded ? 'expanded' : ''}`}>
+                                        <div className="details-dropdown-inner">
+                                            <div className="fields-grid">
+                                                <div className="field">
+                                                    <div className="field-label">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+                                                        {t.qty || 'Qty'}
+                                                    </div>
+                                                    <input className="field-input" type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
+                                                </div>
+                                                <div className="field">
+                                                    <div className="field-label">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
+                                                        {t.unit || 'Unit'}
+                                                    </div>
+                                                    <select className="field-select" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value.toUpperCase())}>
+                                                        {['PCS', 'NOS', 'KG', 'GM', 'LTR', 'ML', 'MTR', 'CM', 'MM', 'BOX', 'BAG', 'PKT', 'ROLL', 'PAIR', 'FEET', 'SQM', 'TABLETS', 'BOTTLES', 'CANS', 'DOZEN'].map(u => <option key={u} value={u}>{u}</option>)}
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <input className="field-input" type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
-                                        </div>
-                                        <div className="field">
-                                            <div className="field-label">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
-                                                Ikai (Unit)
+
+                                            <div className="fields-grid">
+                                                <div className="field">
+                                                    <div className="field-label">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                                                        {t.price || 'Price'} (₹)
+                                                    </div>
+                                                    <input className="field-input" type="number" min="0" value={item.unit_price || 0} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
+                                                </div>
+                                                <div className="field">
+                                                    <div className="field-label">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                                                        {t.discount || 'Disc'} %
+                                                    </div>
+                                                    <input className="field-input" type="number" min="0" max="100" value={item.discount_pct || 0} onChange={e => updateItem(idx, 'discount_pct', e.target.value)} />
+                                                </div>
                                             </div>
-                                            <select className="field-select" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value.toUpperCase())}>
-                                                {['PCS', 'NOS', 'KG', 'GM', 'LTR', 'ML', 'MTR', 'CM', 'MM', 'BOX', 'BAG', 'PKT', 'ROLL', 'PAIR', 'FEET', 'SQM', 'TABLETS', 'BOTTLES', 'CANS', 'DOZEN'].map(u => <option key={u} value={u}>{u}</option>)}
-                                            </select>
+
+                                            <div className="field">
+                                                <div className="field-label">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                                                    {t.gst || 'GST'} %
+                                                </div>
+                                                <select className="field-select" value={item.gst_rate} onChange={e => updateItem(idx, 'gst_rate', e.target.value)}>
+                                                    {[0, 5, 12, 18, 28].map(r => <option key={r} value={r}>{r}% GST</option>)}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="fields-grid">
-                                        <div className="field">
-                                            <div className="field-label">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                                                Mool (₹)
-                                            </div>
-                                            <input className="field-input" type="number" min="0" value={item.unit_price || 0} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
-                                        </div>
-                                        <div className="field">
-                                            <div className="field-label">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                                                Choot % (Disc)
-                                            </div>
-                                            <input className="field-input" type="number" min="0" max="100" value={item.discount_pct || 0} onChange={e => updateItem(idx, 'discount_pct', e.target.value)} />
-                                        </div>
-                                    </div>
-
-                                    <div className="field" style={{ marginBottom: '12px' }}>
-                                        <div className="field-label">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
-                                            GST %
-                                        </div>
-                                        <select className="field-select" value={item.gst_rate} onChange={e => updateItem(idx, 'gst_rate', e.target.value)}>
-                                            {[0, 5, 12, 18, 28].map(r => <option key={r} value={r}>{r}% GST</option>)}
-                                        </select>
-                                    </div>
-
-                                    <div className="amount-strip">
+                                    <div className="amount-strip" onClick={() => setExpandedItemIndex(isExpanded ? null : idx)}>
                                         <div>
-                                            <div className="amount-label">Item Amount (GST Sahit)</div>
+                                            <div className="amount-label">{t.itemAmount || 'Item Amount'} (Incl. GST)</div>
                                             <div className="gst-note">GST: ₹{gstAmt.toFixed(2)} · Base: ₹{afterDisc.toFixed(2)}</div>
                                         </div>
                                         <div className="amount-val">₹{total.toFixed(2)}</div>
@@ -1367,55 +1364,58 @@ function NewInvoiceContent() {
                             );
                         })}
 
-                        <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ink4)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '2px 2px 0', marginTop: '10px' }}>
-                            Aur Options
-                        </div>
+                        {expandedItemIndex !== null && (
+                            <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                                <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ink4)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '2px 2px 0', marginTop: '10px', marginBottom: '8px' }}>
+                                    {t.moreOptions || 'More Options'}
+                                </div>
 
-                        <div className="quick-actions">
-                            <div className="qa-card scanner" onClick={() => scannerInputRef.current?.focus()}>
-                                <div className="qa-icon qi-cyan">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="7" y2="12.01"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="13" y1="9" x2="13" y2="14"/><line x1="16" y1="11" x2="16" y2="14"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div className="qa-title">USB Scanner</div>
-                                    <div className="qa-sub">Barcode scanner se seedha scan karo</div>
-                                </div>
-                                {/* Hidden Input for USB Scanner focus */}
-                                <input ref={scannerInputRef} type="text" className="opacity-0 absolute w-0 h-0" value={scannerInput} onChange={e => setScannerInput(e.target.value)} onKeyDown={handleScannerInput} />
-                            </div>
+                                <div className="quick-actions">
+                                    <div className="qa-card scanner" onClick={() => scannerInputRef.current?.focus()}>
+                                        <div className="qa-icon qi-cyan">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="7" y2="12.01"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="13" y1="9" x2="13" y2="14"/><line x1="16" y1="11" x2="16" y2="14"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div className="qa-title">USB Scanner</div>
+                                            <div className="qa-sub">{t.scannerSub || 'Scan barcode directly'}</div>
+                                        </div>
+                                        <input ref={scannerInputRef} type="text" className="opacity-0 absolute w-0 h-0" value={scannerInput} onChange={e => setScannerInput(e.target.value)} onKeyDown={handleScannerInput} />
+                                    </div>
 
-                            <div className="qa-card camera" onClick={() => setShowCameraScanner(true)}>
-                                <div className="qa-icon qi-purple">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                                </div>
-                                <div>
-                                    <div className="qa-title">Mobile Camera</div>
-                                    <div className="qa-sub">Phone se barcode ya photo scan karo</div>
-                                </div>
-                            </div>
+                                    <div className="qa-card camera" onClick={() => setShowCameraScanner(true)}>
+                                        <div className="qa-icon qi-purple">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                        </div>
+                                        <div>
+                                            <div className="qa-title">Mobile Camera</div>
+                                            <div className="qa-sub">{t.cameraSub || 'Scan using your phone'}</div>
+                                        </div>
+                                    </div>
 
-                            <div className="qa-card add-item" onClick={addItem}>
-                                <div className="qa-icon qi-indigo">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                                </div>
-                                <div>
-                                    <div className="qa-title">Naya Item</div>
-                                    <div className="qa-sub">Ek aur product ya service jodo</div>
-                                </div>
-                            </div>
+                                    <div className="qa-card add-item" onClick={() => { addItem(); setExpandedItemIndex(selectedItems.length); }}>
+                                        <div className="qa-icon qi-indigo">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                                        </div>
+                                        <div>
+                                            <div className="qa-title">{t.addNewItem || 'New Item'}</div>
+                                            <div className="qa-sub">{t.newItemSub || 'Add another product'}</div>
+                                        </div>
+                                    </div>
 
-                            <div className="qa-card inventory" onClick={() => setShowQuickAdd(true)}>
-                                <div className="qa-icon qi-amber">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/><path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5"/></svg>
-                                </div>
-                                <div>
-                                    <div className="qa-title">Inventory</div>
-                                    <div className="qa-sub">Saved products mein se chuno</div>
+                                    <div className="qa-card inventory" onClick={() => setShowQuickAdd(true)}>
+                                        <div className="qa-icon qi-amber">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/><path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5"/></svg>
+                                        </div>
+                                        <div>
+                                            <div className="qa-title">Inventory</div>
+                                            <div className="qa-sub">{t.inventorySub || 'Choose from saved'}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         <datalist id="product-list">
                             {safeProducts.map(p => <option key={p.id} value={p.name}>{p.price ? `₹${p.price}` : ''}</option>)}
