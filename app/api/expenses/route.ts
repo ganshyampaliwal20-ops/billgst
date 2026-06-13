@@ -28,6 +28,7 @@ export async function GET(request: Request) {
         if (isSuperAdmin) {
             query = `
                 SELECT * FROM expenses
+                WHERE is_deleted = FALSE
                 ORDER BY expense_date DESC, created_at DESC
                 LIMIT $1 OFFSET $2
             `;
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
         } else {
             query = `
                 SELECT * FROM expenses
-                WHERE created_by = $1
+                WHERE created_by = $1 AND is_deleted = FALSE
                 ORDER BY expense_date DESC, created_at DESC
                 LIMIT $2 OFFSET $3
             `;

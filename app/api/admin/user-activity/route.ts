@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
     // Fetch invoices and expenses created by this user id
     let invoicesQuery = 'SELECT id, invoice_number, total_amount, status, created_at FROM invoices WHERE created_by = $1';
-    let expensesQuery = 'SELECT id, category, description, amount, expense_date, created_at FROM expenses WHERE created_by = $1';
+    let expensesQuery = 'SELECT id, category, description, amount, expense_date, created_at FROM expenses WHERE created_by = $1 AND is_deleted = FALSE';
     const params: any[] = [user.id];
     if (startDate && endDate) {
       invoicesQuery += ' AND created_at BETWEEN $2 AND $3';

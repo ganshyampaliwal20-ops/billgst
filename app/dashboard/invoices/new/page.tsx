@@ -1691,33 +1691,15 @@ function NewInvoiceContent() {
                 </div>
             </form>
 
-            <div className="bottom-actions">
-                <div className="total-strip">
-                    <div>
-                        <div className="total-label">Grand Total</div>
-                        <div className="total-items">{selectedItems.length} item{selectedItems.length > 1 ? 's' : ''}</div>
-                    </div>
-                    <div className="total-val">₹{totals.grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div className="bottom-bar">
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Grand Total</span>
+                    <span className="t-val text-slate-800">₹{totals.grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 </div>
-
-                <div className="btn-row">
-                    <button type="button" className="btn-cancel" onClick={() => router.back()}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                        <span>Cancel</span>
-                    </button>
-
-                    <button type="button" className="btn-preview" onClick={handlePreview}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        <span>Preview</span>
-                    </button>
-
-                    <button type="button" className="btn-save" onClick={handleSubmit} disabled={isSubmitting}>
-                        {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-indigo-200 border-t-white rounded-full mr-2"></span> : (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-                        )}
-                        {isSubmitting ? 'Saving...' : 'Save Invoice'}
-                    </button>
-                </div>
+                <button type="button" className="bb-save" onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white rounded-full mr-2"></span> : <FaSave className="text-lg" />}
+                    {isSubmitting ? 'Saving...' : 'Save Invoice'}
+                </button>
             </div>
 
             {/* Quick Add Panel - Voice + Type */}

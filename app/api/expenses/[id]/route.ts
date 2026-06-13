@@ -47,7 +47,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         const { id } = await params;
         const client = await pool.connect();
 
-        await client.query('DELETE FROM expenses WHERE id = $1 AND created_by = $2', [id, session.user.id]);
+        await client.query('UPDATE expenses SET is_deleted = TRUE WHERE id = $1 AND created_by = $2', [id, session.user.id]);
 
         client.release();
         return NextResponse.json({ success: true });
