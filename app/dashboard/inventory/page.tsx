@@ -7,7 +7,7 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { generateCatalogPDF } from "@/lib/pdf-generator";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 
 import { optimizeImage } from "@/lib/utils";
 
@@ -343,7 +343,7 @@ export default function InventoryPage() {
     const startScanner = () => {
         setShowScanner(true);
         setTimeout(() => {
-            let scanner: Html5QrcodeScanner | null = null;
+            let scanner: Html5Qrcode | null = null;
             scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
             scanner.render((decodedText) => {
                 scanner?.clear();

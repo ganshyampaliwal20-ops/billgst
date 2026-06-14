@@ -8,7 +8,7 @@ import {
     FaRobot, FaCheck, FaTimes, FaCamera, FaUserPlus, FaFileInvoice,
     FaBox, FaTruck, FaReceipt, FaRoad, FaCogs, FaChevronLeft, FaEye, FaSearch, FaEllipsisV, FaQrcode
 } from "react-icons/fa";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { translations } from '@/lib/translations';
@@ -253,25 +253,40 @@ function NewInvoiceContent() {
 
     // For Camera Scanner
     useEffect(() => {
-        let scanner: Html5QrcodeScanner | null = null;
+        let scanner: Html5Qrcode | null = null;
         if (showCameraScanner) {
-            scanner = new Html5QrcodeScanner("reader-invoice", { fps: 10, qrbox: 250 }, false);
-            scanner.render((decodedText) => {
-                scanner?.clear();
-                setShowCameraScanner(false);
-                processBarcode(decodedText);
-            }, (error) => {
-                // Handle permission errors explicitly
-                if (typeof error === 'string' && (error.includes('NotAllowedError') || error.includes('Permission denied'))) {
-                    scanner?.clear();
-                    setShowCameraScanner(false);
-                    toast.error('Camera access denied! Please allow Camera permission from Android Settings.');
+            scanner = new Html5Qrcode("reader-invoice");
+            scanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    if (scanner && scanner.isScanning) {
+                        scanner.stop().then(() => {
+                            scanner.clear();
+                            setShowCameraScanner(false);
+                            processBarcode(decodedText);
+                        }).catch(e => {
+                            setShowCameraScanner(false);
+                            processBarcode(decodedText);
+                        });
+                    }
+                },
+                (errorMessage) => { }
+            ).catch(error => {
+                const errStr = String(error);
+                if (errStr.includes("NotAllowedError") || errStr.includes("Permission denied")) {
+                    toast.error("Camera access denied! Please allow Camera permission from Android Settings.");
+                } else {
+                    toast.error("Camera error: " + errStr);
                 }
+                setShowCameraScanner(false);
             });
         }
         return () => {
-            if (scanner) {
-                scanner.clear().catch(e => console.error(e));
+            if (scanner && scanner.isScanning) {
+                scanner.stop().then(() => {
+                    scanner.clear();
+                }).catch(e => console.error(e));
             }
         };
     }, [showCameraScanner]);
