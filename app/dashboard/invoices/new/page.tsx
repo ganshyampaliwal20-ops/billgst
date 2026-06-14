@@ -262,7 +262,7 @@ function NewInvoiceContent() {
                 (decodedText) => {
                     if (scanner && scanner.isScanning) {
                         scanner.stop().then(() => {
-                            scanner.clear();
+                            scanner?.clear();
                             setShowCameraScanner(false);
                             processBarcode(decodedText);
                         }).catch(e => {
@@ -285,7 +285,7 @@ function NewInvoiceContent() {
         return () => {
             if (scanner && scanner.isScanning) {
                 scanner.stop().then(() => {
-                    scanner.clear();
+                    scanner?.clear();
                 }).catch(e => console.error(e));
             }
         };
