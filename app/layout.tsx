@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.billgst.in"),
   title: "Free Invoice Generator & GST Billing Software India | BillGST",
   description: "Best Free Invoice Generator and GST Billing Software in India. Create GST/Non-GST bills, manage inventory, and share PDF invoices on WhatsApp in seconds.",
-  keywords: "invoice generator, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing",
+  keywords: "invoice generator, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing, voice billing app, vyapar alternative",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
