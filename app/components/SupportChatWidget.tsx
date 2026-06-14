@@ -130,7 +130,7 @@ export default function SupportChatWidget() {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 z-[100] w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-emerald-700 hover:scale-105 transition-all"
+                    className="fixed bottom-6 right-6 z-[100] w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-full flex items-center justify-center text-white shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:scale-105 hover:shadow-[0_10px_25px_rgba(16,185,129,0.4)] transition-all duration-300"
                 >
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -140,43 +140,61 @@ export default function SupportChatWidget() {
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-6 right-6 z-[100] w-[350px] h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 overflow-hidden">
+                <div className="fixed bottom-6 right-6 z-[100] w-[360px] h-[520px] bg-slate-50/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
                     {/* Header */}
-                    <div className="bg-emerald-600 text-white p-4 flex justify-between items-center">
-                        <div>
-                            <h3 className="font-bold text-lg">Support Chat</h3>
-                            <p className="text-emerald-100 text-xs">We typically reply in a few minutes</p>
+                    <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 flex justify-between items-center shadow-sm relative z-10">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-inner">
+                                <FaHeadset className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-[16px] leading-tight drop-shadow-sm">BillGST Support</h3>
+                                <p className="text-emerald-50 text-[12px] opacity-90 flex items-center gap-1.5 mt-0.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse"></span>
+                                    We reply quickly
+                                </p>
+                            </div>
                         </div>
-                        <button onClick={() => setIsOpen(false)} className="text-emerald-100 hover:text-white">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                        <button onClick={() => setIsOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors text-emerald-50">
+                            <FaTimes className="w-4 h-4" />
                         </button>
                     </div>
 
                     {/* Body */}
-                    <div className="flex-1 bg-slate-50 p-4 overflow-y-auto" ref={scrollRef}>
+                    <div className="flex-1 p-4 overflow-y-auto scroll-smooth" ref={scrollRef}>
                         {status === 'unauthenticated' ? (
                             <div className="flex flex-col items-center justify-center h-full text-slate-500">
-                                <p className="mb-4">Please log in to chat with support</p>
-                                <button onClick={() => router.push('/login')} className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm">
-                                    Login Now
+                                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 border border-slate-200 shadow-sm">
+                                    <FaSignInAlt className="w-6 h-6 text-emerald-500" />
+                                </div>
+                                <p className="mb-5 text-[15px] font-medium text-slate-600">Please log in to chat</p>
+                                <button onClick={() => router.push('/login')} className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white rounded-xl text-[14px] font-semibold shadow-md shadow-emerald-500/20">
+                                    Login to Continue
                                 </button>
                             </div>
                         ) : (
-                            <div className="flex flex-col gap-3">
-                                <div className="text-center text-xs text-slate-400 mb-2">Today</div>
+                            <div className="flex flex-col gap-4">
+                                <div className="text-center">
+                                    <span className="inline-block px-3 py-1 bg-white border border-slate-200 text-[11px] font-bold text-slate-400 rounded-full shadow-sm">
+                                        Today
+                                    </span>
+                                </div>
                                 {messages.map((m, i) => {
                                     const isSent = !m.is_admin;
                                     return (
-                                        <div key={i} className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[80%] rounded-2xl p-3 text-sm word-break mx-2 break-words ${isSent ? 'bg-emerald-600 text-white rounded-tr-sm' : 'bg-white text-slate-800 border border-slate-200 rounded-tl-sm'}`}>
+                                        <div key={i} className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                                            <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-[14px] leading-[1.5] mx-1 break-words whitespace-pre-wrap shadow-sm ${isSent ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-br-[4px]' : 'bg-white text-slate-700 border border-slate-200/80 rounded-bl-[4px]'}`}>
                                                 {m.attachment_url ? (
-                                                    <img src={m.attachment_url} alt="attachment" className="max-w-full rounded-lg mb-1 max-h-48 object-cover" />
+                                                    <img src={m.attachment_url} alt="attachment" className="max-w-full rounded-xl mb-2 max-h-56 object-cover border border-black/5" />
                                                 ) : null}
                                                 {m.message && <div>{m.message}</div>}
-                                                <div className={`text-[10px] mt-1 text-right ${isSent ? 'text-emerald-200' : 'text-slate-400'}`}>
+                                                <div className={`text-[10px] mt-1.5 flex items-center ${isSent ? 'justify-end text-emerald-100' : 'justify-start text-slate-400'} font-medium`}>
                                                     {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {isSent && (
+                                                        <svg className="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -188,40 +206,51 @@ export default function SupportChatWidget() {
 
                     {/* Input Area */}
                     {status === 'authenticated' && (
-                        <div className="bg-white border-t border-slate-200 flex flex-col">
+                        <div className="bg-white border-t border-slate-100 flex flex-col p-1">
                             {attachedFiles.length > 0 && (
-                                <div className="flex gap-2 p-2 overflow-x-auto border-b border-slate-100">
+                                <div className="flex gap-3 p-3 overflow-x-auto border-b border-slate-50 bg-slate-50/50">
                                     {attachedFiles.map((f, i) => (
-                                        <div key={i} className="relative flex-shrink-0">
-                                            <img src={f.url} alt="preview" className="w-12 h-12 object-cover rounded-md border border-emerald-200" />
-                                            <button onClick={() => removeAtt(i)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">×</button>
+                                        <div key={i} className="relative flex-shrink-0 group">
+                                            <img src={f.url} alt="preview" className="w-14 h-14 object-cover rounded-xl border-2 border-emerald-100 shadow-sm transition-transform group-hover:scale-105" />
+                                            <button onClick={() => removeAtt(i)} className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 transition-colors text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-md">
+                                                <FaTimes className="w-2.5 h-2.5" />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
                             )}
-                            <div className="p-3 flex items-center gap-2">
+                            <div className="p-2 flex items-end gap-2">
                                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" multiple onChange={handleFiles} />
-                                <button onClick={() => fileInputRef.current?.click()} className="text-slate-400 hover:text-emerald-600">
+                                <button onClick={() => fileInputRef.current?.click()} className="p-2.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors mb-0.5">
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
-                                <input
-                                    type="text"
-                                    placeholder="Type a message..."
-                                    className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                />
+                                <div className="flex-1 bg-slate-100 border border-slate-200 rounded-[20px] px-4 py-1.5 focus-within:bg-white focus-within:border-emerald-300 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all shadow-inner">
+                                    <textarea
+                                        placeholder="Type a message..."
+                                        className="w-full bg-transparent text-[14px] outline-none resize-none max-h-24 min-h-[38px] py-2 text-slate-700 placeholder-slate-400 leading-relaxed"
+                                        rows={1}
+                                        value={input}
+                                        onChange={(e) => {
+                                            setInput(e.target.value);
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = (e.target.scrollHeight) + 'px';
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSend();
+                                            }
+                                        }}
+                                    />
+                                </div>
                                 <button
                                     onClick={handleSend}
                                     disabled={!canSend || isLoading}
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center text-white transition-colors ${canSend && !isLoading ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-300'}`}
+                                    className={`w-11 h-11 mb-0.5 rounded-full flex items-center justify-center text-white transition-all shadow-md ${canSend && !isLoading ? 'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/30' : 'bg-slate-300 shadow-none cursor-not-allowed'}`}
                                 >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                    </svg>
+                                    <FaPaperPlane className="w-[15px] h-[15px] ml-0.5" />
                                 </button>
                             </div>
                         </div>
