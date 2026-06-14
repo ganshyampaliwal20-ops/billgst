@@ -722,7 +722,7 @@ export default function InventoryPage() {
                 .fab svg{width:24px;height:24px;color:#fff;}
 
                 /* Modals Styling */
-                .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:flex-start; justify-content:center; padding:40px 12px 40px 12px; overflow-y:auto; }
+                .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:flex-start; justify-content:center; padding:90px 12px 40px 12px; overflow-y:auto; }
                 .modal { margin: 0 auto; background:var(--white); border-radius:22px; width:100%; max-width:520px; display:flex; flex-direction:column; max-height:none; overflow:hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
                 .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:20px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
                 .modal-header h3 { font-size:18px; font-weight:800; color:#fff; margin:0; letter-spacing: 0.5px; }
@@ -1039,7 +1039,7 @@ export default function InventoryPage() {
                                             </div>
                                             <input className="field-input" style={{ paddingLeft: '48px', paddingRight: '12px', fontSize: '16px', fontWeight: 'bold', height: '48px' }} type="text" placeholder="Scan with USB..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
                                         </div>
-                                        <button type="button" onClick={() => setShowScanner(true)} style={{ background: 'linear-gradient(135deg, var(--indigo, #4f46e5), var(--purple, #8b5cf6))', border: 'none', color: '#fff', padding: '0 20px', height: '48px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'transform 0.2s, box-shadow 0.2s', whiteSpace: 'nowrap' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        <button type="button" onClick={startScanner} style={{ background: 'linear-gradient(135deg, var(--indigo, #4f46e5), var(--purple, #8b5cf6))', border: 'none', color: '#fff', padding: '0 20px', height: '48px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'transform 0.2s, box-shadow 0.2s', whiteSpace: 'nowrap' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                                             Camera
                                         </button>
