@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.billgst.in"),
+  metadataBase: new URL("https://billgst.in"),
   title: "Free Invoice Generator & GST Billing Software India | BillGST",
   description: "Best Free Invoice Generator and GST Billing Software in India. Create GST/Non-GST bills, manage inventory, and share PDF invoices on WhatsApp in seconds.",
   keywords: "invoice generator, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing, voice billing app, vyapar alternative",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     description: "Create professional GST invoices for free. Best for small businesses in India.",
     type: "website",
     siteName: 'BillGST',
-    url: 'https://www.billgst.in',
+    url: 'https://billgst.in',
     images: [
       {
         url: '/logo.png',
@@ -91,8 +91,8 @@ export default function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "name": "BillGST",
-                "url": "https://www.billgst.in",
-                "logo": "https://www.billgst.in/logo.png",
+                "url": "https://billgst.in",
+                "logo": "https://billgst.in/logo.png",
                 "description": "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
                 "address": {
                   "@type": "PostalAddress",

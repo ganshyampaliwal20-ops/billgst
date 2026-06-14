@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/dashboard/', '/api/', '/_next/'],
         },
-        sitemap: 'https://www.billgst.in/sitemap.xml',
+        sitemap: 'https://billgst.in/sitemap.xml',
     }
 }
