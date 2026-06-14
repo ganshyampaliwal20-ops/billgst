@@ -92,6 +92,7 @@ export default function SmartAddPage() {
     const [step, setStep] = useState<'upload' | 'processing' | 'review'>('upload');
     const [failedItems, setFailedItems] = useState<{name: string, reason: string}[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
     
     // New states for profit
     const [globalProfit, setGlobalProfit] = useState<number>(20);
@@ -822,18 +823,6 @@ export default function SmartAddPage() {
                 .progress-pct { font-size: 11px; color: #00D4AA; font-weight: 600; text-align: right; margin-top: 6px; }
             `}} />
 
-            {/* ── TOP BAR ── */}
-            <div className="topbar">
-                <div className="avatar">🎭</div>
-                <div className="brand">
-                    <div className="brand-name">Ayana Enterprises</div>
-                    <div className="brand-sub">Smart Scanner</div>
-                </div>
-                <div className="topbar-icons">
-                    <button className="icon-btn" aria-label="Settings"><i className="ti ti-settings"></i></button>
-                    <button className="icon-btn" aria-label="Menu"><i className="ti ti-menu-2"></i></button>
-                </div>
-            </div>
 
             {/* ── BREADCRUMB ── */}
             <div className="breadcrumb">
@@ -915,41 +904,31 @@ export default function SmartAddPage() {
                             </div>
                         </div>
 
-                        <div className="upload-card" onClick={() => fileInputRef.current?.click()}>
+                        <div className="upload-card">
                             <div className="upload-icon-wrap"><i className="ti ti-file-invoice"></i></div>
                             <div className="upload-title">Upload Supplier Invoice</div>
                             <div className="upload-desc">
                                 {st.uploadDesc.split('\n').map((line: string, i: number) => <span key={i}>{line}<br/></span>)}
                             </div>
-                            <div className="upload-types">
+                            <div className="upload-types" style={{ marginBottom: '16px' }}>
                                 <div className="type-pill"><i className="ti ti-camera"></i> Photo</div>
                                 <div className="type-pill"><i className="ti ti-scan"></i> Scan</div>
                                 <div className="type-pill"><i className="ti ti-file-type-pdf"></i> PDF</div>
                             </div>
-                            <button className="cta-btn">
-                                <i className="ti ti-camera" style={{fontSize: '17px'}}></i>
-                                Browse or Take Photo
-                            </button>
+                            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                                <button className="cta-btn" onClick={() => cameraInputRef.current?.click()} style={{ marginTop: 0, flex: 1, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)' }}>
+                                    <i className="ti ti-camera" style={{fontSize: '17px'}}></i>
+                                    Take Photo
+                                </button>
+                                <button className="cta-btn" onClick={() => fileInputRef.current?.click()} style={{ marginTop: 0, flex: 1 }}>
+                                    <i className="ti ti-upload" style={{fontSize: '17px'}}></i>
+                                    Upload File
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="info-row">
-                            <div className="info-card">
-                                <div className="info-card-icon"><i className="ti ti-bolt"></i></div>
-                                <div className="info-card-label">Auto Detect</div>
-                                <div className="info-card-val">Products &amp; Qty</div>
-                            </div>
-                            <div className="info-card">
-                                <div className="info-card-icon"><i className="ti ti-shield-check"></i></div>
-                                <div className="info-card-label">Accuracy</div>
-                                <div className="info-card-val">AI Verified</div>
-                            </div>
-                            <div className="info-card">
-                                <div className="info-card-icon"><i className="ti ti-clock"></i></div>
-                                <div className="info-card-label">Speed</div>
-                                <div className="info-card-val">Instant Entry</div>
-                            </div>
-                        </div>
                         <input type="file" accept="image/*,.pdf" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
+                        <input type="file" accept="image/*" capture="environment" className="hidden" ref={cameraInputRef} onChange={handleFileUpload} />
                     </motion.div>
                 )}
 
