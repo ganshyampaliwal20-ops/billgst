@@ -451,6 +451,10 @@ export default function BusinessExpensesPage() {
         // Small timeout ensures the new screen is rendered before we scroll
         setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            const screenDetail = document.getElementById('screen-detail');
+            if (screenDetail) screenDetail.scrollTo({ top: 0, behavior: 'smooth' });
+            const txList = document.querySelector('.tx-list');
+            if (txList) txList.scrollTo({ top: 0, behavior: 'smooth' });
         }, 50);
     };
 
@@ -1434,10 +1438,6 @@ export default function BusinessExpensesPage() {
                             })()}
 
 
-                            <div className="export-actions">
-                                <button className="qa-btn pdf" onClick={exportPDF}>📄 PDF Download</button>
-                                <button className="qa-btn excel" onClick={downloadCustomerExcel}>📊 Excel Download</button>
-                            </div>
                             <div className="spacer" style={{ height: '100px' }}></div>
                             <div className="chat-action-bar" style={{ display: isAddEntryOpen ? 'none' : 'flex' }}>
                                 <button className="chat-btn received" onClick={() => openNumpad('credit')}>
