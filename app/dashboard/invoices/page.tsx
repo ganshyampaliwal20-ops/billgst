@@ -601,8 +601,12 @@ export default function InvoicesPage() {
                     .modal-sheet { border-radius: 24px; animation: scaleUp 0.2s ease; max-height: 85vh; }
                 }
                 @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                .btn-action { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; background: #f8f9fc; border: 1px solid rgba(0,0,0,0.08); color: #111827; cursor: pointer; font-size: 11px; font-weight: 600; }
+                .btn-action { flex: 1; min-width: 60px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; background: #f8f9fc; border: 1px solid rgba(0,0,0,0.08); color: #111827; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s; }
                 .btn-action:hover { background: rgba(0,0,0,0.04); }
+                .btn-action.solid-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); color: white; border: none; flex-direction: row; justify-content: center; font-size: 13px; padding: 14px; grid-column: span 2; border-radius: 14px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3); font-weight: 700; transition: transform 0.2s, box-shadow 0.2s; gap: 10px; }
+                .btn-action.solid-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
+                .btn-action.solid-share { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; flex-direction: row; justify-content: center; font-size: 13px; padding: 14px; grid-column: span 2; border-radius: 14px; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3); font-weight: 700; transition: transform 0.2s, box-shadow 0.2s; gap: 10px; }
+                .btn-action.solid-share:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
 
                 .plus-btn {
                     background: #4338ca; color: #fff; border: none; border-radius: 8px; width: 34px; height: 34px; 
@@ -900,18 +904,19 @@ export default function InvoicesPage() {
                             <div style={{ fontSize: '13px', color: '#6b7280' }}>{selectedInvoice.customer?.name}</div>
                         </div>
                         
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                            <button className="btn-action" onClick={(e) => handleWhatsApp(selectedInvoice, e)}>
-                                <FaWhatsapp size={20} color="#16a34a" />
-                                WhatsApp
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                            <button className="btn-action solid-whatsapp" onClick={(e) => handleWhatsApp(selectedInvoice, e)}>
+                                <FaWhatsapp size={20} color="white" />
+                                Send on WhatsApp
                             </button>
+                            <button className="btn-action solid-share" onClick={() => handleSharePdf(selectedInvoice)}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                Share PDF
+                            </button>
+                            
                             <button className="btn-action" onClick={() => handleDownload(selectedInvoice)}>
                                 <FaFilePdf size={20} color="#dc2626" />
                                 View PDF
-                            </button>
-                            <button className="btn-action" onClick={() => handleSharePdf(selectedInvoice)}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                                Share PDF
                             </button>
                             <button className="btn-action" onClick={() => handlePrint(selectedInvoice)}>
                                 <FaPrint size={20} color="#000" />

@@ -304,47 +304,54 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 10px 6px;
-  border-radius: var(--radius-sm);
+  gap: 6px;
+  padding: 12px 6px;
+  border-radius: 14px;
   border: none;
   cursor: pointer;
-  font-family: 'Noto Sans', sans-serif;
+  font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
-  transition: all .15s;
+  font-weight: 700;
+  transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.qa-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .qa-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .qa-btn.remind {
-  background: var(--amber-lt);
-  color: var(--amber);
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #d97706;
 }
 
 .qa-btn.remind:hover {
-  background: #fde68a;
+  background: linear-gradient(135deg, #fde68a, #fcd34d);
 }
 
 .qa-btn.statement {
-  background: var(--blue-lt);
-  color: var(--blue);
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1d4ed8;
 }
 
 .qa-btn.statement:hover {
-  background: #bfdbfe;
+  background: linear-gradient(135deg, #bfdbfe, #93c5fd);
 }
 
 .qa-btn.whatsapp {
-  background: #dcfce7;
-  color: #16a34a;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
 }
 
 .qa-btn.whatsapp:hover {
-  background: #bbf7d0;
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.35);
 }
 
 .qa-btn.call {
