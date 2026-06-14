@@ -305,7 +305,7 @@ export default function LandingPage() {
                             title="BillGST Dashboard Preview" 
                             frameBorder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
+                            allowFullScreen loading=" lazy\
                             style={{ aspectRatio: '16/9', display: 'block', objectFit: 'cover' }}
                         ></iframe>
                         <button 
@@ -1027,3 +1027,5 @@ export default function LandingPage() {
         </div>
     );
 }
+
+
