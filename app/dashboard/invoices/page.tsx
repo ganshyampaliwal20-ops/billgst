@@ -154,10 +154,18 @@ export default function InvoicesPage() {
     };
 
     const handleDownload = async (invoice: any) => {
-        const toastId = toast.loading('Generating PDF...');
+        const toastId = toast.loading('Opening PDF...');
         try {
-            await generateInvoicePDF(invoice, businessProfile);
-            toast.success('PDF Downloaded', { id: toastId });
+            await generateInvoicePDF(invoice, businessProfile, true, 'view');
+            toast.dismiss(toastId);
+        } catch (error) { toast.error('PDF Error', { id: toastId }); }
+    };
+
+    const handleSharePdf = async (invoice: any) => {
+        const toastId = toast.loading('Generating PDF for Share...');
+        try {
+            await generateInvoicePDF(invoice, businessProfile, true, 'share');
+            toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
@@ -899,7 +907,11 @@ export default function InvoicesPage() {
                             </button>
                             <button className="btn-action" onClick={() => handleDownload(selectedInvoice)}>
                                 <FaFilePdf size={20} color="#dc2626" />
-                                Download PDF
+                                View PDF
+                            </button>
+                            <button className="btn-action" onClick={() => handleSharePdf(selectedInvoice)}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                Share PDF
                             </button>
                             <button className="btn-action" onClick={() => handlePrint(selectedInvoice)}>
                                 <FaPrint size={20} color="#000" />
