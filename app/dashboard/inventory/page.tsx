@@ -344,17 +344,31 @@ export default function InventoryPage() {
         setShowScanner(true);
         setTimeout(() => {
             let scanner: Html5Qrcode | null = null;
-            scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
-            scanner.render((decodedText) => {
-                scanner?.clear();
-                setShowScanner(false);
-                handleScannedCode(decodedText);
-            }, (error) => {
-                if (typeof error === 'string' && (error.includes('NotAllowedError') || error.includes('Permission denied'))) {
-                    scanner?.clear();
-                    setShowScanner(false);
-                    toast.error('Camera access denied! Please allow Camera permission from Android Settings.');
+            scanner = new Html5Qrcode("reader");
+            scanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    if (scanner && scanner.isScanning) {
+                        scanner.stop().then(() => {
+                            scanner?.clear();
+                            setShowScanner(false);
+                            handleScannedCode(decodedText);
+                        }).catch(e => {
+                            setShowScanner(false);
+                            handleScannedCode(decodedText);
+                        });
+                    }
+                },
+                (errorMessage) => { }
+            ).catch(error => {
+                const errStr = String(error);
+                if (errStr.includes("NotAllowedError") || errStr.includes("Permission denied")) {
+                    toast.error("Camera access denied! Please allow Camera permission from Android Settings.");
+                } else {
+                    toast.error("Camera could not start: " + errStr);
                 }
+                setShowScanner(false);
             });
         }, 300);
     };
