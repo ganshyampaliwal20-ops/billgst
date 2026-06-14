@@ -183,7 +183,10 @@ export default function SupportChatWidget() {
                                     const isSent = !m.is_admin;
                                     return (
                                         <div key={i} className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                                            <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-[14px] leading-[1.5] mx-1 break-words whitespace-pre-wrap shadow-sm ${isSent ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-br-[4px]' : 'bg-white text-slate-700 border border-slate-200/80 rounded-bl-[4px]'}`}>
+                                            <div 
+                                                className={`max-w-[82%] rounded-2xl text-[14px] leading-[1.5] mx-1 break-words whitespace-pre-wrap shadow-sm ${isSent ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-br-[4px]' : 'bg-white text-slate-700 border border-slate-200/80 rounded-bl-[4px]'}`}
+                                                style={{ padding: '12px 16px' }}
+                                            >
                                                 {m.attachment_url ? (
                                                     <img src={m.attachment_url} alt="attachment" className="max-w-full rounded-xl mb-2 max-h-56 object-cover border border-black/5" />
                                                 ) : null}
