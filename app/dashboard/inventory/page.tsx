@@ -722,11 +722,12 @@ export default function InventoryPage() {
                 .fab svg{width:24px;height:24px;color:#fff;}
 
                 /* Modals Styling */
-                .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:flex-start; justify-content:center; padding:80px 12px 20px 12px; overflow-y:auto; }
-                .modal { margin:auto; background:var(--white); border-radius:22px; width:100%; max-width:520px; display:flex; flex-direction:column; max-height:90vh; overflow:hidden; }
-                .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:18px 22px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-                .modal-header h3 { font-size:16px; font-weight:800; color:#fff; margin:0;}
-                .modal-close { width:32px; height:32px; background:rgba(255,255,255,.1); border:none; border-radius:8px; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0; }
+                .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:flex-start; justify-content:center; padding:40px 12px 40px 12px; overflow-y:auto; }
+                .modal { margin: 0 auto; background:var(--white); border-radius:22px; width:100%; max-width:520px; display:flex; flex-direction:column; max-height:none; overflow:hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+                .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:20px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+                .modal-header h3 { font-size:18px; font-weight:800; color:#fff; margin:0; letter-spacing: 0.5px; }
+                .modal-close { width:36px; height:36px; background:rgba(255,255,255,.1); border:none; border-radius:10px; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition: background 0.2s; }
+                .modal-close:hover { background:rgba(255,255,255,.2); }
                 .modal-body { padding:18px 22px; overflow-y:auto; flex-grow:1; }
                 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
                 .field-label { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; color:var(--ink3); margin-bottom:6px; display:block; }
@@ -1016,38 +1017,42 @@ export default function InventoryPage() {
                             <button className="modal-close" onClick={() => setShowAddModal(false)}>✕</button>
                         </div>
                         <div className="modal-body">
-                            <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-                                <label style={{ position: "relative", width: "80px", height: "80px", background: "var(--bg)", borderRadius: "16px", border: "2px dashed var(--border2)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden" }}>
-                                    {formData.image_url ? (
-                                        <img src={formData.image_url} alt="Product" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                    ) : (
-                                        <span style={{ fontSize: "24px" }}>📷</span>
-                                    )}
-                                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
-                                </label>
-                            </div>
-
-                            <div className="field-row">
+                            {/* Photo and Barcode Section */}
+                            <div style={{ display: "flex", gap: "16px", marginBottom: "20px", background: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: "18px", border: "1px solid var(--border)", alignItems: "flex-end", flexWrap: "wrap" }}>
                                 <div>
-                                    <label className="field-label">Product Name *</label>
-                                    <input className="field-input" type="text" placeholder="e.g. iPhone 15" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                    <label className="field-label" style={{ marginBottom: "8px" }}>Photo</label>
+                                    <label style={{ position: "relative", width: "76px", height: "76px", background: "var(--bg)", borderRadius: "14px", border: "2px dashed var(--border2)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden" }}>
+                                        {formData.image_url ? (
+                                            <img src={formData.image_url} alt="Product" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                        ) : (
+                                            <span style={{ fontSize: "26px" }}>📷</span>
+                                        )}
+                                        <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
+                                    </label>
                                 </div>
-                                <div>
-                                    <label className="field-label">Barcode (Scan/Type)</label>
-                                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                <div style={{ flex: "1", minWidth: "250px" }}>
+                                    <label className="field-label" style={{ marginBottom: "8px" }}>Barcode (Scan/Type)</label>
+                                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                                         <div style={{ position: 'relative', flex: 1 }}>
-                                            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--indigo)', background: 'var(--indigo-lt, #e0e7ff)', padding: '4px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h4v4H4zM4 16h4v4H4zM16 4h4v4h-4z"/><path d="M12 4v16M4 12h16"/></svg>
+                                            <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--indigo)', background: 'var(--indigo-lt, #e0e7ff)', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h4v4H4zM4 16h4v4H4zM16 4h4v4h-4z"/><path d="M12 4v16M4 12h16"/></svg>
                                             </div>
-                                            <input className="field-input" style={{ paddingLeft: '38px', fontWeight: 'bold' }} type="text" placeholder="Scan with USB..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
+                                            <input className="field-input" style={{ paddingLeft: '48px', paddingRight: '12px', fontSize: '16px', fontWeight: 'bold', height: '48px' }} type="text" placeholder="Scan with USB..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
                                         </div>
-                                        <button type="button" onClick={() => setShowScanner(true)} style={{ background: 'linear-gradient(135deg, var(--indigo, #4f46e5), var(--purple, #8b5cf6))', border: 'none', color: '#fff', padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                                            Mobile Camera
+                                        <button type="button" onClick={() => setShowScanner(true)} style={{ background: 'linear-gradient(135deg, var(--indigo, #4f46e5), var(--purple, #8b5cf6))', border: 'none', color: '#fff', padding: '0 20px', height: '48px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'transform 0.2s, box-shadow 0.2s', whiteSpace: 'nowrap' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                            Camera
                                         </button>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Product Name (Full Width) */}
+                            <div style={{ marginBottom: "20px" }}>
+                                <label className="field-label">Product Name *</label>
+                                <input className="field-input" type="text" placeholder="e.g. iPhone 15" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} style={{ fontSize: '20px', fontWeight: 'bold', padding: '16px 14px', height: 'auto', width: '100%' }} />
+                            </div>
+
                             <div className="field-row">
                                 <div>
                                     <label className="field-label">HSN Code</label>
