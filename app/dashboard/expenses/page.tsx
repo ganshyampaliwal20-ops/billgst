@@ -491,34 +491,15 @@ export default function BusinessExpensesPage() {
         (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
         const netAmt = Math.abs(amount);
         const statusStr = amount < 0 ? (isHi ? 'Aapko Dena Hai' : 'You Will Give') : (isHi ? 'Aapko Lena Hai' : 'You Will Get');
-        const bizName = businessProfile?.name || 'Business Account';
-        const bizPhone = businessProfile?.phone || '';
-        const bizEmail = businessProfile?.email || '';
-        const upiId = businessProfile?.upi_id || '';
-
-        let msg = `🏢 *${bizName} — Hisaab Statement*\n━━━━━━━━━━━━━━━━━\n\n`;
-        msg += `🙏 *Namaste ${cust.name},*\n\n`;
-        if (isReminder) {
-            msg += `Aapka ₹${netAmt} due hai. Kripya payment karein.\n\n`;
-        } else {
-            msg += `Aapka Hisaab-Kitab taiyar ho gaya hai.\n\n`;
-        }
-        msg += `💰 *Net Balance: ₹${netAmt}*\n`;
-        msg += `⚠️ Status: *${statusStr}*\n\n`;
-        msg += `📊 Diya: ₹${d} | Liya: ₹${c}\n`;
-        msg += `🔢 Transactions: ${(cust.txns || []).length}\n\n`;
-        msg += `━━━━━━━━━━━━━━━━━\n`;
-        msg += `📱 *Poora hisaab dekhein:*\n`;
-        msg += `👇 Neeche link par click karein\n\n🔗 ${shareUrl}\n\n`;
-        msg += `━━━━━━━━━━━━━━━━━\n`;
-        msg += `💠 *${bizName}* 💠\n`;
-        if (bizPhone) msg += `📞 ${bizPhone}\n`;
-        if (bizEmail) msg += `📧 ${bizEmail}\n`;
-        if (upiId) {
-            msg += `\n💳 *UPI Pay:* ${upiId}\n`;
-            msg += `⚡ Tap to Pay: upi://pay?pa=${upiId}\n`;
-        }
-        msg += `\n━━━━━━━━━━━━━━━━━\n🙏 *Dhanyawad!*\n_Powered by BillGST.in_`;
+        const isDue = amount < 0;
+        const bizName = businessProfile?.business_name || 'Business';
+        
+        let msg = `Hi ${cust.name || 'Customer'},\n\n`;
+        msg += `Aapka Hisaab Statement ready hai.\n`;
+        msg += `*Net Balance: ₹${netAmt}* ${isDue ? '(Aapko Dena Hai)' : '(Aapko Milna Hai)'}\n\n`;
+        msg += `📄 *Poora Hisaab Dekhein & Pay Karein*:\n${shareUrl}\n\n`;
+        msg += `Regards,\n${bizName}`;
+        
         return msg;
     };
 
@@ -545,6 +526,33 @@ export default function BusinessExpensesPage() {
             } catch(e) {}
             const shareUrl = `${window.location.origin}/h/${shareId}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
+
+            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
+                try {
+                    let Filesystem; let Share;
+                    if ((window as any).Capacitor.Plugins) {
+                        Filesystem = (window as any).Capacitor.Plugins.Filesystem;
+                        Share = (window as any).Capacitor.Plugins.Share;
+                    }
+                    if (!Filesystem) { const mod = await import('@capacitor/filesystem'); Filesystem = mod.Filesystem; }
+                    if (!Share) { const mod = await import('@capacitor/share'); Share = mod.Share; }
+
+                    let c = 0, d = 0;
+                    (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
+                    const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
+                    
+                    const doc = await generateHisaabPDF(cust, { name: businessProfile?.business_name || 'Business', phone: businessProfile?.business_phone || '', email: businessProfile?.business_email || '', logo: businessProfile?.logo || '' }, stats, false);
+                    if (doc) {
+                        const base64Data = doc.output('datauristring').split(',')[1];
+                        const fileName = `Hisaab_${cust.name}.pdf`;
+                        const res = await Filesystem.writeFile({ path: fileName, data: base64Data, directory: 'DOCUMENTS' });
+                        await Share.share({ title: 'Share Hisaab', text: textMsg, url: res.uri, dialogTitle: 'Share Hisaab' });
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Native share failed', e);
+                }
+            }
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
@@ -629,6 +637,7 @@ export default function BusinessExpensesPage() {
             return;
         }
         
+        showToast('⏳ Generating Link...');
         try {
             if (session?.user?.id) {
                 try {
@@ -646,6 +655,33 @@ export default function BusinessExpensesPage() {
             } catch(e) {}
             const shareUrl = `${window.location.origin}/h/${shareId}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
+
+            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
+                try {
+                    let Filesystem; let Share;
+                    if ((window as any).Capacitor.Plugins) {
+                        Filesystem = (window as any).Capacitor.Plugins.Filesystem;
+                        Share = (window as any).Capacitor.Plugins.Share;
+                    }
+                    if (!Filesystem) { const mod = await import('@capacitor/filesystem'); Filesystem = mod.Filesystem; }
+                    if (!Share) { const mod = await import('@capacitor/share'); Share = mod.Share; }
+
+                    let c = 0, d = 0;
+                    (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
+                    const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
+                    
+                    const doc = await generateHisaabPDF(cust, { name: businessProfile?.business_name || 'Business', phone: businessProfile?.business_phone || '', email: businessProfile?.business_email || '', logo: businessProfile?.logo || '' }, stats, false);
+                    if (doc) {
+                        const base64Data = doc.output('datauristring').split(',')[1];
+                        const fileName = `Hisaab_${cust.name}.pdf`;
+                        const res = await Filesystem.writeFile({ path: fileName, data: base64Data, directory: 'DOCUMENTS' });
+                        await Share.share({ title: 'Share Hisaab', text: textMsg, url: res.uri, dialogTitle: 'Share Hisaab' });
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Native share failed', e);
+                }
+            }
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
