@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock, FaPenNib, FaSync, FaWhatsapp } from 'react-icons/fa';
+import { FaSave, FaStore, FaImage, FaLanguage, FaFileInvoiceDollar, FaUserLock, FaSignInAlt, FaUserPlus, FaUniversity, FaBolt, FaClock, FaPenNib, FaSync, FaWhatsapp, FaRobot, FaVolumeUp } from 'react-icons/fa';
 import SignatureModal from '@/app/components/SignatureModal';
 import { QRCodeCanvas } from 'qrcode.react';
 

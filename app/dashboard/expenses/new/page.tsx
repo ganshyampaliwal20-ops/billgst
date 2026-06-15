@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSave, FaArrowLeft } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,7 @@ import { useStore } from '@/lib/store';
 
 export default function NewExpensePage() {
     const router = useRouter();
-    const { addExpense } = useStore();
+    const { addExpense, aiDraftData, setAiDraftData } = useStore();
     const [formData, setFormData] = useState({
         category: 'Office Supplies',
         description: '',
@@ -21,6 +21,20 @@ export default function NewExpensePage() {
     const paymentMethods = ['Cash', 'Card', 'UPI', 'Bank Transfer', 'Cheque'];
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (aiDraftData && aiDraftData.type === 'EXPENSE') {
+            setFormData(prev => ({
+                ...prev,
+                description: aiDraftData.description || prev.description,
+                amount: aiDraftData.amount ? String(aiDraftData.amount) : prev.amount
+            }));
+            setAiDraftData(null);
+            import('react-hot-toast').then(({ toast }) => {
+                toast.success('✅ AI ne expense fill kar diya hai!');
+            });
+        }
+    }, [aiDraftData, setAiDraftData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

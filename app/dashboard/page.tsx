@@ -1,6 +1,6 @@
 "use client";
 
-import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaShareAlt, FaGlobe, FaBrain, FaBolt, FaWhatsapp, FaSearch } from 'react-icons/fa';
+import { FaFileInvoice, FaRupeeSign, FaUsers, FaBox, FaChartLine, FaClock, FaReceipt, FaUserPlus, FaBoxOpen, FaTimes, FaStore, FaCog, FaShareAlt, FaGlobe, FaBrain, FaBolt, FaWhatsapp, FaSearch, FaRobot, FaVolumeUp } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useStore } from '@/lib/store';
 import Link from 'next/link';
@@ -31,6 +31,9 @@ export default function DashboardPage() {
     const [isRefreshingReminders, setIsRefreshingReminders] = useState(false);
     const [collectionSearch, setCollectionSearch] = useState('');
     const [showAllTopProducts, setShowAllTopProducts] = useState(false);
+    const [invVideoIndex, setInvVideoIndex] = useState(0);
+
+    const inventoryVideos = ['DZPJ6mvofNg', 'DYMIQH5Ipjf'];
 
     const router = useRouter();
     const miniChartRef = useRef<HTMLCanvasElement>(null);
@@ -266,8 +269,8 @@ export default function DashboardPage() {
   .greeting-right { margin-left: auto; }
 }
 
-.qa-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px; }
-.qa-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: none; text-decoration: none; animation: fadeUp .4s ease both; }
+.qa-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 24px; }
+.qa-card { flex: 1 1 100px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: none; text-decoration: none; animation: fadeUp .4s ease both; }
 .qa-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .qa-card .qa-icon { font-size: 26px; }
 .qa-card .qa-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #fff; text-align: center; line-height: 1.3; }
@@ -399,7 +402,7 @@ export default function DashboardPage() {
 .fc-arrow svg { width: 8px; height: 8px; stroke: #fff; }
 
 @media(max-width:1024px) { 
-  .qa-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; } 
+  .qa-grid { gap: 8px; } 
   .kpi-strip { grid-template-columns: repeat(2, 1fr); gap: 10px; } 
   .main-grid { grid-template-columns: 1fr; gap: 16px; } 
   .bottom-grid { grid-template-columns: 1fr; } 
@@ -409,7 +412,7 @@ export default function DashboardPage() {
   .content { padding: 12px 14px 40px; } 
   .prod-grid { grid-template-columns: 1fr 1fr; } 
   .coll-grid { grid-template-columns: 1fr; } 
-  .qa-card { padding: 12px 6px; }
+  .qa-card { padding: 12px 4px; flex: 1 1 calc(33.333% - 12px); max-width: 100%; }
   .qa-card .qa-icon { font-size: 20px; }
   .qa-card .qa-label { font-size: 10px; }
   .kpi-card { padding: 14px 12px; }
@@ -419,7 +422,6 @@ export default function DashboardPage() {
   .inv-amt { font-size: 12px; }
 }
 @media(max-width:480px) {
-  .qa-grid { grid-template-columns: repeat(3, 1fr); }
   .kpi-strip { grid-template-columns: repeat(2, 1fr); }
   .kpi-ico { width: 32px; height: 32px; font-size: 15px; }
 }
@@ -430,15 +432,6 @@ export default function DashboardPage() {
                     <h1 className="greeting-h1">
                         {getGreeting()}, <span>{businessProfile.name || 'Business'}</span>! 👋
                     </h1>
-                    <div className="greeting-right">
-                        <div className="time-badge">
-                            <span className="dot"></span>
-                            <span suppressHydrationWarning>
-                                {currentTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} · {' '}
-                                {currentTime.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 <div className="qa-grid">
@@ -461,6 +454,103 @@ export default function DashboardPage() {
                         <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
                     )}
                 </div>
+
+                {/* Tutorial Videos Section (Scrollable if multiple) */}
+                {(businessProfile?.modules?.inventory !== false || businessProfile?.modules?.invoicing !== false || businessProfile?.modules?.accounting !== false || businessProfile?.modules?.staff !== false) && (
+                    <div className="w-full mt-4 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+                        <div className="flex gap-4 md:gap-8 px-4 w-max md:w-full justify-start xl:justify-center mx-auto snap-x snap-mandatory">
+                            
+                            {/* Invoicing / Inventory Video */}
+                            {(businessProfile?.modules?.inventory !== false || businessProfile?.modules?.invoicing !== false) && (
+                                <div className="shrink-0 snap-center flex flex-col items-center group" style={{ width: '85vw', maxWidth: '360px' }}>
+                                    <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full transition-opacity duration-500" style={{ aspectRatio: '16/9' }}>
+                                        <iframe 
+                                            key={invVideoIndex}
+                                            src={`https://www.instagram.com/reel/${inventoryVideos[invVideoIndex]}/embed`} 
+                                            width="100%" 
+                                            height="600" 
+                                            frameBorder="0" 
+                                            scrolling="no" 
+                                            allowTransparency 
+                                            className="absolute top-0 left-0 w-full animate-in fade-in duration-500"
+                                            style={{ marginTop: '-55px' }}
+                                        ></iframe>
+
+                                        {/* Prev Button */}
+                                        {inventoryVideos.length > 1 && (
+                                            <button 
+                                                onClick={() => setInvVideoIndex(prev => prev === 0 ? inventoryVideos.length - 1 : prev - 1)}
+                                                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                                            >
+                                                &#10094;
+                                            </button>
+                                        )}
+                                        {/* Next Button */}
+                                        {inventoryVideos.length > 1 && (
+                                            <button 
+                                                onClick={() => setInvVideoIndex(prev => (prev + 1) % inventoryVideos.length)}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                                            >
+                                                &#10095;
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2">
+                                        <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">📦 Inventory & Billing</span>
+                                        <div className="flex gap-1 ml-1">
+                                            {inventoryVideos.map((_, i) => (
+                                                <div key={i} className={`h-1.5 w-1.5 rounded-full ${i === invVideoIndex ? 'bg-blue-500' : 'bg-gray-200'}`}></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Expenses / Accounting Video */}
+                            {(businessProfile?.modules?.accounting !== false) && (
+                                <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '85vw', maxWidth: '360px' }}>
+                                    <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
+                                        <iframe 
+                                            src="https://www.instagram.com/reel/DZHTY54IR_l/embed" 
+                                            width="100%" 
+                                            height="600" 
+                                            frameBorder="0" 
+                                            scrolling="no" 
+                                            allowTransparency 
+                                            className="absolute top-0 left-0 w-full"
+                                            style={{ marginTop: '-300px', transform: 'scale(1.5)', transformOrigin: 'top center' }}
+                                        ></iframe>
+                                    </div>
+                                    <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
+                                        <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">💸 Expense Tracking</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Attendance / Staff Video */}
+                            {(businessProfile?.modules?.staff !== false) && (
+                                <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '85vw', maxWidth: '360px' }}>
+                                    <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
+                                        <iframe 
+                                            src="https://www.instagram.com/reel/DZARRuCI0rT/embed" 
+                                            width="100%" 
+                                            height="600" 
+                                            frameBorder="0" 
+                                            scrolling="no" 
+                                            allowTransparency 
+                                            className="absolute top-0 left-0 w-full"
+                                            style={{ marginTop: '-55px' }}
+                                        ></iframe>
+                                    </div>
+                                    <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
+                                        <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">👥 Staff Attendance</span>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
+                )}
 
                 {businessProfile?.modules?.invoicing !== false && (
                 <div className="period-row">
@@ -661,6 +751,7 @@ export default function DashboardPage() {
                         <span className="see-all" style={{ color: "#fff", background: "rgba(0,0,0,0.15)", padding: "8px 14px", borderRadius: "8px", textDecoration: "none" }}>{t.referNow}</span>
                     </Link>
                 </div>
+
 
                 <div className="follow-grid">
                     <a className="f-card fc-ig" href="https://www.instagram.com/billgst_app?utm_source=qr&igsh=bzJrMGphemNpa2dm" target="_blank" rel="noopener">

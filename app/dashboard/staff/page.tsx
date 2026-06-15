@@ -17,7 +17,7 @@ export default function SmartAttendance() {
     const { data: session } = useSession();
     const userRole = (session?.user as any)?.role || 'USER';
     const isOwnerOrAccountant = userRole === 'USER' || userRole === 'OWNER' || userRole === 'ADMIN' || userRole === 'ACCOUNTANT';
-    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff } = useStore();
+    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff, aiDraftData, setAiDraftData } = useStore();
     const [isClient, setIsClient] = useState(false);
 
     const getLocalISODate = (d: Date = new Date()) => {
@@ -73,7 +73,6 @@ export default function SmartAttendance() {
             }, 100);
         }
 
-        // Android Hardware Back Button Handler
         window.history.pushState(null, '', window.location.href);
         const handlePopState = () => {
             router.push('/dashboard');
@@ -81,6 +80,33 @@ export default function SmartAttendance() {
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, [fetchStaff, fetchAttendance, router]);
+
+    // --- AI Draft Data Processing ---
+    useEffect(() => {
+        if (aiDraftData && aiDraftData.type === 'ATTENDANCE') {
+            const { staffName, status } = aiDraftData;
+            
+            if (staffName && staff && staff.length > 0) {
+                const foundStaff = staff.find((s: any) => s.name.toLowerCase().includes(staffName.toLowerCase()));
+                if (foundStaff) {
+                    const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : 'PRESENT';
+                    // Fast action without waiting
+                    markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
+                        toast.success(`✅ AI ne ${foundStaff.name} ki attendance laga di hai!`);
+                    }).catch(console.error);
+                } else {
+                    setFormData(prev => ({ ...prev, name: staffName }));
+                    setSheet('add');
+                    toast.success(`⚠️ AI ko ${staffName} nahi mila. Naya staff add karein.`);
+                }
+            } else if (staffName && staff && staff.length === 0) {
+                setFormData(prev => ({ ...prev, name: staffName }));
+                setSheet('add');
+                toast.success(`⚠️ AI ko ${staffName} nahi mila. Naya staff add karein.`);
+            }
+            setAiDraftData(null);
+        }
+    }, [aiDraftData, setAiDraftData, staff, selectedDate, markAttendance]);
 
     if (!isClient) return null;
 

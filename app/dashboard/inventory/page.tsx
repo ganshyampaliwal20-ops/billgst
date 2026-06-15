@@ -13,7 +13,7 @@ import { optimizeImage } from "@/lib/utils";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile, settings } = useStore() as any;
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile, settings, aiDraftData, setAiDraftData } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
     const [showProfit, setShowProfit] = useState(true);
@@ -61,6 +61,21 @@ export default function InventoryPage() {
         setIsClient(true);
         if (fetchProducts) fetchProducts(false, 1);
     }, []);
+
+    // AI Draft Data handling
+    useEffect(() => {
+        if (aiDraftData && aiDraftData.type === 'INVENTORY') {
+            setFormData(prev => ({
+                ...prev,
+                name: aiDraftData.itemName || prev.name,
+                stock_quantity: aiDraftData.qty ? String(aiDraftData.qty) : prev.stock_quantity,
+                unit: aiDraftData.unit ? aiDraftData.unit.toUpperCase() : prev.unit,
+            }));
+            setShowAddModal(true);
+            setAiDraftData(null);
+            toast.success('✅ AI ne item details fill kar di hain!', { icon: '🤖' });
+        }
+    }, [aiDraftData, setAiDraftData]);
 
     // ── HELPER FUNCTIONS ──
     const getStatusInfo = (stock: number) => {
