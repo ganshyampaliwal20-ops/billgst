@@ -11,7 +11,7 @@ function fmt(n: number) {
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {
-    const id = params.id;
+    const id = (await params).id;
     let title = 'Hisaab Statement';
     let description = 'View your account statement and hisaab details securely on BillGST.in';
     
