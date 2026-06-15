@@ -120,6 +120,8 @@ Return ONLY the JSON. No markdown backticks.`;
         let errorMessage = "Maaf kijiye, abhi system busy hai. Kripya thodi der baad koshish karein.";
         if (error?.message?.includes("429 Too Many Requests") || error?.message?.includes("quota")) {
             errorMessage = "Aapki Gemini AI API Key ki limit (quota) khatam ho gayi hai. Kripya .env.local file mein nayi API key dalein (aistudio.google.com se).";
+        } else if (error?.message?.includes("400") || error?.message?.includes("API_KEY_INVALID")) {
+            errorMessage = "Aapki Gemini AI API Key galat ya invalid hai. Kripya .env.local check karein aur sahi key dalein.";
         }
         
         return NextResponse.json({ reply: errorMessage }, { status: 500 });
