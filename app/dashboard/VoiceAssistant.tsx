@@ -509,7 +509,13 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     <div className="rx-dot" style={{ background: isProcessing ? '#818cf8' : isListening ? '#e879f9' : '#4ade80' }}></div>
                     <span className="rx-brand">RXADY</span>
                     <button 
-                        onClick={() => { window.speechSynthesis.cancel(); onClose(); }} 
+                        onClick={(e) => { 
+                            e.stopPropagation();
+                            if ('speechSynthesis' in window) {
+                                window.speechSynthesis.cancel(); 
+                            }
+                            onClose(); 
+                        }} 
                         style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
                         title="Close"
                     >
