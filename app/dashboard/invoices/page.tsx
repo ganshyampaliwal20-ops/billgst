@@ -207,13 +207,13 @@ export default function InvoicesPage() {
             let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *${formatCurrency(invoice.total_amount)}* is ready.\n\n📄 *View Invoice & Pay Online*:\n${invoiceLink}\n\nRegards,\n${businessProfile.name}`;
             text += getVisitingCardText(businessProfile);
             
-            if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
                 try {
                     let Filesystem;
                     let Share;
-                    if (window.Capacitor.Plugins) {
-                        Filesystem = window.Capacitor.Plugins.Filesystem;
-                        Share = window.Capacitor.Plugins.Share;
+                    if ((window as any).Capacitor.Plugins) {
+                        Filesystem = (window as any).Capacitor.Plugins.Filesystem;
+                        Share = (window as any).Capacitor.Plugins.Share;
                     }
                     if (!Filesystem) { const mod = await import('@capacitor/filesystem'); Filesystem = mod.Filesystem; }
                     if (!Share) { const mod = await import('@capacitor/share'); Share = mod.Share; }
