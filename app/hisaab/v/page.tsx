@@ -121,7 +121,7 @@ function HisaabViewer() {
         if (!rawData) return;
         showToast('⏳ PDF Download ho raha hai...');
         try {
-            const businessDetails = b ? { name: b.business_name, phone: b.business_phone, email: b.business_email } : { name: 'Business Statement' };
+            const businessDetails = b ? { name: b.business_name, phone: b.business_phone, email: b.business_email, logo: b.logo } : { name: 'Business Statement' };
             const custStats = { credit: s.r, debit: s.g, net: s.net, isNeg: s.neg };
             await generateHisaabPDF(rawData, businessDetails, custStats, true);
         } catch (e) {
@@ -145,218 +145,710 @@ function HisaabViewer() {
     };
 
     const bizName = b?.business_name || 'Business Hisaab';
-    const initials = (c.n || 'U').charAt(0).toUpperCase();
+    const initials = (bizName || 'B').charAt(0).toUpperCase();
+    
+    // Aggregating last 6 months data for chart
+    const monthlyData: Record<string, { given: number, received: number }> = {};
+    const months: string[] = [];
+    for(let i=5; i>=0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const m = d.toLocaleString('en-US', { month: 'short' });
+        const y = d.getFullYear();
+        const key = `${m} ${y}`;
+        months.push(key);
+        monthlyData[key] = { given: 0, received: 0 };
+    }
+    
+    t.forEach((txn: any) => {
+        const d = new Date(txn.d);
+        const m = d.toLocaleString('en-US', { month: 'short' });
+        const y = d.getFullYear();
+        const key = `${m} ${y}`;
+        if(monthlyData[key]) {
+            if(txn.y === 'c') monthlyData[key].received += txn.a;
+            else monthlyData[key].given += txn.a;
+        }
+    });
+
+    let maxAmount = 0;
+    months.forEach(m => {
+        if(monthlyData[m].given > maxAmount) maxAmount = monthlyData[m].given;
+        if(monthlyData[m].received > maxAmount) maxAmount = monthlyData[m].received;
+    });
+    if(maxAmount === 0) maxAmount = 1;
 
     return (
-        <div style={{ fontFamily: "'Nunito', sans-serif", background: '#eef2fb', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '24px 16px 48px' }}>
-            <style dangerouslySetInnerHTML={{__html:`
-                @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
-                * { box-sizing: border-box; margin: 0; padding: 0; }
-                .wa-wrap { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 0; }
-                .wa-header { background: #1f2937; border-radius: 18px 18px 0 0; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
-                .wa-back { color: #60a5fa; font-size: 20px; cursor: pointer; }
-                .wa-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #10b981); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: #fff; flex-shrink: 0; }
-                .wa-name { font-size: 14px; font-weight: 700; color: #fff; flex: 1; }
-                .wa-icons { display: flex; gap: 14px; }
-                .wa-icons svg { width: 18px; height: 18px; color: #9ca3af; }
-                .wa-chat { background: #0b141a; padding: 12px 10px; min-height: 200px; position: relative; overflow: hidden; }
-                .wa-chat::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
-                .msg-bubble { background: linear-gradient(145deg, #1a2e1e, #1e3d25); border-radius: 4px 14px 14px 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4); position: relative; animation: bubbleIn .4s cubic-bezier(.22,1,.36,1) both; }
-                @keyframes bubbleIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-                .msg-banner { background: linear-gradient(135deg, #1a1f6e, #4f46e5, #7c3aed); padding: 16px 16px 14px; position: relative; overflow: hidden; }
-                .msg-banner::before { content: ''; position: absolute; top: -30px; right: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.06); }
-                .msg-banner::after { content: ''; position: absolute; bottom: -20px; left: -10px; width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.04); }
-                .banner-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; position: relative; z-index: 1; }
-                .billgst-logo { display: flex; align-items: center; gap: 7px; }
-                .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
-                .logo-icon svg { width: 16px; height: 16px; color: #fff; }
-                .logo-name { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: -.2px; }
-                .logo-tag { font-size: 9px; color: rgba(255,255,255,.5); font-weight: 600; }
-                .verified-badge { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 99px; padding: 3px 9px; font-size: 9px; font-weight: 700; color: rgba(255,255,255,.8); letter-spacing: .3px; text-transform: uppercase; }
-                .verified-badge svg { width: 9px; height: 9px; color: #4ade80; }
-                .banner-title { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: -.2px; margin-bottom: 3px; position: relative; z-index: 1; }
-                .banner-sub { font-size: 11px; color: rgba(255,255,255,.55); position: relative; z-index: 1; font-weight: 600; }
-                .msg-body { padding: 14px 16px; }
-                .greeting { font-size: 14px; font-weight: 800; color: #e2f5e8; margin-bottom: 10px; }
-                .greeting span { color: #4ade80; }
-                .msg-text { font-size: 12.5px; color: rgba(255,255,255,.65); line-height: 1.7; margin-bottom: 14px; font-weight: 600; }
-                .balance-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
-                .bal-row { display: flex; justify-content: space-between; align-items: center; }
-                .bal-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .7px; }
-                .bal-amount { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 600; letter-spacing: -.5px; }
-                .bal-amount.due { color: #f87171; }
-                .bal-amount.paid { color: #4ade80; }
-                .bal-status { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 99px; text-transform: uppercase; letter-spacing: .3px; margin-top: 6px; display: inline-block; }
-                .bs-due { background: rgba(244,63,94,.2); color: #f87171; border: 1px solid rgba(244,63,94,.3); }
-                .bs-paid { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.25); }
-                .bal-divider { height: 1px; background: rgba(255,255,255,.06); margin: 10px 0; }
-                .bal-mini-row { display: flex; justify-content: space-between; }
-                .bm-item { text-align: center; }
-                .bm-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .4px; }
-                .bm-val { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; margin-top: 2px; color: #fff; }
-                .bm-val.g { color: #4ade80; }
-                .bm-val.r { color: #f87171; }
-                .cta-btn { display: block; width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 10px; padding: 13px 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(34,197,94,.3); transition: all .15s; cursor: pointer; border: none; }
-                .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(34,197,94,.4); }
-                .cta-text { font-size: 13px; font-weight: 800; color: #fff; letter-spacing: -.1px; }
-                .cta-icon { width: 16px; height: 16px; color: #fff; }
-                .small-link { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; cursor: pointer; transition: all .12s; }
-                .small-link:hover { background: rgba(255,255,255,.08); }
-                .small-link svg { width: 12px; height: 12px; color: rgba(255,255,255,.4); flex-shrink: 0; }
-                .small-link-text { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                .biz-info { background: rgba(255,255,255,.04); border-radius: 10px; padding: 11px 13px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,.07); }
-                .biz-name { font-size: 13px; font-weight: 800; color: #e2f5e8; margin-bottom: 6px; }
-                .biz-row { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
-                .biz-row:last-child { margin-bottom: 0; }
-                .biz-row svg { width: 12px; height: 12px; color: rgba(255,255,255,.3); flex-shrink: 0; }
-                .biz-row span { font-size: 11px; color: rgba(255,255,255,.5); font-weight: 600; }
-                .biz-row a { color: #60a5fa; text-decoration: none; }
-                .upi-section { background: rgba(79,70,229,.15); border: 1px solid rgba(79,70,229,.3); border-radius: 10px; padding: 11px 13px; margin-bottom: 12px; }
-                .upi-title { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 800; color: rgba(167,139,250,.9); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-                .upi-title svg { width: 12px; height: 12px; }
-                .upi-id { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 8px; }
-                .tap-pay-btn { display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 8px; padding: 9px 14px; font-size: 12px; font-weight: 800; color: #fff; cursor: pointer; border: none; width: 100%; box-shadow: 0 3px 12px rgba(79,70,229,.35); transition: all .15s; }
-                .tap-pay-btn:hover { transform: translateY(-1px); }
-                .tap-pay-btn svg { width: 14px; height: 14px; }
-                .thankyou { text-align: center; padding: 8px 0 4px; font-size: 13px; color: rgba(255,255,255,.4); font-weight: 600; }
-                .thankyou span { font-size: 16px; margin-right: 4px; }
-                .msg-time { text-align: right; padding: 4px 14px 10px; font-size: 10px; color: rgba(255,255,255,.25); font-family: 'DM Mono', monospace; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
-                .msg-time svg { width: 14px; height: 14px; color: #53bdeb; }
-                .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(10px); background: #0d0f1c; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 12px; font-weight: 700; opacity: 0; pointer-events: none; transition: all .22s; z-index: 999; white-space: nowrap; }
-                .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-                .section-label { width: 100%; max-width: 400px; text-align: center; font-size: 11px; font-weight: 700; color: #b0b4cc; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; margin-bottom: 8px; }
+        <div style={{ background: '#070b12', minHeight: '100vh', fontFamily: "'Outfit', sans-serif" }}>
+            <style dangerouslySetInnerHTML={{__html: `
+                @import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+                :root{
+                  --bg:#070b12;
+                  --s1:#0c1220;
+                  --s2:#111b2e;
+                  --s3:#172035;
+                  --border:rgba(255,255,255,0.07);
+                  --border2:rgba(255,255,255,0.13);
+                  --text:#e8edf8;
+                  --text2:#7a88a8;
+                  --text3:#3d4d68;
+                  --green:#00d48b;
+                  --green-glow:rgba(0,212,139,0.12);
+                  --green-dk:#00a36c;
+                  --red:#ff5370;
+                  --red-glow:rgba(255,83,112,0.1);
+                  --blue:#4d9fff;
+                  --blue-glow:rgba(77,159,255,0.1);
+                  --purple:#9d7cff;
+                  --purple-glow:rgba(157,124,255,0.1);
+                  --gold:#ffc947;
+                  --gold-glow:rgba(255,201,71,0.08);
+                }
+                *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+                .hisaab-page {
+                  font-family:'Outfit',sans-serif;
+                  background:var(--bg);
+                  min-height:100vh;
+                  max-width:420px;
+                  margin:0 auto;
+                  color:var(--text);
+                  -webkit-font-smoothing:antialiased;
+                  position:relative;
+                  overflow-x:hidden;
+                }
+                .hisaab-page *{scrollbar-width:none;}
+                .hisaab-page *::-webkit-scrollbar{display:none;}
+
+                /* ── AMBIENT BACKGROUND ── */
+                .ambient{
+                  position:fixed;inset:0;z-index:0;pointer-events:none;
+                  overflow:hidden;
+                  max-width:420px;
+                  margin:0 auto;
+                }
+                .amb-circle{
+                  position:absolute;border-radius:50%;filter:blur(80px);
+                  animation:ambFloat 8s ease-in-out infinite;
+                }
+                .amb1{
+                  width:300px;height:300px;
+                  background:radial-gradient(circle,rgba(0,212,139,0.08),transparent);
+                  top:-100px;right:-80px;
+                  animation-delay:0s;
+                }
+                .amb2{
+                  width:250px;height:250px;
+                  background:radial-gradient(circle,rgba(77,159,255,0.06),transparent);
+                  bottom:100px;left:-80px;
+                  animation-delay:-4s;
+                }
+                .amb3{
+                  width:200px;height:200px;
+                  background:radial-gradient(circle,rgba(157,124,255,0.05),transparent);
+                  top:40%;right:-60px;
+                  animation-delay:-7s;
+                }
+                @keyframes ambFloat{
+                  0%,100%{transform:translate(0,0);}
+                  33%{transform:translate(15px,-20px);}
+                  66%{transform:translate(-10px,15px);}
+                }
+
+                /* ── PAGE ── */
+                .page{position:relative;z-index:1;padding:0 0 40px;}
+
+                /* ── HERO HEADER ── */
+                .hero{
+                  padding:28px 20px 0;
+                  background:linear-gradient(180deg,rgba(13,20,40,0) 0%,transparent 100%);
+                }
+
+                /* Brand row */
+                .brand-row{
+                  display:flex;align-items:center;justify-content:space-between;
+                  margin-bottom:28px;
+                }
+                .brand-left{display:flex;align-items:center;gap:10px;}
+                .brand-logo{
+                  width:38px;height:38px;border-radius:11px;
+                  background:linear-gradient(135deg,#1a2a4a,#243560);
+                  border:1px solid var(--border2);
+                  display:flex;align-items:center;justify-content:center;
+                  box-shadow:0 4px 16px rgba(0,0,0,.4);
+                  overflow:hidden;
+                }
+                .brand-logo img{width:100%;height:100%;object-fit:cover;}
+                .brand-logo svg{width:20px;height:20px;}
+                .brand-name{
+                  font-family:'Clash Display',sans-serif;
+                  font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.2px;
+                }
+                .brand-sub{font-size:10px;color:var(--text3);margin-top:1px;font-weight:400;}
+                .verified-pill{
+                  display:flex;align-items:center;gap:5px;
+                  background:rgba(0,212,139,0.08);
+                  border:1px solid rgba(0,212,139,0.2);
+                  border-radius:99px;padding:5px 12px;
+                  font-size:10px;font-weight:700;color:var(--green);
+                  letter-spacing:.3px;
+                }
+                .verified-pill svg{width:10px;height:10px;}
+
+                /* Statement type badge */
+                .stmt-badge{
+                  display:inline-flex;align-items:center;gap:6px;
+                  background:var(--s2);border:1px solid var(--border2);
+                  border-radius:10px;padding:8px 14px;
+                  margin-bottom:20px;
+                }
+                .stmt-badge-icon{font-size:16px;}
+                .stmt-badge-text{
+                  font-family:'Clash Display',sans-serif;
+                  font-size:15px;font-weight:600;color:var(--text);
+                }
+
+                /* Greeting */
+                .greeting{
+                  margin-bottom:24px;
+                }
+                .greeting-hi{
+                  font-size:28px;font-weight:700;color:var(--text);
+                  letter-spacing:-.5px;line-height:1.1;margin-bottom:8px;
+                  font-family:'Clash Display',sans-serif;
+                }
+                .greeting-hi .name{
+                  color:var(--green);
+                  position:relative;display:inline-block;
+                }
+                .greeting-hi .name::after{
+                  content:'';position:absolute;
+                  bottom:-2px;left:0;right:0;height:2px;
+                  background:linear-gradient(90deg,var(--green),rgba(0,212,139,0));
+                  border-radius:2px;
+                }
+                .greeting-sub{font-size:13px;color:var(--text2);line-height:1.7;font-weight:400;}
+
+                /* ── BALANCE CARD ── */
+                .balance-card{
+                  margin:0 20px 16px;
+                  background:var(--s1);
+                  border:1px solid var(--border);
+                  border-radius:22px;
+                  overflow:hidden;
+                  position:relative;
+                }
+                .balance-card::before{
+                  content:'';position:absolute;
+                  top:0;left:0;right:0;height:1px;
+                  background:linear-gradient(90deg,transparent,rgba(0,212,139,0.4),transparent);
+                }
+
+                .balance-top{padding:22px 20px 18px;}
+                .bal-eyebrow{
+                  font-size:9px;font-weight:700;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;
+                }
+                .bal-amount-row{display:flex;align-items:flex-end;gap:6px;margin-bottom:10px;}
+                .bal-curr{
+                  font-family:'Clash Display',sans-serif;
+                  font-size:22px;font-weight:500;color:var(--text2);
+                  padding-bottom:6px;
+                }
+                .bal-amount{
+                  font-family:'Clash Display',sans-serif;
+                  font-size:48px;font-weight:700;line-height:1;letter-spacing:-2px;
+                }
+                .bal-amount.get{color:var(--green);}
+                .bal-amount.give{color:var(--red);}
+
+                .bal-status-chip{
+                  display:inline-flex;align-items:center;gap:6px;
+                  border-radius:99px;padding:6px 14px;
+                  font-size:11px;font-weight:700;
+                  margin-bottom:4px;
+                }
+                .bsc-get{
+                  background:var(--green-glow);
+                  border:1px solid rgba(0,212,139,0.25);
+                  color:var(--green);
+                }
+                .bsc-give{
+                  background:var(--red-glow);
+                  border:1px solid rgba(255,83,112,0.25);
+                  color:var(--red);
+                }
+                .bsc-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;}
+                @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+
+                /* Stats row */
+                .bal-stats{
+                  background:rgba(0,0,0,0.25);
+                  border-top:1px solid var(--border);
+                  display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;
+                  padding:14px 0;
+                }
+                .bstat-div{background:var(--border);}
+                .bstat{text-align:center;padding:0 8px;}
+                .bstat-lbl{
+                  font-size:9px;font-weight:700;color:var(--text3);
+                  text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;
+                }
+                .bstat-val{
+                  font-family:'DM Mono',monospace;
+                  font-size:14px;font-weight:500;
+                }
+                .sv-r{color:var(--red);}
+                .sv-g{color:var(--green);}
+                .sv-w{color:var(--text);}
+
+                /* ── MINI CHART ── */
+                .mini-chart-card{
+                  margin:0 20px 16px;
+                  background:var(--s1);border:1px solid var(--border);
+                  border-radius:18px;padding:16px 18px;
+                }
+                .mc-header{
+                  display:flex;align-items:center;justify-content:space-between;
+                  margin-bottom:14px;
+                }
+                .mc-title{font-size:12px;font-weight:700;color:var(--text2);}
+                .mc-legend{display:flex;gap:12px;}
+                .mc-leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);}
+                .mc-leg-dot{width:6px;height:6px;border-radius:50%;}
+
+                .chart-bars{
+                  display:flex;align-items:flex-end;gap:4px;height:60px;
+                }
+                .chart-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+                .chart-bar-wrap{display:flex;gap:2px;align-items:flex-end;flex:1;width:100%;}
+                .cbar{
+                  flex:1;border-radius:3px 3px 0 0;min-height:3px;
+                  transition:height .5s ease;
+                }
+                .cb-give{background:rgba(255,83,112,0.6);}
+                .cb-get{background:rgba(0,212,139,0.6);}
+                .chart-lbl{font-size:8px;color:var(--text3);text-align:center;font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
+
+                /* ── ACTION BUTTONS ── */
+                .actions{margin:0 20px 14px;display:flex;flex-direction:column;gap:10px;}
+
+                .btn-primary{
+                  display:flex;align-items:center;justify-content:center;gap:10px;
+                  padding:16px 20px;border-radius:14px;border:none;cursor:pointer;
+                  background:linear-gradient(135deg,var(--green-dk),var(--green));
+                  color:#fff;font-family:'Outfit',sans-serif;
+                  font-size:15px;font-weight:800;letter-spacing:-.2px;
+                  box-shadow:0 6px 28px rgba(0,212,139,0.3),inset 0 1px 0 rgba(255,255,255,0.15);
+                  transition:all .18s;position:relative;overflow:hidden;
+                }
+                .btn-primary::before{
+                  content:'';position:absolute;inset:0;
+                  background:linear-gradient(135deg,rgba(255,255,255,0.08),transparent);
+                  border-radius:14px;
+                }
+                .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,139,0.4);}
+                .btn-primary:active{transform:scale(.98);}
+                .btn-primary svg{width:17px;height:17px;flex-shrink:0;}
+                .btn-primary-sub{font-size:11px;opacity:.7;font-weight:500;}
+
+                .btn-copy{
+                  display:flex;align-items:center;justify-content:center;gap:8px;
+                  padding:13px 20px;border-radius:14px;
+                  background:var(--s2);border:1px solid var(--border2);
+                  font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;
+                  color:var(--text2);cursor:pointer;transition:all .15s;
+                }
+                .btn-copy:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-glow);}
+                .btn-copy svg{width:15px;height:15px;}
+
+                /* ── TRANSACTIONS ── */
+                .txn-section{margin:0 20px 14px;}
+                .sec-header{
+                  display:flex;align-items:center;justify-content:space-between;
+                  margin-bottom:12px;
+                }
+                .sec-title{
+                  font-size:13px;font-weight:700;color:var(--text2);
+                  display:flex;align-items:center;gap:7px;
+                }
+                .sec-title-dot{width:6px;height:6px;border-radius:50%;background:var(--purple);}
+                .txn-count{
+                  font-size:11px;color:var(--text3);
+                  background:var(--s2);border:1px solid var(--border);
+                  padding:3px 9px;border-radius:99px;font-weight:600;
+                }
+
+                .txn-list{display:flex;flex-direction:column;gap:8px;}
+                .txn-item{
+                  display:flex;align-items:center;gap:12px;
+                  background:var(--s1);border:1px solid var(--border);
+                  border-radius:14px;padding:12px 14px;
+                  transition:border-color .12s;
+                }
+                .txn-item:hover{border-color:var(--border2);}
+
+                .txn-icon{
+                  width:38px;height:38px;border-radius:11px;
+                  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                }
+                .ti-give{background:var(--red-glow);border:1px solid rgba(255,83,112,0.15);}
+                .ti-give svg{color:var(--red);}
+                .ti-get{background:var(--green-glow);border:1px solid rgba(0,212,139,0.15);}
+                .ti-get svg{color:var(--green);}
+                .txn-icon svg{width:16px;height:16px;}
+
+                .txn-info{flex:1;min-width:0;}
+                .txn-note{
+                  font-size:13px;font-weight:600;color:var(--text);
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;
+                }
+                .txn-date{font-size:10px;color:var(--text3);font-weight:500;}
+
+                .txn-right{text-align:right;flex-shrink:0;}
+                .txn-amt{
+                  font-family:'DM Mono',monospace;
+                  font-size:14px;font-weight:500;
+                }
+                .ta-give{color:var(--red);}
+                .ta-get{color:var(--green);}
+                .txn-bal{font-size:10px;color:var(--text3);margin-top:2px;}
+
+                /* ── BUSINESS CARD ── */
+                .biz-section{
+                  margin:0 20px 14px;
+                  background:var(--s1);border:1px solid var(--border);
+                  border-radius:18px;overflow:hidden;
+                }
+                .biz-top{
+                  padding:16px 18px 14px;
+                  background:linear-gradient(135deg,rgba(157,124,255,0.06),rgba(77,159,255,0.04));
+                  border-bottom:1px solid var(--border);
+                  display:flex;align-items:center;gap:11px;
+                }
+                .biz-avatar{
+                  width:42px;height:42px;border-radius:12px;
+                  background:linear-gradient(135deg,#1e3a5f,#243870);
+                  border:1px solid var(--border2);
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:18px;font-weight:900;color:var(--green);flex-shrink:0;
+                  font-family:'Clash Display',sans-serif;
+                  overflow:hidden;
+                }
+                .biz-avatar img{width:100%;height:100%;object-fit:cover;}
+                .biz-name-big{
+                  font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px;
+                }
+                .biz-handle{font-size:11px;color:var(--text3);margin-top:2px;}
+
+                .biz-contacts{padding:12px 18px;display:flex;flex-direction:column;gap:10px;}
+                .biz-contact-row{display:flex;align-items:center;gap:10px;}
+                .bc-icon{
+                  width:28px;height:28px;border-radius:8px;
+                  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                }
+                .bc-phone{background:rgba(0,212,139,0.1);}
+                .bc-phone svg{color:var(--green);}
+                .bc-email{background:rgba(77,159,255,0.1);}
+                .bc-email svg{color:var(--blue);}
+                .bc-icon svg{width:13px;height:13px;}
+                .bc-val{font-size:13px;color:var(--blue);font-weight:500;text-decoration:none;}
+                .bc-val:hover{text-decoration:underline;}
+
+                /* ── UPI CARD ── */
+                .upi-card{
+                  margin:0 20px 14px;
+                  background:linear-gradient(135deg,rgba(157,124,255,0.08),rgba(77,159,255,0.05));
+                  border:1px solid rgba(157,124,255,0.2);
+                  border-radius:18px;padding:18px;
+                }
+                .upi-top{
+                  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+                }
+                .upi-badge{
+                  display:flex;align-items:center;gap:5px;
+                  background:rgba(157,124,255,0.12);border:1px solid rgba(157,124,255,0.25);
+                  border-radius:6px;padding:4px 9px;
+                  font-size:10px;font-weight:800;color:var(--purple);letter-spacing:.4px;text-transform:uppercase;
+                }
+                .upi-badge svg{width:11px;height:11px;}
+                .upi-id-row{
+                  background:rgba(0,0,0,0.25);border-radius:10px;
+                  padding:10px 14px;margin-bottom:12px;
+                  display:flex;align-items:center;justify-content:space-between;
+                }
+                .upi-id{
+                  font-family:'DM Mono',monospace;
+                  font-size:13px;font-weight:500;color:var(--text);
+                }
+                .upi-copy-mini{
+                  font-size:10px;color:var(--purple);font-weight:700;cursor:pointer;
+                }
+
+                .upi-pay-btn{
+                  display:flex;align-items:center;justify-content:center;gap:8px;
+                  width:100%;padding:14px;border-radius:12px;
+                  background:linear-gradient(135deg,#7c3aed,#9d7cff);
+                  border:none;cursor:pointer;
+                  font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;
+                  color:#fff;letter-spacing:-.1px;
+                  box-shadow:0 6px 24px rgba(157,124,255,0.35),inset 0 1px 0 rgba(255,255,255,0.15);
+                  transition:all .18s;
+                }
+                .upi-pay-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(157,124,255,0.45);}
+                .upi-pay-btn:active{transform:scale(.98);}
+                .upi-pay-btn svg{width:16px;height:16px;}
+
+                /* ── FOOTER ── */
+                .footer{
+                  text-align:center;padding:20px 20px 10px;
+                }
+                .footer-thanks{
+                  font-size:22px;margin-bottom:6px;
+                }
+                .footer-text{font-size:12px;color:var(--text3);font-style:italic;}
+                .footer-brand{
+                  margin-top:10px;
+                  font-size:11px;color:var(--text3);
+                }
+                .footer-brand a{color:var(--blue);text-decoration:none;font-weight:600;}
+
+                /* ── TOAST ── */
+                .toast{
+                  position:fixed;top:20px;left:50%;
+                  transform:translateX(-50%) translateY(-14px);
+                  background:var(--s3);color:var(--text);
+                  padding:10px 18px;border-radius:99px;
+                  font-size:12px;font-weight:700;
+                  border:1px solid var(--border2);
+                  opacity:0;pointer-events:none;
+                  transition:all .22s;z-index:999;white-space:nowrap;
+                  box-shadow:0 8px 32px rgba(0,0,0,.5);
+                }
+                .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
             `}} />
 
-            <div className="section-label">Hisaab Statement Web View</div>
-
-            <div className="wa-wrap">
-                <div className="wa-header">
-                    <span className="wa-back" onClick={() => window.history.back()}>←</span>
-                    <div className="wa-avatar">{initials}</div>
-                    <span className="wa-name">{bizName}</span>
-                    <div className="wa-icons">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M8 10l4 4 4-4"/></svg>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z"/></svg>
-                    </div>
+            <div className="hisaab-page">
+                <div className="ambient">
+                  <div className="amb-circle amb1"></div>
+                  <div className="amb-circle amb2"></div>
+                  <div className="amb-circle amb3"></div>
                 </div>
 
-                <div className="wa-chat">
-                    <div className="msg-bubble">
-                        <div className="msg-banner">
-                            <div className="banner-top">
-                                <div className="billgst-logo">
-                                    <div className="logo-icon">
-                                        <svg viewBox="0 0 24 24" fill="none">
-                                            <rect x="3" y="3" width="8" height="8" rx="2" fill="white"/>
-                                            <rect x="13" y="3" width="8" height="5" rx="2" fill="rgba(255,255,255,.6)"/>
-                                            <rect x="3" y="13" width="8" height="5" rx="2" fill="rgba(255,255,255,.6)"/>
-                                            <rect x="13" y="11" width="8" height="8" rx="2" fill="white"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <div className="logo-name">BillGST</div>
-                                        <div className="logo-tag">Business Hisaab</div>
-                                    </div>
-                                </div>
-                                <div className="verified-badge">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
-                                    Verified
-                                </div>
+                <div className="page">
+                    {/* HERO */}
+                    <div className="hero">
+                        <div className="brand-row">
+                          <div className="brand-left">
+                            <div className="brand-logo">
+                              {b?.logo ? (
+                                  <img src={b.logo} alt="Logo" />
+                              ) : (
+                                  <svg viewBox="0 0 28 28" fill="none">
+                                    <rect x="3" y="3" width="10" height="10" rx="2.5" fill="white"/>
+                                    <rect x="16" y="3" width="10" height="6.5" rx="2.5" fill="rgba(255,255,255,.55)"/>
+                                    <rect x="3" y="16" width="10" height="6.5" rx="2.5" fill="rgba(255,255,255,.55)"/>
+                                    <rect x="16" y="12" width="10" height="10" rx="2.5" fill="white"/>
+                                  </svg>
+                              )}
                             </div>
-                            <div className="banner-title">📊 Hisaab Pro Statement</div>
-                            <div className="banner-sub">Yahaan aapna poora hisaab dekhein</div>
+                            <div>
+                              <div className="brand-name">BillGST</div>
+                              <div className="brand-sub">Business Hisaab</div>
+                            </div>
+                          </div>
+                          <div className="verified-pill">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                            VERIFIED
+                          </div>
                         </div>
 
-                        <div className="msg-body">
-                            <div className="greeting">Namaste <span>{c.n}</span> 🙏</div>
-                            <div className="msg-text">Aapka Hisaab-Kitab niche uplabdh hai. Online PDF download karne ke liye neeche button dabayein:</div>
+                        <div className="stmt-badge">
+                          <span className="stmt-badge-icon">📊</span>
+                          <span className="stmt-badge-text">Hisaab Pro Statement</span>
+                        </div>
 
-                            <div className="balance-card">
-                                <div className="bal-row">
-                                    <div>
-                                        <div className="bal-label">Net Balance</div>
-                                        <div className={`bal-amount ${s.neg ? 'due' : 'paid'}`}>{fmt(s.net)}</div>
-                                        <span className={`bal-status ${s.neg ? 'bs-due' : 'bs-paid'}`}>
-                                            {s.neg ? '⚠ Aapko Dena Hai' : '✓ Aapko Lena Hai'}
-                                        </span>
+                        <div className="greeting">
+                          <div className="greeting-hi">
+                            Namaste <span className="name">{c.n}</span> 🙏
+                          </div>
+                          <div className="greeting-sub">
+                            Aapka Hisaab-Kitab taiyar hai. Neeche poori detail dekh sakte hain aur PDF bhi download kar sakte hain.
+                          </div>
+                        </div>
+                    </div>
+
+                    {/* BALANCE CARD */}
+                    <div className="balance-card">
+                        <div className="balance-top">
+                          <div className="bal-eyebrow">Net Balance · {new Date().toLocaleString('en-US', { month: 'short', year: 'numeric' })}</div>
+                          <div className="bal-amount-row">
+                            <span className="bal-amount-currency" style={{fontSize: '22px', fontWeight: 500, color: 'var(--text2)', paddingBottom: '6px', fontFamily: "'Clash Display', sans-serif"}}>₹</span>
+                            <span className={`bal-amount ${s.neg ? 'give' : 'get'}`}>{fmt(s.net).replace('₹','')}</span>
+                          </div>
+                          <div className={`bal-status-chip ${s.neg ? 'bsc-give' : 'bsc-get'}`}>
+                            <span className="bsc-dot"></span>
+                            {s.neg ? 'Aapko Dena Hai (You Have To Pay)' : 'Aapko Milna Hai (You Will Get)'}
+                          </div>
+                        </div>
+                        <div className="bal-stats">
+                          <div className="bstat">
+                            <div className="bstat-lbl">Total Diya</div>
+                            <div className="bstat-val sv-r">{fmt(s.g)}</div>
+                          </div>
+                          <div className="bstat-div"></div>
+                          <div className="bstat">
+                            <div className="bstat-lbl">Total Liya</div>
+                            <div className="bstat-val sv-g">{fmt(s.r)}</div>
+                          </div>
+                          <div className="bstat-div"></div>
+                          <div className="bstat">
+                            <div className="bstat-lbl">Entries</div>
+                            <div className="bstat-val sv-w">{(t || []).length}</div>
+                          </div>
+                        </div>
+                    </div>
+
+                    {/* MINI CHART */}
+                    <div className="mini-chart-card">
+                        <div className="mc-header">
+                          <span className="mc-title">Pichhle 6 Mahine ka Hisaab</span>
+                          <div className="mc-legend">
+                            <div className="mc-leg-item"><div className="mc-leg-dot" style={{background: 'rgba(255,83,112,.7)'}}></div>Diya</div>
+                            <div className="mc-leg-item"><div className="mc-leg-dot" style={{background: 'rgba(0,212,139,.7)'}}></div>Liya</div>
+                          </div>
+                        </div>
+                        <div className="chart-bars">
+                          {months.reverse().map((m, i) => {
+                              const data = monthlyData[m];
+                              const giveH = Math.max((data.given / maxAmount) * 60, 3);
+                              const getH = Math.max((data.received / maxAmount) * 60, 3);
+                              return (
+                                  <div className="chart-col" key={i}>
+                                    <div className="chart-bar-wrap">
+                                      <div className="cbar cb-give" style={{height: `${giveH}px`}}></div>
+                                      <div className="cbar cb-get" style={{height: `${getH}px`}}></div>
                                     </div>
+                                    <div className="chart-lbl">{m.split(' ')[0]}</div>
+                                  </div>
+                              );
+                          })}
+                        </div>
+                    </div>
+
+                    {/* ACTION BUTTONS */}
+                    <div className="actions">
+                        <button className="btn-primary" onClick={handleDownloadPDF}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+                          <div>
+                            <div>Poora Hisaab Dekho & PDF Utaro</div>
+                            <div className="btn-primary-sub">Online statement + PDF download</div>
+                          </div>
+                        </button>
+                        <button className="btn-copy" onClick={handleCopyLink}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                          Statement Link Copy Karo
+                        </button>
+                    </div>
+
+                    {/* RECENT TRANSACTIONS */}
+                    <div className="txn-section">
+                        <div className="sec-header">
+                          <div className="sec-title">
+                            <span className="sec-title-dot"></span>
+                            Recent Transactions
+                          </div>
+                          <div className="txn-count">{(t || []).length} entries</div>
+                        </div>
+                        <div className="txn-list">
+                          {(t || []).slice(0, 10).map((txn: any, i: number) => {
+                              const isCredit = txn.y === 'c';
+                              const dt = new Date(txn.d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                              return (
+                                  <div className="txn-item" key={i}>
+                                    <div className={`txn-icon ${isCredit ? 'ti-get' : 'ti-give'}`}>
+                                      {isCredit ? (
+                                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                                      ) : (
+                                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                                      )}
+                                    </div>
+                                    <div className="txn-info">
+                                      <div className="txn-note">{txn.n || (isCredit ? 'Payment mili' : 'Saman diya')}</div>
+                                      <div className="txn-date">{dt}</div>
+                                    </div>
+                                    <div className="txn-right">
+                                      <div className={`txn-amt ${isCredit ? 'ta-get' : 'ta-give'}`}>{fmt(txn.a)}</div>
+                                    </div>
+                                  </div>
+                              );
+                          })}
+                        </div>
+                    </div>
+
+                    {/* BUSINESS CARD */}
+                    <div className="biz-section">
+                        <div className="biz-top">
+                          <div className="biz-avatar">
+                             {b?.logo ? <img src={b.logo} alt="Logo" /> : initials}
+                          </div>
+                          <div>
+                            <div className="biz-name-big">💠 {bizName} 💠</div>
+                            <div className="biz-handle">Powered by BillGST.in</div>
+                          </div>
+                        </div>
+                        <div className="biz-contacts">
+                          {b?.business_phone && (
+                              <div className="biz-contact-row">
+                                <div className="bc-icon bc-phone">
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z"/></svg>
                                 </div>
-                                <div className="bal-divider"></div>
-                                <div className="bal-mini-row">
-                                    <div className="bm-item">
-                                        <div className="bm-label">Total Diya</div>
-                                        <div className="bm-val r">{fmt(s.g)}</div>
-                                    </div>
-                                    <div className="bm-item">
-                                        <div className="bm-label">Total Liya</div>
-                                        <div className="bm-val g">{fmt(s.r)}</div>
-                                    </div>
-                                    <div className="bm-item">
-                                        <div className="bm-label">Transactions</div>
-                                        <div className="bm-val" style={{ color: 'rgba(255,255,255,.6)' }}>{(t || []).length}</div>
-                                    </div>
+                                <a className="bc-val" href={`tel:${b.business_phone}`}>{b.business_phone}</a>
+                              </div>
+                          )}
+                          {b?.business_email && (
+                              <div className="biz-contact-row">
+                                <div className="bc-icon bc-email">
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                                 </div>
+                                <a className="bc-val" href={`mailto:${b.business_email}`}>{b.business_email}</a>
+                              </div>
+                          )}
+                        </div>
+                    </div>
+
+                    {/* UPI CARD */}
+                    {b?.business_upi_id && (
+                        <div className="upi-card">
+                            <div className="upi-top">
+                              <div className="upi-badge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                                UPI Payment
+                              </div>
                             </div>
-
-                            <button className="cta-btn" onClick={handleDownloadPDF}>
-                                <svg className="cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-                                <span className="cta-text">Poora Hisaab Dekho & PDF Utaro</span>
+                            <div className="upi-id-row">
+                              <div className="upi-id">{b.business_upi_id}</div>
+                              <div className="upi-copy-mini" onClick={() => {
+                                  navigator.clipboard.writeText(b.business_upi_id);
+                                  showToast('✓ UPI ID copy ho gayi!');
+                              }}>Copy</div>
+                            </div>
+                            <button className="upi-pay-btn" onClick={handleUPI}>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                              ⚡ Tap to Pay — UPI Se Abhi Do
                             </button>
-
-                            <div className="small-link" onClick={handleCopyLink}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                                <span className="small-link-text">Copy Statement Link</span>
-                            </div>
-
-                            <div className="biz-info">
-                                <div className="biz-name">💠 {bizName} 💠</div>
-                                {b?.business_phone && (
-                                    <div className="biz-row">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16z"/></svg>
-                                        <span><a href={`tel:${b.business_phone}`}>{b.business_phone}</a></span>
-                                    </div>
-                                )}
-                                {b?.business_email && (
-                                    <div className="biz-row">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                                        <span><a href={`mailto:${b.business_email}`}>{b.business_email}</a></span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {b?.business_upi_id && (
-                                <div className="upi-section">
-                                    <div className="upi-title">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
-                                        UPI Payment
-                                    </div>
-                                    <div className="upi-id">{b.business_upi_id}</div>
-                                    <button className="tap-pay-btn" onClick={handleUPI}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                                        ⚡ Tap to Pay — UPI Se Abhi Do
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="thankyou"><span>🙏</span> <em>Dhanyawad!</em></div>
                         </div>
+                    )}
 
-                        <div className="msg-time">
-                            {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 7l-1.41-1.41-6.34 6.34-2.83-2.83L6 10.5l4.24 4.24L18 7zm-1.41 5L13 16.59l-1.42-1.41 1.41-1.41L11.58 12l1.41-1.41L14.41 12 18 8.41 19.41 9.82 14.59 12z"/></svg>
-                        </div>
+                    {/* FOOTER */}
+                    <div className="footer">
+                        <div className="footer-thanks">🙏</div>
+                        <div className="footer-text">Dhanyawad! Aapka vishwas hamari shakti hai.</div>
+                        <div className="footer-brand">Powered by <a href="https://billgst.in">BillGST.in</a> · Business Hisaab App</div>
                     </div>
                 </div>
 
-                <div style={{ background: '#1f2937', borderRadius: '0 0 18px 18px', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ flex: 1, background: '#374151', borderRadius: '99px', padding: '8px 14px', fontSize: '12px', color: '#6b7280' }}>Message</div>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                    </div>
-                </div>
+                <div className={`toast ${toastMsg ? 'show' : ''}`} id="t">{toastMsg}</div>
             </div>
-
-            <div className={`toast ${toastMsg ? 'show' : ''}`}>{toastMsg}</div>
         </div>
     );
 }

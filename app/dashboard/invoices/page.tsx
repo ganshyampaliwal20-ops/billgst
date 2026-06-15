@@ -203,9 +203,43 @@ export default function InvoicesPage() {
             const fileName = `Invoice_${invoice.invoice_number || '001'}.pdf`;
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             
-            let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *${formatCurrency(invoice.total_amount)}* is ready.\n\nRegards,\n${businessProfile.name}`;
+            const invoiceLink = `${window.location.origin}/i/${invoice.id}`;
+            let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *${formatCurrency(invoice.total_amount)}* is ready.\n\n📄 *View Invoice & Pay Online*:\n${invoiceLink}\n\nRegards,\n${businessProfile.name}`;
             text += getVisitingCardText(businessProfile);
             
+            if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                try {
+                    let Filesystem;
+                    let Share;
+                    if (window.Capacitor.Plugins) {
+                        Filesystem = window.Capacitor.Plugins.Filesystem;
+                        Share = window.Capacitor.Plugins.Share;
+                    }
+                    if (!Filesystem) { const mod = await import('@capacitor/filesystem'); Filesystem = mod.Filesystem; }
+                    if (!Share) { const mod = await import('@capacitor/share'); Share = mod.Share; }
+
+                    if (Filesystem && Share) {
+                        const base64Data = doc.output('datauristring').split(',')[1];
+                        const savedFile = await Filesystem.writeFile({
+                            path: fileName,
+                            data: base64Data,
+                            directory: 'DOCUMENTS',
+                        });
+                        
+                        await Share.share({
+                            title: fileName,
+                            text: text,
+                            url: savedFile.uri,
+                            dialogTitle: 'Share on WhatsApp'
+                        });
+                        toast.success('WhatsApp par share open ho gaya!', { id: toastId });
+                        return;
+                    }
+                } catch(err) {
+                    console.error('Native share error', err);
+                }
+            }
+
             if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 try {
                     await navigator.share({
@@ -234,6 +268,7 @@ export default function InvoicesPage() {
                 toast.success('WhatsApp Bot ne PDF bhej diya! ✅', { id: toastId });
             } else {
                 toast.dismiss(toastId);
+                toast.success('Bot offline, sirf link share ho raha hai. PDF ke liye "Share PDF" button use karein.', { duration: 4000 });
                 window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(text)}`, '_blank');
             }
         } catch (error) {

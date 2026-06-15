@@ -440,7 +440,8 @@ export default function DashboardLayout({
             <SupportChatWidget />
             <UpgradeModal />
             
-            {/* AI Voice Assistant FAB */}
+            {/* AI Voice Assistant FAB - Hidden for now due to API cost */}
+            {/*
             <button
                 onClick={() => setIsVoiceAssistantOpen(true)}
                 className="fixed bottom-[80px] right-6 z-[90] w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.8)] transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
@@ -449,6 +450,7 @@ export default function DashboardLayout({
                 <FaRobot size={24} className="animate-pulse" />
             </button>
             <VoiceAssistant isOpen={isVoiceAssistantOpen} onClose={() => setIsVoiceAssistantOpen(false)} />
+            */}
         </div>
     );
 }
