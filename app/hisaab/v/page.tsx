@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { generateHisaabPDF } from '../../../lib/pdf-generator';
 
 function formatCurrency(amount: number) {
@@ -9,7 +9,7 @@ function formatCurrency(amount: number) {
     return '₹' + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(amount);
 }
 
-export default function HisaabViewer() {
+function HisaabViewerContent() {
     const searchParams = useSearchParams();
     const params = useParams();
     const [data, setData] = useState<any>(null);
@@ -341,5 +341,18 @@ export default function HisaabViewer() {
             </div>
 
         </div>
+    );
+}
+
+export default function HisaabViewer() {
+    return (
+        <Suspense fallback={
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5' }}>
+                <div style={{ width: '40px', height: '40px', border: '3px solid #1B5E3B', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+            </div>
+        }>
+            <HisaabViewerContent />
+        </Suspense>
     );
 }
