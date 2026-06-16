@@ -539,33 +539,6 @@ export default function BusinessExpensesPage() {
             const shareUrl = `${window.location.origin}/h/${shareId}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
-            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
-                try {
-                    let Filesystem; let Share;
-                    if ((window as any).Capacitor.Plugins) {
-                        Filesystem = (window as any).Capacitor.Plugins.Filesystem;
-                        Share = (window as any).Capacitor.Plugins.Share;
-                    }
-                    if (!Filesystem) { const mod = await import('@capacitor/filesystem'); Filesystem = mod.Filesystem; }
-                    if (!Share) { const mod = await import('@capacitor/share'); Share = mod.Share; }
-
-                    let c = 0, d = 0;
-                    (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
-                    const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
-                    
-                    const doc = await generateHisaabPDF(cust, { name: businessProfile?.business_name || 'Business', phone: businessProfile?.business_phone || '', email: businessProfile?.business_email || '', logo: businessProfile?.logo || '' }, stats, false);
-                    if (doc) {
-                        const base64Data = doc.output('datauristring').split(',')[1];
-                        const fileName = `Hisaab_${cust.name}.pdf`;
-                        const res = await Filesystem.writeFile({ path: fileName, data: base64Data, directory: 'DOCUMENTS' });
-                        await Share.share({ title: 'Share Hisaab', text: textMsg, url: res.uri, dialogTitle: 'Share Hisaab' });
-                        return;
-                    }
-                } catch (e) {
-                    console.error('Native share failed', e);
-                }
-            }
-
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
         } catch (err) {
@@ -667,32 +640,6 @@ export default function BusinessExpensesPage() {
             const shareUrl = `${window.location.origin}/h/${shareId}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
 
-            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
-                try {
-                    let Filesystem; let Share;
-                    if ((window as any).Capacitor.Plugins) {
-                        Filesystem = (window as any).Capacitor.Plugins.Filesystem;
-                        Share = (window as any).Capacitor.Plugins.Share;
-                    }
-                    if (!Filesystem) { const mod = await import('@capacitor/filesystem'); Filesystem = mod.Filesystem; }
-                    if (!Share) { const mod = await import('@capacitor/share'); Share = mod.Share; }
-
-                    let c = 0, d = 0;
-                    (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
-                    const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
-                    
-                    const doc = await generateHisaabPDF(cust, { name: businessProfile?.business_name || 'Business', phone: businessProfile?.business_phone || '', email: businessProfile?.business_email || '', logo: businessProfile?.logo || '' }, stats, false);
-                    if (doc) {
-                        const base64Data = doc.output('datauristring').split(',')[1];
-                        const fileName = `Hisaab_${cust.name}.pdf`;
-                        const res = await Filesystem.writeFile({ path: fileName, data: base64Data, directory: 'DOCUMENTS' });
-                        await Share.share({ title: 'Share Hisaab', text: textMsg, url: res.uri, dialogTitle: 'Share Hisaab' });
-                        return;
-                    }
-                } catch (e) {
-                    console.error('Native share failed', e);
-                }
-            }
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
             showToast('✅ Opening WhatsApp...');
