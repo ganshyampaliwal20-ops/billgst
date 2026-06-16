@@ -652,9 +652,8 @@ export default function BusinessExpensesPage() {
         showToast('⏳ Generating Link...');
         try {
             if (session?.user?.id) {
-                try {
-                    await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) });
-                } catch (e) {}
+                // Fire and forget sync to speed up
+                fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }).catch(e => {});
             }
 
             let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
@@ -714,7 +713,7 @@ export default function BusinessExpensesPage() {
             const fileName = `Ledger_${currentCust?.name}.pdf`;
             
             const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, fileName, 'application/pdf', 'save');
+            await downloadAndShareFile(base64Data, fileName, 'application/pdf');
             
             showToast('✅ PDF Downloaded/Saved!');
         } catch (err: any) {
