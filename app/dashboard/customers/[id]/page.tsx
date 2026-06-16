@@ -273,7 +273,7 @@ export default function CustomerDetailPage() {
                 net: totalDue,
                 isNeg: totalDue > 0
             };
-            await generateHisaabPDF(customer, businessProfile, custStats, true);
+            await generateHisaabPDF(customer, businessProfile, custStats, true, 'save');
             toast.success('Statement download ho gaya!', { id: toastId });
         } catch (error) {
             toast.error('Download fail ho gaya', { id: toastId });

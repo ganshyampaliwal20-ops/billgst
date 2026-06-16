@@ -502,13 +502,13 @@ export default function BusinessExpensesPage() {
         let c = 0, d = 0;
         (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
         const netAmt = Math.abs(amount);
-        const statusStr = amount < 0 ? (isHi ? 'Aapko Dena Hai' : 'You Will Give') : (isHi ? 'Aapko Lena Hai' : 'You Will Get');
-        const isDue = amount < 0;
+        const statusStr = amount < 0 ? (isHi ? 'Aapko Milna Hai' : 'You Will Get') : (isHi ? 'Humara Advance Jama Hai' : 'Advance Deposited');
+        const isWeHold = amount < 0;
         const bizName = businessProfile?.business_name || 'Business';
         
         let msg = `Hi ${cust.name || 'Customer'},\n\n`;
-        msg += `Aapka Hisaab Statement ready hai.\n`;
-        msg += `*Net Balance: ₹${netAmt}* ${isDue ? '(Aapko Dena Hai)' : '(Aapko Milna Hai)'}\n\n`;
+        msg += isHi ? `Aapka Hisaab Statement ready hai.\n` : `Your Ledger Statement is ready.\n`;
+        msg += `*Net Balance: ₹${netAmt}* ${isWeHold ? (isHi ? '(Aapko Milna Hai)' : '(You Will Receive)') : (isHi ? '(Humara Advance Jama Hai)' : '(Our Advance Deposited)')}\n\n`;
         msg += `📄 *Poora Hisaab Dekhein & Pay Karein*:\n${shareUrl}\n\n`;
         msg += `Regards,\n${bizName}`;
         
@@ -714,9 +714,9 @@ export default function BusinessExpensesPage() {
             const fileName = `Ledger_${currentCust?.name}.pdf`;
             
             const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, fileName, 'application/pdf');
+            await downloadAndShareFile(base64Data, fileName, 'application/pdf', 'save');
             
-            showToast('✅ PDF Downloaded/Shared!');
+            showToast('✅ PDF Downloaded/Saved!');
         } catch (err: any) {
             showToast('❌ PDF Error: ' + (err.message || 'Unknown'));
         }
@@ -939,8 +939,10 @@ export default function BusinessExpensesPage() {
                 let newBalance = currentCustomer.balance;
                 newBalance += (isDebit ? amt : -amt);
 
-                const action = isDebit ? 'Udhaar (Given)' : 'Jama (Received)';
-                let txt = `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} kiye gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nDhanyawad!`;
+                const action = isDebit ? (isHi ? 'Diye (Given)' : 'Given') : (isHi ? 'Liye (Received)' : 'Received');
+                let txt = isHi 
+                    ? `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance Jama)' : '(Due / Baki)'}\n\nDhanyawad!`
+                    : `*BillGST Hisaab Update*\n\nHello ${currentCustomer.name},\n\nYour account has been updated with ₹${amt} (${action}).\n\n*New Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nThank you!`;
                 txt += getVisitingCardText(businessProfile);
                 
                 // Automatic background WhatsApp message via our VPS Bot
@@ -1203,7 +1205,7 @@ export default function BusinessExpensesPage() {
                     </div>
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--amber)' }}>{fmt(Math.abs(totalStats.net))}</div>
-                        <div className="kpi-lbl">Net {totalStats.net >= 0 ? (isHi ? '(Lena Hai)' : '(To Receive)') : (isHi ? '(Dena Hai)' : '(To Pay)')}</div>
+                        <div className="kpi-lbl">Net {totalStats.net >= 0 ? (isHi ? 'Lena Hai' : 'To Receive') : (isHi ? 'Dena Hai' : 'To Pay')}</div>
                     </div>
                 </div>
 
@@ -1280,7 +1282,7 @@ export default function BusinessExpensesPage() {
                                         </div>
                                         <div className="cust-right">
                                             <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
-                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (isHi ? 'Dena Hai' : 'To Pay') : (isHi ? 'Baki Hai' : 'Pending')}</div>
+                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (isHi ? 'Advance (Dena Hai)' : 'Advance (To Pay)') : (isHi ? 'Due (Lena Hai)' : 'Due (To Receive)')}</div>
                                         </div>
                                     </div>
                                 );
@@ -1331,9 +1333,9 @@ export default function BusinessExpensesPage() {
                             <div className={`balance-amount ${custStats.isNeg ? '' : 'positive'}`}>
                                 ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))}
                             </div>
-                            <div className={`balance-status ${custStats.isNeg ? '' : 'positive'}`}>
+                            <div className={`balance-status ${custStats.isNeg ? 'positive' : ''}`}>
                                 <span className="balance-status-dot"></span>
-                                {custStats.isNeg ? 'You Will Give' : 'You Will Get'}
+                                {custStats.isNeg ? (isHi ? 'Advance (Aapko Dena Hai)' : 'Advance (You will pay)') : (isHi ? 'Due (Aapko Lena Hai)' : 'Due (You will get)')}
                             </div>
                             <div className="balance-stats">
                                 <div className="bal-stat">
@@ -1465,7 +1467,7 @@ export default function BusinessExpensesPage() {
                                                             </div>
                                                         </div>
                                                         <div className="chat-balance" style={{ alignSelf: isCr ? 'flex-start' : 'flex-end', marginLeft: isCr ? '4px' : '0', marginRight: isCr ? '0' : '4px' }}>
-                                                            ₹{fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? 'Due' : 'Advance'}
+                                                            ₹{fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? 'Advance' : 'Due'}
                                                         </div>
                                                     </div>
                                                 );
@@ -1481,8 +1483,8 @@ export default function BusinessExpensesPage() {
                             {/* Floating Balance Indicator above bottom bar */}
                             {isDetailScrolled && !isAddEntryOpen && (
                                 <div className="fixed left-0 w-full flex justify-center z-[110] animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none" style={{ bottom: 'calc(100px + env(safe-area-inset-bottom))' }}>
-                                    <div className={`px-8 py-3 rounded-full text-[14px] font-black shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-[2px] bg-white/95 backdrop-blur-md tracking-wide ${custStats.isNeg ? 'text-red-600 border-red-200 shadow-red-500/20' : 'text-emerald-600 border-emerald-200 shadow-emerald-500/20'}`}>
-                                        Total {custStats.isNeg ? 'Due' : 'Advance'}: {fmt(Math.abs(custStats.net))}
+                                    <div className={`px-8 py-3 rounded-full text-[14px] font-black shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-[2px] bg-white/95 backdrop-blur-md tracking-wide ${custStats.isNeg ? 'text-emerald-600 border-emerald-200 shadow-emerald-500/20' : 'text-red-600 border-red-200 shadow-red-500/20'}`}>
+                                        Total {custStats.isNeg ? 'Advance' : 'Due'}: {fmt(Math.abs(custStats.net))}
                                     </div>
                                 </div>
                             )}
