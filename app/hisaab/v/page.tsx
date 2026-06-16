@@ -208,6 +208,17 @@ function HisaabViewerContent() {
                 .pdf-dl-btn { flex: 1; background: transparent; color: #1B5E3B; border: 1.5px solid #1B5E3B; border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; }
                 .pdf-dl-btn:hover { background: #EAF4EE; }
                 .pdf-dl-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+                
+                .txn-section { margin-top: 20px; text-align: left; }
+                .txn-section-title { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; border-bottom: 1px solid #eaeaea; padding-bottom: 6px; }
+                .txn-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f4f4f4; }
+                .txn-item:last-child { border-bottom: none; }
+                .txn-left { display: flex; flex-direction: column; }
+                .txn-date { font-size: 10px; color: #888; margin-bottom: 2px; }
+                .txn-name { font-size: 12px; color: #333; font-weight: 600; }
+                .txn-amt { font-size: 13px; font-weight: 700; }
+                .txn-amt.credit { color: #1B5E3B; }
+                .txn-amt.debit { color: #C0392B; }
             `}} />
 
             <div className="inv-wrap">
@@ -304,6 +315,23 @@ function HisaabViewerContent() {
                                 PDF Dekho
                             </button>
                         </div>
+
+                        {t && t.length > 0 && (
+                            <div className="txn-section">
+                                <div className="txn-section-title">Sabhi Entries ({t.length})</div>
+                                {t.map((txn: any, idx: number) => (
+                                    <div className="txn-item" key={idx}>
+                                        <div className="txn-left">
+                                            <div className="txn-date">{new Date(txn.d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                            <div className="txn-name">{txn.n || (txn.y === 'c' ? 'Payment Received' : 'Item/Service Given')}</div>
+                                        </div>
+                                        <div className={`txn-amt ${txn.y === 'c' ? 'credit' : 'debit'}`}>
+                                            {txn.y === 'c' ? '+' : '-'}{formatCurrency(txn.a)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="inv-footer">
