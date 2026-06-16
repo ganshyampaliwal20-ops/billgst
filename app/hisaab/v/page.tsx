@@ -255,17 +255,7 @@ function HisaabViewerContent() {
                             {s.neg ? ' Kripya neeche diye gaye UPI se payment karein.' : ' Neeche se PDF download karein.'}
                         </p>
 
-                        <hr className="inv-divider" />
 
-                        <div style={{ background: '#EAF4EE', border: '1px dashed #9DD4B4', borderRadius: '10px', padding: '12px', marginBottom: '14px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '11px', color: '#2E7D52', fontWeight: 600, marginBottom: '4px' }}>Aapka Permanent Live Hisaab Link</div>
-                            <div style={{ fontSize: '11px', wordBreak: 'break-all' }}>
-                                {typeof window !== 'undefined' ? (
-                                    <a href={window.location.href} style={{ color: '#1B5E3B', textDecoration: 'underline' }}>{window.location.href}</a>
-                                ) : 'Loading link...'}
-                            </div>
-                            <div style={{ fontSize: '10px', color: '#555', marginTop: '6px' }}>Nai entries dekhne ke liye hamesha isi link ka upyog karein.</div>
-                        </div>
 
                         {b?.business_phone && (
                             <div className="inv-contact-row">
