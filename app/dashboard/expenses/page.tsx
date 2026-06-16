@@ -647,8 +647,16 @@ export default function BusinessExpensesPage() {
     };
 
     const exportPDF = async () => {
-        if (currentCust?.id) {
-            window.location.href = '/hisaab/v?id=' + currentCust.id;
+        if (!currentCust?.id) return;
+        showToast('⏳ Opening Statement...');
+        try {
+            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentCust) }).catch(e => {});
+            const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: currentCust.id }) });
+            const json = await res.json();
+            const shareId = json.shortId || currentCust.id;
+            window.location.href = `/h/${shareId}`;
+        } catch (error) {
+            showToast('❌ Error opening statement');
         }
     };
 

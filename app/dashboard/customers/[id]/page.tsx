@@ -268,8 +268,18 @@ export default function CustomerDetailPage() {
         }
     };
 
-    const handleDownloadStatement = () => {
-        router.push(`/hisaab/v?id=${params.id}`);
+    const handleDownloadStatement = async () => {
+        const toastId = toast.loading('Statement open ho raha hai...');
+        try {
+            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customer) }).catch(e => {});
+            const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: customer.id }) });
+            const json = await res.json();
+            const shareId = json.shortId || customer.id;
+            toast.dismiss(toastId);
+            router.push(`/h/${shareId}`);
+        } catch (error) {
+            toast.error('Error opening statement', { id: toastId });
+        }
     };
 
     const setCommitment = async () => {
