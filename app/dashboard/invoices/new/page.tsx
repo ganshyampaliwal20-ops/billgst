@@ -367,7 +367,12 @@ function NewInvoiceContent() {
 
     const processBarcode = (code: string) => {
         if (!safeProducts) return;
-        const prod = safeProducts.find((p: any) => p.barcode === code || p.hsn_code === code || p.item_code === code);
+        const cleanCode = String(code).trim().toLowerCase();
+        const prod = safeProducts.find((p: any) => 
+            String(p.barcode || '').trim().toLowerCase() === cleanCode || 
+            String(p.hsn_code || '').trim().toLowerCase() === cleanCode || 
+            String(p.item_code || '').trim().toLowerCase() === cleanCode
+        );
         if (prod) {
             const price = parseFloat(prod.price) || parseFloat(prod.sale_price) || parseFloat(prod.unit_price) || 0;
             const gst = parseFloat(prod.gst_rate) || 18;
