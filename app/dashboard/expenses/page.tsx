@@ -1207,30 +1207,6 @@ export default function BusinessExpensesPage() {
                     </div>
                 </div>
 
-                {/* Instagram Tutorial Video for Expenses */}
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col items-center" style={{ maxWidth: '400px', margin: '16px auto 8px', padding: '0 16px' }}>
-                    <div className="relative w-full overflow-hidden rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-[4px] border-white bg-black pointer-events-auto" style={{ aspectRatio: '16/9' }}>
-                        <iframe 
-                            src="https://www.instagram.com/reel/DZHTY54IR_l/embed" 
-                            width="100%" 
-                            height="600" 
-                            frameBorder="0" 
-                            scrolling="no" 
-                            allowTransparency 
-                            className="absolute top-0 left-0 w-full"
-                            style={{ marginTop: '-300px', transform: 'scale(1.5)', transformOrigin: 'top center' }}
-                        ></iframe>
-                    </div>
-                    <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
-                        <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">💸 Expense Tracking</span>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', padding: '0 16px', marginTop: '16px', marginBottom: '8px' }}>
-                    <button onClick={() => { setIsBulkMode(!isBulkMode); setBulkSelected(new Set()); }} style={{ background: isBulkMode ? '#10b981' : 'var(--white)', color: isBulkMode ? '#fff' : 'var(--ink)', padding: '10px', borderRadius: '12px', border: '1px solid var(--border)', flex: 1, display: 'flex', justifyContent: 'center', fontWeight: 800, fontSize: '13px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                        {isBulkMode ? '✕ Cancel Bulk Mode' : '📦 Send Bulk Msg'}
-                    </button>
-                </div>
 
                 {!hideAlerts && criticalDues.length > 0 && (
                     <div className="alerts-container">
