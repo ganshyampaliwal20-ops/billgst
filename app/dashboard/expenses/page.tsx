@@ -465,11 +465,8 @@ export default function BusinessExpensesPage() {
         window.location.hash = 'detail';
         // Small timeout ensures the new screen is rendered before we scroll
         setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            const screenDetail = document.getElementById('screen-detail');
-            if (screenDetail) screenDetail.scrollTo({ top: 0, behavior: 'smooth' });
-            const txList = document.querySelector('.tx-list');
-            if (txList) txList.scrollTo({ top: 0, behavior: 'smooth' });
+            const mainScroll = document.querySelector('main');
+            if (mainScroll) mainScroll.scrollTo({ top: 0, behavior: 'smooth' });
         }, 50);
     };
 
@@ -1342,7 +1339,7 @@ export default function BusinessExpensesPage() {
                         <div className="topbar-center">
                             <div className="topbar-name">{currentCust.name}</div>
                             {isDetailScrolled && (
-                                <div className={`topbar-due ${custStats.isNeg ? '' : 'positive'}`}>
+                                <div className={`topbar-due ${custStats.isNeg ? '' : 'positive'} animate-in fade-in slide-in-from-top-2 duration-300`}>
                                     ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))} {custStats.isNeg ? 'Due' : 'Advance'}
                                 </div>
                             )}
