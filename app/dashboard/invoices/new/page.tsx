@@ -367,25 +367,38 @@ function NewInvoiceContent() {
 
     const processBarcode = (code: string) => {
         if (!safeProducts) return;
-        const prod = safeProducts.find((p: any) => p.barcode === code || p.hsn_code === code);
+        const prod = safeProducts.find((p: any) => p.barcode === code || p.hsn_code === code || p.item_code === code);
         if (prod) {
-            // Check if already in bill
-            const existingIdx = selectedItems.findIndex(it => it.product_id === prod.id);
-            if (existingIdx >= 0) {
-                const currentQty = Number(selectedItems[existingIdx].quantity) || 0;
-                updateItem(existingIdx, 'quantity', currentQty + 1);
-                toast.success(`Quantity updated: ${prod.name}`);
-            } else {
-                setSelectedItems([...selectedItems, {
-                    product_id: prod.id,
-                    product_name: prod.name,
-                    quantity: 1,
-                    unit_price: parseFloat(prod.price) || 0,
-                    gst_rate: parseFloat(prod.gst_rate) || 0,
-                    unit: prod.unit || 'PCS'
-                }]);
-                toast.success(`Added: ${prod.name}`);
-            }
+            const price = parseFloat(prod.price) || parseFloat(prod.sale_price) || parseFloat(prod.unit_price) || 0;
+            const gst = parseFloat(prod.gst_rate) || 18;
+            
+            setSelectedItems(prev => {
+                const existingIdx = prev.findIndex(it => it.product_id === prod.id);
+                if (existingIdx >= 0) {
+                    const next = [...prev];
+                    next[existingIdx].quantity = (Number(next[existingIdx].quantity) || 0) + 1;
+                    return next;
+                } else {
+                    const newItem = {
+                        product_id: prod.id,
+                        product_name: prod.name,
+                        quantity: 1,
+                        unit_price: price,
+                        gst_rate: gst,
+                        hsn_code: prod.hsn_code || '',
+                        unit: prod.unit || 'PCS'
+                    };
+                    const next = [...prev];
+                    const emptyIdx = next.findIndex(item => !item.product_id);
+                    if (emptyIdx > -1) {
+                        next[emptyIdx] = newItem;
+                    } else {
+                        next.push(newItem);
+                    }
+                    return next;
+                }
+            });
+            toast.success(`Scanned: ${prod.name}`);
         } else {
             toast.error(`No product found for barcode: ${code}`);
         }
