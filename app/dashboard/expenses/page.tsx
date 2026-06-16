@@ -627,14 +627,7 @@ export default function BusinessExpensesPage() {
                 fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }).catch(e => {});
             }
 
-            let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-            try {
-                if (session?.user?.id) {
-                    const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: cust.id }) });
-                    const json = await res.json();
-                    if (json.shortId) shareId = json.shortId;
-                }
-            } catch(e) {}
+            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/h/${shareId}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
 
@@ -651,9 +644,7 @@ export default function BusinessExpensesPage() {
         showToast('⏳ Opening Statement...');
         try {
             await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentCust) }).catch(e => {});
-            const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: currentCust.id }) });
-            const json = await res.json();
-            const shareId = json.shortId || currentCust.id;
+            const shareId = session?.user?.id ? `${session.user.id}_${currentCust.id}` : currentCust.id;
             window.location.href = `/h/${shareId}`;
         } catch (error) {
             showToast('❌ Error opening statement');
