@@ -166,6 +166,21 @@ export default function BusinessExpensesPage() {
     const [acType, setAcType] = useState('Service');
     const [acLimit, setAcLimit] = useState('');
     const [acOpening, setAcOpening] = useState('');
+    const [isDetailScrolled, setIsDetailScrolled] = useState(false);
+    const bannerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsDetailScrolled(false);
+        if (!bannerRef.current) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsDetailScrolled(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
+        observer.observe(bannerRef.current);
+        return () => observer.disconnect();
+    }, [curCid, activeScreen]);
 
     const toastTimeout = useRef<any>(null);
     // Track whether load has fully completed — prevent saving empty array during load
@@ -1326,9 +1341,11 @@ export default function BusinessExpensesPage() {
 
                         <div className="topbar-center">
                             <div className="topbar-name">{currentCust.name}</div>
-                            <div className={`topbar-due ${custStats.isNeg ? '' : 'positive'}`}>
-                                ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))} {custStats.isNeg ? 'Due' : 'Advance'}
-                            </div>
+                            {isDetailScrolled && (
+                                <div className={`topbar-due ${custStats.isNeg ? '' : 'positive'}`}>
+                                    ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))} {custStats.isNeg ? 'Due' : 'Advance'}
+                                </div>
+                            )}
                         </div>
                         <div className="topbar-actions">
                             <button className="icon-btn" onClick={() => openEditCust(currentCust)} title="Edit Customer">
@@ -1341,7 +1358,7 @@ export default function BusinessExpensesPage() {
                     </div>
 
                     <div className="detail-content-inner">
-                        <div className="balance-banner">
+                        <div className="balance-banner" ref={bannerRef}>
                             <div className="balance-label">Total Balance Due</div>
                             <div className={`balance-amount ${custStats.isNeg ? '' : 'positive'}`}>
                                 ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))}

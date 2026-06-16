@@ -155,12 +155,9 @@
 /* ── BALANCE BANNER ── */
 .balance-banner {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  padding: 16px 20px 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  padding: 20px 20px 24px;
+  position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .balance-banner::before {
