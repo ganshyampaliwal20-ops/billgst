@@ -268,20 +268,8 @@ export default function CustomerDetailPage() {
         }
     };
 
-    const handleDownloadStatement = async () => {
-        const toastId = toast.loading('Statement download ho raha hai...');
-        try {
-            const custStats = {
-                credit: totalPaid,
-                debit: totalSales,
-                net: totalDue,
-                isNeg: totalDue > 0
-            };
-            await generateHisaabPDF(customer, businessProfile, custStats, true);
-            toast.success('Statement download ho gaya!', { id: toastId });
-        } catch (error) {
-            toast.error('Download fail ho gaya', { id: toastId });
-        }
+    const handleDownloadStatement = () => {
+        router.push(`/hisaab/v?id=${params.id}`);
     };
 
     const setCommitment = async () => {

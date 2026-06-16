@@ -647,22 +647,8 @@ export default function BusinessExpensesPage() {
     };
 
     const exportPDF = async () => {
-        showToast('⏳ PDF ban raha hai...');
-        try {
-            const doc = await generateHisaabPDF(currentCust, { name: 'BillGST Pro - Ledger' }, custStats, false);
-            if (!doc) {
-                showToast('❌ PDF nahi ban paya!');
-                return;
-            }
-            const base64Data = doc.output('datauristring').split(',')[1];
-            const fileName = `Ledger_${currentCust?.name}.pdf`;
-            
-            const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, fileName, 'application/pdf');
-            
-            showToast('✅ PDF Downloaded/Saved!');
-        } catch (err: any) {
-            showToast('❌ PDF Error: ' + (err.message || 'Unknown'));
+        if (currentCust?.id) {
+            window.location.href = '/hisaab/v?id=' + currentCust.id;
         }
     };
 
