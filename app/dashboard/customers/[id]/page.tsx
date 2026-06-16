@@ -237,8 +237,12 @@ export default function CustomerDetailPage() {
             const fileName = `Ledger_${customer.name || 'Customer'}.pdf`;
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             
-            let text = `Hi ${customer.name || 'Customer'},\n\nAapka Ledger statement ready hai. Total outstanding amount: *₹${totalDue.toLocaleString('en-IN')}* hai.\n\nKripya isey jald se jald clear karein.\n\nRegards,\n${businessProfile?.name || 'BillGST Pro'}`;
-            text += getVisitingCardText(businessProfile || {});
+            let text = `Namaste ${customer.name || 'Customer'} 🙏\n\n`;
+            text += `Aapka *Ledger Statement* ready hai.\n\n`;
+            text += `💰 *Total Outstanding Amount:* ₹${totalDue.toLocaleString('en-IN')}\n`;
+            text += `👉 *Status:* Aapko Dena Hai\n\n`;
+            text += `Kripya isey jald se jald clear karein.\n\n`;
+            text += `Dhanyawad,\n*${businessProfile?.name || 'BillGST Pro'}*`;
             
             // Removed navigator.share because it opens share sheet instead of direct chat.
             // Will fallback to bot or direct wa.me link with text.

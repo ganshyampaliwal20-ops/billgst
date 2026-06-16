@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
             type: 'website',
             images: [
                 {
-                    url: '/apple-icon.png',
+                    url: '/logo.png',
                     width: 180,
                     height: 180,
                     alt: 'BillGST Pro',

@@ -499,18 +499,16 @@ export default function BusinessExpensesPage() {
     const [txnSortAsc, setTxnSortAsc] = useState(false);
 
     const generateHisaabWhatsAppText = (cust: any, amount: number, shareUrl: string, isReminder: boolean = false) => {
-        let c = 0, d = 0;
-        (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
         const netAmt = Math.abs(amount);
-        const statusStr = amount < 0 ? (isHi ? 'Aapko Milna Hai' : 'You Will Get') : (isHi ? 'Humara Advance Jama Hai' : 'Advance Deposited');
-        const isWeHold = amount < 0;
+        const isNeg = amount < 0; // Customer owes
         const bizName = businessProfile?.business_name || 'Business';
         
-        let msg = `Hi ${cust.name || 'Customer'},\n\n`;
-        msg += isHi ? `Aapka Hisaab Statement ready hai.\n` : `Your Ledger Statement is ready.\n`;
-        msg += `*Net Balance: ₹${netAmt}* ${isWeHold ? (isHi ? '(Aapko Milna Hai)' : '(You Will Receive)') : (isHi ? '(Humara Advance Jama Hai)' : '(Our Advance Deposited)')}\n\n`;
-        msg += `📄 *Poora Hisaab Dekhein & Pay Karein*:\n${shareUrl}\n\n`;
-        msg += `Regards,\n${bizName}`;
+        let msg = `Namaste ${cust.name || 'Customer'} 🙏\n\n`;
+        msg += isReminder ? `Aapka payment pending hai, kripya apna hisaab clear karein.\n\n` : `Aapka *Hisaab Statement* ready hai.\n\n`;
+        msg += `💰 *Total Amount:* ₹${new Intl.NumberFormat('en-IN').format(netAmt)}\n`;
+        msg += `👉 *Status:* ${isNeg ? 'Aapko Dena Hai (Outstanding)' : 'Aapka Advance Jama Hai'}\n\n`;
+        msg += `📊 *Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:*\n${shareUrl}\n\n`;
+        msg += `Dhanyawad,\n*${bizName}*`;
         
         return msg;
     };
