@@ -1505,7 +1505,7 @@ export default function BusinessExpensesPage() {
                             {/* Floating Balance Indicator above bottom bar */}
                             {isDetailScrolled && !isAddEntryOpen && (
                                 <div className="fixed left-0 w-full flex justify-center z-[110] animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none" style={{ bottom: 'calc(100px + env(safe-area-inset-bottom))' }}>
-                                    <div className={`px-4 py-1.5 rounded-full text-[13px] font-black shadow-lg border bg-white/95 backdrop-blur-md tracking-tight ${custStats.isNeg ? 'text-red-600 border-red-200 shadow-red-500/15' : 'text-emerald-600 border-emerald-200 shadow-emerald-500/15'}`}>
+                                    <div className={`px-6 py-2.5 rounded-[20px] text-[14px] font-black shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-[2px] bg-white/95 backdrop-blur-md tracking-wide ${custStats.isNeg ? 'text-red-600 border-red-200 shadow-red-500/20' : 'text-emerald-600 border-emerald-200 shadow-emerald-500/20'}`}>
                                         Total {custStats.isNeg ? 'Due' : 'Advance'}: ₹{fmt(Math.abs(custStats.net))}
                                     </div>
                                 </div>
