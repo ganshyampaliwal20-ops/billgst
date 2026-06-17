@@ -894,7 +894,24 @@ export default function BusinessExpensesPage() {
     // Customer Sheet Handlers
     const importContact = async () => {
         try {
-            if ('contacts' in navigator && 'ContactsManager' in window) {
+            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform) {
+                const { Contacts } = await import('@capacitor-community/contacts');
+                const perm = await Contacts.requestPermissions();
+                if (perm.contacts === 'granted') {
+                    const result = await Contacts.pickContact({ projection: { name: true, phones: true } });
+                    if (result && result.contact) {
+                        const c = result.contact;
+                        if (c.name?.display) setAcName(c.name.display);
+                        if (c.phones && c.phones.length > 0) {
+                            const num = c.phones[0].number?.replace(/[^\d+]/g, '') || '';
+                            setAcPhone(num);
+                        }
+                        showToast('✅ Contact imported successfully!');
+                    }
+                } else {
+                    showToast('❌ Permission denied to access contacts');
+                }
+            } else if ('contacts' in navigator && 'ContactsManager' in window) {
                 const props = ['name', 'tel'];
                 const opts = { multiple: false };
                 const contacts = await (navigator as any).contacts.select(props, opts);
@@ -906,14 +923,14 @@ export default function BusinessExpensesPage() {
                         const num = numStr.replace(/[^\d+]/g, '');
                         setAcPhone(num);
                     }
-                    showToast('✅ Contact select ho gaya!');
+                    showToast('✅ Contact imported successfully!');
                 }
             } else {
-                showToast('⚠️ Aapke browser me auto-contact ka option support nahi karta.');
+                showToast('⚠️ Auto-contact is not supported in your browser.');
             }
         } catch (e) {
             console.error(e);
-            showToast('❌ Contact open karne me error aaya.');
+            showToast('❌ Error importing contact.');
         }
     };
 
@@ -1614,7 +1631,7 @@ export default function BusinessExpensesPage() {
                     <div className="add-cust-body">
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                             <button onClick={importContact} style={{ background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, display: 'flex', gap: '6px', alignItems: 'center', cursor: 'pointer' }}>
-                                <span>📱</span> Phonebook se uthao
+                                <span>📱</span> Import from Contacts
                             </button>
                         </div>
                         <div className="fg"><label className="fl">👤 Customer Name *</label><input className="fi" placeholder="e.g. Rahul Sharma" value={acName} onChange={e => setAcName(e.target.value)} /></div>
