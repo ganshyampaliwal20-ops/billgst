@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
         // Security check - validate secret
         const cronSecret = process.env.WHATSAPP_CRON_SECRET || process.env.NEXTAUTH_SECRET;
-        if (!secret || (secret !== cronSecret && secret !== 'billgst_test_123')) {
+        if (!secret || secret !== cronSecret) {
             return NextResponse.json({ error: 'Unauthorized', debug: !cronSecret ? 'No secret env found' : 'Mismatch' }, { status: 401 });
         }
 

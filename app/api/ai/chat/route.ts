@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import https from 'https';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 function fetchGemini(apiKey: string, prompt: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -53,6 +55,11 @@ function fetchGemini(apiKey: string, prompt: string): Promise<string> {
 
 export async function POST(request: Request) {
     try {
+        const session: any = await getServerSession(authOptions as any);
+        if (!session?.user?.id) {
+            return NextResponse.json({ reply: "Aapko pehle login karna hoga." }, { status: 401 });
+        }
+
         const { message } = await request.json();
 
         const apiKey = process.env.GEMINI_API_KEY;
