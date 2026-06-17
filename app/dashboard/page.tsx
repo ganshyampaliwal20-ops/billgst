@@ -32,6 +32,7 @@ export default function DashboardPage() {
     const [collectionSearch, setCollectionSearch] = useState('');
     const [showAllTopProducts, setShowAllTopProducts] = useState(false);
     const [invVideoIndex, setInvVideoIndex] = useState(0);
+    const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
     const inventoryVideos = ['DZPJ6mvofNg', 'DYMIQH5Ipjf'];
 
@@ -464,6 +465,7 @@ export default function DashboardPage() {
                             {(businessProfile?.modules?.inventory !== false || businessProfile?.modules?.invoicing !== false) && (
                                 <div className="shrink-0 snap-center flex flex-col items-center group" style={{ width: '85vw', maxWidth: '360px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full transition-opacity duration-500" style={{ aspectRatio: '16/9' }}>
+                                        {playingVideo === inventoryVideos[invVideoIndex] ? (
                                         <iframe 
                                             key={invVideoIndex}
                                             src={`https://www.instagram.com/reel/${inventoryVideos[invVideoIndex]}/embed`} 
@@ -475,6 +477,27 @@ export default function DashboardPage() {
                                             className="absolute top-0 left-0 w-full animate-in fade-in duration-500"
                                             style={{ marginTop: '-55px' }}
                                         ></iframe>
+                                        ) : (
+                                            <div 
+                                                style={{ 
+                                                    width: '100%', height: '100%', 
+                                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', 
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
+                                                }}
+                                                onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
+                                            >
+                                                <div style={{ 
+                                                    width: '50px', height: '50px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                                }}>
+                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="24" height="24" style={{ marginLeft: '4px' }}>
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>Click to Play</div>
+                                            </div>
+                                        )}
 
                                         {/* Prev Button */}
                                         {inventoryVideos.length > 1 && (
@@ -510,6 +533,7 @@ export default function DashboardPage() {
                             {(businessProfile?.modules?.accounting !== false) && (
                                 <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '85vw', maxWidth: '360px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
+                                        {playingVideo === 'DZHTY54IR_l' ? (
                                         <iframe 
                                             src="https://www.instagram.com/reel/DZHTY54IR_l/embed" 
                                             width="100%" 
@@ -520,6 +544,27 @@ export default function DashboardPage() {
                                             className="absolute top-0 left-0 w-full"
                                             style={{ marginTop: '-300px', transform: 'scale(1.5)', transformOrigin: 'top center' }}
                                         ></iframe>
+                                        ) : (
+                                            <div 
+                                                style={{ 
+                                                    width: '100%', height: '100%', 
+                                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', 
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
+                                                }}
+                                                onClick={() => setPlayingVideo('DZHTY54IR_l')}
+                                            >
+                                                <div style={{ 
+                                                    width: '50px', height: '50px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                                }}>
+                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="24" height="24" style={{ marginLeft: '4px' }}>
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>Click to Play</div>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
                                         <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">💸 Expense Tracking</span>
@@ -531,6 +576,7 @@ export default function DashboardPage() {
                             {(businessProfile?.modules?.staff !== false) && (
                                 <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '85vw', maxWidth: '360px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
+                                        {playingVideo === 'DZARRuCI0rT' ? (
                                         <iframe 
                                             src="https://www.instagram.com/reel/DZARRuCI0rT/embed" 
                                             width="100%" 
@@ -541,6 +587,27 @@ export default function DashboardPage() {
                                             className="absolute top-0 left-0 w-full"
                                             style={{ marginTop: '-55px' }}
                                         ></iframe>
+                                        ) : (
+                                            <div 
+                                                style={{ 
+                                                    width: '100%', height: '100%', 
+                                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', 
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
+                                                }}
+                                                onClick={() => setPlayingVideo('DZARRuCI0rT')}
+                                            >
+                                                <div style={{ 
+                                                    width: '50px', height: '50px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                                }}>
+                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="24" height="24" style={{ marginLeft: '4px' }}>
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>Click to Play</div>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
                                         <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">👥 Staff Attendance</span>
