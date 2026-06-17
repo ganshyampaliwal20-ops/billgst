@@ -949,17 +949,17 @@ export default function InvoicesPage() {
                                 Share PDF
                             </button>
                             
-                            <button className="btn-action" onClick={() => handleDownload(selectedInvoice)}>
-                                <FaFilePdf size={20} color="#dc2626" />
+                            <button className="btn-action" onClick={() => setIsPreviewing(true)}>
+                                <FaEye size={20} color="#dc2626" />
                                 View PDF
                             </button>
                             <button className="btn-action" onClick={() => handlePrint(selectedInvoice)}>
                                 <FaPrint size={20} color="#000" />
                                 Print
                             </button>
-                            <button className="btn-action" onClick={() => setIsPreviewing(true)}>
-                                <FaEye size={20} color="#3b82f6" />
-                                Preview
+                            <button className="btn-action" onClick={() => handleDownload(selectedInvoice)}>
+                                <FaFilePdf size={20} color="#3b82f6" />
+                                Download PDF
                             </button>
                             <button className="btn-action" onClick={() => handleDownloadEwayJSON(selectedInvoice)}>
                                 <FaBox size={20} color="#eab308" />
@@ -1117,9 +1117,12 @@ export default function InvoicesPage() {
                                 </div>
                             )}
 
-                            <div style={{ marginTop: '30px', textAlign: 'center' }}>
+                            <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '12px' }}>
                                 <button onClick={() => setIsPreviewing(false)} style={{ background: '#0f172a', border: 'none', padding: '12px 24px', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                                    ✕ Close Preview
+                                    ❌ Close
+                                </button>
+                                <button onClick={() => { setIsPreviewing(false); handleDownload(selectedInvoice); }} style={{ background: '#10b981', border: 'none', padding: '12px 24px', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(16,185,129,0.3)' }}>
+                                    📥 Download PDF
                                 </button>
                             </div>
                         </div>
