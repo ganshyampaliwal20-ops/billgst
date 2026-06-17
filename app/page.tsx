@@ -152,14 +152,12 @@ export default function LandingPage() {
             {/* HEADER */}
             <header>
                 <a href="#" className="logo">
-                    <div className="logo-icon">
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h9M5 17h6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" /></svg>
-                    </div>
+                    <img src="/logo.png" alt="BillGST" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
                     <span className="logo-name">Bill<em>GST</em></span>
                 </a>
                 <div className="hdr-right">
-                    <button className="btn-ghost" onClick={() => setIsEnglish(!isEnglish)} style={{ marginRight: '4px' }}>
-                        {isEnglish ? '🌐 English' : '🌐 Hindi'}
+                    <button className="btn-ghost lang-btn" onClick={() => setIsEnglish(!isEnglish)}>
+                        🌐 {isEnglish ? 'EN' : 'HI'}
                     </button>
                     <button className="btn-ghost" onClick={() => { setActiveTab('login'); document.getElementById('authCard')?.scrollIntoView({behavior:'smooth'}); }}>
                         {isEnglish ? 'Log In' : 'लॉगिन'}
@@ -546,7 +544,7 @@ export default function LandingPage() {
             {/* ══ FOOTER ══ */}
             <footer>
                 <div className="fbrand">
-                    <div className="logo-icon" style={{ width: '29px', height: '29px' }}><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M5 7h14M5 12h9M5 17h6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" /></svg></div>
+                    <img src="/logo.png" alt="BillGST" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
                     <span className="logo-name" style={{ fontSize: '16px' }}>Bill<em>GST</em></span>
                 </div>
                 <p className="fdesc">{isEnglish ? 'Smart billing and inventory software built for Indian shopkeepers. Hindi and English both supported.' : 'भारत के दुकानदारों के लिए बना स्मार्ट बिलिंग और इन्वेंट्री सॉफ्टवेयर। हिंदी और अंग्रेज़ी दोनों उपलब्ध।'}</p>
