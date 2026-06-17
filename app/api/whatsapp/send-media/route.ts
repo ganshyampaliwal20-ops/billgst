@@ -57,6 +57,17 @@ export async function POST(req: Request) {
             JSON.stringify(requestData)
         );
 
+        // Insert into database queue for the bot to pick up
+        try {
+            const pool = require('@/lib/db').default;
+            await pool.query(
+                `INSERT INTO whatsapp_bot_queue (user_id, phone, message) VALUES ($1, $2, $3)`,
+                [session.user.id, phone, message || '']
+            );
+        } catch (dbErr) {
+            console.error('Failed to insert into whatsapp_bot_queue:', dbErr);
+        }
+
         return NextResponse.json({ success: true, message: 'Media request queued' });
     } catch (error) {
         console.error('Send Media Error:', error);

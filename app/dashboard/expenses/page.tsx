@@ -152,6 +152,7 @@ export default function BusinessExpensesPage() {
     const expenseFileInputGalleryRef = useRef<HTMLInputElement>(null);
     const [isExpenseScanning, setIsExpenseScanning] = useState(false);
     const [isAiScanMenuOpen, setIsAiScanMenuOpen] = useState(false);
+    const [attachMenuType, setAttachMenuType] = useState<'normal'|'ai'|null>(null);
 
     // Expand toggle state per transaction ID
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
@@ -495,6 +496,7 @@ export default function BusinessExpensesPage() {
     };
     const closeNumpad = () => {
         setIsAddEntryOpen(false);
+        setAttachMenuType(null);
     };
 
     const [txnSortAsc, setTxnSortAsc] = useState(false);
@@ -1484,17 +1486,27 @@ export default function BusinessExpensesPage() {
                     <input type="file" accept="image/*" capture="environment" className="hidden" ref={expenseFileInputCameraRef} onChange={handleExpenseAiScan} />
                     <input type="file" accept="image/*" className="hidden" ref={expenseFileInputGalleryRef} onChange={handleExpenseAiScan} />
 
-                    {isAiScanMenuOpen && (
-                        <div className="kb-entry-overlay" style={{ zIndex: 9998, background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' }} onClick={() => setIsAiScanMenuOpen(false)}>
+                    {attachMenuType && (
+                        <div className="kb-entry-overlay" style={{ zIndex: 10000, background: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' }} onClick={() => setAttachMenuType(null)}>
                             <div className="action-sheet" style={{ width: '100%', maxWidth: '400px', background: 'white', borderTopLeftRadius: '16px', borderTopRightRadius: '16px', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }} onClick={e => e.stopPropagation()}>
-                                <div style={{ fontSize: '18px', fontWeight: 600, color: '#1e293b', marginBottom: '8px', textAlign: 'center' }}>Choose Bill Photo</div>
-                                <button onClick={() => expenseFileInputCameraRef.current?.click()} style={{ width: '100%', padding: '16px', background: '#f1f5f9', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 500, color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <div style={{ fontSize: '18px', fontWeight: 600, color: '#1e293b', marginBottom: '8px', textAlign: 'center' }}>
+                                    {attachMenuType === 'ai' ? 'AI Auto-Fill' : 'Attach Bill'}
+                                </div>
+                                <button onClick={() => {
+                                    if (attachMenuType === 'ai') expenseFileInputCameraRef.current?.click();
+                                    else document.getElementById('billFileCameraNew')?.click();
+                                    setAttachMenuType(null);
+                                }} style={{ width: '100%', padding: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '16px', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                     <span>📸</span> Take Photo
                                 </button>
-                                <button onClick={() => expenseFileInputGalleryRef.current?.click()} style={{ width: '100%', padding: '16px', background: '#f1f5f9', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 500, color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <button onClick={() => {
+                                    if (attachMenuType === 'ai') expenseFileInputGalleryRef.current?.click();
+                                    else document.getElementById('billFileGalleryNew')?.click();
+                                    setAttachMenuType(null);
+                                }} style={{ width: '100%', padding: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '16px', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                     <span>🖼️</span> Choose from Gallery
                                 </button>
-                                <button onClick={() => setIsAiScanMenuOpen(false)} style={{ width: '100%', padding: '16px', background: 'transparent', border: 'none', fontSize: '16px', fontWeight: 500, color: '#ef4444', marginTop: '8px' }}>
+                                <button onClick={() => setAttachMenuType(null)} style={{ width: '100%', padding: '16px', background: 'transparent', border: 'none', fontSize: '16px', fontWeight: 600, color: '#ef4444', marginTop: '8px' }}>
                                     Cancel
                                 </button>
                             </div>
@@ -1529,15 +1541,25 @@ export default function BusinessExpensesPage() {
 
             {isAddEntryOpen && (
                 <div className="kb-entry-overlay">
-                    <div className="kb-entry-header">
-                        <button className="kb-back-btn" onClick={closeNumpad}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
-                        </button>
-                        <div className={`kb-title ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`}>
-                            {entryType === 'debit' ? `You gave ₹ ${amtInp || '0'} to ${currentCust?.name || ''}` : 
-                             entryType === 'credit' ? `You got ₹ ${amtInp || '0'} from ${currentCust?.name || ''}` : 
-                             `Advance ₹ ${amtInp || '0'} to ${currentCust?.name || ''}`}
+                    <div className="kb-entry-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '8px', padding: '12px 16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <button className="kb-back-btn" onClick={closeNumpad} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
+                            </button>
+                            <div className={`kb-title ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`} style={{ flex: 1, textAlign: 'center', margin: '0 8px', fontSize: '15px' }}>
+                                {entryType === 'debit' ? `You gave ₹ ${amtInp || '0'} to ${currentCust?.name || ''}` : 
+                                 entryType === 'credit' ? `You got ₹ ${amtInp || '0'} from ${currentCust?.name || ''}` : 
+                                 `Advance ₹ ${amtInp || '0'} to ${currentCust?.name || ''}`}
+                            </div>
+                            <div style={{ width: '24px' }}></div>
                         </div>
+                        {currentCust && (
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '12px', backgroundColor: custStats.isNeg ? '#d1fae5' : '#fee2e2', color: custStats.isNeg ? '#059669' : '#dc2626' }}>
+                                    {custStats.isNeg ? 'Advance: ' : 'Pending: '} ₹ {fmt(Math.abs(custStats.net))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="kb-entry-body">
@@ -1560,49 +1582,32 @@ export default function BusinessExpensesPage() {
                             />
                         </div>
 
-                        <div className="kb-card kb-no-pad">
+                        <div className="kb-card kb-no-pad" style={{ display: 'flex', alignItems: 'center' }}>
                             <input 
                                 type="text" 
-                                placeholder="Enter details (Items, bill no., quantity, etc.)" 
+                                placeholder="Enter details (Items, bill no., quantity)" 
                                 value={entryNote} 
                                 onChange={e => setEntryNote(e.target.value)} 
                                 className="kb-note-input"
+                                style={{ flex: 1 }}
                             />
-                        </div>
-
-                        <div className="kb-row-split">
-                            <div className="kb-card kb-date-card">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-                                <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} className="kb-date-input" />
-                            </div>
-                            
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <label htmlFor="billFileCameraNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
-                                        <span className="kb-new-badge" style={{ background: '#eab308' }}>📷</span>
-                                        <span>Camera</span>
-                                        <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                    </label>
-                                    <label htmlFor="billFileGalleryNew" className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px 8px' }}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                                        <span>Gallery</span>
-                                        <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                    </label>
-                                </div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <label htmlFor="billFileCameraAI" className="kb-card kb-attach-card" style={{ flex: 1, padding: '8px 4px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', color: 'white', border: 'none', flexDirection: 'row', justifyContent: 'center' }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                        <span style={{color:'white', fontSize:'11px', marginLeft:'4px'}}>AI Auto-Fill (Camera)</span>
-                                        <input type="file" id="billFileCameraAI" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => { closeNumpad(); handleExpenseAiScan(e); }} />
-                                    </label>
-                                    <label htmlFor="billFileGalleryAI" className="kb-card kb-attach-card" style={{ flex: 1, padding: '8px 4px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', color: 'white', border: 'none', flexDirection: 'row', justifyContent: 'center' }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                        <span style={{color:'white', fontSize:'11px', marginLeft:'4px'}}>AI Auto-Fill (Gallery)</span>
-                                        <input type="file" id="billFileGalleryAI" accept="image/*" style={{ display: 'none' }} onChange={(e) => { closeNumpad(); handleExpenseAiScan(e); }} />
-                                    </label>
-                                </div>
+                            <div style={{ borderLeft: '1px solid #e2e8f0', padding: '0 12px', display: 'flex', alignItems: 'center' }}>
+                                <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '13px', color: '#475569', fontWeight: 600, maxWidth: '110px' }} />
                             </div>
                         </div>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                                <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                                
+                                <button onClick={() => setAttachMenuType('normal')} className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ fontSize: '20px' }}>📎</span>
+                                    <span style={{ fontSize: '13px', fontWeight: 600 }}>Attach Bill</span>
+                                </button>
+                                <button onClick={() => setAttachMenuType('ai')} className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', border: 'none', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                    <span style={{ fontSize: '13px', fontWeight: 600 }}>AI Auto-Fill</span>
+                                </button>
+                            </div>
 
                         {pendingPhotos.length > 0 && (
                             <div className="kb-photos-preview">
