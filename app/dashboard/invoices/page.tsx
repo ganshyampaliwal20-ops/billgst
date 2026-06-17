@@ -158,6 +158,7 @@ export default function InvoicesPage() {
         try {
             await generateInvoicePDF(invoice, businessProfile, true, 'download');
             toast.dismiss(toastId);
+            toast.success('PDF saved to Documents folder!', { duration: 4000, icon: '✅' });
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
@@ -237,6 +238,8 @@ export default function InvoicesPage() {
                     }
                 } catch(err) {
                     console.error('Native share error', err);
+                    toast.dismiss(toastId);
+                    return;
                 }
             }
 
