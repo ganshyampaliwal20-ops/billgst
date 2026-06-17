@@ -487,11 +487,11 @@ export default function DashboardPage() {
                                                 onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
                                             >
                                                 <div style={{ 
-                                                    width: '50px', height: '50px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                    width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
-                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="24" height="24" style={{ marginLeft: '4px' }}>
+                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="14" height="14" style={{ marginLeft: '4px' }}>
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>
@@ -554,11 +554,11 @@ export default function DashboardPage() {
                                                 onClick={() => setPlayingVideo('DZHTY54IR_l')}
                                             >
                                                 <div style={{ 
-                                                    width: '50px', height: '50px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                    width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
-                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="24" height="24" style={{ marginLeft: '4px' }}>
+                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="14" height="14" style={{ marginLeft: '4px' }}>
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>
@@ -597,11 +597,11 @@ export default function DashboardPage() {
                                                 onClick={() => setPlayingVideo('DZARRuCI0rT')}
                                             >
                                                 <div style={{ 
-                                                    width: '50px', height: '50px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                    width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
-                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="24" height="24" style={{ marginLeft: '4px' }}>
+                                                    <svg viewBox="0 0 24 24" fill="#dc2743" width="14" height="14" style={{ marginLeft: '4px' }}>
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>

@@ -266,7 +266,7 @@ export default function LandingPage() {
                     </button>
 
                     <a href="https://play.google.com/store/apps/details?id=in.billgst.app" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#000', color: '#fff', padding: '12px 28px', borderRadius: '16px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.15)', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-                        <svg viewBox="0 0 512 512" width="28" height="28"><path fill="#4caf50" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z"/><path fill="#03a9f4" d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z"/><path fill="#ffeb3b" d="M472.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8z"/><path fill="#f44336" d="M104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
+                        <svg viewBox="0 0 512 512" width="16" height="16"><path fill="#4caf50" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z"/><path fill="#03a9f4" d="M47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0z"/><path fill="#ffeb3b" d="M472.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8z"/><path fill="#f44336" d="M104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
                         <div style={{ textAlign: 'left' }}>
                             <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, lineHeight: 1 }}>GET IT ON</div>
                             <div style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1.2 }}>Google Play</div>
@@ -321,14 +321,14 @@ export default function LandingPage() {
                                 onClick={() => setIsVideoPlaying(true)}
                             >
                                 <div style={{ 
-                                    width: '60px', height: '60px', background: 'rgba(255, 0, 0, 0.9)', 
+                                    width: '35px', height: '35px', background: 'rgba(255, 0, 0, 0.9)', 
                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                     boxShadow: '0 4px 15px rgba(255,0,0,0.4)', transition: 'transform 0.2s' 
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                 >
-                                    <svg viewBox="0 0 24 24" fill="white" width="28" height="28" style={{ marginLeft: '4px' }}>
+                                    <svg viewBox="0 0 24 24" fill="white" width="16" height="16" style={{ marginLeft: '4px' }}>
                                         <path d="M8 5v14l11-7z" />
                                     </svg>
                                 </div>
