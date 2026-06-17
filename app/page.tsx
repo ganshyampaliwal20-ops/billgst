@@ -197,7 +197,7 @@ export default function LandingPage() {
                 <ul className="nav-links">
                     <li><a href="#features">Features</a></li>
                     <li><a href="#testimonials">Customer Love</a></li>
-                    <li><a href="#pricing">Pricing</a></li>
+                    
                     <li><a href="/about">About Us</a></li>
                     <li><a href="/privacy">Privacy Policy</a></li>
                 </ul>
@@ -221,7 +221,7 @@ export default function LandingPage() {
             <div className={`mob-menu ${isMobMenuOpen ? 'open' : ''}`}>
                 <a href="#features" onClick={() => setIsMobMenuOpen(false)}>Features</a>
                 <a href="#testimonials" onClick={() => setIsMobMenuOpen(false)}>Customer Love</a>
-                <a href="#pricing" onClick={() => setIsMobMenuOpen(false)}>Pricing</a>
+                
                 <a href="/about" onClick={() => setIsMobMenuOpen(false)}>About Us</a>
                 <a href="/privacy" onClick={() => setIsMobMenuOpen(false)}>Privacy Policy</a>
                 <button className="btn-ghost" onClick={() => { openM('login'); setIsMobMenuOpen(false); }} style={{ marginTop: '10px', background: 'rgba(59, 130, 246, 0.2)', color: '#fff', border: '1px solid rgba(59, 130, 246, 0.5)', padding: '10px 20px', borderRadius: '8px', width: '100%' }}>{isEnglish ? 'Login' : 'लॉगिन'}</button>
@@ -503,7 +503,7 @@ export default function LandingPage() {
 
 
             {/* PRICING */}
-            <section className="pricing-sec" id="pricing">
+            {false && (<section className="pricing-sec" id="pricing">
                 <div className="pricing-in">
                     <div className="tc">
                         <div className="tag">Simple Pricing</div>
@@ -608,6 +608,7 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+            )}
 
             {/* FAQ SECTION */}
             <section className="sec" id="faq" style={{ background: '#0B0F1A' }}>

@@ -21,6 +21,9 @@ interface LimitCheckResult {
 }
 
 export async function checkLimit(userId: string, feature: FeatureType): Promise<LimitCheckResult> {
+    // TEMPORARY: All features unlocked for early users.
+    return { allowed: true, plan: 'LIFETIME' };
+    
     const client = await pool.connect();
     try {
         // 1. Get User Plan
