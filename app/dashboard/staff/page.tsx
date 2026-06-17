@@ -281,6 +281,14 @@ export default function SmartAttendance() {
         if (!selectedStaff) return;
         const doc = new jsPDF();
         
+        // Add Border
+        const margin = 8;
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.rect(margin, margin, pageWidth - (margin * 2), pageHeight - (margin * 2));
+
         // Add Business Logo
         if (businessProfile?.logo) {
             try {
@@ -423,6 +431,14 @@ export default function SmartAttendance() {
     const generateMasterReportPDF = async () => {
         const doc = new jsPDF();
         
+        // Add Border
+        const margin = 8;
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.rect(margin, margin, pageWidth - (margin * 2), pageHeight - (margin * 2));
+
         // Add Business Logo
         if (businessProfile?.logo) {
             try {
