@@ -54,6 +54,13 @@ body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;-webk
   .faq details { max-width: 800px; margin: 0 auto; }
 }
 
+/* ── STATUS BAR PROTECTOR (MOBILE TWA) ── */
+.status-bar-protector { display: none; width: 100%; background: rgba(5,8,16,0.98); height: max(env(safe-area-inset-top), 36px); z-index: 1000; position: fixed; top: 0; left: 0; }
+@media (max-width: 991px) {
+    .status-bar-protector { display: block; }
+    header { top: max(env(safe-area-inset-top), 36px) !important; }
+}
+
 /* ── HEADER ── */
 header{
   position:sticky;top:0;z-index:100;
