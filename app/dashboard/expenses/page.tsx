@@ -143,6 +143,7 @@ export default function BusinessExpensesPage() {
     const [entryNote, setEntryNote] = useState('');
     const [pendingPhotos, setPendingPhotos] = useState<string[]>([]);
     const [editTxnId, setEditTxnId] = useState<number | null>(null);
+    const [editCustId, setEditCustId] = useState<number | null>(null);
     const [autoWhatsApp, setAutoWhatsApp] = useState(true);
     const [isScanning, setIsScanning] = useState(false);
     const [autoAiScan, setAutoAiScan] = useState(true);
@@ -652,7 +653,7 @@ export default function BusinessExpensesPage() {
     };
 
     const openEditCust = (cust: any) => {
-        // Basic edit customer setup (if needed)
+        setEditCustId(cust.id);
         setAcName(cust.name);
         setAcPhone(cust.phone);
         setAcType(cust.type);
@@ -893,44 +894,69 @@ export default function BusinessExpensesPage() {
 
     // Customer Sheet Handlers
     const importContact = async () => {
+        showToast('⏳ Loading Contacts...');
         try {
-            if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform) {
-                const { Contacts } = await import('@capacitor-community/contacts');
-                const perm = await Contacts.requestPermissions();
-                if (perm.contacts === 'granted') {
-                    const result = await Contacts.pickContact({ projection: { name: true, phones: true } });
-                    if (result && result.contact) {
-                        const c = result.contact;
-                        if (c.name?.display) setAcName(c.name.display);
-                        if (c.phones && c.phones.length > 0) {
-                            const num = c.phones[0].number?.replace(/[^\d+]/g, '') || '';
+            const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
+            
+            if (isNativeApp()) {
+                try {
+                    let Contacts = getNativePlugin('Contacts');
+                    if (!Contacts) {
+                        const mod = await import('@capacitor-community/contacts');
+                        Contacts = mod.Contacts;
+                    }
+                    
+                    if (!Contacts) {
+                        showToast('❌ Contacts plugin not available');
+                        return;
+                    }
+
+                    const perm = await Contacts.requestPermissions();
+                    if (perm.contacts === 'granted') {
+                        const result = await Contacts.pickContact({ projection: { name: true, phones: true } });
+                        if (result && result.contact) {
+                            const c = result.contact;
+                            if (c.name?.display) setAcName(c.name.display);
+                            if (c.phones && c.phones.length > 0) {
+                                let num = c.phones[0].number?.replace(/[^\d+]/g, '') || '';
+                                if (num.startsWith('+91')) num = num.slice(3);
+                                else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                                setAcPhone(num);
+                            }
+                            showToast('✅ Contact imported successfully!');
+                        }
+                    } else {
+                        showToast('❌ Permission denied to access contacts');
+                    }
+                } catch (err: any) {
+                    showToast('❌ Native Error: ' + (err.message || 'Unknown'));
+                }
+            } else if ('contacts' in navigator && 'ContactsManager' in window) {
+                try {
+                    const props = ['name', 'tel'];
+                    const opts = { multiple: false };
+                    const contacts = await (navigator as any).contacts.select(props, opts);
+                    if (contacts && contacts.length > 0) {
+                        const contact = contacts[0];
+                        if (contact.name && contact.name[0]) setAcName(contact.name[0]);
+                        if (contact.tel && contact.tel.length > 0) {
+                            const numStr = typeof contact.tel[0] === 'string' ? contact.tel[0] : (contact.tel[0].value || '');
+                            let num = numStr.replace(/[^\d+]/g, '');
+                            if (num.startsWith('+91')) num = num.slice(3);
+                            else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
                             setAcPhone(num);
                         }
                         showToast('✅ Contact imported successfully!');
                     }
-                } else {
-                    showToast('❌ Permission denied to access contacts');
-                }
-            } else if ('contacts' in navigator && 'ContactsManager' in window) {
-                const props = ['name', 'tel'];
-                const opts = { multiple: false };
-                const contacts = await (navigator as any).contacts.select(props, opts);
-                if (contacts && contacts.length > 0) {
-                    const contact = contacts[0];
-                    if (contact.name && contact.name[0]) setAcName(contact.name[0]);
-                    if (contact.tel && contact.tel.length > 0) {
-                        const numStr = typeof contact.tel[0] === 'string' ? contact.tel[0] : (contact.tel[0].value || '');
-                        const num = numStr.replace(/[^\d+]/g, '');
-                        setAcPhone(num);
-                    }
-                    showToast('✅ Contact imported successfully!');
+                } catch (err: any) {
+                    showToast('❌ Web Error: ' + (err.message || 'Unknown'));
                 }
             } else {
                 showToast('⚠️ Auto-contact is not supported in your browser.');
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            showToast('❌ Error importing contact.');
+            showToast('❌ Error: ' + (e.message || 'Unknown'));
         }
     };
 
@@ -939,11 +965,17 @@ export default function BusinessExpensesPage() {
         const opening = parseFloat(acOpening) || 0;
         if (!acName.trim()) { showToast('⚠️ Naam zaroori hai!'); return; }
 
-        const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening, txns: [] };
-        setCustomers([{ ...nc }, ...customers]);
+        if (editCustId) {
+            setCustomers(customers.map(c => c.id === editCustId ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening } : c));
+            setEditCustId(null);
+            showToast('✅ Customer update ho gaya!');
+        } else {
+            const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening, txns: [] };
+            setCustomers([{ ...nc }, ...customers]);
+            showToast('✅ Customer add ho gaya!');
+        }
         setIsAddCustOpen(false);
         setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening('');
-        showToast('✅ Customer add ho gaya!');
     };
 
     const deleteCustomer = async () => {
@@ -1247,7 +1279,7 @@ export default function BusinessExpensesPage() {
                     )
                 ) : (
                     <button 
-                        onClick={() => setIsAddCustOpen(true)}
+                        onClick={() => { setEditCustId(null); setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening(''); setIsAddCustOpen(true); }}
                         className="fixed bottom-8 right-6 sm:right-[calc(50%-230px)] w-[60px] h-[60px] rounded-[20px] bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-[0_10px_25px_rgba(79,70,229,.5)] text-white z-[150] cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-1"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="32" height="32"><path d="M12 5v14M5 12h14" /></svg>
@@ -1406,7 +1438,7 @@ export default function BusinessExpensesPage() {
                                                                 <button className="chat-action-icon delete" onClick={() => deleteTxn(t.id, t.amt, t.type)} title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"></path></svg></button>
                                                                 {!hasPhotos && (
                                                                     <label htmlFor={`chat-cam-${t.id}`} className="chat-action-icon" style={{ cursor: 'pointer', color: 'var(--blue)' }}>
-                                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
+                                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
                                                                         <input type="file" style={{ display: 'none' }} id={`chat-cam-${t.id}`} accept="image/*" multiple onChange={(e) => handleTxnPhoto(e, t.id)} />
                                                                     </label>
                                                                 )}
@@ -1625,17 +1657,20 @@ export default function BusinessExpensesPage() {
                 <div className="sheet">
                     <div className="sheet-handle"></div>
                     <div className="sheet-hdr">
-                        <div className="sheet-title">👤 New Customer</div>
+                        <div className="sheet-title">👤 {editCustId ? 'Edit Customer' : 'New Customer'}</div>
                         <div className="sheet-close" onClick={() => setIsAddCustOpen(false)}>✕</div>
                     </div>
                     <div className="add-cust-body">
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                            <button onClick={importContact} style={{ background: '#e3f2fd', color: '#1565c0', border: '1px solid #bbdefb', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, display: 'flex', gap: '6px', alignItems: 'center', cursor: 'pointer' }}>
-                                <span>📱</span> Import from Contacts
-                            </button>
-                        </div>
                         <div className="fg"><label className="fl">👤 Customer Name *</label><input className="fi" placeholder="e.g. Rahul Sharma" value={acName} onChange={e => setAcName(e.target.value)} /></div>
-                        <div className="fg"><label className="fl">📞 Phone Number</label><input className="fi" type="tel" placeholder="e.g. 98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} /></div>
+                        <div className="fg">
+                            <label className="fl">📞 Phone Number</label>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <input className="fi" type="tel" placeholder="e.g. 98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} style={{ paddingRight: '45px', width: '100%' }} />
+                                <button onClick={importContact} title="Import from Contacts" style={{ position: 'absolute', right: '5px', background: '#e3f2fd', border: 'none', borderRadius: '6px', color: '#1565c0', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                </button>
+                            </div>
+                        </div>
                         <div className="f2">
                             <div className="fg" style={{ margin: 0 }}>
                                 <label className="fl">📁 Category</label>
@@ -1650,7 +1685,7 @@ export default function BusinessExpensesPage() {
                         </div>
                         <div className="fg"><label className="fl">💰 Opening Balance</label><input className="fi" type="number" placeholder="0" value={acOpening} onChange={e => setAcOpening(e.target.value)} /></div>
                         <button className="save-btn cr" onClick={saveCustomer}>
-                            <span>💾</span> Save New Customer
+                            <span>💾</span> {editCustId ? 'Save Changes' : 'Save New Customer'}
                         </button>
                     </div>
                 </div>
