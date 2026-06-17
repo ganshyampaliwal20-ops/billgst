@@ -43,7 +43,7 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
 
         // 2. Check Expiry
         if (plan !== 'FREE' && plan !== 'LIFETIME') {
-            if (expiry && isAfter(new Date(), expiry)) {
+            if (expiry && isAfter(new Date(), expiry as Date)) {
                 status = 'EXPIRED';
             }
         }
