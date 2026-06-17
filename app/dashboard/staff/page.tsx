@@ -405,8 +405,6 @@ export default function SmartAttendance() {
         });
 
         const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const pageWidth = doc.internal.pageSize.getWidth();
         if (!isPremium) {
             await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
         } else {
@@ -516,8 +514,6 @@ export default function SmartAttendance() {
         });
 
         const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const pageWidth = doc.internal.pageSize.getWidth();
         if (!isPremium) {
             await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
         } else {
