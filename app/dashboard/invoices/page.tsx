@@ -154,9 +154,9 @@ export default function InvoicesPage() {
     };
 
     const handleDownload = async (invoice: any) => {
-        const toastId = toast.loading('Opening PDF...');
+        const toastId = toast.loading('Downloading PDF...');
         try {
-            await generateInvoicePDF(invoice, businessProfile, true, 'view');
+            await generateInvoicePDF(invoice, businessProfile, true, 'download');
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
@@ -250,7 +250,9 @@ export default function InvoicesPage() {
                     toast.success('WhatsApp par share open ho gaya!', { id: toastId });
                     return;
                 } catch (e) {
-                    // console.log('Share cancelled', e);
+                    // User cancelled the share dialog, so we should abort the process
+                    toast.dismiss(toastId);
+                    return;
                 }
             }
 
@@ -492,9 +494,9 @@ export default function InvoicesPage() {
             const fileName = `EWayBill_${invoice.invoice_number}.json`;
             
             const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, fileName, 'application/json');
+            await downloadAndShareFile(base64Data, fileName, 'application/json', 'download');
             
-            toast.success("E-Way Bill JSON Downloaded!");
+            toast.success("E-Way Bill JSON Downloaded to Documents!");
         } catch (error) {
             console.error("Error generating E-Way JSON:", error);
             toast.error("Failed to generate JSON");
