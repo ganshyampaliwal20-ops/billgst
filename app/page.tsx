@@ -148,9 +148,8 @@ export default function LandingPage() {
 
     return (
         <div className="page">
-            <div className="status-bar-protector"></div>
             {/* HEADER */}
-            <header>
+            <header className="landing-header">
                 <a href="#" className="logo">
                     <img src="/logo.png" alt="BillGST" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
                     <span className="logo-name">Bill<em>GST</em></span>
