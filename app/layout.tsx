@@ -125,7 +125,40 @@ export default function RootLayout({
         </SessionWrapper>
         <InstallAppBanner />
         <CapacitorHandler />
-        <Toaster position="top-right" />
+        <Toaster
+          position="bottom-center"
+          containerStyle={{ bottom: '80px' }}
+          toastOptions={{
+            duration: 4000,
+            style: {
+              borderRadius: '14px',
+              background: '#1e1e2e',
+              color: '#e2e8f0',
+              fontSize: '13px',
+              fontWeight: '500',
+              padding: '12px 16px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+              maxWidth: '320px',
+            },
+            success: {
+              style: {
+                background: '#0f2a1e',
+                color: '#4ade80',
+                border: '1px solid #166534',
+              },
+              iconTheme: { primary: '#4ade80', secondary: '#0f2a1e' },
+            },
+            error: {
+              style: {
+                background: '#2a0f0f',
+                color: '#f87171',
+                border: '1px solid #991b1b',
+              },
+              iconTheme: { primary: '#f87171', secondary: '#2a0f0f' },
+              duration: 5000,
+            },
+          }}
+        />
       </body>
     </html>
   );

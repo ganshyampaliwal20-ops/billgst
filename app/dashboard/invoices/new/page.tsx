@@ -914,10 +914,11 @@ function NewInvoiceContent() {
                     router.push('/dashboard/invoices');
                 }
             } else {
-                toast.error('Failed to save invoice');
+                const errMsg = result?.error || 'Kuch galat ho gaya. Dobara try karein.';
+                toast.error(`❌ Save Nahi Hua: ${errMsg}`);
             }
-        } catch (err) {
-            toast.error('An error occurred');
+        } catch (err: any) {
+            toast.error(`❌ Error: ${err?.message || 'Kuch galat ho gaya. Internet check karein aur dobara try karein.'}`);
         } finally {
             setIsSubmitting(false);
         }
