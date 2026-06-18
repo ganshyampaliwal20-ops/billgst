@@ -329,7 +329,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed bottom-24 right-6 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-24 right-10 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
             <style dangerouslySetInnerHTML={{__html: `
                 .rx-card {
                   background: #ffffff;
@@ -350,8 +350,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                   position: absolute;
                   top: -8px;
                   right: -8px;
-                  background: #f1f5f9;
-                  border: 1px solid #e2e8f0;
+                  background: #fee2e2;
+                  border: 1px solid #fca5a5;
                   width: 24px;
                   height: 24px;
                   border-radius: 50%;
@@ -359,13 +359,13 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                   align-items: center;
                   justify-content: center;
                   cursor: pointer;
-                  color: #64748b;
+                  color: #ef4444;
                   z-index: 10;
-                  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 .rx-close-btn:hover {
-                  background: #e2e8f0;
-                  color: #0f172a;
+                  background: #fca5a5;
+                  color: #b91c1c;
                 }
 
                 .rx-transcript {
@@ -405,7 +405,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
 
                 .rx-footer {
-                  background: #1a1a2e;
+                  background: #dc2626;
                   padding: 11px 16px;
                   display: flex;
                   align-items: center;
@@ -417,22 +417,22 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 }
 
                 .rx-footer:hover {
-                  background: #22223d;
+                  background: #b91c1c;
                 }
 
                 .rx-footer:active {
-                  background: #2d2d50;
+                  background: #991b1b;
                 }
 
                 .rx-footer i, .rx-footer svg {
-                  color: #a5b4fc;
+                  color: #ffffff;
                   font-size: 17px;
                 }
 
                 .rx-footer-text {
                   font-size: 12px;
-                  font-weight: 500;
-                  color: #a5b4fc;
+                  font-weight: 600;
+                  color: #ffffff;
                   letter-spacing: 0.3px;
                 }
 
@@ -440,7 +440,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                   width: 8px;
                   height: 8px;
                   border-radius: 50%;
-                  background: #a5b4fc;
+                  background: #ffffff;
                   opacity: 0.7;
                   animation: rxPulse 1.5s ease-in-out infinite;
                 }
