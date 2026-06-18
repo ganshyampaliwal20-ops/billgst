@@ -223,7 +223,7 @@ export default function LandingPage() {
                                 </button>
                             </div>
                         </div>
-                        <div className="forgot"><a href="#" onClick={(e) => {e.preventDefault(); toast('Password reset email sent!');}}>{isEnglish ? 'Forgot password?' : 'पासवर्ड भूल गए?'}</a></div>
+                        <div className="forgot"><a href="/forgot-password">{isEnglish ? 'Forgot password?' : 'पासवर्ड भूल गए?'}</a></div>
                         <button className="btn-full" onClick={doLogin} disabled={isLoading}>
                             {isLoading ? (isEnglish ? 'Loading...' : 'लोड हो रहा है...') : (
                                 <>
