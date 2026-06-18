@@ -319,36 +319,33 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
                 }
 
-                .rx-header {
-                  background: #1a1a2e;
-                  padding: 10px 16px 12px;
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                  cursor: grab;
-                }
 
-                .rx-header:active {
-                  cursor: grabbing;
-                }
-
-                .rx-dot {
-                  width: 8px;
-                  height: 8px;
-                  border-radius: 50%;
-                  background: #4ade80;
-                }
-
-                .rx-brand {
-                  font-size: 13px;
-                  font-weight: 600;
-                  letter-spacing: 2px;
-                  color: #e2e8f0;
-                  flex: 1;
-                }
 
                 .rx-body {
-                  padding: 16px 16px 0;
+                  padding: 12px 12px 0;
+                  position: relative;
+                }
+                
+                .rx-close-btn {
+                  position: absolute;
+                  top: -8px;
+                  right: -8px;
+                  background: #f1f5f9;
+                  border: 1px solid #e2e8f0;
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  cursor: pointer;
+                  color: #64748b;
+                  z-index: 10;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                }
+                .rx-close-btn:hover {
+                  background: #e2e8f0;
+                  color: #0f172a;
                 }
 
                 .rx-transcript {
@@ -453,11 +450,12 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             `}} />
 
             <div className="rx-card" ref={modalRef} style={{ cursor: isDragging ? 'grabbing' : 'auto' }}>
-                {/* Header */}
-                <div className="rx-header" onMouseDown={handleMouseDown}>
-                    <div className="rx-dot" style={{ background: isProcessing ? '#818cf8' : isListening ? '#e879f9' : '#4ade80' }}></div>
-                    <span className="rx-brand">RXADY</span>
+
+
+                {/* Body */}
+                <div className="rx-body">
                     <button 
+                        className="rx-close-btn"
                         onClick={(e) => { 
                             e.stopPropagation();
                             if ('speechSynthesis' in window) {
@@ -465,15 +463,10 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                             }
                             onClose(); 
                         }} 
-                        style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
                         title="Close"
                     >
-                        <FaTimes size={14} />
+                        <FaTimes size={12} />
                     </button>
-                </div>
-
-                {/* Body */}
-                <div className="rx-body">
                     {/* Transcript */}
                     <div className="rx-transcript">
                         <span className="rx-quote-label">You said</span>
