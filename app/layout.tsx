@@ -17,9 +17,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://billgst.in"),
-  title: "Free Invoice Generator & GST Billing Software India | BillGST",
-  description: "Best Free Invoice Generator and GST Billing Software in India. Create GST/Non-GST bills, manage inventory, and share PDF invoices on WhatsApp in seconds.",
-  keywords: "invoice generator, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing, voice billing app, vyapar alternative",
+  title: "BillGST: Free GST Billing Software & Voice Billing App",
+  description: "100% Free GST Billing Software with AI Voice Billing. The best Vyapar alternative for Indian shops—create bills by speaking, manage inventory, and send WhatsApp PDFs.",
+  keywords: "voice billing app, vyapar app voice billing, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing, vyapar alternative",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
@@ -47,8 +47,8 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   openGraph: {
-    title: "BillGST - Free Billing Software",
-    description: "Create professional GST invoices for free. Best for small businesses in India.",
+    title: "BillGST - Free Voice Billing & GST Software",
+    description: "100% Free GST Billing Software with AI Voice Billing. Create invoices by speaking and send WhatsApp PDFs instantly.",
     type: "website",
     siteName: 'BillGST',
     url: 'https://billgst.in',
@@ -63,8 +63,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'BillGST - Free GST Billing Software',
-    description: 'Professional billing software for Indian small businesses',
+    title: 'BillGST - Free Voice Billing App',
+    description: '100% Free GST Billing Software with AI Voice Billing. Better than Vyapar.',
     images: ['/logo.png'],
   },
 };
