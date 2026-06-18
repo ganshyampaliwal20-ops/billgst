@@ -3,13 +3,21 @@ import { useEffect } from 'react';
 
 export default function AuthSuccess() {
   useEffect(() => {
-    // This client-side redirect will trigger Android App Links!
-    // It forces the Chrome Custom Tab to hand control back to the TWA/PWA
-    window.location.href = '/dashboard';
+    // Try standard redirect first
+    const timer = setTimeout(() => {
+      // If we are still here after 1 second, try forcing Android Intent
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        window.location.href = 'intent://billgst.in/dashboard#Intent;scheme=https;package=in.billgst.app;end';
+      } else {
+        window.location.href = '/dashboard';
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', textAlign: 'center', padding: '20px' }}>
       <div style={{
         border: '4px solid #f3f3f3',
         borderTop: '4px solid #3b82f6',
@@ -25,8 +33,21 @@ export default function AuthSuccess() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      <h2>Returning to App...</h2>
-      <p>Please wait...</p>
+      <h2>Login Successful!</h2>
+      <p style={{ marginBottom: '20px' }}>Returning to app...</p>
+      <a 
+        href="/dashboard" 
+        style={{ 
+          padding: '12px 24px', 
+          backgroundColor: '#3b82f6', 
+          color: 'white', 
+          textDecoration: 'none', 
+          borderRadius: '8px',
+          fontWeight: 'bold'
+        }}
+      >
+        Click here if nothing happens
+      </a>
     </div>
   );
 }
