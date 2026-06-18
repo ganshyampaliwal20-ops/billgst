@@ -248,26 +248,31 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             <div className="bs-card-body">
-                                <div className="bs-toggle-row">
+                                {/* GST Toggle */}
+                                <div className="bs-toggle-row" style={{ borderBottom: !localSettings.nonGstMode ? '1px solid var(--border-soft)' : 'none' }}>
                                     <div>
                                         <strong>I have a GST Number</strong>
-                                        <p>Enable this if your business is registered under GST. Agar GST number nahi hai to ise off kar dein.</p>
+                                        <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>Agar GST number hai to ON karein, nahi hai to OFF.</p>
                                     </div>
                                     <label className="bs-switch">
                                         <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })} />
                                         <span className="bs-slider"></span>
                                     </label>
                                 </div>
-                                <div className="bs-toggle-row">
-                                    <div>
-                                        <strong>GST Calculation Mode</strong>
-                                        <p>Exclusive: Price par GST alag se lagega. Inclusive: GST price ke andar hi shamil hoga.</p>
+
+                                {/* GST Calculation Mode — only shows when GST is ON */}
+                                <div className={`bs-collapse ${!localSettings.nonGstMode ? 'open' : ''}`}><div>
+                                    <div className="bs-toggle-row" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                                        <div>
+                                            <strong>GST Calculation Mode</strong>
+                                            <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>Exclusive: price + GST alag. Inclusive: GST price ke andar.</p>
+                                        </div>
+                                        <div className="bs-segmented" style={{ flexShrink: 0 }}>
+                                            <button type="button" className={`bs-seg-btn ${localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}>Exclusive</button>
+                                            <button type="button" className={`bs-seg-btn ${localSettings.taxType === 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'INCLUSIVE' })}>Inclusive</button>
+                                        </div>
                                     </div>
-                                    <div className="bs-segmented" style={{ flexShrink: 0 }}>
-                                        <button type="button" className={`bs-seg-btn ${localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}>Exclusive</button>
-                                        <button type="button" className={`bs-seg-btn ${localSettings.taxType === 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'INCLUSIVE' })}>Inclusive</button>
-                                    </div>
-                                </div>
+                                </div></div>
                             </div>
                         </section>
 
@@ -307,6 +312,32 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </div></div>
+                        </section>
+
+                        {/* ── BANK DETAILS ── */}
+                        <section className="bs-card">
+                            <div className="bs-card-head">
+                                <div className="bs-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="3" y1="21" x2="21" y2="21"/><line x1="5" y1="21" x2="5" y2="10"/><line x1="9" y1="21" x2="9" y2="10"/><line x1="15" y1="21" x2="15" y2="10"/><line x1="19" y1="21" x2="19" y2="10"/><polygon points="12 3 21 9 3 9"/></svg>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h2 className="bs-card-title">Bank Account Details</h2>
+                                    <p className="bs-card-sub">Shown on invoices for direct bank transfers</p>
+                                </div>
+                                <label className="bs-switch">
+                                    <input type="checkbox" checked={!!formData.show_bank_details} onChange={(e) => setFormData({ ...formData, show_bank_details: e.target.checked })} />
+                                    <span className="bs-slider"></span>
+                                </label>
+                            </div>
+                            <div className="bs-card-body">
+                                <div className={`bs-form-grid`} style={{ opacity: formData.show_bank_details ? 1 : 0.4, pointerEvents: formData.show_bank_details ? 'auto' : 'none', transition: 'opacity .2s' }}>
+                                    <div className="bs-field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })} placeholder="e.g. State Bank of India" /></div>
+                                    <div className="bs-field"><label>Account Number</label><input type="text" value={formData.account_no || ''} onChange={(e) => setFormData({ ...formData, account_no: e.target.value })} placeholder="Enter A/C number" style={{ fontFamily: 'monospace' }} /></div>
+                                    <div className="bs-field"><label>IFSC Code</label><input type="text" value={formData.ifsc_code || ''} onChange={(e) => setFormData({ ...formData, ifsc_code: e.target.value })} placeholder="SBIN0001234" style={{ fontFamily: 'monospace' }} /></div>
+                                    <div className="bs-field"><label>Branch Name</label><input type="text" value={formData.branch_name || ''} onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })} placeholder="Branch location" /></div>
+                                    <div className="bs-field bs-form-full"><label>Account Holder Name</label><input type="text" value={formData.account_holder || ''} onChange={(e) => setFormData({ ...formData, account_holder: e.target.value })} placeholder="Name as per bank records" /></div>
+                                </div>
+                            </div>
                         </section>
 
                         {/* ── BUSINESS PROFILE ── */}
@@ -416,32 +447,6 @@ export default function SettingsPage() {
                                     <textarea maxLength={500} value={formData.terms_and_conditions || ''} onChange={(e) => setFormData({ ...formData, terms_and_conditions: e.target.value })} placeholder="1. Goods once sold will not be taken back.&#10;2. Interest @18% will be charged if payment is not made within 15 days.&#10;3. Subject to local jurisdiction." />
                                     <div className="bs-char-count">{termsCount}/500</div>
                                     <p className="bs-hint">Yeh terms aapke har naye bill par apne aap likh kar aa jaayenge.</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── BANK DETAILS ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="3" y1="21" x2="21" y2="21"/><line x1="5" y1="21" x2="5" y2="10"/><line x1="9" y1="21" x2="9" y2="10"/><line x1="15" y1="21" x2="15" y2="10"/><line x1="19" y1="21" x2="19" y2="10"/><polygon points="12 3 21 9 3 9"/></svg>
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="bs-card-title">Bank Account Details</h2>
-                                    <p className="bs-card-sub">Shown on invoices for direct bank transfers</p>
-                                </div>
-                                <label className="bs-switch">
-                                    <input type="checkbox" checked={!!formData.show_bank_details} onChange={(e) => setFormData({ ...formData, show_bank_details: e.target.checked })} />
-                                    <span className="bs-slider"></span>
-                                </label>
-                            </div>
-                            <div className="bs-card-body">
-                                <div className={`bs-form-grid`} style={{ opacity: formData.show_bank_details ? 1 : 0.4, pointerEvents: formData.show_bank_details ? 'auto' : 'none', transition: 'opacity .2s' }}>
-                                    <div className="bs-field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })} placeholder="e.g. State Bank of India" /></div>
-                                    <div className="bs-field"><label>Account Number</label><input type="text" value={formData.account_no || ''} onChange={(e) => setFormData({ ...formData, account_no: e.target.value })} placeholder="Enter A/C number" style={{ fontFamily: 'monospace' }} /></div>
-                                    <div className="bs-field"><label>IFSC Code</label><input type="text" value={formData.ifsc_code || ''} onChange={(e) => setFormData({ ...formData, ifsc_code: e.target.value })} placeholder="SBIN0001234" style={{ fontFamily: 'monospace' }} /></div>
-                                    <div className="bs-field"><label>Branch Name</label><input type="text" value={formData.branch_name || ''} onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })} placeholder="Branch location" /></div>
-                                    <div className="bs-field bs-form-full"><label>Account Holder Name</label><input type="text" value={formData.account_holder || ''} onChange={(e) => setFormData({ ...formData, account_holder: e.target.value })} placeholder="Name as per bank records" /></div>
                                 </div>
                             </div>
                         </section>
