@@ -83,30 +83,34 @@ export default function SmartAttendance() {
 
     // --- AI Draft Data Processing ---
     useEffect(() => {
+        if (!isClient) return;
         if (aiDraftData && aiDraftData.type === 'ATTENDANCE') {
-            const { staffName, status } = aiDraftData;
-            
-            if (staffName && staff && staff.length > 0) {
-                const foundStaff = staff.find((s: any) => s.name.toLowerCase().includes(staffName.toLowerCase()));
-                if (foundStaff) {
-                    const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : 'PRESENT';
-                    // Fast action without waiting
-                    markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
-                        toast.success(`✅ AI ne ${foundStaff.name} ki attendance laga di hai!`);
-                    }).catch(console.error);
-                } else {
+            // Wait 1.5s to ensure staff data is loaded from API before checking
+            const timer = setTimeout(() => {
+                const { staffName, status } = aiDraftData;
+                
+                if (staffName && staff && staff.length > 0) {
+                    const foundStaff = staff.find((s: any) => s.name.toLowerCase().includes(staffName.toLowerCase()));
+                    if (foundStaff) {
+                        const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : 'PRESENT';
+                        markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
+                            toast.success(`✅ AI ne ${foundStaff.name} ki attendance laga di hai!`);
+                        }).catch(console.error);
+                    } else {
+                        setFormData(prev => ({ ...prev, name: staffName }));
+                        setSheet('add');
+                        toast.success(`⚠️ AI ko ${staffName} nahi mila. Naya staff add karein.`);
+                    }
+                } else if (staffName) {
                     setFormData(prev => ({ ...prev, name: staffName }));
                     setSheet('add');
-                    toast.success(`⚠️ AI ko ${staffName} nahi mila. Naya staff add karein.`);
+                    toast.success(`⚠️ Koi staff nahi mila. Naya staff add karein.`);
                 }
-            } else if (staffName && staff && staff.length === 0) {
-                setFormData(prev => ({ ...prev, name: staffName }));
-                setSheet('add');
-                toast.success(`⚠️ AI ko ${staffName} nahi mila. Naya staff add karein.`);
-            }
-            setAiDraftData(null);
+                setAiDraftData(null); // Clear after processing
+            }, 1500);
+            return () => clearTimeout(timer);
         }
-    }, [aiDraftData, setAiDraftData, staff, selectedDate, markAttendance]);
+    }, [aiDraftData, staff, selectedDate, markAttendance, setAiDraftData, isClient]);
 
     if (!isClient) return null;
 

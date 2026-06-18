@@ -314,7 +314,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 .rx-card {
                   background: #ffffff;
                   border-radius: 20px;
-                  width: 300px;
+                  width: 260px;
                   overflow: hidden;
                   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
                 }
@@ -386,57 +386,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                   min-height: 40px;
                 }
 
-                .rx-input-row {
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                  padding: 12px 0 14px;
-                }
 
-                .rx-input {
-                  flex: 1;
-                  font-size: 13px;
-                  background: #f7f7fb;
-                  border: 1px solid #e4e4ef;
-                  border-radius: 10px;
-                  padding: 9px 12px;
-                  color: #1a1a2e;
-                  outline: none;
-                  font-family: inherit;
-                  transition: border-color 0.2s;
-                }
-
-                .rx-input:focus {
-                  border-color: #6366f1;
-                }
-
-                .rx-send-btn {
-                  width: 36px;
-                  height: 36px;
-                  border-radius: 10px;
-                  background: #6366f1;
-                  border: none;
-                  cursor: pointer;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  flex-shrink: 0;
-                  transition: background 0.15s, transform 0.1s;
-                  color: white;
-                }
-
-                .rx-send-btn:hover:not(:disabled) {
-                  background: #4f46e5;
-                }
-
-                .rx-send-btn:active:not(:disabled) {
-                  transform: scale(0.95);
-                }
-                
-                .rx-send-btn:disabled {
-                  background: #a5a5c0;
-                  cursor: not-allowed;
-                }
 
                 .rx-footer {
                   background: #1a1a2e;
@@ -538,35 +488,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         {isProcessing ? 'Processing...' : (reply || 'Hi! Mai aapki kaise madad kar sakta hu?')}
                     </div>
 
-                    {/* Input Row */}
-                    <div className="rx-input-row">
-                        <input
-                            className="rx-input"
-                            id="userInput"
-                            placeholder="Ya yaha type karein..."
-                            type="text"
-                            value={transcript}
-                            onChange={(e) => {
-                                setTranscript(e.target.value);
-                                transcriptRef.current = e.target.value;
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleProcessVoice(transcriptRef.current);
-                                }
-                            }}
-                            disabled={isListening || isProcessing}
-                        />
-                        <button 
-                            className="rx-send-btn" 
-                            id="sendBtn" 
-                            aria-label="Send"
-                            onClick={() => transcript.trim() && handleProcessVoice(transcript)}
-                            disabled={!transcript.trim() || isProcessing}
-                        >
-                            <TbSend size={18} />
-                        </button>
-                    </div>
+
                 </div>
 
                 {/* Footer Mic Button */}
