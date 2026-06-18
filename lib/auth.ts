@@ -1,5 +1,6 @@
 
 import NextAuth, { DefaultSession, AuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import pool from "./db";
@@ -21,6 +22,10 @@ declare module "next-auth" {
 
 export const authOptions: AuthOptions = {
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        }),
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -86,8 +91,54 @@ export const authOptions: AuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
+        async signIn({ user, account, profile }) {
+            if (account?.provider === 'google') {
+                try {
+                    const email = user.email;
+                    const name = user.name || 'Google User';
+                    
+                    if (!email) return false;
+                    
+                    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+                    
+                    if (existingUser.rows.length === 0) {
+                        const userCountRes = await pool.query('SELECT COUNT(*) FROM users');
+                        const userCount = parseInt(userCountRes.rows[0].count);
+                        let planType = userCount < 100 ? 'LIFETIME' : 'FREE';
+                        
+                        const fakePassword = await bcrypt.hash(Math.random().toString(36), 10);
+                        
+                        const result = await pool.query(
+                            'INSERT INTO users (name, email, password, role, plan_type, subscription_status, free_invoices_balance) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+                            [name, email, fakePassword, 'USER', planType, 'ACTIVE', 0]
+                        );
+                        const newUserId = result.rows[0].id;
+                        
+                        const safeName = name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') || 'USR';
+                        const newRefCode = safeName + Math.floor(1000 + Math.random() * 9000);
+                        await pool.query('INSERT INTO referral_codes (user_id, code) VALUES ($1, $2)', [newUserId, newRefCode]);
+                        
+                        user.id = newUserId.toString();
+                        (user as any).role = 'USER';
+                    } else {
+                        user.id = existingUser.rows[0].id.toString();
+                    }
+                } catch(e) {
+                    console.error('Google Sign In Error:', e);
+                    return false;
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user, account }) {
+            // Also ensure we get the right ID and role for Google users on first login
+            if (account?.provider === 'google' && user?.email) {
+                const dbUser = await pool.query('SELECT id, role FROM users WHERE email = $1', [user.email]);
+                if (dbUser.rows.length > 0) {
+                    token.id = dbUser.rows[0].id.toString();
+                    token.role = dbUser.rows[0].role;
+                }
+            } else if (user) {
                 token.role = (user as any).role;
                 token.id = user.id;
             }
