@@ -101,15 +101,17 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     const startListening = async () => {
         if (isListening || isProcessing) return;
 
-        if (!recognitionRef.current) {
-            toast.error('Voice support nahi hai. Please type karein.');
-            return;
-        }
-
         try {
-            const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
+            const { isNativeApp } = await import('@/lib/utils');
             if (isNativeApp()) {
-                const SpeechRecognition = getNativePlugin('SpeechRecognition');
+                let SpeechRecognition;
+                try {
+                    const mod = await import('@capacitor-community/speech-recognition');
+                    SpeechRecognition = mod.SpeechRecognition;
+                } catch(e) {
+                    console.error("Failed to load SpeechRecognition JS proxy", e);
+                }
+                
                 if (SpeechRecognition) {
                     const hasPerm = await SpeechRecognition.checkPermissions();
                     if (hasPerm.speechRecognition !== 'granted') {
@@ -148,7 +150,14 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     return;
                 }
             }
-        } catch(e) {}
+        } catch(e) {
+            console.error("Native plugin check failed", e);
+        }
+
+        if (!recognitionRef.current) {
+            toast.error('Voice support nahi hai. Please type karein.');
+            return;
+        }
 
         if (isEngineActive.current) return;
         isEngineActive.current = true;
@@ -171,10 +180,21 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         }
     };
 
-    const stopListening = () => {
+    const stopListening = async () => {
         setIsListening(false);
         isEngineActive.current = false;
         recognitionRef.current?.stop();
+        try {
+            const { isNativeApp } = await import('@/lib/utils');
+            if (isNativeApp()) {
+                const mod = await import('@capacitor-community/speech-recognition');
+                if (mod && mod.SpeechRecognition) {
+                    await mod.SpeechRecognition.stop();
+                }
+            }
+        } catch (e) {
+            // ignore
+        }
     };
 
         const handleProcessVoice = async (text: string) => {
