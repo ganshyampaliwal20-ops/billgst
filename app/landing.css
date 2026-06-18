@@ -54,16 +54,20 @@ html{scroll-behavior:smooth;}
   .faq details { max-width: 800px; margin: 0 auto; }
 }
 
+/* ── STATUS BAR PROTECTOR (MOBILE TWA) ── */
+.status-bar-protector { display: none; width: 100%; background: #050810; height: max(env(safe-area-inset-top), 36px); z-index: 1000; position: fixed; top: 0; left: 0; }
 .page { padding-top: 70px; }
 @media (max-width: 991px) {
-    .page { padding-top: calc(70px + env(safe-area-inset-top, 0px)); }
+    .status-bar-protector { display: block; }
+    .landing-header { top: max(env(safe-area-inset-top), 36px) !important; }
+    .page { padding-top: calc(max(env(safe-area-inset-top), 36px) + 70px); }
 }
 
 /* ── HEADER ── */
 .landing-header{
   position:fixed;top:0;left:0;right:0;max-width:1200px;margin:0 auto;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
-  padding: calc(13px + env(safe-area-inset-top, 0px)) 20px 13px;
+  padding:13px 20px;
   background:rgba(5,8,16,0.88);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);

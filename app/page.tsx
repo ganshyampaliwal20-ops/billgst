@@ -148,6 +148,7 @@ export default function LandingPage() {
 
     return (
         <div className="page">
+            <div className="status-bar-protector"></div>
             {/* HEADER */}
             <header className="landing-header">
                 <a href="#" className="logo">
