@@ -84,6 +84,9 @@ Payload rules based on Action:
 Example User: "Raju ka 500 ka bill banao 1 mobile bhi daal dena"
 Output: {"action": "CREATE_INVOICE", "payload": {"customerName": "Raju", "amount": 500, "items": [{"name": "mobile", "qty": 1}]}, "reply": "Ji bilkul, Raju ka bill me mobile add kar diya hai, kripya save button dabayein."}
 
+Example User: "ganshyam ka bill banao mobile, watch or laptop ka"
+Output: {"action": "CREATE_INVOICE", "payload": {"customerName": "ganshyam", "amount": null, "items": [{"name": "mobile", "qty": 1}, {"name": "watch", "qty": 1}, {"name": "laptop", "qty": 1}]}, "reply": "Ji bilkul, ganshyam ke bill me mobile, watch, aur laptop add kar diya hai."}
+
 Example User: "Rahul ki present laga do"
 Output: {"action": "MARK_ATTENDANCE", "payload": {"staffName": "Rahul", "status": "PRESENT"}, "reply": "Ji, Rahul ki aaj ki attendance lagane ke liye form khol raha hu."}
 
