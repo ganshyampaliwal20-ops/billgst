@@ -329,61 +329,95 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed bottom-24 right-10 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-24 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
             <style dangerouslySetInnerHTML={{__html: `
                 .rx-card {
                   background: #ffffff;
-                  border-radius: 16px;
-                  width: 200px;
+                  border-radius: 18px;
+                  width: 230px;
                   overflow: hidden;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+                  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0,0,0,0.08);
+                  border: 1px solid #e8eaf6;
                 }
 
-
-
-                .rx-body {
-                  padding: 12px 12px 0;
-                  position: relative;
+                .rx-header {
+                  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d50 100%);
+                  padding: 10px 12px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  cursor: grab;
                 }
-                
-                .rx-close-btn {
-                  position: absolute;
-                  top: -8px;
-                  right: -8px;
-                  background: #fee2e2;
-                  border: 1px solid #fca5a5;
+
+                .rx-header-left {
+                  display: flex;
+                  align-items: center;
+                  gap: 7px;
+                }
+
+                .rx-header-icon {
                   width: 24px;
                   height: 24px;
+                  background: rgba(99,102,241,0.25);
+                  border-radius: 6px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                }
+
+                .rx-header-title {
+                  font-size: 12px;
+                  font-weight: 700;
+                  color: #e0e0ff;
+                  letter-spacing: 0.5px;
+                }
+
+                .rx-header-sub {
+                  font-size: 10px;
+                  color: #7878aa;
+                  font-weight: 400;
+                }
+
+                .rx-close-btn {
+                  background: rgba(239,68,68,0.15);
+                  border: 1px solid rgba(239,68,68,0.35);
+                  width: 26px;
+                  height: 26px;
                   border-radius: 50%;
                   display: flex;
                   align-items: center;
                   justify-content: center;
                   cursor: pointer;
-                  color: #ef4444;
-                  z-index: 10;
-                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  color: #f87171;
+                  flex-shrink: 0;
+                  transition: background 0.15s;
                 }
                 .rx-close-btn:hover {
-                  background: #fca5a5;
-                  color: #b91c1c;
+                  background: rgba(239,68,68,0.3);
+                  color: #ff4444;
+                }
+
+                .rx-body {
+                  padding: 12px 12px 8px;
                 }
 
                 .rx-transcript {
                   background: #f4f4ff;
-                  border-radius: 8px;
+                  border-radius: 10px;
                   padding: 8px 10px;
                   margin-bottom: 8px;
                   border-left: 3px solid #6366f1;
-                  min-height: 40px;
+                  min-height: 36px;
                 }
 
                 .rx-quote-label {
                   display: block;
-                  font-size: 11px;
+                  font-size: 10px;
                   color: #9999bb;
-                  margin-bottom: 4px;
-                  font-weight: 500;
-                  letter-spacing: 0.3px;
+                  margin-bottom: 3px;
+                  font-weight: 600;
+                  letter-spacing: 0.4px;
+                  text-transform: uppercase;
                 }
 
                 .rx-transcript-text {
@@ -396,17 +430,15 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
                 .rx-response {
                   font-size: 12px;
-                  color: #555577;
-                  line-height: 1.4;
-                  padding-bottom: 10px;
-                  min-height: 30px;
+                  color: #444466;
+                  line-height: 1.5;
+                  padding-bottom: 4px;
+                  min-height: 28px;
                 }
-
-
 
                 .rx-footer {
                   background: #dc2626;
-                  padding: 11px 16px;
+                  padding: 12px 16px;
                   display: flex;
                   align-items: center;
                   justify-content: center;
@@ -431,34 +463,33 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
                 .rx-footer-text {
                   font-size: 12px;
-                  font-weight: 600;
+                  font-weight: 700;
                   color: #ffffff;
-                  letter-spacing: 0.3px;
+                  letter-spacing: 0.4px;
                 }
 
                 .rx-pulse {
-                  width: 8px;
-                  height: 8px;
+                  width: 7px;
+                  height: 7px;
                   border-radius: 50%;
                   background: #ffffff;
-                  opacity: 0.7;
+                  opacity: 0.8;
                   animation: rxPulse 1.5s ease-in-out infinite;
                 }
 
                 @keyframes rxPulse {
-                  0%, 100% { transform: scale(1); opacity: 0.7; }
-                  50%       { transform: scale(1.5); opacity: 1; }
+                  0%, 100% { transform: scale(1); opacity: 0.8; }
+                  50%       { transform: scale(1.6); opacity: 1; }
                 }
 
                 .rx-footer.listening {
-                  background: #3b0764;
+                  background: #6d28d9;
                 }
 
                 .rx-footer.listening .rx-pulse {
                   background: #e879f9;
                 }
 
-                .rx-footer.listening i,
                 .rx-footer.listening svg,
                 .rx-footer.listening .rx-footer-text {
                   color: #e879f9;
@@ -469,24 +500,42 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 }
             `}} />
 
-            <div className="rx-card" ref={modalRef} style={{ cursor: isDragging ? 'grabbing' : 'auto' }}>
+            <div className="rx-card" ref={modalRef}>
 
+                {/* Header */}
+                <div
+                    className="rx-header"
+                    onMouseDown={(e) => {
+                        if ((e.target as HTMLElement).closest('.rx-close-btn')) return;
+                        setIsDragging(true);
+                        setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+                    }}
+                >
+                    <div className="rx-header-left">
+                        <div className="rx-header-icon">
+                            <FaRobot size={12} color="#a5b4fc" />
+                        </div>
+                        <div>
+                            <div className="rx-header-title">AI Assistant</div>
+                        </div>
+                    </div>
+                    <button
+                        className="rx-close-btn"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if ('speechSynthesis' in window) {
+                                window.speechSynthesis.cancel();
+                            }
+                            onClose();
+                        }}
+                        title="Close"
+                    >
+                        <FaTimes size={10} />
+                    </button>
+                </div>
 
                 {/* Body */}
                 <div className="rx-body">
-                    <button 
-                        className="rx-close-btn"
-                        onClick={(e) => { 
-                            e.stopPropagation();
-                            if ('speechSynthesis' in window) {
-                                window.speechSynthesis.cancel(); 
-                            }
-                            onClose(); 
-                        }} 
-                        title="Close"
-                    >
-                        <FaTimes size={12} />
-                    </button>
                     {/* Transcript */}
                     <div className="rx-transcript">
                         <span className="rx-quote-label">You said</span>
@@ -497,22 +546,20 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
                     {/* AI Response */}
                     <div className="rx-response" id="responseText">
-                        {isProcessing ? 'Processing...' : (reply || 'Hi! Mai aapki kaise madad kar sakta hu?')}
+                        {isProcessing ? '⏳ Processing...' : (reply || 'Hi! Mai aapki kaise madad kar sakta hu?')}
                     </div>
-
-
                 </div>
 
                 {/* Footer Mic Button */}
-                <div 
-                    className={"rx-footer " + (isListening ? "listening" : "")} 
+                <div
+                    className={"rx-footer " + (isListening ? "listening" : "")}
                     id="micBtn"
                     onClick={isListening ? stopListening : startListening}
                 >
                     <div className="rx-pulse"></div>
                     <TbMicrophone size={18} />
                     <span className="rx-footer-text" id="micLabel">
-                        {isListening ? 'Listening' : 'Tap to Speak (AI Voice)'}
+                        {isListening ? 'Listening' : 'Tap to Speak'}
                     </span>
                 </div>
             </div>
