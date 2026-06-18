@@ -309,14 +309,14 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-24 right-6 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
             <style dangerouslySetInnerHTML={{__html: `
                 .rx-card {
                   background: #ffffff;
-                  border-radius: 20px;
-                  width: 260px;
+                  border-radius: 16px;
+                  width: 200px;
                   overflow: hidden;
-                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+                  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
                 }
 
                 .rx-header {
@@ -353,11 +353,11 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
                 .rx-transcript {
                   background: #f4f4ff;
-                  border-radius: 12px;
-                  padding: 12px 14px;
-                  margin-bottom: 12px;
+                  border-radius: 8px;
+                  padding: 8px 10px;
+                  margin-bottom: 8px;
                   border-left: 3px solid #6366f1;
-                  min-height: 60px;
+                  min-height: 40px;
                 }
 
                 .rx-quote-label {
@@ -370,20 +370,19 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 }
 
                 .rx-transcript-text {
-                  font-size: 14px;
+                  font-size: 12px;
                   color: #1a1a2e;
                   font-weight: 500;
-                  line-height: 1.5;
+                  line-height: 1.4;
                   font-style: italic;
                 }
 
                 .rx-response {
-                  font-size: 13px;
+                  font-size: 12px;
                   color: #555577;
-                  line-height: 1.55;
-                  padding-bottom: 14px;
-                  border-bottom: 1px solid #eeeeee;
-                  min-height: 40px;
+                  line-height: 1.4;
+                  padding-bottom: 10px;
+                  min-height: 30px;
                 }
 
 

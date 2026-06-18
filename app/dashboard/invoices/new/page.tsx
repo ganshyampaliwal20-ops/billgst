@@ -252,62 +252,64 @@ function NewInvoiceContent() {
 
         // --- AI Draft Data Logic ---
         if (aiDraftData && aiDraftData.type === 'INVOICE') {
-            const { customerName, amount, items } = aiDraftData;
-            
-            if (customerName) {
-                const storeCustomers = useStore.getState().customers || [];
-                const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerName.toLowerCase()));
-                if (foundCust) {
-                    setCustomerId(foundCust.id);
-                } else {
-                    setNewCustName(customerName);
-                }
-            }
-
-            if (items && items.length > 0) {
-                const storeProducts = useStore.getState().products || [];
-                const newItems = items.map((aiItem: any) => {
-                    const prodName = aiItem.name || '';
-                    const prod = storeProducts.find((p: any) => p.name.toLowerCase().includes(prodName.toLowerCase()));
-                    if (prod) {
-                        return {
-                            product_id: prod.id,
-                            product_name: prod.name,
-                            quantity: aiItem.qty || 1,
-                            unit_price: parseFloat(prod.price || prod.sale_price || prod.unit_price) || 0,
-                            gst_rate: parseFloat(prod.gst_rate) || 0,
-                            hsn_code: prod.hsn_code || '',
-                            unit: prod.unit || 'PCS'
-                        };
+            const timer = setTimeout(() => {
+                const { customerName, amount, items } = aiDraftData;
+                
+                if (customerName) {
+                    const storeCustomers = useStore.getState().customers || [];
+                    const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerName.toLowerCase()));
+                    if (foundCust) {
+                        setCustomerId(foundCust.id);
                     } else {
-                        return {
-                            product_id: '',
-                            product_name: prodName || 'Custom Item',
-                            quantity: aiItem.qty || 1,
-                            unit_price: amount ? (amount / items.length) : 0, // Fallback logic
-                            gst_rate: 0,
-                            hsn_code: '',
-                            unit: 'PCS'
-                        };
+                        setNewCustName(customerName);
                     }
-                });
-                setSelectedItems(newItems);
-            } else if (amount) {
-                setSelectedItems([{
-                    product_id: '',
-                    product_name: 'Custom Item',
-                    quantity: 1,
-                    unit_price: amount,
-                    gst_rate: 0,
-                    hsn_code: '',
-                    unit: 'PCS'
-                }]);
-            }
-            
-            setAiDraftData(null);
-            setTimeout(() => {
+                }
+
+                if (items && items.length > 0) {
+                    const storeProducts = useStore.getState().products || [];
+                    const newItems = items.map((aiItem: any) => {
+                        const prodName = aiItem.name || '';
+                        const prod = storeProducts.find((p: any) => p.name.toLowerCase().includes(prodName.toLowerCase()));
+                        if (prod) {
+                            return {
+                                product_id: prod.id,
+                                product_name: prod.name,
+                                quantity: aiItem.qty || 1,
+                                unit_price: parseFloat(prod.price || prod.sale_price || prod.unit_price) || 0,
+                                gst_rate: parseFloat(prod.gst_rate) || 0,
+                                hsn_code: prod.hsn_code || '',
+                                unit: prod.unit || 'PCS'
+                            };
+                        } else {
+                            return {
+                                product_id: '',
+                                product_name: prodName || 'Custom Item',
+                                quantity: aiItem.qty || 1,
+                                unit_price: amount ? (amount / items.length) : 0, // Fallback logic
+                                gst_rate: 0,
+                                hsn_code: '',
+                                unit: 'PCS'
+                            };
+                        }
+                    });
+                    setSelectedItems(newItems);
+                } else if (amount) {
+                    setSelectedItems([{
+                        product_id: '',
+                        product_name: 'Custom Item',
+                        quantity: 1,
+                        unit_price: amount,
+                        gst_rate: 0,
+                        hsn_code: '',
+                        unit: 'PCS'
+                    }]);
+                }
+                
+                setAiDraftData(null);
                 toast.success('✅ AI ne bill auto-fill kar diya hai!');
-            }, 500);
+            }, 1500);
+            
+            return () => clearTimeout(timer);
         }
     }, [isClient, isDuplicating, quotations, searchParams, aiDraftData]);
 
