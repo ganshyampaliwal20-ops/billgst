@@ -340,46 +340,7 @@ export default function SettingsPage() {
                             </div>
                         </section>
 
-                        {/* ── BUSINESS PROFILE ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Business Profile</h2>
-                                    <p className="bs-card-sub">Details printed on every invoice and quotation</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <div className="bs-form-grid">
-                                    <div className="bs-field">
-                                        <label>Business Name</label>
-                                        <input type="text" required value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Enter business name" />
-                                    </div>
-                                    {!localSettings.nonGstMode && (
-                                        <div className="bs-field">
-                                            <label>GSTIN</label>
-                                            <input type="text" value={formData.gstin || ''} onChange={(e) => setFormData({ ...formData, gstin: e.target.value })} placeholder="22AAAAA0000A1Z5" style={{ fontFamily: 'monospace', letterSpacing: '.4px' }} />
-                                        </div>
-                                    )}
-                                    <div className="bs-field bs-form-full">
-                                        <label>Address</label>
-                                        <textarea value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Business address" style={{ minHeight: '64px' }} />
-                                    </div>
-                                    <div className="bs-field">
-                                        <label>Phone Number</label>
-                                        <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+91 9999999999" />
-                                    </div>
-                                    <div className="bs-field">
-                                        <label>Email</label>
-                                        <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="business@example.com" />
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── PAYMENTS / UPI ── */}
+                        {/* ── 4. UPI PAYMENT ── */}
                         <section className="bs-card">
                             <div className="bs-card-head">
                                 <div className="bs-card-icon">
@@ -399,59 +360,7 @@ export default function SettingsPage() {
                             </div>
                         </section>
 
-                        {/* ── AUTHORIZED SIGNATORY ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 17s3-2 6 0 6 0 6 0 3-2 6 0"/><path d="M4 21h16"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Authorized Signatory</h2>
-                                    <p className="bs-card-sub">Your signature will be printed on invoices and quotations</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <div className="bs-field" style={{ marginBottom: '16px' }}>
-                                    <label>Authorized Signatory Name</label>
-                                    <input type="text" value={formData.owner_name || ''} onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })} placeholder="Person name for signature" />
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
-                                    <div className="bs-sig-preview">
-                                        {formData.signature
-                                            ? <img src={formData.signature} alt="Signature" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                                            : <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: '22px', color: '#1a1a2e' }}>{formData.owner_name || 'Signature'}</span>
-                                        }
-                                    </div>
-                                    <button type="button" className="bs-btn-outline" onClick={() => setIsSignatureModalOpen(true)}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                                        {formData.signature ? 'Change Signature' : 'Draw Signature'}
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── TERMS ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Default Terms &amp; Conditions</h2>
-                                    <p className="bs-card-sub">Appears on every new invoice you create</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <div className="bs-field">
-                                    <label>Terms (will appear on every new invoice)</label>
-                                    <textarea maxLength={500} value={formData.terms_and_conditions || ''} onChange={(e) => setFormData({ ...formData, terms_and_conditions: e.target.value })} placeholder="1. Goods once sold will not be taken back.&#10;2. Interest @18% will be charged if payment is not made within 15 days.&#10;3. Subject to local jurisdiction." />
-                                    <div className="bs-char-count">{termsCount}/500</div>
-                                    <p className="bs-hint">Yeh terms aapke har naye bill par apne aap likh kar aa jaayenge.</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── BRANDING ── */}
+                        {/* ── 5. BRANDING ── */}
                         <section className="bs-card">
                             <div className="bs-card-head">
                                 <div className="bs-card-icon">
@@ -482,7 +391,96 @@ export default function SettingsPage() {
                             </div>
                         </section>
 
-                        {/* ── DESIGN YOUR INVOICE ── */}
+                        {/* ── 6. FEATURES & MODULES ── */}
+                        <section className="bs-card">
+                            <div className="bs-card-head">
+                                <div className="bs-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h2 className="bs-card-title">Features &amp; Modules</h2>
+                                    <p className="bs-card-sub">Turn modules on or off based on what your business needs</p>
+                                </div>
+                                <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                            </div>
+                            <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
+                                <div className="bs-card-body">
+                                    <div className="bs-feature-grid">
+                                        {MODULES.map(mod => (
+                                            <div key={mod.id} className="bs-feature-item">
+                                                <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                                </div>
+                                                <div className="bs-f-text">
+                                                    <strong>{mod.label}</strong>
+                                                    <p>{mod.desc}</p>
+                                                </div>
+                                                <label className="bs-switch">
+                                                    <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
+                                                    <span className="bs-slider"></span>
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div></div>
+                        </section>
+
+                        {/* ── 7. AUTHORIZED SIGNATORY ── */}
+                        <section className="bs-card">
+                            <div className="bs-card-head">
+                                <div className="bs-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 17s3-2 6 0 6 0 6 0 3-2 6 0"/><path d="M4 21h16"/></svg>
+                                </div>
+                                <div>
+                                    <h2 className="bs-card-title">Authorized Signatory</h2>
+                                    <p className="bs-card-sub">Your signature will be printed on invoices and quotations</p>
+                                </div>
+                            </div>
+                            <div className="bs-card-body">
+                                <div className="bs-field" style={{ marginBottom: '16px' }}>
+                                    <label>Authorized Signatory Name</label>
+                                    <input type="text" value={formData.owner_name || ''} onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })} placeholder="Person name for signature" />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
+                                    <div className="bs-sig-preview">
+                                        {formData.signature
+                                            ? <img src={formData.signature} alt="Signature" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                            : <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: '22px', color: '#1a1a2e' }}>{formData.owner_name || 'Signature'}</span>
+                                        }
+                                    </div>
+                                    <button type="button" className="bs-btn-outline" onClick={() => setIsSignatureModalOpen(true)}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+                                        {formData.signature ? 'Change Signature' : 'Draw Signature'}
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* ── 8. TERMS & CONDITIONS ── */}
+                        <section className="bs-card">
+                            <div className="bs-card-head">
+                                <div className="bs-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+                                </div>
+                                <div>
+                                    <h2 className="bs-card-title">Default Terms &amp; Conditions</h2>
+                                    <p className="bs-card-sub">Appears on every new invoice you create</p>
+                                </div>
+                            </div>
+                            <div className="bs-card-body">
+                                <div className="bs-field">
+                                    <label>Terms (will appear on every new invoice)</label>
+                                    <textarea maxLength={500} value={formData.terms_and_conditions || ''} onChange={(e) => setFormData({ ...formData, terms_and_conditions: e.target.value })} placeholder="1. Goods once sold will not be taken back.&#10;2. Interest @18% will be charged if payment is not made within 15 days.&#10;3. Subject to local jurisdiction." />
+                                    <div className="bs-char-count">{termsCount}/500</div>
+                                    <p className="bs-hint">Yeh terms aapke har naye bill par apne aap likh kar aa jaayenge.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* ── 9. DESIGN YOUR INVOICE ── */}
                         <section className="bs-card">
                             <div className="bs-card-head">
                                 <div className="bs-card-icon">
@@ -493,14 +491,11 @@ export default function SettingsPage() {
                                     <p className="bs-card-sub">Color theme, table layout, logo &amp; live preview</p>
                                 </div>
                                 <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
-                                    <span>Customize</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                             </div>
                             <div className={`bs-collapse ${designOpen ? 'open' : ''}`}><div>
                                 <div className="bs-card-body">
-
-                                    {/* Color Theme */}
                                     <p className="bs-sec-label">Invoice Color Theme</p>
                                     <div className="bs-theme-grid">
                                         {Object.entries(THEMES).map(([id, t]) => (
@@ -518,8 +513,6 @@ export default function SettingsPage() {
                                             </button>
                                         ))}
                                     </div>
-
-                                    {/* Table Layout */}
                                     <p className="bs-sec-label">Invoice Table Layout</p>
                                     <div className="bs-layout-grid">
                                         {LAYOUTS.map(l => (
@@ -534,8 +527,6 @@ export default function SettingsPage() {
                                             </button>
                                         ))}
                                     </div>
-
-                                    {/* Logo Alignment */}
                                     <p className="bs-sec-label">Logo Alignment on Invoice</p>
                                     <div className="bs-align-grid">
                                         {[
@@ -553,8 +544,6 @@ export default function SettingsPage() {
                                             </button>
                                         ))}
                                     </div>
-
-                                    {/* Live Preview */}
                                     <div className="bs-preview-wrap">
                                         <div className="bs-preview-label">
                                             <span style={{ fontSize: '11.5px', color: 'var(--text-faint)', fontWeight: 600 }}>
@@ -599,12 +588,11 @@ export default function SettingsPage() {
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div></div>
                         </section>
 
-                        {/* ── PREFERENCES ── */}
+                        {/* ── 10. PREFERENCES ── */}
                         <section className="bs-card">
                             <div className="bs-card-head">
                                 <div className="bs-card-icon">
@@ -626,7 +614,7 @@ export default function SettingsPage() {
                             </div>
                         </section>
 
-                        {/* ── ACCOUNT SECURITY ── */}
+                        {/* ── 11. ACCOUNT SECURITY ── */}
                         <section className="bs-card">
                             <div className="bs-card-head">
                                 <div className="bs-card-icon">
@@ -638,14 +626,9 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             <div className="bs-card-body">
-                                <p className="bs-hint" style={{ marginBottom: '14px' }}>Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein.</p>
-                                <button type="button" className="bs-btn-outline">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                    Change Password
-                                </button>
+                                <p className="bs-hint">Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein.</p>
                             </div>
                         </section>
-
                     </div>
 
                     {/* ── SAVE BAR ── */}
