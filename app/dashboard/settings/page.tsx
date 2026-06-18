@@ -402,6 +402,7 @@ export default function SettingsPage() {
                                     <p className="bs-card-sub">Turn modules on or off based on what your business needs</p>
                                 </div>
                                 <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
+                                    <span>{featuresOpen ? 'Close' : 'View Modules'}</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                             </div>
@@ -491,6 +492,7 @@ export default function SettingsPage() {
                                     <p className="bs-card-sub">Color theme, table layout, logo &amp; live preview</p>
                                 </div>
                                 <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
+                                    <span>{designOpen ? 'Close' : 'Customize Design'}</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
                                 </button>
                             </div>
