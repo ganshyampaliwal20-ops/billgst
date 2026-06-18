@@ -3,54 +3,40 @@ import https from 'https';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-function fetchGemini(apiKey: string, prompt: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const payload = JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.1 }
-        });
+async function fetchGemini(apiKey: string, prompt: string): Promise<string> {
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1 }
+    };
 
-        const options = {
-            hostname: 'generativelanguage.googleapis.com',
-            port: 443,
-            path: '/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey,
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+    try {
+        const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(payload)
-            },
-            family: 4 // FORCE IPv4 to bypass Windows IPv6 hanging issues
-        };
-
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', chunk => { data += chunk; });
-            res.on('end', () => {
-                if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-                    try {
-                        const parsed = JSON.parse(data);
-                        const text = parsed.candidates[0].content.parts[0].text;
-                        resolve(text);
-                    } catch (e) {
-                        reject(new Error("Invalid JSON from Gemini: " + data));
-                    }
-                } else {
-                    reject(new Error(`HTTP ${res.statusCode}: ${data}`));
-                }
-            });
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
-
-        req.on('error', (e) => reject(e));
         
-        // Add a strict timeout of 10 seconds so it NEVER hangs forever
-        req.setTimeout(10000, () => {
-            req.destroy();
-            reject(new Error('Request timed out after 10 seconds'));
-        });
-
-        req.write(payload);
-        req.end();
-    });
+        clearTimeout(timeoutId);
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${JSON.stringify(data)}`);
+        }
+        
+        if (data.candidates && data.candidates.length > 0) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            throw new Error("Invalid output from Gemini: " + JSON.stringify(data));
+        }
+    } catch (e: any) {
+        clearTimeout(timeoutId);
+        throw e;
+    }
 }
 
 export async function POST(request: Request) {
