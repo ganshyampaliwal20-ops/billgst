@@ -133,7 +133,7 @@ export async function POST(request: Request) {
     `, [
             data.id,
             data.invoice_number,
-            customerId,
+            customerId === 'CASH' ? null : customerId,
             data.invoice_date,
             data.due_date || null,
             data.subtotal,
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
                     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 `, [
                     invoiceId,
-                    item.product_id,
+                    item.product_id || null,
                     item.product_name,
                     item.hsn_code || null,
                     quantity,

@@ -71,7 +71,7 @@ export default function SettingsPage() {
                 setFormData({ ...formData, logo: optimizedLogo });
                 toast.success('Logo uploaded!');
             } catch (error: any) {
-                toast.error(error.message || 'Upload fail ho gaya!');
+                toast.error(error.message || (localSettings.language === 'en' ? 'Upload failed!' : 'Upload fail ho gaya!'));
             }
         }
     };
@@ -103,25 +103,44 @@ export default function SettingsPage() {
                     --radius-sm: 8px;
                 }
                 .bs-page { background: var(--bg); min-height: 100vh; color: var(--text); font-family: 'Inter', sans-serif; padding-bottom: 80px; }
-                .bs-content { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
-                .bs-page-head { margin-bottom: 22px; }
-                .bs-page-head h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); margin: 0; }
-                .bs-page-head p { margin: 6px 0 0; color: var(--text-dim); font-size: 13.5px; }
+                .bs-content { max-width: 900px; margin: 0 auto; padding: 16px 12px; }
+                @media (min-width: 640px) { .bs-content { padding: 40px 24px; } }
+
+                .bs-page-head { margin-bottom: 20px; text-align: left; }
+                @media (min-width: 640px) { .bs-page-head { margin-bottom: 32px; text-align: center; } }
+                .bs-page-head h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); margin: 0; }
+                @media (min-width: 640px) { .bs-page-head h1 { font-size: 28px; } }
+                .bs-page-head p { margin: 6px 0 0; color: var(--text-dim); font-size: 13px; }
+                @media (min-width: 640px) { .bs-page-head p { font-size: 15px; } }
 
                 /* Cards */
-                .bs-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 10px 30px -16px rgba(0,0,0,0.6); margin-bottom: 16px; overflow: hidden; }
-                .bs-card-head { display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px 14px; }
+                .bs-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.5); margin-bottom: 16px; overflow: hidden; }
+                @media (min-width: 640px) { .bs-card { margin-bottom: 24px; } }
+                
+                .bs-card-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px; }
+                @media (min-width: 640px) { .bs-card-head { padding: 20px 24px 16px; } }
+                .bs-card-head > div:not(.bs-card-icon) { flex: 1; min-width: 0; }
+                
                 .bs-card-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: #c4b5fd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                .bs-card-icon svg { width: 18px; height: 18px; }
-                .bs-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; }
-                .bs-card-sub { margin: 3px 0 0; font-size: 12px; color: var(--text-faint); }
-                .bs-card-body { padding: 0 20px 20px; }
+                @media (min-width: 640px) { .bs-card-icon { width: 42px; height: 42px; border-radius: 12px; } .bs-card-icon svg { width: 20px; height: 20px; } }
+                
+                .bs-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                @media (min-width: 640px) { .bs-card-title { font-size: 17px; } }
+                .bs-card-sub { margin: 3px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                @media (min-width: 640px) { .bs-card-sub { font-size: 13px; } }
+                
+                .bs-card-body { padding: 0 16px 16px; }
+                @media (min-width: 640px) { .bs-card-body { padding: 0 24px 24px; } }
 
                 /* Toggle Row */
-                .bs-toggle-row { display: flex; align-items: flex-start; gap: 14px; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--border-soft); }
+                .bs-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border-soft); flex-wrap: nowrap; }
+                @media (min-width: 640px) { .bs-toggle-row { padding: 16px 0; } }
                 .bs-toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+                .bs-toggle-row > div:first-child { flex: 1; min-width: 0; }
                 .bs-toggle-row strong { font-size: 13.5px; font-weight: 600; color: var(--text); display: block; }
-                .bs-toggle-row p { margin: 3px 0 0; font-size: 12px; color: var(--text-faint); line-height: 1.5; }
+                @media (min-width: 640px) { .bs-toggle-row strong { font-size: 14.5px; } }
+                .bs-toggle-row p { margin: 3px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.4; }
+                @media (min-width: 640px) { .bs-toggle-row p { font-size: 12.5px; } }
 
                 /* Switch */
                 .bs-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
@@ -132,17 +151,20 @@ export default function SettingsPage() {
                 .bs-switch input:checked + .bs-slider::before { transform: translateX(18px); background: #fff; }
 
                 /* Segmented Control */
-                .bs-segmented { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; }
-                .bs-seg-btn { border: none; background: transparent; color: var(--text-dim); font-size: 12.5px; font-weight: 600; padding: 7px 18px; border-radius: 999px; transition: .15s; cursor: pointer; }
+                .bs-segmented { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; width: 100%; }
+                @media (min-width: 640px) { .bs-segmented { width: auto; flex-shrink: 0; } }
+                .bs-seg-btn { flex: 1; border: none; background: transparent; color: var(--text-dim); font-size: 12.5px; font-weight: 600; padding: 7px 16px; border-radius: 999px; transition: .15s; cursor: pointer; text-align: center; }
+                @media (min-width: 640px) { .bs-seg-btn { flex: none; padding: 8px 20px; font-size: 13px; } }
                 .bs-seg-btn.active { background: var(--grad); color: #fff; }
 
                 /* Form Fields */
                 .bs-form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-                @media (min-width: 640px) { .bs-form-grid { grid-template-columns: 1fr 1fr; } }
+                @media (min-width: 640px) { .bs-form-grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
                 .bs-form-full { grid-column: 1 / -1; }
                 .bs-field { display: flex; flex-direction: column; gap: 6px; }
-                .bs-field label { font-size: 12.5px; font-weight: 600; color: var(--text-dim); }
-                .bs-field input, .bs-field textarea, .bs-field select { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 11px 13px; font-size: 13.5px; outline: none; transition: border-color .15s, box-shadow .15s; width: 100%; font-family: inherit; }
+                .bs-field label { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-left: 2px; }
+                @media (min-width: 640px) { .bs-field label { font-size: 13px; } }
+                .bs-field input, .bs-field textarea, .bs-field select { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 12px 14px; font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s; width: 100%; font-family: inherit; }
                 .bs-field input::placeholder, .bs-field textarea::placeholder { color: var(--text-faint); }
                 .bs-field input:focus, .bs-field textarea:focus, .bs-field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
                 .bs-field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
@@ -162,66 +184,89 @@ export default function SettingsPage() {
 
                 /* Feature items */
                 .bs-feature-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-                @media (min-width: 640px) { .bs-feature-grid { grid-template-columns: 1fr 1fr; } }
-                .bs-feature-item { display: flex; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--bg-soft); }
+                @media (min-width: 768px) { .bs-feature-grid { grid-template-columns: 1fr 1fr; gap: 14px; } }
+                .bs-feature-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--bg-soft); }
+                @media (min-width: 640px) { .bs-feature-item { padding: 16px; gap: 16px; } }
                 .bs-f-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+                @media (min-width: 640px) { .bs-f-icon { width: 40px; height: 40px; border-radius: 12px; } .bs-f-icon svg { width: 18px; height: 18px; } }
                 .bs-f-icon svg { width: 16px; height: 16px; }
                 .bs-f-text { flex: 1; min-width: 0; }
                 .bs-f-text strong { font-size: 13px; font-weight: 600; display: block; color: var(--text); }
+                @media (min-width: 640px) { .bs-f-text strong { font-size: 14.5px; } }
                 .bs-f-text p { margin: 2px 0 0; font-size: 11.5px; color: var(--text-faint); }
+                @media (min-width: 640px) { .bs-f-text p { font-size: 12.5px; line-height: 1.4; } }
 
                 /* Logo preview */
-                .bs-logo-preview { width: 74px; height: 74px; border-radius: 14px; background: var(--surface-2); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; color: var(--text-faint); }
+                .bs-logo-preview { width: 64px; height: 64px; border-radius: 12px; background: var(--surface-2); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; color: var(--text-faint); }
+                @media (min-width: 640px) { .bs-logo-preview { width: 80px; height: 80px; border-radius: 16px; } }
                 .bs-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
                 .bs-file-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .15s; }
-                .bs-file-btn:hover { border-color: var(--accent); }
+                .bs-file-btn:hover { border-color: var(--accent); background: var(--surface-3); }
 
                 /* Signature preview */
-                .bs-sig-preview { width: 180px; height: 68px; border-radius: 10px; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+                .bs-sig-preview { width: 100%; height: 80px; border-radius: 10px; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+                @media (min-width: 640px) { .bs-sig-preview { width: 220px; height: 80px; } }
 
                 /* Outline button */
-                .bs-btn-outline { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color .15s; }
-                .bs-btn-outline:hover { border-color: var(--accent); }
+                .bs-btn-outline { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .15s; width: 100%; }
+                @media (min-width: 640px) { .bs-btn-outline { width: auto; } }
+                .bs-btn-outline:hover { border-color: var(--accent); background: var(--surface-3); }
 
                 /* Theme cards */
-                .bs-theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-                @media (min-width: 640px) { .bs-theme-grid { grid-template-columns: repeat(3, 1fr); } }
-                @media (min-width: 1024px) { .bs-theme-grid { grid-template-columns: repeat(4, 1fr); } }
-                .bs-theme-card { border: 1.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-soft); text-align: left; cursor: pointer; transition: border-color .15s; width: 100%; }
-                .bs-theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+                .bs-theme-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+                @media (min-width: 480px) { .bs-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 0; } }
+                @media (min-width: 768px) { .bs-theme-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+                .bs-theme-card { flex: 0 0 140px; border: 1.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-soft); text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
+                @media (min-width: 480px) { .bs-theme-card { flex: auto; } }
+                .bs-theme-card:hover { border-color: var(--border-soft); transform: translateY(-2px); }
+                .bs-theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: none; }
                 .bs-theme-bar { height: 34px; width: 100%; }
-                .bs-theme-label { padding: 8px 10px; font-size: 12px; font-weight: 600; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; }
+                .bs-theme-label { padding: 8px 10px; font-size: 11.5px; font-weight: 600; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; }
+                @media (min-width: 640px) { .bs-theme-label { font-size: 12.5px; padding: 10px 12px; } }
 
                 /* Layout grid */
-                .bs-layout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-                @media (min-width: 640px) { .bs-layout-grid { grid-template-columns: repeat(3, 1fr); } }
-                .bs-layout-card { border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 13px 10px; background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; cursor: pointer; transition: border-color .15s; width: 100%; }
-                .bs-layout-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+                .bs-layout-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+                @media (min-width: 480px) { .bs-layout-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 0; } }
+                @media (min-width: 768px) { .bs-layout-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+                .bs-layout-card { flex: 0 0 130px; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 13px 10px; background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
+                @media (min-width: 480px) { .bs-layout-card { flex: auto; } }
+                .bs-layout-card:hover { transform: translateY(-2px); }
+                .bs-layout-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: none; }
                 .bs-layout-card span { font-size: 12px; font-weight: 600; color: var(--text); }
+                @media (min-width: 640px) { .bs-layout-card span { font-size: 13px; } }
                 .bs-layout-card small { font-size: 10.5px; color: var(--text-faint); }
 
                 /* Align grid */
-                .bs-align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-                .bs-align-card { border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 13px 8px; background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; transition: border-color .15s; width: 100%; }
-                .bs-align-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+                .bs-align-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+                @media (min-width: 480px) { .bs-align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 0; } }
+                .bs-align-card { flex: 0 0 110px; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 13px 8px; background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
+                @media (min-width: 480px) { .bs-align-card { flex: auto; } }
+                .bs-align-card:hover { transform: translateY(-2px); }
+                .bs-align-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: none; }
                 .bs-align-card svg { width: 18px; height: 18px; color: var(--text-dim); }
+                @media (min-width: 640px) { .bs-align-card svg { width: 22px; height: 22px; } }
                 .bs-align-card span { font-size: 10.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--text-dim); }
 
                 /* Preview */
-                .bs-preview-wrap { margin-top: 18px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: #0d0f17; padding: 14px; }
-                .bs-preview-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-                .bs-preview-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
-                .bs-badge { font-size: 10px; background: var(--surface-2); color: var(--text-faint); padding: 3px 8px; border-radius: 6px; }
+                .bs-preview-wrap { margin-top: 24px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: #0d0f17; padding: 12px; }
+                @media (min-width: 640px) { .bs-preview-wrap { padding: 20px; border-radius: var(--radius-lg); } }
+                .bs-preview-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+                .bs-preview-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
+                .bs-badge { font-size: 10.5px; background: var(--surface-2); color: var(--text-faint); padding: 4px 10px; border-radius: 6px; font-weight: 600; }
 
                 /* Section label */
-                .bs-sec-label { font-size: 12.5px; font-weight: 600; color: var(--text-dim); margin: 16px 0 10px; }
+                .bs-sec-label { font-size: 13px; font-weight: 700; color: var(--text-dim); margin: 20px 0 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+                @media (min-width: 640px) { .bs-sec-label { font-size: 14px; margin: 24px 0 14px; } }
                 .bs-sec-label:first-child { margin-top: 4px; }
 
                 /* Save Bar */
-                .bs-save-bar { position: sticky; bottom: 0; padding: 14px 16px; background: rgba(10,12,18,0.9); backdrop-filter: blur(10px); border-top: 1px solid var(--border-soft); display: flex; justify-content: center; z-index: 30; }
-                .bs-btn-primary { background: var(--grad); color: #fff; border: none; padding: 14px 32px; border-radius: 999px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 24px -10px rgba(124,58,237,0.6); max-width: 440px; width: 100%; justify-content: center; cursor: pointer; transition: transform .15s; }
+                .bs-save-bar { position: sticky; bottom: 0; padding: 16px; background: rgba(10,12,18,0.85); backdrop-filter: blur(12px); border-top: 1px solid var(--border-soft); display: flex; justify-content: center; z-index: 30; }
+                @media (min-width: 640px) { .bs-save-bar { padding: 20px; } }
+                .bs-btn-primary { background: var(--grad); color: #fff; border: none; padding: 14px 24px; border-radius: 999px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 24px -10px rgba(124,58,237,0.6); max-width: 440px; width: 100%; justify-content: center; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+                @media (min-width: 640px) { .bs-btn-primary { padding: 16px 32px; font-size: 16px; } }
+                .bs-btn-primary:hover { box-shadow: 0 14px 28px -10px rgba(124,58,237,0.7); }
                 .bs-btn-primary:active { transform: scale(.98); }
-                .bs-btn-primary svg { width: 16px; height: 16px; }
+                .bs-btn-primary svg { width: 18px; height: 18px; }
 
                 /* Mini layout preview bars */
                 .bs-mini { width: 100%; height: 30px; display: flex; flex-direction: column; gap: 3px; justify-content: center; }
@@ -233,14 +278,51 @@ export default function SettingsPage() {
                     <div className="bs-content">
                         <div className="bs-page-head">
                             <h1>Business Settings</h1>
-                            <p>Apna business profile, invoice design aur preferences yahan se manage karein.</p>
+                            <p>{localSettings.language === 'en' ? 'Manage your business profile, invoice design and preferences here.' : 'Apna business profile, invoice design aur preferences yahan se manage karein.'}</p>
                         </div>
+
+                        {/* ── 1. BUSINESS PROFILE ── */}
+                        <section className="bs-card">
+                            <div className="bs-card-head">
+                                <div className="bs-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                </div>
+                                <div>
+                                    <h2 className="bs-card-title">Business Profile</h2>
+                                    <p className="bs-card-sub">{localSettings.language === 'en' ? 'Update basic details of your business' : 'Apne business ki basic details update karein'}</p>
+                                </div>
+                            </div>
+                            <div className="bs-card-body">
+                                <div className="bs-form-grid">
+                                    <div className="bs-field bs-form-full">
+                                        <label>Business Name</label>
+                                        <input type="text" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Sharma Traders" required />
+                                    </div>
+                                    <div className="bs-field">
+                                        <label>Mobile Number</label>
+                                        <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="10 digit number" required />
+                                    </div>
+                                    <div className="bs-field">
+                                        <label>Email Address</label>
+                                        <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="business@email.com" />
+                                    </div>
+                                    <div className="bs-field bs-form-full">
+                                        <label>Business Address</label>
+                                        <textarea value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Full address shown on invoice"></textarea>
+                                    </div>
+                                    <div className="bs-field bs-form-full">
+                                        <label>GST Number (Optional)</label>
+                                        <input type="text" value={formData.gst || ''} onChange={(e) => setFormData({ ...formData, gst: e.target.value })} placeholder="22AAAAA0000A1Z5" style={{ textTransform: 'uppercase' }} />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
 
                         {/* ── TAX SETTINGS ── */}
                         <section className="bs-card">
                             <div className="bs-card-head">
                                 <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
                                 </div>
                                 <div>
                                     <h2 className="bs-card-title">Tax Settings</h2>
@@ -252,7 +334,7 @@ export default function SettingsPage() {
                                 <div className="bs-toggle-row" style={{ borderBottom: !localSettings.nonGstMode ? '1px solid var(--border-soft)' : 'none' }}>
                                     <div>
                                         <strong>I have a GST Number</strong>
-                                        <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>Agar GST number hai to ON karein, nahi hai to OFF.</p>
+                                        <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>{localSettings.language === 'en' ? 'Turn ON if you have a GST number, else OFF.' : 'Agar GST number hai to ON karein, nahi hai to OFF.'}</p>
                                     </div>
                                     <label className="bs-switch">
                                         <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })} />
@@ -265,7 +347,7 @@ export default function SettingsPage() {
                                     <div className="bs-toggle-row" style={{ borderBottom: 'none', paddingBottom: 0 }}>
                                         <div>
                                             <strong>GST Calculation Mode</strong>
-                                            <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>Exclusive: price + GST alag. Inclusive: GST price ke andar.</p>
+                                            <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>{localSettings.language === 'en' ? 'Exclusive: Price + GST separately. Inclusive: GST inside price.' : 'Exclusive: price + GST alag. Inclusive: GST price ke andar.'}</p>
                                         </div>
                                         <div className="bs-segmented" style={{ flexShrink: 0 }}>
                                             <button type="button" className={`bs-seg-btn ${localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}>Exclusive</button>
@@ -274,44 +356,6 @@ export default function SettingsPage() {
                                     </div>
                                 </div></div>
                             </div>
-                        </section>
-
-                        {/* ── FEATURES & MODULES ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="bs-card-title">Features &amp; Modules</h2>
-                                    <p className="bs-card-sub">Turn modules on or off based on what your business needs</p>
-                                </div>
-                                <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
-                                    <span style={{ display: 'none' }}>View</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
-                                </button>
-                            </div>
-                            <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
-                                <div className="bs-card-body">
-                                    <div className="bs-feature-grid">
-                                        {MODULES.map(mod => (
-                                            <div key={mod.id} className="bs-feature-item">
-                                                <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                                                </div>
-                                                <div className="bs-f-text">
-                                                    <strong>{mod.label}</strong>
-                                                    <p>{mod.desc}</p>
-                                                </div>
-                                                <label className="bs-switch">
-                                                    <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
-                                                    <span className="bs-slider"></span>
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div></div>
                         </section>
 
                         {/* ── BANK DETAILS ── */}
@@ -355,7 +399,7 @@ export default function SettingsPage() {
                                 <div className="bs-field">
                                     <label>UPI ID (for QR Code)</label>
                                     <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({ ...formData, upi_id: e.target.value })} placeholder="example@upi" />
-                                    <p className="bs-hint">Yeh ID aapke invoices par payment QR code generate karne ke liye upyog hogi.</p>
+                                    <p className="bs-hint">{localSettings.language === 'en' ? 'This ID will be used to generate a payment QR code on your invoices.' : 'Yeh ID aapke invoices par payment QR code generate karne ke liye upyog hogi.'}</p>
                                 </div>
                             </div>
                         </section>
@@ -389,44 +433,6 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </div>
-                        </section>
-
-                        {/* ── 6. FEATURES & MODULES ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="bs-card-title">Features &amp; Modules</h2>
-                                    <p className="bs-card-sub">Turn modules on or off based on what your business needs</p>
-                                </div>
-                                <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
-                                    <span>{featuresOpen ? 'Close' : 'View Modules'}</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
-                                </button>
-                            </div>
-                            <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
-                                <div className="bs-card-body">
-                                    <div className="bs-feature-grid">
-                                        {MODULES.map(mod => (
-                                            <div key={mod.id} className="bs-feature-item">
-                                                <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                                                </div>
-                                                <div className="bs-f-text">
-                                                    <strong>{mod.label}</strong>
-                                                    <p>{mod.desc}</p>
-                                                </div>
-                                                <label className="bs-switch">
-                                                    <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
-                                                    <span className="bs-slider"></span>
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div></div>
                         </section>
 
                         {/* ── 7. AUTHORIZED SIGNATORY ── */}
@@ -476,9 +482,47 @@ export default function SettingsPage() {
                                     <label>Terms (will appear on every new invoice)</label>
                                     <textarea maxLength={500} value={formData.terms_and_conditions || ''} onChange={(e) => setFormData({ ...formData, terms_and_conditions: e.target.value })} placeholder="1. Goods once sold will not be taken back.&#10;2. Interest @18% will be charged if payment is not made within 15 days.&#10;3. Subject to local jurisdiction." />
                                     <div className="bs-char-count">{termsCount}/500</div>
-                                    <p className="bs-hint">Yeh terms aapke har naye bill par apne aap likh kar aa jaayenge.</p>
+                                    <p className="bs-hint">{localSettings.language === 'en' ? 'These terms will automatically appear on every new bill.' : 'Yeh terms aapke har naye bill par apne aap likh kar aa jaayenge.'}</p>
                                 </div>
                             </div>
+                        </section>
+
+                        {/* ── FEATURES & MODULES ── */}
+                        <section className="bs-card">
+                            <div className="bs-card-head">
+                                <div className="bs-card-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h2 className="bs-card-title">Features &amp; Modules</h2>
+                                    <p className="bs-card-sub">Turn modules on or off based on what your business needs</p>
+                                </div>
+                                <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
+                                    <span>{featuresOpen ? 'Close' : 'View Modules'}</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                            </div>
+                            <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
+                                <div className="bs-card-body">
+                                    <div className="bs-feature-grid">
+                                        {MODULES.map(mod => (
+                                            <div key={mod.id} className="bs-feature-item">
+                                                <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                                </div>
+                                                <div className="bs-f-text">
+                                                    <strong>{mod.label}</strong>
+                                                    <p>{mod.desc}</p>
+                                                </div>
+                                                <label className="bs-switch">
+                                                    <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
+                                                    <span className="bs-slider"></span>
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div></div>
                         </section>
 
                         {/* ── 9. DESIGN YOUR INVOICE ── */}
@@ -628,7 +672,7 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             <div className="bs-card-body">
-                                <p className="bs-hint">Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein.</p>
+                                <p className="bs-hint">{localSettings.language === 'en' ? "Manage your business profile and settings here. Press 'Save All Settings' below to apply changes." : "Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein."}</p>
                             </div>
                         </section>
                     </div>

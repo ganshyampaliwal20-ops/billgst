@@ -26,6 +26,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     const isEngineActive = useRef(false);
     const modalRef = useRef<HTMLDivElement>(null);
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
+    const settings = useStore((state: any) => state.settings) || {};
+    const isEn = settings.language === 'en';
 
     useEffect(() => {
         let isMounted = true;
@@ -74,16 +76,16 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     isEngineActive.current = false;
 
                     if (event.error === 'no-speech') {
-                        toast.error('Awaaz nahi aayi. Mic check karein ya type karein.');
+                        toast.error(isEn ? 'No sound detected. Please check mic or type.' : 'Awaaz nahi aayi. Mic check karein ya type karein.');
                         return;
                     }
 
                     if (event.error === 'network') {
-                        toast.error('Network Error: Please check your internet connection.');
+                        toast.error(isEn ? 'Network Error: Please check your internet connection.' : 'Network Error: Please check your internet connection.');
                     } else if (event.error === 'not-allowed') {
-                        toast.error('Microphone access denied. Please enable it in browser settings.');
+                        toast.error(isEn ? 'Microphone access denied. Please enable it in browser settings.' : 'Microphone access denied. Please enable it in browser settings.');
                     } else {
-                        toast.error(`Voice Error: ${event.error}. Please try again.`);
+                        toast.error(isEn ? `Voice Error: ${event.error}. Please try again.` : `Voice Error: ${event.error}. Please try again.`);
                     }
                 };
             }
@@ -155,7 +157,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         }
 
         if (!recognitionRef.current) {
-            toast.error('Voice support nahi hai. Please type karein.');
+            toast.error(isEn ? 'Voice support not available. Please type.' : 'Voice support nahi hai. Please type karein.');
             return;
         }
 
@@ -206,7 +208,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             const response = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text }),
+                body: JSON.stringify({ message: text, language: settings.language || 'hi' }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
@@ -217,28 +219,28 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             if (data.action) {
                 if (data.action === 'CREATE_INVOICE') {
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
-                    toast.success('Bill banane ja raha hu...');
+                    toast.success(isEn ? 'Creating bill...' : 'Bill banane ja raha hu...');
                     setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
                 } else if (data.action === 'MARK_ATTENDANCE') {
                     setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
-                    toast.success('Attendance page khol raha hu...');
+                    toast.success(isEn ? 'Opening attendance page...' : 'Attendance page khol raha hu...');
                     setTimeout(() => router.push('/dashboard/staff'), 1000);
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
-                    toast.success('Expense form khol raha hu...');
+                    toast.success(isEn ? 'Opening expense form...' : 'Expense form khol raha hu...');
                     setTimeout(() => router.push('/dashboard/expenses/new'), 1000);
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
-                    toast.success('Inventory form khol raha hu...');
+                    toast.success(isEn ? 'Opening inventory form...' : 'Inventory form khol raha hu...');
                     setTimeout(() => router.push('/dashboard/inventory'), 1000);
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
                     if (path) {
-                        toast.success('Page khol raha hu...');
+                        toast.success(isEn ? 'Opening page...' : 'Page khol raha hu...');
                         setTimeout(() => router.push(path), 1000);
                     }
                 } else if (data.action !== 'REPLY') {
-                    toast.error('Action samajh nahi aaya: ' + data.action);
+                    toast.error((isEn ? 'Action not understood: ' : 'Action samajh nahi aaya: ') + data.action);
                 }
             }
         } catch (error: any) {
@@ -329,12 +331,12 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed bottom-24 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-32 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
             <style dangerouslySetInnerHTML={{__html: `
                 .rx-card {
                   background: #ffffff;
                   border-radius: 18px;
-                  width: 230px;
+                  width: 210px;
                   overflow: hidden;
                   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0,0,0,0.08);
                   border: 1px solid #e8eaf6;
@@ -538,15 +540,15 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 <div className="rx-body">
                     {/* Transcript */}
                     <div className="rx-transcript">
-                        <span className="rx-quote-label">You said</span>
+                        <span className="rx-quote-label">{isEn ? 'You said' : 'Aapne kaha'}</span>
                         <span className="rx-transcript-text" id="transcriptText">
-                            {transcript ? '"' + transcript + '"' : '"Aap bol sakte hain..."'}
+                            {transcript ? '"' + transcript + '"' : (isEn ? '"You can speak now..."' : '"Aap bol sakte hain..."')}
                         </span>
                     </div>
 
                     {/* AI Response */}
                     <div className="rx-response" id="responseText">
-                        {isProcessing ? '⏳ Processing...' : (reply || 'Hi! Mai aapki kaise madad kar sakta hu?')}
+                        {isProcessing ? '⏳ Processing...' : (reply || (isEn ? 'Hi! How can I help you?' : 'Hi! Mai aapki kaise madad kar sakta hu?'))}
                     </div>
                 </div>
 
@@ -559,7 +561,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     <div className="rx-pulse"></div>
                     <TbMicrophone size={18} />
                     <span className="rx-footer-text" id="micLabel">
-                        {isListening ? 'Listening' : 'Tap to Speak'}
+                        {isListening ? (isEn ? 'Listening' : 'Sun raha hu...') : (isEn ? 'Tap to Speak' : 'Tap karein aur bolein')}
                     </span>
                 </div>
             </div>

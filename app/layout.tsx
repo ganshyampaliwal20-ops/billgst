@@ -17,8 +17,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://billgst.in"),
-  title: "BillGST: Free GST Billing Software & Voice Billing App",
-  description: "100% Free GST Billing Software with AI Voice Billing. The best Vyapar alternative for Indian shops—create bills by speaking, manage inventory, and send WhatsApp PDFs.",
+  title: "BillGST: 100% Free Voice Billing App - Best Vyapar Alternative",
+  description: "Looking for Vyapar app voice billing feature? Try BillGST, a 100% Free Voice Billing App for Indian businesses. Create invoices by speaking, absolutely free!",
   keywords: "voice billing app, vyapar app voice billing, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing, vyapar alternative",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon.png', sizes: '192x192', type: 'image/png' },
       { url: '/logo.png', sizes: '512x512', type: 'image/png' },
     ],

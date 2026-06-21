@@ -46,7 +46,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ reply: "Aapko pehle login karna hoga." }, { status: 401 });
         }
 
-        const { message } = await request.json();
+        const { message, language } = await request.json();
+        const isEn = language === 'en';
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
@@ -70,7 +71,7 @@ You MUST respond ONLY with a valid JSON object matching this structure:
 {
   "action": "CREATE_INVOICE" | "MARK_ATTENDANCE" | "ADD_EXPENSE" | "ADD_INVENTORY" | "NAVIGATE" | "REPLY",
   "payload": { ... },
-  "reply": "A helpful response in Hinglish to be spoken back to the user. E.g. 'Ji, Raju ka 500 ka bill bana raha hu. Ab bas aap save button dabaiye.'"
+  "reply": "A helpful response in ${isEn ? 'English' : 'Hinglish'} to be spoken back to the user. E.g. '${isEn ? "Sure, I am creating a bill for Raju. Please click the save button." : "Ji, Raju ka 500 ka bill bana raha hu. Ab bas aap save button dabaiye."}'"
 }
 
 Payload rules based on Action:
@@ -96,7 +97,7 @@ Output: {"action": "ADD_EXPENSE", "payload": {"description": "Chai pani", "amoun
 Example User: "Inventry me 1 kg ghee add kar"
 Output: {"action": "ADD_INVENTORY", "payload": {"itemName": "ghee", "qty": 1, "unit": "kg"}, "reply": "Ji, inventory me 1 kg ghee add kar diya hai, ab kripya save dabayein."}
 
-Make the "reply" sound natural, helpful, and polite in Hinglish. ALWAYS tell the user what you are doing, and if it involves a form, ALWAYS remind them to click the Save button!
+Make the "reply" sound natural, helpful, and polite in ${isEn ? 'English' : 'Hinglish'}. ALWAYS tell the user what you are doing, and if it involves a form, ALWAYS remind them to click the Save button!
 Return ONLY the JSON. No markdown backticks.`;
 
         const responseText = await fetchGemini(apiKey, prompt);
@@ -107,7 +108,7 @@ Return ONLY the JSON. No markdown backticks.`;
             return NextResponse.json(data);
         } catch (e) {
             console.error("Failed to parse Gemini output:", jsonStr);
-            return NextResponse.json({ reply: "Maaf kijiye, main theek se samajh nahi paaya. Kripya dobara bole." });
+            return NextResponse.json({ reply: isEn ? "Sorry, I couldn't understand that. Please say it again." : "Maaf kijiye, main theek se samajh nahi paaya. Kripya dobara bole." });
         }
 
     } catch (error: any) {
@@ -118,6 +119,15 @@ Return ONLY the JSON. No markdown backticks.`;
             errorMessage = "Aapki Gemini AI API Key ki limit (quota) khatam ho gayi hai. Kripya .env.local file mein nayi API key dalein (aistudio.google.com se).";
         } else if (error?.message?.includes("400") || error?.message?.includes("API_KEY_INVALID")) {
             errorMessage = "Aapki Gemini AI API Key galat ya invalid hai. Kripya .env.local check karein aur sahi key dalein.";
+        }
+        
+        if (isEn) {
+            errorMessage = "Sorry, the system is busy right now. Please try again later.";
+            if (error?.message?.includes("429 Too Many Requests") || error?.message?.includes("quota")) {
+                errorMessage = "Your Gemini AI API Key quota is exhausted. Please enter a new key in .env.local.";
+            } else if (error?.message?.includes("400") || error?.message?.includes("API_KEY_INVALID")) {
+                errorMessage = "Your Gemini AI API Key is invalid. Please check .env.local and enter a valid key.";
+            }
         }
         
         return NextResponse.json({ reply: errorMessage }, { status: 500 });

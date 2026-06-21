@@ -478,16 +478,17 @@ export default function DashboardPage() {
                                             style={{ marginTop: '-55px' }}
                                         ></iframe>
                                         ) : (
-                                            <div 
-                                                style={{ 
-                                                    width: '100%', height: '100%', 
-                                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', 
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
-                                                }}
-                                                onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
-                                            >
-                                                <div style={{ 
-                                                    width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                <div 
+                                                    style={{ 
+                                                        width: '100%', height: '100%', 
+                                                        backgroundColor: '#0f172a',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
+                                                    }}
+                                                    onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
+                                                >
+                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85, position: 'absolute' }} />
+                                                    <div style={{ position: 'relative', zIndex: 10,
+                                                        width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
@@ -548,13 +549,14 @@ export default function DashboardPage() {
                                             <div 
                                                 style={{ 
                                                     width: '100%', height: '100%', 
-                                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', 
+                                                    backgroundColor: '#0f172a',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
                                                 }}
                                                 onClick={() => setPlayingVideo('DZHTY54IR_l')}
                                             >
-                                                <div style={{ 
-                                                    width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85, position: 'absolute' }} />
+                                                <div style={{ position: 'relative', zIndex: 10,
+                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
@@ -591,13 +593,14 @@ export default function DashboardPage() {
                                             <div 
                                                 style={{ 
                                                     width: '100%', height: '100%', 
-                                                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', 
+                                                    backgroundColor: '#0f172a',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
                                                 }}
                                                 onClick={() => setPlayingVideo('DZARRuCI0rT')}
                                             >
-                                                <div style={{ 
-                                                    width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.95)', 
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85, position: 'absolute' }} />
+                                                <div style={{ position: 'relative', zIndex: 10,
+                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
