@@ -40,6 +40,7 @@ async function fetchGemini(apiKey: string, prompt: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
+    let isEn = false;
     try {
         const session: any = await getServerSession(authOptions as any);
         if (!session?.user?.id) {
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
         }
 
         const { message, language } = await request.json();
-        const isEn = language === 'en';
+        isEn = language === 'en';
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
