@@ -343,22 +343,20 @@ export default function SettingsPage() {
                                 </div>
 
                                 {/* GST Calculation Mode — only shows when GST is ON */}
-                                <div className={`bs-collapse ${!localSettings.nonGstMode ? 'open' : ''}`}><div>
-                                    <div className="bs-toggle-row" style={{ borderBottom: 'none', paddingBottom: '6px' }}>
-                                        <div>
-                                            <strong>GST Calculation Mode</strong>
-                                        </div>
-                                        <div className="bs-segmented" style={{ flexShrink: 0 }}>
+                                <div className={`bs-collapse ${!localSettings.nonGstMode ? 'open' : ''}`}>
+                                    <div style={{ padding: '8px 0 16px 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <strong style={{ fontSize: '12.5px', marginBottom: '8px' }}>GST Calculation</strong>
+                                        <div className="bs-segmented" style={{ flexShrink: 0, maxWidth: '280px', width: '100%' }}>
                                             <button type="button" className={`bs-seg-btn ${localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}>Exclusive</button>
                                             <button type="button" className={`bs-seg-btn ${localSettings.taxType === 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'INCLUSIVE' })}>Inclusive</button>
                                         </div>
+                                        <p style={{ fontSize: '11px', color: 'var(--text-faint)', margin: '8px 0 0 0', lineHeight: '1.4' }}>
+                                            {localSettings.language === 'en' 
+                                                ? 'Exclusive: Tax added on top. Inclusive: Tax inside price.' 
+                                                : 'Exclusive: Tax alag se jurega. Inclusive: Tax rate ke andar hai.'}
+                                        </p>
                                     </div>
-                                    <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '0 0 12px 0', lineHeight: '1.5' }}>
-                                        {localSettings.language === 'en' 
-                                            ? 'Exclusive: Tax added on top of item price. Inclusive: Item price already contains tax.' 
-                                            : 'Exclusive: Rate par alag se tax lagega. Inclusive: Rate ke andar hi tax jura hua hai.'}
-                                    </p>
-                                </div></div>
+                                </div>
                             </div>
                         </section>
 
