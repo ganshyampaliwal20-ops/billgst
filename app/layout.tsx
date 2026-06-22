@@ -117,6 +117,60 @@ export default function RootLayout({
                   "priceCurrency": "INR"
                 },
                 "description": "Free Invoice Generator & GST Billing software for Indian small businesses. Create bills, share on WhatsApp, and manage stock."
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "Is BillGST really free?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes. The app is completely free to use. There are no subscription plans or hidden charges."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Which GST returns can I generate?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "BillGST generates GSTR-1, GSTR-3B, and GSTR-4 reports from your billing data. Download and upload directly to the GST portal, or share with your CA."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "How does the camera stock update work?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Click a photo of any product or its barcode. The AI identifies the item and updates the quantity in your inventory — no manual entry needed."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Can I send invoices on WhatsApp?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes. Every invoice can be sent as a PDF directly to any customer's WhatsApp number in one tap — no downloads or email required."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "What types of invoices can I create?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Tax invoice, proforma invoice, credit note, debit note, delivery challan — all major invoice formats are supported."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "How secure is my data?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "All data is encrypted with AES-256 encryption — the same standard used by banks. Only you can access your shop's data."
+                    }
+                  }
+                ]
               }
             ])
           }}

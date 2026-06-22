@@ -175,15 +175,15 @@ export default function LandingPage() {
                 <div className="live-chip"><span className="dot"></span><strong>{isEnglish ? '100% Free' : '100% मुफ्त'}</strong> {isEnglish ? 'to start — no card needed' : 'शुरू करने के लिए — कोई कार्ड नहीं चाहिए'}</div>
                 <h1>
                     {isEnglish ? (
-                        <>The smartest way<br />to run <span className="ac">your shop</span></>
+                        <>Free GST Billing Software<br />&amp; <span className="ac">Vyapar Alternative</span></>
                     ) : (
-                        <>अपनी दुकान चलाने का<br /><span className="ac">सबसे स्मार्ट तरीका</span></>
+                        <>फ्री जीएसटी बिलिंग ऐप<br />और <span className="ac">व्यापार अल्टरनेटिव</span></>
                     )}
                 </h1>
                 <p className="hero-sub">
                     {isEnglish ? 
-                        "GST billing, inventory, staff attendance, expenses — everything in one app, built for Indian shopkeepers." :
-                        "जीएसटी बिलिंग, स्टॉक, स्टाफ की हाजिरी, खर्चे — सब कुछ एक ऐप में, भारत के दुकानदारों के लिए बना।"
+                        "Best voice AI invoice generator for PC and mobile. Manage GST billing, inventory, staff attendance, and expenses — everything in one free app built for Indian shopkeepers." :
+                        "मोबाइल और पीसी के लिए बेस्ट वॉइस एआई बिलिंग ऐप। जीएसटी बिलिंग, स्टॉक, स्टाफ की हाजिरी, खर्चे — सब कुछ एक मुफ्त ऐप में, भारत के दुकानदारों के लिए।"
                     }
                 </p>
             </section>
