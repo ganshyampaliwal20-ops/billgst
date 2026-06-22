@@ -344,16 +344,20 @@ export default function SettingsPage() {
 
                                 {/* GST Calculation Mode — only shows when GST is ON */}
                                 <div className={`bs-collapse ${!localSettings.nonGstMode ? 'open' : ''}`}><div>
-                                    <div className="bs-toggle-row" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+                                    <div className="bs-toggle-row" style={{ borderBottom: 'none', paddingBottom: '6px' }}>
                                         <div>
                                             <strong>GST Calculation Mode</strong>
-                                            <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>{localSettings.language === 'en' ? 'Exclusive: Price + GST separately. Inclusive: GST inside price.' : 'Exclusive: price + GST alag. Inclusive: GST price ke andar.'}</p>
                                         </div>
                                         <div className="bs-segmented" style={{ flexShrink: 0 }}>
                                             <button type="button" className={`bs-seg-btn ${localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}>Exclusive</button>
                                             <button type="button" className={`bs-seg-btn ${localSettings.taxType === 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'INCLUSIVE' })}>Inclusive</button>
                                         </div>
                                     </div>
+                                    <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+                                        {localSettings.language === 'en' 
+                                            ? 'Exclusive: Tax added on top of item price. Inclusive: Item price already contains tax.' 
+                                            : 'Exclusive: Rate par alag se tax lagega. Inclusive: Rate ke andar hi tax jura hua hai.'}
+                                    </p>
                                 </div></div>
                             </div>
                         </section>
