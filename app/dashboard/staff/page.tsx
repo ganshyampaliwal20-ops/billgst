@@ -431,7 +431,7 @@ export default function SmartAttendance() {
         }
     };
 
-    const generateMasterReportPDF = async (action: 'view' | 'share' = 'view') => {
+    const generateMasterReportPDF = async (action: 'view' | 'share' | 'download' = 'view') => {
         const doc = new jsPDF();
         
         // Add Border
