@@ -331,7 +331,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed bottom-32 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-[160px] md:bottom-32 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
             <style dangerouslySetInnerHTML={{__html: `
                 .rx-card {
                   background: #ffffff;

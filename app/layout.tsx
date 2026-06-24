@@ -181,8 +181,8 @@ export default function RootLayout({
         <InstallAppBanner />
         <CapacitorHandler />
         <Toaster
-          position="bottom-center"
-          containerStyle={{ bottom: '80px' }}
+          position="top-center"
+          containerStyle={{ top: 'max(env(safe-area-inset-top), 20px)' }}
           toastOptions={{
             duration: 4000,
             style: {
