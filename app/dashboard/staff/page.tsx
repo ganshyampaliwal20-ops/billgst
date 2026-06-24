@@ -40,6 +40,7 @@ export default function SmartAttendance() {
     const currentUserRole = normalizeRole(session?.user?.role);
     const canAccessRoleAdmin = isOwnerRole(currentUserRole) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
     const [sheet, setSheet] = useState<'none'|'detail'|'add'>('none');
+    const [pdfActionSheet, setPdfActionSheet] = useState<{show: boolean, type: 'master' | 'salary'}>({show: false, type: 'master'});
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [isEditingStaff, setIsEditingStaff] = useState(false);
     const [editStaffData, setEditStaffData] = useState({ daily_wage: 0, advance: 0, role: '', salary_type: 'daily', monthly_salary: 0 });
@@ -281,7 +282,7 @@ export default function SmartAttendance() {
         toast.success('Staff Details Updated!');
     };
 
-    const generateSalarySlipPDF = async () => {
+    const generateSalarySlipPDF = async (action: 'view' | 'share' | 'download' = 'view') => {
         if (!selectedStaff) return;
         const doc = new jsPDF();
         
@@ -422,8 +423,8 @@ export default function SmartAttendance() {
         try {
             const base64Data = doc.output('datauristring').split(',')[1];
             const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, filename, 'application/pdf');
-            toast.success('Salary Slip Downloaded/Shared!', { duration: 5000 });
+            await downloadAndShareFile(base64Data, filename, 'application/pdf', action);
+            toast.success(action === 'share' ? 'Opening Share...' : 'Salary Slip Downloaded/Viewed!', { duration: 5000 });
         } catch (err) {
             console.error('PDF Save error:', err);
             toast.error('Failed to save PDF');
@@ -724,7 +725,7 @@ export default function SmartAttendance() {
                             style={{ flex: 1, height: '46px', padding: '8px 12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--indigo)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', cursor: 'pointer' }}
                         />
                         <button 
-                            onClick={() => generateMasterReportPDF('view')} 
+                            onClick={() => setPdfActionSheet({show: true, type: 'master'})} 
                             style={{ flex: 1, height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: '#dc2626', fontWeight: 800, fontSize: '14px' }}
                         >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
@@ -1025,7 +1026,7 @@ export default function SmartAttendance() {
                             )}
 
                             {isOwnerOrAccountant && (
-                                <button onClick={generateSalarySlipPDF} style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#eef0ff', color: '#4f46e5', fontSize: '15px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none' }}>
+                                <button onClick={() => setPdfActionSheet({show: true, type: 'salary'})} style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#eef0ff', color: '#4f46e5', fontSize: '15px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
                                     PDF
                                 </button>
@@ -1111,6 +1112,67 @@ export default function SmartAttendance() {
                 <button className="fab" onClick={() => setSheet('add')} title="Add New Staff">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="28" height="28"><path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
+
+                {/* PDF Action Sheet */}
+                {pdfActionSheet.show && (
+                    <div className="ov" onClick={() => setPdfActionSheet({ ...pdfActionSheet, show: false })}>
+                        <div className="bsheet" onClick={e => e.stopPropagation()} style={{ paddingBottom: '30px' }}>
+                            <div className="bsh-handle"></div>
+                            <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ink)', marginBottom: '20px', textAlign: 'center' }}>
+                                PDF Options
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <button
+                                    onClick={() => {
+                                        setPdfActionSheet({ ...pdfActionSheet, show: false });
+                                        if (pdfActionSheet.type === 'master') generateMasterReportPDF('view');
+                                        else generateSalarySlipPDF('view');
+                                    }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#eef2ff', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#4f46e5', fontWeight: 800, fontSize: '13px' }}
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    View PDF
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setPdfActionSheet({ ...pdfActionSheet, show: false });
+                                        if (pdfActionSheet.type === 'master') generateMasterReportPDF('share');
+                                        else generateSalarySlipPDF('share');
+                                    }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#ecfdf5', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 800, fontSize: '13px' }}
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+                                    Share
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setPdfActionSheet({ ...pdfActionSheet, show: false });
+                                        if (pdfActionSheet.type === 'master') generateMasterReportPDF('download');
+                                        else generateSalarySlipPDF('download');
+                                    }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#fffbeb', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '13px' }}
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                                    Download
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setPdfActionSheet({ ...pdfActionSheet, show: false });
+                                        // Print fallback uses view logic in web, but native doesn't support direct print easily without a plugin. 
+                                        // View is generally enough for users to then print via system.
+                                        if (pdfActionSheet.type === 'master') generateMasterReportPDF('view');
+                                        else generateSalarySlipPDF('view');
+                                        toast('Please print from the PDF viewer', { icon: '🖨️' });
+                                    }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#fef2f2', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ef4444', fontWeight: 800, fontSize: '13px' }}
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                                    Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );
