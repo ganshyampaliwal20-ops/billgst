@@ -162,6 +162,14 @@ export default function InvoicesPage() {
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
+    const handleViewPdf = async (invoice: any) => {
+        const toastId = toast.loading('Opening PDF...');
+        try {
+            await generateInvoicePDF(invoice, businessProfile, true, 'view');
+            toast.dismiss(toastId);
+        } catch (error) { toast.error('PDF Error', { id: toastId }); }
+    };
+
     const handleSharePdf = async (invoice: any) => {
         const toastId = toast.loading('Generating PDF for Share...');
         try {
@@ -949,24 +957,11 @@ export default function InvoicesPage() {
                                 <FaWhatsapp size={20} color="white" />
                                 Send on WhatsApp
                             </button>
-                            <button className="btn-action solid-share" onClick={() => handleSharePdf(selectedInvoice)}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                                Share PDF
+                            <button className="btn-action solid-share" onClick={() => handleViewPdf(selectedInvoice)} style={{ background: '#ef4444', color: 'white', border: 'none', boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)' }}>
+                                <FaFilePdf size={20} color="white" />
+                                PDF
                             </button>
-                            
-                            <button className="btn-action" onClick={() => setIsPreviewing(true)}>
-                                <FaEye size={20} color="#dc2626" />
-                                View PDF
-                            </button>
-                            <button className="btn-action" onClick={() => handlePrint(selectedInvoice)}>
-                                <FaPrint size={20} color="#000" />
-                                Print
-                            </button>
-                            <button className="btn-action" onClick={() => handleDownload(selectedInvoice)}>
-                                <FaFilePdf size={20} color="#3b82f6" />
-                                Download PDF
-                            </button>
-                            <button className="btn-action" onClick={() => handleDownloadEwayJSON(selectedInvoice)}>
+                            <button className="btn-action" onClick={() => handleDownloadEwayJSON(selectedInvoice)} style={{ gridColumn: 'span 2' }}>
                                 <FaBox size={20} color="#eab308" />
                                 E-Way JSON
                             </button>

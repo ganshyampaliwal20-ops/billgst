@@ -727,15 +727,8 @@ export default function SmartAttendance() {
                             onClick={() => generateMasterReportPDF('view')} 
                             style={{ flex: 1, height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: '#dc2626', fontWeight: 800, fontSize: '14px' }}
                         >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                            View PDF
-                        </button>
-                        <button 
-                            onClick={() => generateMasterReportPDF('share')} 
-                            style={{ flex: 1, height: '46px', borderRadius: '14px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(59,130,246,0.3)', color: '#fff', fontWeight: 800, fontSize: '14px' }}
-                        >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                            Share PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+                            PDF
                         </button>
                     </div>
                     {/* CONTROLS (Search & Mark All) - Moved inside sticky topbar */}
@@ -1034,7 +1027,7 @@ export default function SmartAttendance() {
                             {isOwnerOrAccountant && (
                                 <button onClick={generateSalarySlipPDF} style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#eef0ff', color: '#4f46e5', fontSize: '15px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', border: 'none' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
-                                    Download Salary PDF
+                                    PDF
                                 </button>
                             )}
                         </div>

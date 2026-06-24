@@ -325,8 +325,10 @@ function ReportsContent() {
                 doc.text(footerText, 14, pageHeight - 10);
             }
 
-            doc.save(`Business_Report_${period}.pdf`);
-            toast.success(t.pdfDownloaded + ' (Check Downloads folder)', { duration: 5000 });
+            const base64Data = doc.output('datauristring').split(',')[1];
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, `Business_Report_${period}.pdf`, 'application/pdf', 'view');
+            toast.success('PDF Opened Successfully', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadPdf);
         }
