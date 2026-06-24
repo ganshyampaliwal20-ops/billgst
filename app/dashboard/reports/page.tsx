@@ -331,7 +331,7 @@ function ReportsContent() {
 
             const base64Data = doc.output('datauristring').split(',')[1];
             const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, `Business_Report_${period}.pdf`, 'application/pdf', 'view');
+            await downloadAndShareFile(base64Data, `Business_Report_${period}_${Date.now()}.pdf`, 'application/pdf', 'view');
             toast.success('PDF Opened Successfully', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadPdf);

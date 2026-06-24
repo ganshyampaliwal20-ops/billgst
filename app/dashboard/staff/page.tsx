@@ -419,7 +419,7 @@ export default function SmartAttendance() {
             doc.text(footerText, 14, pageHeight - 10);
         }
 
-        const filename = `${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
+        const filename = `${selectedStaff.name.replace(/\s+/g, '_')}_Salary_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}_${Date.now()}.pdf`;
         try {
             const base64Data = doc.output('datauristring').split(',')[1];
             const { downloadAndShareFile } = await import('@/lib/utils');
@@ -528,7 +528,7 @@ export default function SmartAttendance() {
             doc.text(footerText, 14, pageHeight - 10);
         }
 
-        const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
+        const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}_${Date.now()}.pdf`;
         try {
             const base64Data = doc.output('datauristring').split(',')[1];
             const { downloadAndShareFile } = await import('@/lib/utils');
