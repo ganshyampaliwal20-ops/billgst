@@ -372,7 +372,7 @@ export default function DashboardLayout({
                                             src={businessProfile?.logo || "/logo.png"}
                                             alt="Business Logo"
                                             fill
-                                            className={businessProfile?.logo ? "object-contain p-0.5 bg-white" : "object-cover"}
+                                            className="object-cover bg-white"
                                             onError={(e) => {
                                                 e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z'/%3E%3C/svg%3E"
                                             }}
