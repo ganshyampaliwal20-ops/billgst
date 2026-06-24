@@ -230,7 +230,7 @@ function ReportsContent() {
         return `₹${(val || 0).toFixed(0)}`;
     };
 
-    const handleDownloadExcel = () => {
+    const handleDownloadExcel = async () => {
         try {
             if (!invoices || invoices.length === 0) {
                 toast.error(t.noDataToExport);
@@ -252,14 +252,16 @@ function ReportsContent() {
             const ws = XLSX.utils.json_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
-            XLSX.writeFile(wb, `Business_Report_${period}.xlsx`);
-            toast.success(t.excelDownloaded + ' (Check Downloads folder)', { duration: 5000 });
+            const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(b64, `Business_Report_${period}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'view');
+            toast.success(t.excelDownloaded, { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadExcel);
         }
     };
 
-    const handleCSV = () => {
+    const handleCSV = async () => {
         try {
             if (!invoices || invoices.length === 0) {
                 toast.error(t.noDataToExport);
@@ -276,8 +278,10 @@ function ReportsContent() {
 
             const ws = XLSX.utils.json_to_sheet(excelData);
             const csv = XLSX.utils.sheet_to_csv(ws);
-            downloadFile(csv, `Business_Report_${period}.csv`, 'text/csv');
-            toast.success('CSV downloaded! (Check Downloads folder)', { duration: 5000 });
+            const b64 = btoa(unescape(encodeURIComponent(csv)));
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(b64, `Business_Report_${period}.csv`, 'text/csv', 'view');
+            toast.success('CSV downloaded/opened!', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadCsv);
         }
@@ -334,7 +338,7 @@ function ReportsContent() {
         }
     };
 
-    const handleGSTExcel = () => {
+    const handleGSTExcel = async () => {
         try {
             if (!invoices || invoices.length === 0) {
                 toast.error(t.noDataToExport);
@@ -357,21 +361,25 @@ function ReportsContent() {
             const ws = XLSX.utils.json_to_sheet(gstData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
-            XLSX.writeFile(wb, `GST_Report_${period}.xlsx`);
-            toast.success(t.gstReportDownloaded + ' (Check Downloads folder)', { duration: 5000 });
+            const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(b64, `GST_Report_${period}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'view');
+            toast.success(t.gstReportDownloaded, { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadGstExcel);
         }
     };
 
-    const handleTallyXML = () => {
+    const handleTallyXML = async () => {
         if (!invoices || invoices.length === 0) {
             toast.error(t.noDataToExport);
             return;
         }
         const xml = generateTallyXML(invoices, 'Business');
-        downloadFile(xml, `Tally_Sales_${period}.xml`, 'text/xml');
-        toast.success(t.tallyXmlDownloaded + ' (Check Downloads folder)', { duration: 5000 });
+        const b64 = btoa(unescape(encodeURIComponent(xml)));
+        const { downloadAndShareFile } = await import('@/lib/utils');
+        await downloadAndShareFile(b64, `Tally_Sales_${period}.xml`, 'application/xml', 'view');
+        toast.success(t.tallyXmlDownloaded, { duration: 5000 });
     };
 
     const colors = ['#4f46e5', '#10b981', '#f59e0b', '#0ea5e9', '#8b5cf6'];
@@ -534,7 +542,7 @@ function ReportsContent() {
   margin-bottom: 20px;
 }
 @media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(2,1fr)} }
-@media(max-width:500px){ .kpi-grid{grid-template-columns:repeat(3, 1fr); gap: 8px;} }
+@media(max-width:500px){ .kpi-grid{grid-template-columns:repeat(4, 1fr); gap: 6px;} }
 
 .kpi-card {
   background: var(--white);
@@ -603,12 +611,12 @@ function ReportsContent() {
 }
 
 @media(max-width: 500px) {
-  .kpi-card { padding: 10px 8px; border-radius: 12px; }
-  .kpi-value { font-size: 13px; margin-bottom: 2px; }
-  .kpi-icon { width: 26px; height: 26px; font-size: 13px; border-radius: 8px; }
-  .kpi-label { font-size: 8px; letter-spacing: 0; line-height: 1.1; }
-  .kpi-top { margin-bottom: 6px; }
-  .kpi-trend { font-size: 8px; padding: 2px 4px; border-radius: 4px; }
+  .kpi-card { padding: 8px 6px; border-radius: 10px; }
+  .kpi-value { font-size: 11px; margin-bottom: 2px; }
+  .kpi-icon { width: 22px; height: 22px; font-size: 11px; border-radius: 6px; }
+  .kpi-label { font-size: 7px; letter-spacing: 0; line-height: 1.1; }
+  .kpi-top { margin-bottom: 4px; }
+  .kpi-trend { font-size: 7px; padding: 2px 3px; border-radius: 3px; }
 }
 
 .charts-grid {
