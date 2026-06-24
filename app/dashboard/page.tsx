@@ -187,6 +187,7 @@ export default function DashboardPage() {
     const todayDate = new Date();
     const todaySales = (invoices || [])
         .filter((inv: any) => {
+            if (['QUOTATION', 'DELIVERY_CHALLAN', 'E_WAY_BILL', 'PROFORMA_INVOICE'].includes(inv.type || '')) return false;
             if (!inv.invoice_date) return false;
             const d = new Date(inv.invoice_date);
             return d.getFullYear() === todayDate.getFullYear() && d.getMonth() === todayDate.getMonth() && d.getDate() === todayDate.getDate();
