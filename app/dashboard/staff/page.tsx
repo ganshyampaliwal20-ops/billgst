@@ -1115,9 +1115,15 @@ export default function SmartAttendance() {
 
                 {/* PDF Action Sheet */}
                 {pdfActionSheet.show && (
-                    <div className="ov" onClick={() => setPdfActionSheet({ ...pdfActionSheet, show: false })}>
-                        <div className="bsheet" onClick={e => e.stopPropagation()} style={{ paddingBottom: '30px' }}>
-                            <div className="bsh-handle"></div>
+                    <div 
+                        onClick={() => setPdfActionSheet({ ...pdfActionSheet, show: false })}
+                        style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', animation: 'fadeIn 0.3s ease-out' }}
+                    >
+                        <div 
+                            onClick={e => e.stopPropagation()} 
+                            style={{ background: '#fff', borderRadius: '32px 32px 0 0', width: '100%', maxWidth: '650px', padding: '0 24px 40px', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 -20px 50px rgba(0,0,0,0.15)', animation: 'slideUp 0.4s cubic-bezier(0.4,0,0.2,1)', position: 'relative' }}
+                        >
+                            <div style={{ width: '48px', height: '6px', borderRadius: '3px', background: 'rgba(0,0,0,0.1)', margin: '16px auto 24px' }}></div>
                             <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ink)', marginBottom: '20px', textAlign: 'center' }}>
                                 PDF Options
                             </div>
@@ -1128,7 +1134,7 @@ export default function SmartAttendance() {
                                         if (pdfActionSheet.type === 'master') generateMasterReportPDF('view');
                                         else generateSalarySlipPDF('view');
                                     }}
-                                    style={{ padding: '16px', borderRadius: '16px', background: '#eef2ff', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#4f46e5', fontWeight: 800, fontSize: '13px' }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#eef2ff', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#4f46e5', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}
                                 >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                     View PDF
@@ -1139,7 +1145,7 @@ export default function SmartAttendance() {
                                         if (pdfActionSheet.type === 'master') generateMasterReportPDF('share');
                                         else generateSalarySlipPDF('share');
                                     }}
-                                    style={{ padding: '16px', borderRadius: '16px', background: '#ecfdf5', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 800, fontSize: '13px' }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#ecfdf5', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}
                                 >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
                                     Share
@@ -1150,7 +1156,7 @@ export default function SmartAttendance() {
                                         if (pdfActionSheet.type === 'master') generateMasterReportPDF('download');
                                         else generateSalarySlipPDF('download');
                                     }}
-                                    style={{ padding: '16px', borderRadius: '16px', background: '#fffbeb', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '13px' }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#fffbeb', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}
                                 >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
                                     Download
@@ -1158,13 +1164,11 @@ export default function SmartAttendance() {
                                 <button
                                     onClick={() => {
                                         setPdfActionSheet({ ...pdfActionSheet, show: false });
-                                        // Print fallback uses view logic in web, but native doesn't support direct print easily without a plugin. 
-                                        // View is generally enough for users to then print via system.
                                         if (pdfActionSheet.type === 'master') generateMasterReportPDF('view');
                                         else generateSalarySlipPDF('view');
                                         toast('Please print from the PDF viewer', { icon: '🖨️' });
                                     }}
-                                    style={{ padding: '16px', borderRadius: '16px', background: '#fef2f2', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ef4444', fontWeight: 800, fontSize: '13px' }}
+                                    style={{ padding: '16px', borderRadius: '16px', background: '#fef2f2', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ef4444', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}
                                 >
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
                                     Print
