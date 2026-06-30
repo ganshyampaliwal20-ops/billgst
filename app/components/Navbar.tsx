@@ -45,13 +45,13 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group">
                         <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-indigo-500/20 group-hover:border-indigo-500/50 transition-all bg-white p-1">
-                            <Image
-                                src="/logo.png"
-                                alt="BillGST Logo"
-                                width={40}
-                                height={40}
-                                className="object-contain"
-                            />
+                                <Image
+                                    src="/logo.png"
+                                    alt="BillGST Logo"
+                                    width={40}
+                                    height={40}
+                                    className="w-full h-full object-contain"
+                                />
                         </div>
                         <div className="flex flex-col">
                             <span className="text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-none">

@@ -182,7 +182,7 @@ export default function RootLayout({
         <CapacitorHandler />
         <Toaster
           position="top-center"
-          containerStyle={{ top: 'max(env(safe-area-inset-top), 20px)' }}
+          containerStyle={{ top: 'calc(env(safe-area-inset-top, 0px) + 60px)' }}
           toastOptions={{
             duration: 4000,
             style: {

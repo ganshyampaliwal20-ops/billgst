@@ -147,7 +147,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         }
                     } catch(e) {
                         setIsListening(false);
-                        toast.error('Voice recognition failed. Aap type kar sakte hain.');
+                        toast.error('Voice recognition failed. Kripya dobara koshish karein.');
                     }
                     return;
                 }

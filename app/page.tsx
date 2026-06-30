@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import SupportChatWidget from '@/app/components/SupportChatWidget';
 import './landing.css';
 
 export default function LandingPage() {
@@ -180,6 +179,10 @@ export default function LandingPage() {
                         <>फ्री जीएसटी बिलिंग ऐप<br />और <span className="ac">व्यापार अल्टरनेटिव</span></>
                     )}
                 </h1>
+                
+                <div style={{ marginTop: '20px', marginBottom: '10px', display: 'inline-block', background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#b91c1c', padding: '10px 24px', borderRadius: '50px', fontWeight: 800, fontSize: '1.3rem', border: '2px solid #f87171', boxShadow: '0 6px 20px rgba(239, 68, 68, 0.3)', letterSpacing: '0.5px' }}>
+                    ✨ {isEnglish ? 'Billing Always Free — Forever' : 'Billing हमेशा मुफ्त — हमेशा'} ✨
+                </div>
                 <p className="hero-sub">
                     {isEnglish ? 
                         "Best voice AI invoice generator for PC and mobile. Manage GST billing, inventory, staff attendance, and expenses — everything in one free app built for Indian shopkeepers." :
@@ -572,8 +575,6 @@ export default function LandingPage() {
                     <svg viewBox="0 0 24 24" fill="#fff" width="25" height="25"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.85.5 3.58 1.36 5.07L2 22l5.2-1.37a9.85 9.85 0 0 0 4.84 1.26c5.46 0 9.9-4.45 9.9-9.91S17.5 2 12.04 2zm5.8 14.06c-.24.68-1.4 1.34-1.93 1.42-.5.08-1.13.11-1.82-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.8-4.18-4.94-4.37-.15-.2-1.18-1.57-1.18-3 0-1.42.74-2.12 1-2.41.26-.29.57-.36.76-.36l.55.01c.18.01.42-.07.65.5.24.58.81 1.99.88 2.13.07.15.12.32.02.51-.1.19-.15.31-.3.47-.15.17-.31.38-.45.51-.15.14-.3.29-.13.58.18.29.8 1.32 1.72 2.13 1.18 1.05 2.18 1.38 2.48 1.53.3.15.48.13.66-.05.18-.18.78-.91 1-1.22.21-.31.42-.26.71-.16.29.1 1.84.87 2.16 1.03.32.16.53.24.61.37.08.13.08.74-.16 1.42z" /></svg>
                 </button>
             </div>
-
-            <SupportChatWidget />
         </div>
     );
 }

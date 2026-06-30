@@ -55,12 +55,12 @@ html{scroll-behavior:smooth;}
 }
 
 /* ── STATUS BAR PROTECTOR (MOBILE TWA) ── */
-.status-bar-protector { display: none; width: 100%; background: #050810; height: max(env(safe-area-inset-top), 36px); z-index: 1000; position: fixed; top: 0; left: 0; }
+.status-bar-protector { display: none; width: 100%; background: #050810; height: env(safe-area-inset-top, 0px); z-index: 1000; position: fixed; top: 0; left: 0; }
 .page { padding-top: 70px; }
 @media (max-width: 991px) {
     .status-bar-protector { display: block; }
-    .landing-header { top: max(env(safe-area-inset-top), 36px) !important; }
-    .page { padding-top: calc(max(env(safe-area-inset-top), 36px) + 70px); }
+    .landing-header { top: env(safe-area-inset-top, 0px) !important; }
+    .page { padding-top: calc(env(safe-area-inset-top, 0px) + 70px); }
 }
 
 /* ── HEADER ── */

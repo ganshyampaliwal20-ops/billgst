@@ -140,6 +140,11 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaUsers, label: t.customers, href: '/dashboard/customers' });
     }
 
+    if (canSeeAccounting) {
+        menuItems.push({ icon: FaUsers, label: 'Suppliers', href: '/dashboard/suppliers' });
+        menuItems.push({ icon: FaReceipt, label: 'Purchases', href: '/dashboard/purchases' });
+    }
+
     if (canSeeStaff) {
         menuItems.push({ icon: FaIdCard, label: 'Attendance', href: '/dashboard/staff' });
     }
@@ -167,7 +172,7 @@ export default function DashboardLayout({
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
     if (isSuperAdmin) {
-        menuItems.push({ icon: FaHeadset, label: 'Support Inbox', href: '/dashboard/support' });
+        menuItems.push({ icon: FaHeadset, label: 'Help & Support', href: '/dashboard/support' });
         menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
     }
 
@@ -181,7 +186,7 @@ export default function DashboardLayout({
     return (
         <div className="h-[100dvh] bg-slate-900 flex flex-col overflow-hidden">
             {/* Global Safe Area Protector for Status Bar (Dark background makes white icons visible) */}
-            <div className="w-full bg-slate-900 shrink-0 md:hidden z-[100]" style={{ height: 'max(env(safe-area-inset-top), 36px)' }}></div>
+            <div className="w-full bg-slate-900 shrink-0 md:hidden z-[100]" style={{ height: 'env(safe-area-inset-top, 0px)' }}></div>
             
             {/* 2. Main Flex Container */}
             <div className="flex-1 flex overflow-hidden bg-[#f1f5f9] relative">
@@ -194,7 +199,7 @@ export default function DashboardLayout({
             >
                 <div className="h-full flex flex-col">
                     {/* Combined Header & Business Card - Professional Royal 3D Design */}
-                    <div className="relative mx-4 mt-6 mb-4 p-[2px] rounded-[20px] bg-gradient-to-b from-[#8E84F3] to-[#4235B8] shadow-[0_12px_28px_-6px_rgba(45,36,138,0.4)] group cursor-pointer" onClick={() => { router.push('/dashboard/settings'); setIsSidebarOpen(false); }}>
+                    <div className="relative mx-4 mt-6 mb-4 p-[2px] rounded-[20px] bg-gradient-to-b from-[#8E84F3] to-[#4235B8] shadow-[0_12px_28px_-6px_rgba(45,36,138,0.4)] group cursor-pointer" onClick={() => { router.push('/dashboard'); setIsSidebarOpen(false); }}>
                         <div className="relative bg-gradient-to-br from-[#352B9C] to-[#1A1454] rounded-[18px] p-6 flex flex-col items-center text-center transition-all overflow-hidden border border-[#4A3DB5]/50">
                             {/* Decorative background glow */}
                             <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#8E84F3] rounded-full filter blur-[40px] opacity-20"></div>
@@ -203,7 +208,7 @@ export default function DashboardLayout({
                             {/* 3D Logo Container */}
                             <div className="w-[76px] h-[76px] rounded-[22px] bg-white flex items-center justify-center text-[#352B9C] text-[34px] overflow-hidden relative shadow-[0_8px_20px_rgba(0,0,0,0.3)] mb-4 border-[3px] border-[#8E84F3]/30 group-hover:scale-105 transition-transform duration-300 z-10">
                                 {businessProfile.logo ? (
-                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-contain p-1" />
+                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
                                 ) : (
                                     <FaReceipt />
                                 )}
@@ -211,11 +216,11 @@ export default function DashboardLayout({
                             
                             {/* Business Name replacing BillGST */}
                             <div className="w-full relative z-10">
-                                <h2 className="text-[20px] font-extrabold text-white leading-tight truncate tracking-tight px-1 drop-shadow-md">
+                                <h2 className="text-[20px] font-extrabold text-white leading-tight truncate tracking-tight px-1" style={{ textShadow: '0px 3px 0px #2D248A, 0px 4px 6px rgba(0,0,0,0.5)' }}>
                                     {businessProfile.name || 'Your Business'}
                                 </h2>
                                 <div className="text-[13px] text-[#C4BFF0] mt-1.5 flex items-center justify-center gap-1.5 font-medium">
-                                    <FaCog className="text-[13px]" /> {businessProfile.gstin ? 'Business Settings' : 'Setup Business'}
+                                    {/* Text removed as requested */}
                                 </div>
                             </div>
                             
@@ -362,7 +367,7 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header - Fixed inside the flex container, below safe area automatically */}
                 <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex flex-col items-center w-full md:hidden">
-                    <div className="w-full max-w-[1600px] flex items-center justify-between px-5 sm:px-8 md:px-12 h-[60px]">
+                    <div className="w-full max-w-[1600px] flex items-center justify-between px-5 sm:px-8 md:px-12 h-[50px]">
                         <div className="flex items-center justify-between w-full h-full relative"> 
                             {/* Left Side: Logo + Business Name */}
                             <div className="flex items-center gap-3">
@@ -388,7 +393,7 @@ export default function DashboardLayout({
                             <div className="flex-1"></div>
 
                             {/* Right Side: Menu */}
-                            <div className="flex items-center gap-2 md:gap-4">
+                            <div className="flex items-center gap-2 md:gap-4 pr-5">
                                 <Link
                                     href="/dashboard/settings"
                                     className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"

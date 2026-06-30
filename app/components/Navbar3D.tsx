@@ -64,7 +64,7 @@ export default function Navbar3D() {
                                         alt="BillGST Logo"
                                         width={40}
                                         height={40}
-                                        className="object-contain"
+                                        className="w-full h-full object-contain"
                                     />
                                 </div>
                                 <div className="flex flex-col">

@@ -33,6 +33,7 @@ export default function InventoryPage() {
 
     // Modal controls
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showAddOptionModal, setShowAddOptionModal] = useState(false);
     const [showQrModal, setShowQrModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,7 +60,7 @@ export default function InventoryPage() {
 
     useEffect(() => {
         setIsClient(true);
-        if (fetchProducts) fetchProducts(false, 1);
+        if (fetchProducts) fetchProducts(true, 1);
     }, []);
 
     // AI Draft Data handling
@@ -965,7 +966,7 @@ export default function InventoryPage() {
                         <div style={{ fontWeight: '700', fontSize: '16px' }}>{t.noProductsFound}</div>
                         <div style={{ fontSize: '12px', marginTop: '5px' }}>{t.inventoryEmptyHelp}</div>
                         <button 
-                            onClick={openAddModal}
+                            onClick={() => setShowAddOptionModal(true)}
                             style={{ marginTop: '20px', background: 'var(--ink)', color: '#fff', padding: '10px 20px', borderRadius: '10px', border: 'none', fontWeight: '700' }}
                         >
                             + {t.addFirstProduct}
@@ -1026,14 +1027,80 @@ export default function InventoryPage() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
                     {t.shareLowStock}
                 </button>
-                <button className="hero-btn add" onClick={openAddModal}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+                <button className="hero-btn add" onClick={() => setShowAddOptionModal(true)}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
                     {t.add}
                 </button>
             </div>
 
+            {/* Add Option Modal */}
+            {showAddOptionModal && (
+                <div className="modal-overlay" onClick={() => setShowAddOptionModal(false)}>
+                    <div className="modal-content option-modal" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Add to Inventory</h2>
+                            <button className="close-btn" onClick={() => setShowAddOptionModal(false)}>×</button>
+                        </div>
+                        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <button 
+                                onClick={() => {
+                                    setShowAddOptionModal(false);
+                                    router.push('/dashboard/purchases/new');
+                                }}
+                                style={{
+                                    background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                                    color: 'white',
+                                    padding: '16px',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(99,102,241,0.2)'
+                                }}
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 12h6M12 9v6M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/></svg>
+                                <div style={{ textAlign: 'left' }}>
+                                    <div>Add via Purchase Bill</div>
+                                    <div style={{ fontSize: '12px', fontWeight: 'normal', opacity: 0.9 }}>Best for tracking supplier & stock</div>
+                                </div>
+                            </button>
+
+                            <button 
+                                onClick={() => {
+                                    setShowAddOptionModal(false);
+                                    openAddModal();
+                                }}
+                                style={{
+                                    background: 'var(--white)',
+                                    color: 'var(--ink)',
+                                    padding: '16px',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--border)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                                <div style={{ textAlign: 'left' }}>
+                                    <div>Add Item Manually</div>
+                                    <div style={{ fontSize: '12px', fontWeight: 'normal', color: 'var(--ink3)' }}>Directly add product without bill</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* FAB */}
-            <button className="fab" onClick={openAddModal}>
+            <button className="fab" onClick={() => setShowAddOptionModal(true)}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
             </button>
 
