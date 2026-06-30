@@ -35,23 +35,26 @@ function HisaabViewerContent() {
                     setRawData(json);
 
                     let c = 0, d = 0;
-                    json.txns.forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
-                    const isNeg = json.balance < 0;
-                    const net = Math.abs(json.balance);
+                    const txns = json.txns || [];
+                    txns.forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
+                    const balance = json.balance || 0;
+                    const isNeg = balance < 0;
+                    const net = Math.abs(balance);
                     
                     const shapedData = {
-                        c: { n: json.name, p: json.phone, t: json.type },
-                        s: { net, neg: isNeg, r: c, g: d, entries: json.txns.length },
-                        t: json.txns.map((t: any) => ({
-                            d: t.date.split('T')[0],
-                            a: t.amt,
-                            y: t.type[0],
+                        c: { n: json.name || json.customer?.name || 'Customer', p: json.phone || json.customer?.phone || '', t: json.type || 'Customer' },
+                        s: { net, neg: isNeg, r: c, g: d, entries: txns.length },
+                        t: txns.map((t: any) => ({
+                            d: t.date ? t.date.split('T')[0] : '',
+                            a: t.amt || 0,
+                            y: t.type ? t.type[0] : 'd',
                             n: t.name || ''
                         })),
                         b: json.businessProfile || null
                     };
                     setData(shapedData);
                 } catch (e) {
+                    console.error("Hisaab Viewer Error:", e);
                     setError(true);
                 }
             } else if (dataStr) {
@@ -62,23 +65,26 @@ function HisaabViewerContent() {
                     setRawData(json);
                     
                     let c = 0, d = 0;
-                    (json.txns || []).forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
-                    const isNeg = json.balance < 0;
-                    const net = Math.abs(json.balance);
+                    const txns = json.txns || [];
+                    txns.forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
+                    const balance = json.balance || 0;
+                    const isNeg = balance < 0;
+                    const net = Math.abs(balance);
                     
                     const shapedData = {
-                        c: { n: json.name, p: json.phone, t: json.type },
-                        s: { net, neg: isNeg, r: c, g: d, entries: (json.txns || []).length },
-                        t: (json.txns || []).map((t: any) => ({
-                            d: t.date.split('T')[0],
-                            a: t.amt,
-                            y: t.type[0],
+                        c: { n: json.name || json.customer?.name || 'Customer', p: json.phone || json.customer?.phone || '', t: json.type || 'Customer' },
+                        s: { net, neg: isNeg, r: c, g: d, entries: txns.length },
+                        t: txns.map((t: any) => ({
+                            d: t.date ? t.date.split('T')[0] : '',
+                            a: t.amt || 0,
+                            y: t.type ? t.type[0] : 'd',
                             n: t.name || ''
                         })),
                         b: json.businessProfile || null
                     };
                     setData(shapedData);
                 } catch (e) {
+                    console.error("Hisaab Viewer Error:", e);
                     setError(true);
                 }
             } else {

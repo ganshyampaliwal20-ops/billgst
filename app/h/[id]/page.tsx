@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
         client.release();
         
         if (result.rows.length > 0) {
-            const data = result.rows[0].data;
+            let data = result.rows[0].data;
+            if (typeof data === 'string') {
+                try { data = JSON.parse(data); } catch (e) {}
+            }
             if (data && data.name) {
                 title = `Hisaab Statement - ${data.name}`;
                 

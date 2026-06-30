@@ -21,7 +21,14 @@ export async function GET(request: Request, context: any) {
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         }
 
-        const shareData = result.rows[0].data;
+        let shareData = result.rows[0].data;
+        if (typeof shareData === 'string') {
+            try {
+                shareData = JSON.parse(shareData);
+            } catch (e) {
+                console.error("Failed to parse shareData:", e);
+            }
+        }
         const userId = result.rows[0].user_id;
 
         let businessProfile = null;
