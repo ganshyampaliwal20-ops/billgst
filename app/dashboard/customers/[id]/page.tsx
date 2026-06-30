@@ -211,6 +211,35 @@ export default function CustomerDetailPage() {
         }
     };
 
+    const getHisaabPayload = () => {
+        const txns: any[] = [];
+        customerInvoices.forEach((inv: any) => {
+             if (inv.invoice_date) {
+                 txns.push({
+                     date: new Date(inv.invoice_date).toISOString(),
+                     amt: parseFloat(inv.total_amount || 0),
+                     type: 'debit',
+                     name: 'Invoice ' + inv.invoice_number
+                 });
+                 if (parseFloat(inv.paid_amount || 0) > 0) {
+                     txns.push({
+                         date: new Date(inv.invoice_date).toISOString(),
+                         amt: parseFloat(inv.paid_amount || 0),
+                         type: 'credit',
+                         name: 'Payment (Inv ' + inv.invoice_number + ')'
+                     });
+                 }
+             }
+        });
+        txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        return {
+            ...customer,
+            txns: txns,
+            balance: -totalDue
+        };
+    };
+
     const handleWhatsApp = () => {
         const phone = customer.phone?.replace(/\D/g, '') || '';
         if (!phone) {
@@ -218,8 +247,10 @@ export default function CustomerDetailPage() {
             return;
         }
 
+        const payload = getHisaabPayload();
+
         // Fire and forget sync
-        fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customer) }).catch(e => {});
+        fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(e => {});
 
         const shareId = businessProfile?.id ? `${businessProfile.id}_${customer.id}` : customer.id;
         const shareUrl = `${window.location.origin}/h/${shareId}`;
@@ -238,7 +269,8 @@ export default function CustomerDetailPage() {
     const handleDownloadStatement = async () => {
         const toastId = toast.loading('Statement open ho raha hai...');
         try {
-            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(customer) }).catch(e => {});
+            const payload = getHisaabPayload();
+            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(e => {});
             const shareId = businessProfile?.id ? `${businessProfile.id}_${customer.id}` : customer.id;
             toast.dismiss(toastId);
             router.push(`/h/${shareId}`);
