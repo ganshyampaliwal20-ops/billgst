@@ -274,18 +274,21 @@ export default function CustomerDetailPage() {
         const toastId = toast.loading('Statement open ho raha hai...');
         try {
             const payload = getHisaabPayload();
-            let shareId = customer.id;
+            let shareUrl = `/hisaab/v?d=${btoa(unescape(encodeURIComponent(JSON.stringify(payload))))}`;
             try {
                 await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: customer.id }) });
                 const json = await res.json();
-                if (json.shortId) shareId = json.shortId;
+                if (json.shortId) {
+                    shareUrl = `/h/${json.shortId}`;
+                }
             } catch(e) {}
 
             toast.dismiss(toastId);
-            router.push(`/h/${shareId}`);
+            router.push(shareUrl);
         } catch (error) {
-            toast.error('Error opening statement', { id: toastId });
+            toast.dismiss(toastId);
+            toast.error('Error opening statement');
         }
     };
 

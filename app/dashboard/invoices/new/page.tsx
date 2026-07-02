@@ -1194,10 +1194,11 @@ function NewInvoiceContent() {
                     {/* Document Type */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#ede9fe', color: '#6d28d9' }}><FaFileInvoice /></div> Document Type</div>
-                        <div className="doc-tabs" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+                        <div className="doc-tabs" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
                             <div className={`dtab ${docType === DOC_TYPES.TAX_INVOICE ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.TAX_INVOICE)}><span className="dt-icon">🧾</span><span className="dt-label">Tax Invoice</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.BILL_OF_SUPPLY ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.BILL_OF_SUPPLY)}><span className="dt-icon">📋</span><span className="dt-label">Bill Supply</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.DELIVERY_CHALLAN ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.DELIVERY_CHALLAN)}><span className="dt-icon">🚚</span><span className="dt-label">Del. Challan</span></div>
+                            <div className={`dtab ${docType === DOC_TYPES.PROFORMA_INVOICE ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.PROFORMA_INVOICE)}><span className="dt-icon">📄</span><span className="dt-label">Proforma Invoice</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.E_WAY_BILL ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.E_WAY_BILL)}><span className="dt-icon">🛣️</span><span className="dt-label">E-Way Bill</span></div>
                             <div className="dtab" onClick={() => router.push('/dashboard/quotations/new')}><span className="dt-icon">📝</span><span className="dt-label">Quotation</span></div>
                         </div>
