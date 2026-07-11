@@ -11,6 +11,115 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
     {
+        slug: 'marg-erp-alternative-free-billing-software',
+        title: 'Best Free Marg ERP Alternative for Small Retailers (2026)',
+        description: 'Looking for a Marg ERP alternative? Discover why BillGST is the best 100% free billing software for Indian retail shops and pharmacies.',
+        date: 'July 11, 2026',
+        author: 'BillGST SEO Team',
+        category: 'Business Guides',
+        image: '/logo.png',
+        content: `
+# Best Free Marg ERP Alternative for Small Retailers (2026)
+
+Marg ERP India me bahut popular billing aur accounting software hai, khaas karke pharmacy aur FMCG distributors ke beech. Lekin kya har chote retailer ya dukandar ko itne heavy aur mehnge software ki zaroorat hai? 
+
+Agar aap ek simple, fast aur **Free Marg Alternative** dhoondh rahe hain, to aap sahi jagah par hain.
+
+## Marg ERP me kya challenges aate hain?
+1. **High Cost:** Marg ka yearly subscription fees aur maintenance charges chote vyapariyon ke liye mehanga padta hai.
+2. **Complex Interface:** Isko chalana seekhne ke liye training leni padti hai. Naye staff ko sikhana mushkil hota hai.
+3. **Old UI:** Iska design kaafi purana hai jo aaj kal ke modern apps jaisa nahi lagta.
+
+## BillGST: The 100% Free Marg Alternative
+Agar aap apni dukaan ko smart banana chahte hain bina hazaron rupaye kharch kiye, to **BillGST** sabse behtareen option hai.
+
+### BillGST me kya khaas hai?
+- **AI Voice Billing:** Type karne ka jhanjhat khatam. Sirf bol kar 10 second me bill banayein.
+- **Zero Subscription Fees:** Ye hamesha ke liye free hai. Koi hidden charges nahi.
+- **WhatsApp Integration:** Marg me bill print karna padta hai, BillGST me aap 1-click se customer ko professional PDF WhatsApp kar sakte hain.
+- **Cloud Based:** Marg ko chalane ke liye PC chahiye. BillGST aapke mobile, PC aur tablet sab jagah chalta hai kyu ki ye Cloud-based hai.
+
+## Aaj hi Switch Karein!
+Agar aap ek retail shop (grocery, electronics, garments) chalate hain, to mehnge software par paise barbaad na karein. Aaj hi **[BillGST par apna Free Account banayein](https://billgst.in/register)** aur apne business ko tezi se badhayein!
+        `
+    },
+    {
+        slug: 'kacha-bill-vs-pakka-bill-gst-rules-india',
+        title: 'Kacha Bill vs Pakka Bill: GST Rules & Differences in India',
+        description: 'Kacha bill kya hota hai? Pakka bill kaise banayein? Jane Kacha Bill vs Pakka Bill ke beech ka difference aur GST compliance rules 2026.',
+        date: 'July 11, 2026',
+        author: 'BillGST Legal Team',
+        category: 'Compliance',
+        image: '/logo.png',
+        content: `
+# Kacha Bill vs Pakka Bill: GST Rules & Differences in India
+
+Bharat ke market me do shabd sabse zyada sune jate hain: **"Kacha Bill"** aur **"Pakka Bill"**. Ek naye businessman ya customer ke liye in dono ke beech ka difference samajhna bahut zaroori hai, warna income tax ya GST department se notice aa sakta hai.
+
+## 1. Kacha Bill (Estimate/Quotation) Kya Hota Hai?
+Kacha bill ek temporary parchi ya estimate hota hai jisme dukandar sirf items aur unka price likh kar deta hai. 
+- Isme **GST number nahi hota**.
+- Isme **tax (CGST/SGST) alag se nahi dikhaya jata**.
+- Ise account books me as a legal sale nahi dikhaya ja sakta.
+- Kacha bill dena illegal nahi hai agar ye sirf ek "Estimate" ke taur par diya ja raha ho.
+
+## 2. Pakka Bill (Tax Invoice) Kya Hota Hai?
+Pakka bill ek legal document hai jo sarkar dwara manyata prapt (authorized) hota hai.
+- Isme dukandar ka **GSTIN (GST Number)** likha hota hai.
+- Tax amounts (CGST, SGST, IGST) properly calculate karke dikhaye jate hain.
+- Customer is bill ke aadhar par **Input Tax Credit (ITC)** claim kar sakta hai.
+
+## Kacha Bill Banane Ke Nuksan
+Bahut se dukandar tax bachane ke liye kacha bill dete hain, lekin iske bade nuksan hain:
+- GST officer aane par agar kacha bill pakda gaya to **100% penalty** lag sakti hai.
+- Badi companies ya corporate clients aapse deal nahi karenge kyunki unhe pakka bill chahiye hota hai.
+
+## BillGST se Dono Bills Banayein Free Me!
+Agar aap soch rahe hain ki pakka bill banana bahut mushkil hai ya software mehnge aate hain, to **BillGST** aapki problem solve kar dega.
+BillGST ek **Free GST Billing Software** hai jisme aap:
+- Non-GST items ke liye **Estimate (Kacha Bill)** bana sakte hain.
+- GST items ke liye fully compliant **Tax Invoice (Pakka Bill)** bana sakte hain.
+
+Apne business ko legally strong banayein. Aaj hi [BillGST try karein](https://billgst.in).
+        `
+    },
+    {
+        slug: 'e-invoicing-mandatory-turnover-limit-2026',
+        title: 'E-Invoicing Mandatory Turnover Limit 2026: Kya Aapko Banana Hoga?',
+        description: 'Jane e-invoicing ke naye rules aur mandatory turnover limits 2026 ke liye. Kya 5 crore turnover walo ko e-invoice zaroori hai?',
+        date: 'July 11, 2026',
+        author: 'BillGST Updates',
+        category: 'GST Update',
+        content: `
+# E-Invoicing Mandatory Turnover Limit 2026
+
+GST (Goods and Services Tax) Bharat me lagatar badal raha hai aur digital ho raha hai. Is kadi me **E-Invoicing (Electronic Invoicing)** sabse bada kadam hai. 2026 me Government ne e-invoicing ke rules aur bhi strict kar diye hain.
+
+Kya aapke business par e-invoicing lagoo hota hai? Aaiye detail me samajhte hain.
+
+## E-Invoicing Kya Hai?
+E-invoicing ka matlab ye nahi hai ki bill computer par banaya jaye. E-invoicing ka matlab hai ki aapka banaya hua bill directly **GST Portal (IRP - Invoice Registration Portal)** par register ho, aur us bill par ek **IRN (Invoice Reference Number)** aur **QR Code** generate hokar aaye.
+
+## 2026 ki Mandatory Turnover Limit Kya Hai?
+Shuruaat me e-invoicing sirf 500 Crore+ turnover wali companies ke liye tha. Lekin government is limit ko lagatar kam kar rahi hai.
+
+- **Current Status (2026):** Agar aapka saalana turnover pichle kisi bhi financial year me **₹5 Crore se zyada** raha hai, to aapko e-invoice banana **Mandatory (Zaroori)** hai.
+- Ye rule B2B (Business to Business) sales aur Exports par lagoo hota hai. (B2C sales par abhi mandatory nahi hai).
+
+## Agar E-Invoice Nahi Banaya to Kya Hoga?
+1. **Invalid Bill:** Aapka diya gaya normal bill legal nahi mana jayega.
+2. **No ITC for Buyer:** Aapke buyer (jisko aapne maal becha hai) ko us bill par Input Tax Credit (ITC) nahi milega, jisse wo aapse future me business karna band kar dega.
+3. **Heavy Penalty:** GST department aapse ₹10,000 ya 100% tax amount (jo bhi zyada ho) ki penalty wasool kar sakta hai.
+
+## E-Invoice Kaise Banayein?
+Government portal par manually ek-ek bill upload karna bahut mushkil aur slow process hai. Isliye aapko ek smart billing software ki zaroorat hoti hai.
+
+**BillGST** billing software me E-invoicing ka feature direct integrated hota hai. Aap bas apna normal bill banate hain, aur background me software automatically portal se IRN aur QR code generate karke bill par print kar deta hai. 
+
+Apne business ko compliant rakhein aur penalty se bachein.
+        `
+    },
+    {
         slug: 'top-5-free-gst-billing-apps-retail-shop-india-2026',
         title: 'Top 5 Free GST Billing Apps in India for Retail Shops (2026)',
         description: 'Discover the best completely free GST billing software and apps for retail shops in India. Compare Vyapar alternatives and find why BillGST is the #1 choice.',
