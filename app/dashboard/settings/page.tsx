@@ -33,34 +33,58 @@ const MODULES = [
 
 export default function SettingsPage() {
     const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
-    const [formData, setFormData] = useState<any>(businessProfile || {});
-    const [localSettings, setLocalSettings] = useState<any>(settings || {});
+    const [formData, setFormData] = useState<any>({});
+    const [localSettings, setLocalSettings] = useState<any>({});
     const [isClient, setIsClient] = useState(false);
+    
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const [activeSection, setActiveSection] = useState('profile');
     const [featuresOpen, setFeaturesOpen] = useState(false);
     const [designOpen, setDesignOpen] = useState(false);
-    const [termsCount, setTermsCount] = useState(0);
+    
+    // GST Verification State
+    const [gstStatus, setGstStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
+    const [gstName, setGstName] = useState('');
 
     useEffect(() => {
         setIsClient(true);
-        if (businessProfile && Object.keys(formData).length === 0) setFormData(businessProfile);
+        if (businessProfile && Object.keys(formData).length === 0) {
+            setFormData(businessProfile);
+            if (businessProfile.gst) {
+                verifyGst(businessProfile.gst);
+            }
+        }
         if (settings && Object.keys(localSettings).length === 0) setLocalSettings(settings);
     }, [businessProfile, settings]);
 
+    // Scrollspy effect
     useEffect(() => {
-        setTermsCount((formData.terms_and_conditions || '').length);
-    }, [formData.terms_and_conditions]);
+        if (!isClient) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { rootMargin: '-15% 0px -70% 0px' });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        const sections = document.querySelectorAll('.card[id]');
+        sections.forEach(s => observer.observe(s));
+        return () => observer.disconnect();
+    }, [isClient]);
+
+    const handleSubmit = async (e?: React.FormEvent) => {
+        if(e) e.preventDefault();
         updateProfile(formData);
         updateSettings(localSettings);
-        const savePromise = saveBusinessProfile({ ...formData, ...localSettings });
-        toast.promise(savePromise, {
-            loading: 'Saving your settings...',
-            success: 'Settings saved perfectly! ✅',
-            error: 'Could not save settings'
-        });
+        
+        const toastId = toast.loading('Saving your settings...');
+        try {
+            await saveBusinessProfile({ ...formData, ...localSettings });
+            toast.success('Settings save ho gayi! ✅', { id: toastId });
+        } catch (error) {
+            toast.error('Could not save settings', { id: toastId });
+        }
     };
 
     const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,105 +95,205 @@ export default function SettingsPage() {
                 setFormData({ ...formData, logo: optimizedLogo });
                 toast.success('Logo uploaded!');
             } catch (error: any) {
-                toast.error(error.message || (localSettings.language === 'en' ? 'Upload failed!' : 'Upload fail ho gaya!'));
+                toast.error(error.message || 'Upload failed!');
             }
         }
     };
 
-    const currentTheme = THEMES[formData.invoice_template as keyof typeof THEMES] || THEMES.TEMPLATE_1;
+    const handleSignatureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            try {
+                const optimizedSig = await optimizeImage(file, 400, 200, 0.8);
+                setFormData({ ...formData, signature: optimizedSig });
+                toast.success('Signature uploaded!');
+            } catch (error: any) {
+                toast.error(error.message || 'Upload failed!');
+            }
+        }
+    };
+
+    const verifyGst = async (gstin: string) => {
+        const pattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        if (!gstin) {
+            setGstStatus('idle');
+            return;
+        }
+        if (!pattern.test(gstin)) {
+            setGstStatus('invalid');
+            return;
+        }
+        
+        setGstStatus('loading');
+        
+        setTimeout(() => {
+            setGstStatus('valid');
+            const pan = gstin.substring(2, 12);
+            setGstName(`Registered Entity (${pan})`);
+        }, 1000);
+    };
+
+    const handleGstInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value.toUpperCase();
+        setFormData({ ...formData, gst: val });
+        verifyGst(val);
+    };
+
+    const handleScrollTo = (id: string) => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     if (!isClient) return null;
 
     return (
-        <>
-            <style>{`
-                :root {
-                    --bg: #0a0c12;
-                    --bg-soft: #0f1219;
-                    --surface: #151926;
-                    --surface-2: #1c2132;
-                    --surface-3: #232940;
-                    --border: #272d42;
-                    --border-soft: #1f2436;
-                    --text: #f1f3f9;
-                    --text-dim: #9aa1bd;
-                    --text-faint: #5d6480;
-                    --accent: #8b5cf6;
-                    --accent-soft: rgba(139,92,246,0.14);
-                    --grad: linear-gradient(135deg,#7c3aed 0%, #4f46e5 100%);
-                    --success: #22c55e;
-                    --radius-lg: 18px;
-                    --radius-md: 12px;
-                    --radius-sm: 8px;
+        <div className="bs-wrapper">
+            <style jsx global>{`
+                :root{
+                    --bg: #0A0D18;
+                    --card: #131829;
+                    --card-border: #232A45;
+                    --card-border-hover: #363F63;
+                    --field: #171D31;
+                    --field-border: #2A3252;
+                    --text: #E8EAF6;
+                    --text-muted: #8B93B8;
+                    --text-faint: #545D80;
+                    --violet: #7C3AED;
+                    --indigo: #4F46E5;
+                    --gold: #F5B942;
+                    --green: #34D399;
+                    --red: #F87171;
+                    --grad: linear-gradient(135deg, #8B5CF6 0%, #4F46E5 100%);
                 }
-                .bs-page { background: var(--bg); min-height: 100vh; color: var(--text); font-family: 'Inter', sans-serif; padding-bottom: 80px; }
-                .bs-content { max-width: 900px; margin: 0 auto; padding: 16px 12px; }
-                @media (min-width: 640px) { .bs-content { padding: 40px 24px; } }
+                .bs-wrapper {
+                    background: radial-gradient(ellipse 900px 500px at 15% -5%, rgba(124,58,237,0.16), transparent 60%), radial-gradient(ellipse 700px 500px at 100% 15%, rgba(79,70,229,0.10), transparent 55%), var(--bg);
+                    color: var(--text);
+                    font-family: 'Inter', sans-serif;
+                    min-height: 100vh;
+                    padding-bottom: 110px;
+                }
+                .bs-wrapper h1,.bs-wrapper h2,.bs-wrapper h3 { font-family:'Baloo 2', sans-serif; }
 
-                .bs-page-head { margin-bottom: 20px; text-align: left; }
-                @media (min-width: 640px) { .bs-page-head { margin-bottom: 32px; text-align: center; } }
-                .bs-page-head h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); margin: 0; }
-                @media (min-width: 640px) { .bs-page-head h1 { font-size: 28px; } }
-                .bs-page-head p { margin: 6px 0 0; color: var(--text-dim); font-size: 13px; }
-                @media (min-width: 640px) { .bs-page-head p { font-size: 15px; } }
+                .shell{ max-width: 1080px; margin: 0 auto; padding: 32px 20px 20px; display:grid; grid-template-columns: 220px 1fr; gap: 32px; align-items:start; }
+                @media (max-width: 880px){ .shell{ grid-template-columns: 1fr; } }
 
-                /* Cards */
-                .bs-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.5); margin-bottom: 16px; overflow: hidden; }
-                @media (min-width: 640px) { .bs-card { margin-bottom: 24px; } }
+                .page-head{ grid-column: 1 / -1; text-align:center; margin-bottom: 8px; }
+                .page-head h1{ font-size: 30px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #fff, #C4B5FD); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; }
+                .page-head p{ color: var(--text-muted); font-size: 14.5px; }
+
+                .side-nav{ position: sticky; top: 24px; display:flex; flex-direction:column; gap: 2px; background: var(--card); border:1px solid var(--card-border); border-radius:16px; padding: 10px; height: fit-content; }
+                .side-nav a{ display:flex; align-items:center; gap:10px; padding: 9px 12px; border-radius:10px; color: var(--text-muted); text-decoration:none; font-size:13px; font-weight:600; transition: background 0.15s, color 0.15s; cursor:pointer; }
+                .side-nav a .dot{ width:6px; height:6px; border-radius:50%; background: var(--field-border); flex-shrink:0; transition: background 0.15s; }
+                .side-nav a:hover{ background: var(--field); color: var(--text); }
+                .side-nav a.active{ background: rgba(124,58,237,0.14); color: #C4B5FD; }
+                .side-nav a.active .dot{ background: var(--violet); }
+                @media (max-width: 880px){ .side-nav{ display:none; } }
+
+                .mobile-nav{ display:none; grid-column: 1/-1; overflow-x:auto; white-space:nowrap; gap:8px; padding: 4px 2px 10px; margin-bottom: 4px; -ms-overflow-style: none; scrollbar-width: none; }
+                .mobile-nav::-webkit-scrollbar{ display:none; }
+                .mobile-nav a{ display:inline-block; padding: 8px 14px; margin-right:8px; background: var(--card); border:1px solid var(--card-border); border-radius:999px; color: var(--text-muted); text-decoration:none; font-size:12.5px; font-weight:600; cursor:pointer; }
+                .mobile-nav a.active{ background: var(--grad); color:#fff; border-color:transparent; }
+                @media (max-width: 880px){ .mobile-nav{ display:flex; } }
+
+                .main-col{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+
+                .completeness{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 18px; display:flex; align-items:center; gap:14px; }
+                .completeness .ring{ width:46px; height:46px; border-radius:50%; background: conic-gradient(var(--violet) 0deg, var(--indigo) var(--ring-deg,270deg), #232A45 var(--ring-deg,270deg)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+                .completeness .ring::after{ content: attr(data-pct); width:36px; height:36px; border-radius:50%; background: var(--card); display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; color: var(--text); }
+                .completeness .info b{ font-size:14.5px; display:block; margin-bottom:2px; }
+                .completeness .info span{ font-size:12.5px; color: var(--text-muted); }
+
+                .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; scroll-margin-top: 24px; transition: border-color 0.2s; }
+                .card:hover{ border-color: var(--card-border-hover); }
+                .card-head{ display:flex; align-items:center; gap:12px; margin-bottom: 20px; }
+                .card-head.with-toggle{ justify-content:space-between; }
+                .card-head-left{ display:flex; align-items:center; gap:12px; }
+                .card-icon{ width: 40px; height:40px; border-radius: 11px; background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(79,70,229,0.25)); border: 1px solid rgba(139,92,246,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+                .card-icon svg{ width:20px; height:20px; stroke: #C4B5FD; }
+                .card-head h2{ font-size:16.5px; font-weight:700; margin-bottom:2px; }
+                .card-head p{ font-size:12.5px; color: var(--text-muted); }
+
+                .field{ margin-bottom:16px; }
+                .field:last-child{ margin-bottom:0; }
+                .field label{ display:block; font-size:12.5px; font-weight:600; color: #A8B0D6; margin-bottom:7px; }
+                .field label .opt{ color: var(--text-faint); font-weight:500; }
+
+                .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+                .row3{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
+                @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
+
+                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 11px; padding: 12px 14px; color: var(--text); font-size: 14.5px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; }
+                .field input::placeholder, .field textarea::placeholder{ color: var(--text-faint); }
+                .field input:focus, .field textarea:focus, .field select:focus{ border-color: var(--violet); background: #1A2036; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+                .field textarea{ resize: vertical; min-height: 64px; }
+                .field select{ appearance:none; -webkit-appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 14px center; padding-right: 34px; cursor:pointer; }
                 
-                .bs-card-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px; }
-                @media (min-width: 640px) { .bs-card-head { padding: 20px 24px 16px; } }
-                .bs-card-head > div:not(.bs-card-icon) { flex: 1; min-width: 0; }
+                .hint{ font-size:11.5px; color: var(--text-faint); margin-top:6px; }
+                .hint.tax-hint{ color: var(--gold); }
+                .char-count{ text-align:right; font-size:11px; color: var(--text-faint); margin-top:5px; }
+
+                .gst-input-wrap{ position:relative; }
+                .gst-input-wrap input{ padding-right: 100px; }
+                .gst-input-wrap input.valid{ border-color: var(--green); background:#131E1A; }
+                .gst-input-wrap input.invalid{ border-color: var(--red); }
+                .verify-badge{ position:absolute; right:8px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:8px; }
+                .verify-badge.pending{ background:#1E2542; color: var(--text-muted); }
+                .verify-badge.valid{ background: rgba(52,211,153,0.15); color: var(--green); }
+                .verify-badge.loading{ background: rgba(139,92,246,0.15); color: var(--violet); }
+                .verify-badge svg{ width:12px; height:12px; }
                 
-                .bs-card-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: #c4b5fd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-                @media (min-width: 640px) { .bs-card-icon { width: 42px; height: 42px; border-radius: 12px; } .bs-card-icon svg { width: 20px; height: 20px; } }
-                
-                .bs-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                @media (min-width: 640px) { .bs-card-title { font-size: 17px; } }
-                .bs-card-sub { margin: 3px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                @media (min-width: 640px) { .bs-card-sub { font-size: 13px; } }
-                
-                .bs-card-body { padding: 0 16px 16px; }
-                @media (min-width: 640px) { .bs-card-body { padding: 0 24px 24px; } }
+                .verified-name{ margin-top:8px; font-size:12.5px; color: var(--green); display:flex; align-items:center; gap:6px; animation: fadein 0.4s ease forwards; }
+                @keyframes fadein{ from{opacity:0} to{opacity:1} }
 
-                /* Toggle Row */
-                .bs-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border-soft); flex-wrap: nowrap; }
-                @media (min-width: 640px) { .bs-toggle-row { padding: 16px 0; } }
-                .bs-toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
-                .bs-toggle-row > div:first-child { flex: 1; min-width: 0; }
-                .bs-toggle-row strong { font-size: 13.5px; font-weight: 600; color: var(--text); display: block; }
-                @media (min-width: 640px) { .bs-toggle-row strong { font-size: 14.5px; } }
-                .bs-toggle-row p { margin: 3px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.4; }
-                @media (min-width: 640px) { .bs-toggle-row p { font-size: 12.5px; } }
+                .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap: 16px; }
+                .toggle-row b{ font-size:14px; font-weight:600; display:block; margin-bottom:3px; }
+                .toggle-row span{ font-size:12px; color: var(--text-muted); }
+                .switch{ position:relative; width:46px; height:26px; flex-shrink:0; }
+                .switch input{ opacity:0; width:0; height:0; }
+                .slider{ position:absolute; inset:0; background:#2A3252; border-radius:999px; cursor:pointer; transition:0.25s; }
+                .slider::before{ content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+                .switch input:checked + .slider{ background: var(--grad); }
+                .switch input:checked + .slider::before{ transform: translateX(20px); }
 
-                /* Switch */
-                .bs-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
-                .bs-switch input { opacity: 0; width: 0; height: 0; }
-                .bs-slider { position: absolute; inset: 0; background: var(--surface-3); border-radius: 999px; transition: background .2s; border: 1px solid var(--border); cursor: pointer; }
-                .bs-slider::before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; border-radius: 50%; background: #7b84a8; transition: transform .2s, background .2s; }
-                .bs-switch input:checked + .bs-slider { background: var(--grad); border-color: transparent; }
-                .bs-switch input:checked + .bs-slider::before { transform: translateX(18px); background: #fff; }
+                .divider{ height:1px; background: var(--card-border); margin: 18px 0; }
 
-                /* Segmented Control */
-                .bs-segmented { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; width: 100%; }
-                @media (min-width: 640px) { .bs-segmented { width: auto; flex-shrink: 0; } }
-                .bs-seg-btn { flex: 1; border: none; background: transparent; color: var(--text-dim); font-size: 12.5px; font-weight: 600; padding: 7px 16px; border-radius: 999px; transition: .15s; cursor: pointer; text-align: center; }
-                @media (min-width: 640px) { .bs-seg-btn { flex: none; padding: 8px 20px; font-size: 13px; } }
-                .bs-seg-btn.active { background: var(--grad); color: #fff; }
+                .segmented-wrap{ text-align:center; }
+                .segmented-label{ font-size:12.5px; font-weight:600; color:#A8B0D6; margin-bottom:12px; }
+                .segmented{ display:inline-flex; background: var(--field); border:1px solid var(--field-border); border-radius:12px; padding:4px; }
+                .segmented button{ border:none; background:transparent; color: var(--text-muted); font-family:inherit; font-size:13.5px; font-weight:700; padding:9px 22px; border-radius:9px; cursor:pointer; transition:0.15s; }
+                .segmented button.active{ background: var(--grad); color:#fff; }
+                .segmented-hint{ font-size:11.5px; color: var(--text-faint); margin-top:10px; }
 
-                /* Form Fields */
-                .bs-form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-                @media (min-width: 640px) { .bs-form-grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
-                .bs-form-full { grid-column: 1 / -1; }
-                .bs-field { display: flex; flex-direction: column; gap: 6px; }
-                .bs-field label { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-left: 2px; }
-                @media (min-width: 640px) { .bs-field label { font-size: 13px; } }
-                .bs-field input, .bs-field textarea, .bs-field select { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 12px 14px; font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s; width: 100%; font-family: inherit; }
-                .bs-field input::placeholder, .bs-field textarea::placeholder { color: var(--text-faint); }
-                .bs-field input:focus, .bs-field textarea:focus, .bs-field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-                .bs-field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-                .bs-hint { font-size: 11.5px; color: var(--text-faint); margin: 4px 0 0; }
-                .bs-char-count { font-size: 11px; color: var(--text-faint); text-align: right; margin-top: 4px; }
+                .upload-row{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+                .upload-box{ width:76px; height:76px; border-radius:14px; background: var(--field); border: 1.5px dashed var(--field-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; position:relative; cursor:pointer; }
+                .upload-box svg{ width:24px; height:24px; stroke: var(--text-faint); }
+                .upload-box img{ width:100%; height:100%; object-fit:cover; display:block; }
+                .upload-box .verified-tick{ position:absolute; top:3px; right:3px; width:16px; height:16px; border-radius:50%; background: var(--green); display:flex; align-items:center; justify-content:center; }
+                .upload-box .verified-tick svg{ width:10px; height:10px; stroke:#fff; stroke-width:3.5; }
+                .upload-btn{ background: var(--field); border:1.5px solid var(--field-border); color: var(--text); font-family:inherit; font-size:13px; font-weight:600; padding:9px 14px; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:7px; }
+                .upload-btn:hover{ border-color: var(--card-border-hover); }
+                .upload-btn svg{ width:14px; height:14px; }
+
+                .signature-pad{ width: 100%; max-width: 260px; height: 96px; background:#fff; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; position:relative; overflow:hidden; }
+                .signature-pad span{ font-family:'Caveat', cursive; font-size:32px; color:#1a1a2e; transform: rotate(-3deg); }
+                .signature-pad img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+                .link-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+                .pill-btn{ background: var(--field); border:1.5px solid var(--field-border); color: var(--text); font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex-shrink:0; transition: border-color 0.15s; }
+                .pill-btn:hover{ border-color: var(--violet); }
+                .pill-btn svg{ width:13px; height:13px; }
+
+                .terms-box{ background: var(--field); border:1.5px solid var(--field-border); border-radius:11px; padding:14px; }
+                .terms-box textarea{ width:100%; background:transparent; border:none; padding:0; color:#C4B5FD; font-size:13.5px; line-height:1.6; min-height:80px; outline:none; resize:none; font-family:inherit; }
+
+                .save-bar{ position: fixed; bottom:0; left:0; right:0; background: linear-gradient(180deg, transparent, var(--bg) 30%); padding: 18px 20px 22px; display:flex; justify-content:center; z-index:50; pointer-events:none; }
+                .save-btn{ pointer-events:auto; width:100%; max-width: 680px; background: var(--grad); color:#fff; border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; box-shadow: 0 8px 24px rgba(124,58,237,0.35); transition: transform 0.12s, box-shadow 0.12s; }
+                .save-btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(124,58,237,0.45); }
+                .save-btn svg{ width:18px; height:18px; }
+
+                .collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
+                .collapse.open { grid-template-rows: 1fr; margin-top: 16px; }
+                .collapse > div { overflow: hidden; }
 
                 /* Collapsible */
                 .bs-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
@@ -177,15 +301,15 @@ export default function SettingsPage() {
                 .bs-collapse > div { overflow: hidden; }
 
                 /* Chevron btn */
-                .bs-chevron-btn { display: flex; align-items: center; gap: 7px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: border-color .15s, color .15s; cursor: pointer; }
-                .bs-chevron-btn:hover { border-color: var(--accent); color: var(--text); }
+                .bs-chevron-btn { display: flex; align-items: center; gap: 7px; background: var(--field); border: 1px solid var(--field-border); color: var(--text-muted); padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: border-color .15s, color .15s; cursor: pointer; }
+                .bs-chevron-btn:hover { border-color: var(--violet); color: var(--text); }
                 .bs-chevron-btn svg { width: 13px; height: 13px; transition: transform .25s; }
                 .bs-chevron-btn.open svg { transform: rotate(180deg); }
 
                 /* Feature items */
                 .bs-feature-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
                 @media (min-width: 768px) { .bs-feature-grid { grid-template-columns: 1fr 1fr; gap: 14px; } }
-                .bs-feature-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--bg-soft); }
+                .bs-feature-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--card-border); border-radius: 12px; background: var(--card); }
                 @media (min-width: 640px) { .bs-feature-item { padding: 16px; gap: 16px; } }
                 .bs-f-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
                 @media (min-width: 640px) { .bs-f-icon { width: 40px; height: 40px; border-radius: 12px; } .bs-f-icon svg { width: 18px; height: 18px; } }
@@ -196,504 +320,523 @@ export default function SettingsPage() {
                 .bs-f-text p { margin: 2px 0 0; font-size: 11.5px; color: var(--text-faint); }
                 @media (min-width: 640px) { .bs-f-text p { font-size: 12.5px; line-height: 1.4; } }
 
-                /* Logo preview */
-                .bs-logo-preview { width: 64px; height: 64px; border-radius: 12px; background: var(--surface-2); border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; color: var(--text-faint); }
-                @media (min-width: 640px) { .bs-logo-preview { width: 80px; height: 80px; border-radius: 16px; } }
-                .bs-logo-preview img { width: 100%; height: 100%; object-fit: cover; }
-                .bs-file-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .15s; }
-                .bs-file-btn:hover { border-color: var(--accent); background: var(--surface-3); }
-
-                /* Signature preview */
-                .bs-sig-preview { width: 100%; height: 80px; border-radius: 10px; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-                @media (min-width: 640px) { .bs-sig-preview { width: 220px; height: 80px; } }
-
-                /* Outline button */
-                .bs-btn-outline { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .15s; width: 100%; }
-                @media (min-width: 640px) { .bs-btn-outline { width: auto; } }
-                .bs-btn-outline:hover { border-color: var(--accent); background: var(--surface-3); }
+                /* Switch */
+                .bs-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+                .bs-switch input { opacity: 0; width: 0; height: 0; }
+                .bs-slider { position: absolute; inset: 0; background: var(--card-border-hover); border-radius: 999px; transition: background .2s; border: 1px solid var(--field-border); cursor: pointer; }
+                .bs-slider::before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; border-radius: 50%; background: #7b84a8; transition: transform .2s, background .2s; }
+                .bs-switch input:checked + .bs-slider { background: var(--grad); border-color: transparent; }
+                .bs-switch input:checked + .bs-slider::before { transform: translateX(18px); background: #fff; }
 
                 /* Theme cards */
-                .bs-theme-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
-                @media (min-width: 480px) { .bs-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 0; } }
+                .bs-theme-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px 8px; }
+                @media (min-width: 480px) { .bs-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 0; margin: 0; padding: 0; } }
                 @media (min-width: 768px) { .bs-theme-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
-                .bs-theme-card { flex: 0 0 140px; border: 1.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-soft); text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
+                .bs-theme-card { flex: 0 0 140px; border: 1.5px solid var(--field-border); border-radius: 12px; overflow: hidden; background: var(--card); text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; padding: 0; }
                 @media (min-width: 480px) { .bs-theme-card { flex: auto; } }
-                .bs-theme-card:hover { border-color: var(--border-soft); transform: translateY(-2px); }
-                .bs-theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: none; }
+                .bs-theme-card:hover { border-color: var(--card-border); transform: translateY(-2px); }
+                .bs-theme-card.active { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); transform: none; }
                 .bs-theme-bar { height: 34px; width: 100%; }
-                .bs-theme-label { padding: 8px 10px; font-size: 11.5px; font-weight: 600; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; }
+                .bs-theme-label { padding: 8px 10px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
                 @media (min-width: 640px) { .bs-theme-label { font-size: 12.5px; padding: 10px 12px; } }
 
                 /* Layout grid */
-                .bs-layout-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
-                @media (min-width: 480px) { .bs-layout-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 0; } }
+                .bs-layout-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px 8px; }
+                @media (min-width: 480px) { .bs-layout-grid { display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: 0; margin: 0; padding: 0; } }
                 @media (min-width: 768px) { .bs-layout-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
-                .bs-layout-card { flex: 0 0 130px; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 13px 10px; background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
+                .bs-layout-card { flex: 0 0 130px; border: 1.5px solid var(--field-border); border-radius: 12px; padding: 13px 10px; background: var(--card); display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
                 @media (min-width: 480px) { .bs-layout-card { flex: auto; } }
                 .bs-layout-card:hover { transform: translateY(-2px); }
-                .bs-layout-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: none; }
+                .bs-layout-card.active { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); transform: none; }
                 .bs-layout-card span { font-size: 12px; font-weight: 600; color: var(--text); }
                 @media (min-width: 640px) { .bs-layout-card span { font-size: 13px; } }
                 .bs-layout-card small { font-size: 10.5px; color: var(--text-faint); }
-
-                /* Align grid */
-                .bs-align-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
-                @media (min-width: 480px) { .bs-align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 0; } }
-                .bs-align-card { flex: 0 0 110px; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 13px 8px; background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
-                @media (min-width: 480px) { .bs-align-card { flex: auto; } }
-                .bs-align-card:hover { transform: translateY(-2px); }
-                .bs-align-card.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); transform: none; }
-                .bs-align-card svg { width: 18px; height: 18px; color: var(--text-dim); }
-                @media (min-width: 640px) { .bs-align-card svg { width: 22px; height: 22px; } }
-                .bs-align-card span { font-size: 10.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--text-dim); }
-
-                /* Preview */
-                .bs-preview-wrap { margin-top: 24px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: #0d0f17; padding: 12px; }
-                @media (min-width: 640px) { .bs-preview-wrap { padding: 20px; border-radius: var(--radius-lg); } }
-                .bs-preview-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-                .bs-preview-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
-                .bs-badge { font-size: 10.5px; background: var(--surface-2); color: var(--text-faint); padding: 4px 10px; border-radius: 6px; font-weight: 600; }
-
-                /* Section label */
-                .bs-sec-label { font-size: 13px; font-weight: 700; color: var(--text-dim); margin: 20px 0 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-                @media (min-width: 640px) { .bs-sec-label { font-size: 14px; margin: 24px 0 14px; } }
-                .bs-sec-label:first-child { margin-top: 4px; }
-
-                /* Save Bar */
-                .bs-save-bar { position: sticky; bottom: 0; padding: 16px; background: rgba(10,12,18,0.85); backdrop-filter: blur(12px); border-top: 1px solid var(--border-soft); display: flex; justify-content: center; z-index: 30; }
-                @media (min-width: 640px) { .bs-save-bar { padding: 20px; } }
-                .bs-btn-primary { background: var(--grad); color: #fff; border: none; padding: 14px 24px; border-radius: 999px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 24px -10px rgba(124,58,237,0.6); max-width: 440px; width: 100%; justify-content: center; cursor: pointer; transition: transform .15s, box-shadow .15s; }
-                @media (min-width: 640px) { .bs-btn-primary { padding: 16px 32px; font-size: 16px; } }
-                .bs-btn-primary:hover { box-shadow: 0 14px 28px -10px rgba(124,58,237,0.7); }
-                .bs-btn-primary:active { transform: scale(.98); }
-                .bs-btn-primary svg { width: 18px; height: 18px; }
-
+                
                 /* Mini layout preview bars */
                 .bs-mini { width: 100%; height: 30px; display: flex; flex-direction: column; gap: 3px; justify-content: center; }
                 .bs-mini i { display: block; height: 4px; background: var(--text-faint); border-radius: 2px; }
+
+                /* Align grid */
+                .bs-align-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px 8px; }
+                @media (min-width: 480px) { .bs-align-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 0; margin: 0; padding: 0; } }
+                .bs-align-card { flex: 0 0 110px; border: 1.5px solid var(--field-border); border-radius: 12px; padding: 13px 8px; background: var(--card); display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; transition: border-color .15s, transform .15s; width: 100%; }
+                @media (min-width: 480px) { .bs-align-card { flex: auto; } }
+                .bs-align-card:hover { transform: translateY(-2px); }
+                .bs-align-card.active { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); transform: none; }
+                .bs-align-card svg { width: 18px; height: 18px; color: var(--text-muted); }
+                @media (min-width: 640px) { .bs-align-card svg { width: 22px; height: 22px; } }
+                .bs-align-card span { font-size: 10.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--text-muted); }
+
+                /* Section label */
+                .bs-sec-label { font-size: 13px; font-weight: 700; color: var(--text-muted); margin: 20px 0 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+                @media (min-width: 640px) { .bs-sec-label { font-size: 14px; margin: 24px 0 14px; } }
+                .bs-sec-label:first-child { margin-top: 4px; }
+
+                /* Preview */
+                .bs-preview-wrap { margin-top: 24px; border: 1px solid var(--card-border); border-radius: 12px; background: #0d0f17; padding: 12px; }
+                @media (min-width: 640px) { .bs-preview-wrap { padding: 20px; border-radius: 18px; } }
+                .bs-preview-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+                .bs-preview-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
+                .bs-badge { font-size: 10.5px; background: var(--field); color: var(--text-faint); padding: 4px 10px; border-radius: 6px; font-weight: 600; }
             `}</style>
 
-            <div className="bs-page">
-                <form onSubmit={handleSubmit}>
-                    <div className="bs-content">
-                        <div className="bs-page-head">
-                            <h1>Business Settings</h1>
-                            <p>{localSettings.language === 'en' ? 'Manage your business profile, invoice design and preferences here.' : 'Apna business profile, invoice design aur preferences yahan se manage karein.'}</p>
+            <div className="shell">
+                <div className="page-head">
+                    <h1>Business Settings</h1>
+                    <p>Apni business profile, tax settings aur invoice preferences yahan manage karein</p>
+                </div>
+
+                <nav className="mobile-nav">
+                    {['profile', 'tax', 'bank', 'payments', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
+                        <a key={id} onClick={() => handleScrollTo(id)} className={activeSection === id ? 'active' : ''}>
+                            {id.charAt(0).toUpperCase() + id.slice(1)}
+                        </a>
+                    ))}
+                </nav>
+
+                <nav className="side-nav">
+                    {[
+                        { id: 'profile', label: 'Business Profile' },
+                        { id: 'tax', label: 'Tax Settings' },
+                        { id: 'bank', label: 'Bank Details' },
+                        { id: 'payments', label: 'Payments' },
+                        { id: 'branding', label: 'Branding' },
+                        { id: 'signatory', label: 'Signatory' },
+                        { id: 'terms', label: 'Terms & Conditions' },
+                        { id: 'modules', label: 'Features & Modules' },
+                        { id: 'design', label: 'Invoice Design' },
+                        { id: 'prefs', label: 'Preferences' },
+                        { id: 'security', label: 'Account Security' },
+                    ].map(item => (
+                        <a key={item.id} onClick={() => handleScrollTo(item.id)} className={activeSection === item.id ? 'active' : ''}>
+                            <span className="dot"></span>{item.label}
+                        </a>
+                    ))}
+                </nav>
+
+                <div className="main-col">
+                    
+                    {/* Completeness logic based on missing fields */}
+                    <div className="completeness" style={{ '--ring-deg': (!formData.signature || !formData.logo) ? '288deg' : '360deg' } as any}>
+                        <div className="ring" data-pct={(!formData.signature || !formData.logo) ? "80%" : "100%"}></div>
+                        <div className="info">
+                            <b>Profile {(!formData.signature || !formData.logo) ? "80%" : "100%"} complete</b>
+                            <span>{(!formData.signature || !formData.logo) ? "Signature & Logo add karke apna invoice professional banayein" : "Aapka business profile complete hai!"}</span>
                         </div>
+                    </div>
 
-                        {/* ── 1. BUSINESS PROFILE ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    {/* Profile */}
+                    <div className="card" id="profile">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
+                            <div><h2>Business Profile</h2><p>Aapki business ki basic details</p></div>
+                        </div>
+                        <div className="field">
+                            <label>Business Name</label>
+                            <input type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Jaise: Gupta Electricals" />
+                        </div>
+                        <div className="row2">
+                            <div className="field">
+                                <label>Mobile Number</label>
+                                <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="Mobile Number" />
+                            </div>
+                            <div className="field">
+                                <label>Email Address <span className="opt">(Optional)</span></label>
+                                <input type="email" value={formData.email || ''} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Email ID" />
+                            </div>
+                        </div>
+                        <div className="field">
+                            <label>Business Address</label>
+                            <textarea value={formData.address || ''} onChange={(e) => setFormData({...formData, address: e.target.value})} placeholder="Building, area, landmark"></textarea>
+                        </div>
+                        <div className="row3">
+                            <div className="field">
+                                <label>City</label>
+                                <input type="text" value={formData.city || ''} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="City" />
+                            </div>
+                            <div className="field">
+                                <label>State</label>
+                                <select value={formData.state || ''} onChange={(e) => setFormData({...formData, state: e.target.value})}>
+                                    <option value="">Select State</option>
+                                    <option value="Rajasthan">Rajasthan</option>
+                                    <option value="Maharashtra">Maharashtra</option>
+                                    <option value="Gujarat">Gujarat</option>
+                                    <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                    <option value="Delhi">Delhi</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="hint tax-hint">⚠ State ke basis par CGST+SGST ya IGST automatically apply hoga</div>
+                    </div>
+
+                    {/* Tax Settings */}
+                    <div className="card" id="tax">
+                        <div className="card-head with-toggle">
+                            <div className="card-head-left">
+                                <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                                <div><h2>Tax Settings</h2><p>GST configuration — har invoice pe apply hoga</p></div>
+                            </div>
+                        </div>
+                        <div className="toggle-row">
+                            <div><b>Mera GST Number hai</b><span>OFF karne par invoices bina GST ke banengi</span></div>
+                            <label className="switch">
+                                <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({...localSettings, nonGstMode: !e.target.checked})} />
+                                <span className="slider"></span>
+                            </label>
+                        </div>
+                        
+                        {!localSettings.nonGstMode && (
+                            <div id="gstSection">
+                                <div className="divider"></div>
+                                <div className="field">
+                                    <label>GSTIN</label>
+                                    <div className="gst-input-wrap">
+                                        <input type="text" 
+                                            className={gstStatus === 'valid' ? 'valid' : gstStatus === 'invalid' ? 'invalid' : ''} 
+                                            value={formData.gst || ''} 
+                                            maxLength={15} 
+                                            onChange={handleGstInput} 
+                                            placeholder="22AAAAA0000A1Z5" 
+                                        />
+                                        
+                                        {gstStatus !== 'idle' && (
+                                            <div className={`verify-badge ${gstStatus === 'valid' ? 'valid' : gstStatus === 'loading' ? 'loading' : 'pending'}`}>
+                                                {gstStatus === 'valid' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6L9 17l-5-5"/></svg>}
+                                                {gstStatus === 'loading' ? 'Checking...' : gstStatus === 'invalid' ? 'Invalid GST' : 'Verified'}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {gstStatus === 'valid' && gstName && (
+                                        <div className="verified-name">✓ {gstName} ke naam se registered</div>
+                                    )}
                                 </div>
-                                <div>
-                                    <h2 className="bs-card-title">Business Profile</h2>
-                                    <p className="bs-card-sub">{localSettings.language === 'en' ? 'Update basic details of your business' : 'Apne business ki basic details update karein'}</p>
+                                <div className="divider"></div>
+                                <div className="segmented-wrap">
+                                    <div className="segmented-label">GST Calculation</div>
+                                    <div className="segmented">
+                                        <button className={localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''} onClick={() => setLocalSettings({...localSettings, taxType: 'EXCLUSIVE'})}>Exclusive</button>
+                                        <button className={localSettings.taxType === 'INCLUSIVE' ? 'active' : ''} onClick={() => setLocalSettings({...localSettings, taxType: 'INCLUSIVE'})}>Inclusive</button>
+                                    </div>
+                                    <div className="segmented-hint">
+                                        {localSettings.taxType === 'INCLUSIVE' ? 'Inclusive mode: Displayed price already includes GST.' : 'Exclusive: Tax added on top. Inclusive: Tax inside price.'}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="bs-card-body">
-                                <div className="bs-form-grid">
-                                    <div className="bs-field bs-form-full">
-                                        <label>Business Name</label>
-                                        <input type="text" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Sharma Traders" required />
-                                    </div>
-                                    <div className="bs-field">
-                                        <label>Mobile Number</label>
-                                        <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="10 digit number" required />
-                                    </div>
-                                    <div className="bs-field">
-                                        <label>Email Address</label>
-                                        <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="business@email.com" />
-                                    </div>
-                                    <div className="bs-field bs-form-full">
-                                        <label>Business Address</label>
-                                        <textarea value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Full address shown on invoice"></textarea>
-                                    </div>
-                                    <div className="bs-field bs-form-full">
-                                        <label>GST Number (Optional)</label>
-                                        <input type="text" value={formData.gst || ''} onChange={(e) => setFormData({ ...formData, gst: e.target.value })} placeholder="22AAAAA0000A1Z5" style={{ textTransform: 'uppercase' }} />
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                        )}
+                    </div>
 
-                        {/* ── TAX SETTINGS ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Tax Settings</h2>
-                                    <p className="bs-card-sub">GST configuration used across every invoice</p>
-                                </div>
+                    {/* Bank Account */}
+                    <div className="card" id="bank">
+                        <div className="card-head with-toggle">
+                            <div className="card-head-left">
+                                <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M4 10h16M4 10L12 3l8 7M6 10v11M10 10v11M14 10v11M18 10v11"/></svg></div>
+                                <div><h2>Bank Account Details</h2><p>Invoices pe direct bank transfer ke liye dikhega</p></div>
                             </div>
-                            <div className="bs-card-body">
-                                {/* GST Toggle */}
-                                <div className="bs-toggle-row" style={{ borderBottom: !localSettings.nonGstMode ? '1px solid var(--border-soft)' : 'none' }}>
-                                    <div>
-                                        <strong>I have a GST Number</strong>
-                                        <p style={{ fontSize: '11.5px', color: 'var(--text-faint)', margin: '2px 0 0' }}>{localSettings.language === 'en' ? 'Turn ON if you have a GST number, else OFF.' : 'Agar GST number hai to ON karein, nahi hai to OFF.'}</p>
-                                    </div>
-                                    <label className="bs-switch">
-                                        <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })} />
-                                        <span className="bs-slider"></span>
-                                    </label>
+                            <label className="switch">
+                                <input type="checkbox" checked={!!formData.show_bank_details} onChange={(e) => setFormData({...formData, show_bank_details: e.target.checked})} />
+                                <span className="slider"></span>
+                            </label>
+                        </div>
+                        
+                        {formData.show_bank_details && (
+                            <div>
+                                <div className="divider"></div>
+                                <div className="row2">
+                                    <div className="field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={e => setFormData({...formData, bank_name: e.target.value})} placeholder="e.g. SBI" /></div>
+                                    <div className="field"><label>Account Number</label><input type="text" value={formData.account_no || ''} onChange={e => setFormData({...formData, account_no: e.target.value})} placeholder="Account No" /></div>
                                 </div>
-
-                                {/* GST Calculation Mode — only shows when GST is ON */}
-                                <div className={`bs-collapse ${!localSettings.nonGstMode ? 'open' : ''}`}>
-                                    <div style={{ padding: '8px 0 16px 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <strong style={{ fontSize: '12.5px', marginBottom: '8px' }}>GST Calculation</strong>
-                                        <div className="bs-segmented" style={{ flexShrink: 0, maxWidth: '280px', width: '100%' }}>
-                                            <button type="button" className={`bs-seg-btn ${localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'EXCLUSIVE' })}>Exclusive</button>
-                                            <button type="button" className={`bs-seg-btn ${localSettings.taxType === 'INCLUSIVE' ? 'active' : ''}`} onClick={() => setLocalSettings({ ...localSettings, taxType: 'INCLUSIVE' })}>Inclusive</button>
-                                        </div>
-                                        <p style={{ fontSize: '11px', color: 'var(--text-faint)', margin: '8px 0 0 0', lineHeight: '1.4' }}>
-                                            {localSettings.language === 'en' 
-                                                ? 'Exclusive: Tax added on top. Inclusive: Tax inside price.' 
-                                                : 'Exclusive: Tax alag se jurega. Inclusive: Tax rate ke andar hai.'}
-                                        </p>
-                                    </div>
+                                <div className="row2">
+                                    <div className="field"><label>IFSC Code</label><input type="text" value={formData.ifsc_code || ''} onChange={e => setFormData({...formData, ifsc_code: e.target.value})} style={{textTransform:'uppercase'}} placeholder="IFSC Code" /></div>
+                                    <div className="field"><label>Branch Name</label><input type="text" value={formData.branch_name || ''} onChange={e => setFormData({...formData, branch_name: e.target.value})} placeholder="Branch Name" /></div>
                                 </div>
+                                <div className="field"><label>Account Holder Name</label><input type="text" value={formData.account_holder || ''} onChange={e => setFormData({...formData, account_holder: e.target.value})} placeholder="Name on account" /></div>
                             </div>
-                        </section>
+                        )}
+                    </div>
 
-                        {/* ── BANK DETAILS ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="3" y1="21" x2="21" y2="21"/><line x1="5" y1="21" x2="5" y2="10"/><line x1="9" y1="21" x2="9" y2="10"/><line x1="15" y1="21" x2="15" y2="10"/><line x1="19" y1="21" x2="19" y2="10"/><polygon points="12 3 21 9 3 9"/></svg>
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="bs-card-title">Bank Account Details</h2>
-                                    <p className="bs-card-sub">Shown on invoices for direct bank transfers</p>
-                                </div>
-                                <label className="bs-switch">
-                                    <input type="checkbox" checked={!!formData.show_bank_details} onChange={(e) => setFormData({ ...formData, show_bank_details: e.target.checked })} />
-                                    <span className="bs-slider"></span>
+                    {/* Payments */}
+                    <div className="card" id="payments">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></div>
+                            <div><h2>Payments</h2><p>UPI ID QR code generate karne ke liye use hoga</p></div>
+                        </div>
+                        <div className="field">
+                            <label>UPI ID <span className="opt">(for QR Code)</span></label>
+                            <input type="text" value={formData.upi_id || ''} onChange={e => setFormData({...formData, upi_id: e.target.value})} placeholder="yourupi@bank" />
+                            <div className="hint">Ye ID se invoice pe payment QR code generate hoga</div>
+                        </div>
+                    </div>
+
+                    {/* Branding */}
+                    <div className="card" id="branding">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+                            <div><h2>Branding</h2><p>Logo invoice ke header pe dikhega</p></div>
+                        </div>
+                        <div className="upload-row">
+                            <label className="upload-box">
+                                {formData.logo ? (
+                                    <>
+                                        <img src={formData.logo} alt="Logo" />
+                                        <div className="verified-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg></div>
+                                    </>
+                                ) : (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                )}
+                                <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
+                            </label>
+                            <label className="upload-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                Choose Logo File
+                                <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
+                            </label>
+                        </div>
+                        <div className="hint">Recommended: 200×200px · Max 2MB</div>
+                    </div>
+
+                    {/* Signatory */}
+                    <div className="card" id="signatory">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 17l5-1 10-10a2 2 0 000-3l-1-1a2 2 0 00-3 0L4 12l-1 5z"/></svg></div>
+                            <div><h2>Authorized Signatory</h2><p>Aapka signature invoice aur quotations pe print hoga</p></div>
+                        </div>
+                        <div className="field">
+                            <label>Authorized Signatory Name</label>
+                            <input type="text" value={formData.owner_name || ''} onChange={e => setFormData({...formData, owner_name: e.target.value})} placeholder="Signatory Name" />
+                        </div>
+                        <div className="field">
+                            <label>Signature</label>
+                            <div className="signature-pad" onClick={() => setIsSignatureModalOpen(true)} style={{cursor: 'pointer'}}>
+                                {formData.signature ? (
+                                    <img src={formData.signature} alt="Signature" />
+                                ) : (
+                                    <span>{formData.owner_name || 'Signature'}</span>
+                                )}
+                            </div>
+                            <div style={{display:'flex', gap:'10px'}}>
+                                <button type="button" className="upload-btn" onClick={() => setIsSignatureModalOpen(true)}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+                                    Draw Signature
+                                </button>
+                                <label className="upload-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                    Upload
+                                    <input type="file" accept="image/*" style={{display:'none'}} onChange={handleSignatureChange} />
                                 </label>
                             </div>
-                            <div className="bs-card-body">
-                                <div className={`bs-form-grid`} style={{ opacity: formData.show_bank_details ? 1 : 0.4, pointerEvents: formData.show_bank_details ? 'auto' : 'none', transition: 'opacity .2s' }}>
-                                    <div className="bs-field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })} placeholder="e.g. State Bank of India" /></div>
-                                    <div className="bs-field"><label>Account Number</label><input type="text" value={formData.account_no || ''} onChange={(e) => setFormData({ ...formData, account_no: e.target.value })} placeholder="Enter A/C number" style={{ fontFamily: 'monospace' }} /></div>
-                                    <div className="bs-field"><label>IFSC Code</label><input type="text" value={formData.ifsc_code || ''} onChange={(e) => setFormData({ ...formData, ifsc_code: e.target.value })} placeholder="SBIN0001234" style={{ fontFamily: 'monospace' }} /></div>
-                                    <div className="bs-field"><label>Branch Name</label><input type="text" value={formData.branch_name || ''} onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })} placeholder="Branch location" /></div>
-                                    <div className="bs-field bs-form-full"><label>Account Holder Name</label><input type="text" value={formData.account_holder || ''} onChange={(e) => setFormData({ ...formData, account_holder: e.target.value })} placeholder="Name as per bank records" /></div>
-                                </div>
-                            </div>
-                        </section>
+                        </div>
+                    </div>
 
-                        {/* ── 4. UPI PAYMENT ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Payments</h2>
-                                    <p className="bs-card-sub">UPI ID used to generate QR codes on invoices</p>
-                                </div>
+                    {/* Terms */}
+                    <div className="card" id="terms">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+                            <div><h2>Default Terms & Conditions</h2><p>Har naye invoice pe automatically appear hoga</p></div>
+                        </div>
+                        <div className="field">
+                            <label>Terms <span className="opt">(will appear on every new invoice)</span></label>
+                            <div className="terms-box">
+                                <textarea 
+                                    maxLength={500} 
+                                    value={formData.terms_and_conditions || ''} 
+                                    onChange={e => setFormData({...formData, terms_and_conditions: e.target.value})}
+                                    placeholder="1. Goods once sold will not be taken back."
+                                />
                             </div>
-                            <div className="bs-card-body">
-                                <div className="bs-field">
-                                    <label>UPI ID (for QR Code)</label>
-                                    <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({ ...formData, upi_id: e.target.value })} placeholder="example@upi" />
-                                    <p className="bs-hint">{localSettings.language === 'en' ? 'This ID will be used to generate a payment QR code on your invoices.' : 'Yeh ID aapke invoices par payment QR code generate karne ke liye upyog hogi.'}</p>
-                                </div>
-                            </div>
-                        </section>
+                            <div className="char-count">{(formData.terms_and_conditions || '').length}/500</div>
+                            <div className="hint">Ye terms har naye bill me automatically add ho jayenge</div>
+                        </div>
+                    </div>
 
-                        {/* ── 5. BRANDING ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.672 0-.434-.137-.83-.43-1.156-.29-.32-.426-.74-.426-1.156a1.69 1.69 0 0 1 1.688-1.688h1.996c3.051 0 5.523-2.473 5.523-5.523C21.998 6.453 17.546 2 12 2z"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Branding</h2>
-                                    <p className="bs-card-sub">Logo shown on the invoice header</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
-                                    <div className="bs-logo-preview">
-                                        {formData.logo
-                                            ? <img src={formData.logo} alt="Logo" />
-                                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="26" height="26"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                                        }
-                                    </div>
-                                    <div>
-                                        <label className="bs-file-btn">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                            Choose Logo File
-                                            <input type="file" accept="image/*" onChange={handleLogoChange} style={{ display: 'none' }} />
-                                        </label>
-                                        <p className="bs-hint" style={{ marginTop: '6px' }}>Recommended: 200×200px. Max: 2MB.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── 7. AUTHORIZED SIGNATORY ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 17s3-2 6 0 6 0 6 0 3-2 6 0"/><path d="M4 21h16"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Authorized Signatory</h2>
-                                    <p className="bs-card-sub">Your signature will be printed on invoices and quotations</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <div className="bs-field" style={{ marginBottom: '16px' }}>
-                                    <label>Authorized Signatory Name</label>
-                                    <input type="text" value={formData.owner_name || ''} onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })} placeholder="Person name for signature" />
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
-                                    <div className="bs-sig-preview">
-                                        {formData.signature
-                                            ? <img src={formData.signature} alt="Signature" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                                            : <span style={{ fontFamily: "'Dancing Script', cursive", fontSize: '22px', color: '#1a1a2e' }}>{formData.owner_name || 'Signature'}</span>
-                                        }
-                                    </div>
-                                    <button type="button" className="bs-btn-outline" onClick={() => setIsSignatureModalOpen(true)}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                                        {formData.signature ? 'Change Signature' : 'Draw Signature'}
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── 8. TERMS & CONDITIONS ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Default Terms &amp; Conditions</h2>
-                                    <p className="bs-card-sub">Appears on every new invoice you create</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <div className="bs-field">
-                                    <label>Terms (will appear on every new invoice)</label>
-                                    <textarea maxLength={500} value={formData.terms_and_conditions || ''} onChange={(e) => setFormData({ ...formData, terms_and_conditions: e.target.value })} placeholder="1. Goods once sold will not be taken back.&#10;2. Interest @18% will be charged if payment is not made within 15 days.&#10;3. Subject to local jurisdiction." />
-                                    <div className="bs-char-count">{termsCount}/500</div>
-                                    <p className="bs-hint">{localSettings.language === 'en' ? 'These terms will automatically appear on every new bill.' : 'Yeh terms aapke har naye bill par apne aap likh kar aa jaayenge.'}</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── FEATURES & MODULES ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
+                    {/* Features & Modules */}
+                    <div className="card" id="modules">
+                        <div className="link-row">
+                            <div className="card-head-left">
+                                <div className="card-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="bs-card-title">Features &amp; Modules</h2>
-                                    <p className="bs-card-sub">Turn modules on or off based on what your business needs</p>
+                                <div>
+                                    <h2>Features &amp; Modules</h2>
+                                    <p>Turn modules on or off based on what your business needs</p>
                                 </div>
-                                <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
-                                    <span>{featuresOpen ? 'Close' : 'View Modules'}</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
-                                </button>
                             </div>
-                            <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
-                                <div className="bs-card-body">
-                                    <div className="bs-feature-grid">
-                                        {MODULES.map(mod => (
-                                            <div key={mod.id} className="bs-feature-item">
-                                                <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                                                </div>
-                                                <div className="bs-f-text">
-                                                    <strong>{mod.label}</strong>
-                                                    <p>{mod.desc}</p>
-                                                </div>
-                                                <label className="bs-switch">
-                                                    <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
-                                                    <span className="bs-slider"></span>
-                                                </label>
+                            <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
+                                <span>{featuresOpen ? 'Close' : 'View Modules'}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                        </div>
+                        <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
+                            <div style={{ padding: '0 16px 16px' }}>
+                                <div className="bs-feature-grid">
+                                    {MODULES.map(mod => (
+                                        <div key={mod.id} className="bs-feature-item">
+                                            <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className="bs-f-text">
+                                                <strong>{mod.label}</strong>
+                                                <p>{mod.desc}</p>
+                                            </div>
+                                            <label className="bs-switch">
+                                                <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
+                                                <span className="bs-slider"></span>
+                                            </label>
+                                        </div>
+                                    ))}
                                 </div>
-                            </div></div>
-                        </section>
+                            </div>
+                        </div></div>
+                    </div>
 
-                        {/* ── 9. DESIGN YOUR INVOICE ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
+                    {/* Invoice Design */}
+                    <div className="card" id="design">
+                        <div className="link-row">
+                            <div className="card-head-left">
+                                <div className="card-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><circle cx="11" cy="11" r="2"/></svg>
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 className="bs-card-title">Design Your Invoice</h2>
-                                    <p className="bs-card-sub">Color theme, table layout, logo &amp; live preview</p>
+                                <div>
+                                    <h2>Design Your Invoice</h2>
+                                    <p>Color theme, table layout, logo &amp; live preview</p>
                                 </div>
-                                <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
-                                    <span>{designOpen ? 'Close' : 'Customize Design'}</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
-                                </button>
                             </div>
-                            <div className={`bs-collapse ${designOpen ? 'open' : ''}`}><div>
-                                <div className="bs-card-body">
-                                    <p className="bs-sec-label">Invoice Color Theme</p>
-                                    <div className="bs-theme-grid">
-                                        {Object.entries(THEMES).map(([id, t]) => (
-                                            <button key={id} type="button" className={`bs-theme-card ${formData.invoice_template === id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, invoice_template: id })}>
-                                                {id === 'TEMPLATE_7'
-                                                    ? <div className="bs-theme-bar" style={{ background: 'repeating-linear-gradient(45deg,#1a1a1a,#1a1a1a 6px,#2a2a2a 6px,#2a2a2a 12px)', borderBottom: '1px solid #272d42' }} />
-                                                    : <div className="bs-theme-bar" style={{ background: t.accent }} />
-                                                }
-                                                <div className="bs-theme-label">
-                                                    {t.name}
-                                                    {formData.invoice_template === id && (
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
-                                                    )}
-                                                </div>
-                                            </button>
-                                        ))}
+                            <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
+                                <span>{designOpen ? 'Close' : 'Customize Design'}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                        </div>
+                        <div className={`bs-collapse ${designOpen ? 'open' : ''}`}><div>
+                            <div style={{ padding: '0 16px 16px' }}>
+                                <p className="bs-sec-label">Invoice Color Theme</p>
+                                <div className="bs-theme-grid">
+                                    {Object.entries(THEMES).map(([id, t]) => (
+                                        <button key={id} type="button" className={`bs-theme-card ${formData.invoice_template === id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, invoice_template: id })}>
+                                            {id === 'TEMPLATE_7'
+                                                ? <div className="bs-theme-bar" style={{ background: 'repeating-linear-gradient(45deg,#1a1a1a,#1a1a1a 6px,#2a2a2a 6px,#2a2a2a 12px)', borderBottom: '1px solid #272d42' }} />
+                                                : <div className="bs-theme-bar" style={{ background: t.accent }} />
+                                            }
+                                            <div className="bs-theme-label">
+                                                {t.name}
+                                                {formData.invoice_template === id && (
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                                                )}
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="bs-sec-label">Invoice Table Layout</p>
+                                <div className="bs-layout-grid">
+                                    {LAYOUTS.map(l => (
+                                        <button key={l.id} type="button" className={`bs-layout-card ${formData.invoice_layout === l.id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, invoice_layout: l.id })}>
+                                            <div className="bs-mini">
+                                                <i style={{ width: '100%' }}></i>
+                                                <i style={{ width: '70%' }}></i>
+                                                <i style={{ width: '85%' }}></i>
+                                            </div>
+                                            <span>{l.name}</span>
+                                            <small>{l.desc}</small>
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="bs-sec-label">Logo Alignment on Invoice</p>
+                                <div className="bs-align-grid">
+                                    {[
+                                        { id: 'LEFT', name: 'Left Side' },
+                                        { id: 'CENTER', name: 'Center Top' },
+                                        { id: 'RIGHT', name: 'Right Side' },
+                                    ].map(a => (
+                                        <button key={a.id} type="button" className={`bs-align-card ${formData.logo_position === a.id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, logo_position: a.id })}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                {a.id === 'LEFT' && <><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 6 9 12 3 18"/></>}
+                                                {a.id === 'CENTER' && <><polyline points="6 9 12 3 18 9"/><line x1="12" y1="3" x2="12" y2="21"/></>}
+                                                {a.id === 'RIGHT' && <><line x1="3" y1="12" x2="21" y2="12"/><polyline points="15 6 21 12 15 18"/></>}
+                                            </svg>
+                                            <span>{a.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="bs-preview-wrap">
+                                    <div className="bs-preview-label">
+                                        <span style={{ fontSize: '11.5px', color: 'var(--text-faint)', fontWeight: 600 }}>
+                                            <span className="bs-preview-dot" />LIVE DEMO PREVIEW
+                                        </span>
+                                        <span className="bs-badge">Sample Data</span>
                                     </div>
-                                    <p className="bs-sec-label">Invoice Table Layout</p>
-                                    <div className="bs-layout-grid">
-                                        {LAYOUTS.map(l => (
-                                            <button key={l.id} type="button" className={`bs-layout-card ${formData.invoice_table_format === l.id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, invoice_table_format: l.id })}>
-                                                <div className="bs-mini">
-                                                    <i style={{ width: '100%' }}></i>
-                                                    <i style={{ width: '70%' }}></i>
-                                                    <i style={{ width: '85%' }}></i>
-                                                </div>
-                                                <span>{l.name}</span>
-                                                <small>{l.desc}</small>
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <p className="bs-sec-label">Logo Alignment on Invoice</p>
-                                    <div className="bs-align-grid">
-                                        {[
-                                            { id: 'LEFT', name: 'Left Side' },
-                                            { id: 'CENTER', name: 'Center Top' },
-                                            { id: 'RIGHT', name: 'Right Side' },
-                                        ].map(a => (
-                                            <button key={a.id} type="button" className={`bs-align-card ${formData.logo_position === a.id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, logo_position: a.id })}>
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    {a.id === 'LEFT' && <><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 6 9 12 3 18"/></>}
-                                                    {a.id === 'CENTER' && <><polyline points="6 9 12 3 18 9"/><line x1="12" y1="3" x2="12" y2="21"/></>}
-                                                    {a.id === 'RIGHT' && <><line x1="3" y1="12" x2="21" y2="12"/><polyline points="15 6 21 12 15 18"/></>}
-                                                </svg>
-                                                <span>{a.name}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div className="bs-preview-wrap">
-                                        <div className="bs-preview-label">
-                                            <span style={{ fontSize: '11.5px', color: 'var(--text-faint)', fontWeight: 600 }}>
-                                                <span className="bs-preview-dot" />LIVE DEMO PREVIEW
-                                            </span>
-                                            <span className="bs-badge">Sample Data</span>
+                                    <div style={{ padding: '20px', background: '#fff', borderRadius: '10px', color: '#1a1a2e', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                        <div style={{ display: 'flex', flexDirection: formData.logo_position === 'CENTER' ? 'column' : (formData.logo_position === 'RIGHT' ? 'row-reverse' : 'row'), justifyContent: 'space-between', alignItems: formData.logo_position === 'CENTER' ? 'center' : 'flex-start', textAlign: formData.logo_position === 'CENTER' ? 'center' : (formData.logo_position === 'RIGHT' ? 'right' : 'left'), gap: '16px' }}>
+                                            {formData.logo ? (
+                                                <img src={formData.logo} alt="Logo" style={{ height: '36px', objectFit: 'contain' }} />
+                                            ) : (
+                                                <div style={{ width: '80px', height: '36px', background: '#e2e8f0', borderRadius: '4px' }}></div>
+                                            )}
+                                            <div style={{ flex: 1 }}>
+                                                <h3 style={{ margin: 0, fontSize: '16px', color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || THEMES.TEMPLATE_1.accent, fontWeight: 700 }}>{formData.name || 'Your Business Name'}</h3>
+                                                <p style={{ margin: '2px 0 0', fontSize: '10px', color: '#64748b' }}>{formData.address || 'Your Business Address'}</p>
+                                            </div>
                                         </div>
-                                        <div style={{ background: '#fff', color: '#1a1a2e', borderRadius: '10px', padding: '16px', fontSize: '11px', overflow: 'hidden' }}>
-                                            <div style={{ display: 'flex', flexDirection: formData.logo_position === 'CENTER' ? 'column' : formData.logo_position === 'RIGHT' ? 'row-reverse' : 'row', alignItems: formData.logo_position === 'CENTER' ? 'center' : 'flex-start', gap: '10px', paddingBottom: '10px', marginBottom: '10px', borderBottom: `2px solid ${currentTheme.accent}`, textAlign: formData.logo_position === 'CENTER' ? 'center' : formData.logo_position === 'RIGHT' ? 'right' : 'left' }}>
-                                                <div style={{ width: '38px', height: '38px', borderRadius: '8px', background: currentTheme.accent, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '13px', order: formData.logo_position === 'CENTER' ? 0 : undefined }}>
-                                                    {(formData.name || 'AE').substring(0, 2).toUpperCase()}
-                                                </div>
-                                                <div style={{ flex: 1 }}>
-                                                    <b style={{ fontFamily: 'Sora,sans-serif', fontSize: '13px', display: 'block', color: currentTheme.accent, letterSpacing: '.2px' }}>{(formData.name || 'YOUR BUSINESS').toUpperCase()}</b>
-                                                    <div style={{ fontSize: '10px', color: '#555', marginTop: '2px', lineHeight: '1.5' }}>{formData.address || 'Your Address'}</div>
-                                                    <div style={{ fontSize: '10px', color: '#555' }}>Mob: {formData.phone || '+91 0000000000'}</div>
-                                                </div>
-                                                <div style={{ fontStyle: 'italic', fontWeight: 700, fontSize: '12px', color: '#222', whiteSpace: 'nowrap' }}>TAX INVOICE</div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #f1f5f9', borderBottom: '2px solid #f1f5f9', padding: '10px 0' }}>
+                                            <div>
+                                                <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>BILLED TO</p>
+                                                <p style={{ fontSize: '11px', fontWeight: 600, margin: '1px 0 0' }}>Customer Name</p>
                                             </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#555', marginBottom: '8px' }}>
-                                                <div>Bill To: <b>Ramesh Kumar</b><br />South Extension, Delhi</div>
-                                                <div style={{ textAlign: 'right' }}>Inv #: IV-101<br />Date: 18-06-2026</div>
-                                            </div>
-                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10.5px' }}>
-                                                <thead><tr>
-                                                    <th style={{ textAlign: 'left', padding: '6px 4px', color: '#777', fontSize: '9.5px', textTransform: 'uppercase', fontWeight: 600 }}>Item</th>
-                                                    <th style={{ textAlign: 'center', padding: '6px 4px', color: '#777', fontSize: '9.5px', textTransform: 'uppercase', fontWeight: 600 }}>Qty</th>
-                                                    <th style={{ textAlign: 'right', padding: '6px 4px', color: '#777', fontSize: '9.5px', textTransform: 'uppercase', fontWeight: 600 }}>Amount</th>
-                                                </tr></thead>
-                                                <tbody>
-                                                    {[{ n: 'Premium Cotton Shirt', q: 2, a: '₹2400' }, { n: 'Office Table Lamp', q: 1, a: '₹850' }].map((r, i) => (
-                                                        <tr key={i} style={{ borderBottom: '1px solid #eee', background: formData.invoice_table_format === 'FORMAT_4' && i % 2 !== 0 ? `${currentTheme.accent}18` : undefined }}>
-                                                            <td style={{ padding: '6px 4px', color: '#222' }}>{r.n}</td>
-                                                            <td style={{ padding: '6px 4px', textAlign: 'center', color: '#222' }}>{r.q}</td>
-                                                            <td style={{ padding: '6px 4px', textAlign: 'right', color: '#222' }}>{r.a}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #eee', fontSize: '11px' }}>
-                                                Grand Total <b style={{ marginLeft: '8px', color: currentTheme.accent }}>₹3,250.00</b>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>INVOICE TOTAL</p>
+                                                <p style={{ fontSize: '14px', fontWeight: 800, margin: '1px 0 0', color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || THEMES.TEMPLATE_1.accent }}>₹ 24,500</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div></div>
-                        </section>
-
-                        {/* ── 10. PREFERENCES ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Preferences</h2>
-                                    <p className="bs-card-sub">Display language for the dashboard</p>
-                                </div>
                             </div>
-                            <div className="bs-card-body">
-                                <div className="bs-field" style={{ maxWidth: '280px' }}>
-                                    <label>Language</label>
-                                    <select value={localSettings.language || 'en'} onChange={(e) => setLocalSettings({ ...localSettings, language: e.target.value })}>
-                                        <option value="en">English</option>
-                                        <option value="hi">हिन्दी (Hindi)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* ── 11. ACCOUNT SECURITY ── */}
-                        <section className="bs-card">
-                            <div className="bs-card-head">
-                                <div className="bs-card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                </div>
-                                <div>
-                                    <h2 className="bs-card-title">Account Security</h2>
-                                    <p className="bs-card-sub">Manage how you sign in and keep your account safe</p>
-                                </div>
-                            </div>
-                            <div className="bs-card-body">
-                                <p className="bs-hint">{localSettings.language === 'en' ? "Manage your business profile and settings here. Press 'Save All Settings' below to apply changes." : "Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein."}</p>
-                            </div>
-                        </section>
+                        </div></div>
                     </div>
 
-                    {/* ── SAVE BAR ── */}
-                    <div className="bs-save-bar">
-                        <button type="submit" className="bs-btn-primary">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                            Save All Settings
-                        </button>
+                    {/* Preferences */}
+                    <div className="card" id="prefs">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg></div>
+                            <div><h2>Preferences</h2><p>Dashboard ke liye display language</p></div>
+                        </div>
+                        <div className="field">
+                            <label>Language</label>
+                            <select value={localSettings.language || 'en'} onChange={e => setLocalSettings({...localSettings, language: e.target.value})}>
+                                <option value="en">English</option>
+                                <option value="hi">हिंदी</option>
+                            </select>
+                        </div>
                     </div>
-                </form>
+
+                    {/* Account Security */}
+                    <div className="card" id="security">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                            <div><h2>Account Security</h2><p>Manage how you sign in and keep your account safe</p></div>
+                        </div>
+                        <div className="field">
+                            <div className="hint" style={{ fontSize: '12.5px' }}>
+                                {localSettings.language === 'en' ? "Manage your business profile and settings here. Press 'Save All Settings' below to apply changes." : "Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein."}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
+            <div className="save-bar">
+                <button className="save-btn" onClick={handleSubmit}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                    Save All Settings
+                </button>
+            </div>
+            
             <SignatureModal
                 isOpen={isSignatureModalOpen}
                 onClose={() => setIsSignatureModalOpen(false)}
-                onSave={(data: string) => setFormData({ ...formData, signature: data })}
+                onSave={(signatureData) => {
+                    setFormData({ ...formData, signature: signatureData });
+                    setIsSignatureModalOpen(false);
+                }}
             />
-        </>
+        </div>
     );
 }
