@@ -220,30 +220,32 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             clearTimeout(timeoutId);
             const data = await response.json();
             setReply(data.reply);
-            speakOutput(data.reply);
+            setIsProcessing(false); // UI shows the text reply now
+            
+            await speakOutput(data.reply);
 
             if (data.action) {
                 if (data.action === 'CREATE_INVOICE') {
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
                     toast.success(isEn ? 'Creating bill...' : 'Bill banane ja raha hu...');
-                    setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
+                    router.push('/dashboard/invoices/new');
                 } else if (data.action === 'MARK_ATTENDANCE') {
                     setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
                     toast.success(isEn ? 'Opening attendance page...' : 'Attendance page khol raha hu...');
-                    setTimeout(() => router.push('/dashboard/staff'), 1000);
+                    router.push('/dashboard/staff');
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
                     toast.success(isEn ? 'Opening expense form...' : 'Expense form khol raha hu...');
-                    setTimeout(() => router.push('/dashboard/expenses/new'), 1000);
+                    router.push('/dashboard/expenses/new');
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
                     toast.success(isEn ? 'Opening inventory form...' : 'Inventory form khol raha hu...');
-                    setTimeout(() => router.push('/dashboard/inventory'), 1000);
+                    router.push('/dashboard/inventory');
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
                     if (path) {
                         toast.success(isEn ? 'Opening page...' : 'Page khol raha hu...');
-                        setTimeout(() => router.push(path), 1000);
+                        router.push(path);
                     }
                 } else if (data.action !== 'REPLY') {
                     toast.error((isEn ? 'Action not understood: ' : 'Action samajh nahi aaya: ') + data.action);
@@ -256,33 +258,43 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         }
     };
 
-    const speakOutput = async (text: string) => {
-        try {
-            const { isNativeApp } = await import('@/lib/utils');
-            if (isNativeApp()) {
-                const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
-                await TextToSpeech.stop();
-                await TextToSpeech.speak({
-                    text: text,
-                    lang: 'hi-IN',
-                    rate: 1.0,
-                    pitch: 1.0,
-                    category: 'ambient',
-                });
-                return;
+    const speakOutput = (text: string): Promise<void> => {
+        return new Promise(async (resolve) => {
+            try {
+                const { isNativeApp } = await import('@/lib/utils');
+                if (isNativeApp()) {
+                    const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
+                    await TextToSpeech.stop();
+                    await TextToSpeech.speak({
+                        text: text,
+                        lang: 'hi-IN',
+                        rate: 1.0,
+                        pitch: 1.0,
+                        category: 'ambient',
+                    });
+                    resolve();
+                    return;
+                }
+            } catch(e) {
+                console.error('Native TTS error', e);
             }
-        } catch(e) {
-            console.error('Native TTS error', e);
-        }
 
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'hi-IN';
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            window.speechSynthesis.speak(utterance);
-        }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'hi-IN';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.onend = () => resolve();
+                utterance.onerror = () => resolve();
+                window.speechSynthesis.speak(utterance);
+                
+                // Fallback resolve in case onend doesn't fire (sometimes happens on mobile browsers)
+                setTimeout(() => resolve(), 8000); 
+            } else {
+                resolve();
+            }
+        });
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {

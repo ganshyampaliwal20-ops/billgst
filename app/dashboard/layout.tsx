@@ -36,7 +36,7 @@ export default function DashboardLayout({
     const { data: session, status } = useSession();
 
     // Get store values
-    const { businessProfile, resetStore, fetchBusinessProfile, settings, setAiChatOpen, fetchStaff, fetchAttendance } = useStore();
+    const { businessProfile, resetStore, fetchBusinessProfile, settings, setAiChatOpen, setSupportChatOpen, fetchStaff, fetchAttendance } = useStore();
 
     useEffect(() => {
         setIsMounted(true);
@@ -174,9 +174,18 @@ export default function DashboardLayout({
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
     if (isSuperAdmin) {
-        menuItems.push({ icon: FaHeadset, label: 'Help & Support', href: '/dashboard/support' });
+        menuItems.push({ icon: FaHeadset, label: 'Admin Support Inbox', href: '/dashboard/support' });
         menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
     }
+
+    menuItems.push({ 
+        icon: FaHeadset, 
+        label: t.helpAndSupport || 'Help & Support', 
+        href: '#',
+        onClick: () => {
+            setSupportChatOpen(true);
+        }
+    });
 
     const handleLogout = () => {
         document.cookie = 'billgst_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';

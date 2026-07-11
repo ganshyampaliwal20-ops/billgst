@@ -4,12 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import { FaHeadset, FaPaperPlane, FaTimes, FaSignInAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
+import { useStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 
 export default function SupportChatWidget() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [isOpen, setIsOpen] = useState(false);
+    const isOpen = useStore((state: any) => state.supportChatOpen);
+    const setIsOpen = useStore((state: any) => state.setSupportChatOpen);
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -126,18 +128,6 @@ export default function SupportChatWidget() {
 
     return (
         <>
-            {/* Floating Button */}
-            {!isOpen && (
-                <button
-                    onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 z-[100] w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-full flex items-center justify-center text-white shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:scale-105 hover:shadow-[0_10px_25px_rgba(16,185,129,0.4)] transition-all duration-300"
-                >
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
-                </button>
-            )}
-
             {/* Chat Window */}
             {isOpen && (
                 <div className="fixed bottom-6 right-6 z-[100] w-[360px] h-[520px] bg-slate-50/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">

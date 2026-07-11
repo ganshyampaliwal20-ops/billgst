@@ -91,7 +91,13 @@ export default function SmartAttendance() {
                 const { staffName, status } = aiDraftData;
                 
                 if (staffName && staff && staff.length > 0) {
-                    const foundStaff = staff.find((s: any) => s.name.toLowerCase().includes(staffName.toLowerCase()));
+                    const normalizedStaffName = staffName.toLowerCase().replace(/\s+/g, '');
+                    const foundStaff = staff.find((s: any) => {
+                        const sName = s.name.toLowerCase().replace(/\s+/g, '');
+                        return sName.includes(normalizedStaffName) || 
+                               normalizedStaffName.includes(sName) ||
+                               sName.replace(/h/g, '').includes(normalizedStaffName.replace(/h/g, ''));
+                    });
                     if (foundStaff) {
                         const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : 'PRESENT';
                         markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
