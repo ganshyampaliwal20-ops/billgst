@@ -165,6 +165,11 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         isEngineActive.current = true;
 
         try {
+            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                const unlockUtterance = new SpeechSynthesisUtterance('');
+                window.speechSynthesis.speak(unlockUtterance);
+                window.speechSynthesis.cancel();
+            }
             setTranscript('');
             transcriptRef.current = '';
             setReply('');
@@ -250,7 +255,25 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         }
     };
 
-    const speakOutput = (text: string) => {
+    const speakOutput = async (text: string) => {
+        try {
+            const { isNativeApp } = await import('@/lib/utils');
+            if (isNativeApp()) {
+                const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
+                await TextToSpeech.stop();
+                await TextToSpeech.speak({
+                    text: text,
+                    lang: 'hi-IN',
+                    rate: 1.0,
+                    pitch: 1.0,
+                    category: 'ambient',
+                });
+                return;
+            }
+        } catch(e) {
+            console.error('Native TTS error', e);
+        }
+
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);

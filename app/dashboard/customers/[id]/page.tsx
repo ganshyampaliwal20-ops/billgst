@@ -365,7 +365,7 @@ export default function CustomerDetailPage() {
 .cust-summary-wrapper *, .cust-summary-wrapper *::before, .cust-summary-wrapper *::after{box-sizing:border-box;margin:0;padding:0}
 .cust-summary-wrapper{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 
-.shell{max-width:1000px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:70px;box-shadow:0 0 40px rgba(0,0,0,0.03)}
+.shell{max-width:1000px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:100px;box-shadow:0 0 40px rgba(0,0,0,0.03)}
 
 .appbar{
   background:linear-gradient(135deg,#0b0f1e 0%,#1c2340 70%,#2d3561 100%);
@@ -475,13 +475,14 @@ canvas{max-height:140px; width: 100%;}
 .tag.new{background:#f0fdf4;color:#059669;border-color:#bbf7d0}
 
 .bottom-bar{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:1000px;
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 40px);max-width:960px;
+  border-radius:18px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  padding:14px 20px;
+  padding:16px 20px;
   display:flex;align-items:center;justify-content:center;gap:8px;
   cursor:pointer;
-  box-shadow:0 -4px 16px rgba(79,70,229,0.2);
+  box-shadow:0 10px 30px rgba(79,70,229,0.35);
   z-index:40;
 }
 .bottom-bar .pay-icon{font-size:18px}

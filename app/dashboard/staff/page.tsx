@@ -168,11 +168,13 @@ export default function SmartAttendance() {
         if (isSaving) return;
         setIsSaving(true);
         try {
+            const promises = [];
             for (const s of filteredStaff) {
                 if (!getStatus(s.id, selectedDate)) {
-                    await markAttendance(s.id, selectedDate, 'PRESENT');
+                    promises.push(markAttendance(s.id, selectedDate, 'PRESENT'));
                 }
             }
+            await Promise.all(promises);
             toast.success('Marked all as present ✓');
         } finally {
             setIsSaving(false);
