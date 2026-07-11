@@ -166,9 +166,10 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
         try {
             if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                const unlockUtterance = new SpeechSynthesisUtterance('');
+                window.speechSynthesis.resume();
+                const unlockUtterance = new SpeechSynthesisUtterance(' ');
+                unlockUtterance.volume = 0; // silent unlock
                 window.speechSynthesis.speak(unlockUtterance);
-                window.speechSynthesis.cancel();
             }
             setTranscript('');
             transcriptRef.current = '';
