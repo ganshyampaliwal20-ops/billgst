@@ -168,6 +168,8 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
     }
 
+    menuItems.push({ icon: FaCog, label: t.settings || 'Settings', href: '/dashboard/settings' });
+
     menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
