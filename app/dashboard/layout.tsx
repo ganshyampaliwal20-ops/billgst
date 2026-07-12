@@ -21,6 +21,8 @@ import SupportChatWidget from '@/app/components/SupportChatWidget';
 import UpgradeModal from '@/app/components/UpgradeModal';
 import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
 import VoiceAssistant from './VoiceAssistant';
+import DemoNLPAssistant from './DemoNLPAssistant';
+import { FaBolt } from 'react-icons/fa';
 
 export default function DashboardLayout({
     children,
@@ -33,6 +35,7 @@ export default function DashboardLayout({
     const [isMounted, setIsMounted] = useState(false);
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
     const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+    const [isDemoNLPOpen, setIsDemoNLPOpen] = useState(false);
     const { data: session, status } = useSession();
 
     // Get store values
@@ -167,6 +170,15 @@ export default function DashboardLayout({
         // menuItems.push({ icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' });
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
     }
+
+    menuItems.push({ 
+        icon: FaBolt, 
+        label: 'Free AI Assistant', 
+        href: '#',
+        onClick: () => {
+            setIsDemoNLPOpen(true);
+        }
+    });
 
     menuItems.push({ icon: FaCog, label: t.settings || 'Settings', href: '/dashboard/settings' });
 
@@ -457,6 +469,8 @@ export default function DashboardLayout({
             <SupportChatWidget />
             <UpgradeModal />
             
+            <DemoNLPAssistant isOpen={isDemoNLPOpen} onClose={() => setIsDemoNLPOpen(false)} />
+
             {/* AI Voice Assistant FAB */}
             <button
                 onClick={() => setIsVoiceAssistantOpen(true)}
