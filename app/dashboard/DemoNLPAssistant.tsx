@@ -75,7 +75,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
 
             if (name) {
                 // Set data and redirect for Attendance
-                setAiDraftData({ type: 'ATTENDANCE', action: 'present', name: name });
+                setAiDraftData({ type: 'ATTENDANCE', action: 'present', staffName: name, status: 'PRESENT' });
                 setTimeout(() => router.push('/dashboard/staff'), 1000);
                 onClose(); // Close the modal
                 return `✅ **Attendance Request!**\n- Name: ${name}\n\nHaajiri page open ho raha hai...`;
@@ -86,26 +86,49 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         
         // --- Intent 2: Billing ---
         if (lowerText.includes('bill') || lowerText.includes('banao') || lowerText.includes('add')) {
+            // Check if it's "X ka bill banao" to extract customer name
+            let customerName = '';
+            const kaBillMatch = lowerText.match(/([a-z\s]+)\s+(ka|kaa|ki)\s+bill/i);
+            if (kaBillMatch) {
+                customerName = kaBillMatch[1].trim();
+                customerName = customerName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+
             // Match numbers (digits or words)
             const quantityMatch = lowerText.match(/(\d+)/);
             const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
             
             // Remove numbers and common stop words to find the item
-            let item = lowerText
+            // If customer name was found, remove it from the string so it doesn't become the item
+            let textToProcessForItem = lowerText;
+            if (customerName) {
+                textToProcessForItem = textToProcessForItem.replace(new RegExp(kaBillMatch![0], 'i'), '');
+            }
+
+            let item = textToProcessForItem
                 .replace(/\d+/g, '') // remove digits
-                .replace(/(new|bill|banao|ka|ek|do|add|karo|create|make)/g, '') // remove action words
+                .replace(/(new|bill|banao|ka|kaa|ke|ek|do|add|karo|create|make)/g, '') // remove action words
                 .trim();
                 
             item = item.replace(/\s+/g, ' ').trim();
 
-            if (item) {
+            if (customerName || item) {
+                const payload: any = { type: 'INVOICE', items: [] };
+                if (customerName) payload.customerName = customerName;
+                if (item) payload.items = [{ name: item, quantity: quantity, rate: 0, amount: 0 }];
+                
                 // Set data and redirect for Invoice
-                setAiDraftData({ type: 'INVOICE', items: [{ name: item, quantity: quantity, rate: 0, amount: 0 }] });
+                setAiDraftData(payload);
                 setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
                 onClose(); // Close the modal
-                return `✅ **Bill Request Captured!**\n- Item: ${item} \n- Quantity: ${quantity} \n\nNaya bill form open ho raha hai...`;
+                
+                let replyMsg = `✅ **Bill Request Captured!**\n`;
+                if (customerName) replyMsg += `- Customer: ${customerName}\n`;
+                if (item) replyMsg += `- Item: ${item} (Qty: ${quantity})\n`;
+                replyMsg += `\nNaya bill form open ho raha hai...`;
+                return replyMsg;
             } else {
-                return `Aap bill banana chahte hain, par mujhe item ka naam samajh nahi aaya.`;
+                return `Aap bill banana chahte hain, par mujhe item ya customer ka naam samajh nahi aaya.`;
             }
         }
         
