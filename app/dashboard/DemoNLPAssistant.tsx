@@ -93,8 +93,35 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             }
         }
         
-        // --- Intent 2: Billing ---
-        if (lowerText.includes('bill') || lowerText.includes('banao') || lowerText.includes('add')) {
+        // --- Intent 2: Expenses ---
+        const isExpense = lowerText.match(/\b(expense|expenses|kharcha)\b/i);
+        if (isExpense) {
+            // Match numbers for amount
+            const amountMatch = lowerText.match(/(\d+)/);
+            const amount = amountMatch ? parseInt(amountMatch[1]) : 0;
+            
+            // Extract description
+            let desc = lowerText
+                .replace(/\b(expense|expenses|kharcha|me|add|karo|kar|do|diya|rupye|rs|rupees|ko|liye|ke)\b/gi, '')
+                .replace(/\d+/g, '') // remove the amount
+                .replace(/[^\w\s]/g, '')
+                .trim();
+                
+            desc = desc.replace(/\s+/g, ' ').trim();
+            if (desc) {
+                desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+            }
+
+            if (desc || amount > 0) {
+                setAiDraftData({ type: 'EXPENSE', description: desc, amount: amount });
+                setTimeout(() => router.push('/dashboard/expenses/new'), 1000);
+                onClose();
+                return `✅ **Expense Request!**\n- Details: ${desc}\n- Amount: ₹${amount}\n\nKharcha page open ho raha hai...`;
+            }
+        }
+        
+        // --- Intent 3: Billing ---
+        else if (lowerText.includes('bill') || lowerText.includes('banao') || lowerText.includes('add')) {
             let customerName = '';
             let item = '';
             
@@ -159,7 +186,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             }
         }
         
-        return `Maaf karna, mai abhi sirf 'Bill banana' aur 'Attendance lagana' samajh sakta hu. Jaise: "Ramesh ki attendance laga" ya "5 t-shirt new bill".`;
+        return `Maaf karna, mai abhi sirf 'Bill banana', 'Attendance lagana' ya 'Expense (Kharcha) add karna' samajh sakta hu. Jaise: "Pintu ko 500 rupye expense me add karo".`;
     };
 
     const handleSend = (overrideText?: string) => {
