@@ -86,31 +86,49 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         
         // --- Intent 2: Billing ---
         if (lowerText.includes('bill') || lowerText.includes('banao') || lowerText.includes('add')) {
-            // Check if it's "X ka bill banao" to extract customer name
             let customerName = '';
-            const kaBillMatch = lowerText.match(/([a-z\s]+)\s+(ka|kaa|ki)\s+bill/i);
-            if (kaBillMatch) {
-                customerName = kaBillMatch[1].trim();
-                customerName = customerName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            }
-
+            let item = '';
+            
             // Match numbers (digits or words)
             const quantityMatch = lowerText.match(/(\d+)/);
             const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
             
-            // Remove numbers and common stop words to find the item
-            // If customer name was found, remove it from the string so it doesn't become the item
-            let textToProcessForItem = lowerText;
-            if (customerName) {
-                textToProcessForItem = textToProcessForItem.replace(new RegExp(kaBillMatch![0], 'i'), '');
+            // Remove quantity to make text simpler
+            let processedText = lowerText.replace(/\d+/g, '').trim();
+            
+            // Pattern 1: X ka Y ka bill (e.g., "ganshyam ka mobile ka bill banao")
+            const doubleKaMatch = processedText.match(/(.+?)\s+ka\s+(.+?)\s+ka\s+bill/i);
+            
+            // Pattern 2: X ke naam se Y ka bill
+            const keNaamMatch = processedText.match(/(.+?)\s+ke\s+naam\s+se\s+(.+?)\s*(ka\s+bill|bill)/i);
+            
+            if (doubleKaMatch) {
+                customerName = doubleKaMatch[1].trim();
+                item = doubleKaMatch[2].trim();
+            } else if (keNaamMatch) {
+                customerName = keNaamMatch[1].trim();
+                item = keNaamMatch[2].trim();
+            } else {
+                // If it's just "X ka bill banao", we can't tell if X is a customer or an item without AI.
+                // We'll assume it's an ITEM by default, unless they explicitly say "ke naam"
+                const singleNaamMatch = processedText.match(/(.+?)\s+ke\s+naam\s+(ka\s+bill|bill)/i);
+                if (singleNaamMatch) {
+                    customerName = singleNaamMatch[1].trim();
+                } else {
+                    item = processedText
+                        .replace(/(new|bill|banao|ka|kaa|ke|ek|do|add|karo|create|make)/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
             }
 
-            let item = textToProcessForItem
-                .replace(/\d+/g, '') // remove digits
-                .replace(/(new|bill|banao|ka|kaa|ke|ek|do|add|karo|create|make)/g, '') // remove action words
-                .trim();
-                
-            item = item.replace(/\s+/g, ' ').trim();
+            // Formatting
+            if (customerName) {
+                customerName = customerName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+            if (item) {
+                item = item.replace(/(new|bill|banao|ka|kaa|ke|ek|do|add|karo|create|make)/g, '').replace(/\s+/g, ' ').trim();
+            }
 
             if (customerName || item) {
                 const payload: any = { type: 'INVOICE', items: [] };
