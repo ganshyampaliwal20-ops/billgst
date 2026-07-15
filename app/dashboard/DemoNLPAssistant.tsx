@@ -62,23 +62,32 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         const lowerText = text.toLowerCase();
         
         // --- Intent 1: Attendance ---
-        if (lowerText.includes('attendance') || lowerText.includes('attendence') || lowerText.includes('present') || lowerText.includes('laga')) {
-            // Very basic name extraction: remove known keywords
+        const isAttendance = lowerText.match(/\b(attendance|attendence|present|laga|lagao|mark|leave|absent|chutti)\b/i);
+        if (isAttendance) {
+            // Determine status
+            const isAbsent = lowerText.match(/\b(leave|absent|chutti)\b/i);
+            const status = isAbsent ? 'ABSENT' : 'PRESENT';
+            const actionText = isAbsent ? 'absent' : 'present';
+
+            // Very basic name extraction: remove known keywords using word boundaries
             let name = lowerText
-                .replace(/(ki|ka|ke|attendance|attendence|present|laga|lagao|mark|karo|bhai)/g, '')
+                .replace(/\b(ki|ka|ke|ko|attendance|attendence|present|laga|lagao|mark|karo|kar|bhai|leave|absent|chutti|aaj|aj|do|de|hai|ho|gaya)\b/gi, '')
+                .replace(/[^\w\s]/g, '') // remove punctuation
                 .trim();
             
             // Clean multiple spaces
             name = name.replace(/\s+/g, ' ').trim();
             // Capitalize first letter
-            name = name.charAt(0).toUpperCase() + name.slice(1);
+            if (name) {
+                name = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
 
             if (name) {
                 // Set data and redirect for Attendance
-                setAiDraftData({ type: 'ATTENDANCE', action: 'present', staffName: name, status: 'PRESENT' });
+                setAiDraftData({ type: 'ATTENDANCE', action: actionText, staffName: name, status: status });
                 setTimeout(() => router.push('/dashboard/staff'), 1000);
                 onClose(); // Close the modal
-                return `✅ **Attendance Request!**\n- Name: ${name}\n\nHaajiri page open ho raha hai...`;
+                return `✅ **Attendance Request!**\n- Name: ${name}\n- Status: ${status}\n\nHaajiri page open ho raha hai...`;
             } else {
                 return `Aap attendance lagana chahte hain, par mujhe staff ka naam samajh nahi aaya.`;
             }
