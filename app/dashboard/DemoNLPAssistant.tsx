@@ -102,7 +102,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             
             // Extract description
             let desc = lowerText
-                .replace(/\b(expense|expenses|kharcha|me|add|karo|kar|do|diya|rupye|rs|rupees|ko|liye|ke)\b/gi, '')
+                .replace(/\b(expense|expenses|kharcha|me|add|karo|kar|do|diya|rupye|rs|rupees|ko|liye|ke|ka|ki|aur|to|in|se|cash)\b/gi, '')
                 .replace(/\d+/g, '') // remove the amount
                 .replace(/[^\w\s]/g, '')
                 .trim();
