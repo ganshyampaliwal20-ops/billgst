@@ -259,10 +259,10 @@ export default function BusinessExpensesPage() {
                 // Debug: log what keys were found
                 // console.log('[Hisaab] IDB merge done, total customers found:', mergedCustomers.size);
 
-                // 3. Server se recover karo agar local data nahi mili (user logged in ho toh)
-                if (mergedCustomers.size === 0 && session?.user?.id) {
+                // 3. Server se recover karo agar local data nahi mili (user logged in ho toh), ya fir fresh sync ke liye
+                if (session?.user?.id) {
                     try {
-                        // console.log('[Hisaab] Local data nahi mili, server se recover kar raha hoon...');
+                        // console.log('[Hisaab] Server se data sync kar raha hoon...');
                         const res = await fetch('/api/hisaab/sync');
                         if (res.ok) {
                             const serverCustomers = await res.json();
