@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
 // GET: Recover all customers for logged-in user from server
+export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         const session: any = await getServerSession(authOptions as any);
