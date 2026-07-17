@@ -950,7 +950,7 @@ export default function BusinessExpensesPage() {
                 } catch (err: any) {
                     showToast('❌ Native Error: ' + (err.message || 'Unknown'));
                 }
-            } else if ('contacts' in navigator && 'ContactsManager' in window) {
+            } else if ('contacts' in navigator) {
                 try {
                     const props = ['name', 'tel'];
                     const opts = { multiple: false };
