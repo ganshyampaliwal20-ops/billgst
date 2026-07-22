@@ -935,11 +935,18 @@ export default function BusinessExpensesPage() {
                         let c = result.contact;
                         if (!c.phones || c.phones.length === 0) {
                             try {
-                                const fullContact = await Contacts.getContact({ contactId: c.contactId, projection: { name: true, phones: true } });
-                                if (fullContact && fullContact.contact) {
-                                    c = fullContact.contact;
+                                const perm = await Contacts.requestPermissions();
+                                if (perm.contacts === 'granted') {
+                                    const fullContact = await Contacts.getContact({ contactId: c.contactId, projection: { name: true, phones: true } });
+                                    if (fullContact && fullContact.contact) {
+                                        c = fullContact.contact;
+                                    }
+                                } else {
+                                    showToast('⚠️ Please allow Contacts permission in App Settings to read the phone number.');
                                 }
-                            } catch(e) {}
+                            } catch(e: any) {
+                                showToast('⚠️ Contacts permission required to read number.');
+                            }
                         }
                         if (c.name?.display) setAcName(c.name.display);
                         
