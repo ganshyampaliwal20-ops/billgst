@@ -1041,24 +1041,7 @@ export default function BusinessExpensesPage() {
         setContactSearch('');
     };
 
-                        if (foundNum) {
-                            setAcPhone(foundNum);
-                            showToast('✅ Contact imported successfully!');
-                        } else {
-                            showToast('⚠️ Contact selected, but no valid phone number found.');
-                        }
-                    }
-                } catch (err: any) {
-                    showToast('❌ Web Error: ' + (err.message || 'Unknown'));
-                }
-            } else {
-                showToast('⚠️ Auto-contact is not supported in your browser.');
-            }
-        } catch (e: any) {
-            console.error(e);
-            showToast('❌ Error: ' + (e.message || 'Unknown'));
-        }
-    };
+
 
     const saveCustomer = () => {
         const limit = parseFloat(acLimit) || 0;
@@ -1771,9 +1754,9 @@ export default function BusinessExpensesPage() {
                         <div className="fg"><label className="fl">👤 Customer Name *</label><input className="fi" placeholder="e.g. Rahul Sharma" value={acName} onChange={e => setAcName(e.target.value)} /></div>
                         <div className="fg">
                             <label className="fl">📞 Phone Number</label>
-                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                <input className="fi" type="tel" placeholder="e.g. 98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} style={{ paddingRight: '55px', width: '100%' }} />
-                                <button type="button" onClick={(e) => { e.preventDefault(); importContact(); }} title="Import from Contacts" style={{ position: 'absolute', right: '4px', background: '#e3f2fd', border: 'none', borderRadius: '8px', color: '#1565c0', width: '44px', height: '44px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input className="fi" type="tel" placeholder="e.g. 98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} style={{ flex: 1, margin: 0 }} />
+                                <button type="button" onTouchStart={(e) => { e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); importContact(); }} title="Import from Contacts" style={{ flexShrink: 0, background: '#e3f2fd', border: 'none', borderRadius: '8px', color: '#1565c0', width: '48px', height: '48px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                                 </button>
                             </div>
