@@ -295,13 +295,13 @@ function HisaabViewerContent() {
                         )}
 
                         <div className="inv-btn-row">
-                            {s.neg && b?.business_upi_id ? (
+                            {!s.neg && b?.business_upi_id ? (
                                 <a className="inv-pay-btn" href={upiLink}>
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
                                     Abhi Pay Karein
                                 </a>
                             ) : (
-                                <div className="inv-pay-btn disabled" style={{ background: '#777', display: s.neg ? 'flex' : 'none' }}>
+                                <div className="inv-pay-btn disabled" style={{ background: '#777', display: !s.neg ? 'flex' : 'none' }}>
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
                                     UPI Not Set
                                 </div>
