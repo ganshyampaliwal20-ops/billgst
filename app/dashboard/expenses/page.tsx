@@ -950,8 +950,10 @@ export default function BusinessExpensesPage() {
                                 else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
                                 else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
                                 setAcPhone(num);
+                                showToast('✅ Contact imported successfully!');
+                            } else {
+                                showToast('⚠️ Contact selected, but no phone number found.');
                             }
-                            showToast('✅ Contact imported successfully!');
                         }
                     } else {
                         showToast('❌ Permission denied to access contacts');
@@ -974,8 +976,10 @@ export default function BusinessExpensesPage() {
                             else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
                             else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
                             setAcPhone(num);
+                            showToast('✅ Contact imported successfully!');
+                        } else {
+                            showToast('⚠️ Contact selected, but no phone number found.');
                         }
-                        showToast('✅ Contact imported successfully!');
                     }
                 } catch (err: any) {
                     showToast('❌ Web Error: ' + (err.message || 'Unknown'));
