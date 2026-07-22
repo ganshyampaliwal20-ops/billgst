@@ -930,46 +930,41 @@ export default function BusinessExpensesPage() {
                         return;
                     }
 
-                    const perm = await Contacts.requestPermissions();
-                    if (perm.contacts === 'granted') {
-                        const result = await Contacts.pickContact({ projection: { name: true, phones: true } });
-                        if (result && result.contact) {
-                            let c = result.contact;
-                            if (!c.phones || c.phones.length === 0) {
-                                try {
-                                    const fullContact = await Contacts.getContact({ contactId: c.contactId, projection: { name: true, phones: true } });
-                                    if (fullContact && fullContact.contact) {
-                                        c = fullContact.contact;
-                                    }
-                                } catch(e) {}
-                            }
-                            if (c.name?.display) setAcName(c.name.display);
-                            
-                            let foundNum = '';
-                            if (c.phones && c.phones.length > 0) {
-                                for (let p of c.phones) {
-                                    if (p.number) {
-                                        let num = p.number.replace(/[^\d+]/g, '');
-                                        if (num.startsWith('+91')) num = num.slice(3);
-                                        else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
-                                        else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
-                                        if (num.length >= 10) {
-                                            foundNum = num;
-                                            break;
-                                        }
+                    const result = await Contacts.pickContact({ projection: { name: true, phones: true } });
+                    if (result && result.contact) {
+                        let c = result.contact;
+                        if (!c.phones || c.phones.length === 0) {
+                            try {
+                                const fullContact = await Contacts.getContact({ contactId: c.contactId, projection: { name: true, phones: true } });
+                                if (fullContact && fullContact.contact) {
+                                    c = fullContact.contact;
+                                }
+                            } catch(e) {}
+                        }
+                        if (c.name?.display) setAcName(c.name.display);
+                        
+                        let foundNum = '';
+                        if (c.phones && c.phones.length > 0) {
+                            for (let p of c.phones) {
+                                if (p.number) {
+                                    let num = p.number.replace(/[^\d+]/g, '');
+                                    if (num.startsWith('+91')) num = num.slice(3);
+                                    else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                                    else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
+                                    if (num.length >= 10) {
+                                        foundNum = num;
+                                        break;
                                     }
                                 }
                             }
-
-                            if (foundNum) {
-                                setAcPhone(foundNum);
-                                showToast('✅ Contact imported successfully!');
-                            } else {
-                                showToast('⚠️ Contact selected, but no valid phone number found.');
-                            }
                         }
-                    } else {
-                        showToast('❌ Permission denied to access contacts');
+
+                        if (foundNum) {
+                            setAcPhone(foundNum);
+                            showToast('✅ Contact imported successfully!');
+                        } else {
+                            showToast('⚠️ Contact selected, but no valid phone number found.');
+                        }
                     }
                 } catch (err: any) {
                     showToast('❌ Native Error: ' + (err.message || 'Unknown'));
