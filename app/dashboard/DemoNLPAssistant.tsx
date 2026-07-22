@@ -58,35 +58,37 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         }
     };
 
+    const removeStopWords = (text: string, words: string[]) => {
+        let res = text;
+        words.forEach(w => {
+            const regex = new RegExp(`(^|\\s)${w}(?=\\s|$)`, 'gi');
+            res = res.replace(regex, ' ');
+        });
+        return res;
+    };
+
     const processText = (text: string) => {
         const lowerText = text.toLowerCase();
         
         // --- Intent 1: Attendance ---
-        const isAttendance = lowerText.match(/\b(attendance|attendence|present|laga|lagao|mark|leave|absent|chutti)\b/i);
+        const isAttendance = lowerText.match(/(attendance|attendence|present|laga|lagao|mark|leave|absent|chutti|प्रेजेंट|अटेंडेंस|लगाओ|लगा|लगाना|हाजिरी|छुट्टी|लीव|एब्सेंट)/i);
         if (isAttendance) {
-            // Determine status
-            const isAbsent = lowerText.match(/\b(leave|absent|chutti)\b/i);
+            const isAbsent = lowerText.match(/(leave|absent|chutti|छुट्टी|लीव|एब्सेंट)/i);
             const status = isAbsent ? 'ABSENT' : 'PRESENT';
             const actionText = isAbsent ? 'absent' : 'present';
 
-            // Very basic name extraction: remove known keywords using word boundaries
-            let name = lowerText
-                .replace(/\b(ki|ka|ke|ko|attendance|attendence|present|laga|lagao|mark|karo|kar|bhai|leave|absent|chutti|aaj|aj|do|de|hai|ho|gaya)\b/gi, '')
-                .replace(/[^\w\s]/g, '') // remove punctuation
-                .trim();
+            const stopWords = ['ki','ka','ke','ko','attendance','attendence','present','laga','lagao','mark','karo','kar','bhai','leave','absent','chutti','aaj','aj','do','de','hai','ho','gaya','की','का','के','को','अटेंडेंस','प्रेजेंट','लगाओ','लगा','मार्क','करो','कर','भाई','छुट्टी','लीव','एब्सेंट','आज','दो','दे','है','हो','गया','में','लगाना'];
+            let name = removeStopWords(lowerText, stopWords);
+            name = name.replace(/[.,?!'"]/g, '').replace(/\s+/g, ' ').trim();
             
-            // Clean multiple spaces
-            name = name.replace(/\s+/g, ' ').trim();
-            // Capitalize first letter
             if (name) {
                 name = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             }
 
             if (name) {
-                // Set data and redirect for Attendance
                 setAiDraftData({ type: 'ATTENDANCE', action: actionText, staffName: name, status: status });
                 setTimeout(() => router.push('/dashboard/staff'), 1000);
-                onClose(); // Close the modal
+                onClose();
                 return `✅ **Attendance Request!**\n- Name: ${name}\n- Status: ${status}\n\nHaajiri page open ho raha hai...`;
             } else {
                 return `Aap attendance lagana chahte hain, par mujhe staff ka naam samajh nahi aaya.`;
@@ -94,20 +96,15 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         }
         
         // --- Intent 2: Expenses ---
-        const isExpense = lowerText.match(/\b(expense|expenses|kharcha)\b/i);
+        const isExpense = lowerText.match(/(expense|expenses|kharcha|खर्चा|एक्सपेंस)/i);
         if (isExpense) {
-            // Match numbers for amount
             const amountMatch = lowerText.match(/(\d+)/);
             const amount = amountMatch ? parseInt(amountMatch[1]) : 0;
             
-            // Extract description
-            let desc = lowerText
-                .replace(/\b(expense|expenses|kharcha|me|add|karo|kar|do|diya|rupye|rs|rupees|ko|liye|ke|ka|ki|aur|to|in|se|cash)\b/gi, '')
-                .replace(/\d+/g, '') // remove the amount
-                .replace(/[^\w\s]/g, '')
-                .trim();
+            const stopWords = ['expense','expenses','kharcha','me','add','karo','kar','do','diya','rupye','rs','rupees','ko','liye','ke','ka','ki','aur','to','in','se','cash','खर्चा','एक्सपेंस','में','ऐड','करो','कर','दो','दिया','रुपये','रुपए','रु','को','लिए','के','का','की','और','से','नकद'];
+            let desc = removeStopWords(lowerText, stopWords);
+            desc = desc.replace(/\d+/g, '').replace(/[.,?!'"]/g, '').replace(/\s+/g, ' ').trim();
                 
-            desc = desc.replace(/\s+/g, ' ').trim();
             if (desc) {
                 desc = desc.charAt(0).toUpperCase() + desc.slice(1);
             }
@@ -121,49 +118,40 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         }
         
         // --- Intent 3: Billing ---
-        else if (lowerText.includes('bill') || lowerText.includes('banao') || lowerText.includes('add')) {
+        else if (lowerText.match(/(bill|banao|add|बिल|बनाओ|बना|ऐड)/i)) {
             let customerName = '';
             let item = '';
             
-            // Match numbers (digits or words)
             const quantityMatch = lowerText.match(/(\d+)/);
             const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
             
-            // Remove quantity to make text simpler
             let processedText = lowerText.replace(/\d+/g, '').trim();
             
-            // Pattern 1: X ka Y ka bill (e.g., "ganshyam ka mobile ka bill banao")
-            const doubleKaMatch = processedText.match(/(.+?)\s+ka\s+(.+?)\s+ka\s+bill/i);
-            
-            // Pattern 2: X ke naam se Y ka bill
-            const keNaamMatch = processedText.match(/(.+?)\s+ke\s+naam\s+se\s+(.+?)\s*(ka\s+bill|bill)/i);
+            const doubleKaMatch = processedText.match(/(.+?)\s+(ka|का)\s+(.+?)\s+(ka|का)\s+(bill|बिल)/i);
+            const keNaamMatch = processedText.match(/(.+?)\s+(ke naam se|के नाम से)\s+(.+?)\s*((ka bill)|(का बिल)|bill|बिल)/i);
             
             if (doubleKaMatch) {
                 customerName = doubleKaMatch[1].trim();
-                item = doubleKaMatch[2].trim();
+                item = doubleKaMatch[3].trim();
             } else if (keNaamMatch) {
                 customerName = keNaamMatch[1].trim();
-                item = keNaamMatch[2].trim();
+                item = keNaamMatch[3].trim();
             } else {
-                // If it's just "X ka bill banao", we can't tell if X is a customer or an item without AI.
-                // We'll assume it's an ITEM by default, unless they explicitly say "ke naam"
-                const singleNaamMatch = processedText.match(/(.+?)\s+ke\s+naam\s+(ka\s+bill|bill)/i);
+                const singleNaamMatch = processedText.match(/(.+?)\s+(ke naam|के नाम)\s+((ka bill)|(का बिल)|bill|बिल)/i);
                 if (singleNaamMatch) {
                     customerName = singleNaamMatch[1].trim();
                 } else {
-                    item = processedText
-                        .replace(/(new|bill|banao|ka|kaa|ke|ek|do|add|karo|create|make)/g, '')
-                        .replace(/\s+/g, ' ')
-                        .trim();
+                    const stopWords = ['new','bill','banao','ka','kaa','ke','ek','do','add','karo','create','make','नया','बिल','बनाओ','बना','का','के','एक','दो','ऐड','करो'];
+                    item = removeStopWords(processedText, stopWords).replace(/\s+/g, ' ').trim();
                 }
             }
 
-            // Formatting
             if (customerName) {
                 customerName = customerName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             }
             if (item) {
-                item = item.replace(/(new|bill|banao|ka|kaa|ke|ek|do|add|karo|create|make)/g, '').replace(/\s+/g, ' ').trim();
+                const stopWords = ['new','bill','banao','ka','kaa','ke','ek','do','add','karo','create','make','नया','बिल','बनाओ','बना','का','के','एक','दो','ऐड','करो'];
+                item = removeStopWords(item, stopWords).replace(/\s+/g, ' ').trim();
             }
 
             if (customerName || item) {
@@ -171,10 +159,9 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 if (customerName) payload.customerName = customerName;
                 if (item) payload.items = [{ name: item, quantity: quantity, rate: 0, amount: 0 }];
                 
-                // Set data and redirect for Invoice
                 setAiDraftData(payload);
                 setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
-                onClose(); // Close the modal
+                onClose();
                 
                 let replyMsg = `✅ **Bill Request Captured!**\n`;
                 if (customerName) replyMsg += `- Customer: ${customerName}\n`;

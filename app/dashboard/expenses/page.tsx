@@ -503,13 +503,13 @@ export default function BusinessExpensesPage() {
 
     const generateHisaabWhatsAppText = (cust: any, amount: number, shareUrl: string, isReminder: boolean = false) => {
         const netAmt = Math.abs(amount);
-        const isNeg = amount < 0; // Customer owes
+        const isNeg = amount < 0; // Business owes Customer (Advance)
         const bizName = businessProfile?.business_name || 'Business';
         
         let msg = `Namaste ${cust.name || 'Customer'} 🙏\n\n`;
         msg += isReminder ? `Aapka payment pending hai, kripya apna hisaab clear karein.\n\n` : `Aapka *Hisaab Statement* ready hai.\n\n`;
         msg += `💰 *Total Amount:* ₹${new Intl.NumberFormat('en-IN').format(netAmt)}\n`;
-        msg += `👉 *Status:* ${isNeg ? 'Aapko Dena Hai (Outstanding)' : 'Aapka Advance Jama Hai'}\n\n`;
+        msg += `👉 *Status:* ${isNeg ? 'Aapka Advance Jama Hai' : 'Aapko Dena Hai (Outstanding)'}\n\n`;
         msg += `📊 *Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:*\n${shareUrl}\n\n`;
         msg += `Dhanyawad,\n*${bizName}*`;
         
@@ -934,12 +934,21 @@ export default function BusinessExpensesPage() {
                     if (perm.contacts === 'granted') {
                         const result = await Contacts.pickContact({ projection: { name: true, phones: true } });
                         if (result && result.contact) {
-                            const c = result.contact;
+                            let c = result.contact;
+                            if (!c.phones || c.phones.length === 0) {
+                                try {
+                                    const fullContact = await Contacts.getContact({ contactId: c.contactId, projection: { name: true, phones: true } });
+                                    if (fullContact && fullContact.contact) {
+                                        c = fullContact.contact;
+                                    }
+                                } catch(e) {}
+                            }
                             if (c.name?.display) setAcName(c.name.display);
                             if (c.phones && c.phones.length > 0) {
                                 let num = c.phones[0].number?.replace(/[^\d+]/g, '') || '';
                                 if (num.startsWith('+91')) num = num.slice(3);
                                 else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                                else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
                                 setAcPhone(num);
                             }
                             showToast('✅ Contact imported successfully!');
@@ -963,6 +972,7 @@ export default function BusinessExpensesPage() {
                             let num = numStr.replace(/[^\d+]/g, '');
                             if (num.startsWith('+91')) num = num.slice(3);
                             else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                            else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
                             setAcPhone(num);
                         }
                         showToast('✅ Contact imported successfully!');

@@ -247,8 +247,8 @@ function HisaabViewerContent() {
 
                         <div className="inv-amount-row">
                             <div>
-                                <div className="inv-label">{s.neg ? 'Aapko Dena Hai' : 'Aapko Milna Hai'}</div>
-                                <div className={`inv-value ${s.neg ? 'give' : 'get'}`}>{formatCurrency(s.net)}</div>
+                                <div className="inv-label">{s.neg ? 'Aapka Advance Jama Hai' : 'Aapko Dena Hai'}</div>
+                                <div className={`inv-value ${s.neg ? 'get' : 'give'}`}>{formatCurrency(s.net)}</div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div className="inv-label">Entries</div>
