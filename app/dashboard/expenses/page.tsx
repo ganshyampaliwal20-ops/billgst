@@ -944,15 +944,28 @@ export default function BusinessExpensesPage() {
                                 } catch(e) {}
                             }
                             if (c.name?.display) setAcName(c.name.display);
+                            
+                            let foundNum = '';
                             if (c.phones && c.phones.length > 0) {
-                                let num = c.phones[0].number?.replace(/[^\d+]/g, '') || '';
-                                if (num.startsWith('+91')) num = num.slice(3);
-                                else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
-                                else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
-                                setAcPhone(num);
+                                for (let p of c.phones) {
+                                    if (p.number) {
+                                        let num = p.number.replace(/[^\d+]/g, '');
+                                        if (num.startsWith('+91')) num = num.slice(3);
+                                        else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                                        else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
+                                        if (num.length >= 10) {
+                                            foundNum = num;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (foundNum) {
+                                setAcPhone(foundNum);
                                 showToast('✅ Contact imported successfully!');
                             } else {
-                                showToast('⚠️ Contact selected, but no phone number found.');
+                                showToast('⚠️ Contact selected, but no valid phone number found.');
                             }
                         }
                     } else {
@@ -969,16 +982,29 @@ export default function BusinessExpensesPage() {
                     if (contacts && contacts.length > 0) {
                         const contact = contacts[0];
                         if (contact.name && contact.name[0]) setAcName(contact.name[0]);
+                        
+                        let foundNum = '';
                         if (contact.tel && contact.tel.length > 0) {
-                            const numStr = typeof contact.tel[0] === 'string' ? contact.tel[0] : (contact.tel[0].value || '');
-                            let num = numStr.replace(/[^\d+]/g, '');
-                            if (num.startsWith('+91')) num = num.slice(3);
-                            else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
-                            else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
-                            setAcPhone(num);
+                            for (let t of contact.tel) {
+                                const numStr = typeof t === 'string' ? t : (t.value || '');
+                                if (numStr) {
+                                    let num = numStr.replace(/[^\d+]/g, '');
+                                    if (num.startsWith('+91')) num = num.slice(3);
+                                    else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                                    else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
+                                    if (num.length >= 10) {
+                                        foundNum = num;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (foundNum) {
+                            setAcPhone(foundNum);
                             showToast('✅ Contact imported successfully!');
                         } else {
-                            showToast('⚠️ Contact selected, but no phone number found.');
+                            showToast('⚠️ Contact selected, but no valid phone number found.');
                         }
                     }
                 } catch (err: any) {
