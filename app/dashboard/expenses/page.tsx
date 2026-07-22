@@ -1751,15 +1751,15 @@ export default function BusinessExpensesPage() {
                         <div className="sheet-close" onClick={() => setIsAddCustOpen(false)}>✕</div>
                     </div>
                     <div className="add-cust-body">
+                        <button type="button" onTouchStart={(e) => { e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); importContact(); }} style={{ width: '100%', padding: '12px', background: '#3b82f6', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 600, fontSize: '15px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.2)' }}>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Import from Contacts
+                        </button>
+
                         <div className="fg"><label className="fl">👤 Customer Name *</label><input className="fi" placeholder="e.g. Rahul Sharma" value={acName} onChange={e => setAcName(e.target.value)} /></div>
                         <div className="fg">
                             <label className="fl">📞 Phone Number</label>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                <input className="fi" type="tel" placeholder="e.g. 98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} style={{ flex: 1, margin: 0 }} />
-                                <button type="button" onTouchStart={(e) => { e.stopPropagation(); }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); importContact(); }} title="Import from Contacts" style={{ flexShrink: 0, background: '#e3f2fd', border: 'none', borderRadius: '8px', color: '#1565c0', width: '48px', height: '48px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                </button>
-                            </div>
+                            <input className="fi" type="tel" placeholder="e.g. 98765 44444 (optional)" value={acPhone} onChange={e => setAcPhone(e.target.value)} />
                         </div>
                         <div className="f2">
                             <div className="fg" style={{ margin: 0 }}>
@@ -1787,8 +1787,6 @@ export default function BusinessExpensesPage() {
                 <div className="lightbox-close" onClick={() => setLightboxImg(null)}>✕</div>
             </div>
 
-            {/* Numpad */}
-            <Numpad isOpen={numpadOpen} onClose={() => setNumpadOpen(false)} onAction={handleNumpadAction} initialValue={amtInp} />
 
             {/* Custom Contact Picker Modal */}
             {showContactPicker && (
