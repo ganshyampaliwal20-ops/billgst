@@ -7,6 +7,9 @@ if (!admin.apps.length) {
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
             // Parse from environment variable (Best for Vercel)
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+            if (serviceAccount.private_key) {
+                serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+            }
             credential = admin.credential.cert(serviceAccount);
         } else {
             // Fallback for local development
