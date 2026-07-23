@@ -196,69 +196,413 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         }, 800);
     };
 
+    // Helper to format time
+    const getTime = () => {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
     return (
-        <div className="fixed bottom-24 right-6 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 z-[100] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <FaBolt className="text-yellow-300" />
-                    <h3 className="font-bold">NLP Assistant (Voice+Text)</h3>
+        <>
+            <style dangerouslySetInnerHTML={{ __html: `
+                @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+                .nlp-widget-vars {
+                    --bg-deep:#0A0620;
+                    --bg-app:#120A2E;
+                    --panel:#170F3C;
+                    --panel-2:#1D1348;
+                    --purple-1:#7C3AED;
+                    --purple-2:#A78BFA;
+                    --violet-glow:#5B21B6;
+                    --teal-1:#0EA98A;
+                    --teal-2:#34D8B0;
+                    --gold:#F2B441;
+                    --text-hi:#F5F2FF;
+                    --text-mid:#C6BEE8;
+                    --text-dim:#8A81B3;
+                    --line:rgba(167,139,250,0.16);
+                    --danger:#F26D6D;
+                }
+                .nlp-chat-widget{
+                    font-family:'Poppins',sans-serif;
+                    position:fixed;
+                    bottom:0;
+                    right:0;
+                    width:100%;
+                    height:100%;
+                    max-height:86vh;
+                    background:var(--panel);
+                    border-radius:28px 28px 0 0;
+                    box-shadow:0 -20px 60px rgba(0,0,0,0.55), 0 -1px 0 var(--line);
+                    display:flex;
+                    flex-direction:column;
+                    animation:nlpRise 0.4s cubic-bezier(.2,.9,.25,1);
+                    z-index: 1000;
+                }
+                @media (min-width: 768px) {
+                    .nlp-chat-widget {
+                        bottom: 80px;
+                        right: 24px;
+                        width: 400px;
+                        height: 600px;
+                        border-radius: 28px;
+                    }
+                }
+                @keyframes nlpRise{
+                    from{transform:translateY(24px);opacity:0;}
+                    to{transform:translateY(0);opacity:1;}
+                }
+                
+                .nlp-drag-handle{
+                    width:38px;height:4px;border-radius:4px;
+                    background:rgba(197,190,232,0.25);
+                    margin:10px auto 4px;
+                }
+                .nlp-chat-header{
+                    display:flex;
+                    align-items:center;
+                    gap:12px;
+                    padding:10px 18px 14px;
+                    border-bottom:1px solid var(--line);
+                }
+                .nlp-bolt-badge{
+                    width:40px;height:40px;border-radius:13px;
+                    background:linear-gradient(145deg,var(--teal-2),var(--teal-1));
+                    display:flex;align-items:center;justify-content:center;
+                    box-shadow:0 4px 14px rgba(14,169,138,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+                    flex-shrink:0;
+                }
+                .nlp-bolt-badge svg{width:20px;height:20px;}
+                .nlp-header-text{flex:1;min-width:0;}
+                .nlp-header-text .nlp-title{
+                    font-family:'Baloo 2',sans-serif;
+                    font-weight:700;
+                    font-size:16.5px;
+                    color:var(--text-hi);
+                    display:flex;align-items:center;gap:8px;
+                    line-height:1.2;
+                }
+                .nlp-live-pill{
+                    font-family:'Poppins',sans-serif;
+                    font-size:9.5px;
+                    font-weight:600;
+                    color:var(--teal-2);
+                    background:rgba(52,216,176,0.12);
+                    border:1px solid rgba(52,216,176,0.35);
+                    padding:2px 8px 2px 7px;
+                    border-radius:20px;
+                    display:inline-flex;
+                    align-items:center;
+                    gap:4px;
+                    letter-spacing:0.3px;
+                }
+                .nlp-live-pill .nlp-dot{width:5px;height:5px;border-radius:50%;background:var(--teal-2);box-shadow:0 0 6px var(--teal-2);animation:nlpBlink 1.6s infinite;}
+                @keyframes nlpBlink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+                .nlp-header-text .nlp-sub{
+                    font-size:11.5px;
+                    color:var(--text-dim);
+                    margin-top:2px;
+                }
+                .nlp-close-btn{
+                    width:30px;height:30px;border-radius:50%;
+                    background:rgba(255,255,255,0.05);
+                    border:1px solid var(--line);
+                    color:var(--text-mid);
+                    display:flex;align-items:center;justify-content:center;
+                    cursor:pointer;
+                    flex-shrink:0;
+                    border:none;
+                }
+                
+                .nlp-thread{
+                    flex:1;
+                    overflow-y:auto;
+                    padding:16px 16px 6px;
+                    display:flex;
+                    flex-direction:column;
+                    gap:14px;
+                }
+                .nlp-thread::-webkit-scrollbar{width:4px;}
+                .nlp-thread::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+                
+                .nlp-row{display:flex;gap:9px;max-width:100%;}
+                .nlp-row.nlp-user{justify-content:flex-end;}
+                .nlp-row.nlp-assistant{justify-content:flex-start;}
+                
+                .nlp-avatar{
+                    width:26px;height:26px;border-radius:9px;
+                    background:linear-gradient(145deg,var(--teal-2),var(--teal-1));
+                    flex-shrink:0;
+                    display:flex;align-items:center;justify-content:center;
+                    margin-top:2px;
+                }
+                .nlp-avatar svg{width:13px;height:13px;}
+                
+                .nlp-bubble{
+                    position:relative;
+                    max-width:280px;
+                    padding:11px 14px 13px;
+                    font-size:13.6px;
+                    line-height:1.5;
+                    color:var(--text-hi);
+                }
+                .nlp-bubble.nlp-assistant{
+                    background:var(--panel-2);
+                    border:1px solid var(--line);
+                    border-radius:4px 16px 16px 16px;
+                }
+                .nlp-bubble.nlp-assistant::after{
+                    content:"";
+                    position:absolute;
+                    left:0; right:0; bottom:-7px;
+                    height:8px;
+                    background:
+                        linear-gradient(-45deg, var(--panel-2) 5px, transparent 0) 0 0,
+                        linear-gradient(45deg, var(--panel-2) 5px, transparent 0) 0 0;
+                    background-size:10px 10px;
+                    background-repeat:repeat-x;
+                    opacity:0.9;
+                }
+                .nlp-bubble.nlp-user{
+                    background:linear-gradient(150deg, var(--purple-1), #5B21B6);
+                    border-radius:16px 4px 16px 16px;
+                    box-shadow:0 4px 14px rgba(124,58,237,0.3);
+                }
+                .nlp-bubble.nlp-user::after{
+                    content:"";
+                    position:absolute;
+                    left:0; right:0; bottom:-7px;
+                    height:8px;
+                    background:
+                        linear-gradient(-45deg, #5B21B6 5px, transparent 0) 0 0,
+                        linear-gradient(45deg, #5B21B6 5px, transparent 0) 0 0;
+                    background-size:10px 10px;
+                    background-repeat:repeat-x;
+                }
+                
+                .nlp-voice-tag{
+                    display:inline-flex;align-items:center;gap:6px;
+                    font-size:10.5px;color:rgba(255,255,255,0.75);
+                    margin-bottom:5px;
+                }
+                .nlp-voice-tag .nlp-bars{display:flex;align-items:flex-end;gap:1.5px;height:10px;}
+                .nlp-voice-tag .nlp-bars span{width:2px;background:var(--teal-2);border-radius:1px;animation:nlpEq 1s infinite ease-in-out;}
+                .nlp-voice-tag .nlp-bars span:nth-child(1){height:4px;animation-delay:0s;}
+                .nlp-voice-tag .nlp-bars span:nth-child(2){height:9px;animation-delay:0.15s;}
+                .nlp-voice-tag .nlp-bars span:nth-child(3){height:6px;animation-delay:0.3s;}
+                .nlp-voice-tag .nlp-bars span:nth-child(4){height:10px;animation-delay:0.45s;}
+                @keyframes nlpEq{0%,100%{transform:scaleY(0.5);}50%{transform:scaleY(1);}}
+                
+                .nlp-timestamp{
+                    font-size:9.5px;
+                    color:var(--text-dim);
+                    margin-top:12px;
+                    text-align:right;
+                }
+                .nlp-row.nlp-assistant .nlp-timestamp{text-align:left;}
+                
+                .nlp-chips{
+                    display:flex;
+                    gap:8px;
+                    overflow-x:auto;
+                    padding:12px 16px 4px;
+                    scrollbar-width:none;
+                }
+                .nlp-chips::-webkit-scrollbar{display:none;}
+                .nlp-chip{
+                    flex-shrink:0;
+                    font-size:11.5px;
+                    color:var(--text-mid);
+                    background:var(--panel-2);
+                    border:1px solid var(--line);
+                    padding:7px 13px;
+                    border-radius:20px;
+                    white-space:nowrap;
+                    cursor:pointer;
+                    transition:border-color 0.15s;
+                }
+                .nlp-chip:hover{border-color:var(--teal-2);color:var(--text-hi);}
+                
+                .nlp-typing{
+                    display:flex;align-items:center;gap:4px;
+                    padding:6px 3px;
+                }
+                .nlp-typing span{
+                    width:5px;height:5px;border-radius:50%;
+                    background:var(--text-dim);
+                    animation:nlpTbounce 1.2s infinite;
+                }
+                .nlp-typing span:nth-child(2){animation-delay:0.15s;}
+                .nlp-typing span:nth-child(3){animation-delay:0.3s;}
+                @keyframes nlpTbounce{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-4px);opacity:1;}}
+                
+                .nlp-input-bar{
+                    display:flex;
+                    align-items:center;
+                    gap:9px;
+                    padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+                    border-top:1px solid var(--line);
+                    background:var(--panel);
+                }
+                .nlp-mic-btn{
+                    position:relative;
+                    width:42px;height:42px;
+                    border-radius:50%;
+                    background:linear-gradient(145deg,var(--teal-2),var(--teal-1));
+                    display:flex;align-items:center;justify-content:center;
+                    flex-shrink:0;
+                    cursor:pointer;
+                    box-shadow:0 4px 14px rgba(14,169,138,0.4);
+                    border:none;
+                }
+                .nlp-mic-btn.active::before{
+                    content:"";
+                    position:absolute;
+                    inset:-6px;
+                    border-radius:50%;
+                    border:1.5px solid var(--teal-2);
+                    opacity:0.55;
+                    animation:nlpPulseRing 2s infinite;
+                }
+                @keyframes nlpPulseRing{
+                    0%{transform:scale(0.85);opacity:0.6;}
+                    70%{transform:scale(1.35);opacity:0;}
+                    100%{opacity:0;}
+                }
+                .nlp-mic-btn svg{width:18px;height:18px;}
+                
+                .nlp-text-field{
+                    flex:1;
+                    display:flex;
+                    align-items:center;
+                    background:var(--panel-2);
+                    border:1px solid var(--line);
+                    border-radius:22px;
+                    padding:0 6px 0 15px;
+                    height:42px;
+                }
+                .nlp-text-field input{
+                    flex:1;
+                    background:transparent;
+                    border:none;
+                    outline:none;
+                    color:var(--text-hi);
+                    font-family:'Poppins',sans-serif;
+                    font-size:13px;
+                }
+                .nlp-text-field input::placeholder{color:var(--text-dim);}
+                
+                .nlp-send-btn{
+                    width:32px;height:32px;
+                    border-radius:50%;
+                    background:linear-gradient(135deg,var(--purple-1),var(--violet-glow));
+                    display:flex;align-items:center;justify-content:center;
+                    cursor:pointer;
+                    flex-shrink:0;
+                    box-shadow:0 3px 10px rgba(124,58,237,0.45);
+                    border:none;
+                }
+                .nlp-send-btn:disabled{opacity:0.5; cursor:not-allowed;}
+                .nlp-send-btn svg{width:15px;height:15px;margin-left:1px;}
+                
+                .nlp-lang-hint{
+                    text-align:center;
+                    font-size:9.5px;
+                    color:var(--text-dim);
+                    padding-bottom:8px;
+                    letter-spacing:0.2px;
+                    background:var(--panel);
+                }
+                
+                /* Override default dark mode logic inside this widget */
+                .nlp-chat-widget * {
+                    box-sizing: border-box;
+                }
+            `}} />
+
+            {/* Backdrop for mobile */}
+            <div className="fixed inset-0 bg-black/50 z-[999] md:hidden" onClick={onClose}></div>
+
+            <div className="nlp-chat-widget nlp-widget-vars">
+                <div className="nlp-drag-handle"></div>
+
+                <div className="nlp-chat-header">
+                    <div className="nlp-bolt-badge">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
+                    </div>
+                    <div className="nlp-header-text">
+                        <div className="nlp-title">NLP Assistant
+                            <span className="nlp-live-pill"><span className="nlp-dot"></span>Voice+Text</span>
+                        </div>
+                        <div className="nlp-sub">Bolkar ya likhkar, dono chalega</div>
+                    </div>
+                    <button className="nlp-close-btn" onClick={onClose}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
                 </div>
-                <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
-                    <FaTimes />
-                </button>
-            </div>
-            
-            {/* Chat Area */}
-            <div className="flex-1 p-4 h-[350px] overflow-y-auto bg-gray-50 flex flex-col gap-3">
-                {messages.map((msg, idx) => (
-                    <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[85%] p-3 rounded-2xl whitespace-pre-wrap ${
-                            msg.role === 'user' 
-                                ? 'bg-indigo-600 text-white rounded-br-none' 
-                                : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm'
-                        }`}>
-                            {msg.text}
+
+                <div className="nlp-thread" id="thread">
+                    {messages.map((msg, idx) => (
+                        <div key={idx} className={`nlp-row ${msg.role === 'user' ? 'nlp-user' : 'nlp-assistant'}`}>
+                            {msg.role === 'ai' && (
+                                <div className="nlp-avatar">
+                                    <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
+                                </div>
+                            )}
+                            <div>
+                                <div className={`nlp-bubble ${msg.role === 'user' ? 'nlp-user' : 'nlp-assistant'} whitespace-pre-wrap`}>
+                                    {msg.text}
+                                </div>
+                                <div className="nlp-timestamp">{getTime()}</div>
+                            </div>
                         </div>
-                    </div>
-                ))}
-                {isProcessing && (
-                    <div className="flex justify-start">
-                        <div className="bg-white border border-gray-200 text-gray-500 p-3 rounded-2xl rounded-bl-none shadow-sm text-sm">
-                            Soch raha hu... 🤔
+                    ))}
+
+                    {isProcessing && (
+                        <div className="nlp-row nlp-assistant">
+                            <div className="nlp-avatar">
+                                <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
+                            </div>
+                            <div className="nlp-bubble nlp-assistant">
+                                <div className="nlp-typing"><span></span><span></span><span></span></div>
+                            </div>
                         </div>
+                    )}
+                </div>
+
+                <div className="nlp-chips">
+                    <div className="nlp-chip" onClick={() => handleSend("5 kg aata bill banao")}>🧾 "5 kg aata bill banao"</div>
+                    <div className="nlp-chip" onClick={() => handleSend("Ramesh ki attendance laga")}>🙋 "Ramesh ki attendance laga"</div>
+                    <div className="nlp-chip" onClick={() => handleSend("Aaj ka kharcha 500 add karo")}>📊 "Kharcha 500 add karo"</div>
+                </div>
+
+                <div className="nlp-input-bar">
+                    <button 
+                        className={`nlp-mic-btn ${isListening ? 'active' : ''}`}
+                        onClick={startListening}
+                        disabled={isListening || isProcessing}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#06231C" strokeWidth="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+                    </button>
+                    <div className="nlp-text-field">
+                        <input 
+                            type="text" 
+                            placeholder="Type karein…" 
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        />
                     </div>
-                )}
+                    <button 
+                        className="nlp-send-btn"
+                        onClick={() => handleSend()}
+                        disabled={!input.trim() || isProcessing}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    </button>
+                </div>
+                <div className="nlp-lang-hint">हिंदी • English • Hinglish — jaisa aapko aasan lage</div>
             </div>
-            
-            {/* Input Area */}
-            <div className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center">
-                <button 
-                    onClick={startListening}
-                    disabled={isListening || isProcessing}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-                        isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                    title="Voice Se Boliye"
-                >
-                    <FaMicrophone />
-                </button>
-                <input 
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    placeholder="Type karein..."
-                    className="flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-emerald-500 text-sm text-gray-800"
-                />
-                <button 
-                    onClick={() => handleSend()}
-                    disabled={!input.trim() || isProcessing}
-                    className="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center hover:bg-emerald-600 disabled:opacity-50 transition-colors shrink-0"
-                >
-                    <FaPaperPlane className="text-sm mr-0.5" />
-                </button>
-            </div>
-        </div>
+        </>
     );
 }
