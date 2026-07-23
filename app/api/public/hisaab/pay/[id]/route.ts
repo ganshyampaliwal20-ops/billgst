@@ -36,15 +36,8 @@ export async function POST(request: Request, context: any) {
                 note: `Paid online via ${method}`
             };
 
-            shareData.txns = shareData.txns || [];
-            shareData.txns.unshift(newTxn);
-
-            let debitSum = 0, creditSum = 0;
-            shareData.txns.forEach((t: any) => {
-                if (t.type === 'credit') creditSum += Number(t.amt);
-                else debitSum += Number(t.amt);
-            });
-            shareData.balance = debitSum - creditSum;
+            shareData.pending_txns = shareData.pending_txns || [];
+            shareData.pending_txns.unshift(newTxn);
 
             await client.query(`
                 UPDATE hisaab_shares 

@@ -54,6 +54,7 @@ function HisaabViewerContent() {
                             y: t.type ? t.type[0] : 'd',
                             n: t.name || ''
                         })),
+                        pt: json.pending_txns || [],
                         b: json.businessProfile || null
                     };
                     setData(shapedData);
@@ -172,18 +173,14 @@ function HisaabViewerContent() {
                     d: new Date().toISOString().split('T')[0],
                     a: data.s.net,
                     y: 'c',
-                    n: selectedMethod
+                    n: selectedMethod,
+                    status: 'pending'
                 };
                 setData((prev: any) => ({
                     ...prev,
-                    s: {
-                        ...prev.s,
-                        r: prev.s.r + prev.s.net,
-                        net: 0,
-                        entries: prev.s.entries + 1
-                    },
-                    t: [newTxn, ...(prev.t || [])]
+                    pt: [newTxn, ...(prev.pt || [])]
                 }));
+                alert('Aapka payment submit ho gaya hai! Dukandar ke "Accept" karne par aapka Hisaab update ho jayega.');
             }
         } catch (e) {
             console.error("Payment logging failed", e);
@@ -349,9 +346,9 @@ function HisaabViewerContent() {
 
                         <div className="inv-btn-row">
                             {!s.neg && b?.business_upi_id ? (
-                                <button className="inv-pay-btn" onClick={() => setIsPaymentModalOpen(true)} disabled={isProcessingPayment || s.net <= 0} style={{ border: 'none', cursor: (isProcessingPayment || s.net <= 0) ? 'not-allowed' : 'pointer' }}>
+                                <button className="inv-pay-btn" onClick={() => setIsPaymentModalOpen(true)} disabled={isProcessingPayment || s.net <= 0 || (data.pt && data.pt.length > 0)} style={{ border: 'none', cursor: (isProcessingPayment || s.net <= 0 || (data.pt && data.pt.length > 0)) ? 'not-allowed' : 'pointer' }}>
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
-                                    {isProcessingPayment ? 'Wait...' : (s.net <= 0 ? 'Paid' : 'Abhi Pay Karein')}
+                                    {isProcessingPayment ? 'Wait...' : ((data.pt && data.pt.length > 0) ? 'Pending Approval' : (s.net <= 0 ? 'Paid' : 'Abhi Pay Karein'))}
                                 </button>
                             ) : (
                                 <div className="inv-pay-btn disabled" style={{ background: '#777', display: !s.neg ? 'flex' : 'none' }}>

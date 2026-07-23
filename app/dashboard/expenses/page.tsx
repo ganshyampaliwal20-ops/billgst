@@ -222,7 +222,7 @@ export default function BusinessExpensesPage() {
                         if (!cust.id) return;
                         const existing = mergedCustomers.get(cust.id);
                         if (!existing) {
-                            mergedCustomers.set(cust.id, { ...cust, txns: cust.txns || [] });
+                            mergedCustomers.set(cust.id, { ...cust, txns: cust.txns || [], pending_txns: cust.pending_txns || [] });
                         } else {
                             const existingTxns = existing.txns || [];
                             const custTxns = cust.txns || [];
@@ -231,7 +231,16 @@ export default function BusinessExpensesPage() {
                             const mergedTxns = [...existingTxns, ...newTxns].sort((a: any, b: any) =>
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
                             );
-                            mergedCustomers.set(cust.id, { ...existing, ...cust, txns: mergedTxns });
+
+                            const existingPTxns = existing.pending_txns || [];
+                            const custPTxns = cust.pending_txns || [];
+                            const existingPTxnIds = new Set(existingPTxns.map((t: any) => t.id));
+                            const newPTxns = custPTxns.filter((t: any) => !existingPTxnIds.has(t.id));
+                            const mergedPTxns = [...existingPTxns, ...newPTxns].sort((a: any, b: any) =>
+                                new Date(b.date).getTime() - new Date(a.date).getTime()
+                            );
+
+                            mergedCustomers.set(cust.id, { ...existing, ...cust, txns: mergedTxns, pending_txns: mergedPTxns });
                         }
                     });
                 };
@@ -810,6 +819,45 @@ export default function BusinessExpensesPage() {
         setEntryCategory(txn.category || 'General');
         setPendingPhotos([...(txn.photos || [])]);
         setIsAddEntryOpen(true);
+    };
+
+    const acceptPendingTxn = (txnId: number) => {
+        setCustomers(customers.map(c => {
+            if (c.id === curCid && c.pending_txns) {
+                const txn = c.pending_txns.find((t: any) => t.id === txnId);
+                if (!txn) return c;
+                
+                const newTxns = [...c.txns, txn].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                const newPending = c.pending_txns.filter((t: any) => t.id !== txnId);
+                const isDebit = txn.type !== 'credit';
+                const balChange = isDebit ? txn.amt : -txn.amt;
+                
+                return {
+                    ...c,
+                    txns: newTxns,
+                    pending_txns: newPending,
+                    balance: c.balance + balChange
+                };
+            }
+            return c;
+        }));
+        setCanSave(true);
+        showToast('✅ Payment accepted and added to Hisaab!');
+    };
+
+    const rejectPendingTxn = (txnId: number) => {
+        if (!window.confirm('Are you sure you want to reject this payment?')) return;
+        setCustomers(customers.map(c => {
+            if (c.id === curCid && c.pending_txns) {
+                return {
+                    ...c,
+                    pending_txns: c.pending_txns.filter((t: any) => t.id !== txnId)
+                };
+            }
+            return c;
+        }));
+        setCanSave(true);
+        showToast('❌ Payment rejected!');
     };
 
     const deleteTxn = (txnId: number, txnAmt: number, txnType: string) => {
@@ -1417,6 +1465,22 @@ export default function BusinessExpensesPage() {
                                 </div>
                             </div>
                         )}
+
+                        {currentCust.pending_txns && currentCust.pending_txns.length > 0 && currentCust.pending_txns.map((ptxn: any) => (
+                            <div key={ptxn.id} className="pending-status-box" style={{ background: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div className="psb-icon" style={{ background: '#ffe8a1', color: '#856404' }}>🔔</div>
+                                    <div className="psb-text">
+                                        <strong style={{ color: '#856404' }}>Payment Pending Approval: ₹{fmt(ptxn.amt)}</strong>
+                                        <span style={{ color: '#664d03' }}>Customer confirmed payment via {ptxn.name} on {formatDateShort(ptxn.date)}</span>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px', marginLeft: '42px' }}>
+                                    <button onClick={() => acceptPendingTxn(ptxn.id)} style={{ padding: '6px 12px', background: '#1B5E3B', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', flex: 1 }}>Accept & Save</button>
+                                    <button onClick={() => rejectPendingTxn(ptxn.id)} style={{ padding: '6px 12px', background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', flex: 1 }}>Reject</button>
+                                </div>
+                            </div>
+                        ))}
 
                         <div className="filter-bar">
                             {[{ id: 'all', l: 'All' }, { id: 'debit', l: 'Given' }, { id: 'credit', l: 'Received' }, { id: 'advance', l: 'Advance' }].map(f => (
