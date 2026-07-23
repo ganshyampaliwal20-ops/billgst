@@ -13,24 +13,7 @@ export default function PushNotificationSetup() {
                 // Dynamically import to prevent SSR issues
                 const { PushNotifications } = await import('@capacitor/push-notifications');
 
-                const registerNotifications = async () => {
-                    let permStatus = await PushNotifications.checkPermissions();
-
-                    if (permStatus.receive === 'prompt') {
-                        permStatus = await PushNotifications.requestPermissions();
-                    }
-
-                    if (permStatus.receive !== 'granted') {
-                        console.log('User denied push notification permissions');
-                        return;
-                    }
-
-                    await PushNotifications.register();
-                }
-
-                await registerNotifications();
-
-                // On success, we should be able to receive notifications
+                // 1. Add listeners FIRST so we don't miss the event
                 PushNotifications.addListener('registration', async (token) => {
                     console.log('Push registration success, token: ' + token.value);
                     try {
@@ -47,6 +30,20 @@ export default function PushNotificationSetup() {
                 PushNotifications.addListener('registrationError', (error: any) => {
                     console.error('Error on registration: ' + JSON.stringify(error));
                 });
+
+                // 2. Then check permissions and register
+                let permStatus = await PushNotifications.checkPermissions();
+
+                if (permStatus.receive === 'prompt') {
+                    permStatus = await PushNotifications.requestPermissions();
+                }
+
+                if (permStatus.receive !== 'granted') {
+                    console.log('User denied push notification permissions');
+                    return;
+                }
+
+                await PushNotifications.register();
 
             } catch (e) {
                 console.error('Failed to setup push notifications:', e);
