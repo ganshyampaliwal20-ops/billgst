@@ -19,6 +19,8 @@ function HisaabViewerContent() {
     const [mounted, setMounted] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [pdfGenerating, setPdfGenerating] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -138,6 +140,49 @@ function HisaabViewerContent() {
             alert('Failed to generate PDF. Please try again later.');
         } finally {
             setPdfGenerating(false);
+        }
+    };
+
+    const handlePayment = async (method: string) => {
+        setIsProcessingPayment(true);
+        const upiLink = b?.business_upi_id ? `upi://pay?pa=${b.business_upi_id}&pn=${encodeURIComponent(b.business_name || 'Business')}&am=${s.net}&tn=Hisaab` : '#';
+        try {
+            const idStr = searchParams?.get('id') || params?.id as string;
+            const res = await fetch(`/api/public/hisaab/pay/${idStr}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amt: data.s.net, method })
+            });
+            if (res.ok) {
+                const newTxn = {
+                    d: new Date().toISOString().split('T')[0],
+                    a: data.s.net,
+                    y: 'c',
+                    n: method
+                };
+                setData((prev: any) => ({
+                    ...prev,
+                    s: {
+                        ...prev.s,
+                        r: prev.s.r + prev.s.net,
+                        net: 0,
+                        entries: prev.s.entries + 1
+                    },
+                    t: [newTxn, ...(prev.t || [])]
+                }));
+
+                setTimeout(() => {
+                    window.location.href = upiLink;
+                }, 500);
+            } else {
+                window.location.href = upiLink;
+            }
+        } catch (e) {
+            console.error("Payment logging failed", e);
+            window.location.href = upiLink;
+        } finally {
+            setIsProcessingPayment(false);
+            setIsPaymentModalOpen(false);
         }
     };
 
@@ -296,10 +341,10 @@ function HisaabViewerContent() {
 
                         <div className="inv-btn-row">
                             {!s.neg && b?.business_upi_id ? (
-                                <a className="inv-pay-btn" href={upiLink}>
+                                <button className="inv-pay-btn" onClick={() => setIsPaymentModalOpen(true)} disabled={isProcessingPayment || s.net <= 0} style={{ border: 'none', cursor: (isProcessingPayment || s.net <= 0) ? 'not-allowed' : 'pointer' }}>
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
-                                    Abhi Pay Karein
-                                </a>
+                                    {isProcessingPayment ? 'Wait...' : (s.net <= 0 ? 'Paid' : 'Abhi Pay Karein')}
+                                </button>
                             ) : (
                                 <div className="inv-pay-btn disabled" style={{ background: '#777', display: !s.neg ? 'flex' : 'none' }}>
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
@@ -362,6 +407,33 @@ function HisaabViewerContent() {
                                 <i className="ti ti-download" style={{ fontSize: '14px', verticalAlign: '-2px', marginRight: '4px' }}></i>Download
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Payment Modal */}
+            <div className={`pdf-modal-overlay ${isPaymentModalOpen ? 'show' : ''}`} onClick={() => !isProcessingPayment && setIsPaymentModalOpen(false)}>
+                <div className={`pdf-modal ${isPaymentModalOpen ? 'show' : ''}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '350px' }}>
+                    <div className="pdf-modal-header" style={{ background: '#1B5E3B' }}>
+                        <div>Aap kis app se pay karenge?</div>
+                        {!isProcessingPayment && <button className="pdf-modal-close" onClick={() => setIsPaymentModalOpen(false)}>✕</button>}
+                    </div>
+                    <div className="pdf-modal-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ textAlign: 'center', marginBottom: '10px', color: '#555', fontSize: '13px' }}>
+                            Aap {formatCurrency(data?.s?.net)} pay kar rahe hain. Niche apna payment app select karein.
+                        </div>
+                        <button onClick={() => handlePayment('Google Pay')} disabled={isProcessingPayment} style={{ cursor: 'pointer', background: '#fff', border: '1px solid #ddd', padding: '12px', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Google_Pay_Logo.svg" alt="GPay" style={{ height: '20px' }} /> Google Pay
+                        </button>
+                        <button onClick={() => handlePayment('PhonePe')} disabled={isProcessingPayment} style={{ cursor: 'pointer', background: '#fff', border: '1px solid #ddd', padding: '12px', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#5f259f' }}>
+                            PhonePe
+                        </button>
+                        <button onClick={() => handlePayment('Paytm')} disabled={isProcessingPayment} style={{ cursor: 'pointer', background: '#fff', border: '1px solid #ddd', padding: '12px', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#002970' }}>
+                            Paytm
+                        </button>
+                        <button onClick={() => handlePayment('Other UPI')} disabled={isProcessingPayment} style={{ cursor: 'pointer', background: '#f5f5f5', border: '1px solid #ddd', padding: '12px', borderRadius: '8px', fontWeight: 600, color: '#333' }}>
+                            Other App
+                        </button>
                     </div>
                 </div>
             </div>
