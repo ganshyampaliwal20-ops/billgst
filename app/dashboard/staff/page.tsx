@@ -36,6 +36,7 @@ export default function SmartAttendance() {
     // UI State
     const [searchQuery, setSearchQuery] = useState('');
     const [deptFilter, setDeptFilter] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('ALL');
     const [activeTab, setActiveTab] = useState('workers');
     const currentUserRole = normalizeRole(session?.user?.role);
     const canAccessRoleAdmin = isOwnerRole(currentUserRole) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
@@ -144,16 +145,18 @@ export default function SmartAttendance() {
     };
 
     // --- Data Processing ---
-    const filteredStaff = (staff || []).filter((s: any) => {
-        const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchDept = deptFilter === 'all' || s.role?.toLowerCase().includes(deptFilter) || (deptFilter === 'worker' && s.role === 'Kaamgaar');
-        return matchName && matchDept;
-    }).sort((a: any, b: any) => a.name.localeCompare(b.name));
-
     const getStatus = (staffId: string, dStr: string) => {
         const rec = attendance?.find((a: any) => a.staff_id === staffId && a.date === dStr);
         return rec ? rec.status : null;
     };
+
+    const filteredStaff = (staff || []).filter((s: any) => {
+        const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchDept = deptFilter === 'all' || s.role?.toLowerCase().includes(deptFilter) || (deptFilter === 'worker' && s.role === 'Kaamgaar');
+        const sStatus = getStatus(s.id, selectedDate) || 'UNMARKED';
+        const matchStatus = statusFilter === 'ALL' || (statusFilter === 'P' && sStatus === 'PRESENT') || (statusFilter === 'A' && sStatus === 'ABSENT') || (statusFilter === 'H' && sStatus === 'HALF_DAY') || (statusFilter === 'L' && sStatus === 'LEAVE');
+        return matchName && matchDept && matchStatus;
+    }).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
     const getTimeFields = (staffId: string, dStr: string) => {
         const rec = attendance?.find((a: any) => a.staff_id === staffId && a.date === dStr);
@@ -755,10 +758,10 @@ export default function SmartAttendance() {
 
                 {/* STATS */}
                 <div className="stats-row" style={{ gap: '8px', padding: '0 10px', marginBottom: '20px' }}>
-                    <div className="stat-box" style={{ borderLeft: '3px solid #10b981', background: '#f0fdf4', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(16,185,129,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-g" style={{ fontSize: '18px', fontWeight: 900, color: '#065f46' }}>{todayStats.P}</div><div className="stat-lbl sl" style={{ color: '#047857', fontWeight: 700, fontSize: '9px' }}>Present</div></div>
-                    <div className="stat-box" style={{ borderLeft: '3px solid #ef4444', background: '#fef2f2', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(239,68,68,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-r" style={{ fontSize: '18px', fontWeight: 900, color: '#991b1b' }}>{todayStats.A}</div><div className="stat-lbl sl" style={{ color: '#b91c1c', fontWeight: 700, fontSize: '9px' }}>Absent</div></div>
-                    <div className="stat-box" style={{ borderLeft: '3px solid #f59e0b', background: '#fffbeb', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(245,158,11,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-a" style={{ fontSize: '18px', fontWeight: 900, color: '#92400e' }}>{todayStats.H}</div><div className="stat-lbl sl" style={{ color: '#b45309', fontWeight: 700, fontSize: '9px' }}>Half Day</div></div>
-                    <div className="stat-box" style={{ borderLeft: '3px solid #3b82f6', background: '#eff6ff', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: '0 2px 8px rgba(59,130,246,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-b" style={{ fontSize: '18px', fontWeight: 900, color: '#1e40af' }}>{todayStats.L}</div><div className="stat-lbl sl" style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '9px' }}>Leave</div></div>
+                    <div onClick={() => setStatusFilter(statusFilter === 'P' ? 'ALL' : 'P')} className="stat-box" style={{ cursor: 'pointer', borderLeft: '3px solid #10b981', background: statusFilter === 'P' ? '#d1fae5' : '#f0fdf4', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: statusFilter === 'P' ? '0 0 0 2px #10b981' : '0 2px 8px rgba(16,185,129,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-g" style={{ fontSize: '18px', fontWeight: 900, color: '#065f46' }}>{todayStats.P}</div><div className="stat-lbl sl" style={{ color: '#047857', fontWeight: 700, fontSize: '9px' }}>Present</div></div>
+                    <div onClick={() => setStatusFilter(statusFilter === 'A' ? 'ALL' : 'A')} className="stat-box" style={{ cursor: 'pointer', borderLeft: '3px solid #ef4444', background: statusFilter === 'A' ? '#fee2e2' : '#fef2f2', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: statusFilter === 'A' ? '0 0 0 2px #ef4444' : '0 2px 8px rgba(239,68,68,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-r" style={{ fontSize: '18px', fontWeight: 900, color: '#991b1b' }}>{todayStats.A}</div><div className="stat-lbl sl" style={{ color: '#b91c1c', fontWeight: 700, fontSize: '9px' }}>Absent</div></div>
+                    <div onClick={() => setStatusFilter(statusFilter === 'H' ? 'ALL' : 'H')} className="stat-box" style={{ cursor: 'pointer', borderLeft: '3px solid #f59e0b', background: statusFilter === 'H' ? '#fef3c7' : '#fffbeb', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: statusFilter === 'H' ? '0 0 0 2px #f59e0b' : '0 2px 8px rgba(245,158,11,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-a" style={{ fontSize: '18px', fontWeight: 900, color: '#92400e' }}>{todayStats.H}</div><div className="stat-lbl sl" style={{ color: '#b45309', fontWeight: 700, fontSize: '9px' }}>Half Day</div></div>
+                    <div onClick={() => setStatusFilter(statusFilter === 'L' ? 'ALL' : 'L')} className="stat-box" style={{ cursor: 'pointer', borderLeft: '3px solid #3b82f6', background: statusFilter === 'L' ? '#dbeafe' : '#eff6ff', borderRadius: '10px', padding: '10px 4px', flex: 1, boxShadow: statusFilter === 'L' ? '0 0 0 2px #3b82f6' : '0 2px 8px rgba(59,130,246,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}><div className="stat-num sn-b" style={{ fontSize: '18px', fontWeight: 900, color: '#1e40af' }}>{todayStats.L}</div><div className="stat-lbl sl" style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '9px' }}>Leave</div></div>
                 </div>
 
                 {/* DEPT TABS */}
