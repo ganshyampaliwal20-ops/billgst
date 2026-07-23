@@ -37,7 +37,7 @@ export async function GET() {
         const staffResult = await client.query(
             `SELECT s.role, s.created_by as tenant_id, u.business_name 
              FROM staff s 
-             JOIN users u ON s.created_by = u.id 
+             JOIN users u ON s.created_by = u.id::varchar 
              WHERE s.email = $1 AND s.role IS NOT NULL AND s.role <> 'Worker' AND s.role <> 'USER'`,
             [email]
         );
