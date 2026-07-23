@@ -10,14 +10,17 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
     const [input, setInput] = useState('');
     const [isListening, setIsListening] = useState(false);
     const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
-        { role: 'ai', text: 'Namaste! Mai apka voice aur text NLP assistant hu. Muje try karein:\n1. "2 raincoat new bill"\n2. "Ramesh ki attendance laga"' }
+        { role: 'ai', text: 'Namaste 👋 Main aapka BillGST assistant hoon. Bill banana ho ya hisaab dekhna — seedha bol dijiye ya type kar dijiye.' }
     ]);
     const [isProcessing, setIsProcessing] = useState(false);
     const recognitionRef = useRef<any>(null);
     const router = useRouter();
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
-
-    if (!isOpen) return null;
+    const staffData = useStore((state: any) => state.staff) || [];
+    const productsData = useStore((state: any) => state.products) || [];
+    
+    const exampleStaff = staffData.length > 0 ? staffData[0].name.split(' ')[0] : "Ramesh";
+    const exampleItem = productsData.length > 0 ? productsData[0].name : "5 kg aata";    if (!isOpen) return null;
 
     const startListening = () => {
         if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
@@ -173,7 +176,37 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             }
         }
         
-        return `Maaf karna, mai abhi sirf 'Bill banana', 'Attendance lagana' ya 'Expense (Kharcha) add karna' samajh sakta hu. Jaise: "Pintu ko 500 rupye expense me add karo".`;
+        // --- Intent 4: Navigation (Local Agentic Capabilities) ---
+        const isNavigation = lowerText.match(/(dikh|show|open|kholo|jao|go to|report|reports|customer|customers|item|items|inventory|product|products|staff|team|party|parties|setting|settings)/i);
+        if (isNavigation && !lowerText.match(/(bill|expense|kharcha|attendance)/i)) {
+            if (lowerText.match(/(report|reports|hisaab|analytics)/i)) {
+                setTimeout(() => router.push('/dashboard/reports'), 1000);
+                onClose();
+                return `✅ Reports page open ho raha hai...`;
+            }
+            if (lowerText.match(/(customer|customers|party|parties|client)/i)) {
+                setTimeout(() => router.push('/dashboard/customers'), 1000);
+                onClose();
+                return `✅ Customers list open ho rahi hai...`;
+            }
+            if (lowerText.match(/(item|items|inventory|product|products|stock)/i)) {
+                setTimeout(() => router.push('/dashboard/inventory'), 1000);
+                onClose();
+                return `✅ Inventory (Items) open ho raha hai...`;
+            }
+            if (lowerText.match(/(staff|team|employee)/i)) {
+                setTimeout(() => router.push('/dashboard/staff'), 1000);
+                onClose();
+                return `✅ Staff list open ho rahi hai...`;
+            }
+            if (lowerText.match(/(setting|settings)/i)) {
+                setTimeout(() => router.push('/dashboard/settings'), 1000);
+                onClose();
+                return `✅ Settings open ho rahi hai...`;
+            }
+        }
+        
+        return `Maaf karna, mai abhi itne commands samajh sakta hu:\n1. Bill banana\n2. Attendance lagana\n3. Kharcha add karna\n4. Reports/Customers/Items dikhana\n\nJaise ki: "${exampleItem} ka bill banao"`;
     };
 
     const handleSend = (overrideText?: string) => {
@@ -531,7 +564,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
                     </div>
                     <div className="nlp-header-text">
-                        <div className="nlp-title">NLP Assistant
+                        <div className="nlp-title">BillGST Assistant
                             <span className="nlp-live-pill"><span className="nlp-dot"></span>Voice+Text</span>
                         </div>
                         <div className="nlp-sub">Bolkar ya likhkar, dono chalega</div>
@@ -571,9 +604,10 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 </div>
 
                 <div className="nlp-chips">
-                    <div className="nlp-chip" onClick={() => handleSend("5 kg aata bill banao")}>🧾 "5 kg aata bill banao"</div>
-                    <div className="nlp-chip" onClick={() => handleSend("Ramesh ki attendance laga")}>🙋 "Ramesh ki attendance laga"</div>
+                    <div className="nlp-chip" onClick={() => handleSend(`${exampleItem} ka bill banao`)}>🧾 "{exampleItem} ka bill banao"</div>
+                    <div className="nlp-chip" onClick={() => handleSend(`${exampleStaff} ki attendance laga`)}>🙋 "{exampleStaff} ki attendance laga"</div>
                     <div className="nlp-chip" onClick={() => handleSend("Aaj ka kharcha 500 add karo")}>📊 "Kharcha 500 add karo"</div>
+                    <div className="nlp-chip" onClick={() => handleSend("Reports dikhao")}>📈 "Reports dikhao"</div>
                 </div>
 
                 <div className="nlp-input-bar">
