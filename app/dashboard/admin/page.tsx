@@ -11,6 +11,10 @@ export default function AdminPaymentsPage() {
     const [pending, setPending] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const [notifyTitle, setNotifyTitle] = useState('');
+    const [notifyBody, setNotifyBody] = useState('');
+    const [sendingNotify, setSendingNotify] = useState(false);
+
     const role = normalizeRole(session?.user?.role);
     const isSuperAdmin = session?.user?.email === 'gpaliwal59@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
 
@@ -63,6 +67,34 @@ export default function AdminPaymentsPage() {
             }
         } catch (error) {
             toast.error('Server error.');
+        }
+    };
+
+    const handleSendNotification = async () => {
+        if (!notifyTitle || !notifyBody) return;
+        if (!window.confirm('Are you sure you want to send this notification to ALL app users?')) return;
+        
+        setSendingNotify(true);
+        try {
+            const res = await fetch('/api/admin/send-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: notifyTitle, body: notifyBody, target: 'all' })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                toast.success(`Sent successfully to ${data.successCount} devices!`);
+                setNotifyTitle('');
+                setNotifyBody('');
+            } else {
+                const err = await res.json();
+                toast.error(err.error || 'Failed to send notification');
+            }
+        } catch (error) {
+            toast.error('Server error.');
+        } finally {
+            setSendingNotify(false);
         }
     };
 
@@ -141,6 +173,44 @@ export default function AdminPaymentsPage() {
                             ))}
                         </div>
                     )}
+                </div>
+
+                {/* Broadcast Notification Widget */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100 p-6 shadow-xl shadow-slate-200/40">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xl">📢</div>
+                        <h2 className="text-xl font-extrabold text-slate-800">Broadcast Notification</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-1">Notification Title</label>
+                            <input 
+                                type="text" 
+                                value={notifyTitle} 
+                                onChange={e => setNotifyTitle(e.target.value)} 
+                                placeholder="e.g. New Update Available!" 
+                                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-1">Message Body</label>
+                            <textarea 
+                                value={notifyBody} 
+                                onChange={e => setNotifyBody(e.target.value)} 
+                                placeholder="Write your message here..." 
+                                rows={3}
+                                className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 custom-scrollbar"
+                            ></textarea>
+                        </div>
+                        <button 
+                            onClick={handleSendNotification} 
+                            disabled={sendingNotify || !notifyTitle || !notifyBody}
+                            className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            {sendingNotify ? 'Sending...' : 'Send to All App Users'} 🚀
+                        </button>
+                    </div>
                 </div>
             </div>
             
