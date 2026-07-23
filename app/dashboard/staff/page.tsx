@@ -148,7 +148,7 @@ export default function SmartAttendance() {
         const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchDept = deptFilter === 'all' || s.role?.toLowerCase().includes(deptFilter) || (deptFilter === 'worker' && s.role === 'Kaamgaar');
         return matchName && matchDept;
-    });
+    }).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
     const getStatus = (staffId: string, dStr: string) => {
         const rec = attendance?.find((a: any) => a.staff_id === staffId && a.date === dStr);
