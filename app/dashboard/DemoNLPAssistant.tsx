@@ -28,7 +28,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             recognitionRef.current = new SpeechRecognitionClass();
             recognitionRef.current.continuous = false;
             recognitionRef.current.interimResults = false;
-            recognitionRef.current.lang = 'hi-IN';
+            recognitionRef.current.lang = 'en-IN';
 
             recognitionRef.current.onstart = () => {
                 setIsListening(true);
