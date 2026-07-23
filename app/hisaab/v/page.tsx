@@ -412,8 +412,8 @@ function HisaabViewerContent() {
             </div>
 
             {/* Payment Modal */}
-            <div className={`pdf-modal-overlay ${isPaymentModalOpen ? 'show' : ''}`} onClick={() => !isProcessingPayment && setIsPaymentModalOpen(false)}>
-                <div className={`pdf-modal ${isPaymentModalOpen ? 'show' : ''}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '350px' }}>
+            <div className={`pdf-modal-bg ${isPaymentModalOpen ? 'open' : ''}`} onClick={() => !isProcessingPayment && setIsPaymentModalOpen(false)}>
+                <div className="pdf-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '350px' }}>
                     <div className="pdf-modal-header" style={{ background: '#1B5E3B' }}>
                         <div>Aap kis app se pay karenge?</div>
                         {!isProcessingPayment && <button className="pdf-modal-close" onClick={() => setIsPaymentModalOpen(false)}>✕</button>}
