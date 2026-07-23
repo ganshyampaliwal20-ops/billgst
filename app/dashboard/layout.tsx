@@ -23,6 +23,7 @@ import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
 import VoiceAssistant from './VoiceAssistant';
 import DemoNLPAssistant from './DemoNLPAssistant';
 import { FaBolt } from 'react-icons/fa';
+import PushNotificationSetup from '@/app/components/PushNotificationSetup';
 
 export default function DashboardLayout({
     children,
@@ -482,6 +483,7 @@ export default function DashboardLayout({
                 </button>
             )}
             {/* <VoiceAssistant isOpen={isVoiceAssistantOpen} onClose={() => setIsVoiceAssistantOpen(false)} /> */}
+            <PushNotificationSetup />
         </div>
     );
 }

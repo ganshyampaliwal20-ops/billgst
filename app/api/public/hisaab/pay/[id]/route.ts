@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { sendPushNotification } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,8 @@ export async function POST(request: Request, context: any) {
         if (!amt || !method) return NextResponse.json({ error: 'Missing payment details' }, { status: 400 });
 
         const client = await pool.connect();
+        let targetUserId = null;
+        let customerName = 'Customer';
         
         try {
             await client.query('BEGIN');
@@ -25,6 +28,13 @@ export async function POST(request: Request, context: any) {
             let shareData = result.rows[0].data;
             if (typeof shareData === 'string') {
                 try { shareData = JSON.parse(shareData); } catch(e) {}
+            }
+            
+            targetUserId = result.rows[0].user_id;
+            if (shareData.customer && shareData.customer.name) {
+                customerName = shareData.customer.name;
+            } else if (shareData.name) {
+                customerName = shareData.name;
             }
 
             const newTxn = {
@@ -47,6 +57,24 @@ export async function POST(request: Request, context: any) {
 
             await client.query('COMMIT');
             client.release();
+
+            // Try to send push notification
+            if (targetUserId) {
+                try {
+                    const userRes = await pool.query('SELECT fcm_token FROM users WHERE id = $1', [targetUserId]);
+                    const fcmToken = userRes.rows[0]?.fcm_token;
+                    if (fcmToken) {
+                        await sendPushNotification(
+                            fcmToken,
+                            `Payment Pending: ₹${amt}`,
+                            `${customerName} claims they paid via ${method}. Open app to Accept.`,
+                            { route: '/dashboard/expenses' }
+                        );
+                    }
+                } catch(notifyErr) {
+                    console.error('Notification Error:', notifyErr);
+                }
+            }
 
             return NextResponse.json({ success: true, txn: newTxn });
         } catch(e) {

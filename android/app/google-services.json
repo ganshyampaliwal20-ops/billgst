@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "265611823845",
+    "project_id": "billgst-eebd6",
+    "storage_bucket": "billgst-eebd6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265611823845:android:ae9bfae504a285fea6220c",
+        "android_client_info": {
+          "package_name": "in.billgst.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1uF-r8nDd0E5RL_kNJZCU_JrGWWywiu8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265611823845:android:915d6391dacb6e65a6220c",
+        "android_client_info": {
+          "package_name": "www.billgst.in"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1uF-r8nDd0E5RL_kNJZCU_JrGWWywiu8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
