@@ -34,6 +34,19 @@ export default function PushNotificationSetup() {
                     toast.error('Push Registration Error: ' + JSON.stringify(error));
                 });
 
+                PushNotifications.addListener('pushNotificationReceived', (notification) => {
+                    // This shows a toast if they receive the notification while the app is open
+                    toast.success(`${notification.title}\n${notification.body}`, { 
+                        duration: 6000, 
+                        icon: '📢' 
+                    });
+                });
+
+                PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+                    // You can add routing logic here if you want to send them to a specific page
+                    console.log('Push action performed: ' + JSON.stringify(notification));
+                });
+
                 // 2. Then check permissions and register
                 let permStatus = await PushNotifications.checkPermissions();
 
