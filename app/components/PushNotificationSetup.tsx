@@ -1,6 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
+import toast from 'react-hot-toast';
 
 export default function PushNotificationSetup() {
     useEffect(() => {
@@ -10,25 +11,27 @@ export default function PushNotificationSetup() {
             }
 
             try {
-                // Dynamically import to prevent SSR issues
                 const { PushNotifications } = await import('@capacitor/push-notifications');
 
                 // 1. Add listeners FIRST so we don't miss the event
                 PushNotifications.addListener('registration', async (token) => {
                     console.log('Push registration success, token: ' + token.value);
                     try {
-                        await fetch('/api/users/fcm-token', {
+                        const res = await fetch('/api/users/fcm-token', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ token: token.value })
                         });
+                        if (!res.ok) {
+                            toast.error('Failed to save Push Token on Server');
+                        }
                     } catch (e) {
-                        console.error('Failed to save FCM token:', e);
+                        toast.error('Network Error saving FCM token');
                     }
                 });
 
                 PushNotifications.addListener('registrationError', (error: any) => {
-                    console.error('Error on registration: ' + JSON.stringify(error));
+                    toast.error('Push Registration Error: ' + JSON.stringify(error));
                 });
 
                 // 2. Then check permissions and register
@@ -39,14 +42,14 @@ export default function PushNotificationSetup() {
                 }
 
                 if (permStatus.receive !== 'granted') {
-                    console.log('User denied push notification permissions');
+                    toast.error('Push Permission Not Granted');
                     return;
                 }
 
                 await PushNotifications.register();
 
-            } catch (e) {
-                console.error('Failed to setup push notifications:', e);
+            } catch (e: any) {
+                toast.error('Failed to setup push: ' + e.message);
             }
         };
 
