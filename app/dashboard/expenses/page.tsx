@@ -919,53 +919,52 @@ export default function BusinessExpensesPage() {
 
     // Customer Sheet Handlers
     const importContact = async () => {
-        setIsContactLoading(true);
-        setShowContactPicker(true);
         try {
-            const { isNativeApp, getNativePlugin } = await import('@/lib/utils');
+            const { isNativeApp } = await import('@/lib/utils');
             
             if (isNativeApp()) {
                 try {
-                    let Contacts = getNativePlugin('Contacts');
-                    if (!Contacts) {
-                        const mod = await import('@capacitor-community/contacts');
-                        Contacts = mod.Contacts;
-                    }
+                    const { registerPlugin } = await import('@capacitor/core');
+                    const NativeContactPicker = registerPlugin('NativeContactPicker') as any;
                     
-                    if (!Contacts) {
-                        showToast('❌ Contacts plugin not available');
-                        setShowContactPicker(false);
-                        return;
-                    }
-
-                    const perm = await Contacts.requestPermissions();
-                    if (perm.contacts === 'granted') {
-                        const result = await Contacts.getContacts({ projection: { name: true, phones: true } });
-                        if (result && result.contacts) {
-                            // Filter contacts with phone numbers and sort alphabetically
-                            const validContacts = result.contacts
-                                .filter((c: any) => c.phones && c.phones.length > 0)
-                                .sort((a: any, b: any) => {
-                                    const nameA = a.name?.display || '';
-                                    const nameB = b.name?.display || '';
-                                    return nameA.localeCompare(nameB);
-                                });
-                            setContactList(validContacts);
+                    if (NativeContactPicker) {
+                        const result = await NativeContactPicker.pickPhoneContact();
+                        if (result && result.name && result.phone) {
+                            setAcName(result.name);
+                            
+                            let foundNum = '';
+                            let numStr = result.phone;
+                            if (numStr) {
+                                let num = numStr.replace(/[^\d+]/g, '');
+                                if (num.startsWith('+91')) num = num.slice(3);
+                                else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
+                                else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
+                                if (num.length >= 10) {
+                                    foundNum = num;
+                                }
+                            }
+                            
+                            if (foundNum) {
+                                setAcPhone(foundNum);
+                                showToast('✅ Contact imported successfully!');
+                            } else {
+                                showToast('⚠️ Imported contact has invalid phone number format.');
+                            }
                         } else {
-                            showToast('⚠️ No contacts found.');
-                            setShowContactPicker(false);
+                            showToast('⚠️ No phone number found for this contact.');
                         }
                     } else {
-                        showToast('⚠️ Please allow Contacts permission in App Settings.');
-                        setShowContactPicker(false);
+                        showToast('❌ Native plugin not loaded.');
                     }
                 } catch (err: any) {
-                    showToast('❌ Native Error: ' + (err.message || 'Unknown'));
-                    setShowContactPicker(false);
+                    if (err.message && err.message.includes('Canceled')) {
+                        // User simply canceled the picker, no toast needed
+                    } else {
+                        showToast('❌ Picker Error: ' + (err.message || 'Unknown'));
+                    }
                 }
             } else if ('contacts' in navigator) {
                 // Web Fallback
-                setShowContactPicker(false);
                 try {
                     const props = ['name', 'tel'];
                     const opts = { multiple: false };
@@ -1001,44 +1000,11 @@ export default function BusinessExpensesPage() {
                     showToast('⚠️ Web contact picker failed or cancelled.');
                 }
             } else {
-                setShowContactPicker(false);
                 showToast('⚠️ Auto-contact is not supported in your browser.');
             }
         } catch (e: any) {
-            setShowContactPicker(false);
             showToast('❌ Error: ' + e.message);
-        } finally {
-            setIsContactLoading(false);
         }
-    };
-
-    const handleSelectCustomContact = (c: any) => {
-        if (c.name?.display) setAcName(c.name.display);
-        
-        let foundNum = '';
-        if (c.phones && c.phones.length > 0) {
-            for (let p of c.phones) {
-                if (p.number) {
-                    let num = p.number.replace(/[^\d+]/g, '');
-                    if (num.startsWith('+91')) num = num.slice(3);
-                    else if (num.startsWith('91') && num.length > 10) num = num.slice(2);
-                    else if (num.startsWith('0') && num.length > 10) num = num.slice(1);
-                    if (num.length >= 10) {
-                        foundNum = num;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (foundNum) {
-            setAcPhone(foundNum);
-            showToast('✅ Contact imported successfully!');
-        } else {
-            showToast('⚠️ Selected contact has no valid phone number.');
-        }
-        setShowContactPicker(false);
-        setContactSearch('');
     };
 
 
@@ -1788,67 +1754,6 @@ export default function BusinessExpensesPage() {
             </div>
 
 
-            {/* Custom Contact Picker Modal */}
-            {showContactPicker && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 99999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                    <div style={{ backgroundColor: '#1a1f3c', height: '85vh', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                        <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#141830' }}>
-                            <h3 style={{ margin: 0, color: 'white', fontSize: '18px', fontWeight: 600 }}>Select Contact</h3>
-                            <button onClick={() => { setShowContactPicker(false); setContactSearch(''); }} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-                            </button>
-                        </div>
-                        <div style={{ padding: '12px 16px', backgroundColor: '#141830' }}>
-                            <div style={{ position: 'relative' }}>
-                                <input 
-                                    type="text" 
-                                    placeholder="Search by name or number..." 
-                                    value={contactSearch}
-                                    onChange={(e) => setContactSearch(e.target.value)}
-                                    style={{ width: '100%', padding: '12px 16px 12px 40px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: '#1a1f3c', color: 'white', outline: 'none', fontSize: '15px' }}
-                                />
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}>
-                                    <circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-                            {isContactLoading ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.6)' }}>
-                                    <div className="spinner" style={{ marginBottom: '16px' }}></div>
-                                    <p>Loading contacts...</p>
-                                </div>
-                            ) : contactList.length === 0 ? (
-                                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', marginTop: '40px' }}>
-                                    No valid contacts found.
-                                </div>
-                            ) : (
-                                (() => {
-                                    const filtered = contactList.filter(c => {
-                                        const nameMatch = (c.name?.display || '').toLowerCase().includes(contactSearch.toLowerCase());
-                                        const phoneMatch = c.phones.some((p: any) => p.number && p.number.includes(contactSearch));
-                                        return nameMatch || phoneMatch;
-                                    });
-                                    if (filtered.length === 0) return <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', marginTop: '20px' }}>No matching contacts.</div>;
-                                    return filtered.map((c: any) => (
-                                        <div key={c.contactId} onClick={() => handleSelectCustomContact(c)} style={{ padding: '12px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#6366f1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', marginRight: '12px', flexShrink: 0 }}>
-                                                {(c.name?.display || 'U')[0].toUpperCase()}
-                                            </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ color: 'white', fontWeight: 500, fontSize: '16px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name?.display || 'Unknown Name'}</div>
-                                                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', marginTop: '4px' }}>
-                                                    {c.phones.map((p:any) => p.number).join(', ')}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ));
-                                })()
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Toast */}
             <div id="toast" className={toastMsg ? 'show' : ''}>{toastMsg}</div>

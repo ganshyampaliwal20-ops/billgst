@@ -471,15 +471,17 @@ export default function DashboardLayout({
             
             <DemoNLPAssistant isOpen={isDemoNLPOpen} onClose={() => setIsDemoNLPOpen(false)} />
 
-            {/* AI Voice Assistant FAB */}
-            <button
-                onClick={() => setIsVoiceAssistantOpen(true)}
-                className="fixed bottom-[100px] md:bottom-[80px] right-6 z-[90] w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.8)] transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
-                title="AI Assistant (Voice)"
-            >
-                <FaRobot size={24} className="animate-pulse" />
-            </button>
-            <VoiceAssistant isOpen={isVoiceAssistantOpen} onClose={() => setIsVoiceAssistantOpen(false)} />
+            {/* NLP Assistant FAB */}
+            {pathname === '/dashboard' && (
+                <button
+                    onClick={() => setIsDemoNLPOpen(true)}
+                    className="fixed bottom-[100px] md:bottom-[80px] right-6 z-[90] w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.8)] transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
+                    title="Free AI Assistant"
+                >
+                    <FaRobot size={24} className="animate-pulse" />
+                </button>
+            )}
+            {/* <VoiceAssistant isOpen={isVoiceAssistantOpen} onClose={() => setIsVoiceAssistantOpen(false)} /> */}
         </div>
     );
 }
