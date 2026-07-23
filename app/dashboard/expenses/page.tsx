@@ -463,7 +463,9 @@ export default function BusinessExpensesPage() {
         return { credit: c, debit: d, net: Math.abs(currentCust.balance), entries: currentCust.txns.length, isNeg: currentCust.balance < 0 };
     }, [currentCust]);
 
-    const displayList = customers.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const displayList = customers
+        .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .sort((a, b) => (b.balance || 0) - (a.balance || 0));
 
     // Handlers
     const handleOpenDetail = (id: number) => {
