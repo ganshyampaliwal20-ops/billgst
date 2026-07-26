@@ -143,7 +143,7 @@ export default function SmartAttendance() {
     };
 
     const compressImage = (file: File): Promise<string> => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
@@ -167,13 +167,15 @@ export default function SmartAttendance() {
                             height = MAX_HEIGHT;
                         }
                     }
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = Math.round(width);
+                    canvas.height = Math.round(height);
                     const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, width, height);
+                    ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% JPEG
                 };
+                img.onerror = (err) => reject(err);
             };
+            reader.onerror = (err) => reject(err);
         });
     };
 
@@ -181,10 +183,14 @@ export default function SmartAttendance() {
         const file = e.target.files[0];
         if (!file) return;
         
-        toast.loading('Compressing photo...');
-        const compressedBase64 = await compressImage(file);
-        toast.dismiss();
-        setPendingPhoto(compressedBase64);
+        const tid = toast.loading('Compressing photo...');
+        try {
+            const compressedBase64 = await compressImage(file);
+            toast.success('Photo ready!', { id: tid });
+            setPendingPhoto(compressedBase64);
+        } catch (err) {
+            toast.error('Failed to compress photo', { id: tid });
+        }
     };
 
     const handleStaffPhotoUpload = (id: string) => {
@@ -194,16 +200,18 @@ export default function SmartAttendance() {
             const file = e.target.files[0];
             if (!file) return;
             
-            toast.loading('Compressing and saving...');
-            const compressedBase64 = await compressImage(file);
-            
-            const s = staff.find((x: any) => x.id === id);
-            if(s) {
-                await updateStaff(id, { ...s, photo: compressedBase64 });
-                toast.dismiss();
-                toast.success('Photo updated!');
-            } else {
-                toast.dismiss();
+            const tid = toast.loading('Compressing and saving...');
+            try {
+                const compressedBase64 = await compressImage(file);
+                const s = staff.find((x: any) => x.id === id);
+                if (s) {
+                    await updateStaff(id, { ...s, photo: compressedBase64 });
+                    toast.success('Photo updated!', { id: tid });
+                } else {
+                    toast.dismiss(tid);
+                }
+            } catch (err) {
+                toast.error('Failed to update photo', { id: tid });
             }
         };
         inp.click();
