@@ -353,6 +353,54 @@ export default function SmartAttendance() {
             footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
         });
 
+        // Add daily breakdown
+        const dailyY = (doc as any).lastAutoTable.finalY || 195;
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Daily Attendance Breakdown', 14, dailyY + 15);
+
+        const currentMonthRecords = attendance?.filter((a: any) => 
+            a.staff_id === selectedStaff.id && 
+            a.date.startsWith(`${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}`)
+        ) || [];
+
+        const breakdownBody: any[] = [];
+        
+        const sortedRecords = [...currentMonthRecords].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+        sortedRecords.forEach((rec: any) => {
+            if (rec.status === 'UNMARKED') return;
+            const dateObj = new Date(rec.date);
+            const dateDisplay = `${dateObj.getDate()} ${dateObj.toLocaleString('default', { month: 'short', year: 'numeric' })}`;
+            let statusText = rec.status.replace('_', ' ');
+            if (rec.in_time || rec.out_time) {
+                statusText += ` (${rec.in_time || '-'} to ${rec.out_time || '-'})`;
+            }
+            if (rec.note) statusText += ` | Note: ${rec.note}`;
+            breakdownBody.push([dateDisplay, statusText]);
+        });
+
+        if (breakdownBody.length === 0) {
+            breakdownBody.push(['-', 'No attendance marked this month']);
+        }
+
+        autoTable(doc, {
+            startY: dailyY + 20,
+            head: [['Date', 'Status / Time']],
+            body: breakdownBody,
+            theme: 'grid',
+            headStyles: { fillColor: [50, 50, 50] },
+            didParseCell: function(data) {
+                if (data.section === 'body' && data.column.index === 1) {
+                    const st = data.cell.raw as string;
+                    if (st.includes('PRESENT')) data.cell.styles.textColor = [16, 185, 129];
+                    else if (st.includes('ABSENT')) data.cell.styles.textColor = [239, 68, 68];
+                    else if (st.includes('HALF DAY')) data.cell.styles.textColor = [245, 158, 11];
+                    else if (st.includes('LEAVE')) data.cell.styles.textColor = [59, 130, 246];
+                }
+            }
+        });
+
         const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
         if (!isPremium) {
             await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
