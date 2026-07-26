@@ -5,6 +5,7 @@ import { useStore } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 import SignatureModal from '@/app/components/SignatureModal';
 import { optimizeImage } from '@/lib/utils';
+import { languages } from '@/lib/translations';
 
 const THEMES = {
     TEMPLATE_1: { accent: '#7c3aed', name: 'Modern Purple' },
@@ -807,8 +808,11 @@ export default function SettingsPage() {
                         <div className="field">
                             <label>Language</label>
                             <select value={localSettings.language || 'en'} onChange={e => setLocalSettings({...localSettings, language: e.target.value})}>
-                                <option value="en">English</option>
-                                <option value="hi">हिंदी</option>
+                                {languages.map(lang => (
+                                    <option key={lang.code} value={lang.code}>
+                                        {lang.nativeName} ({lang.name})
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
