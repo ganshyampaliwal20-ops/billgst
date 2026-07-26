@@ -6,6 +6,7 @@ import { generateHisaabPDF } from '../../../lib/pdf-generator';
 import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
 import { useStore } from '../../../lib/store';
+import { getTranslations } from '@/lib/translations';
 import { getVisitingCardText } from '../../../lib/whatsapp-utils';
 
 // ─── HELPERS ───

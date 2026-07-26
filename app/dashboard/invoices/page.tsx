@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../../../lib/store';
+import { getTranslations } from '../../../lib/translations';
 import { generateInvoicePDF } from '../../../lib/pdf-generator';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../lib/utils';
@@ -23,7 +24,6 @@ export default function InvoicesPage() {
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
-    const isMobile = useIsMobile();
     
     // Local State
     const [isClient, setIsClient] = useState(false);
