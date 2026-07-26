@@ -124,7 +124,7 @@ export default function BusinessExpensesPage() {
     const [currentFilter, setCurrentFilter] = useState('all');
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
-    const isHi = settings?.language === 'hi';
+    const t = getTranslations(settings?.language || 'en');
     const { businessProfile } = useStore();
 
     // Drawer / Modals
@@ -418,7 +418,7 @@ export default function BusinessExpensesPage() {
         if (needsHeal) {
             setCustomers(healedCustomers);
             // console.log("Auto-healed corrupted balances!");
-            showToast("🛠 Purani entries ka hisaab theek kar diya gaya hai!");
+            showToast(t.toastAutoHeal || "🛠 Purani entries ka hisaab theek kar diya gaya hai!");
         }
     }, [isMounted, customers.length]); // only run once when loaded
 
@@ -532,12 +532,12 @@ export default function BusinessExpensesPage() {
         const isNeg = amount < 0; // Business owes Customer (Advance)
         const bizName = businessProfile?.business_name || 'Business';
         
-        let msg = `Namaste ${cust.name || 'Customer'} 🙏\n\n`;
-        msg += isReminder ? `Aapka payment pending hai, kripya apna hisaab clear karein.\n\n` : `Aapka *Hisaab Statement* ready hai.\n\n`;
-        msg += `💰 *Total Amount:* ₹${new Intl.NumberFormat('en-IN').format(netAmt)}\n`;
-        msg += `👉 *Status:* ${isNeg ? 'Aapka Advance Jama Hai' : 'Aapko Dena Hai (Outstanding)'}\n\n`;
-        msg += `📊 *Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:*\n${shareUrl}\n\n`;
-        msg += `Dhanyawad,\n*${bizName}*`;
+        let msg = `${t.namaste || 'Namaste'} ${cust.name || 'Customer'} 🙏\n\n`;
+        msg += isReminder ? `${t.paymentPendingMsg || 'Aapka payment pending hai, kripya apna hisaab clear karein.'}\n\n` : `${t.statementReadyMsg || 'Aapka Hisaab Statement ready hai.'}\n\n`;
+        msg += `💰 *${t.totalAmount || 'Total Amount'}:* ₹${new Intl.NumberFormat('en-IN').format(netAmt)}\n`;
+        msg += `👉 *${t.status || 'Status'}:* ${isNeg ? (t.advanceJamaHai || 'Aapka Advance Jama Hai') : (t.outstanding || 'Aapko Dena Hai (Outstanding)')}\n\n`;
+        msg += `📊 *${t.statementLinkMsg || 'Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:'}*\n${shareUrl}\n\n`;
+        msg += `${t.thankYou || 'Dhanyawad'},\n*${bizName}*`;
         
         return msg;
     };
@@ -545,11 +545,11 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppRemind = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
-            showToast('📱 Pahle customer ka mobile number add karein.');
+            showToast(t.addPhoneFirst || '📱 Pahle customer ka mobile number add karein.');
             return;
         }
         
-        showToast('⏳ Generating Link...');
+        showToast(t.generatingLink || '⏳ Generating Link...');
         try {
             if (session?.user?.id) {
                 try { await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }); } catch (e) {}
@@ -567,19 +567,19 @@ export default function BusinessExpensesPage() {
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
-            showToast('✅ Opening WhatsApp...');
+            showToast(t.openingWhatsApp || '✅ Opening WhatsApp...');
         } catch (err) {
-            showToast('❌ Error in generating link!');
+            showToast(t.errorGeneratingLink || '❌ Error in generating link!');
         }
     };
 
     const handleBulkRemind = async () => {
         if (bulkSelected.size === 0) {
-            showToast('⚠️ Koi customer select nahi kiya!');
+            showToast(t.noCustomerSelected || '⚠️ Koi customer select nahi kiya!');
             return;
         }
         
-        showToast(`⏳ Sending ${bulkSelected.size} reminders...`);
+        showToast(`${t.sendingReminders || '⏳ Sending'} ${bulkSelected.size} ${t.reminders || 'reminders'}...`);
         setIsBulkMode(false);
         const selectedIds = Array.from(bulkSelected);
         setBulkSelected(new Set());
@@ -630,7 +630,7 @@ export default function BusinessExpensesPage() {
                 }
             }
         }
-        showToast(`✅ ${successCount} Reminders Queued!`);
+        showToast(`✅ ${successCount} ${t.remindersQueued || 'Reminders Queued!'}`);
     };
 
     const toggleBulkSelect = (id: number) => {
@@ -645,11 +645,11 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
-            showToast('📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
+            showToast(t.addPhoneWhatsApp || '📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
             return;
         }
         
-        showToast('⏳ Generating Link...');
+        showToast(t.generatingLink || '⏳ Generating Link...');
         try {
             if (session?.user?.id) {
                 // Fire and forget sync to speed up
@@ -662,27 +662,27 @@ export default function BusinessExpensesPage() {
 
 
             window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
-            showToast('✅ Opening WhatsApp...');
+            showToast(t.openingWhatsApp || '✅ Opening WhatsApp...');
         } catch (err: any) {
-            showToast('❌ Error: ' + (err.message || 'Unknown'));
+            showToast(t.error + ': ' + (err.message || 'Unknown'));
         }
     };
 
     const exportPDF = async () => {
         if (!currentCust?.id) return;
-        showToast('⏳ Opening Statement...');
+        showToast(t.openingStatement || '⏳ Opening Statement...');
         try {
             await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentCust) }).catch(e => {});
             const shareId = session?.user?.id ? `${session.user.id}_${currentCust.id}` : currentCust.id;
             window.location.href = `/h/${shareId}`;
         } catch (error) {
-            showToast('❌ Error opening statement');
+            showToast(t.errorOpeningStatement || '❌ Error opening statement');
         }
     };
 
     const handleDownloadPDF = async () => {
         if (!currentCust) return;
-        showToast('⏳ Generating PDF...');
+        showToast(t.generatingPDF || '⏳ Generating PDF...');
         try {
             const { generateHisaabPDF } = await import('@/lib/pdf-generator');
             const doc = await generateHisaabPDF(currentCust, businessProfile || { name: 'BillGST Pro' }, custStats, false);
@@ -690,10 +690,10 @@ export default function BusinessExpensesPage() {
                 const base64Data = doc.output('datauristring').split(',')[1];
                 const { downloadAndShareFile } = await import('@/lib/utils');
                 await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view');
-                showToast('✅ PDF ready!');
+                showToast(t.pdfReady || '✅ PDF ready!');
             }
         } catch (e) {
-            showToast('❌ PDF Error');
+            showToast(t.pdfError || '❌ PDF Error');
         }
     };
 
@@ -754,12 +754,12 @@ export default function BusinessExpensesPage() {
                         openAddEntry('debit', data.totalAmount.toString());
                         setEntryDate(data.expenseDate || new Date().toISOString().split('T')[0]);
                         setEntryNote(data.description || '');
-                        showToast('✅ Bill scanned successfully!');
+                        showToast(t.billScanned || '✅ Bill scanned successfully!');
                     } else {
-                        showToast('❌ Failed to extract details from bill');
+                        showToast(t.errorScanningBill || '❌ Failed to extract details from bill');
                     }
                 } catch (error) {
-                    showToast('❌ Error parsing bill details');
+                    showToast(t.errorParsingBill || '❌ Error parsing bill details');
                 } finally {
                     setIsExpenseScanning(false);
                     setIsAiScanMenuOpen(false);
@@ -772,13 +772,13 @@ export default function BusinessExpensesPage() {
         } catch (error) {
             setIsExpenseScanning(false);
             setIsAiScanMenuOpen(false);
-            showToast('❌ Error reading file');
+            showToast(t.errorReadingFile || '❌ Error reading file');
         }
     };
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        if (files.length > 0) showToast('⏳ Photo load ho rahi hai...');
+        if (files.length > 0) showToast(t.photoLoading || '⏳ Photo load ho rahi hai...');
         const targetInput = e.target;
 
         files.forEach(f => {
@@ -791,21 +791,21 @@ export default function BusinessExpensesPage() {
 
                         // AI Scan feature temporarily removed as per user request.
                         // We just save the photo now.
-                        showToast('📸 Photo add ho gayi!');
+                        showToast(t.photoAdded || '📸 Photo add ho gayi!');
                     } catch (err) {
                         console.error('Image compression failed', err);
-                        showToast('❌ Photo size bohot bada hai ya error aaya!');
+                        showToast(t.photoError || '❌ Photo size bohot bada hai ya error aaya!');
                     }
                 }
             };
             reader.onerror = () => {
                 console.error("FileReader error on upload");
-                showToast('❌ Photo read karne mein problem aayi!');
+                showToast(t.photoReadError || '❌ Photo read karne mein problem aayi!');
             };
             try {
                 reader.readAsDataURL(f);
             } catch (err) {
-                showToast('❌ Photo select karne me error');
+                showToast(t.photoSelectError || '❌ Photo select karne me error');
             }
         });
 
@@ -851,11 +851,11 @@ export default function BusinessExpensesPage() {
             return c;
         }));
         setCanSave(true);
-        showToast('✅ Payment accepted and added to Hisaab!');
+        showToast(t.paymentAccepted || '✅ Payment accepted and added to Hisaab!');
     };
 
     const rejectPendingTxn = (txnId: number) => {
-        if (!window.confirm('Are you sure you want to reject this payment?')) return;
+        if (!window.confirm(t.confirmReject || 'Are you sure you want to reject this payment?')) return;
         setCustomers(customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
                 return {
@@ -866,11 +866,11 @@ export default function BusinessExpensesPage() {
             return c;
         }));
         setCanSave(true);
-        showToast('❌ Payment rejected!');
+        showToast(t.paymentRejected || '❌ Payment rejected!');
     };
 
     const deleteTxn = (txnId: number, txnAmt: number, txnType: string) => {
-        if (!window.confirm('Pukka delete karna hai?')) return;
+        if (!window.confirm(t.confirmDelete || 'Pukka delete karna hai?')) return;
         setCustomers(customers.map(c => {
             if (c.id === curCid) {
                 const isDebit = txnType !== 'credit';
@@ -883,13 +883,13 @@ export default function BusinessExpensesPage() {
             }
             return c;
         }));
-        showToast('🗑 Entry delete ho gayi!');
+        showToast(t.entryDeleted || '🗑 Entry delete ho gayi!');
     };
 
     const saveEntry = () => {
         const amt = parseFloat(amtInp);
-        if (!amt || isNaN(amt) || amt <= 0) { showToast('⚠️ Amount daalo!'); return; }
-        const name = entryName.trim() || (entryType === 'credit' ? 'Received' : 'Given');
+        if (!amt || isNaN(amt) || amt <= 0) { showToast(t.enterAmount || '⚠️ Amount daalo!'); return; }
+        const name = entryName.trim() || (entryType === 'credit' ? (t.receivedText || 'Received') : (t.givenText || 'Given'));
         const note = entryNote.trim();
         const date = entryDate ? new Date(entryDate).toISOString() : new Date().toISOString();
 
@@ -908,7 +908,7 @@ export default function BusinessExpensesPage() {
             projectedBalance += (isDebit ? amt : -amt);
 
             if (currentCustomer.limit > 0 && projectedBalance > currentCustomer.limit) {
-                if (!window.confirm(`⚠️ ALERT: ${currentCustomer.name} ki credit limit (₹${currentCustomer.limit}) cross ho rahi hai!\n\nNaya Balance ₹${projectedBalance} ho jayega.\n\nKya aap phir bhi ye entry save karna chahte hain?`)) {
+                if (!window.confirm(`${t.limitAlert || '⚠️ ALERT'}: ${currentCustomer.name} ${t.limitExceeded || 'ki credit limit cross ho rahi hai!'}\n\n${t.newBalance || 'Naya Balance'} ₹${projectedBalance} ${t.willBecome || 'ho jayega'}.\n\n${t.saveAnyway || 'Kya aap phir bhi ye entry save karna chahte hain?'}`)) {
                     return;
                 }
             }
@@ -942,7 +942,7 @@ export default function BusinessExpensesPage() {
 
         setIsAddEntryOpen(false);
         setEditTxnId(null);
-        showToast(editTxnId ? '✅ Entry update ho gayi!' : '✅ Entry save ho gayi!');
+        showToast(editTxnId ? (t.entryUpdated || '✅ Entry update ho gayi!') : (t.entrySaved || '✅ Entry save ho gayi!'));
 
         // Auto WhatsApp notification for NEW entries
         if (!editTxnId && currentCustomer?.phone && autoWhatsApp) {
@@ -953,10 +953,8 @@ export default function BusinessExpensesPage() {
                 let newBalance = currentCustomer.balance;
                 newBalance += (isDebit ? amt : -amt);
 
-                const action = isDebit ? (isHi ? 'Diye (Given)' : 'Given') : (isHi ? 'Liye (Received)' : 'Received');
-                let txt = isHi 
-                    ? `*BillGST Hisaab Update*\n\nNamaste ${currentCustomer.name},\n\nAaj aapke khate me ₹${amt} ${action} gaye hain.\n\n*Naya Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance Jama)' : '(Due / Baki)'}\n\nDhanyawad!`
-                    : `*BillGST Hisaab Update*\n\nHello ${currentCustomer.name},\n\nYour account has been updated with ₹${amt} (${action}).\n\n*New Balance:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? '(Advance)' : '(Due)'}\n\nThank you!`;
+                const action = isDebit ? (t.givenText || 'Given') : (t.receivedText || 'Received');
+                let txt = `${t.hisaabUpdate || '*BillGST Hisaab Update*'}\n\n${t.namaste || 'Namaste'} ${currentCustomer.name},\n\n${t.accountUpdatedMsg || 'Aaj aapke khate me'} ₹${amt} ${action} ${t.added || 'gaye hain'}.\n\n*${t.newBalance || 'Naya Balance'}:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? (t.advanceJama || '(Advance Jama)') : (t.dueBaki || '(Due / Baki)')}\n\n${t.thankYou || 'Dhanyawad'}!`;
                 txt += getVisitingCardText(businessProfile);
                 
                 // Automatic background WhatsApp message via our VPS Bot
@@ -968,7 +966,7 @@ export default function BusinessExpensesPage() {
                     method: 'POST',
                     body: formData
                 }).then(() => {
-                    showToast('✅ Automatic WhatsApp message sent!');
+                    showToast(t.autoWhatsAppSent || '✅ Automatic WhatsApp message sent!');
                 }).catch(e => {
                     console.error('Failed to send auto whatsapp', e);
                 });
@@ -1005,21 +1003,21 @@ export default function BusinessExpensesPage() {
                             
                             if (foundNum) {
                                 setAcPhone(foundNum);
-                                showToast('✅ Contact imported successfully!');
+                                showToast(t.contactImported || '✅ Contact imported successfully!');
                             } else {
-                                showToast('⚠️ Imported contact has invalid phone number format.');
+                                showToast(t.invalidPhoneFormat || '⚠️ Imported contact has invalid phone number format.');
                             }
                         } else {
-                            showToast('⚠️ No phone number found for this contact.');
+                            showToast(t.noPhoneNumber || '⚠️ No phone number found for this contact.');
                         }
                     } else {
-                        showToast('❌ Native plugin not loaded.');
+                        showToast(t.pluginNotLoaded || '❌ Native plugin not loaded.');
                     }
                 } catch (err: any) {
                     if (err.message && err.message.includes('Canceled')) {
                         // User simply canceled the picker, no toast needed
                     } else {
-                        showToast('❌ Picker Error: ' + (err.message || 'Unknown'));
+                        showToast(t.error + ': ' + (err.message || 'Unknown'));
                     }
                 }
             } else if ('contacts' in navigator) {
@@ -1050,19 +1048,19 @@ export default function BusinessExpensesPage() {
                         }
                         if (foundNum) {
                             setAcPhone(foundNum);
-                            showToast('✅ Contact imported successfully!');
+                            showToast(t.contactImported || '✅ Contact imported successfully!');
                         } else {
-                            showToast('⚠️ Contact selected, but no valid phone number found.');
+                            showToast(t.noValidPhoneFound || '⚠️ Contact selected, but no valid phone number found.');
                         }
                     }
                 } catch(e) {
-                    showToast('⚠️ Web contact picker failed or cancelled.');
+                    showToast(t.pickerFailed || '⚠️ Web contact picker failed or cancelled.');
                 }
             } else {
-                showToast('⚠️ Auto-contact is not supported in your browser.');
+                showToast(t.notSupported || '⚠️ Auto-contact is not supported in your browser.');
             }
         } catch (e: any) {
-            showToast('❌ Error: ' + e.message);
+            showToast(t.error + ': ' + e.message);
         }
     };
 
@@ -1071,16 +1069,16 @@ export default function BusinessExpensesPage() {
     const saveCustomer = () => {
         const limit = parseFloat(acLimit) || 0;
         const opening = parseFloat(acOpening) || 0;
-        if (!acName.trim()) { showToast('⚠️ Naam zaroori hai!'); return; }
+        if (!acName.trim()) { showToast(t.nameRequired || '⚠️ Naam zaroori hai!'); return; }
 
         if (editCustId) {
             setCustomers(customers.map(c => c.id === editCustId ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening } : c));
             setEditCustId(null);
-            showToast('✅ Customer update ho gaya!');
+            showToast(t.custUpdated || '✅ Customer update ho gaya!');
         } else {
             const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening, txns: [] };
             setCustomers([{ ...nc }, ...customers]);
-            showToast('✅ Customer add ho gaya!');
+            showToast(t.custAdded || '✅ Customer add ho gaya!');
         }
         setIsAddCustOpen(false);
         setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening('');
@@ -1088,7 +1086,7 @@ export default function BusinessExpensesPage() {
 
     const deleteCustomer = async () => {
         if (!currentCust) return;
-        if (!window.confirm(`Kya aap sach mein ${currentCust.name} ko delete karna chahte hain? Unka poora hisaab hamesha ke liye delete ho jayega.`)) return;
+        if (!window.confirm(`${t.confirmDeleteCust || 'Kya aap sach mein delete karna chahte hain? Unka poora hisaab hamesha ke liye delete ho jayega.'}`)) return;
 
         try {
             if (session?.user?.id) {
@@ -1104,12 +1102,12 @@ export default function BusinessExpensesPage() {
 
         setCustomers(customers.filter(c => c.id !== curCid));
         handleBack();
-        showToast(`🗑 ${currentCust.name} delete ho gaye!`);
+        showToast(`🗑 ${currentCust.name} ${t.deleted || 'delete ho gaye!'}`);
     };
 
     // Excel Export Handlers
     const downloadAllExcel = async () => {
-        showToast('⏳ All Excel ban raha hai...');
+        showToast(t.excelGenerating || '⏳ All Excel ban raha hai...');
         try {
             let csv = "Customer Name,Phone,Type,Total Given (Debit),Total Received (Credit),Net Balance\n";
             customers.forEach(c => {
@@ -1122,15 +1120,15 @@ export default function BusinessExpensesPage() {
             
             const { downloadAndShareFile } = await import('@/lib/utils');
             await downloadAndShareFile(base64Data, fileName, 'text/csv');
-            showToast('✅ Excel Downloaded/Shared!');
+            showToast(t.excelDownloaded || '✅ Excel Downloaded/Shared!');
         } catch (e: any) {
-            showToast('❌ Excel Error: ' + (e.message || 'Unknown'));
+            showToast(t.error + ': ' + (e.message || 'Unknown'));
         }
     };
 
     const downloadCustomerExcel = async () => {
         if (!currentCust) return;
-        showToast('⏳ Customer Excel ban raha hai...');
+        showToast(t.excelGenerating || '⏳ Customer Excel ban raha hai...');
         try {
             let csv = "Date,Description,Type,Credit (Received),Debit (Given)\n";
             const sortedTxns = [...currentCust.txns].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -1148,9 +1146,9 @@ export default function BusinessExpensesPage() {
             
             const { downloadAndShareFile } = await import('@/lib/utils');
             await downloadAndShareFile(base64Data, fileName, 'text/csv');
-            showToast('✅ Excel Downloaded/Shared!');
+            showToast(t.excelDownloaded || '✅ Excel Downloaded/Shared!');
         } catch (e: any) {
-            showToast('❌ Excel Error: ' + (e.message || 'Unknown'));
+            showToast(t.error + ': ' + (e.message || 'Unknown'));
         }
     };
 
@@ -1163,7 +1161,7 @@ export default function BusinessExpensesPage() {
             if (url) {
                 const compressedUrl = await compressImage(url);
                 setCustomers(prev => prev.map(c => c.id === curCid ? { ...c, photo: compressedUrl } : c));
-                showToast('📸 Profile photo lag gayi!');
+                showToast(t.profilePhotoUpdated || '📸 Profile photo lag gayi!');
             }
         };
         reader.readAsDataURL(file);
@@ -1177,7 +1175,7 @@ export default function BusinessExpensesPage() {
     const handleTxnPhoto = (e: React.ChangeEvent<HTMLInputElement>, txnId: number) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-        showToast('⏳ Photo load ho rahi hai...');
+        showToast(t.photoLoading || '⏳ Photo load ho rahi hai...');
         const targetInput = e.target;
 
         files.forEach(f => {
@@ -1194,19 +1192,19 @@ export default function BusinessExpensesPage() {
                             txns: c.txns.map((t: any) => t.id === txnId ? { ...t, photos: [...(t.photos || []), compressedUrl] } : t)
                         };
                     }));
-                    showToast('📸 Photo add ho gaya!');
+                    showToast(t.photoAdded || '📸 Photo add ho gaya!');
                 } catch (err) {
                     console.error(err);
-                    showToast('❌ Photo process me error');
+                    showToast(t.photoProcessError || '❌ Photo process me error');
                 }
             };
             reader.onerror = () => {
-                showToast('❌ Photo read karne mein error');
+                showToast(t.photoReadError || '❌ Photo read karne mein error');
             };
             try {
                 reader.readAsDataURL(f);
             } catch (err) {
-                showToast('❌ Photo select karne me error');
+                showToast(t.photoSelectError || '❌ Photo select karne me error');
             }
         });
 
@@ -1273,7 +1271,7 @@ export default function BusinessExpensesPage() {
                 <div className="topbar" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="tb-brand" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                         <div className="animated-border-3d">
-                            <div className="animated-text-3d">EXPENSES</div>
+                            <div className="animated-text-3d">{t.expenses || 'EXPENSES'}</div>
                         </div>
                     </div>
                 </div>
@@ -1283,15 +1281,15 @@ export default function BusinessExpensesPage() {
                 <div className="kpi-strip">
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--green)' }}>{fmt(totalStats.received)}</div>
-                        <div className="kpi-lbl">{isHi ? 'Total Lena Hai' : 'Total To Receive'}</div>
+                        <div className="kpi-lbl">{t.totalToReceive || 'Total To Receive'}</div>
                     </div>
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--red)' }}>{fmt(totalStats.given)}</div>
-                        <div className="kpi-lbl">{isHi ? 'Total Dena Hai' : 'Total To Pay'}</div>
+                        <div className="kpi-lbl">{t.totalToPay || 'Total To Pay'}</div>
                     </div>
                     <div className="kpi-item">
                         <div className="kpi-val" style={{ color: 'var(--amber)' }}>{fmt(Math.abs(totalStats.net))}</div>
-                        <div className="kpi-lbl">Net {totalStats.net >= 0 ? (isHi ? 'Lena Hai' : 'To Receive') : (isHi ? 'Dena Hai' : 'To Pay')}</div>
+                        <div className="kpi-lbl">{t.net || 'Net'} {totalStats.net >= 0 ? (t.toReceive || 'To Receive') : (t.toPay || 'To Pay')}</div>
                     </div>
                 </div>
 
@@ -1299,7 +1297,7 @@ export default function BusinessExpensesPage() {
                 {!hideAlerts && criticalDues.length > 0 && (
                     <div className="alerts-container">
                         <div className="alerts-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span>🚨 {criticalDues.length} Pending Payments</span>
+                            <span>🚨 {criticalDues.length} {t.pendingPayments || 'Pending Payments'}</span>
                             <button onClick={() => setHideAlerts(true)} style={{ background: 'none', border: 'none', color: 'var(--ink4)', fontSize: '18px', cursor: 'pointer', lineHeight: 1 }}>✕</button>
                         </div>
                         <div className="alerts-scroll">
@@ -1307,11 +1305,11 @@ export default function BusinessExpensesPage() {
                                 <div key={c.id} className="alert-card-mini">
                                     <div className="acm-info">
                                         <div className="acm-name">{c.name}</div>
-                                        <div className="acm-amt">{fmt(Math.abs(c.balance))} • {c.dueDays} days old</div>
+                                        <div className="acm-amt">{fmt(Math.abs(c.balance))} • {c.dueDays} {t.daysOld || 'days old'}</div>
                                     </div>
                                     <button className="acm-btn" onClick={() => sendWhatsAppRemind(c, c.balance)}>
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.116 1.523 5.845L.057 23.057l5.33-1.397A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" /></svg>
-                                        Remind
+                                        {t.remind || 'Remind'}
                                     </button>
                                 </div>
                             ))}
@@ -1322,7 +1320,7 @@ export default function BusinessExpensesPage() {
                 <div className="search-row">
                     <div className="search-box">
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
-                        <input type="text" placeholder="Customer dhundho..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        <input type="text" placeholder={t.searchCustomer || "Customer dhundho..."} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
                 </div>
 
@@ -1330,14 +1328,14 @@ export default function BusinessExpensesPage() {
                     {isLoadingData ? (
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
                             <div className="spinner" style={{ width: '30px', height: '30px', border: '3px solid var(--border)', borderTop: '3px solid var(--ink)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                            <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text3)', fontWeight: 600 }}>Loading data...</div>
+                            <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--text3)', fontWeight: 600 }}>{t.loadingData || 'Loading data...'}</div>
                             <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                         </div>
                     ) : !displayList.length ? (
                         <div className="empty-state">
                             <div className="empty-ico">🔍</div>
-                            <div className="empty-title">Koi customer nahi mila</div>
-                            <div className="empty-sub">Search change karo</div>
+                            <div className="empty-title">{t.noCustomerFound || 'Koi customer nahi mila'}</div>
+                            <div className="empty-sub">{t.changeSearch || 'Search change karo'}</div>
                         </div>
                     ) : (
                         displayList
@@ -1361,14 +1359,14 @@ export default function BusinessExpensesPage() {
                                         <div className="cust-mid">
                                             <div className="cust-name">{c.name}</div>
                                             <div className="cust-meta">
-                                                <span className="cust-tag">{c.txns.length} entry</span>
+                                                <span className="cust-tag">{c.txns.length} {t.entryText || 'entry'}</span>
                                                 <span className="cust-tag">{c.type}</span>
                                                 <span className="cust-date">{lastDate}</span>
                                             </div>
                                         </div>
                                         <div className="cust-right">
                                             <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
-                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (isHi ? 'Advance (Dena Hai)' : 'Advance (To Pay)') : (isHi ? 'Due (Lena Hai)' : 'Due (To Receive)')}</div>
+                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (t.advanceToPay || 'Advance (To Pay)') : (t.dueToReceive || 'Due (To Receive)')}</div>
                                         </div>
                                     </div>
                                 );
@@ -1382,7 +1380,7 @@ export default function BusinessExpensesPage() {
                             onClick={handleBulkRemind}
                             className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[240px] h-[55px] rounded-[20px] bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center shadow-[0_10px_25px_rgba(16,185,129,.5)] text-white font-bold text-lg z-[150] cursor-pointer transition-all duration-300 hover:scale-105"
                         >
-                            Send {bulkSelected.size} Reminders 🚀
+                            {t.sendReminders || 'Send Reminders'} 🚀
                         </button>
                     )
                 ) : (
@@ -1404,10 +1402,10 @@ export default function BusinessExpensesPage() {
                             <div className="topbar-name">{currentCust.name}</div>
                         </div>
                         <div className="topbar-actions">
-                            <button className="icon-btn" onClick={() => openEditCust(currentCust)} title="Edit Customer">
+                            <button className="icon-btn" onClick={() => openEditCust(currentCust)} title={t.editCust || "Edit Customer"}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             </button>
-                            <button className="icon-btn" onClick={deleteCustomer} title="Delete Customer">
+                            <button className="icon-btn" onClick={deleteCustomer} title={t.deleteCust || "Delete Customer"}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" /></svg>
                             </button>
                         </div>
@@ -1415,22 +1413,22 @@ export default function BusinessExpensesPage() {
 
                     <div className="detail-content-inner">
                         <div className="balance-banner" ref={bannerRef}>
-                            <div className="balance-label">Total Balance Due</div>
+                            <div className="balance-label">{t.totalBalanceDue || 'Total Balance Due'}</div>
                             <div className={`balance-amount ${custStats.isNeg ? '' : 'positive'}`}>
                                 ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))}
                             </div>
                             <div className={`balance-status ${custStats.isNeg ? 'positive' : ''}`}>
                                 <span className="balance-status-dot"></span>
-                                {custStats.isNeg ? (isHi ? 'Advance (Aapko Dena Hai)' : 'Advance (You will pay)') : (isHi ? 'Due (Aapko Lena Hai)' : 'Due (You will get)')}
+                                {custStats.isNeg ? (t.advanceYouWillPay || 'Advance (You will pay)') : (t.dueYouWillGet || 'Due (You will get)')}
                             </div>
                             <div className="balance-stats">
                                 <div className="bal-stat">
-                                    <div className="bal-stat-label">Total Given</div>
+                                    <div className="bal-stat-label">{t.totalGiven || 'Total Given'}</div>
                                     <div className="bal-stat-val red">₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.debit))}</div>
                                 </div>
                                 <div className="stat-divider"></div>
                                 <div className="bal-stat">
-                                    <div className="bal-stat-label">Total Received</div>
+                                    <div className="bal-stat-label">{t.totalReceived || 'Total Received'}</div>
                                     <div className="bal-stat-val green">₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.credit))}</div>
                                 </div>
                             </div>
@@ -1439,7 +1437,7 @@ export default function BusinessExpensesPage() {
                         <div className="quick-actions">
                             <button className="qa-btn statement" onClick={exportPDF}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
-                                Statement
+                                {t.statement || 'Statement'}
                             </button>
                             <button className="qa-btn pdf" onClick={handleDownloadPDF}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8M16 17H8M10 9H8" /></svg>
@@ -1447,11 +1445,11 @@ export default function BusinessExpensesPage() {
                             </button>
                             <button className="qa-btn whatsapp" onClick={() => sendWhatsAppStatement(currentCust, custStats.net)}>
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.553 4.116 1.523 5.845L.057 23.057l5.33-1.397A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" /></svg>
-                                WhatsApp
+                                {t.whatsapp || 'WhatsApp'}
                             </button>
                             <button className="qa-btn call" onClick={() => window.open(`tel:${currentCust.phone}`, '_self')}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 012 1.18 2 2 0 014 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14v3z" /></svg>
-                                Call
+                                {t.call || 'Call'}
                             </button>
                         </div>
 
@@ -1459,8 +1457,10 @@ export default function BusinessExpensesPage() {
                             <div className="pending-status-box">
                                 <div className="psb-icon">⏳</div>
                                 <div className="psb-text">
-                                    <strong>₹{fmt(Math.abs(custStats.net))}</strong> {isHi ? 'abhi baki hai.' : 'is currently pending.'}
-                                    <span>{isHi ? 'Last payment' : 'Last payment was on'} {formatDateShort(currentCust.txns[0]?.date || '')} {isHi ? 'ko hui thi.' : '.'}</span>
+                                    <strong>₹{fmt(Math.abs(custStats.net))}</strong> {t.isCurrentlyPending || 'is currently pending.'}
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '6px' }}>
+                                    <span>{t.lastPaymentWasOn || 'Last payment was on'} {formatDateShort(currentCust.txns[0]?.date || '')} {t.onDateText || '.'}</span>
                                 </div>
                             </div>
                         )}

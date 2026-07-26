@@ -22,10 +22,9 @@ export default function InvoicesPage() {
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
+    const t = getTranslations(settings?.language || 'en');
+    const isMobile = useIsMobile();
     
-    const t = (translations as any)[settings?.language || 'en'] || translations.en;
-    const isHi = settings?.language === 'hi';
-
     // Local State
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -740,23 +739,23 @@ export default function InvoicesPage() {
                         <div className="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
                         <div className="stat-label">{t.totalInvoices || 'Total Invoices'}</div>
                         <div className="stat-val blue">{kpiData.total}</div>
-                        <div className="stat-footer">{isHi ? 'Is mahine' : 'This month'}</div>
+                        <div className="stat-footer">{t.thisMonth || 'This month'}</div>
                     </div>
                     <div className={`stat-card ${activeTab === 'd' ? 'active-card' : ''}`} onClick={() => setActiveTab('d')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg></div>
                         <div className="stat-label">{t.amountReceived || 'Paid Full'}</div>
                         <div className="stat-val green">{kpiData.paid}</div>
-                        <div className="stat-footer">{formatCurrency(kpiData.totalBilled - kpiData.receivable)} {isHi ? 'Jama hua' : 'Collected'}</div>
+                        <div className="stat-footer">{formatCurrency(kpiData.totalBilled - kpiData.receivable)} {t.collected || 'Collected'}</div>
                     </div>
                     <div className={`stat-card ${activeTab === 'u' ? 'active-card' : ''}`} onClick={() => setActiveTab('u')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
                         <div className="stat-label">{t.due || 'Unpaid'}</div>
                         <div className="stat-val red">{kpiData.unpaid}</div>
-                        <div className="stat-footer">{isHi ? 'Follow up karo' : 'Follow up'}</div>
+                        <div className="stat-footer">{t.followUp || 'Follow up'}</div>
                     </div>
                     <div className={`stat-card ${activeTab === 'p' ? 'active-card' : ''}`} onClick={() => setActiveTab('p')} style={{cursor: 'pointer'}}>
                         <div className="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                        <div className="stat-label">{isHi ? 'Aadha Jama' : 'Partial'}</div>
+                        <div className="stat-label">{t.partial || 'Partial'}</div>
                         <div className="stat-val amber">{kpiData.partial}</div>
                         <div className="stat-footer">{t.balanceAmount || 'Balance baaki'}</div>
                     </div>
@@ -767,12 +766,12 @@ export default function InvoicesPage() {
                     <div>
                         <div className="recv-label">💰 {t.totalDueLabel || 'Total Receivable'}</div>
                         <div className="recv-val">{formatCurrency(kpiData.receivable)}</div>
-                        <div className="recv-sub">{kpiData.unpaid + kpiData.partial} {isHi ? 'invoices pending · Abhi update hua' : 'invoices pending · Just updated'}</div>
+                        <div className="recv-sub">{kpiData.unpaid + kpiData.partial} {t.invoicesPendingJustUpdated || 'invoices pending · Just updated'}</div>
                     </div>
                     <div className="recv-pills">
                         <div className="recv-pill">
                             <div className="recv-pill-val">{collectionRate}%</div>
-                            <div className="recv-pill-label">{isHi ? 'Vasuli Dar' : 'Collection Rate'}</div>
+                            <div className="recv-pill-label">{t.collectionRate || 'Collection Rate'}</div>
                         </div>
                         <div className="recv-pill">
                             <div className="recv-pill-val">{uniqueCustomers}</div>
@@ -780,7 +779,7 @@ export default function InvoicesPage() {
                         </div>
                         <div className="recv-pill">
                             <div className="recv-pill-val">{formatCurrency(avgInvoice)}</div>
-                            <div className="recv-pill-label">{isHi ? 'Ausat Bill' : 'Avg Invoice'}</div>
+                            <div className="recv-pill-label">{t.avgInvoice || 'Avg Invoice'}</div>
                         </div>
                     </div>
                 </div>
@@ -791,23 +790,23 @@ export default function InvoicesPage() {
                         <div className="search-wrap">
                             <input 
                                 type="text" 
-                                placeholder={isHi ? 'Search karein...' : 'Search customer or invoice...'} 
+                                placeholder={t.searchCustomerInvoice || 'Search customer or invoice...'} 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <select className="sort-select" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-                            <option value="newest">{isHi ? 'Naya pehle' : 'Newest'}</option>
-                            <option value="amount-high">{isHi ? 'Zyada amount' : 'High Amount'}</option>
-                            <option value="amount-low">{isHi ? 'Kam amount' : 'Low Amount'}</option>
-                            <option value="name">{isHi ? 'Naam A–Z' : 'Name A–Z'}</option>
+                            <option value="newest">{t.newest || 'Newest'}</option>
+                            <option value="amount-high">{t.highAmount || 'High Amount'}</option>
+                            <option value="amount-low">{t.lowAmount || 'Low Amount'}</option>
+                            <option value="name">{t.nameAZ || 'Name A–Z'}</option>
                         </select>
                         <Link href="/dashboard/invoices/new" className="plus-btn" style={{ textDecoration: 'none', color: '#fff' }}>+</Link>
                     </div>
                     <div className="filter-tabs">
                         <div className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>{t.all || 'All'} ({kpiData.total})</div>
                         <div className={`tab ${activeTab === 'u' ? 'active' : ''}`} onClick={() => setActiveTab('u')}>{t.due || 'Unpaid'} ({kpiData.unpaid})</div>
-                        <div className={`tab ${activeTab === 'p' ? 'active' : ''}`} onClick={() => setActiveTab('p')}>{isHi ? 'Aadha' : 'Partial'} ({kpiData.partial})</div>
+                        <div className={`tab ${activeTab === 'p' ? 'active' : ''}`} onClick={() => setActiveTab('p')}>{t.partialTab || 'Partial'} ({kpiData.partial})</div>
                         <div className={`tab ${activeTab === 'd' ? 'active' : ''}`} onClick={() => setActiveTab('d')}>{t.amountReceived || 'Paid'} ({kpiData.paid})</div>
                     </div>
                 </div>
@@ -858,7 +857,7 @@ export default function InvoicesPage() {
                                             let badgeClass = 'badge-unpaid';
                                             let statusText = t.due || 'Unpaid';
                                             if (status === 'paid') { badgeClass = 'badge-paid'; statusText = t.amountReceived || 'Paid'; }
-                                            if (status === 'partial') { badgeClass = 'badge-partial'; statusText = isHi ? 'Aadha' : 'Partial'; }
+                                            if (status === 'partial') { badgeClass = 'badge-partial'; statusText = t.partialTab || 'Partial'; }
                                             
                                             return (
                                                 <div className="invoice-row" key={inv.id} onClick={() => setSelectedInvoice(inv)}>
@@ -917,7 +916,7 @@ export default function InvoicesPage() {
                                 border: '1px solid rgba(67,56,202,0.2)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
                             }}
                         >
-                            {isLoadingMore ? (isHi ? 'Load ho raha hai...' : 'Loading...') : (isHi ? 'Aur Invoices Dekhein' : 'Load More Old Invoices')}
+                            {isLoadingMore ? (t.loading || 'Loading...') : (t.loadMoreOldInvoices || 'Load More Old Invoices')}
                         </button>
                     </div>
                 )}
