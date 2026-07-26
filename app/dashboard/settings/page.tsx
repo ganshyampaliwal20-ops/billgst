@@ -205,13 +205,14 @@ export default function SettingsPage() {
 
                 .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; scroll-margin-top: 24px; transition: border-color 0.2s; }
                 .card:hover{ border-color: var(--card-border-hover); }
-                .card-head{ display:flex; align-items:center; gap:12px; margin-bottom: 20px; }
+                .card-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: space-between; }
                 .card-head.with-toggle{ justify-content:space-between; }
-                .card-head-left{ display:flex; align-items:center; gap:12px; }
+                .card-head-left{ display:flex; align-items:flex-start; gap:12px; flex: 1; min-width: 0; }
+                .card-head-left > div { flex: 1; min-width: 0; }
                 .card-icon{ width: 40px; height:40px; border-radius: 11px; background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(79,70,229,0.25)); border: 1px solid rgba(139,92,246,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
                 .card-icon svg{ width:20px; height:20px; stroke: #C4B5FD; }
                 .card-head h2{ font-size:16.5px; font-weight:700; margin-bottom:2px; }
-                .card-head p{ font-size:12.5px; color: var(--text-muted); }
+                .card-head p{ font-size:12.5px; color: var(--text-muted); line-height: 1.4; }
 
                 .field{ margin-bottom:16px; }
                 .field:last-child{ margin-bottom:0; }
@@ -278,10 +279,13 @@ export default function SettingsPage() {
                 .signature-pad span{ font-family:'Caveat', cursive; font-size:32px; color:#1a1a2e; transform: rotate(-3deg); }
                 .signature-pad img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-                .link-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+                .link-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap: wrap; }
                 .pill-btn{ background: var(--field); border:1.5px solid var(--field-border); color: var(--text); font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; flex-shrink:0; transition: border-color 0.15s; }
                 .pill-btn:hover{ border-color: var(--violet); }
                 .pill-btn svg{ width:13px; height:13px; }
+                @media (max-width: 480px){
+                    .link-row { flex-direction: column; align-items: stretch; gap: 12px; }
+                }
 
                 .terms-box{ background: var(--field); border:1.5px solid var(--field-border); border-radius:11px; padding:14px; }
                 .terms-box textarea{ width:100%; background:transparent; border:none; padding:0; color:#C4B5FD; font-size:13.5px; line-height:1.6; min-height:80px; outline:none; resize:none; font-family:inherit; }
@@ -301,10 +305,13 @@ export default function SettingsPage() {
                 .bs-collapse > div { overflow: hidden; }
 
                 /* Chevron btn */
-                .bs-chevron-btn { display: flex; align-items: center; gap: 7px; background: var(--field); border: 1px solid var(--field-border); color: var(--text-muted); padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: border-color .15s, color .15s; cursor: pointer; }
+                .bs-chevron-btn { display: flex; align-items: center; justify-content: center; gap: 7px; background: var(--field); border: 1px solid var(--field-border); color: var(--text-muted); padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: border-color .15s, color .15s; cursor: pointer; }
                 .bs-chevron-btn:hover { border-color: var(--violet); color: var(--text); }
                 .bs-chevron-btn svg { width: 13px; height: 13px; transition: transform .25s; }
                 .bs-chevron-btn.open svg { transform: rotate(180deg); }
+                @media (max-width: 480px){
+                    .bs-chevron-btn { width: 100%; padding: 12px 14px; }
+                }
 
                 /* Feature items */
                 .bs-feature-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
