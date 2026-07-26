@@ -17,9 +17,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://billgst.in"),
-  title: "BillGST: 100% Free Voice Billing App - Best Vyapar Alternative",
-  description: "Looking for Vyapar app voice billing feature? Try BillGST, a 100% Free Voice Billing App for Indian businesses. Create invoices by speaking, absolutely free!",
-  keywords: "voice billing app, vyapar app voice billing, free invoice generator, gst billing software, free billing software india, gst invoice maker, inventory management, whatsapp billing, vyapar alternative",
+  title: "BillGST: Free GST Billing Software & Invoice Maker App",
+  description: "India's best 100% Free GST Billing App. Mobile se GST bill banaye, staff attendance, expenses, aur inventory manage karein. Create invoices by speaking!",
+  keywords: "free gst billing software, invoice maker app, mobile se bill kaise banaye, free billing app hindi, muft billing software, vyapar alternative, invoice generator, gst invoice maker, inventory management, whatsapp billing, dukaan ka hisaab app, best billing app for retail shop, free gst software for pc and mobile, voice billing, small business app",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   openGraph: {
-    title: "BillGST - Free Voice Billing & GST Software",
-    description: "100% Free GST Billing Software with AI Voice Billing. Create invoices by speaking and send WhatsApp PDFs instantly.",
+    title: "BillGST - Free GST Billing & Voice Invoice App",
+    description: "100% Free GST Billing Software. Mobile se GST bill banaye aur WhatsApp par PDF bhejein.",
     type: "website",
     siteName: 'BillGST',
     url: 'https://billgst.in',
