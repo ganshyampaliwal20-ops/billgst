@@ -142,32 +142,69 @@ export default function SmartAttendance() {
         } finally { setIsSaving(false); }
     };
 
-    const handlePhotoUpload = (e: any) => {
+    const compressImage = (file: File): Promise<string> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400;
+                    const MAX_HEIGHT = 400;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% JPEG
+                };
+            };
+        });
+    };
+
+    const handlePhotoUpload = async (e: any) => {
         const file = e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-            setPendingPhoto(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        
+        toast.loading('Compressing photo...');
+        const compressedBase64 = await compressImage(file);
+        toast.dismiss();
+        setPendingPhoto(compressedBase64);
     };
 
     const handleStaffPhotoUpload = (id: string) => {
         const inp = document.createElement('input');
         inp.type = 'file'; inp.accept = 'image/*';
-        inp.onchange = (e: any) => {
+        inp.onchange = async (e: any) => {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async () => {
-                const base64 = reader.result as string;
-                const s = staff.find((x: any) => x.id === id);
-                if(s) {
-                    await updateStaff(id, { ...s, photo: base64 });
-                    toast.success('Photo updated!');
-                }
-            };
-            reader.readAsDataURL(file);
+            
+            toast.loading('Compressing and saving...');
+            const compressedBase64 = await compressImage(file);
+            
+            const s = staff.find((x: any) => x.id === id);
+            if(s) {
+                await updateStaff(id, { ...s, photo: compressedBase64 });
+                toast.dismiss();
+                toast.success('Photo updated!');
+            } else {
+                toast.dismiss();
+            }
         };
         inp.click();
     };
