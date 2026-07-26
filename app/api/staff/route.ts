@@ -35,6 +35,7 @@ export async function GET(request: Request) {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS created_by VARCHAR(255)');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS salary_type VARCHAR(20) DEFAULT \'daily\'');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS monthly_salary NUMERIC DEFAULT 0');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo TEXT');
 
         const result = await client.query('SELECT * FROM staff WHERE created_by = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3', [userId, limit, offset]);
         client.release();
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
         const userId = session.user.id;
 
         const body = await req.json();
-        const { id, name, phone, role, daily_wage, salary_type, monthly_salary } = body;
+        const { id, name, phone, role, daily_wage, salary_type, monthly_salary, photo } = body;
         
         if (!name) {
             return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -81,11 +82,12 @@ export async function POST(req: Request) {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS advance NUMERIC DEFAULT 0');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS salary_type VARCHAR(20) DEFAULT \'daily\'');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS monthly_salary NUMERIC DEFAULT 0');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo TEXT');
 
         await client.query(
-            `INSERT INTO staff (id, name, email, phone, role, daily_wage, created_by, salary_type, monthly_salary) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-            [staffId, name, body.email?.trim() || '', phone || '', role || 'Worker', daily_wage || 0, userId, salary_type || 'daily', monthly_salary || 0]
+            `INSERT INTO staff (id, name, email, phone, role, daily_wage, created_by, salary_type, monthly_salary, photo) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            [staffId, name, body.email?.trim() || '', phone || '', role || 'Worker', daily_wage || 0, userId, salary_type || 'daily', monthly_salary || 0, photo || null]
         );
         
         client.release();
@@ -105,7 +107,7 @@ export async function PUT(req: Request) {
         const userId = session.user.id;
 
         const body = await req.json();
-        const { id, name, phone, role, daily_wage, advance, salary_type, monthly_salary } = body;
+        const { id, name, phone, role, daily_wage, advance, salary_type, monthly_salary, photo } = body;
         
         if (!id || !name) {
             return NextResponse.json({ error: 'ID and Name are required' }, { status: 400 });
@@ -115,10 +117,11 @@ export async function PUT(req: Request) {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS advance NUMERIC DEFAULT 0');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS salary_type VARCHAR(20) DEFAULT \'daily\'');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS monthly_salary NUMERIC DEFAULT 0');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo TEXT');
         
         await client.query(
-            `UPDATE staff SET name = $1, email = $2, phone = $3, role = $4, daily_wage = $5, advance = $6, salary_type = $7, monthly_salary = $8 WHERE id = $9 AND created_by = $10`,
-            [name, body.email?.trim() || '', phone || '', role || 'Worker', daily_wage || 0, advance || 0, salary_type || 'daily', monthly_salary || 0, id, userId]
+            `UPDATE staff SET name = $1, email = $2, phone = $3, role = $4, daily_wage = $5, advance = $6, salary_type = $7, monthly_salary = $8, photo = $9 WHERE id = $10 AND created_by = $11`,
+            [name, body.email?.trim() || '', phone || '', role || 'Worker', daily_wage || 0, advance || 0, salary_type || 'daily', monthly_salary || 0, photo || null, id, userId]
         );
         
         client.release();
