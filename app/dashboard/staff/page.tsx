@@ -310,6 +310,20 @@ export default function SmartAttendance() {
             headStyles: { fillColor: [91, 61, 245] }
         });
 
+        const finalY = (doc as any).lastAutoTable.finalY || 150;
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0);
+        
+        autoTable(doc, {
+            startY: finalY + 20,
+            theme: 'plain',
+            body: [
+                ['Total Payable Days (All Staff):', `${grandTotalPresent} days`],
+                ['Total Payout Amount:', `Rs. ${grandTotalNet}`]
+            ],
+            styles: { fontSize: 13, fontStyle: 'bold', textColor: [16, 185, 129] }
+        });
+
         const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
         if (!isPremium) {
             await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
