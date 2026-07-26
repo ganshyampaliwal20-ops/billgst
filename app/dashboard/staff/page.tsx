@@ -304,18 +304,25 @@ export default function SmartAttendance() {
             tableBody.push([
                 member.name,
                 member.role || 'Worker',
-                `${ds.p + (ds.h*0.5) + ds.l} days`,
-                member.salary_type === 'monthly' ? `Rs. ${member.monthly_salary} /mo` : `Rs. ${ds.rate} /day`,
-                `Rs. ${ds.net}`
+                `${ds.p}`,
+                `${ds.a}`,
+                `${ds.h}`,
+                `${ds.l}`,
+                `${ds.p + (ds.h*0.5) + ds.l}`,
+                member.salary_type === 'monthly' ? `Rs.${member.monthly_salary}/mo` : `Rs.${ds.rate}/d`,
+                `Rs.${ds.gross}`,
+                `Rs.${Number(member.advance) || 0}`,
+                `Rs.${ds.net}`
             ]);
         });
 
         autoTable(doc, {
             startY: 45,
-            head: [['Staff Name', 'Role', 'Total Presence', 'Daily Wage', 'Net Salary']],
+            head: [['Name', 'Role', 'P', 'A', 'H', 'L', 'Total', 'Wage', 'Gross', 'Adv', 'Net']],
             body: tableBody,
             theme: 'grid',
-            headStyles: { fillColor: [91, 61, 245] }
+            headStyles: { fillColor: [91, 61, 245], fontSize: 9 },
+            styles: { fontSize: 8, cellPadding: 2 }
         });
 
         const finalY = (doc as any).lastAutoTable.finalY || 150;
