@@ -665,7 +665,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div>
                                     <h2>Features &amp; Modules</h2>
-                                    <p>Turn modules on or off based on what your business needs</p>
+                                    <p>Apne hisaab se features on/off karein</p>
                                 </div>
                             </div>
                             <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
@@ -705,7 +705,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div>
                                     <h2>Design Your Invoice</h2>
-                                    <p>Color theme, table layout, logo &amp; live preview</p>
+                                    <p>Invoice ka theme aur layout change karein</p>
                                 </div>
                             </div>
                             <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
