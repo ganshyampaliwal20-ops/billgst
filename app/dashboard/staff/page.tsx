@@ -694,10 +694,18 @@ export default function SmartAttendance() {
                             </div>
 
                             <div className="stats-row">
-                                <div className="stat present"><div className="num">{todayStats.P}</div><div className="lbl">Present</div></div>
-                                <div className="stat absent"><div className="num">{todayStats.A}</div><div className="lbl">Absent</div></div>
-                                <div className="stat half"><div className="num">{todayStats.H}</div><div className="lbl">Half Day</div></div>
-                                <div className="stat leave"><div className="num">{todayStats.L}</div><div className="lbl">Leave</div></div>
+                                <div className={`stat present ${statusFilter === 'PRESENT' ? 'active' : ''}`} onClick={() => setStatusFilter(f => f === 'PRESENT' ? 'ALL' : 'PRESENT')}>
+                                    <div className="num">{todayStats.P}</div><div className="lbl">Present</div>
+                                </div>
+                                <div className={`stat absent ${statusFilter === 'ABSENT' ? 'active' : ''}`} onClick={() => setStatusFilter(f => f === 'ABSENT' ? 'ALL' : 'ABSENT')}>
+                                    <div className="num">{todayStats.A}</div><div className="lbl">Absent</div>
+                                </div>
+                                <div className={`stat half ${statusFilter === 'HALF_DAY' ? 'active' : ''}`} onClick={() => setStatusFilter(f => f === 'HALF_DAY' ? 'ALL' : 'HALF_DAY')}>
+                                    <div className="num">{todayStats.H}</div><div className="lbl">Half Day</div>
+                                </div>
+                                <div className={`stat leave ${statusFilter === 'LEAVE' ? 'active' : ''}`} onClick={() => setStatusFilter(f => f === 'LEAVE' ? 'ALL' : 'LEAVE')}>
+                                    <div className="num">{todayStats.L}</div><div className="lbl">Leave</div>
+                                </div>
                             </div>
 
                             <div className="filters">
