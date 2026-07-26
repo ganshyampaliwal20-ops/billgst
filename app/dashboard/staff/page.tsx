@@ -30,6 +30,7 @@ export default function SmartAttendance() {
     // UI State
     const [searchQuery, setSearchQuery] = useState('');
     const [currentFilter, setCurrentFilter] = useState('All');
+    const [statusFilter, setStatusFilter] = useState<'ALL' | 'PRESENT' | 'ABSENT' | 'HALF_DAY' | 'LEAVE'>('ALL');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [pdfActionSheet, setPdfActionSheet] = useState<{show: boolean, type: 'master' | 'salary'}>({show: false, type: 'master'});
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
@@ -86,7 +87,8 @@ export default function SmartAttendance() {
     const filteredStaff = (staff || []).filter((s: any) => {
         const matchRole = currentFilter === 'All' || s.role === currentFilter;
         const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchRole && matchName;
+        const matchStatus = statusFilter === 'ALL' || getStatus(s.id, selectedDate) === statusFilter;
+        return matchRole && matchName && matchStatus;
     }).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
     const todayStats = { P: 0, A: 0, H: 0, L: 0 };
@@ -400,12 +402,11 @@ export default function SmartAttendance() {
                 
                 .header{
                   background: linear-gradient(135deg, var(--primary) 0%, #7B5CFA 55%, #9B7CFF 100%);
-                  padding:22px 20px 30px; border-radius:0 0 28px 28px;
+                  padding:14px 16px 20px; border-radius:0 0 28px 28px;
                   color:#fff; position:relative; overflow:hidden;
                 }
                 .header::after{
-                  content:""; position:absolute; right:-40px; top:-40px;
-                  width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,0.08);
+                  display: none;
                 }
                 .brand-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
                 .brand{display:flex; align-items:center; gap:10px;}
@@ -434,8 +435,8 @@ export default function SmartAttendance() {
                 .date-center{flex:1; text-align:center; font-weight:600; font-size:15px; cursor:pointer;}
                 .date-sub{font-size:10.5px; opacity:0.8; font-weight:400; margin-top:1px;}
                 
-                .body-pad{padding:16px 18px 0;}
-                .search-row{display:flex; gap:10px; margin-bottom:14px;}
+                .body-pad{padding:12px 16px 0;}
+                .search-row{display:flex; gap:10px; margin-bottom:12px;}
                 .search-box{
                   flex:1; display:flex; align-items:center; gap:8px;
                   background:var(--card); border-radius:16px; padding:11px 14px;
@@ -450,10 +451,11 @@ export default function SmartAttendance() {
                   box-shadow:0 6px 14px rgba(18,183,106,0.28); white-space:nowrap;
                 }
                 
-                .stats-row{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px;}
-                .stat{border-radius:16px; padding:12px 6px; text-align:center; border:1px solid transparent;}
-                .stat .num{font-weight:700; font-size:19px; line-height:1;}
-                .stat .lbl{font-size:9.5px; font-weight:600; letter-spacing:0.04em; margin-top:4px; text-transform:uppercase; opacity:0.85;}
+                .stats-row{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px;}
+                .stat{border-radius:16px; padding:10px 4px; text-align:center; border:2px solid transparent; cursor:pointer; transition:transform 0.1s, border 0.1s;}
+                .stat.active{border-color:var(--primary); transform:scale(1.02);}
+                .stat .num{font-weight:700; font-size:18px; line-height:1;}
+                .stat .lbl{font-size:9.5px; font-weight:600; letter-spacing:0.04em; margin-top:2px; text-transform:uppercase; opacity:0.85;}
                 .stat.present{background:var(--present-bg); color:var(--present);}
                 .stat.absent{background:var(--absent-bg); color:var(--absent);}
                 .stat.half{background:var(--half-bg); color:var(--half);}
@@ -598,10 +600,12 @@ export default function SmartAttendance() {
                         <div className="body-pad">
                             <div className="search-row">
                                 <div className="search-box">
-                                    <span>🔍</span>
-                                    <input placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--ink-soft)" strokeWidth="2.5" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                    <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                                 </div>
-                                <button className="all-present-btn" onClick={markAllPresent}>✓ All Present</button>
+                                <button className="all-present-btn" onClick={markAllPresent}>
+                                    ✓ All Present
+                                </button>
                             </div>
 
                             <div className="stats-row">
