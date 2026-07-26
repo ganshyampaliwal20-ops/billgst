@@ -107,15 +107,21 @@ export default function SmartAttendance() {
     };
 
     // Actions
-    const handleSetAtt = async (id: string, status: string) => {
+    const handleSetAtt = async (id: string, status: string, in_time?: string | null, out_time?: string | null, note?: string | null) => {
         try {
             const currentStatus = getStatus(id, selectedDate);
-            const newStatus = currentStatus === status ? null : status; // Toggle off if clicked again
-            if (!newStatus) {
-               await markAttendance(id, selectedDate, 'UNMARKED');
-            } else {
-               await markAttendance(id, selectedDate, newStatus);
-            }
+            const isJustStatusClick = in_time === undefined && out_time === undefined && note === undefined;
+            const newStatus = (isJustStatusClick && currentStatus === status) ? 'UNMARKED' : status; 
+            
+            const existing = attendance?.find((a: any) => a.staff_id === id && a.date === selectedDate);
+            await markAttendance(
+                id, 
+                selectedDate, 
+                newStatus,
+                in_time !== undefined ? in_time : existing?.in_time,
+                out_time !== undefined ? out_time : existing?.out_time,
+                note !== undefined ? note : existing?.note
+            );
         } catch (e) { console.error(e); }
     };
 
@@ -274,7 +280,88 @@ export default function SmartAttendance() {
             const base64Data = doc.output('datauristring').split(',')[1];
             const { downloadAndShareFile } = await import('@/lib/utils');
             await downloadAndShareFile(base64Data, filename, 'application/pdf', action);
-            toast.success(action === 'share' ? 'Opening Share...' : 'Master Report Ready!');
+            if (action !== 'view') toast.success('Master Report Ready!');
+        } catch (err) { toast.error('Failed to save PDF'); }
+    };
+
+    const generateSalarySlipPDF = async (action: 'view' | 'share' | 'download' = 'view') => {
+        if (!selectedStaff) return;
+        const doc = new jsPDF();
+        const margin = 8;
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.1);
+        doc.rect(margin, margin, pageWidth - (margin * 2), pageHeight - (margin * 2));
+
+        if (businessProfile?.logo) {
+            try { doc.addImage(businessProfile.logo, 'PNG', 170, 10, 24, 24); } catch (e) {}
+        }
+        
+        doc.setFontSize(22); doc.setTextColor(91, 61, 245);
+        doc.text('Salary Slip', 14, 22);
+        
+        doc.setFontSize(10); doc.setTextColor(100, 100, 100);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 30);
+        doc.text(`Report Month: ${currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}`, 14, 35);
+        
+        doc.setFontSize(14); doc.setTextColor(0, 0, 0);
+        doc.text('Staff Details', 14, 50);
+        
+        const ds = getStats(selectedStaff.id);
+        autoTable(doc, {
+            startY: 55,
+            theme: 'plain',
+            body: [
+                ['Name', selectedStaff.name],
+                ['Role', selectedStaff.role || 'Worker'],
+                ['Phone', selectedStaff.phone || '-'],
+                ['Salary Type', selectedStaff.salary_type === 'monthly' ? 'Monthly' : 'Daily'],
+                [selectedStaff.salary_type === 'monthly' ? 'Monthly Salary' : 'Daily Wage', selectedStaff.salary_type === 'monthly' ? `Rs. ${selectedStaff.monthly_salary}` : `Rs. ${ds.rate}`],
+            ],
+            styles: { fontSize: 11, cellPadding: 2 }
+        });
+
+        const finalY = (doc as any).lastAutoTable.finalY || 85;
+        doc.setFontSize(14);
+        doc.text('Attendance Summary', 14, finalY + 15);
+        
+        autoTable(doc, {
+            startY: finalY + 20,
+            head: [['Present', 'Absent', 'Half Day', 'Leave', 'Total Presence']],
+            body: [[`${ds.p} days`, `${ds.a} days`, `${ds.h} days`, `${ds.l} days`, `${ds.p + (ds.h * 0.5) + ds.l} days`]],
+            theme: 'grid',
+            headStyles: { fillColor: [91, 61, 245] }
+        });
+
+        const finalY2 = (doc as any).lastAutoTable.finalY || 130;
+        doc.setFontSize(14);
+        doc.text('Salary Calculation', 14, finalY2 + 15);
+        
+        autoTable(doc, {
+            startY: finalY2 + 20,
+            head: [['Description', 'Amount']],
+            body: [
+                ['Gross Salary (Based on presence)', `Rs. ${ds.gross}`],
+                ['Advance / Deductions', ds.net < ds.gross ? `Rs. ${ds.gross - ds.net}` : `Rs. ${Number(selectedStaff.advance) || 0}`],
+            ],
+            foot: [['Net Payable', `Rs. ${ds.net}`]],
+            theme: 'grid',
+            headStyles: { fillColor: [91, 61, 245] },
+            footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
+        });
+
+        const isPremium = businessProfile?.subscription_plan === 'PREMIUM' || businessProfile?.subscription_plan === 'ENTERPRISE' || ['BASIC_30', 'PREMIUM_99', 'YEARLY_299', 'LIFETIME'].includes(businessProfile?.plan_type);
+        if (!isPremium) {
+            await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
+        }
+        
+        const filename = `Salary_Slip_${selectedStaff.name.replace(/\s+/g, '_')}_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
+        try {
+            const base64Data = doc.output('datauristring').split(',')[1];
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, filename, 'application/pdf', action);
+            if (action !== 'view') toast.success('Salary Slip Ready!');
         } catch (err) { toast.error('Failed to save PDF'); }
     };
 
@@ -563,10 +650,10 @@ export default function SmartAttendance() {
                                             {meta && <span className="status-badge" style={{background: meta.bg, color: meta.color}}>{meta.label}</span>}
                                         </div>
                                         <div className="action-grid">
-                                            <div className={`act-btn present ${status === 'PRESENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'PRESENT')}>✓<span>Present</span></div>
-                                            <div className={`act-btn absent ${status === 'ABSENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'ABSENT')}>✕<span>Absent</span></div>
-                                            <div className={`act-btn half ${status === 'HALF_DAY' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'HALF_DAY')}>½<span>Half</span></div>
-                                            <div className={`act-btn leave ${status === 'LEAVE' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'LEAVE')}>⛱<span>Leave</span></div>
+                                            <button className={`act-btn present ${status === 'PRESENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'PRESENT')}>✓<span>Present</span></button>
+                                            <button className={`act-btn absent ${status === 'ABSENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'ABSENT')}>✕<span>Absent</span></button>
+                                            <button className={`act-btn half ${status === 'HALF_DAY' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'HALF_DAY')}>½<span>Half</span></button>
+                                            <button className={`act-btn leave ${status === 'LEAVE' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'LEAVE')}>⛱<span>Leave</span></button>
                                         </div>
                                         <div className="bottom-row">
                                             {deleteStaff && (
@@ -622,7 +709,10 @@ export default function SmartAttendance() {
                     <div className={`modal-overlay ${isDetailOpen ? 'show' : ''}`} onClick={() => setIsDetailOpen(false)}>
                         <div className="modal" onClick={e => e.stopPropagation()}>
                             <div className="modal-handle"></div>
-                            {selectedStaff && (
+                            {selectedStaff && (() => {
+                                const sRecord = attendance?.find((a: any) => a.staff_id === selectedStaff.id && a.date === selectedDate);
+                                const sStatus = sRecord?.status;
+                                return (
                                 <>
                                     <div style={{ display:'flex', gap:'12px', alignItems:'center', marginBottom:'16px' }}>
                                         <div className="avatar-ring" style={{'--ring-color':'var(--primary)', '--ring-pct':'100%', width:'48px', height:'48px'} as any}>
@@ -635,6 +725,26 @@ export default function SmartAttendance() {
                                             <div style={{fontSize:'12px', color:'var(--ink-soft)'}}>{selectedStaff.role}</div>
                                         </div>
                                     </div>
+                                    
+                                    {(sStatus === 'PRESENT' || sStatus === 'HALF_DAY') && (
+                                        <div style={{ padding: '12px', background: 'var(--primary-light)', border: '1px solid var(--line)', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time</label>
+                                                    <input type="time" value={sRecord?.in_time || ''} onChange={(e) => handleSetAtt(selectedStaff.id, sStatus, e.target.value, undefined, undefined)} style={{ padding: '6px 8px', borderRadius: '8px', border: '1px solid var(--line)', fontSize: '13px' }} />
+                                                </div>
+                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time</label>
+                                                    <input type="time" value={sRecord?.out_time || ''} onChange={(e) => handleSetAtt(selectedStaff.id, sStatus, undefined, e.target.value, undefined)} style={{ padding: '6px 8px', borderRadius: '8px', border: '1px solid var(--line)', fontSize: '13px' }} />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Note / Remark</label>
+                                                <input type="text" placeholder="e.g. 1 hour late..." defaultValue={sRecord?.note || ''} onBlur={(e) => { if(e.target.value !== sRecord?.note) handleSetAtt(selectedStaff.id, sStatus, undefined, undefined, e.target.value) }} style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--line)', fontSize: '13px', width: '100%' }} />
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div style={{background:'var(--card)', border:'1px solid var(--line)', borderRadius:'12px', padding:'12px', marginBottom:'16px'}}>
                                         <div style={{display:'flex', justifyContent:'space-between', marginBottom:'8px'}}>
                                             <span style={{fontSize:'12px', color:'var(--ink-soft)'}}>Daily Wage / Salary</span>
@@ -647,9 +757,10 @@ export default function SmartAttendance() {
                                     </div>
                                     <div className="modal-actions">
                                         <button className="btn-secondary" onClick={() => setIsDetailOpen(false)}>Close</button>
+                                        <button className="btn-primary" onClick={() => { setIsDetailOpen(false); setPdfActionSheet({ show: true, type: 'salary' }); }}>📄 Salary Slip</button>
                                     </div>
                                 </>
-                            )}
+                            )})()}
                         </div>
                     </div>
 
@@ -657,7 +768,7 @@ export default function SmartAttendance() {
                     <div className={`modal-overlay ${pdfActionSheet.show ? 'show' : ''}`} onClick={() => setPdfActionSheet({...pdfActionSheet, show: false})}>
                         <div className="modal" onClick={e => e.stopPropagation()}>
                             <div className="modal-handle"></div>
-                            <h3 style={{textAlign:'center'}}>PDF Options</h3>
+                            <h3 style={{textAlign:'center'}}>{pdfActionSheet.type === 'master' ? 'Master PDF Options' : 'Salary Slip Options'}</h3>
                             <div className="field">
                                 <label style={{textAlign:'center', display:'block'}}>Select Month for PDF</label>
                                 <input 
@@ -673,9 +784,23 @@ export default function SmartAttendance() {
                                     style={{textAlign:'center', fontWeight:700, color:'var(--primary)'}}
                                 />
                             </div>
-                            <div className="modal-actions">
-                                <button className="btn-secondary" onClick={() => generateMasterReportPDF('view')}>View PDF</button>
-                                <button className="btn-primary" onClick={() => generateMasterReportPDF('share')}>Share PDF</button>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '16px' }}>
+                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('view') : generateSalarySlipPDF('view'); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    View
+                                </button>
+                                <button className="btn-primary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('share') : generateSalarySlipPDF('share'); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+                                    Share
+                                </button>
+                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('download') : generateSalarySlipPDF('download'); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                                    Download
+                                </button>
+                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', color:'#ef4444', borderColor:'#ef4444'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('view') : generateSalarySlipPDF('view'); toast('Please print from the PDF viewer', { icon: '🖨️' }); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                                    Print
+                                </button>
                             </div>
                         </div>
                     </div>
