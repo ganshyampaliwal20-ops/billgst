@@ -216,13 +216,30 @@ export default function BusinessExpensesPage() {
 
                 const mergedCustomers = new Map<number, any>();
 
-                const mergeIntoMap = (dataArray: any[]) => {
+                const updateStateFromMap = () => {
+                    const finalData = Array.from(mergedCustomers.values());
+                    if (finalData.length > 0) {
+                        const balancedData = finalData.map(c => {
+                            let debitSum = 0, creditSum = 0;
+                            (c.txns || []).forEach((t: any) => {
+                                if (t.type === 'credit') creditSum += t.amt;
+                                else debitSum += t.amt;
+                            });
+                            return { ...c, balance: debitSum - creditSum };
+                        });
+                        setCustomers(balancedData);
+                    }
+                };
+
+                const mergeIntoMap = (dataArray: any[], triggerRender = false) => {
                     if (!Array.isArray(dataArray)) return;
+                    let changed = false;
                     dataArray.forEach(cust => {
                         if (!cust.id) return;
                         const existing = mergedCustomers.get(cust.id);
                         if (!existing) {
                             mergedCustomers.set(cust.id, { ...cust, txns: cust.txns || [], pending_txns: cust.pending_txns || [] });
+                            changed = true;
                         } else {
                             const existingTxns = existing.txns || [];
                             const custTxns = cust.txns || [];
@@ -241,77 +258,69 @@ export default function BusinessExpensesPage() {
                             );
 
                             mergedCustomers.set(cust.id, { ...existing, ...cust, txns: mergedTxns, pending_txns: mergedPTxns });
+                            if (newTxns.length > 0 || newPTxns.length > 0) changed = true;
                         }
                     });
+                    if (changed && triggerRender) {
+                        updateStateFromMap();
+                    }
                 };
 
-                // 1. Recover data from ALL hisaab keys in IDB (Aggressive Recovery)
+                // 1. FAST PATH: Recover from specific user IDB key FIRST
+                let userStorageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
+                try {
+                    const fastData = await idb.get(userStorageKey);
+                    if (fastData) mergeIntoMap(fastData, true);
+                } catch(e) {}
+                
+                // Hide loading spinner IMMEDAITELY if we have some data
+                if (mergedCustomers.size > 0) {
+                    setIsLoadingData(false);
+                }
+
+                // 2. Load from other keys in background (legacy)
                 try {
                     const allKeys = await idb.keys();
                     for (const k of allKeys) {
-                        if (typeof k === 'string' && k.startsWith('hisaab_pro_data')) {
+                        if (typeof k === 'string' && k.startsWith('hisaab_pro_data') && k !== userStorageKey) {
                             const idbData = await idb.get(k);
-                            if (idbData) mergeIntoMap(idbData);
-                        }
-                    }
-                } catch(e) {
-                    console.error("IDB keys failed", e);
-                }
-
-                // 2. Also check localStorage for any legacy keys
-                try {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.startsWith('hisaab_pro_data')) {
-                            try {
-                                const lsData = localStorage.getItem(k);
-                                if (lsData) mergeIntoMap(JSON.parse(lsData));
-                            } catch(e) {}
+                            if (idbData) mergeIntoMap(idbData, true);
                         }
                     }
                 } catch(e) {}
 
-                // Debug: log what keys were found
-                // console.log('[Hisaab] IDB merge done, total customers found:', mergedCustomers.size);
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('hisaab_pro_data')) {
+                            const lsData = localStorage.getItem(k);
+                            if (lsData) mergeIntoMap(JSON.parse(lsData), true);
+                        }
+                    }
+                } catch(e) {}
 
-                // 3. Server se recover karo agar local data nahi mili (user logged in ho toh), ya fir fresh sync ke liye
+                if (mergedCustomers.size > 0 && isLoadingData) {
+                    setIsLoadingData(false);
+                }
+
+                // 3. Server sync in background! (Non-blocking)
                 if (session?.user?.id) {
-                    try {
-                        // console.log('[Hisaab] Server se data sync kar raha hoon...');
-                        const res = await fetch('/api/hisaab/sync');
+                    fetch('/api/hisaab/sync').then(async res => {
                         if (res.ok) {
                             const serverCustomers = await res.json();
                             if (Array.isArray(serverCustomers) && serverCustomers.length > 0) {
-                                mergeIntoMap(serverCustomers);
-                                // console.log('[Hisaab] ✅ Server se', serverCustomers.length, 'customers recover ho gaye!');
+                                mergeIntoMap(serverCustomers, true);
                             }
                         }
-                    } catch(e) {
-                        console.error('[Hisaab] Server recovery failed:', e);
-                    }
+                    }).catch(e => console.error('[Hisaab] Server recovery failed:', e));
                 }
 
-                const finalData = Array.from(mergedCustomers.values());
-                if (finalData.length > 0) {
-                    const balancedData = finalData.map(c => {
-                        let debitSum = 0, creditSum = 0;
-                        (c.txns || []).forEach((t: any) => {
-                            if (t.type === 'credit') creditSum += t.amt;
-                            else debitSum += t.amt;
-                        });
-                        return { ...c, balance: debitSum - creditSum };
-                    });
-                    // console.log('[Hisaab] ✅ Loaded', balancedData.length, 'customers from storage');
-                    setCustomers(balancedData);
-                } else {
-                    // console.log('[Hisaab] ⚠️ No data found anywhere. User logged in:', !!session?.user?.id);
-                    // Only show default demo data for guest users with no data
+                if (mergedCustomers.size === 0) {
                     setCustomers(session?.user?.id ? [] : DEFAULT_DATA);
+                    setIsLoadingData(false);
                 }
 
                 loadCompleted.current = true;
-                setIsLoadingData(false);
-                // Allow saves only after load is fully done
                 setTimeout(() => setCanSave(true), 800);
             } catch (e) {
                 console.error("Storage init error", e);
