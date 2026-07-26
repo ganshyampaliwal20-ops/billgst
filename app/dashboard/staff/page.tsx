@@ -136,8 +136,16 @@ export default function SmartAttendance() {
         };
     });
 
-    const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-    const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    const nextMonth = () => {
+        const newMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+        setCurrentMonth(newMonth);
+        setSelectedDate(getLocalISODate(newMonth));
+    };
+    const prevMonth = () => {
+        const newMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+        setCurrentMonth(newMonth);
+        setSelectedDate(getLocalISODate(newMonth));
+    };
     const goToToday = () => {
         const today = new Date();
         setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -723,6 +731,9 @@ export default function SmartAttendance() {
                         ATTENDANCE
                     </span>
                     <div style={{ width: '100%', display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                        <button onClick={prevMonth} style={{ height: '46px', width: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: 'var(--indigo)' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6" /></svg>
+                        </button>
                         <input 
                             type="date" 
                             value={selectedDate} 
@@ -733,8 +744,11 @@ export default function SmartAttendance() {
                                     setCurrentMonth(new Date(val));
                                 }
                             }} 
-                            style={{ flex: 1, height: '46px', padding: '8px 12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--indigo)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', cursor: 'pointer' }}
+                            style={{ flex: 1, height: '46px', padding: '8px 12px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: '#fff', fontSize: '14px', fontWeight: 800, color: 'var(--indigo)', outline: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', cursor: 'pointer', textAlign: 'center' }}
                         />
+                        <button onClick={nextMonth} style={{ height: '46px', width: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: 'var(--indigo)' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><path d="M9 18l6-6-6-6" /></svg>
+                        </button>
                         <button 
                             onClick={() => setPdfActionSheet({show: true, type: 'master'})} 
                             style={{ flex: 1, height: '46px', borderRadius: '14px', background: '#fff', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', color: '#dc2626', fontWeight: 800, fontSize: '14px' }}
@@ -1135,8 +1149,24 @@ export default function SmartAttendance() {
                             style={{ background: '#fff', borderRadius: '32px 32px 0 0', width: '100%', maxWidth: '650px', padding: '0 24px 40px', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 -20px 50px rgba(0,0,0,0.15)', animation: 'slideUp 0.4s cubic-bezier(0.4,0,0.2,1)', position: 'relative' }}
                         >
                             <div style={{ width: '48px', height: '6px', borderRadius: '3px', background: 'rgba(0,0,0,0.1)', margin: '16px auto 24px' }}></div>
-                            <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ink)', marginBottom: '20px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ink)', marginBottom: '12px', textAlign: 'center' }}>
                                 PDF Options
+                            </div>
+                            <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                <label style={{ fontSize: '12px', fontWeight: 800, color: 'var(--ink3)' }}>Select Month for PDF</label>
+                                <input 
+                                    type="month" 
+                                    value={`${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`}
+                                    onChange={(e) => {
+                                        if (e.target.value) {
+                                            const [year, month] = e.target.value.split('-');
+                                            setCurrentMonth(new Date(parseInt(year), parseInt(month) - 1, 1));
+                                            // Also update selected date to the 1st of that month so UI syncs
+                                            setSelectedDate(`${year}-${month}-01`);
+                                        }
+                                    }}
+                                    style={{ padding: '10px 16px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', fontSize: '15px', fontWeight: 800, color: 'var(--indigo)', outline: 'none' }}
+                                />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 <button
