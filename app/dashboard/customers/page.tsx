@@ -45,39 +45,44 @@ export default function CustomersPage() {
     const avatarColors = ['#6366f1', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#0ea5e9', '#10b981', '#f97316', '#06b6d4'];
     const getColor = (id: number) => avatarColors[id % avatarColors.length];
 
-    let filteredCustomers = customers.filter((c: any) =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (c.phone && c.phone.includes(searchTerm))
-    );
+    const { finalList, totalCount, pendingTotal, receivedTotal } = useMemo(() => {
+        let filtered = customers.filter((c: any) =>
+            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (c.phone && c.phone.includes(searchTerm))
+        );
 
-    const uniqueMap = new Map();
-    filteredCustomers.forEach((c: any) => {
-        const key = c.phone ? c.phone.trim() : c.name.trim().toLowerCase();
-        if (!uniqueMap.has(key)) uniqueMap.set(key, c);
-    });
-    filteredCustomers = Array.from(uniqueMap.values());
+        const uniqueMap = new Map();
+        filtered.forEach((c: any) => {
+            const key = c.phone ? c.phone.trim() : c.name.trim().toLowerCase();
+            if (!uniqueMap.has(key)) uniqueMap.set(key, c);
+        });
+        filtered = Array.from(uniqueMap.values());
 
-    const processedList = filteredCustomers.map((c: any, index: number) => {
-        const gbal = getCustomerBalance(c.id);
+        const processed = filtered.map((c: any, index: number) => {
+            const gbal = getCustomerBalance(c.id);
+            return {
+                ...c,
+                _index: index,
+                balance: gbal,
+                amountStr: `₹${Math.abs(gbal).toLocaleString('en-IN')}`,
+                status: gbal > 0 ? 'pending' : 'received',
+                tag: c.partyType === 'VIP' ? 'VIP' : (c.partyType || 'New')
+            };
+        });
+
+        let final = processed;
+        if (activeFilter === 'pending') final = processed.filter((c: any) => c.status === 'pending');
+        if (activeFilter === 'received') final = processed.filter((c: any) => c.status === 'received');
+        if (activeFilter === 'vip') final = processed.filter((c: any) => c.tag === 'VIP');
+        if (activeFilter === 'new') final = processed.filter((c: any) => c.tag === 'New');
+
         return {
-            ...c,
-            _index: index,
-            balance: gbal,
-            amountStr: `₹${Math.abs(gbal).toLocaleString('en-IN')}`,
-            status: gbal > 0 ? 'pending' : 'received',
-            tag: c.partyType === 'VIP' ? 'VIP' : (c.partyType || 'New')
+            finalList: final,
+            totalCount: processed.length,
+            pendingTotal: processed.filter((c: any) => c.status === 'pending').reduce((s: number, c: any) => s + c.balance, 0),
+            receivedTotal: processed.filter((c: any) => c.status === 'received').reduce((s: number, c: any) => s + Math.abs(c.balance), 0)
         };
-    });
-
-    let finalList = processedList;
-    if (activeFilter === 'pending') finalList = processedList.filter((c: any) => c.status === 'pending');
-    if (activeFilter === 'received') finalList = processedList.filter((c: any) => c.status === 'received');
-    if (activeFilter === 'vip') finalList = processedList.filter((c: any) => c.tag === 'VIP');
-    if (activeFilter === 'new') finalList = processedList.filter((c: any) => c.tag === 'New');
-
-    const totalCount = processedList.length;
-    const pendingTotal = processedList.filter((c: any) => c.status === 'pending').reduce((s: number, c: any) => s + c.balance, 0);
-    const receivedTotal = processedList.filter((c: any) => c.status === 'received').reduce((s: number, c: any) => s + Math.abs(c.balance), 0);
+    }, [customers, searchTerm, activeFilter, invoices]);
 
     const handleAdd = () => {
         if (!newName || newPhone.length < 10) {

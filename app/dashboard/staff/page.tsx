@@ -82,23 +82,27 @@ export default function SmartAttendance() {
         return rec ? rec.status : null;
     };
 
-    const roles = ["All", ...Array.from(new Set((staff || []).map((s: any) => s.role || 'Worker'))).filter(Boolean)] as string[];
+    const roles = useMemo(() => ["All", ...Array.from(new Set((staff || []).map((s: any) => s.role || 'Worker'))).filter(Boolean)] as string[], [staff]);
 
-    const filteredStaff = (staff || []).filter((s: any) => {
-        const matchRole = currentFilter === 'All' || s.role === currentFilter;
-        const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchStatus = statusFilter === 'ALL' || getStatus(s.id, selectedDate) === statusFilter;
-        return matchRole && matchName && matchStatus;
-    }).sort((a: any, b: any) => a.name.localeCompare(b.name));
+    const { filteredStaff, todayStats } = useMemo(() => {
+        const filtered = (staff || []).filter((s: any) => {
+            const matchRole = currentFilter === 'All' || s.role === currentFilter;
+            const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchStatus = statusFilter === 'ALL' || getStatus(s.id, selectedDate) === statusFilter;
+            return matchRole && matchName && matchStatus;
+        }).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
-    const todayStats = { P: 0, A: 0, H: 0, L: 0 };
-    (staff || []).forEach((s: any) => {
-        const st = getStatus(s.id, selectedDate);
-        if (st === 'PRESENT') todayStats.P++;
-        else if (st === 'ABSENT') todayStats.A++;
-        else if (st === 'HALF_DAY') todayStats.H++;
-        else if (st === 'LEAVE') todayStats.L++;
-    });
+        const stats = { P: 0, A: 0, H: 0, L: 0 };
+        (staff || []).forEach((s: any) => {
+            const st = getStatus(s.id, selectedDate);
+            if (st === 'PRESENT') stats.P++;
+            else if (st === 'ABSENT') stats.A++;
+            else if (st === 'HALF_DAY') stats.H++;
+            else if (st === 'LEAVE') stats.L++;
+        });
+
+        return { filteredStaff: filtered, todayStats: stats };
+    }, [staff, currentFilter, searchQuery, statusFilter, selectedDate, attendance]);
 
     // Date nav
     const shiftDay = (delta: number) => {

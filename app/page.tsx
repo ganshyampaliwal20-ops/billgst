@@ -349,6 +349,38 @@ export default function LandingPage() {
 
             <div className="rule"></div>
 
+            {/* ══ BEYOND BILLING ══ */}
+            <section className="sec rev">
+                <div className="sec-lbl">{isEnglish ? 'Beyond Billing' : 'सिर्फ बिलिंग नहीं'}</div>
+                <div className="sec-title">{isEnglish ? 'Manage your entire shop' : 'पूरी दुकान यहीं से मैनेज करें'}</div>
+                <p className="sec-sub">{isEnglish ? 'From stock to staff to daily expenses — BillGST handles it all for free.' : 'स्टॉक से लेकर स्टाफ और रोज के खर्चे तक — BillGST सब मुफ्त में हैंडल करता है।'}</p>
+
+                <div className="hlt-stack">
+                    <div className="hlt v-hlt">
+                        <div className="hlt-icon">📦</div>
+                        <h3>{isEnglish ? 'Smart Inventory & Stock' : 'स्मार्ट इन्वेंट्री और स्टॉक'}</h3>
+                        <p>{isEnglish ? 'Auto-update stock on every sale, get low-stock alerts, and track expiry dates to avoid losses.' : 'हर सेल पर खुद स्टॉक अपडेट, लो-स्टॉक अलर्ट और एक्सपायरी ट्रैकिंग ताकि कोई नुकसान न हो।'}</p>
+                        <span className="tag">{isEnglish ? 'Zero manual entry' : 'ऑटोमैटिक'}</span>
+                    </div>
+                    
+                    <div className="hlt a-hlt">
+                        <div className="hlt-icon">👥</div>
+                        <h3>{isEnglish ? 'Staff Attendance & Salary' : 'स्टाफ की हाजिरी और सैलरी'}</h3>
+                        <p>{isEnglish ? 'Mark daily attendance (P/A/HD), track advance payments, and auto-calculate month-end salary.' : 'रोज की हाजिरी (P/A/HD) लगाएं, एडवांस ट्रैक करें और महीने के अंत में सैलरी खुद-ब-खुद निकालें।'}</p>
+                        <span className="tag">{isEnglish ? 'Built-in HR' : 'फ्री रजिस्टर'}</span>
+                    </div>
+                    
+                    <div className="hlt g-hlt">
+                        <div className="hlt-icon">💸</div>
+                        <h3>{isEnglish ? 'Daily Expense Tracker' : 'रोज के खर्चों का ट्रैकर'}</h3>
+                        <p>{isEnglish ? 'Track shop rent, electricity, tea/snacks, and transport costs to know your exact real profit.' : 'दुकान का किराया, बिजली, चाय-नाश्ता और ट्रांसपोर्ट का खर्चा ट्रैक करें और अपना असली मुनाफा (Net Profit) जानें।'}</p>
+                        <span className="tag">{isEnglish ? 'Know Real Profit' : 'असली मुनाफा जानें'}</span>
+                    </div>
+                </div>
+            </section>
+
+            <div className="rule"></div>
+
             {/* ══ ALL FEATURES GRID ══ */}
             <section className="sec rev">
                 <div className="sec-lbl">{isEnglish ? 'All Features' : 'सभी फीचर्स'}</div>

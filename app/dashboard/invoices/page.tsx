@@ -58,30 +58,32 @@ export default function InvoicesPage() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [fetchInvoices]);
 
-    const safeInvoices = Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [];
+    const safeInvoices = useMemo(() => Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [], [invoices]);
     
     // Filtering & Sorting Logic
-    const filteredInvoices = safeInvoices.filter((inv: any) => {
-        const customerName = (inv?.customer?.name || '').toLowerCase();
-        const invoiceNumber = (inv?.invoice_number || '').toLowerCase();
-        const term = searchTerm.toLowerCase();
-        const matchesSearch = customerName.includes(term) || invoiceNumber.includes(term);
+    const filteredInvoices = useMemo(() => {
+        return safeInvoices.filter((inv: any) => {
+            const customerName = (inv?.customer?.name || '').toLowerCase();
+            const invoiceNumber = (inv?.invoice_number || '').toLowerCase();
+            const term = searchTerm.toLowerCase();
+            const matchesSearch = customerName.includes(term) || invoiceNumber.includes(term);
 
-        if (!matchesSearch) return false;
-        if (activeTab === 'u' && (inv.status || 'UNPAID').toUpperCase() !== 'UNPAID') return false;
-        if (activeTab === 'p' && (inv.status || '').toUpperCase() !== 'PARTIAL') return false;
-        if (activeTab === 'd' && (inv.status || '').toUpperCase() !== 'PAID') return false;
+            if (!matchesSearch) return false;
+            if (activeTab === 'u' && (inv.status || 'UNPAID').toUpperCase() !== 'UNPAID') return false;
+            if (activeTab === 'p' && (inv.status || '').toUpperCase() !== 'PARTIAL') return false;
+            if (activeTab === 'd' && (inv.status || '').toUpperCase() !== 'PAID') return false;
 
-        return true;
-    }).sort((a: any, b: any) => {
-        if (sortOrder === 'amount-high') return Number(b.total_amount) - Number(a.total_amount);
-        if (sortOrder === 'amount-low') return Number(a.total_amount) - Number(b.total_amount);
-        if (sortOrder === 'name') return (a.customer?.name || '').localeCompare(b.customer?.name || '');
-        // default newest
-        const dateA = new Date(a.created_at || a.invoice_date).getTime();
-        const dateB = new Date(b.created_at || b.invoice_date).getTime();
-        return dateB - dateA;
-    });
+            return true;
+        }).sort((a: any, b: any) => {
+            if (sortOrder === 'amount-high') return Number(b.total_amount) - Number(a.total_amount);
+            if (sortOrder === 'amount-low') return Number(a.total_amount) - Number(b.total_amount);
+            if (sortOrder === 'name') return (a.customer?.name || '').localeCompare(b.customer?.name || '');
+            // default newest
+            const dateA = new Date(a.created_at || a.invoice_date).getTime();
+            const dateB = new Date(b.created_at || b.invoice_date).getTime();
+            return dateB - dateA;
+        });
+    }, [safeInvoices, searchTerm, activeTab, sortOrder]);
 
     const groupedInvoices = useMemo(() => {
         return Object.values(
@@ -116,18 +118,18 @@ export default function InvoicesPage() {
     };
 
     // KPI Counters
-    const kpiData = {
+    const kpiData = useMemo(() => ({
         total: safeInvoices.length,
         paid: safeInvoices.filter(i => (i.status || 'UNPAID') === 'PAID').length,
         unpaid: safeInvoices.filter(i => (i.status || 'UNPAID') === 'UNPAID').length,
         partial: safeInvoices.filter(i => (i.status || '').toUpperCase() === 'PARTIAL').length,
         receivable: safeInvoices.reduce((acc, i) => acc + ((Number(i.total_amount) || Number(i.subtotal) || 0) - Number(i.paid_amount || 0)), 0),
         totalBilled: safeInvoices.reduce((acc, i) => acc + (Number(i.total_amount) || Number(i.subtotal) || 0), 0)
-    };
+    }), [safeInvoices]);
 
-    const collectionRate = kpiData.totalBilled > 0 ? Math.round(((kpiData.totalBilled - kpiData.receivable) / kpiData.totalBilled) * 100) : 0;
-    const uniqueCustomers = new Set(safeInvoices.map(i => i.customer?.phone || i.customer?.name)).size;
-    const avgInvoice = kpiData.total > 0 ? Math.round(kpiData.totalBilled / kpiData.total) : 0;
+    const collectionRate = useMemo(() => kpiData.totalBilled > 0 ? Math.round(((kpiData.totalBilled - kpiData.receivable) / kpiData.totalBilled) * 100) : 0, [kpiData]);
+    const uniqueCustomers = useMemo(() => new Set(safeInvoices.map(i => i.customer?.phone || i.customer?.name)).size, [safeInvoices]);
+    const avgInvoice = useMemo(() => kpiData.total > 0 ? Math.round(kpiData.totalBilled / kpiData.total) : 0, [kpiData]);
 
     // Handlers
     const handleDelete = async (invoice: any) => {

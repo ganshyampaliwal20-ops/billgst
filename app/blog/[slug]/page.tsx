@@ -74,9 +74,39 @@ export default async function BlogPostPage({ params }: Props) {
 
     return (
         <main className="min-h-screen bg-white flex flex-col items-center">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BlogPosting",
+                        "mainEntityOfPage": {
+                            "@type": "WebPage",
+                            "@id": `https://www.billgst.in/blog/${post.slug}`
+                        },
+                        "headline": post.title,
+                        "description": post.description,
+                        "image": post.image ? `https://www.billgst.in${post.image}` : "https://www.billgst.in/logo.png",
+                        "author": {
+                            "@type": "Person",
+                            "name": post.author
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "BillGST",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://www.billgst.in/logo.png"
+                            }
+                        },
+                        "datePublished": new Date(post.date).toISOString(),
+                        "dateModified": new Date(post.date).toISOString()
+                    })
+                }}
+            />
             {/* Navigation */}
             <nav className="w-full border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
                     <Link href="/blog" className="flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 transition">
                         <FaArrowLeft /> All Posts
                     </Link>
@@ -84,7 +114,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
             </nav>
 
-            <div className="max-w-6xl mx-auto px-4 py-12 w-full">
+            <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-12 w-full">
                 <article className="prose prose-lg prose-indigo max-w-none">
                     <div className="flex flex-wrap gap-4 mb-6 text-sm text-gray-500 not-prose">
                         <span className="flex items-center gap-1">

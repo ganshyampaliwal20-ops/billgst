@@ -148,37 +148,39 @@ export default function InventoryPage() {
     }
 
     // ── DERIVED STATES ──
-    const filteredProducts = (products || [])
-        .filter((p: any) => p && p.status !== "INACTIVE")
-        .filter((p: any) => {
-            const matchesSearch =
-                !searchTerm ||
-                (p.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (p.hsn_code || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredProducts = useMemo(() => {
+        return (products || [])
+            .filter((p: any) => p && p.status !== "INACTIVE")
+            .filter((p: any) => {
+                const matchesSearch =
+                    !searchTerm ||
+                    (p.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (p.hsn_code || "").toLowerCase().includes(searchTerm.toLowerCase());
 
-            const stock = parseInt(p.stock_quantity) || 0;
+                const stock = parseInt(p.stock_quantity) || 0;
 
-            let matchesTab = true;
-            if (activeTab === "product") matchesTab = (p.type || "").toLowerCase() === "product";
-            if (activeTab === "service") matchesTab = (p.type || "").toLowerCase() === "service";
-            if (activeTab === "low") matchesTab = stock > 0 && stock <= 10;
-            if (activeTab === "out") matchesTab = stock <= 0;
-            if (activeTab === "expiry") {
-                const expStatus = getExpiryStatus(p);
-                matchesTab = !!expStatus;
-            }
+                let matchesTab = true;
+                if (activeTab === "product") matchesTab = (p.type || "").toLowerCase() === "product";
+                if (activeTab === "service") matchesTab = (p.type || "").toLowerCase() === "service";
+                if (activeTab === "low") matchesTab = stock > 0 && stock <= 10;
+                if (activeTab === "out") matchesTab = stock <= 0;
+                if (activeTab === "expiry") {
+                    const expStatus = getExpiryStatus(p);
+                    matchesTab = !!expStatus;
+                }
 
-            const matchesCategory = filterCategory === "all" || (p.type || "PRODUCT").toUpperCase() === filterCategory.toUpperCase();
-            const matchesGst = filterGst === "all" || String(p.gst_rate) === filterGst;
+                const matchesCategory = filterCategory === "all" || (p.type || "PRODUCT").toUpperCase() === filterCategory.toUpperCase();
+                const matchesGst = filterGst === "all" || String(p.gst_rate) === filterGst;
 
-            return matchesSearch && matchesTab && matchesCategory && matchesGst;
-        })
-        .sort((a: any, b: any) => {
-            if (sortBy === "price_low") return parseFloat(a.price) - parseFloat(b.price);
-            if (sortBy === "price_high") return parseFloat(b.price) - parseFloat(a.price);
-            if (sortBy === "name_az") return a.name.localeCompare(b.name);
-            return 0;
-        });
+                return matchesSearch && matchesTab && matchesCategory && matchesGst;
+            })
+            .sort((a: any, b: any) => {
+                if (sortBy === "price_low") return parseFloat(a.price) - parseFloat(b.price);
+                if (sortBy === "price_high") return parseFloat(b.price) - parseFloat(a.price);
+                if (sortBy === "name_az") return a.name.localeCompare(b.name);
+                return 0;
+            });
+    }, [products, searchTerm, activeTab, filterCategory, filterGst, sortBy]);
 
     const totalItems = (products || []).filter((p: any) => p && p.status !== "INACTIVE").length;
     const lowStockCount = (products || []).filter((p: any) => {

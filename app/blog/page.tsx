@@ -48,7 +48,7 @@ export default function BlogPage() {
         <main className="min-h-screen bg-gray-50 flex flex-col items-center">
             {/* Navigation */}
             <nav className="w-full border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-700 transition">
                         <FaArrowLeft /> Back to Home
                     </Link>
@@ -56,7 +56,7 @@ export default function BlogPage() {
                 </div>
             </nav>
 
-            <div className="max-w-[1600px] mx-auto px-4 py-12 w-full">
+            <div className="max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 py-12 w-full">
                 <div className="mb-12 text-center">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
                         Grow Your Business with BillGST
@@ -116,7 +116,7 @@ export default function BlogPage() {
 
             {/* CTA Section */}
             <section className="w-full bg-indigo-900 py-16 mt-12 text-white overflow-hidden relative">
-                <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+                <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
                     <h2 className="text-3xl font-bold mb-6">Ready to simplify your business?</h2>
                     <p className="text-indigo-200 text-lg mb-8">
                         Join 10,000+ businesses using BillGST for faster invoicing and growth.
