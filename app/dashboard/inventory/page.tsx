@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useStore } from "@/lib/store";
 import { getTranslations } from "@/lib/translations";
 import Link from "next/link";
