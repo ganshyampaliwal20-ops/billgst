@@ -17,9 +17,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://billgst.in"),
-  title: "BillGST: Free GST Billing Software & Invoice Maker App",
-  description: "India's best 100% Free GST Billing App. Mobile se GST bill banaye, staff attendance, expenses, aur inventory manage karein. Create invoices by speaking!",
-  keywords: "free gst billing software, invoice maker app, mobile se bill kaise banaye, free billing app hindi, muft billing software, vyapar alternative, invoice generator, gst invoice maker, inventory management, whatsapp billing, dukaan ka hisaab app, best billing app for retail shop, free gst software for pc and mobile, voice billing, small business app",
+  title: "BillGST: Free Billing, Inventory, Expense & Staff Management App",
+  description: "India's best 100% Free App for Business & Personal use. Manage GST/Non-GST billing, expenses, inventory, staff attendance, and online shop (dukaan).",
+  keywords: "free billing software, expense manager app, inventory management, online shop creator, staff attendance app, free gst billing app, invoice maker, vyapar alternative, business accounting app, personal expense tracker, dukaan hisaab, free invoice generator",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   openGraph: {
-    title: "BillGST - Free GST Billing & Voice Invoice App",
-    description: "100% Free GST Billing Software. Mobile se GST bill banaye aur WhatsApp par PDF bhejein.",
+    title: "BillGST - All-in-one Business & Expense Manager",
+    description: "100% Free App for Billing, Expenses, Inventory & Attendance. Perfect for shops and personal use.",
     type: "website",
     siteName: 'BillGST',
     url: 'https://billgst.in',
@@ -64,8 +64,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'BillGST - Free Voice Billing App',
-    description: '100% Free GST Billing Software with AI Voice Billing. Better than Vyapar.',
+    title: 'BillGST - Free Business & Expense App',
+    description: '100% Free App for Billing, Expenses, Inventory & Staff Management.',
     images: ['/logo.png'],
   },
 };
@@ -94,7 +94,7 @@ export default function RootLayout({
                 "name": "BillGST",
                 "url": "https://billgst.in",
                 "logo": "https://billgst.in/logo.png",
-                "description": "Professional GST billing software for small business. Create invoices, manage inventory, and track payments for free.",
+                "description": "All-in-one business and personal finance app. Create invoices, manage inventory, track expenses, and manage staff attendance for free.",
                 "address": {
                   "@type": "PostalAddress",
                   "addressCountry": "IN"
@@ -108,7 +108,7 @@ export default function RootLayout({
               {
                 "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
-                "name": "BillGST Invoice Generator",
+                "name": "BillGST Business & Expense App",
                 "applicationCategory": "BusinessApplication",
                 "operatingSystem": "Web, Android, Windows",
                 "offers": {
@@ -116,7 +116,7 @@ export default function RootLayout({
                   "price": "0",
                   "priceCurrency": "INR"
                 },
-                "description": "Free Invoice Generator & GST Billing software for Indian small businesses. Create bills, share on WhatsApp, and manage stock."
+                "description": "Free App for Invoicing, Expense Tracking, Inventory Management, Online Shop and Staff Attendance. Perfect for personal use and small businesses."
               },
               {
                 "@context": "https://schema.org",

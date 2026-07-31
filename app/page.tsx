@@ -171,22 +171,22 @@ export default function LandingPage() {
             <div className="hero-auth-wrapper">
                 {/* HERO */}
                 <section className="hero">
-                <div className="live-chip"><span className="dot"></span><strong>{isEnglish ? '100% Free' : '100% मुफ्त'}</strong> {isEnglish ? 'to start — no card needed' : 'शुरू करने के लिए — कोई कार्ड नहीं चाहिए'}</div>
+                <div className="live-chip"><span className="dot"></span><strong>{isEnglish ? '100% Free' : '100% मुफ्त'}</strong> {isEnglish ? 'For Business & Personal Use' : 'दुकान और घर दोनों के लिए'}</div>
                 <h1>
                     {isEnglish ? (
-                        <>Free GST Billing Software<br />&amp; <span className="ac">Vyapar Alternative</span></>
+                        <>Free Billing, Expenses <br />&amp; <span className="ac">Online Dukaan App</span></>
                     ) : (
-                        <>फ्री जीएसटी बिलिंग ऐप<br />और <span className="ac">व्यापार अल्टरनेटिव</span></>
+                        <>फ्री बिलिंग, खर्चे का हिसाब<br />और <span className="ac">ऑनलाइन दुकान ऐप</span></>
                     )}
                 </h1>
                 
                 <div style={{ marginTop: '20px', marginBottom: '10px', display: 'inline-block', background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#b91c1c', padding: '10px 24px', borderRadius: '50px', fontWeight: 800, fontSize: '1.3rem', border: '2px solid #f87171', boxShadow: '0 6px 20px rgba(239, 68, 68, 0.3)', letterSpacing: '0.5px' }}>
-                    ✨ {isEnglish ? 'Billing Always Free — Forever' : 'Billing हमेशा मुफ्त — हमेशा'} ✨
+                    ✨ {isEnglish ? 'All Features Always Free — Forever' : 'सभी फीचर्स हमेशा के लिए मुफ्त'} ✨
                 </div>
                 <p className="hero-sub">
                     {isEnglish ? 
-                        "Best voice AI invoice generator for PC and mobile. Manage GST billing, inventory, staff attendance, and expenses — everything in one free app built for Indian shopkeepers." :
-                        "मोबाइल और पीसी के लिए बेस्ट वॉइस एआई बिलिंग ऐप। जीएसटी बिलिंग, स्टॉक, स्टाफ की हाजिरी, खर्चे — सब कुछ एक मुफ्त ऐप में, भारत के दुकानदारों के लिए।"
+                        "Perfect for shops and normal users! Track daily expenses, manage inventory, create an online shop, mark staff attendance, and make GST/Non-GST invoices using Voice AI." :
+                        "दुकानदारों और आम लोगों के लिए परफेक्ट! घर का रोज़ का खर्चा लिखें, स्टॉक मैनेज करें, ऑनलाइन दुकान बनाएं, हाजिरी लगाएं और वॉइस से बिल बनाएं - सब कुछ मुफ्त में।"
                     }
                 </p>
             </section>
@@ -308,6 +308,7 @@ export default function LandingPage() {
                 <div className="fpill"><span className="dot2" style={{ background: 'var(--or)' }}></span>{isEnglish ? 'Expiry Alert' : 'एक्सपायरी अलर्ट'}</div>
                 <div className="fpill"><span className="dot2" style={{ background: 'var(--v)' }}></span>{isEnglish ? 'Attendance' : 'हाजिरी'}</div>
                 <div className="fpill"><span className="dot2" style={{ background: 'var(--am)' }}></span>{isEnglish ? 'Expenses' : 'खर्चे'}</div>
+                <div className="fpill"><span className="dot2" style={{ background: 'var(--cy)' }}></span>{isEnglish ? 'Online Shop' : 'ऑनलाइन दुकान'}</div>
             </div>
 
             <div className="rule"></div>
@@ -357,24 +358,28 @@ export default function LandingPage() {
 
                 <div className="hlt-stack">
                     <div className="hlt v-hlt">
+                        <div className="hlt-icon">🏪</div>
+                        <h3>{isEnglish ? 'Create Free Online Shop' : 'मुफ्त ऑनलाइन दुकान बनाएं'}</h3>
+                        <p>{isEnglish ? 'Turn your inventory into an online catalog in 1 click. Share the link on WhatsApp and get orders directly from customers.' : 'अपने स्टॉक को 1 क्लिक में ऑनलाइन कैटलॉग बनाएं। व्हाट्सएप पर लिंक शेयर करें और सीधे ग्राहकों से ऑर्डर पाएं।'}</p>
+                        <span className="tag">{isEnglish ? 'Get More Orders' : 'ज्यादा ऑर्डर पाएं'}</span>
+                    </div>
+                    <div className="hlt a-hlt">
                         <div className="hlt-icon">📦</div>
                         <h3>{isEnglish ? 'Smart Inventory & Stock' : 'स्मार्ट इन्वेंट्री और स्टॉक'}</h3>
                         <p>{isEnglish ? 'Auto-update stock on every sale, get low-stock alerts, and track expiry dates to avoid losses.' : 'हर सेल पर खुद स्टॉक अपडेट, लो-स्टॉक अलर्ट और एक्सपायरी ट्रैकिंग ताकि कोई नुकसान न हो।'}</p>
                         <span className="tag">{isEnglish ? 'Zero manual entry' : 'ऑटोमैटिक'}</span>
                     </div>
-                    
-                    <div className="hlt a-hlt">
+                    <div className="hlt g-hlt">
+                        <div className="hlt-icon">💸</div>
+                        <h3>{isEnglish ? 'Daily Expense Tracker (For All)' : 'रोज का खर्चा ट्रैकर (सबके लिए)'}</h3>
+                        <p>{isEnglish ? 'Perfect for shops and homes! Track shop rent or personal daily expenses (grocery, electricity) to manage your budget.' : 'दुकान और घर दोनों के लिए! दुकान का किराया या घर का रोज का खर्चा (राशन, बिजली) ट्रैक करें और बजट मैनेज करें।'}</p>
+                        <span className="tag">{isEnglish ? 'Shop & Home Use' : 'दुकान और घर दोनों के लिए'}</span>
+                    </div>
+                    <div className="hlt v-hlt">
                         <div className="hlt-icon">👥</div>
                         <h3>{isEnglish ? 'Staff Attendance & Salary' : 'स्टाफ की हाजिरी और सैलरी'}</h3>
                         <p>{isEnglish ? 'Mark daily attendance (P/A/HD), track advance payments, and auto-calculate month-end salary.' : 'रोज की हाजिरी (P/A/HD) लगाएं, एडवांस ट्रैक करें और महीने के अंत में सैलरी खुद-ब-खुद निकालें।'}</p>
                         <span className="tag">{isEnglish ? 'Built-in HR' : 'फ्री रजिस्टर'}</span>
-                    </div>
-                    
-                    <div className="hlt g-hlt">
-                        <div className="hlt-icon">💸</div>
-                        <h3>{isEnglish ? 'Daily Expense Tracker' : 'रोज के खर्चों का ट्रैकर'}</h3>
-                        <p>{isEnglish ? 'Track shop rent, electricity, tea/snacks, and transport costs to know your exact real profit.' : 'दुकान का किराया, बिजली, चाय-नाश्ता और ट्रांसपोर्ट का खर्चा ट्रैक करें और अपना असली मुनाफा (Net Profit) जानें।'}</p>
-                        <span className="tag">{isEnglish ? 'Know Real Profit' : 'असली मुनाफा जानें'}</span>
                     </div>
                 </div>
             </section>
@@ -410,6 +415,11 @@ export default function LandingPage() {
                         <div className="fci">💰</div>
                         <h3>{isEnglish ? 'Expense Tracking' : 'खर्चे ट्रैक करें'}</h3>
                         <p>{isEnglish ? 'Log every shop expense — rent, utilities, purchases — all in one place.' : 'दुकान का हर खर्च — किराया, बिजली, खरीदारी — एक जगह लिखें।'}</p>
+                    </div>
+                    <div className="fc c">
+                        <div className="fci">🏪</div>
+                        <h3>{isEnglish ? 'Online Dukaan' : 'ऑनलाइन दुकान'}</h3>
+                        <p>{isEnglish ? 'Launch your online store in seconds. Share on WhatsApp and accept orders.' : 'सेकंडों में अपना ऑनलाइन स्टोर बनाएं। व्हाट्सएप पर शेयर करें और ऑर्डर लें।'}</p>
                     </div>
                     <div className="fc c">
                         <div className="fci">📒</div>
