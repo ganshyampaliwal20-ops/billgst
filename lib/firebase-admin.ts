@@ -28,14 +28,17 @@ if (!admin.apps.length) {
                 credential = admin.credential.cert(serviceAccountPath);
             } else {
                 console.warn('Firebase Admin: No credentials found. Ensure env vars are set.');
-                return;
             }
         }
 
-        admin.initializeApp({
-            credential: credential,
-        });
-        console.log('Firebase Admin initialized successfully.');
+        if (credential) {
+            admin.initializeApp({
+                credential: credential,
+            });
+            console.log('Firebase Admin initialized successfully.');
+        } else {
+            console.warn('Firebase Admin initialization skipped due to missing credentials.');
+        }
     } catch (error) {
         console.error('Firebase Admin initialization error:', error);
     }
