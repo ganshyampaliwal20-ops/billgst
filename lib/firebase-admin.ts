@@ -22,8 +22,14 @@ if (!admin.apps.length) {
             credential = admin.credential.cert(serviceAccount);
         } else {
             // Fallback for local development
+            const fs = require('fs');
             const serviceAccountPath = path.resolve(process.cwd(), 'serviceAccountKey.json');
-            credential = admin.credential.cert(serviceAccountPath);
+            if (fs.existsSync(serviceAccountPath)) {
+                credential = admin.credential.cert(serviceAccountPath);
+            } else {
+                console.warn('Firebase Admin: No credentials found. Ensure env vars are set.');
+                return;
+            }
         }
 
         admin.initializeApp({
