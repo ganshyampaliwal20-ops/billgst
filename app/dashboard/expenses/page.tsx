@@ -126,7 +126,7 @@ export default function BusinessExpensesPage() {
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
-    const { businessProfile } = useStore();
+    const { businessProfile, aiDraftData, setAiDraftData } = useStore();
 
     // Drawer / Modals
     const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
@@ -442,6 +442,47 @@ export default function BusinessExpensesPage() {
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, [curCid]);
 
+    useEffect(() => {
+        if (!isMounted || !loadCompleted.current || !aiDraftData) return;
+        if (aiDraftData.type === 'EXPENSE') {
+            const { description, amount } = aiDraftData;
+            const searchName = (description || '').trim();
+            if (searchName && customers.length > 0) {
+                const target = customers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
+                if (target) {
+                    setCurCid(target.id);
+                    setActiveScreen('detail');
+                    window.location.hash = 'detail';
+                    setTimeout(() => openAddEntry('debit', String(amount || '')), 300);
+                } else {
+                    setAcName(searchName);
+                    if (amount) {
+                        setAcOpening(String(amount));
+                    }
+                    setIsAddCustOpen(true);
+                }
+            } else {
+                if (amount) {
+                    setAcOpening(String(amount));
+                }
+                setIsAddCustOpen(true);
+            }
+            setAiDraftData(null);
+        } else if (aiDraftData.type === 'BULK_REMINDER') {
+            const pendingIds = customers.filter((c: any) => c.balance > 0).map((c: any) => c.id);
+            if (pendingIds.length > 0) {
+                showToast(t.sendingReminders || '⏳ Sending reminders to all pending customers...');
+                setAiDraftData(null);
+                setTimeout(() => {
+                    handleBulkRemind(pendingIds);
+                }, 500);
+            } else {
+                showToast('✅ No pending payments found!');
+                setAiDraftData(null);
+            }
+        }
+    }, [isMounted, aiDraftData, customers]);
+
     const showToast = (msg: string) => {
         setToastMsg(msg);
         if (toastTimeout.current) clearTimeout(toastTimeout.current);
@@ -574,19 +615,19 @@ export default function BusinessExpensesPage() {
         }
     };
 
-    const handleBulkRemind = async () => {
-        if (bulkSelected.size === 0) {
+    const handleBulkRemind = async (overrideIds?: number[] | any) => {
+        const targetIds = Array.isArray(overrideIds) ? overrideIds : Array.from(bulkSelected);
+        if (targetIds.length === 0) {
             showToast(t.noCustomerSelected || '⚠️ Koi customer select nahi kiya!');
             return;
         }
         
-        showToast(`${t.sendingReminders || '⏳ Sending'} ${bulkSelected.size} ${t.reminders || 'reminders'}...`);
+        showToast(`${t.sendingReminders || '⏳ Sending'} ${targetIds.length} ${t.reminders || 'reminders'}...`);
         setIsBulkMode(false);
-        const selectedIds = Array.from(bulkSelected);
         setBulkSelected(new Set());
 
         let successCount = 0;
-        for (const cid of selectedIds) {
+        for (const cid of targetIds) {
             const cust = customers.find(c => c.id === cid);
             if (!cust) continue;
             const phone = cust.phone?.replace(/\D/g, '') || '';
@@ -621,12 +662,12 @@ export default function BusinessExpensesPage() {
                 const res = await fetch('/api/whatsapp/send-media', { method: 'POST', body: formData });
                 if (res.ok) successCount++;
                 
-                if (selectedIds.length === 1) {
+                if (targetIds.length === 1) {
                     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
                 }
             } catch (e) {
                 console.error('Bulk send error', e);
-                if (selectedIds.length === 1) {
+                if (targetIds.length === 1) {
                     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(textMsg)}`, '_blank');
                 }
             }

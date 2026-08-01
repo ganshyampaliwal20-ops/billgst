@@ -47,7 +47,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ reply: "Aapko pehle login karna hoga." }, { status: 401 });
         }
 
-        const { message, language, customerNames = [], productNames = [] } = await request.json();
+        const { message, language, customerNames = [], productNames = [], businessContext = {} } = await request.json();
         isEn = language === 'en';
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -62,6 +62,9 @@ User's message: "${message}"
 App Context:
 - Available Customer Names: ${customerNames.join(', ') || 'None'}
 - Available Product Names: ${productNames.join(', ') || 'None'}
+- Today's Sales: ₹${businessContext.salesToday || 0}
+- Total Outstanding Balance (Lene hain): ₹${businessContext.totalOutstanding || 0}
+- Low Stock Items: ${businessContext.lowStock || 'None'}
 If the user mentions a name that sounds similar to one in the App Context, use the exact name from the App Context to avoid spelling mistakes.
 
 Your task is to determine the user's INTENT and return a JSON payload so the frontend can execute the task.
@@ -77,12 +80,14 @@ You support these Actions:
 9. "CREATE_PURCHASE": The user wants to create a purchase bill (kharidi).
 10. "NAVIGATE": The user just wants to go to a page (e.g. inventory, customers, reports).
 11. "REPLY": General question about how to use the app or GST.
+12. "SPEAK_ANSWER": The user asks a question about their business (e.g., "Aaj ki total sale kitni hui?", "Mera kitna paisa baaki hai?"). You will use the provided App Context to generate a conversational answer and put it in 'reply'.
+13. "SEND_REMINDERS": The user wants to send WhatsApp payment reminders to all pending customers (e.g., "Sabko reminder bhej do").
 
 You MUST respond ONLY with a valid JSON object matching this structure:
 {
-  "action": "CREATE_INVOICE" | "MARK_ATTENDANCE" | "ADD_EXPENSE" | "ADD_INVENTORY" | "ADD_CUSTOMER" | "ADD_SUPPLIER" | "RECORD_PAYMENT" | "GET_BALANCE" | "CREATE_PURCHASE" | "NAVIGATE" | "REPLY",
+  "action": "CREATE_INVOICE" | "MARK_ATTENDANCE" | "ADD_EXPENSE" | "ADD_INVENTORY" | "ADD_CUSTOMER" | "ADD_SUPPLIER" | "RECORD_PAYMENT" | "GET_BALANCE" | "CREATE_PURCHASE" | "NAVIGATE" | "REPLY" | "SPEAK_ANSWER" | "SEND_REMINDERS",
   "payload": { ... },
-  "reply": "A helpful response in ${isEn ? 'English' : 'Hinglish'} to be spoken back to the user. E.g. '${isEn ? "Sure, I am creating a bill for Raju. Please click the save button." : "Ji, Raju ka 500 ka bill bana raha hu. Ab bas aap save button dabaiye."}'"
+  "reply": "A helpful response in ${isEn ? 'English' : 'Hinglish'} to be spoken back to the user."
 }
 
 Payload rules based on Action:
@@ -101,6 +106,12 @@ Payload rules based on Action:
 Example User: "Raju ka 500 ka bill banao 1 mobile bhi daal dena"
 Output: {"action": "CREATE_INVOICE", "payload": {"customerName": "Raju", "amount": 500, "items": [{"name": "mobile", "qty": 1}]}, "reply": "Ji bilkul, Raju ka bill me mobile add kar diya hai, kripya save button dabayein."}
 
+Example User: "ganshyam ka 500 expenses me add karo"
+Output: {"action": "ADD_EXPENSE", "payload": {"description": "ganshyam", "amount": 500}, "reply": "Ji, Ganshyam ke naam ka 500 rupaye ka expense add karne ke liye form khol diya hai."}
+
+Example User: "office ka kharcha 500 rupaye"
+Output: {"action": "ADD_EXPENSE", "payload": {"description": "office ka kharcha", "amount": 500}, "reply": "Ji, 500 rupaye ka expense add karne ke liye form khol diya hai."}
+
 Example User: "Anil ko customer me add karo 9999999999"
 Output: {"action": "ADD_CUSTOMER", "payload": {"name": "Anil", "phone": "9999999999"}, "reply": "Ji, Anil ko add karne ke liye form khol diya hai."}
 
@@ -109,6 +120,15 @@ Output: {"action": "RECORD_PAYMENT", "payload": {"partyName": "Raju", "amount": 
 
 Example User: "Rahul ka balance batao"
 Output: {"action": "GET_BALANCE", "payload": {"partyName": "Rahul"}, "reply": "Ji, main Rahul ka balance check kar raha hu."}
+
+Example User: "Aaj ki sale kitni hui"
+Output: {"action": "SPEAK_ANSWER", "payload": null, "reply": "Aaj ki total sale ₹5000 hui hai."}
+
+Example User: "Sabko payment reminder bhej do"
+Output: {"action": "SEND_REMINDERS", "payload": null, "reply": "Ji, main sabhi pending customers ko WhatsApp par reminder bhej raha hu."}
+
+Example User: "Settings kholo"
+Output: {"action": "NAVIGATE", "payload": {"path": "/dashboard/settings"}, "reply": "Ji, settings page khol raha hu."}
 
 Make the "reply" sound natural, helpful, and polite in ${isEn ? 'English' : 'Hinglish'}. ALWAYS tell the user what you are doing, and if it involves a form, ALWAYS remind them to click the Save button!
 Return ONLY the JSON. No markdown backticks.`;

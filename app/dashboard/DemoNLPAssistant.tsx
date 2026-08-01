@@ -75,6 +75,13 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         try {
             const customerNames = customers.map((c: any) => c.name);
             const productNames = productsData.map((p: any) => p.name);
+            
+            const invoices = useStore.getState().invoices || [];
+            const todayStr = new Date().toISOString().split('T')[0];
+            const salesToday = invoices.filter((i: any) => (i.date || '').startsWith(todayStr)).reduce((sum: number, i: any) => sum + (i.total || 0), 0);
+            const totalOutstanding = customers.reduce((sum: number, c: any) => sum + (c.balance > 0 ? c.balance : 0), 0);
+            const lowStock = productsData.filter((p: any) => p.stock < 10).map((p: any) => `${p.name} (${p.stock})`).join(', ');
+            const businessContext = { salesToday, totalOutstanding, lowStock };
 
             const response = await fetch('/api/ai/chat', {
                 method: 'POST',
@@ -83,7 +90,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     message: textToSend, 
                     language: settings.language || 'hi',
                     customerNames,
-                    productNames
+                    productNames,
+                    businessContext
                 })
             });
             const data = await response.json();
@@ -91,7 +99,13 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             let replyText = data.reply;
 
             if (data.action) {
-                if (data.action === 'GET_BALANCE') {
+                if (data.action === 'SPEAK_ANSWER') {
+                    // It will just show the reply in the chat
+                } else if (data.action === 'SEND_REMINDERS') {
+                    setAiDraftData({ type: 'BULK_REMINDER' });
+                    setTimeout(() => router.push('/dashboard/expenses'), 1000); // We use expenses/page for Hisaab logic
+                    onClose();
+                } else if (data.action === 'GET_BALANCE') {
                     const partyName = data.payload?.partyName;
                     if (partyName) {
                         const customer = customers.find((c: any) => c.name.toLowerCase() === partyName.toLowerCase());
@@ -119,7 +133,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     onClose();
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/expenses/new'), 1000);
+                    setTimeout(() => router.push('/dashboard/expenses'), 1000);
                     onClose();
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });

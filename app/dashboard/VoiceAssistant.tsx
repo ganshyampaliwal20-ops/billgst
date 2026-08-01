@@ -47,7 +47,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 recognitionRef.current = new SpeechRecognitionClass();
                 recognitionRef.current.continuous = false;
                 recognitionRef.current.interimResults = true;
-                recognitionRef.current.lang = 'hi-IN';
+                const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
+                recognitionRef.current.lang = langMap[settings.language] || 'hi-IN';
 
                 recognitionRef.current.onstart = () => {
                     isEngineActive.current = true;
@@ -132,8 +133,9 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     setIsListening(true);
                     
                     try {
+                        const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
                         const result = await SpeechRecognition.start({
-                            language: 'hi-IN',
+                            language: langMap[settings.language] || 'hi-IN',
                             maxResults: 1,
                             prompt: 'Speak now...',
                             partialResults: false,
@@ -215,6 +217,13 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         try {
             const customerNames = customers.map((c: any) => c.name);
             const productNames = products.map((p: any) => p.name);
+            
+            const invoices = useStore.getState().invoices || [];
+            const todayStr = new Date().toISOString().split('T')[0];
+            const salesToday = invoices.filter((i: any) => (i.date || '').startsWith(todayStr)).reduce((sum: number, i: any) => sum + (i.total || 0), 0);
+            const totalOutstanding = customers.reduce((sum: number, c: any) => sum + (c.balance > 0 ? c.balance : 0), 0);
+            const lowStock = products.filter((p: any) => p.stock < 10).map((p: any) => `${p.name} (${p.stock})`).join(', ');
+            const businessContext = { salesToday, totalOutstanding, lowStock };
 
             const response = await fetch('/api/ai/chat', {
                 method: 'POST',
@@ -223,7 +232,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     message: text, 
                     language: settings.language || 'hi',
                     customerNames,
-                    productNames
+                    productNames,
+                    businessContext
                 }),
                 signal: controller.signal
             });
@@ -251,7 +261,13 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 setIsProcessing(false);
                 await speakOutput(spokenReply);
 
-                if (data.action === 'CREATE_INVOICE') {
+                if (data.action === 'SPEAK_ANSWER') {
+                    // Do nothing else, it has already spoken
+                } else if (data.action === 'SEND_REMINDERS') {
+                    setAiDraftData({ type: 'BULK_REMINDER' });
+                    toast.success(isEn ? 'Opening reminders...' : 'Reminders khol raha hu...');
+                    router.push('/dashboard/expenses'); // We use expenses/page for Hisaab logic
+                } else if (data.action === 'CREATE_INVOICE') {
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
                     toast.success(isEn ? 'Creating bill...' : 'Bill banane ja raha hu...');
                     router.push('/dashboard/invoices/new');
@@ -262,7 +278,7 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
                     toast.success(isEn ? 'Opening expense form...' : 'Expense form khol raha hu...');
-                    router.push('/dashboard/expenses/new');
+                    router.push('/dashboard/expenses');
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
                     toast.success(isEn ? 'Opening inventory form...' : 'Inventory form khol raha hu...');
@@ -311,9 +327,10 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                 if (isNativeApp()) {
                     const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
                     await TextToSpeech.stop();
+                    const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
                     await TextToSpeech.speak({
                         text: text,
-                        lang: 'hi-IN',
+                        lang: langMap[settings.language] || 'hi-IN',
                         rate: 1.0,
                         pitch: 1.0,
                         category: 'ambient',
@@ -328,7 +345,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'hi-IN';
+                const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
+                utterance.lang = langMap[settings.language] || 'hi-IN';
                 utterance.rate = 1.0;
                 utterance.pitch = 1.0;
                 utterance.onend = () => resolve();
