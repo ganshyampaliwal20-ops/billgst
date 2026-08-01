@@ -100,7 +100,16 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
 
             if (data.action) {
                 if (data.action === 'SPEAK_ANSWER') {
-                    // It will just show the reply in the chat
+                    // Try to speak it if possible
+                    if ('speechSynthesis' in window) {
+                        try {
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(replyText);
+                            const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
+                            utterance.lang = langMap[settings.language] || 'hi-IN';
+                            window.speechSynthesis.speak(utterance);
+                        } catch(e) {}
+                    }
                 } else if (data.action === 'SEND_REMINDERS') {
                     setAiDraftData({ type: 'BULK_REMINDER' });
                     setTimeout(() => router.push('/dashboard/expenses'), 1000); // We use expenses/page for Hisaab logic

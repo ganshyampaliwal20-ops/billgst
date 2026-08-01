@@ -43,7 +43,8 @@ export default function CustomersPage() {
             if (aiDraftData.partyName) {
                 const targetCust = customers.find((c: any) => c.name.toLowerCase() === aiDraftData.partyName.toLowerCase());
                 if (targetCust) {
-                    router.push('/dashboard/customers/' + targetCust.id + '?action=payment');
+                    const amtParam = aiDraftData.amount ? `&amount=${aiDraftData.amount}` : '';
+                    router.push('/dashboard/customers/' + targetCust.id + '?action=payment' + amtParam);
                     setAiDraftData(null);
                 } else {
                     toast.error('Customer not found for payment: ' + aiDraftData.partyName);

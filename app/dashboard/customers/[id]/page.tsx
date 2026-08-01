@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Chart from 'chart.js/auto';
 import { generateHisaabPDF } from '@/lib/pdf-generator';
@@ -11,6 +11,7 @@ import { getVisitingCardText } from '@/lib/whatsapp-utils';
 export default function CustomerDetailPage() {
     const { id } = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { customers, invoices, fetchInvoices, fetchCustomers, updateCustomer, businessProfile } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
 
@@ -20,6 +21,17 @@ export default function CustomerDetailPage() {
     const [paymentMode, setPaymentMode] = useState('UPI / GPay');
     const [paymentNote, setPaymentNote] = useState('');
 
+    useEffect(() => {
+        if (!isClient) return;
+        const action = searchParams.get('action');
+        const amt = searchParams.get('amount');
+        if (action === 'payment') {
+            setShowPaymentModal(true);
+            if (amt) setPaymentAmount(amt);
+        }
+    }, [isClient, searchParams]);
+
+    const [activeTab, setActiveTab] = useState('Overview');
     // Promise State
     const [showPromiseModal, setShowPromiseModal] = useState(false);
     const [promiseDate, setPromiseDate] = useState('');
