@@ -106,47 +106,6 @@ export default function InventoryPage() {
         return "📦";
     };
 
-    if (!isClient) {
-        return (
-            <div className="inv-page-container">
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                    :root {
-                      --bg:        #f2f3f7;
-                      --white:     #ffffff;
-                      --ink:       #0d0f1a;
-                      --ink2:      --2d3048;
-                      --ink3:      --6b7094;
-                      --ink4:      --a8adcc;
-                      --border:    #e4e6f0;
-                      --border2:   #d0d3e8;
-                      --green:     #10b981;
-                      --green-lt:  #d1fae5;
-                      --green-dk:  #059669;
-                      --amber:     #f59e0b;
-                      --amber-lt:  #fef3c7;
-                      --red:       #ef4444;
-                      --red-lt:    #fee2e2;
-                      --blue:      #3b82f6;
-                      --blue-lt:   #dbeafe;
-                      --purple:    #8b5cf6;
-                      --purple-lt: #ede9fe;
-                      --indigo:    #4f46e5;
-                    }
-                    .inv-page-container {
-                      font-family:sans-serif;
-                      background:var(--bg);
-                      max-width:480px; margin:0 auto;
-                      min-height:100vh;
-                      color:var(--ink);
-                    }
-                    `
-                }} />
-                <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.loading}</div>
-            </div>
-        );
-    }
-
     // ── DERIVED STATES ──
     const filteredProducts = useMemo(() => {
         return (products || [])
@@ -402,6 +361,47 @@ export default function InventoryPage() {
             setFormData(prev => ({ ...prev, barcode: code }));
         }
     };
+
+    if (!isClient) {
+        return (
+            <div className="inv-page-container">
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                    :root {
+                      --bg:        #f2f3f7;
+                      --white:     #ffffff;
+                      --ink:       #0d0f1a;
+                      --ink2:      --2d3048;
+                      --ink3:      --6b7094;
+                      --ink4:      --a8adcc;
+                      --border:    #e4e6f0;
+                      --border2:   #d0d3e8;
+                      --green:     #10b981;
+                      --green-lt:  #d1fae5;
+                      --green-dk:  #059669;
+                      --amber:     #f59e0b;
+                      --amber-lt:  #fef3c7;
+                      --red:       #ef4444;
+                      --red-lt:    #fee2e2;
+                      --blue:      #3b82f6;
+                      --blue-lt:   #dbeafe;
+                      --purple:    #8b5cf6;
+                      --purple-lt: #ede9fe;
+                      --indigo:    #4f46e5;
+                    }
+                    .inv-page-container {
+                      font-family:sans-serif;
+                      background:var(--bg);
+                      max-width:480px; margin:0 auto;
+                      min-height:100vh;
+                      color:var(--ink);
+                    }
+                    `
+                }} />
+                <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t.loading}</div>
+            </div>
+        );
+    }
 
     return (
         <div className="inv-page-container">

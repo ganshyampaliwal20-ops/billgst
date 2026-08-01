@@ -74,8 +74,6 @@ export default function SmartAttendance() {
         }
     }, [aiDraftData, staff, selectedDate, markAttendance, setAiDraftData, isClient]);
 
-    if (!isClient) return null;
-
     // Data filtering
     const getStatus = (staffId: string, dStr: string) => {
         const rec = attendance?.find((a: any) => a.staff_id === staffId && a.date === dStr);
@@ -484,6 +482,8 @@ export default function SmartAttendance() {
             if (action !== 'view') toast.success('Salary Slip Ready!');
         } catch (err) { toast.error('Failed to save PDF'); }
     };
+
+    if (!isClient) return null;
 
     return (
         <>

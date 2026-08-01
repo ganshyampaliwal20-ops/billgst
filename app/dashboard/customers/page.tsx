@@ -32,8 +32,6 @@ export default function CustomersPage() {
         if (fetchCustomers) fetchCustomers(false, 1);
     }, []);
 
-    if (!isClient) return null;
-
     const getCustomerBalance = (customerId: string) => {
         const customerInvoices = invoices.filter((inv: any) => inv.customer_id === customerId || inv.customer?.id === customerId);
         const total = customerInvoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.total_amount) || 0), 0);
@@ -207,6 +205,8 @@ export default function CustomersPage() {
         }
         setIsLoadingMore(false);
     };
+
+    if (!isClient) return null;
 
     return (
         <div style={{ background: '#f4f6fc', minHeight: '100vh', paddingBottom: '30px' }}>
