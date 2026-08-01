@@ -447,25 +447,61 @@ export default function BusinessExpensesPage() {
         if (aiDraftData.type === 'EXPENSE') {
             const { description, amount } = aiDraftData;
             const searchName = (description || '').trim();
+            const amt = Number(amount) || 0;
             if (searchName && customers.length > 0) {
                 const target = customers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
                 if (target) {
                     setCurCid(target.id);
                     setActiveScreen('detail');
                     window.location.hash = 'detail';
-                    setTimeout(() => openAddEntry('debit', String(amount || '')), 300);
-                } else {
-                    setAcName(searchName);
-                    if (amount) {
-                        setAcOpening(String(amount));
+                    if (amt > 0) {
+                        setCustomers(customers.map(c => {
+                            if (c.id === target.id) {
+                                const newTxn = {
+                                    id: Date.now(),
+                                    type: 'debit',
+                                    amt,
+                                    name: 'Expense (AI)',
+                                    note: '',
+                                    date: new Date().toISOString(),
+                                    category: 'General',
+                                    photos: []
+                                };
+                                return { ...c, balance: c.balance + amt, txns: [newTxn, ...c.txns] };
+                            }
+                            return c;
+                        }));
+                        setCanSave(true);
+                        showToast(t.entrySaved || `✅ ${target.name} me ₹${amt} add ho gaye!`);
+                    } else {
+                        setTimeout(() => openAddEntry('debit', String(amount || '')), 300);
                     }
-                    setIsAddCustOpen(true);
+                } else {
+                    if (amt > 0) {
+                        const nc = { id: Date.now(), name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                            id: Date.now() + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                        }] };
+                        setCustomers([{ ...nc }, ...customers]);
+                        setCanSave(true);
+                        showToast(`✅ Naya account ${searchName} ban gaya aur ₹${amt} add ho gaye!`);
+                    } else {
+                        setAcName(searchName);
+                        setIsAddCustOpen(true);
+                    }
                 }
             } else {
-                if (amount) {
-                    setAcOpening(String(amount));
+                if (amt > 0) {
+                    const partyName = searchName || 'General Expense';
+                    const nc = { id: Date.now(), name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                        id: Date.now() + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                    }] };
+                    setCustomers([{ ...nc }, ...customers]);
+                    setCanSave(true);
+                    showToast(`✅ ${partyName} me ₹${amt} add ho gaye!`);
+                } else {
+                    if (amount) setAcOpening(String(amount));
+                    setIsAddCustOpen(true);
                 }
-                setIsAddCustOpen(true);
             }
             setAiDraftData(null);
         } else if (aiDraftData.type === 'BULK_REMINDER') {

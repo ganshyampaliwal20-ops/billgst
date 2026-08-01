@@ -107,13 +107,13 @@ Example User: "Raju ka 500 ka bill banao 1 mobile bhi daal dena"
 Output: {"action": "CREATE_INVOICE", "payload": {"customerName": "Raju", "amount": 500, "items": [{"name": "mobile", "qty": 1}]}, "reply": "Ji bilkul, Raju ka bill me mobile add kar diya hai, kripya save button dabayein."}
 
 Example User: "ganshyam ka 500 expenses me add karo"
-Output: {"action": "ADD_EXPENSE", "payload": {"description": "ganshyam", "amount": 500}, "reply": "Ji, Ganshyam ke naam ka 500 rupaye ka expense add karne ke liye form khol diya hai."}
+Output: {"action": "ADD_EXPENSE", "payload": {"description": "ganshyam", "amount": 500}, "reply": "Ji, Ganshyam ke naam ka 500 rupaye ka expense add karne ke liye add kar diya hai."}
 
 Example User: "office ka kharcha 500 rupaye"
-Output: {"action": "ADD_EXPENSE", "payload": {"description": "office ka kharcha", "amount": 500}, "reply": "Ji, 500 rupaye ka expense add karne ke liye form khol diya hai."}
+Output: {"action": "ADD_EXPENSE", "payload": {"description": "office ka kharcha", "amount": 500}, "reply": "Ji, 500 rupaye ka expense add karne ke liye add kar diya hai."}
 
 Example User: "Anil ko customer me add karo 9999999999"
-Output: {"action": "ADD_CUSTOMER", "payload": {"name": "Anil", "phone": "9999999999"}, "reply": "Ji, Anil ko add karne ke liye form khol diya hai."}
+Output: {"action": "ADD_CUSTOMER", "payload": {"name": "Anil", "phone": "9999999999"}, "reply": "Ji, Anil ko add karne ke liye add kar diya hai."}
 
 Example User: "Raju ne 500 rupaye jama karaye"
 Output: {"action": "RECORD_PAYMENT", "payload": {"partyName": "Raju", "amount": 500, "type": "IN"}, "reply": "Ji, Raju ki 500 rupaye ki jama entry open kar di hai, kripya save karein."}

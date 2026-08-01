@@ -98,22 +98,24 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             
             let replyText = data.reply;
 
+            // Try to speak it if possible
+            if (replyText && 'speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(replyText);
+                    const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
+                    utterance.lang = langMap[settings?.language] || 'hi-IN';
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {}
+            }
+
             if (data.action) {
                 if (data.action === 'SPEAK_ANSWER') {
-                    // Try to speak it if possible
-                    if ('speechSynthesis' in window) {
-                        try {
-                            window.speechSynthesis.cancel();
-                            const utterance = new SpeechSynthesisUtterance(replyText);
-                            const langMap: any = { 'hi': 'hi-IN', 'en': 'en-IN', 'gu': 'gu-IN', 'mr': 'mr-IN', 'ta': 'ta-IN', 'te': 'te-IN' };
-                            utterance.lang = langMap[settings.language] || 'hi-IN';
-                            window.speechSynthesis.speak(utterance);
-                        } catch(e) {}
-                    }
+                    // Already spoken above
                 } else if (data.action === 'SEND_REMINDERS') {
                     setAiDraftData({ type: 'BULK_REMINDER' });
                     setTimeout(() => router.push('/dashboard/expenses'), 1000); // We use expenses/page for Hisaab logic
-                    onClose();
+                    
                 } else if (data.action === 'GET_BALANCE') {
                     const partyName = data.payload?.partyName;
                     if (partyName) {
@@ -135,40 +137,40 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 if (data.action === 'CREATE_INVOICE') {
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
                     setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'MARK_ATTENDANCE') {
                     setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
                     setTimeout(() => router.push('/dashboard/staff'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
                     setTimeout(() => router.push('/dashboard/expenses'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
                     setTimeout(() => router.push('/dashboard/inventory'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'ADD_CUSTOMER') {
                     setAiDraftData({ type: 'CUSTOMER', ...data.payload });
                     setTimeout(() => router.push('/dashboard/customers'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'ADD_SUPPLIER') {
                     setAiDraftData({ type: 'SUPPLIER', ...data.payload });
                     setTimeout(() => router.push('/dashboard/suppliers'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'RECORD_PAYMENT') {
                     setAiDraftData({ type: 'PAYMENT', ...data.payload });
                     setTimeout(() => router.push('/dashboard/customers'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'CREATE_PURCHASE') {
                     setAiDraftData({ type: 'PURCHASE', ...data.payload });
                     setTimeout(() => router.push('/dashboard/purchases/new'), 1000);
-                    onClose();
+                    
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
                     if (path) {
                         setTimeout(() => router.push(path), 1000);
-                        onClose();
+                        
                     }
                 }
             } else {
