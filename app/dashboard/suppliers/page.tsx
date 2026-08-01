@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { useStore } from '@/lib/store';
 
 export default function SuppliersPage() {
     const router = useRouter();
+    const { aiDraftData, setAiDraftData } = useStore() as any;
     const [suppliers, setSuppliers] = useState<any[]>([]);
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -21,6 +23,16 @@ export default function SuppliersPage() {
         setIsClient(true);
         fetchSuppliers();
     }, []);
+
+    useEffect(() => {
+        if (!isClient || !aiDraftData) return;
+        if (aiDraftData.type === 'SUPPLIER') {
+            setNewName(aiDraftData.name || '');
+            setNewPhone(aiDraftData.phone || '');
+            setShowAddModal(true);
+            setAiDraftData(null);
+        }
+    }, [isClient, aiDraftData]);
 
     const fetchSuppliers = async () => {
         try {

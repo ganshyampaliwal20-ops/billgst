@@ -514,7 +514,11 @@ export default function SmartAttendance() {
                   box-shadow: 0 30px 60px rgba(45,30,110,0.18), 0 0 0 10px #1c1830;
                   overflow:hidden; position:relative;
                 }
-                @media(max-width:600px){ .phone { width: 100%; border-radius: 0; box-shadow: none; } .att-wrapper{padding:0;} }
+                @media(max-width:600px){ 
+                  .phone { width: 100%; border-radius: 0; box-shadow: none; min-height: 100vh; } 
+                  .att-wrapper{padding:0;} 
+                  .fab { position: fixed; bottom: 80px; right: 20px; z-index: 99; }
+                }
                 .scroll{ height:820px; overflow-y:auto; padding-bottom:110px; scrollbar-width:none; }
                 .scroll::-webkit-scrollbar{display:none;}
                 

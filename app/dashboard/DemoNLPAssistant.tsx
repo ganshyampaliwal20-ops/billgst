@@ -16,8 +16,11 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
     const recognitionRef = useRef<any>(null);
     const router = useRouter();
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
-    const staffData = useStore((state: any) => state.staff) || [];
+    const settings = useStore((state: any) => state.settings) || {};
+    const customers = useStore((state: any) => state.customers) || [];
     const productsData = useStore((state: any) => state.products) || [];
+    const staffData = useStore((state: any) => state.staff) || [];
+    const isEn = settings.language === 'en';
     
     const exampleStaff = staffData.length > 0 ? staffData[0].name.split(' ')[0] : "Ramesh";
     const exampleItem = productsData.length > 0 ? productsData[0].name : "5 kg aata";    if (!isOpen) return null;
@@ -61,155 +64,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         }
     };
 
-    const removeStopWords = (text: string, words: string[]) => {
-        let res = text;
-        words.forEach(w => {
-            const regex = new RegExp(`(^|\\s)${w}(?=\\s|$)`, 'gi');
-            res = res.replace(regex, ' ');
-        });
-        return res;
-    };
-
-    const processText = (text: string) => {
-        const lowerText = text.toLowerCase();
-        
-        // --- Intent 1: Attendance ---
-        const isAttendance = lowerText.match(/(attendance|attendence|present|laga|lagao|mark|leave|absent|chutti|प्रेजेंट|अटेंडेंस|लगाओ|लगा|लगाना|हाजिरी|छुट्टी|लीव|एब्सेंट)/i);
-        if (isAttendance) {
-            const isAbsent = lowerText.match(/(leave|absent|chutti|छुट्टी|लीव|एब्सेंट)/i);
-            const status = isAbsent ? 'ABSENT' : 'PRESENT';
-            const actionText = isAbsent ? 'absent' : 'present';
-
-            const stopWords = ['ki','ka','ke','ko','attendance','attendence','present','laga','lagao','mark','karo','kar','bhai','leave','absent','chutti','aaj','aj','do','de','hai','ho','gaya','की','का','के','को','अटेंडेंस','प्रेजेंट','लगाओ','लगा','मार्क','करो','कर','भाई','छुट्टी','लीव','एब्सेंट','आज','दो','दे','है','हो','गया','में','लगाना'];
-            let name = removeStopWords(lowerText, stopWords);
-            name = name.replace(/[.,?!'"]/g, '').replace(/\s+/g, ' ').trim();
-            
-            if (name) {
-                name = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            }
-
-            if (name) {
-                setAiDraftData({ type: 'ATTENDANCE', action: actionText, staffName: name, status: status });
-                setTimeout(() => router.push('/dashboard/staff'), 1000);
-                onClose();
-                return `✅ **Attendance Request!**\n- Name: ${name}\n- Status: ${status}\n\nHaajiri page open ho raha hai...`;
-            } else {
-                return `Aap attendance lagana chahte hain, par mujhe staff ka naam samajh nahi aaya.`;
-            }
-        }
-        
-        // --- Intent 2: Expenses ---
-        const isExpense = lowerText.match(/(expense|expenses|kharcha|खर्चा|एक्सपेंस)/i);
-        if (isExpense) {
-            const amountMatch = lowerText.match(/(\d+)/);
-            const amount = amountMatch ? parseInt(amountMatch[1]) : 0;
-            
-            const stopWords = ['expense','expenses','kharcha','me','add','karo','kar','do','diya','rupye','rs','rupees','ko','liye','ke','ka','ki','aur','to','in','se','cash','खर्चा','एक्सपेंस','में','ऐड','करो','कर','दो','दिया','रुपये','रुपए','रु','को','लिए','के','का','की','और','से','नकद'];
-            let desc = removeStopWords(lowerText, stopWords);
-            desc = desc.replace(/\d+/g, '').replace(/[.,?!'"]/g, '').replace(/\s+/g, ' ').trim();
-                
-            if (desc) {
-                desc = desc.charAt(0).toUpperCase() + desc.slice(1);
-            }
-
-            if (desc || amount > 0) {
-                setAiDraftData({ type: 'EXPENSE', description: desc, amount: amount });
-                setTimeout(() => router.push('/dashboard/expenses/new'), 1000);
-                onClose();
-                return `✅ **Expense Request!**\n- Details: ${desc}\n- Amount: ₹${amount}\n\nKharcha page open ho raha hai...`;
-            }
-        }
-        
-        // --- Intent 3: Billing ---
-        else if (lowerText.match(/(bill|banao|add|बिल|बनाओ|बना|ऐड)/i)) {
-            let customerName = '';
-            let item = '';
-            
-            const quantityMatch = lowerText.match(/(\d+)/);
-            const quantity = quantityMatch ? parseInt(quantityMatch[1]) : 1;
-            
-            let processedText = lowerText.replace(/\d+/g, '').trim();
-            
-            const doubleKaMatch = processedText.match(/(.+?)\s+(ka|का)\s+(.+?)\s+(ka|का)\s+(bill|बिल)/i);
-            const keNaamMatch = processedText.match(/(.+?)\s+(ke naam se|के नाम से)\s+(.+?)\s*((ka bill)|(का बिल)|bill|बिल)/i);
-            
-            if (doubleKaMatch) {
-                customerName = doubleKaMatch[1].trim();
-                item = doubleKaMatch[3].trim();
-            } else if (keNaamMatch) {
-                customerName = keNaamMatch[1].trim();
-                item = keNaamMatch[3].trim();
-            } else {
-                const singleNaamMatch = processedText.match(/(.+?)\s+(ke naam|के नाम)\s+((ka bill)|(का बिल)|bill|बिल)/i);
-                if (singleNaamMatch) {
-                    customerName = singleNaamMatch[1].trim();
-                } else {
-                    const stopWords = ['new','bill','banao','ka','kaa','ke','ek','do','add','karo','create','make','नया','बिल','बनाओ','बना','का','के','एक','दो','ऐड','करो'];
-                    item = removeStopWords(processedText, stopWords).replace(/\s+/g, ' ').trim();
-                }
-            }
-
-            if (customerName) {
-                customerName = customerName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            }
-            if (item) {
-                const stopWords = ['new','bill','banao','ka','kaa','ke','ek','do','add','karo','create','make','नया','बिल','बनाओ','बना','का','के','एक','दो','ऐड','करो'];
-                item = removeStopWords(item, stopWords).replace(/\s+/g, ' ').trim();
-            }
-
-            if (customerName || item) {
-                const payload: any = { type: 'INVOICE', items: [] };
-                if (customerName) payload.customerName = customerName;
-                if (item) payload.items = [{ name: item, quantity: quantity, rate: 0, amount: 0 }];
-                
-                setAiDraftData(payload);
-                setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
-                onClose();
-                
-                let replyMsg = `✅ **Bill Request Captured!**\n`;
-                if (customerName) replyMsg += `- Customer: ${customerName}\n`;
-                if (item) replyMsg += `- Item: ${item} (Qty: ${quantity})\n`;
-                replyMsg += `\nNaya bill form open ho raha hai...`;
-                return replyMsg;
-            } else {
-                return `Aap bill banana chahte hain, par mujhe item ya customer ka naam samajh nahi aaya.`;
-            }
-        }
-        
-        // --- Intent 4: Navigation (Local Agentic Capabilities) ---
-        const isNavigation = lowerText.match(/(dikh|show|open|kholo|jao|go to|report|reports|customer|customers|item|items|inventory|product|products|staff|team|party|parties|setting|settings)/i);
-        if (isNavigation && !lowerText.match(/(bill|expense|kharcha|attendance)/i)) {
-            if (lowerText.match(/(report|reports|hisaab|analytics)/i)) {
-                setTimeout(() => router.push('/dashboard/reports'), 1000);
-                onClose();
-                return `✅ Reports page open ho raha hai...`;
-            }
-            if (lowerText.match(/(customer|customers|party|parties|client)/i)) {
-                setTimeout(() => router.push('/dashboard/customers'), 1000);
-                onClose();
-                return `✅ Customers list open ho rahi hai...`;
-            }
-            if (lowerText.match(/(item|items|inventory|product|products|stock)/i)) {
-                setTimeout(() => router.push('/dashboard/inventory'), 1000);
-                onClose();
-                return `✅ Inventory (Items) open ho raha hai...`;
-            }
-            if (lowerText.match(/(staff|team|employee)/i)) {
-                setTimeout(() => router.push('/dashboard/staff'), 1000);
-                onClose();
-                return `✅ Staff list open ho rahi hai...`;
-            }
-            if (lowerText.match(/(setting|settings)/i)) {
-                setTimeout(() => router.push('/dashboard/settings'), 1000);
-                onClose();
-                return `✅ Settings open ho rahi hai...`;
-            }
-        }
-        
-        return `Maaf karna, mai abhi itne commands samajh sakta hu:\n1. Bill banana\n2. Attendance lagana\n3. Kharcha add karna\n4. Reports/Customers/Items dikhana\n\nJaise ki: "${exampleItem} ka bill banao"`;
-    };
-
-    const handleSend = (overrideText?: string) => {
+    const handleSend = async (overrideText?: string) => {
         const textToSend = overrideText || input.trim();
         if (!textToSend) return;
         
@@ -217,16 +72,90 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         if (!overrideText) setInput('');
         setIsProcessing(true);
 
-        // Simulate network delay
-        setTimeout(() => {
-            const aiReply = processText(textToSend);
-            setMessages(prev => [...prev, { role: 'ai', text: aiReply }]);
-            setIsProcessing(false);
+        try {
+            const customerNames = customers.map((c: any) => c.name);
+            const productNames = productsData.map((p: any) => p.name);
+
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: textToSend, 
+                    language: settings.language || 'hi',
+                    customerNames,
+                    productNames
+                })
+            });
+            const data = await response.json();
             
-            if (aiReply.includes('✅')) {
-                toast.success('Kaam ho gaya!');
+            let replyText = data.reply;
+
+            if (data.action) {
+                if (data.action === 'GET_BALANCE') {
+                    const partyName = data.payload?.partyName;
+                    if (partyName) {
+                        const customer = customers.find((c: any) => c.name.toLowerCase() === partyName.toLowerCase());
+                        if (customer) {
+                            const bal = customer.balance || 0;
+                            const type = customer.balanceType === 'RECEIVABLE' ? 'lena hai' : 'dena hai';
+                            replyText = isEn ? `${customer.name}'s balance is ${bal} rupees.` : `${customer.name} ka balance ${bal} rupaye hai (${type}).`;
+                        } else {
+                            replyText = isEn ? `Customer ${partyName} not found.` : `Maaf kijiye, ${partyName} naam ka koi customer nahi mila.`;
+                        }
+                    }
+                }
+
+                setMessages(prev => [...prev, { role: 'ai', text: replyText }]);
+                setIsProcessing(false);
+
+                // Handle navigation and state updates
+                if (data.action === 'CREATE_INVOICE') {
+                    setAiDraftData({ type: 'INVOICE', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
+                    onClose();
+                } else if (data.action === 'MARK_ATTENDANCE') {
+                    setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/staff'), 1000);
+                    onClose();
+                } else if (data.action === 'ADD_EXPENSE') {
+                    setAiDraftData({ type: 'EXPENSE', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/expenses/new'), 1000);
+                    onClose();
+                } else if (data.action === 'ADD_INVENTORY') {
+                    setAiDraftData({ type: 'INVENTORY', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/inventory'), 1000);
+                    onClose();
+                } else if (data.action === 'ADD_CUSTOMER') {
+                    setAiDraftData({ type: 'CUSTOMER', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/customers'), 1000);
+                    onClose();
+                } else if (data.action === 'ADD_SUPPLIER') {
+                    setAiDraftData({ type: 'SUPPLIER', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/suppliers'), 1000);
+                    onClose();
+                } else if (data.action === 'RECORD_PAYMENT') {
+                    setAiDraftData({ type: 'PAYMENT', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/customers'), 1000);
+                    onClose();
+                } else if (data.action === 'CREATE_PURCHASE') {
+                    setAiDraftData({ type: 'PURCHASE', ...data.payload });
+                    setTimeout(() => router.push('/dashboard/purchases/new'), 1000);
+                    onClose();
+                } else if (data.action === 'NAVIGATE') {
+                    const path = data.payload?.path || data.path;
+                    if (path) {
+                        setTimeout(() => router.push(path), 1000);
+                        onClose();
+                    }
+                }
+            } else {
+                setMessages(prev => [...prev, { role: 'ai', text: replyText }]);
+                setIsProcessing(false);
             }
-        }, 800);
+        } catch (error: any) {
+            setMessages(prev => [...prev, { role: 'ai', text: 'API Error: ' + error.message }]);
+            setIsProcessing(false);
+        }
     };
 
     // Helper to format time

@@ -10,7 +10,7 @@ import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 export default function CustomersPage() {
     const router = useRouter();
-    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings, fetchCustomers } = useStore() as any;
+    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings, fetchCustomers, aiDraftData, setAiDraftData } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
 
@@ -31,6 +31,30 @@ export default function CustomersPage() {
         setIsClient(true); 
         if (fetchCustomers) fetchCustomers(false, 1);
     }, []);
+
+    useEffect(() => {
+        if (!isClient || !aiDraftData) return;
+        if (aiDraftData.type === 'CUSTOMER') {
+            setNewName(aiDraftData.name || '');
+            setNewPhone(aiDraftData.phone || '');
+            setShowAddModal(true);
+            setAiDraftData(null);
+        } else if (aiDraftData.type === 'PAYMENT') {
+            if (aiDraftData.partyName) {
+                const targetCust = customers.find((c: any) => c.name.toLowerCase() === aiDraftData.partyName.toLowerCase());
+                if (targetCust) {
+                    router.push('/dashboard/customers/' + targetCust.id + '?action=payment');
+                    setAiDraftData(null);
+                } else {
+                    toast.error('Customer not found for payment: ' + aiDraftData.partyName);
+                    setSearchTerm(aiDraftData.partyName);
+                    setAiDraftData(null);
+                }
+            } else {
+                setAiDraftData(null);
+            }
+        }
+    }, [isClient, aiDraftData, customers]);
 
     const getCustomerBalance = (customerId: string) => {
         const customerInvoices = invoices.filter((inv: any) => inv.customer_id === customerId || inv.customer?.id === customerId);

@@ -27,6 +27,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
     const modalRef = useRef<HTMLDivElement>(null);
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
     const settings = useStore((state: any) => state.settings) || {};
+    const customers = useStore((state: any) => state.customers) || [];
+    const products = useStore((state: any) => state.products) || [];
     const isEn = settings.language === 'en';
 
     useEffect(() => {
@@ -211,20 +213,44 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second strict timeout on frontend
         try {
+            const customerNames = customers.map((c: any) => c.name);
+            const productNames = products.map((p: any) => p.name);
+
             const response = await fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, language: settings.language || 'hi' }),
+                body: JSON.stringify({ 
+                    message: text, 
+                    language: settings.language || 'hi',
+                    customerNames,
+                    productNames
+                }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
             const data = await response.json();
-            setReply(data.reply);
-            setIsProcessing(false); // UI shows the text reply now
-            
-            await speakOutput(data.reply);
+            let spokenReply = data.reply;
 
             if (data.action) {
+                if (data.action === 'GET_BALANCE') {
+                    const partyName = data.payload?.partyName;
+                    if (partyName) {
+                        // Find customer
+                        const customer = customers.find((c: any) => c.name.toLowerCase() === partyName.toLowerCase());
+                        if (customer) {
+                            const bal = customer.balance || 0;
+                            const type = customer.balanceType === 'RECEIVABLE' ? 'lena hai' : 'dena hai';
+                            spokenReply = isEn ? `${customer.name}'s balance is ${bal} rupees.` : `${customer.name} ka balance ${bal} rupaye hai (${type}).`;
+                        } else {
+                            spokenReply = isEn ? `Customer ${partyName} not found.` : `Maaf kijiye, ${partyName} naam ka koi customer nahi mila.`;
+                        }
+                    }
+                }
+
+                setReply(spokenReply);
+                setIsProcessing(false);
+                await speakOutput(spokenReply);
+
                 if (data.action === 'CREATE_INVOICE') {
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
                     toast.success(isEn ? 'Creating bill...' : 'Bill banane ja raha hu...');
@@ -241,15 +267,35 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
                     toast.success(isEn ? 'Opening inventory form...' : 'Inventory form khol raha hu...');
                     router.push('/dashboard/inventory');
+                } else if (data.action === 'ADD_CUSTOMER') {
+                    setAiDraftData({ type: 'CUSTOMER', ...data.payload });
+                    toast.success(isEn ? 'Opening customer form...' : 'Customer form khol raha hu...');
+                    router.push('/dashboard/customers');
+                } else if (data.action === 'ADD_SUPPLIER') {
+                    setAiDraftData({ type: 'SUPPLIER', ...data.payload });
+                    toast.success(isEn ? 'Opening supplier form...' : 'Supplier form khol raha hu...');
+                    router.push('/dashboard/suppliers');
+                } else if (data.action === 'RECORD_PAYMENT') {
+                    setAiDraftData({ type: 'PAYMENT', ...data.payload });
+                    toast.success(isEn ? 'Opening payment entry...' : 'Payment entry khol raha hu...');
+                    router.push('/dashboard/customers'); // Or whichever page handles payments
+                } else if (data.action === 'CREATE_PURCHASE') {
+                    setAiDraftData({ type: 'PURCHASE', ...data.payload });
+                    toast.success(isEn ? 'Creating purchase bill...' : 'Kharidi bill bana raha hu...');
+                    router.push('/dashboard/purchases/new');
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
                     if (path) {
                         toast.success(isEn ? 'Opening page...' : 'Page khol raha hu...');
                         router.push(path);
                     }
-                } else if (data.action !== 'REPLY') {
+                } else if (data.action !== 'REPLY' && data.action !== 'GET_BALANCE') {
                     toast.error((isEn ? 'Action not understood: ' : 'Action samajh nahi aaya: ') + data.action);
                 }
+            } else {
+                setReply(spokenReply);
+                setIsProcessing(false);
+                await speakOutput(spokenReply);
             }
         } catch (error: any) {
             toast.error('API Error: ' + error.message);

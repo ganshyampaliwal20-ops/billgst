@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useStore } from '@/lib/store';
 
 export default function NewPurchasePage() {
     const router = useRouter();
+    const { aiDraftData, setAiDraftData } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     
     // Data sources
@@ -31,6 +33,39 @@ export default function NewPurchasePage() {
         fetchSuppliers();
         fetchProducts();
     }, []);
+
+    useEffect(() => {
+        if (!isClient || !aiDraftData) return;
+        if (aiDraftData.type === 'PURCHASE') {
+            if (aiDraftData.supplierName && suppliers.length > 0) {
+                const sup = suppliers.find(s => s.name.toLowerCase() === aiDraftData.supplierName.toLowerCase());
+                if (sup) setSupplierId(sup.id);
+            }
+            if (aiDraftData.items && aiDraftData.items.length > 0) {
+                const newItems = aiDraftData.items.map((item: any, i: number) => {
+                    const matchedProduct = products.find(p => p.name.toLowerCase() === item.name.toLowerCase());
+                    const qty = parseFloat(item.quantity) || 1;
+                    const prc = matchedProduct?.price || 0;
+                    const gst = matchedProduct?.gst_rate || 0;
+                    const baseTotal = qty * prc;
+                    const taxAmount = baseTotal * (gst / 100);
+                    return {
+                        id: Date.now() + i,
+                        product_id: matchedProduct ? matchedProduct.id : '',
+                        product_name: item.name,
+                        quantity: qty,
+                        price: prc,
+                        cgst_rate: gst / 2,
+                        sgst_rate: gst / 2,
+                        igst_rate: 0,
+                        total: baseTotal + taxAmount
+                    };
+                });
+                setItems(newItems);
+            }
+            setAiDraftData(null);
+        }
+    }, [isClient, aiDraftData, suppliers, products]);
 
     const fetchSuppliers = async () => {
         try {
