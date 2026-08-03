@@ -1032,9 +1032,11 @@ export default function BusinessExpensesPage() {
                 let newBalance = currentCustomer.balance;
                 newBalance += (isDebit ? amt : -amt);
 
-                const action = isDebit ? (t.givenText || 'Given') : (t.receivedText || 'Received');
+                const action = isDebit ? 'Given (Debit)' : 'Received (Credit)';
                 const bizName = businessProfile?.business_name || businessProfile?.name || 'BillGST';
-                let txt = `*${bizName} - Hisaab Update*\n\n${t.namaste || 'Namaste'} ${currentCustomer.name} 🙏\n\n${t.accountUpdatedMsg || 'Aaj aapke khate me'} *₹${amt}* (${action}) ${t.added || 'gaye hain'}.\n\n*${t.newBalance || 'Naya Balance'}:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? (t.advanceJama || '(Advance Jama)') : (t.dueBaki || '(Due / Baki)')}\n\n${t.thankYou || 'Dhanyawad'},\n*${bizName}*`;
+                const balType = newBalance < 0 ? 'Advance' : 'Due';
+                
+                let txt = `*${bizName} - Account Statement*\n\nHello ${currentCustomer.name},\n\nYour account has been updated with *₹${amt}* (${action}).\n\n*Current Balance:* ₹${Math.abs(newBalance)} (${balType})\n\nThank you,\n*${bizName}*`;
                 txt += getVisitingCardText(businessProfile);
                 
                 // 1. Direct WhatsApp intent on user device for 100% instant delivery
@@ -1045,20 +1047,8 @@ export default function BusinessExpensesPage() {
                     console.error('Failed to open WhatsApp window', e);
                 }
 
-                // 2. Send to background WhatsApp bot queue (if VPS or bot connected)
-                const formData = new FormData();
-                formData.append('phone', phone);
-                formData.append('message', txt);
-                
-                fetch('/api/whatsapp/send-media', {
-                    method: 'POST',
-                    body: formData
-                }).catch(e => {
-                    console.error('Failed to send auto whatsapp', e);
-                });
-
-                // 3. Central Cloud SMS dispatch (OkCredit / Khatabook zero-setup automatic SMS)
-                const plainSms = `Namaste ${currentCustomer.name}, ${bizName} par aapke khate me Rs.${amt} (${action}) update hua. Naya Balance: Rs.${Math.abs(newBalance)} ${newBalance < 0 ? 'Advance' : 'Baki'}. - BillGST`;
+                // 2. Central Cloud SMS dispatch (Fast2SMS Gateway)
+                const plainSms = `Dear ${currentCustomer.name}, your account with ${bizName} has been updated with Rs.${amt} (${action}). Current Balance: Rs.${Math.abs(newBalance)} (${balType}). - ${bizName}`;
                 fetch('/api/notifications/send-sms', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

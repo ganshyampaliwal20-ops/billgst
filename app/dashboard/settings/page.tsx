@@ -469,13 +469,13 @@ export default function SettingsPage() {
             <div className="shell">
                 <div className="page-head">
                     <h1>Business Settings</h1>
-                    <p>Apni business profile, tax settings aur invoice preferences yahan manage karein</p>
+                    <p>Manage your business profile, tax settings, and invoice preferences</p>
                 </div>
 
                 <nav className="mobile-nav">
                     {['profile', 'tax', 'bank', 'payments', 'whatsapp-automation', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
                         <a key={id} onClick={() => handleScrollTo(id)} className={activeSection === id ? 'active' : ''}>
-                            {id === 'whatsapp-automation' ? 'WhatsApp / SMS' : (id.charAt(0).toUpperCase() + id.slice(1))}
+                            {id === 'whatsapp-automation' ? 'WhatsApp & SMS' : (id.charAt(0).toUpperCase() + id.slice(1))}
                         </a>
                     ))}
                 </nav>
@@ -508,7 +508,7 @@ export default function SettingsPage() {
                         <div className="ring" data-pct={(!formData.signature || !formData.logo) ? "80%" : "100%"}></div>
                         <div className="info">
                             <b>Profile {(!formData.signature || !formData.logo) ? "80%" : "100%"} complete</b>
-                            <span>{(!formData.signature || !formData.logo) ? "Signature & Logo add karke apna invoice professional banayein" : "Aapka business profile complete hai!"}</span>
+                            <span>{(!formData.signature || !formData.logo) ? "Add signature and logo to make your invoices 100% professional" : "Your business profile is fully complete!"}</span>
                         </div>
                     </div>
 
@@ -516,11 +516,11 @@ export default function SettingsPage() {
                     <div className="card" id="profile">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
-                            <div><h2>Business Profile</h2><p>Aapki business ki basic details</p></div>
+                            <div><h2>Business Profile</h2><p>Basic details about your business</p></div>
                         </div>
                         <div className="field">
                             <label>Business Name</label>
-                            <input type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Jaise: Gupta Electricals" />
+                            <input type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="e.g. Acme Enterprises" />
                         </div>
                         <div className="row2">
                             <div className="field">
@@ -534,7 +534,7 @@ export default function SettingsPage() {
                         </div>
                         <div className="field">
                             <label>Business Address</label>
-                            <textarea value={formData.address || ''} onChange={(e) => setFormData({...formData, address: e.target.value})} placeholder="Building, area, landmark"></textarea>
+                            <textarea value={formData.address || ''} onChange={(e) => setFormData({...formData, address: e.target.value})} placeholder="Building, street, area, landmark"></textarea>
                         </div>
                         <div className="row3">
                             <div className="field">
@@ -551,10 +551,14 @@ export default function SettingsPage() {
                                     <option value="Madhya Pradesh">Madhya Pradesh</option>
                                     <option value="Uttar Pradesh">Uttar Pradesh</option>
                                     <option value="Delhi">Delhi</option>
+                                    <option value="Karnataka">Karnataka</option>
+                                    <option value="Tamil Nadu">Tamil Nadu</option>
+                                    <option value="Punjab">Punjab</option>
+                                    <option value="West Bengal">West Bengal</option>
                                 </select>
                             </div>
                         </div>
-                        <div className="hint tax-hint">⚠ State ke basis par CGST+SGST ya IGST automatically apply hoga</div>
+                        <div className="hint tax-hint">⚠ Tax (CGST+SGST or IGST) is automatically determined based on State</div>
                     </div>
 
                     {/* Tax Settings */}
@@ -562,11 +566,11 @@ export default function SettingsPage() {
                         <div className="card-head with-toggle">
                             <div className="card-head-left">
                                 <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-                                <div><h2>Tax Settings</h2><p>GST configuration — har invoice pe apply hoga</p></div>
+                                <div><h2>Tax Settings</h2><p>GST configuration applied on invoices</p></div>
                             </div>
                         </div>
                         <div className="toggle-row">
-                            <div><b>Mera GST Number hai</b><span>OFF karne par invoices bina GST ke banengi</span></div>
+                            <div><b>I have a GSTIN Number</b><span>When disabled, non-GST invoices will be generated</span></div>
                             <label className="switch">
                                 <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({...localSettings, nonGstMode: !e.target.checked})} />
                                 <span className="slider"></span>
@@ -595,7 +599,7 @@ export default function SettingsPage() {
                                         )}
                                     </div>
                                     {gstStatus === 'valid' && gstName && (
-                                        <div className="verified-name">✓ {gstName} ke naam se registered</div>
+                                        <div className="verified-name">✓ Registered as {gstName}</div>
                                     )}
                                 </div>
                                 <div className="divider"></div>
@@ -618,7 +622,7 @@ export default function SettingsPage() {
                         <div className="card-head with-toggle">
                             <div className="card-head-left">
                                 <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M4 10h16M4 10L12 3l8 7M6 10v11M10 10v11M14 10v11M18 10v11"/></svg></div>
-                                <div><h2>Bank Account Details</h2><p>Invoices pe direct bank transfer ke liye dikhega</p></div>
+                                <div><h2>Bank Account Details</h2><p>Displayed on invoices for direct bank payments</p></div>
                             </div>
                             <label className="switch">
                                 <input type="checkbox" checked={!!formData.show_bank_details} onChange={(e) => setFormData({...formData, show_bank_details: e.target.checked})} />
@@ -630,7 +634,7 @@ export default function SettingsPage() {
                             <div>
                                 <div className="divider"></div>
                                 <div className="row2">
-                                    <div className="field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={e => setFormData({...formData, bank_name: e.target.value})} placeholder="e.g. SBI" /></div>
+                                    <div className="field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={e => setFormData({...formData, bank_name: e.target.value})} placeholder="e.g. HDFC Bank" /></div>
                                     <div className="field"><label>Account Number</label><input type="text" value={formData.account_no || ''} onChange={e => setFormData({...formData, account_no: e.target.value})} placeholder="Account No" /></div>
                                 </div>
                                 <div className="row2">
@@ -646,12 +650,12 @@ export default function SettingsPage() {
                     <div className="card" id="payments">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></div>
-                            <div><h2>Payments</h2><p>UPI ID QR code generate karne ke liye use hoga</p></div>
+                            <div><h2>Payments</h2><p>Used for instant UPI dynamic QR generation</p></div>
                         </div>
                         <div className="field">
                             <label>UPI ID <span className="opt">(for QR Code)</span></label>
                             <input type="text" value={formData.upi_id || ''} onChange={e => setFormData({...formData, upi_id: e.target.value})} placeholder="yourupi@bank" />
-                            <div className="hint">Ye ID se invoice pe payment QR code generate hoga</div>
+                            <div className="hint">This UPI ID will generate dynamic payment QR codes on bills and receipts</div>
                         </div>
                     </div>
 
@@ -663,110 +667,52 @@ export default function SettingsPage() {
                             </div>
                             <div>
                                 <h2>WhatsApp &amp; SMS Automation</h2>
-                                <p>OkCredit / Khatabook jaisa automatic hisaab update aur WhatsApp bot</p>
+                                <p>Automated customer notifications and instant sharing settings</p>
                             </div>
                         </div>
 
-                        {/* Central Cloud SMS Gateway Status */}
-                        <div style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(99, 102, 241, 0.06))', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                        {/* Automated SMS Gateway Status */}
+                        <div style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(99, 102, 241, 0.06))', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span style={{ fontSize: '18px' }}>⚡</span>
-                                    <strong style={{ fontSize: '14px', color: '#60a5fa' }}>Central Cloud SMS Gateway (Zero Setup)</strong>
+                                    <strong style={{ fontSize: '14px', color: '#60a5fa' }}>Automated SMS Gateway (Fast2SMS)</strong>
                                 </div>
-                                <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '3px 8px', borderRadius: '20px', fontWeight: 600 }}>Active ✅</span>
+                                <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '3px 10px', borderRadius: '20px', fontWeight: 600 }}>Active ✅</span>
                             </div>
                             <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                                Sabhi customers ko Hisaab save karte hi bina kisi setup ke automatic SMS deliver hota hai (OkCredit / Khatabook jaisa automatic delivery).
+                                Automatically sends transactional SMS alerts to customer mobile numbers whenever a ledger entry or invoice is saved.
                             </p>
                         </div>
 
-                        {/* Personal WhatsApp Web Bot Connection */}
+                        {/* Instant WhatsApp Sharing */}
                         <div style={{ border: '1px solid var(--card-border)', borderRadius: '14px', padding: '18px', background: 'rgba(255,255,255,0.02)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '10px' }}>
                                 <div>
                                     <strong style={{ fontSize: '15px', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span>📱</span> Personal WhatsApp Web Bot
+                                        <span>💬</span> Instant WhatsApp Receipts &amp; Reminders
                                     </strong>
                                     <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0' }}>
-                                        Apne khud ke WhatsApp number se automatic bills &amp; reminders bhejne ke liye 1 bar scan karein
+                                        One-click sharing of formatted receipts, pending balance links, and PDF bills via WhatsApp.
                                     </p>
                                 </div>
                                 <div>
-                                    {(waStatus === 'READY' || waStatus === 'CONNECTED') ? (
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-                                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
-                                            Connected
-                                        </span>
-                                    ) : (waStatus === 'STARTING' && waQr) ? (
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(234, 179, 8, 0.15)', color: '#facc15', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(234, 179, 8, 0.3)' }}>
-                                            🟡 Scan QR Now
-                                        </span>
-                                    ) : (
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(148, 163, 184, 0.1)', color: '#94a3b8', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(148, 163, 184, 0.2)' }}>
-                                            ⚪ Not Connected
-                                        </span>
-                                    )}
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
+                                        1-Tap Active ⚡
+                                    </span>
                                 </div>
                             </div>
-
-                            {/* When Connected */}
-                            {(waStatus === 'READY' || waStatus === 'CONNECTED') ? (
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(34, 197, 94, 0.06)', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '10px', padding: '14px 16px', marginTop: '12px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-                                            ✅
-                                        </div>
-                                        <div>
-                                            <b style={{ fontSize: '13.5px', color: '#f1f5f9', display: 'block' }}>Aapka WhatsApp Connected Hai!</b>
-                                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Aapke number se automatic background receipts bheje ja rahe hain.</span>
-                                        </div>
-                                    </div>
-                                    <button type="button" onClick={handleDisconnectWhatsApp} disabled={waLoading} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-                                        {waLoading ? 'Disconnecting...' : 'Disconnect'}
-                                    </button>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '12px', color: '#94a3b8', marginTop: '12px' }}>
+                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
+                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>Instant Delivery</strong>
+                                    Works seamlessly across Mobile, Web, and Tablet without server lag.
                                 </div>
-                            ) : (
-                                /* When Disconnected or Scanning */
-                                <div style={{ marginTop: '14px' }}>
-                                    {waQr ? (
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#ffffff', borderRadius: '14px', padding: '24px 16px', maxWidth: '300px', margin: '0 auto', boxShadow: '0 10px 25px rgba(0,0,0,0.3)' }}>
-                                            <QRCodeSVG value={waQr} size={190} />
-                                            <div style={{ marginTop: '14px', textAlign: 'center' }}>
-                                                <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '14px', margin: '0 0 4px' }}>Scan with WhatsApp</p>
-                                                <p style={{ color: '#64748b', fontSize: '11.5px', margin: 0 }}>WhatsApp → Linked Devices → Link a device</p>
-                                            </div>
-                                            <button type="button" onClick={handleDisconnectWhatsApp} style={{ marginTop: '16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}>
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '12px', color: '#94a3b8' }}>
-                                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
-                                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>1. WhatsApp Kholein</strong>
-                                                    Phone me WhatsApp app open karein
-                                                </div>
-                                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
-                                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>2. Linked Devices</strong>
-                                                    Settings / Menu (⋮) → Linked Devices
-                                                </div>
-                                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
-                                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>3. Scan QR Code</strong>
-                                                    'Link a Device' par tap karke scan karein
-                                                </div>
-                                            </div>
-
-                                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
-                                                <button type="button" onClick={handleConnectWhatsApp} disabled={waLoading} style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                                                    {waLoading ? 'Starting Bot...' : 'Connect My WhatsApp Number (Scan QR)'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
+                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>Pre-Formatted Message</strong>
+                                    Includes business name, amount, balance, and online payment links.
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
 
@@ -774,7 +720,7 @@ export default function SettingsPage() {
                     <div className="card" id="branding">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
-                            <div><h2>Branding</h2><p>Logo invoice ke header pe dikhega</p></div>
+                            <div><h2>Branding</h2><p>Your business logo displayed on invoice headers</p></div>
                         </div>
                         <div className="upload-row">
                             <label className="upload-box">
@@ -801,7 +747,7 @@ export default function SettingsPage() {
                     <div className="card" id="signatory">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 17l5-1 10-10a2 2 0 000-3l-1-1a2 2 0 00-3 0L4 12l-1 5z"/></svg></div>
-                            <div><h2>Authorized Signatory</h2><p>Aapka signature invoice aur quotations pe print hoga</p></div>
+                            <div><h2>Authorized Signatory</h2><p>Your signature printed on invoices and quotations</p></div>
                         </div>
                         <div className="field">
                             <label>Authorized Signatory Name</label>
@@ -834,7 +780,7 @@ export default function SettingsPage() {
                     <div className="card" id="terms">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
-                            <div><h2>Default Terms & Conditions</h2><p>Har naye invoice pe automatically appear hoga</p></div>
+                            <div><h2>Default Terms &amp; Conditions</h2><p>Printed automatically on every new invoice</p></div>
                         </div>
                         <div className="field">
                             <label>Terms <span className="opt">(will appear on every new invoice)</span></label>
@@ -847,7 +793,7 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div className="char-count">{(formData.terms_and_conditions || '').length}/500</div>
-                            <div className="hint">Ye terms har naye bill me automatically add ho jayenge</div>
+                            <div className="hint">These terms will automatically appear on all new bills and quotations</div>
                         </div>
                     </div>
 
@@ -860,7 +806,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div>
                                     <h2>Features &amp; Modules</h2>
-                                    <p>Apne hisaab se features on/off karein</p>
+                                    <p>Enable or disable dashboard modules based on your business needs</p>
                                 </div>
                             </div>
                             <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
@@ -900,7 +846,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div>
                                     <h2>Design Your Invoice</h2>
-                                    <p>Invoice ka theme aur layout change karein</p>
+                                    <p>Customize invoice color theme, table layout, and logo position</p>
                                 </div>
                             </div>
                             <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
@@ -997,7 +943,7 @@ export default function SettingsPage() {
                     <div className="card" id="prefs">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg></div>
-                            <div><h2>Preferences</h2><p>Dashboard ke liye display language</p></div>
+                            <div><h2>Preferences</h2><p>Select display language for your dashboard</p></div>
                         </div>
                         <div className="field">
                             <label>Language</label>
@@ -1019,7 +965,7 @@ export default function SettingsPage() {
                         </div>
                         <div className="field">
                             <div className="hint" style={{ fontSize: '12.5px' }}>
-                                {localSettings.language === 'en' ? "Manage your business profile and settings here. Press 'Save All Settings' below to apply changes." : "Apna business profile aur settings yahan se manage karein. Sabhi badlav save karne ke liye neeche 'Save All Settings' button dabayein."}
+                                Manage your business profile and settings here. Press 'Save All Settings' below to apply changes.
                             </div>
                         </div>
                     </div>
