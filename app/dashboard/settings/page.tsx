@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import SignatureModal from '@/app/components/SignatureModal';
 import { optimizeImage } from '@/lib/utils';
 import { languages } from '@/lib/translations';
+import { QRCodeSVG } from 'qrcode.react';
 
 const THEMES = {
     TEMPLATE_1: { accent: '#7c3aed', name: 'Modern Purple' },
@@ -46,6 +47,83 @@ export default function SettingsPage() {
     // GST Verification State
     const [gstStatus, setGstStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
     const [gstName, setGstName] = useState('');
+
+    // WhatsApp Bot Connection State
+    const [waStatus, setWaStatus] = useState<'DISCONNECTED' | 'STARTING_SERVICE' | 'STARTING' | 'READY' | 'CONNECTED' | 'ERROR'>('DISCONNECTED');
+    const [waQr, setWaQr] = useState<string | null>(null);
+    const [waLoading, setWaLoading] = useState(false);
+    const [waPolling, setWaPolling] = useState(false);
+
+    const fetchWaStatus = async () => {
+        try {
+            const res = await fetch('/api/public/whatsapp/bot-status');
+            const data = await res.json();
+            if (data.success) {
+                setWaStatus(data.status);
+                setWaQr(data.qr);
+                return data;
+            }
+        } catch (e) {
+            console.error('Failed to fetch WhatsApp bot status', e);
+        }
+        return null;
+    };
+
+    useEffect(() => {
+        fetchWaStatus();
+    }, []);
+
+    useEffect(() => {
+        let interval: any = null;
+        if (waPolling || waStatus === 'STARTING_SERVICE' || waStatus === 'STARTING') {
+            interval = setInterval(async () => {
+                const data = await fetchWaStatus();
+                if (data && (data.connected || data.status === 'READY' || data.status === 'CONNECTED')) {
+                    setWaPolling(false);
+                    toast.success('WhatsApp Connected Successfully! 🎉');
+                }
+            }, 3000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [waPolling, waStatus]);
+
+    const handleConnectWhatsApp = async () => {
+        setWaLoading(true);
+        setWaPolling(true);
+        try {
+            const res = await fetch('/api/public/whatsapp/bot-status', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                setWaStatus('STARTING_SERVICE');
+                toast.success('Generating WhatsApp QR... Please wait 5-10 seconds ⏳');
+            }
+        } catch (e) {
+            toast.error('Failed to start WhatsApp connect');
+        } finally {
+            setWaLoading(false);
+        }
+    };
+
+    const handleDisconnectWhatsApp = async () => {
+        if (!confirm('Kya aap WhatsApp disconnect karna chahte hain?')) return;
+        setWaLoading(true);
+        try {
+            const res = await fetch('/api/public/whatsapp/bot-status', { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                setWaStatus('DISCONNECTED');
+                setWaQr(null);
+                setWaPolling(false);
+                toast.success('WhatsApp Disconnected');
+            }
+        } catch (e) {
+            toast.error('Failed to disconnect');
+        } finally {
+            setWaLoading(false);
+        }
+    };
 
     useEffect(() => {
         setIsClient(true);
@@ -395,9 +473,9 @@ export default function SettingsPage() {
                 </div>
 
                 <nav className="mobile-nav">
-                    {['profile', 'tax', 'bank', 'payments', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
+                    {['profile', 'tax', 'bank', 'payments', 'whatsapp-automation', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
                         <a key={id} onClick={() => handleScrollTo(id)} className={activeSection === id ? 'active' : ''}>
-                            {id.charAt(0).toUpperCase() + id.slice(1)}
+                            {id === 'whatsapp-automation' ? 'WhatsApp / SMS' : (id.charAt(0).toUpperCase() + id.slice(1))}
                         </a>
                     ))}
                 </nav>
@@ -408,6 +486,7 @@ export default function SettingsPage() {
                         { id: 'tax', label: 'Tax Settings' },
                         { id: 'bank', label: 'Bank Details' },
                         { id: 'payments', label: 'Payments' },
+                        { id: 'whatsapp-automation', label: 'WhatsApp & SMS' },
                         { id: 'branding', label: 'Branding' },
                         { id: 'signatory', label: 'Signatory' },
                         { id: 'terms', label: 'Terms & Conditions' },
@@ -573,6 +652,121 @@ export default function SettingsPage() {
                             <label>UPI ID <span className="opt">(for QR Code)</span></label>
                             <input type="text" value={formData.upi_id || ''} onChange={e => setFormData({...formData, upi_id: e.target.value})} placeholder="yourupi@bank" />
                             <div className="hint">Ye ID se invoice pe payment QR code generate hoga</div>
+                        </div>
+                    </div>
+
+                    {/* WhatsApp & SMS Automation */}
+                    <div className="card" id="whatsapp-automation">
+                        <div className="card-head">
+                            <div className="card-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            </div>
+                            <div>
+                                <h2>WhatsApp &amp; SMS Automation</h2>
+                                <p>OkCredit / Khatabook jaisa automatic hisaab update aur WhatsApp bot</p>
+                            </div>
+                        </div>
+
+                        {/* Central Cloud SMS Gateway Status */}
+                        <div style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(99, 102, 241, 0.06))', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ fontSize: '18px' }}>⚡</span>
+                                    <strong style={{ fontSize: '14px', color: '#60a5fa' }}>Central Cloud SMS Gateway (Zero Setup)</strong>
+                                </div>
+                                <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '3px 8px', borderRadius: '20px', fontWeight: 600 }}>Active ✅</span>
+                            </div>
+                            <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+                                Sabhi customers ko Hisaab save karte hi bina kisi setup ke automatic SMS deliver hota hai (OkCredit / Khatabook jaisa automatic delivery).
+                            </p>
+                        </div>
+
+                        {/* Personal WhatsApp Web Bot Connection */}
+                        <div style={{ border: '1px solid var(--card-border)', borderRadius: '14px', padding: '18px', background: 'rgba(255,255,255,0.02)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                                <div>
+                                    <strong style={{ fontSize: '15px', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span>📱</span> Personal WhatsApp Web Bot
+                                    </strong>
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0' }}>
+                                        Apne khud ke WhatsApp number se automatic bills &amp; reminders bhejne ke liye 1 bar scan karein
+                                    </p>
+                                </div>
+                                <div>
+                                    {(waStatus === 'READY' || waStatus === 'CONNECTED') ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
+                                            Connected
+                                        </span>
+                                    ) : (waStatus === 'STARTING' && waQr) ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(234, 179, 8, 0.15)', color: '#facc15', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+                                            🟡 Scan QR Now
+                                        </span>
+                                    ) : (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(148, 163, 184, 0.1)', color: '#94a3b8', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(148, 163, 184, 0.2)' }}>
+                                            ⚪ Not Connected
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* When Connected */}
+                            {(waStatus === 'READY' || waStatus === 'CONNECTED') ? (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(34, 197, 94, 0.06)', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '10px', padding: '14px 16px', marginTop: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+                                            ✅
+                                        </div>
+                                        <div>
+                                            <b style={{ fontSize: '13.5px', color: '#f1f5f9', display: 'block' }}>Aapka WhatsApp Connected Hai!</b>
+                                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Aapke number se automatic background receipts bheje ja rahe hain.</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" onClick={handleDisconnectWhatsApp} disabled={waLoading} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                                        {waLoading ? 'Disconnecting...' : 'Disconnect'}
+                                    </button>
+                                </div>
+                            ) : (
+                                /* When Disconnected or Scanning */
+                                <div style={{ marginTop: '14px' }}>
+                                    {waQr ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#ffffff', borderRadius: '14px', padding: '24px 16px', maxWidth: '300px', margin: '0 auto', boxShadow: '0 10px 25px rgba(0,0,0,0.3)' }}>
+                                            <QRCodeSVG value={waQr} size={190} />
+                                            <div style={{ marginTop: '14px', textAlign: 'center' }}>
+                                                <p style={{ color: '#0f172a', fontWeight: 700, fontSize: '14px', margin: '0 0 4px' }}>Scan with WhatsApp</p>
+                                                <p style={{ color: '#64748b', fontSize: '11.5px', margin: 0 }}>WhatsApp → Linked Devices → Link a device</p>
+                                            </div>
+                                            <button type="button" onClick={handleDisconnectWhatsApp} style={{ marginTop: '16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '12px', color: '#94a3b8' }}>
+                                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
+                                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>1. WhatsApp Kholein</strong>
+                                                    Phone me WhatsApp app open karein
+                                                </div>
+                                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
+                                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>2. Linked Devices</strong>
+                                                    Settings / Menu (⋮) → Linked Devices
+                                                </div>
+                                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
+                                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>3. Scan QR Code</strong>
+                                                    'Link a Device' par tap karke scan karein
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+                                                <button type="button" onClick={handleConnectWhatsApp} disabled={waLoading} style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                                    {waLoading ? 'Starting Bot...' : 'Connect My WhatsApp Number (Scan QR)'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 

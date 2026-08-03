@@ -1045,7 +1045,7 @@ export default function BusinessExpensesPage() {
                     console.error('Failed to open WhatsApp window', e);
                 }
 
-                // 2. Also send to background VPS bot queue if active
+                // 2. Send to background WhatsApp bot queue (if VPS or bot connected)
                 const formData = new FormData();
                 formData.append('phone', phone);
                 formData.append('message', txt);
@@ -1056,6 +1056,17 @@ export default function BusinessExpensesPage() {
                 }).catch(e => {
                     console.error('Failed to send auto whatsapp', e);
                 });
+
+                // 3. Central Cloud SMS dispatch (OkCredit / Khatabook zero-setup automatic SMS)
+                const plainSms = `Namaste ${currentCustomer.name}, ${bizName} par aapke khate me Rs.${amt} (${action}) update hua. Naya Balance: Rs.${Math.abs(newBalance)} ${newBalance < 0 ? 'Advance' : 'Baki'}. - BillGST`;
+                fetch('/api/notifications/send-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        message: plainSms
+                    })
+                }).catch(e => console.error('Failed to send SMS notification', e));
             }
         }
     };
