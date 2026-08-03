@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillGST - Marketing Post & Banner Generator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #05603A;
+            --primary-dark: #012213;
+            --gold: #f59e0b;
+            --gold-light: #fef3c7;
+            --dark: #0f172a;
+            --gray-700: #334155;
+            --gray-500: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0f172a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 15px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: #059669;
+        }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* SQUARE SOCIAL POST CONTAINER */
+        .post-card {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #011c10 0%, #023820 40%, #05603A 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid var(--gold);
+        }
+
+        .glow-orb {
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Top Brand */
+        .post-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .post-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            object-fit: contain;
+        }
+
+        .brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .brand-title span {
+            color: var(--gold);
+        }
+
+        .badge-pill {
+            background: var(--gold);
+            color: #000000;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Headline */
+        .post-hero {
+            position: relative;
+            z-index: 2;
+            margin: 10px 0;
+        }
+
+        .hero-h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.2;
+            color: #ffffff;
+        }
+
+        .hero-h1 span {
+            color: var(--gold);
+            text-decoration: underline;
+            text-decoration-color: rgba(245, 158, 11, 0.5);
+            text-underline-offset: 4px;
+        }
+
+        .hero-sub {
+            font-size: 12.5px;
+            color: #a7f3d0;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* 6 Feature Grid */
+        .features-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feat-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feat-item.special {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .feat-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .feat-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .feat-text small {
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            color: #cbd5e1;
+            margin-top: 2px;
+        }
+
+        /* Bottom CTA */
+        .post-bottom {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--dark);
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        }
+
+        .bottom-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .offer-tag {
+            font-size: 10px;
+            font-weight: 900;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            color: #023820;
+        }
+
+        .bottom-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            background: var(--gold-light);
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .header-controls {
+                display: none !important;
+            }
+            .post-card {
+                box-shadow: none;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <button class="btn" onclick="window.print()">
+            🖨️ Print / Save Post as PDF
+        </button>
+        <button class="btn btn-outline" onclick="window.location.href='/flyer.html'">
+            📄 Open A4 Flyer Template
+        </button>
+    </div>
+
+    <!-- POST CONTAINER (Square 1:1) -->
+    <div class="post-card" id="marketingPost">
+        <div class="glow-orb"></div>
+
+        <!-- TOP BAR -->
+        <div class="post-top">
+            <div class="post-brand">
+                <img src="/logo.png" alt="BillGST Logo" class="post-logo" onerror="this.src='/icon.png'">
+                <div class="brand-title">Bill<span>GST</span></div>
+            </div>
+            <div class="badge-pill">⚡ 15-Day Free Trial</div>
+        </div>
+
+        <!-- HERO HEADLINE -->
+        <div class="post-hero">
+            <div class="hero-h1">
+                Transform Your Shop into a <span>Smart Digital Store!</span>
+            </div>
+            <div class="hero-sub">
+                India's #1 All-in-One AI Billing, Udhaar Khata & Online Dukaan App
+            </div>
+        </div>
+
+        <!-- 6 POWER FEATURES -->
+        <div class="features-box">
+            <!-- 1. AI Photo Scan -->
+            <div class="feat-item special">
+                <div class="feat-icon">📸</div>
+                <div class="feat-text">
+                    AI Photo Bill Scan
+                    <small>Snap photo to auto-fill bills</small>
+                </div>
+            </div>
+
+            <!-- 2. AI Voice Billing -->
+            <div class="feat-item special">
+                <div class="feat-icon">🎙️</div>
+                <div class="feat-text">
+                    AI Voice Billing
+                    <small>Speak to create bills in 3 sec</small>
+                </div>
+            </div>
+
+            <!-- 3. UPI & QR Pay -->
+            <div class="feat-item">
+                <div class="feat-icon">💳</div>
+                <div class="feat-text">
+                    UPI & QR Payments
+                    <small>Dynamic QR & Live Approval</small>
+                </div>
+            </div>
+
+            <!-- 4. WhatsApp Invoices -->
+            <div class="feat-item">
+                <div class="feat-icon">🧾</div>
+                <div class="feat-text">
+                    WhatsApp Invoices
+                    <small>Thermal 2"/3" & A4 PDF Bills</small>
+                </div>
+            </div>
+
+            <!-- 5. Automated Udhaar -->
+            <div class="feat-item">
+                <div class="feat-icon">📒</div>
+                <div class="feat-text">
+                    Automated Udhaar
+                    <small>WhatsApp Reminders + UPI link</small>
+                </div>
+            </div>
+
+            <!-- 6. Free Online Dukaan -->
+            <div class="feat-item">
+                <div class="feat-icon">🛍️</div>
+                <div class="feat-text">
+                    Free Online Store
+                    <small>QR Catalog & WhatsApp Orders</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM CALL TO ACTION -->
+        <div class="post-bottom">
+            <div class="bottom-left">
+                <div class="offer-tag">🎉 Get Free Demo on Phone & PC</div>
+                <div class="contact-num">📞 Call / WhatsApp: +91 98765 43210</div>
+            </div>
+            <div class="bottom-right">
+                🌐 www.billgst.in
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
