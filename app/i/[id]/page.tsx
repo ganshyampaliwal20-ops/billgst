@@ -123,13 +123,18 @@ export default function InvoiceViewer() {
                 .inv-pdf-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: #1B5E3B; border: 1.5px solid #1B5E3B; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
                 .inv-pdf-btn:hover { background: #EAF4EE; }
 
-                .inv-footer { background: #1B5E3B; padding: 18px 20px; text-align: center; color: #fff; }
-                .inv-thanks { color: rgba(255,255,255,0.92); font-size: 13.5px; font-style: italic; margin-bottom: 12px; display: block; }
-                .inv-promo-card { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 12px; padding: 12px 14px; text-align: center; }
-                .inv-promo-text { font-size: 12px; color: #e2e8f0; margin-bottom: 8px; font-weight: 500; }
-                .inv-promo-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #ffffff; color: #1B5E3B; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 20px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-                .inv-promo-btn:hover { background: #f0fdf4; }
-                .inv-powered { font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-top: 8px; }
+                .inv-footer { background: #15472d; padding: 20px 16px; text-align: center; color: #fff; }
+                .inv-thanks { color: rgba(255,255,255,0.92); font-size: 13.5px; font-style: italic; margin-bottom: 14px; display: block; }
+                .inv-promo-card { background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 16px 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+                .inv-promo-badge { display: inline-block; background: #eab308; color: #000; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; margin-bottom: 8px; }
+                .inv-promo-title { font-size: 15px; font-weight: 800; color: #ffffff; margin: 0 0 4px; line-height: 1.3; }
+                .inv-promo-desc { font-size: 11.5px; color: #cbd5e1; margin: 0 0 12px; }
+                .inv-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 14px; text-align: left; }
+                .inv-feature-chip { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; padding: 6px 8px; font-size: 11px; font-weight: 600; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                .inv-promo-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: #ffffff; font-size: 14px; font-weight: 800; padding: 12px 18px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); transition: transform 0.2s, filter 0.2s; }
+                .inv-promo-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+                .inv-promo-trust { font-size: 11px; color: #fef08a; font-weight: 600; margin-top: 10px; }
+                .inv-powered { font-size: 10.5px; color: rgba(255, 255, 255, 0.65); margin-top: 8px; }
                 .inv-powered a { color: #86efac; text-decoration: underline; font-weight: 600; }
 
                 /* PDF Modal */
@@ -244,15 +249,38 @@ export default function InvoiceViewer() {
                     <div className="inv-footer">
                         <span className="inv-thanks">🙏 Dhanyawad! Aapka vishwas hamari shakti hai.</span>
                         <div className="inv-promo-card">
-                            <div className="inv-promo-text">
-                                ✨ Kya aap bhi apne vyapar ka billing & hisaab aasan banana chahte hain?
+                            <div className="inv-promo-badge">
+                                🚀 ALL-IN-ONE VYAPAR APP
                             </div>
+                            <h4 className="inv-promo-title">
+                                Apne Business Ko Banayein Smart & Digital
+                            </h4>
+                            <p className="inv-promo-desc">
+                                Billing, Khata, WhatsApp Reminders aur bahut kuch ek hi app mein:
+                            </p>
+
+                            <div className="inv-feature-grid">
+                                <div className="inv-feature-chip">🧾 GST & Non-GST Bills</div>
+                                <div className="inv-feature-chip">📒 Udhaar & Hisaab Diary</div>
+                                <div className="inv-feature-chip">💬 WhatsApp Reminders</div>
+                                <div className="inv-feature-chip">📦 Stock & Inventory</div>
+                                <div className="inv-feature-chip">🛍️ Free Online Dukaan</div>
+                                <div className="inv-feature-chip">👥 Staff & Attendance</div>
+                                <div className="inv-feature-chip">📊 GSTR-1, 3B Reports</div>
+                                <div className="inv-feature-chip">☁️ Safe Auto Cloud Backup</div>
+                            </div>
+
                             <a href="https://billgst.in/register" target="_blank" rel="noopener noreferrer" className="inv-promo-btn">
                                 <span>⚡ BillGST par Free Account Banayein</span>
                                 <i className="ti ti-arrow-right"></i>
                             </a>
+
+                            <div className="inv-promo-trust">
+                                ⭐ 100% Free · 50,000+ Indian Merchants Ka Bharosa
+                            </div>
+
                             <div className="inv-powered">
-                                Powered by <a href="https://billgst.in" target="_blank" rel="noopener noreferrer">BillGST.in</a> · India's Smart Billing & Hisaab App
+                                Made with ❤️ in India · <a href="https://billgst.in" target="_blank" rel="noopener noreferrer">BillGST.in</a>
                             </div>
                         </div>
                     </div>
