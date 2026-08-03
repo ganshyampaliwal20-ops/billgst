@@ -45,7 +45,7 @@ export const openWhatsAppChat = (phone: string, text: string): boolean => {
     }
 };
 
-export const getVisitingCardText = (profile: any) => {
+export const getVisitingCardText = (profile: any, amount?: number) => {
     if (!profile || (!profile.name && !profile.business_name)) return '';
     
     const bizName = profile.business_name || profile.name;
@@ -57,9 +57,11 @@ export const getVisitingCardText = (profile: any) => {
     if (details.length > 0) card += details.join(' | ') + '\n';
     
     if (profile.upi_id) {
-        const upiLink = `upi://pay?pa=${profile.upi_id}&pn=${encodeURIComponent(bizName)}`;
+        const amtParam = amount && amount > 0 ? `&am=${Math.round(amount)}` : '';
+        const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://billgst.in';
+        const payUrl = `${origin}/pay?pa=${encodeURIComponent(profile.upi_id)}&pn=${encodeURIComponent(bizName)}${amtParam}`;
         card += `\n💸 *UPI ID:* ${profile.upi_id}\n`;
-        card += `🔗 *Tap to Pay:* ${upiLink}\n`;
+        card += `🔗 *Pay Online (UPI / GPay / PhonePe):*\n${payUrl}\n`;
     }
     
     card += `\n🙏 _Thank you for doing business with us!_`;
