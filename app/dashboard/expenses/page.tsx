@@ -194,6 +194,8 @@ export default function BusinessExpensesPage() {
     const toastTimeout = useRef<any>(null);
     // Track whether load has fully completed — prevent saving empty array during load
     const loadCompleted = useRef(false);
+    const dismissedPTxnIds = useRef<Set<any>>(new Set());
+    const notifiedPTxnIds = useRef<Set<any>>(new Set());
 
     useEffect(() => {
         // Removed DOM reflow hack that caused sluggish UI
@@ -222,11 +224,14 @@ export default function BusinessExpensesPage() {
                     if (finalData.length > 0) {
                         const balancedData = finalData.map(c => {
                             let debitSum = 0, creditSum = 0;
-                            (c.txns || []).forEach((t: any) => {
+                            const txns = c.txns || [];
+                            const txnIds = new Set(txns.map((t: any) => t.id));
+                            const cleanPending = (c.pending_txns || []).filter((p: any) => !txnIds.has(p.id) && !dismissedPTxnIds.current.has(p.id));
+                            txns.forEach((t: any) => {
                                 if (t.type === 'credit') creditSum += t.amt;
                                 else debitSum += t.amt;
                             });
-                            return { ...c, balance: debitSum - creditSum };
+                            return { ...c, balance: debitSum - creditSum, pending_txns: cleanPending };
                         });
                         setCustomers(balancedData);
                     }
@@ -238,22 +243,25 @@ export default function BusinessExpensesPage() {
                     dataArray.forEach(cust => {
                         if (!cust.id) return;
                         const existing = mergedCustomers.get(cust.id);
+                        const custTxns = cust.txns || [];
+                        const custTxnIds = new Set(custTxns.map((t: any) => t.id));
+                        const validCustPTxns = (cust.pending_txns || []).filter((p: any) => !custTxnIds.has(p.id) && !dismissedPTxnIds.current.has(p.id));
+
                         if (!existing) {
-                            mergedCustomers.set(cust.id, { ...cust, txns: cust.txns || [], pending_txns: cust.pending_txns || [] });
+                            mergedCustomers.set(cust.id, { ...cust, txns: custTxns, pending_txns: validCustPTxns });
                             changed = true;
                         } else {
                             const existingTxns = existing.txns || [];
-                            const custTxns = cust.txns || [];
                             const existingTxnIds = new Set(existingTxns.map((t: any) => t.id));
                             const newTxns = custTxns.filter((t: any) => !existingTxnIds.has(t.id));
                             const mergedTxns = [...existingTxns, ...newTxns].sort((a: any, b: any) =>
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
                             );
+                            const mergedTxnIds = new Set(mergedTxns.map((t: any) => t.id));
 
-                            const existingPTxns = existing.pending_txns || [];
-                            const custPTxns = cust.pending_txns || [];
+                            const existingPTxns = (existing.pending_txns || []).filter((p: any) => !mergedTxnIds.has(p.id) && !dismissedPTxnIds.current.has(p.id));
                             const existingPTxnIds = new Set(existingPTxns.map((t: any) => t.id));
-                            const newPTxns = custPTxns.filter((t: any) => !existingPTxnIds.has(t.id));
+                            const newPTxns = validCustPTxns.filter((p: any) => !existingPTxnIds.has(p.id) && !mergedTxnIds.has(p.id));
                             const mergedPTxns = [...existingPTxns, ...newPTxns].sort((a: any, b: any) =>
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
                             );
@@ -355,33 +363,55 @@ export default function BusinessExpensesPage() {
                             serverCustomers.forEach(sCust => {
                                 const local = prevMap.get(sCust.id);
                                 if (!local) {
-                                    prevMap.set(sCust.id, { ...sCust, txns: sCust.txns || [], pending_txns: sCust.pending_txns || [] });
+                                    const filteredPTxns = (sCust.pending_txns || []).filter((p: any) => !dismissedPTxnIds.current.has(p.id));
+                                    prevMap.set(sCust.id, { ...sCust, txns: sCust.txns || [], pending_txns: filteredPTxns });
                                     hasChanges = true;
                                 } else {
-                                    // Check pending_txns
-                                    const localPTxnIds = new Set((local.pending_txns || []).map((p: any) => p.id));
-                                    const serverPTxns = sCust.pending_txns || [];
-                                    const newPTxns = serverPTxns.filter((p: any) => !localPTxnIds.has(p.id));
-
-                                    // Check txns
-                                    const localTxnIds = new Set((local.txns || []).map((t: any) => t.id));
+                                    const localTxns = local.txns || [];
+                                    const localTxnIds = new Set(localTxns.map((t: any) => t.id));
                                     const serverTxns = sCust.txns || [];
                                     const newTxns = serverTxns.filter((t: any) => !localTxnIds.has(t.id));
+                                    const mergedTxnIds = new Set([...localTxnIds, ...serverTxns.map((t: any) => t.id)]);
 
-                                    if (newPTxns.length > 0 || newTxns.length > 0) {
-                                        hasChanges = true;
-                                        if (newPTxns.length > 0) {
-                                            showToast(`🔔 Naya Payment: ₹${newPTxns[0].amt} from ${local.name || 'Customer'}`);
+                                    // Filter out any pending transaction that is already in txns OR was dismissed locally
+                                    const validServerPTxns = (sCust.pending_txns || []).filter((p: any) => 
+                                        !mergedTxnIds.has(p.id) && 
+                                        !dismissedPTxnIds.current.has(p.id)
+                                    );
+
+                                    // Also filter local.pending_txns
+                                    const localPTxnMap = new Map<any, any>();
+                                    (local.pending_txns || [])
+                                        .filter((p: any) => !mergedTxnIds.has(p.id) && !dismissedPTxnIds.current.has(p.id))
+                                        .forEach((p: any) => localPTxnMap.set(p.id, p));
+
+                                    let hasNewPending = false;
+                                    validServerPTxns.forEach((p: any) => {
+                                        if (!localPTxnMap.has(p.id)) {
+                                            localPTxnMap.set(p.id, p);
+                                            hasNewPending = true;
+                                            if (!notifiedPTxnIds.current.has(p.id)) {
+                                                notifiedPTxnIds.current.add(p.id);
+                                                showToast(`🔔 Naya Payment: ₹${p.amt} from ${local.name || 'Customer'}`);
+                                            }
                                         }
-                                        const mergedTxns = [...(local.txns || []), ...newTxns].sort((a: any, b: any) =>
-                                            new Date(b.date).getTime() - new Date(a.date).getTime()
-                                        );
-                                        const mergedPTxns = [...(local.pending_txns || []), ...newPTxns].sort((a: any, b: any) =>
+                                    });
+
+                                    const mergedPTxns = Array.from(localPTxnMap.values()).sort((a: any, b: any) =>
+                                        new Date(b.date).getTime() - new Date(a.date).getTime()
+                                    );
+
+                                    const oldPTxnIdsStr = (local.pending_txns || []).map((p: any) => p.id).join(',');
+                                    const newPTxnIdsStr = mergedPTxns.map((p: any) => p.id).join(',');
+                                    const pTxnsChanged = oldPTxnIdsStr !== newPTxnIdsStr;
+
+                                    if (newTxns.length > 0 || pTxnsChanged) {
+                                        hasChanges = true;
+                                        const mergedTxns = [...localTxns, ...newTxns].sort((a: any, b: any) =>
                                             new Date(b.date).getTime() - new Date(a.date).getTime()
                                         );
                                         prevMap.set(sCust.id, {
                                             ...local,
-                                            ...sCust,
                                             txns: mergedTxns,
                                             pending_txns: mergedPTxns
                                         });
@@ -997,6 +1027,7 @@ export default function BusinessExpensesPage() {
     };
 
     const acceptPendingTxn = async (txnId: number) => {
+        dismissedPTxnIds.current.add(txnId);
         let updatedCust: any = null;
         const updatedList = customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
@@ -1004,7 +1035,7 @@ export default function BusinessExpensesPage() {
                 if (!txn) return c;
                 
                 const newTxns = [...c.txns, txn].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                const newPending = c.pending_txns.filter((t: any) => t.id !== txnId);
+                const newPending = (c.pending_txns || []).filter((t: any) => t.id !== txnId);
                 const isDebit = txn.type !== 'credit';
                 const balChange = isDebit ? txn.amt : -txn.amt;
                 
@@ -1039,12 +1070,13 @@ export default function BusinessExpensesPage() {
 
     const rejectPendingTxn = async (txnId: number) => {
         if (!window.confirm(t.confirmReject || 'Are you sure you want to reject this payment?')) return;
+        dismissedPTxnIds.current.add(txnId);
         let updatedCust: any = null;
         const updatedList = customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
                 updatedCust = {
                     ...c,
-                    pending_txns: c.pending_txns.filter((t: any) => t.id !== txnId)
+                    pending_txns: (c.pending_txns || []).filter((t: any) => t.id !== txnId)
                 };
                 return updatedCust;
             }
@@ -1674,21 +1706,25 @@ export default function BusinessExpensesPage() {
                             </div>
                         )}
 
-                        {currentCust.pending_txns && currentCust.pending_txns.length > 0 && currentCust.pending_txns.map((ptxn: any) => (
-                            <div key={ptxn.id} className="pending-status-box" style={{ background: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div className="psb-icon" style={{ background: '#ffe8a1', color: '#856404' }}>🔔</div>
-                                    <div className="psb-text">
-                                        <strong style={{ color: '#856404' }}>Payment Pending Approval: {fmt(ptxn.amt)}</strong>
-                                        <span style={{ color: '#664d03' }}>Customer confirmed payment via {ptxn.name} on {formatDateShort(ptxn.date)}</span>
+                        {currentCust.pending_txns && currentCust.pending_txns.length > 0 && (() => {
+                            const currentTxnIds = new Set((currentCust.txns || []).map((t: any) => t.id));
+                            const activePending = currentCust.pending_txns.filter((p: any) => !currentTxnIds.has(p.id) && !dismissedPTxnIds.current.has(p.id));
+                            return activePending.map((ptxn: any) => (
+                                <div key={ptxn.id} className="pending-status-box" style={{ background: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div className="psb-icon" style={{ background: '#ffe8a1', color: '#856404' }}>🔔</div>
+                                        <div className="psb-text">
+                                            <strong style={{ color: '#856404' }}>Payment Pending Approval: {fmt(ptxn.amt)}</strong>
+                                            <span style={{ color: '#664d03' }}>Customer confirmed payment via {ptxn.name} on {formatDateShort(ptxn.date)}</span>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px', marginLeft: '42px' }}>
+                                        <button onClick={() => acceptPendingTxn(ptxn.id)} style={{ padding: '6px 12px', background: '#1B5E3B', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', flex: 1 }}>Accept & Save</button>
+                                        <button onClick={() => rejectPendingTxn(ptxn.id)} style={{ padding: '6px 12px', background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', flex: 1 }}>Reject</button>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px', marginLeft: '42px' }}>
-                                    <button onClick={() => acceptPendingTxn(ptxn.id)} style={{ padding: '6px 12px', background: '#1B5E3B', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', flex: 1 }}>Accept & Save</button>
-                                    <button onClick={() => rejectPendingTxn(ptxn.id)} style={{ padding: '6px 12px', background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', borderRadius: '4px', fontWeight: 600, cursor: 'pointer', flex: 1 }}>Reject</button>
-                                </div>
-                            </div>
-                        ))}
+                            ));
+                        })()}
 
                         <div className="filter-bar">
                             {[{ id: 'all', l: 'All' }, { id: 'debit', l: 'Given' }, { id: 'credit', l: 'Received' }, { id: 'advance', l: 'Advance' }].map(f => (
