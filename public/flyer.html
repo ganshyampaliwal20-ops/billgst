@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillGST - भारत का नंबर 1 बिलिंग & व्यापार सॉफ्टवेयर | Marketing Pamphlet</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;600;700&family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #05603A;
+            --primary-dark: #023820;
+            --primary-light: #e8f5ed;
+            --gold: #f59e0b;
+            --gold-dark: #d97706;
+            --gold-light: #fef3c7;
+            --dark: #0f172a;
+            --gray: #475569;
+            --light-bg: #f8fafc;
+            --accent: #2563eb;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Hind', sans-serif;
+            background: #cbd5e1;
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* Print Button Floating */
+        .no-print-bar {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-action {
+            background: #05603A;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-action:hover {
+            background: #023820;
+            transform: translateY(-2px);
+        }
+
+        /* A4 Canvas Page */
+        .flyer-canvas {
+            width: 210mm;
+            min-height: 297mm;
+            background: #ffffff;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header Banner */
+        .header {
+            background: linear-gradient(135deg, #023820 0%, #05603A 60%, #0a7a4c 100%);
+            color: #ffffff;
+            padding: 26px 32px 22px;
+            position: relative;
+            border-bottom: 5px solid var(--gold);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 160px;
+            height: 100%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .brand-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: #ffffff;
+            color: var(--primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .brand-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            color: #ffffff;
+        }
+
+        .brand-name span {
+            color: var(--gold);
+        }
+
+        .trust-badge {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-tagline {
+            font-family: 'Hind', sans-serif;
+            font-size: 27px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.3;
+            margin-top: 4px;
+        }
+
+        .hero-sub {
+            font-size: 14px;
+            color: #d1fae5;
+            margin-top: 5px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        /* Highlight Pill Bar */
+        .highlight-strip {
+            background: var(--gold-light);
+            border-bottom: 1px solid #fde68a;
+            padding: 10px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 12.5px;
+            color: #92400e;
+        }
+
+        .strip-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Main Content Grid */
+        .content {
+            padding: 22px 32px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .section-title {
+            text-align: center;
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .section-title h2 {
+            font-family: 'Hind', sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: inline-block;
+            background: #ffffff;
+            padding: 0 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1.5px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        /* Feature Cards 6 Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .feature-card.popular {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .card-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .feature-card.popular .card-icon-box {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .card-content h3 {
+            font-family: 'Hind', 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-tag {
+            font-size: 10px;
+            background: var(--gold);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .card-content p {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.45;
+            font-family: 'Hind', sans-serif;
+        }
+
+        /* Who can use section */
+        .target-shops {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .target-head {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .shop-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .shop-pill {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #334155;
+            font-family: 'Hind', sans-serif;
+        }
+
+        /* 3 Big Benefits Strip */
+        .benefits-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .benefit-box {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .benefit-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .benefit-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            font-family: 'Hind', sans-serif;
+        }
+
+        /* Call To Action Box (Bottom) */
+        .cta-container {
+            background: linear-gradient(135deg, #023820 0%, #05603A 100%);
+            border-radius: 14px;
+            padding: 18px 24px;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            border: 2px solid var(--gold);
+            box-shadow: 0 6px 20px rgba(5, 96, 58, 0.25);
+        }
+
+        .cta-left {
+            max-width: 62%;
+        }
+
+        .cta-badge {
+            background: var(--gold);
+            color: #000000;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 900;
+            display: inline-block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .cta-title {
+            font-family: 'Hind', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #ffffff;
+        }
+
+        .cta-contact-row {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .contact-item {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fef08a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-item svg {
+            width: 18px;
+            height: 18px;
+            fill: #fef08a;
+        }
+
+        .cta-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #ffffff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .qr-placeholder {
+            width: 86px;
+            height: 86px;
+            background: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .qr-placeholder svg {
+            width: 48px;
+            height: 48px;
+            fill: #05603A;
+        }
+
+        .qr-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+        }
+
+        /* Footer Info */
+        .footer {
+            background: #f1f5f9;
+            padding: 8px 32px;
+            font-size: 11px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            font-weight: 600;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .no-print-bar {
+                display: none !important;
+            }
+            .flyer-canvas {
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Print / Action Controls (Hidden on Print) -->
+    <div class="no-print-bar">
+        <button class="btn-action" onclick="window.print()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / PDF Save (A4)
+        </button>
+    </div>
+
+    <!-- MAIN A4 FLYER CANVAS -->
+    <div class="flyer-canvas">
+        
+        <!-- HEADER -->
+        <div class="header">
+            <div class="brand-row">
+                <div class="logo-box">
+                    <div class="logo-icon">₹</div>
+                    <div class="brand-name">Bill<span>GST</span></div>
+                </div>
+                <div class="trust-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    100% सुरक्षित & भरोसेमंद
+                </div>
+            </div>
+            <div class="hero-tagline">
+                अब आपकी दुकान बनेगी 100% डिजिटल और स्मार्ट!
+            </div>
+            <div class="hero-sub">
+                बिलिंग, उधारी खाता, स्टॉक और ऑनलाइन दुकान — सब कुछ सिर्फ 1 ऐप में
+            </div>
+        </div>
+
+        <!-- HIGHLIGHT STRIP -->
+        <div class="highlight-strip">
+            <div class="strip-item">⚡ 5 सेकंड में बिल बनाएं</div>
+            <div class="strip-item">📲 WhatsApp पर तुरंत बिल & रसीद</div>
+            <div class="strip-item">🎙️ बोलकर बिल बनाने की सुविधा</div>
+            <div class="strip-item">📶 बिना इंटरनेट भी चले (Offline)</div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <div class="section-title">
+                <h2>सारे फीचर्स जो आपके व्यापार को बनाएं आसान</h2>
+            </div>
+
+            <!-- 6 CORE FEATURES GRID -->
+            <div class="features-grid">
+
+                <!-- Feature 1 -->
+                <div class="feature-card popular">
+                    <div class="card-icon-box">🧾</div>
+                    <div class="card-content">
+                        <h3>सुपरफ़ास्ट GST बिलिंग <span class="card-tag">Fast</span></h3>
+                        <p>A4, A5 और थर्मल प्रिंटर (2"/3") सपोर्ट। 1-क्लिक में ग्राहक के WhatsApp पर GST/नॉन-GST पक्का बिल भेजें।</p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card popular">
+                    <div class="card-icon-box">🎙️</div>
+                    <div class="card-content">
+                        <h3>AI बोलकर बिल बनाएं <span class="card-tag">New AI</span></h3>
+                        <p>टाइपिंग का झंझट ख़त्म! बस माइक दबाकर बोलें <i>"2 किलो चीनी, 1 तेल"</i> और बिल अपने-आप तैयार।</p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="card-icon-box">📒</div>
+                    <div class="card-content">
+                        <h3>स्मार्ट उधार वही-खाता</h3>
+                        <p>ग्राहकों को ऑटोमैटिक WhatsApp तकादा + ऑनलाइन UPI पेमेंट लिंक। 3 गुना तेज़ी से उधारी वसूल करें।</p>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card">
+                    <div class="card-icon-box">🛍️</div>
+                    <div class="card-content">
+                        <h3>मुफ़्त ऑनलाइन दुकान</h3>
+                        <p>2 मिनट में अपनी दुकान का डिजिटल कैटलॉग बनाएं। ग्राहक सीधे WhatsApp पर ऑनलाइन ऑर्डर दे सकेंगे।</p>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card">
+                    <div class="card-icon-box">📦</div>
+                    <div class="card-content">
+                        <h3>स्टॉक & इन्वेंटरी मैनेजमेंट</h3>
+                        <p>सामान ख़त्म होने से पहले लो-स्टॉक अलर्ट, बारकोड स्कैनिंग और एक्सपायरी डेट का सटीक हिसाब।</p>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card">
+                    <div class="card-icon-box">📊</div>
+                    <div class="card-content">
+                        <h3>1-क्लिक CA & GST रिपोर्ट</h3>
+                        <p>GSTR-1, GSTR-3B और रोज़ का नफ़ा-नुकसान (Profit & Loss)। CA को सीधे एक्सेल/PDF भेजें।</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TARGET BUSINESSES -->
+            <div class="target-shops">
+                <div class="target-head">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                    यह ऐप किन दुकानों के लिए सबसे बेहतर है?
+                </div>
+                <div class="shop-pills">
+                    <div class="shop-pill">🏪 किराना & प्रोविजनल स्टोर</div>
+                    <div class="shop-pill">👕 गारमेंट्स & कपड़ा दुकान</div>
+                    <div class="shop-pill">📱 मोबाइल & इलेक्ट्रॉनिक्स</div>
+                    <div class="shop-pill">💊 मेडिकल & फार्मेसी</div>
+                    <div class="shop-pill">🔧 हार्डवेयर, सेनेटरी & पेंट्स</div>
+                    <div class="shop-pill">☕ होटल, कैफ़े & रेस्टोरेंट</div>
+                    <div class="shop-pill">📦 होलसेल & डिस्ट्रीब्यूटर्स</div>
+                    <div class="shop-pill">🚗 ऑटो पार्ट्स & गैराज</div>
+                </div>
+            </div>
+
+            <!-- 3 BENEFIT BOXES -->
+            <div class="benefits-row">
+                <div class="benefit-box">
+                    <div class="benefit-number">100% Safe</div>
+                    <div class="benefit-text">ऑटोमैटिक क्लाउड बैकअप</div>
+                </div>
+                <div class="benefit-box">
+                    <div class="benefit-number">0 ₹ Setup</div>
+                    <div class="benefit-text">फ़ोन और कंप्यूटर दोनों पर चले</div>
+                </div>
+                <div class="benefit-box">
+                    <div class="benefit-number">24x7 Help</div>
+                    <div class="benefit-text">कॉल और WhatsApp सपोर्ट</div>
+                </div>
+            </div>
+
+            <!-- CTA BANNER -->
+            <div class="cta-container">
+                <div class="cta-left">
+                    <div class="cta-badge">🎉 स्पेशल ऑफर: 15 दिन फ़्री ट्रायल</div>
+                    <div class="cta-title">आज ही अपनी दुकान पर फ़्री डेमो शुरू करें!</div>
+                    
+                    <div class="cta-contact-row">
+                        <div class="contact-item">
+                            📞 कॉल / WhatsApp करें: +91 98765 43210
+                        </div>
+                        <div class="contact-item" style="font-size: 13.5px; color: #ffffff;">
+                            🌐 वेबसाइट: www.billgst.com
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta-right">
+                    <div class="qr-placeholder">
+                        <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-5 0h3v5h-3v-5zm3 3h2v3h-2v-3zm2 2h3v3h-3v-3zm-7 1h2v2h-2v-2z"/></svg>
+                        SCAN HERE
+                    </div>
+                    <div class="qr-label">स्कैन करें & शुरू करें</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div>Made with ❤️ for Indian Business | आत्मनिर्भर भारत</div>
+            <div>BillGST Software Pvt Ltd. All rights reserved.</div>
+        </div>
+
+    </div>
+
+</body>
+</html>
