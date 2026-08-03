@@ -239,8 +239,14 @@ function HisaabViewerContent() {
                 .inv-pdf-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: #1B5E3B; border: 1.5px solid #1B5E3B; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
                 .inv-pdf-btn:hover { background: #EAF4EE; }
 
-                .inv-footer { background: #1B5E3B; padding: 12px 24px; text-align: center; }
-                .inv-thanks { color: rgba(255,255,255,0.85); font-size: 13px; font-style: italic; }
+                .inv-footer { background: #1B5E3B; padding: 18px 20px; text-align: center; color: #fff; }
+                .inv-thanks { color: rgba(255,255,255,0.92); font-size: 13.5px; font-style: italic; margin-bottom: 12px; display: block; }
+                .inv-promo-card { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 12px; padding: 12px 14px; text-align: center; }
+                .inv-promo-text { font-size: 12px; color: #e2e8f0; margin-bottom: 8px; font-weight: 500; }
+                .inv-promo-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #ffffff; color: #1B5E3B; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 20px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+                .inv-promo-btn:hover { background: #f0fdf4; }
+                .inv-powered { font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-top: 8px; }
+                .inv-powered a { color: #86efac; text-decoration: underline; font-weight: 600; }
 
                 /* PDF Modal */
                 .pdf-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
@@ -316,7 +322,9 @@ function HisaabViewerContent() {
                         {b?.business_phone && (
                             <div className="inv-contact-row">
                                 <i className="ti ti-phone"></i>
-                                <a href={`tel:+91${b.business_phone.replace(/[^0-9]/g, '')}`}>+91 {b.business_phone}</a>
+                                <a href={`tel:+91${b.business_phone.replace(/[^0-9]/g, '').slice(-10)}`}>
+                                    +91 {b.business_phone.replace(/[^0-9]/g, '').slice(-10)}
+                                </a>
                             </div>
                         )}
                         {b?.business_email && (
@@ -382,6 +390,18 @@ function HisaabViewerContent() {
 
                     <div className="inv-footer">
                         <span className="inv-thanks">🙏 Dhanyawad! Aapka vishwas hamari shakti hai.</span>
+                        <div className="inv-promo-card">
+                            <div className="inv-promo-text">
+                                ✨ Kya aap bhi apne vyapar ka hisaab aasan banana chahte hain?
+                            </div>
+                            <a href="https://billgst.in/register" target="_blank" rel="noopener noreferrer" className="inv-promo-btn">
+                                <span>⚡ BillGST par Free Account Banayein</span>
+                                <i className="ti ti-arrow-right"></i>
+                            </a>
+                            <div className="inv-powered">
+                                Powered by <a href="https://billgst.in" target="_blank" rel="noopener noreferrer">BillGST.in</a> · India's Smart Billing & Hisaab App
+                            </div>
+                        </div>
                     </div>
 
                 </div>
