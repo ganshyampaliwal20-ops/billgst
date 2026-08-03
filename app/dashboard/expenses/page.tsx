@@ -1039,36 +1039,13 @@ export default function BusinessExpensesPage() {
                 let txt = `*${bizName} - Account Statement*\n\nHello ${currentCustomer.name},\n\nYour account has been updated with *₹${amt}* (${action}).\n\n*Current Balance:* ₹${Math.abs(newBalance)} (${balType})\n\nThank you,\n*${bizName}*`;
                 txt += getVisitingCardText(businessProfile);
                 
-                // 1. Direct WhatsApp intent on user device for 100% instant delivery
+                // Direct WhatsApp intent on user device for 100% FREE & instant delivery
                 try {
                     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, '_blank');
                     showToast(t.openingWhatsApp || '📱 Opening WhatsApp...');
                 } catch (e) {
                     console.error('Failed to open WhatsApp window', e);
                 }
-
-                // 2. Central Cloud SMS dispatch (Fast2SMS Gateway)
-                const plainSms = `Dear ${currentCustomer.name}, your account with ${bizName} has been updated with Rs.${amt} (${action}). Current Balance: Rs.${Math.abs(newBalance)} (${balType}). - ${bizName}`;
-                fetch('/api/notifications/send-sms', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phone: currentCustomer.phone,
-                        message: plainSms
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast(`📩 SMS sent successfully to ${currentCustomer.name}`);
-                    } else {
-                        console.error('SMS Send Failed:', data);
-                        showToast(`⚠️ SMS: ${data.error || 'Failed to send'}`);
-                    }
-                })
-                .catch(e => {
-                    console.error('Failed to send SMS notification', e);
-                });
             }
         }
     };
