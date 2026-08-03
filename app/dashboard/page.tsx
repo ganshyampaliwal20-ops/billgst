@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { translations, getTranslations } from '@/lib/translations';
 import { formatCurrency, formatCompactNumber } from '@/lib/utils';
+import { openWhatsAppChat } from '@/lib/whatsapp-utils';
 import FreePlanPopup from './FreePlanPopup';
 import RegistrationPopup from './RegistrationPopup';
 import Chart from 'chart.js/auto';
@@ -68,8 +69,7 @@ export default function DashboardPage() {
             toast.error('Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.', { icon: '📱' });
             return;
         }
-        const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
+        openWhatsAppChat(phone, message);
         toast.success(`Opening WhatsApp for ${customerName}...`);
     };
 
@@ -96,8 +96,7 @@ export default function DashboardPage() {
                 if (!phone) {
                     toast.error(`Customer ${customerName} ka mobile number nahi hai.`, { icon: '📱' });
                 } else {
-                    const whatsappUrl = `https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`;
-                    window.open(whatsappUrl, '_blank');
+                    openWhatsAppChat(phone, message);
                 }
             }, index * 3000);
         });

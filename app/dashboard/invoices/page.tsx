@@ -6,7 +6,7 @@ import { getTranslations } from '../../../lib/translations';
 import { generateInvoicePDF } from '../../../lib/pdf-generator';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../lib/utils';
-import { getVisitingCardText } from '../../../lib/whatsapp-utils';
+import { getVisitingCardText, openWhatsAppChat } from '../../../lib/whatsapp-utils';
 import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -278,13 +278,8 @@ export default function InvoicesPage() {
                 body: formData
             });
 
-            if (res.ok) {
-                toast.success('WhatsApp Bot ne PDF bhej diya! ✅', { id: toastId });
-            } else {
-                toast.dismiss(toastId);
-                toast.success('Bot offline, sirf link share ho raha hai. PDF ke liye "Share PDF" button use karein.', { duration: 4000 });
-                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(text)}`, '_blank');
-            }
+            openWhatsAppChat(phone, text);
+            toast.success('Opening WhatsApp... ✅', { id: toastId });
         } catch (error) {
             toast.error('WhatsApp Share Error', { id: toastId });
         }

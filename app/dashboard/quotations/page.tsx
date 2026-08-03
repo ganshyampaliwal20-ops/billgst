@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { generateQuotationPDF } from '@/lib/pdf-generator';
 import { toast } from 'react-hot-toast';
-import { getVisitingCardText } from '@/lib/whatsapp-utils';
+import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
 
 export default function QuotationsPage() {
     const router = useRouter();
@@ -94,7 +94,8 @@ export default function QuotationsPage() {
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: 'Quotation', text: message });
             } else {
-                window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
+                openWhatsAppChat(phone, message);
+                toast.success('Opening WhatsApp...');
             }
         } catch (e) { toast.error('Share failed'); }
     };

@@ -6,7 +6,7 @@ import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getVisitingCardText } from '@/lib/whatsapp-utils';
+import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
 
 export default function CustomersPage() {
     const router = useRouter();
@@ -140,7 +140,8 @@ export default function CustomersPage() {
         const businessName = businessProfile?.name || 'Our Business';
         let message = `Namaste ${c.name} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ${c.amountStr} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
         message += getVisitingCardText(businessProfile);
-        window.open(`https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${encodeURIComponent(message)}`, '_blank');
+        openWhatsAppChat(phone, message);
+        toast.success('Opening WhatsApp...');
     };
 
     const formatLakhs = (val: number) => {

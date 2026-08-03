@@ -6,7 +6,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Chart from 'chart.js/auto';
 import { generateHisaabPDF } from '@/lib/pdf-generator';
-import { getVisitingCardText } from '@/lib/whatsapp-utils';
+import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
 
 export default function CustomerDetailPage() {
     const { id } = useParams();
@@ -278,7 +278,7 @@ export default function CustomerDetailPage() {
         text += `📄 *Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:*\n${shareUrl}\n\n`;
         text += `Dhanyawad,\n*${businessProfile?.name || 'BillGST Pro'}*`;
 
-        window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        openWhatsAppChat(phone, text);
         toast.success('Opening WhatsApp...');
     };
 

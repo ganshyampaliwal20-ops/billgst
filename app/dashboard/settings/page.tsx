@@ -475,7 +475,7 @@ export default function SettingsPage() {
                 <nav className="mobile-nav">
                     {['profile', 'tax', 'bank', 'payments', 'whatsapp-automation', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
                         <a key={id} onClick={() => handleScrollTo(id)} className={activeSection === id ? 'active' : ''}>
-                            {id === 'whatsapp-automation' ? 'WhatsApp & SMS' : (id.charAt(0).toUpperCase() + id.slice(1))}
+                            {id === 'whatsapp-automation' ? 'WhatsApp' : (id.charAt(0).toUpperCase() + id.slice(1))}
                         </a>
                     ))}
                 </nav>
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                         { id: 'tax', label: 'Tax Settings' },
                         { id: 'bank', label: 'Bank Details' },
                         { id: 'payments', label: 'Payments' },
-                        { id: 'whatsapp-automation', label: 'WhatsApp & SMS' },
+                        { id: 'whatsapp-automation', label: 'WhatsApp' },
                         { id: 'branding', label: 'Branding' },
                         { id: 'signatory', label: 'Signatory' },
                         { id: 'terms', label: 'Terms & Conditions' },
@@ -598,119 +598,92 @@ export default function SettingsPage() {
                                             </div>
                                         )}
                                     </div>
-                                    {gstStatus === 'valid' && gstName && (
-                                        <div className="verified-name">✓ Registered as {gstName}</div>
-                                    )}
-                                </div>
-                                <div className="divider"></div>
-                                <div className="segmented-wrap">
-                                    <div className="segmented-label">GST Calculation</div>
-                                    <div className="segmented">
-                                        <button className={localSettings.taxType !== 'INCLUSIVE' ? 'active' : ''} onClick={() => setLocalSettings({...localSettings, taxType: 'EXCLUSIVE'})}>Exclusive</button>
-                                        <button className={localSettings.taxType === 'INCLUSIVE' ? 'active' : ''} onClick={() => setLocalSettings({...localSettings, taxType: 'INCLUSIVE'})}>Inclusive</button>
-                                    </div>
-                                    <div className="segmented-hint">
-                                        {localSettings.taxType === 'INCLUSIVE' ? 'Inclusive mode: Displayed price already includes GST.' : 'Exclusive: Tax added on top. Inclusive: Tax inside price.'}
-                                    </div>
+                                    <div className="hint">15 digit GSTIN: State Code (2) + PAN (10) + Entity (1) + Z + Checksum (1)</div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Bank Account */}
+                    {/* Bank Details */}
                     <div className="card" id="bank">
-                        <div className="card-head with-toggle">
-                            <div className="card-head-left">
-                                <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M4 10h16M4 10L12 3l8 7M6 10v11M10 10v11M14 10v11M18 10v11"/></svg></div>
-                                <div><h2>Bank Account Details</h2><p>Displayed on invoices for direct bank payments</p></div>
-                            </div>
-                            <label className="switch">
-                                <input type="checkbox" checked={!!formData.show_bank_details} onChange={(e) => setFormData({...formData, show_bank_details: e.target.checked})} />
-                                <span className="slider"></span>
-                            </label>
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+                            <div><h2>Bank Details</h2><p>Payment information printed on invoice footer</p></div>
                         </div>
-                        
-                        {formData.show_bank_details && (
-                            <div>
-                                <div className="divider"></div>
-                                <div className="row2">
-                                    <div className="field"><label>Bank Name</label><input type="text" value={formData.bank_name || ''} onChange={e => setFormData({...formData, bank_name: e.target.value})} placeholder="e.g. HDFC Bank" /></div>
-                                    <div className="field"><label>Account Number</label><input type="text" value={formData.account_no || ''} onChange={e => setFormData({...formData, account_no: e.target.value})} placeholder="Account No" /></div>
-                                </div>
-                                <div className="row2">
-                                    <div className="field"><label>IFSC Code</label><input type="text" value={formData.ifsc_code || ''} onChange={e => setFormData({...formData, ifsc_code: e.target.value})} style={{textTransform:'uppercase'}} placeholder="IFSC Code" /></div>
-                                    <div className="field"><label>Branch Name</label><input type="text" value={formData.branch_name || ''} onChange={e => setFormData({...formData, branch_name: e.target.value})} placeholder="Branch Name" /></div>
-                                </div>
-                                <div className="field"><label>Account Holder Name</label><input type="text" value={formData.account_holder || ''} onChange={e => setFormData({...formData, account_holder: e.target.value})} placeholder="Name on account" /></div>
+                        <div className="row2">
+                            <div className="field">
+                                <label>Bank Name</label>
+                                <input type="text" value={formData.bank_name || ''} onChange={(e) => setFormData({...formData, bank_name: e.target.value})} placeholder="e.g. HDFC Bank, SBI" />
                             </div>
-                        )}
+                            <div className="field">
+                                <label>Account Holder Name</label>
+                                <input type="text" value={formData.account_holder || ''} onChange={(e) => setFormData({...formData, account_holder: e.target.value})} placeholder="Account Holder Name" />
+                            </div>
+                        </div>
+                        <div className="row2">
+                            <div className="field">
+                                <label>Account Number</label>
+                                <input type="text" value={formData.account_number || ''} onChange={(e) => setFormData({...formData, account_number: e.target.value})} placeholder="00000000000000" />
+                            </div>
+                            <div className="field">
+                                <label>IFSC Code</label>
+                                <input type="text" value={formData.ifsc || ''} onChange={(e) => setFormData({...formData, ifsc: e.target.value.toUpperCase()})} placeholder="HDFC0001234" maxLength={11} />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Payments */}
                     <div className="card" id="payments">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></div>
-                            <div><h2>Payments</h2><p>Used for instant UPI dynamic QR generation</p></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+                            <div><h2>UPI &amp; Online Payments</h2><p>QR Code automatically generated on invoices for instant payment</p></div>
                         </div>
                         <div className="field">
-                            <label>UPI ID <span className="opt">(for QR Code)</span></label>
-                            <input type="text" value={formData.upi_id || ''} onChange={e => setFormData({...formData, upi_id: e.target.value})} placeholder="yourupi@bank" />
-                            <div className="hint">This UPI ID will generate dynamic payment QR codes on bills and receipts</div>
+                            <label>UPI ID (VPA)</label>
+                            <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({...formData, upi_id: e.target.value})} placeholder="businessname@okhdfcbank" />
+                            <div className="hint">Customers can scan the Dynamic QR code on your bills to pay directly to this UPI ID</div>
                         </div>
                     </div>
 
-                    {/* WhatsApp & SMS Automation */}
+                    {/* WhatsApp Automation */}
                     <div className="card" id="whatsapp-automation">
                         <div className="card-head">
                             <div className="card-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                             </div>
                             <div>
-                                <h2>WhatsApp &amp; SMS Automation</h2>
-                                <p>Automated customer notifications and instant sharing settings</p>
+                                <h2>WhatsApp Direct Invoicing &amp; Reminders</h2>
+                                <p>100% Free &amp; Instant WhatsApp notifications for bills, receipts, and balance reminders</p>
                             </div>
-                        </div>
-
-                        {/* Automated SMS Gateway Status */}
-                        <div style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(99, 102, 241, 0.06))', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ fontSize: '18px' }}>⚡</span>
-                                    <strong style={{ fontSize: '14px', color: '#60a5fa' }}>Automated SMS Gateway (Fast2SMS)</strong>
-                                </div>
-                                <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '3px 10px', borderRadius: '20px', fontWeight: 600 }}>Active ✅</span>
-                            </div>
-                            <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                                Automatically sends transactional SMS alerts to customer mobile numbers whenever a ledger entry or invoice is saved.
-                            </p>
                         </div>
 
                         {/* Instant WhatsApp Sharing */}
                         <div style={{ border: '1px solid var(--card-border)', borderRadius: '14px', padding: '18px', background: 'rgba(255,255,255,0.02)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
                                 <div>
                                     <strong style={{ fontSize: '15px', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span>💬</span> Instant WhatsApp Receipts &amp; Reminders
+                                        <span>💬</span> 1-Tap Instant WhatsApp Sharing
                                     </strong>
-                                    <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0' }}>
-                                        One-click sharing of formatted receipts, pending balance links, and PDF bills via WhatsApp.
+                                    <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '4px 0 0', lineHeight: 1.4 }}>
+                                        Share formatted receipts, PDF invoices, and payment links with 1 tap directly to the customer's WhatsApp chat.
                                     </p>
                                 </div>
                                 <div>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
                                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
-                                        1-Tap Active ⚡
+                                        Always Ready &amp; Free ⚡
                                     </span>
                                 </div>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '12px', color: '#94a3b8', marginTop: '12px' }}>
-                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
-                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>Instant Delivery</strong>
-                                    Works seamlessly across Mobile, Web, and Tablet without server lag.
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', fontSize: '12px', color: '#94a3b8', marginTop: '14px' }}>
+                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '4px', fontSize: '13px' }}>📱 Zero Cost &amp; No DND Block</strong>
+                                    Works seamlessly on Android, iOS, and WhatsApp Web with 100% delivery guarantee.
                                 </div>
-                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
-                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '2px' }}>Pre-Formatted Message</strong>
-                                    Includes business name, amount, balance, and online payment links.
+                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '4px', fontSize: '13px' }}>🔗 Auto Payment Link &amp; Visiting Card</strong>
+                                    Every WhatsApp reminder automatically attaches your business details and instant UPI payment link.
                                 </div>
                             </div>
                         </div>
