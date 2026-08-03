@@ -996,8 +996,9 @@ export default function BusinessExpensesPage() {
         setIsAddEntryOpen(true);
     };
 
-    const acceptPendingTxn = (txnId: number) => {
-        setCustomers(customers.map(c => {
+    const acceptPendingTxn = async (txnId: number) => {
+        let updatedCust: any = null;
+        const updatedList = customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
                 const txn = c.pending_txns.find((t: any) => t.id === txnId);
                 if (!txn) return c;
@@ -1007,31 +1008,64 @@ export default function BusinessExpensesPage() {
                 const isDebit = txn.type !== 'credit';
                 const balChange = isDebit ? txn.amt : -txn.amt;
                 
-                return {
+                updatedCust = {
                     ...c,
                     txns: newTxns,
                     pending_txns: newPending,
                     balance: c.balance + balChange
                 };
+                return updatedCust;
             }
             return c;
-        }));
+        });
+
+        setCustomers(updatedList);
         setCanSave(true);
+
+        if (updatedCust && session?.user?.id) {
+            try {
+                await fetch('/api/hisaab/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedCust)
+                });
+            } catch (e) {
+                console.error('[Hisaab] Instant sync failed:', e);
+            }
+        }
+
         showToast(t.paymentAccepted || '✅ Payment accepted and added to Hisaab!');
     };
 
-    const rejectPendingTxn = (txnId: number) => {
+    const rejectPendingTxn = async (txnId: number) => {
         if (!window.confirm(t.confirmReject || 'Are you sure you want to reject this payment?')) return;
-        setCustomers(customers.map(c => {
+        let updatedCust: any = null;
+        const updatedList = customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
-                return {
+                updatedCust = {
                     ...c,
                     pending_txns: c.pending_txns.filter((t: any) => t.id !== txnId)
                 };
+                return updatedCust;
             }
             return c;
-        }));
+        });
+
+        setCustomers(updatedList);
         setCanSave(true);
+
+        if (updatedCust && session?.user?.id) {
+            try {
+                await fetch('/api/hisaab/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedCust)
+                });
+            } catch (e) {
+                console.error('[Hisaab] Instant sync failed:', e);
+            }
+        }
+
         showToast(t.paymentRejected || '❌ Payment rejected!');
     };
 

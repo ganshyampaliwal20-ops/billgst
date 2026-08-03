@@ -357,12 +357,34 @@ function HisaabViewerContent() {
                             </>
                         )}
 
+                        {/* Pending Approval Info Box if any transactions are pending */}
+                        {data.pt && data.pt.length > 0 && (
+                            <div style={{ background: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                                <span style={{ fontSize: '18px' }}>🔔</span>
+                                <div style={{ flex: 1 }}>
+                                    <strong style={{ display: 'block', color: '#856404', fontSize: '13px' }}>Payment Verification Pending</strong>
+                                    <span style={{ fontSize: '11.5px', color: '#664d03' }}>
+                                        Aapka ₹{data.pt.reduce((sum: number, p: any) => sum + (p.amt || 0), 0)} ka payment verification mein hai. Dukandar dwara accept hote hi hisaab update ho jayega.
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="inv-btn-row">
-                            {!s.neg && b?.business_upi_id ? (
-                                <button className="inv-pay-btn" onClick={() => setIsPaymentModalOpen(true)} disabled={isProcessingPayment || s.net <= 0 || (data.pt && data.pt.length > 0)} style={{ border: 'none', cursor: (isProcessingPayment || s.net <= 0 || (data.pt && data.pt.length > 0)) ? 'not-allowed' : 'pointer' }}>
+                            {!s.neg && b?.business_upi_id && s.net > 0 ? (
+                                <a 
+                                    href={`/pay?pa=${encodeURIComponent(b.business_upi_id)}&pn=${encodeURIComponent(b.business_name || b.name || 'Merchant')}&am=${Math.round(s.net)}&sid=${encodeURIComponent(searchParams?.get('id') || (params?.id as string) || '')}&cname=${encodeURIComponent(c.n || '')}`}
+                                    className="inv-pay-btn" 
+                                    style={{ textDecoration: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+                                >
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
-                                    {isProcessingPayment ? 'Wait...' : ((data.pt && data.pt.length > 0) ? 'Pending Approval' : (s.net <= 0 ? 'Paid' : 'Abhi Pay Karein'))}
-                                </button>
+                                    Abhi Pay Karein
+                                </a>
+                            ) : s.net <= 0 ? (
+                                <div className="inv-pay-btn" style={{ background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'default' }}>
+                                    <i className="ti ti-circle-check" style={{ fontSize: '17px' }}></i>
+                                    Hisaab Clear (Paid)
+                                </div>
                             ) : (
                                 <div className="inv-pay-btn disabled" style={{ background: '#777', display: !s.neg ? 'flex' : 'none' }}>
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
