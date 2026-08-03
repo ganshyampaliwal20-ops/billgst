@@ -197,6 +197,19 @@ export default function BusinessExpensesPage() {
     const dismissedPTxnIds = useRef<Set<any>>(new Set());
     const notifiedPTxnIds = useRef<Set<any>>(new Set());
 
+    // Initialize dismissed IDs from localStorage on mount
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem('dismissed_ptxns');
+            if (raw) {
+                const arr = JSON.parse(raw);
+                if (Array.isArray(arr)) {
+                    arr.forEach((id: any) => dismissedPTxnIds.current.add(id));
+                }
+            }
+        } catch (e) {}
+    }, []);
+
     useEffect(() => {
         // Removed DOM reflow hack that caused sluggish UI
     }, [isAddCustOpen]);
@@ -246,6 +259,9 @@ export default function BusinessExpensesPage() {
                         const custTxns = cust.txns || [];
                         const custTxnIds = new Set(custTxns.map((t: any) => t.id));
                         const validCustPTxns = (cust.pending_txns || []).filter((p: any) => !custTxnIds.has(p.id) && !dismissedPTxnIds.current.has(p.id));
+
+                        // Seed notified IDs so initial load doesn't trigger toast alerts
+                        validCustPTxns.forEach((p: any) => notifiedPTxnIds.current.add(p.id));
 
                         if (!existing) {
                             mergedCustomers.set(cust.id, { ...cust, txns: custTxns, pending_txns: validCustPTxns });
@@ -1028,6 +1044,15 @@ export default function BusinessExpensesPage() {
 
     const acceptPendingTxn = async (txnId: number) => {
         dismissedPTxnIds.current.add(txnId);
+        try {
+            const raw = localStorage.getItem('dismissed_ptxns');
+            const arr = raw ? JSON.parse(raw) : [];
+            if (!arr.includes(txnId)) {
+                arr.push(txnId);
+                localStorage.setItem('dismissed_ptxns', JSON.stringify(arr));
+            }
+        } catch (e) {}
+
         let updatedCust: any = null;
         const updatedList = customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
@@ -1071,6 +1096,15 @@ export default function BusinessExpensesPage() {
     const rejectPendingTxn = async (txnId: number) => {
         if (!window.confirm(t.confirmReject || 'Are you sure you want to reject this payment?')) return;
         dismissedPTxnIds.current.add(txnId);
+        try {
+            const raw = localStorage.getItem('dismissed_ptxns');
+            const arr = raw ? JSON.parse(raw) : [];
+            if (!arr.includes(txnId)) {
+                arr.push(txnId);
+                localStorage.setItem('dismissed_ptxns', JSON.stringify(arr));
+            }
+        } catch (e) {}
+
         let updatedCust: any = null;
         const updatedList = customers.map(c => {
             if (c.id === curCid && c.pending_txns) {
