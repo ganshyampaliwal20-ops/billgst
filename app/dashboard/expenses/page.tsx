@@ -1037,7 +1037,8 @@ export default function BusinessExpensesPage() {
                 const balType = newBalance < 0 ? 'Advance' : 'Due';
                 
                 let txt = `*${bizName} - Account Statement*\n\nHello ${currentCustomer.name},\n\nYour account has been updated with *₹${amt}* (${action}).\n\n*Current Balance:* ₹${Math.abs(newBalance)} (${balType})\n\nThank you,\n*${bizName}*`;
-                txt += getVisitingCardText(businessProfile, newBalance > 0 ? newBalance : undefined);
+                const custShareId = session?.user?.id ? `${session.user.id}_${currentCustomer.id}` : currentCustomer.id;
+                txt += getVisitingCardText(businessProfile, newBalance > 0 ? newBalance : undefined, custShareId, currentCustomer.name);
                 
                 // Direct WhatsApp intent on user device for 100% FREE & instant delivery
                 try {
