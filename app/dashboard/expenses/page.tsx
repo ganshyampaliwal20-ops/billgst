@@ -1024,18 +1024,28 @@ export default function BusinessExpensesPage() {
 
         // Auto WhatsApp notification for NEW entries
         if (!editTxnId && currentCustomer?.phone && autoWhatsApp) {
-            const phone = currentCustomer.phone.replace(/\D/g, '');
-            if (phone) {
+            const rawPhone = currentCustomer.phone.replace(/\D/g, '');
+            if (rawPhone) {
+                const phone = rawPhone.startsWith('91') && rawPhone.length > 10 ? rawPhone : (rawPhone.length === 10 ? '91' + rawPhone : rawPhone);
                 const isDebit = entryType !== 'credit';
                 // Recalculate projected balance based on current transaction
                 let newBalance = currentCustomer.balance;
                 newBalance += (isDebit ? amt : -amt);
 
                 const action = isDebit ? (t.givenText || 'Given') : (t.receivedText || 'Received');
-                let txt = `${t.hisaabUpdate || '*BillGST Hisaab Update*'}\n\n${t.namaste || 'Namaste'} ${currentCustomer.name},\n\n${t.accountUpdatedMsg || 'Aaj aapke khate me'} ₹${amt} ${action} ${t.added || 'gaye hain'}.\n\n*${t.newBalance || 'Naya Balance'}:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? (t.advanceJama || '(Advance Jama)') : (t.dueBaki || '(Due / Baki)')}\n\n${t.thankYou || 'Dhanyawad'}!`;
+                const bizName = businessProfile?.business_name || businessProfile?.name || 'BillGST';
+                let txt = `*${bizName} - Hisaab Update*\n\n${t.namaste || 'Namaste'} ${currentCustomer.name} 🙏\n\n${t.accountUpdatedMsg || 'Aaj aapke khate me'} *₹${amt}* (${action}) ${t.added || 'gaye hain'}.\n\n*${t.newBalance || 'Naya Balance'}:* ₹${Math.abs(newBalance)} ${newBalance < 0 ? (t.advanceJama || '(Advance Jama)') : (t.dueBaki || '(Due / Baki)')}\n\n${t.thankYou || 'Dhanyawad'},\n*${bizName}*`;
                 txt += getVisitingCardText(businessProfile);
                 
-                // Automatic background WhatsApp message via our VPS Bot
+                // 1. Direct WhatsApp intent on user device for 100% instant delivery
+                try {
+                    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, '_blank');
+                    showToast(t.openingWhatsApp || '📱 Opening WhatsApp...');
+                } catch (e) {
+                    console.error('Failed to open WhatsApp window', e);
+                }
+
+                // 2. Also send to background VPS bot queue if active
                 const formData = new FormData();
                 formData.append('phone', phone);
                 formData.append('message', txt);
@@ -1043,8 +1053,6 @@ export default function BusinessExpensesPage() {
                 fetch('/api/whatsapp/send-media', {
                     method: 'POST',
                     body: formData
-                }).then(() => {
-                    showToast(t.autoWhatsAppSent || '✅ Automatic WhatsApp message sent!');
                 }).catch(e => {
                     console.error('Failed to send auto whatsapp', e);
                 });
