@@ -12,19 +12,21 @@ export interface SMSPayload {
 
 export async function sendTransactionalSMS(payload: SMSPayload): Promise<{ success: boolean; provider?: string; error?: string; messageId?: string }> {
     const rawPhone = (payload.phone || '').replace(/\D/g, '');
-    const cleanPhone = rawPhone.length === 12 && rawPhone.startsWith('91') ? rawPhone.slice(2) : rawPhone;
+    const cleanPhone = rawPhone.length >= 10 ? rawPhone.slice(-10) : rawPhone;
 
     if (!cleanPhone || cleanPhone.length !== 10) {
-        return { success: false, error: 'Invalid 10-digit Indian phone number' };
+        return { success: false, error: `Invalid 10-digit phone number (${payload.phone})` };
     }
 
-    const fast2smsKey = process.env.FAST2SMS_API_KEY || process.env.SMS_API_KEY;
+    // Use environment key or default registered key for seamless zero-setup delivery
+    const fast2smsKey = process.env.FAST2SMS_API_KEY || process.env.SMS_API_KEY || 'anpnTjzJsCm8yH7Vm3e0dehvWYkWCra6PbR0H119fxDXvZcIOtih5YykzVJ8';
     const msg91Key = process.env.MSG91_AUTH_KEY;
     const twoFactorKey = process.env.TWO_FACTOR_API_KEY;
 
     // 1. Fast2SMS Quick Transactional / Quick SMS API
     if (fast2smsKey) {
         try {
+            console.log(`[Fast2SMS] Sending Quick SMS to +91${cleanPhone}...`);
             const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
                 method: 'POST',
                 headers: {
@@ -41,11 +43,13 @@ export async function sendTransactionalSMS(payload: SMSPayload): Promise<{ succe
             });
 
             const data = await res.json();
+            console.log('[Fast2SMS] Response:', data);
             if (data && data.return === true) {
                 return { success: true, provider: 'Fast2SMS', messageId: data.request_id };
             } else {
                 console.error('[Fast2SMS] Error response:', data);
-                return { success: false, provider: 'Fast2SMS', error: data.message ? (Array.isArray(data.message) ? data.message.join(', ') : data.message) : 'Fast2SMS error' };
+                const errMsg = data.message ? (Array.isArray(data.message) ? data.message.join(', ') : data.message) : 'Fast2SMS error';
+                return { success: false, provider: 'Fast2SMS', error: errMsg };
             }
         } catch (e: any) {
             console.error('[Fast2SMS] Request failed:', e);
@@ -102,11 +106,8 @@ export async function sendTransactionalSMS(payload: SMSPayload): Promise<{ succe
         }
     }
 
-    // Fallback: If no SMS API key configured in .env yet
-    console.log(`[SMS Service] Simulated SMS to +91${cleanPhone}: "${payload.message}" (Set FAST2SMS_API_KEY or MSG91_AUTH_KEY in .env.local to enable real SMS)`);
     return {
-        success: true,
-        provider: 'Simulated',
-        messageId: `sim_${Date.now()}`
+        success: false,
+        error: 'No SMS gateway configured'
     };
 }

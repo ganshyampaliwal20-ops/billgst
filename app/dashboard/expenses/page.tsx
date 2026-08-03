@@ -1053,10 +1053,22 @@ export default function BusinessExpensesPage() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        phone: phone,
+                        phone: currentCustomer.phone,
                         message: plainSms
                     })
-                }).catch(e => console.error('Failed to send SMS notification', e));
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(`📩 SMS sent successfully to ${currentCustomer.name}`);
+                    } else {
+                        console.error('SMS Send Failed:', data);
+                        showToast(`⚠️ SMS: ${data.error || 'Failed to send'}`);
+                    }
+                })
+                .catch(e => {
+                    console.error('Failed to send SMS notification', e);
+                });
             }
         }
     };
