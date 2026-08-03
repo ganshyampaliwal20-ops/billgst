@@ -334,6 +334,94 @@ export default function BusinessExpensesPage() {
         loadData();
     }, [status, session?.user?.id, session?.user?.email]);
 
+    // --- REAL-TIME LIVE SYNC (Near-instant updates for incoming UPI payments & pending approvals) ---
+    useEffect(() => {
+        if (!session?.user?.id || !isMounted) return;
+
+        let isSyncing = false;
+
+        const syncFromServer = async () => {
+            if (isSyncing || !loadCompleted.current) return;
+            isSyncing = true;
+            try {
+                const res = await fetch('/api/hisaab/sync');
+                if (res.ok) {
+                    const serverCustomers = await res.json();
+                    if (Array.isArray(serverCustomers) && serverCustomers.length > 0) {
+                        setCustomers(prev => {
+                            let hasChanges = false;
+                            const prevMap = new Map(prev.map(c => [c.id, c]));
+
+                            serverCustomers.forEach(sCust => {
+                                const local = prevMap.get(sCust.id);
+                                if (!local) {
+                                    prevMap.set(sCust.id, { ...sCust, txns: sCust.txns || [], pending_txns: sCust.pending_txns || [] });
+                                    hasChanges = true;
+                                } else {
+                                    // Check pending_txns
+                                    const localPTxnIds = new Set((local.pending_txns || []).map((p: any) => p.id));
+                                    const serverPTxns = sCust.pending_txns || [];
+                                    const newPTxns = serverPTxns.filter((p: any) => !localPTxnIds.has(p.id));
+
+                                    // Check txns
+                                    const localTxnIds = new Set((local.txns || []).map((t: any) => t.id));
+                                    const serverTxns = sCust.txns || [];
+                                    const newTxns = serverTxns.filter((t: any) => !localTxnIds.has(t.id));
+
+                                    if (newPTxns.length > 0 || newTxns.length > 0) {
+                                        hasChanges = true;
+                                        if (newPTxns.length > 0) {
+                                            showToast(`🔔 Naya Payment: ₹${newPTxns[0].amt} from ${local.name || 'Customer'}`);
+                                        }
+                                        const mergedTxns = [...(local.txns || []), ...newTxns].sort((a: any, b: any) =>
+                                            new Date(b.date).getTime() - new Date(a.date).getTime()
+                                        );
+                                        const mergedPTxns = [...(local.pending_txns || []), ...newPTxns].sort((a: any, b: any) =>
+                                            new Date(b.date).getTime() - new Date(a.date).getTime()
+                                        );
+                                        prevMap.set(sCust.id, {
+                                            ...local,
+                                            ...sCust,
+                                            txns: mergedTxns,
+                                            pending_txns: mergedPTxns
+                                        });
+                                    }
+                                }
+                            });
+
+                            if (hasChanges) {
+                                return Array.from(prevMap.values());
+                            }
+                            return prev;
+                        });
+                    }
+                }
+            } catch (e) {
+                // Background sync ignore
+            } finally {
+                isSyncing = false;
+            }
+        };
+
+        // Poll every 3 seconds for near-instant updates on active screen
+        const intervalId = setInterval(syncFromServer, 3000);
+
+        const handleVisibilityOrFocus = () => {
+            if (document.visibilityState === 'visible') {
+                syncFromServer();
+            }
+        };
+
+        window.addEventListener('focus', handleVisibilityOrFocus);
+        document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+        return () => {
+            clearInterval(intervalId);
+            window.removeEventListener('focus', handleVisibilityOrFocus);
+            document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+        };
+    }, [session?.user?.id, isMounted]);
+
     // --- SAVING LOGIC ---
     useEffect(() => {
         // CRITICAL: Only save after load is fully completed — never overwrite with empty data
@@ -1534,7 +1622,7 @@ export default function BusinessExpensesPage() {
                             <div className="pending-status-box">
                                 <div className="psb-icon">⏳</div>
                                 <div className="psb-text">
-                                    <strong>₹{fmt(Math.abs(custStats.net))}</strong> {t.isCurrentlyPending || 'is currently pending.'}
+                                    <strong>{fmt(Math.abs(custStats.net))}</strong> {t.isCurrentlyPending || 'is currently pending.'}
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#64748b', marginTop: '6px' }}>
                                     <span>{t.lastPaymentWasOn || 'Last payment was on'} {formatDateShort(currentCust.txns[0]?.date || '')} {t.onDateText || '.'}</span>
@@ -1547,7 +1635,7 @@ export default function BusinessExpensesPage() {
                                 <div className="psb-icon">⚠️</div>
                                 <div className="psb-text">
                                     <strong style={{ color: '#dc2626' }}>Credit Limit Exceeded!</strong>
-                                    <span style={{ color: '#b91c1c' }}>Aapne limit ₹{fmt(currentCust.limit)} set ki thi, par udhaar ₹{fmt(custStats.net)} ho gaya hai.</span>
+                                    <span style={{ color: '#b91c1c' }}>Aapne limit {fmt(currentCust.limit)} set ki thi, par udhaar {fmt(custStats.net)} ho gaya hai.</span>
                                 </div>
                             </div>
                         )}
@@ -1557,7 +1645,7 @@ export default function BusinessExpensesPage() {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <div className="psb-icon" style={{ background: '#ffe8a1', color: '#856404' }}>🔔</div>
                                     <div className="psb-text">
-                                        <strong style={{ color: '#856404' }}>Payment Pending Approval: ₹{fmt(ptxn.amt)}</strong>
+                                        <strong style={{ color: '#856404' }}>Payment Pending Approval: {fmt(ptxn.amt)}</strong>
                                         <span style={{ color: '#664d03' }}>Customer confirmed payment via {ptxn.name} on {formatDateShort(ptxn.date)}</span>
                                     </div>
                                 </div>
@@ -1650,7 +1738,7 @@ export default function BusinessExpensesPage() {
                                                             </div>
                                                         </div>
                                                         <div className="chat-balance" style={{ alignSelf: isCr ? 'flex-start' : 'flex-end', marginLeft: isCr ? '4px' : '0', marginRight: isCr ? '0' : '4px' }}>
-                                                            ₹{fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? 'Advance' : 'Due'}
+                                                            {fmt(Math.abs(t.runningBal))} {t.runningBal < 0 ? 'Advance' : 'Due'}
                                                         </div>
                                                     </div>
                                                 );
@@ -1759,7 +1847,7 @@ export default function BusinessExpensesPage() {
                         {currentCust && (
                             <div style={{ display: 'flex', justifyContent: 'center' }}>
                                 <div style={{ fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '12px', backgroundColor: custStats.isNeg ? '#d1fae5' : '#fee2e2', color: custStats.isNeg ? '#059669' : '#dc2626' }}>
-                                    {custStats.isNeg ? 'Advance: ' : 'Pending: '} ₹ {fmt(Math.abs(custStats.net))}
+                                    {custStats.isNeg ? 'Advance: ' : 'Pending: '} {fmt(Math.abs(custStats.net))}
                                 </div>
                             </div>
                         )}
