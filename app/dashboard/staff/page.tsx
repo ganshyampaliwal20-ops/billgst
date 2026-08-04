@@ -612,62 +612,85 @@ export default function SmartAttendance() {
                   font-weight:700; font-size:16px;
                 }
                 .brand-text .t1{font-weight:700; font-size:16px; line-height:1.1;}
-                .brand-text .t2{font-size:11px; opacity:0.8; letter-spacing:0.03em;}
-                .icon-btn{
-                  width:38px; height:38px; border-radius:12px;
-                  background:rgba(255,255,255,0.16); border:none; color:#fff; 
-                  display:flex; align-items:center; justify-content:center; cursor:pointer;
-                  transition:all 0.2s ease;
-                }
-                .icon-btn:hover{background:rgba(255,255,255,0.25); transform:scale(1.05);}
-                .icon-btn:active{transform:scale(0.95);}
-                .date-nav{
-                  display:flex; align-items:center; gap:10px;
-                  background:rgba(255,255,255,0.14); border-radius:16px; padding:8px 10px;
-                }
-                .date-nav button{
-                  width:32px; height:32px; border-radius:10px; border:none;
-                  background:rgba(255,255,255,0.18); color:#fff; font-size:16px; cursor:pointer;
-                  display:flex; align-items:center; justify-content:center;
-                }
-                .date-center{flex:1; text-align:center; font-weight:600; font-size:15px; cursor:pointer;}
-                .date-sub{font-size:10.5px; opacity:0.8; font-weight:400; margin-top:1px;}
-                
-                .body-pad{padding:12px 16px 0;}
-                .search-row{display:flex; gap:10px; margin-bottom:12px;}
-                .search-box{
-                  flex:1; display:flex; align-items:center; gap:8px;
-                  background:var(--card); border-radius:16px; padding:11px 14px;
-                  box-shadow:var(--shadow-card); border:1px solid var(--line);
-                }
-                .search-box input{border:none; outline:none; font-size:13.5px; width:100%; background:transparent; color:var(--ink);}
-                .all-present-btn{
-                  background: linear-gradient(135deg,var(--present) 0%, #17CC7A 100%);
-                  color:#fff; border:none; border-radius:16px; padding:0 14px;
-                  font-weight:600; font-size:12.5px;
-                  display:flex; align-items:center; gap:6px; cursor:pointer;
-                  box-shadow:0 6px 14px rgba(18,183,106,0.28); white-space:nowrap;
-                }
-                .add-staff-quick-btn{
-                  background: var(--card);
-                  color: var(--primary);
-                  border: 1.5px solid var(--primary-light);
-                  border-radius: 16px;
-                  padding: 0 14px;
-                  font-weight: 700;
-                  font-size: 12.5px;
-                  display: flex;
-                  align-items: center;
-                  gap: 4px;
-                  cursor: pointer;
-                  box-shadow: var(--shadow-card);
-                  white-space: nowrap;
-                  transition: all 0.2s ease;
-                }
-                .add-staff-quick-btn:hover{
-                  background: var(--primary-light);
-                  transform: scale(1.02);
-                }
+                 .brand-text .t2{font-size:11px; opacity:0.8; letter-spacing:0.03em;}
+                 .header-report-btn{
+                   background: rgba(255, 255, 255, 0.2);
+                   border: 1px solid rgba(255, 255, 255, 0.35);
+                   backdrop-filter: blur(8px);
+                   color: #ffffff;
+                   border-radius: 12px;
+                   padding: 8px 14px;
+                   font-size: 12px;
+                   font-weight: 700;
+                   display: flex;
+                   align-items: center;
+                   gap: 6px;
+                   cursor: pointer;
+                   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                   transition: all 0.2s ease;
+                   white-space: nowrap;
+                 }
+                 .header-report-btn:hover{
+                   background: rgba(255, 255, 255, 0.3);
+                   transform: translateY(-1px);
+                   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+                 }
+                 .header-report-btn:active{transform: scale(0.96);}
+                 .date-nav{
+                   display:flex; align-items:center; gap:10px;
+                   background:rgba(255,255,255,0.14); border-radius:16px; padding:8px 10px;
+                 }
+                 .date-nav button{
+                   width:32px; height:32px; border-radius:10px; border:none;
+                   background:rgba(255,255,255,0.18); color:#fff; font-size:16px; cursor:pointer;
+                   display:flex; align-items:center; justify-content:center;
+                 }
+                 .date-center{flex:1; text-align:center; font-weight:600; font-size:15px; cursor:pointer;}
+                 .date-sub{font-size:10.5px; opacity:0.8; font-weight:400; margin-top:1px;}
+                 
+                 .body-pad{padding:12px 16px 0;}
+                 .sticky-search-wrapper{
+                   position: sticky;
+                   top: 0;
+                   z-index: 95;
+                   background: var(--bg);
+                   padding: 8px 0;
+                   margin-bottom: 8px;
+                 }
+                 .search-row{display:flex; gap:8px;}
+                 .search-box{
+                   flex:1; display:flex; align-items:center; gap:8px;
+                   background:var(--card); border-radius:16px; padding:11px 14px;
+                   box-shadow:var(--shadow-card); border:1px solid var(--line);
+                 }
+                 .search-box input{border:none; outline:none; font-size:13.5px; width:100%; background:transparent; color:var(--ink);}
+                 .all-present-btn{
+                   background: linear-gradient(135deg,var(--present) 0%, #17CC7A 100%);
+                   color:#fff; border:none; border-radius:16px; padding:0 14px;
+                   font-weight:600; font-size:12.5px;
+                   display:flex; align-items:center; gap:6px; cursor:pointer;
+                   box-shadow:0 6px 14px rgba(18,183,106,0.28); white-space:nowrap;
+                 }
+                 .add-staff-quick-btn{
+                   background: var(--card);
+                   color: var(--primary);
+                   border: 1.5px solid var(--primary-light);
+                   border-radius: 16px;
+                   padding: 0 14px;
+                   font-weight: 700;
+                   font-size: 12.5px;
+                   display: flex;
+                   align-items: center;
+                   gap: 4px;
+                   cursor: pointer;
+                   box-shadow: var(--shadow-card);
+                   white-space: nowrap;
+                   transition: all 0.2s ease;
+                 }
+                 .add-staff-quick-btn:hover{
+                   background: var(--primary-light);
+                   transform: scale(1.02);
+                 }
                 
                 .stats-row{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px;}
                 .stat{border-radius:16px; padding:10px 4px; text-align:center; border:2px solid transparent; cursor:pointer; transition:transform 0.1s, border 0.1s;}
@@ -687,7 +710,7 @@ export default function SmartAttendance() {
                 }
                 .chip.active{background:var(--ink); color:#fff; border-color:var(--ink);}
                 
-                .list{padding:0 18px; display:flex; flex-direction:column; gap:14px;}
+                .list{display:flex; flex-direction:column; gap:14px; padding-bottom:30px;}
                 .staff-card{
                   background:var(--card); border-radius:var(--radius-lg);
                   padding:16px; box-shadow:var(--shadow-card); border:1px solid var(--line);
@@ -906,19 +929,19 @@ export default function SmartAttendance() {
                                         <div className="t2">Attendance Manager</div>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <button 
-                                        className="icon-btn" 
-                                        title="Add Staff Member (नया स्टाफ जोड़ें)" 
-                                        onClick={openAddModal}
-                                        style={{ background: 'rgba(255,255,255,0.25)', fontSize: '20px', fontWeight: 600 }}
-                                    >
-                                        +
-                                    </button>
-                                    <button className="icon-btn" title="Export PDF" onClick={() => setPdfActionSheet({show: true, type: 'master'})}>
-                                        ⬇
-                                    </button>
-                                </div>
+                                <button 
+                                    className="header-report-btn" 
+                                    title="Monthly Attendance PDF Report (मासिक उपस्थिति रिपोर्ट डाउनलोड / प्रिंट / शेयर करें)" 
+                                    onClick={() => setPdfActionSheet({show: true, type: 'master'})}
+                                >
+                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                    <span>📄 PDF Report</span>
+                                </button>
                             </div>
                             <div className="date-nav">
                                 <button onClick={() => shiftDay(-1)}>‹</button>
@@ -945,17 +968,19 @@ export default function SmartAttendance() {
                         </div>
 
                         <div className="body-pad">
-                            <div className="search-row">
-                                <div className="search-box">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--ink-soft)" strokeWidth="2.5" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                    <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                            <div className="sticky-search-wrapper">
+                                <div className="search-row">
+                                    <div className="search-box">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--ink-soft)" strokeWidth="2.5" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                        <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                                    </div>
+                                    <button className="add-staff-quick-btn" onClick={openAddModal} title="Add Staff Member">
+                                        <span style={{ fontSize: '15px', fontWeight: 800 }}>+</span> Add
+                                    </button>
+                                    <button className="all-present-btn" onClick={markAllPresent}>
+                                        ✓ All Present
+                                    </button>
                                 </div>
-                                <button className="add-staff-quick-btn" onClick={openAddModal} title="Add Staff Member">
-                                    <span style={{ fontSize: '15px', fontWeight: 800 }}>+</span> Add
-                                </button>
-                                <button className="all-present-btn" onClick={markAllPresent}>
-                                    ✓ All Present
-                                </button>
                             </div>
 
                             <div className="stats-row">
@@ -980,80 +1005,96 @@ export default function SmartAttendance() {
                                     </div>
                                 ))}
                             </div>
-                        </div>
 
-                        <div className="list">
-                            {filteredStaff.length === 0 && (
-                                <div style={{textAlign:'center', color:'var(--ink-soft)', padding:'30px 0', fontSize:'13px', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px'}}>
-                                    <div>Koi staff nahi mila</div>
-                                    <button 
-                                        onClick={openAddModal}
-                                        style={{
-                                            background: 'linear-gradient(135deg, var(--primary), #8B6BFF)',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: '12px',
-                                            padding: '8px 18px',
-                                            fontSize: '13px',
-                                            fontWeight: 600,
-                                            cursor: 'pointer',
-                                            boxShadow: '0 4px 12px rgba(91,61,245,0.25)'
-                                        }}
-                                    >
-                                        + Add New Staff
-                                    </button>
-                                </div>
-                            )}
-                            {filteredStaff.map((s: any) => {
-                                const status = getStatus(s.id, selectedDate) as keyof typeof statusMeta | null;
-                                const meta = status ? statusMeta[status] : null;
-                                const ringColor = meta ? meta.color : 'var(--line)';
-                                const ringPct = meta ? '100%' : '0%';
+                            <div className="list">
+                                {filteredStaff.length === 0 && (
+                                    <div style={{textAlign:'center', color:'var(--ink-soft)', padding:'30px 0', fontSize:'13px', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px'}}>
+                                        <div>Koi staff nahi mila</div>
+                                        <button 
+                                            onClick={openAddModal}
+                                            style={{
+                                                background: 'linear-gradient(135deg, var(--primary), #8B6BFF)',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: '12px',
+                                                padding: '8px 18px',
+                                                fontSize: '13px',
+                                                fontWeight: 600,
+                                                cursor: 'pointer',
+                                                boxShadow: '0 4px 12px rgba(91,61,245,0.25)'
+                                            }}
+                                        >
+                                            + Add New Staff
+                                        </button>
+                                    </div>
+                                )}
+                                {filteredStaff.map((s: any) => {
+                                    const status = getStatus(s.id, selectedDate) as keyof typeof statusMeta | null;
+                                    const meta = status ? statusMeta[status] : null;
+                                    const ringColor = meta ? meta.color : 'var(--line)';
+                                    const ringPct = meta ? '100%' : '0%';
 
-                                return (
-                                    <div 
-                                        className={`staff-card transition-all duration-500 ${aiHighlightedStaffId === s.id ? 'ring-4 ring-emerald-500 shadow-[0_0_35px_rgba(16,185,129,0.7)] scale-[1.03] bg-emerald-50/40' : ''}`} 
-                                        key={s.id}
-                                        id={`staff-card-${s.id}`}
-                                    >
-                                        <div className="staff-top">
-                                            <div className="avatar-wrap">
-                                                <div className="avatar-ring" style={{ '--ring-color': ringColor, '--ring-pct': ringPct } as any}>
-                                                    <div className="avatar-inner">
-                                                        {s.photo ? <img src={s.photo} alt={s.name} /> : initials(s.name)}
+                                    return (
+                                        <div 
+                                            className={`staff-card transition-all duration-500 ${aiHighlightedStaffId === s.id ? 'ring-4 ring-emerald-500 shadow-[0_0_35px_rgba(16,185,129,0.7)] scale-[1.03] bg-emerald-50/40' : ''}`} 
+                                            key={s.id}
+                                            id={`staff-card-${s.id}`}
+                                        >
+                                            <div className="staff-top">
+                                                <div className="avatar-wrap">
+                                                    <div className="avatar-ring" style={{ '--ring-color': ringColor, '--ring-pct': ringPct } as any}>
+                                                        <div className="avatar-inner">
+                                                            {s.photo ? <img src={s.photo} alt={s.name} /> : initials(s.name)}
+                                                        </div>
+                                                    </div>
+                                                    <div className="cam-badge" onClick={() => handleStaffPhotoUpload(s.id)}>
+                                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" stroke="white" strokeWidth="2"/><circle cx="12" cy="14" r="3" stroke="white" strokeWidth="2"/></svg>
                                                     </div>
                                                 </div>
-                                                <div className="cam-badge" onClick={() => handleStaffPhotoUpload(s.id)}>
-                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" stroke="white" strokeWidth="2"/><circle cx="12" cy="14" r="3" stroke="white" strokeWidth="2"/></svg>
+                                                <div className="staff-info">
+                                                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start'}}>
+                                                        <div>
+                                                            <div className="staff-name">{s.name}</div>
+                                                            <div className="staff-role">{s.role} {s.phone ? `• 📞 ${s.phone}` : ''}</div>
+                                                        </div>
+                                                        {meta && (
+                                                            <div className="status-badge" style={{background: meta.bg, color: meta.color}}>
+                                                                {meta.label}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="staff-info">
-                                                <div className="staff-name">{s.name}</div>
-                                                <div className="staff-role">{s.role} {s.phone ? `• 📞 ${s.phone}` : ''}</div>
+                                            <div className="action-grid">
+                                                <button className={`act-btn present ${status === 'PRESENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'PRESENT')}>
+                                                    <span style={{ fontSize: '13px' }}>✓</span><span>Present</span>
+                                                </button>
+                                                <button className={`act-btn absent ${status === 'ABSENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'ABSENT')}>
+                                                    <span style={{ fontSize: '13px' }}>✕</span><span>Absent</span>
+                                                </button>
+                                                <button className={`act-btn half ${status === 'HALF_DAY' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'HALF_DAY')}>
+                                                    <span style={{ fontSize: '13px' }}>½</span><span>Half</span>
+                                                </button>
+                                                <button className={`act-btn leave ${status === 'LEAVE' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'LEAVE')}>
+                                                    <span style={{ fontSize: '13px' }}>☂</span><span>Leave</span>
+                                                </button>
                                             </div>
-                                            {meta && <span className="status-badge" style={{background: meta.bg, color: meta.color}}>{meta.label}</span>}
+                                            <div className="card-foot">
+                                                <button className="edit-btn" onClick={() => openEditModal(s)} title="Edit Staff Details">✏️ Edit</button>
+                                                {deleteStaff && (
+                                                    <button className="del-btn" onClick={async () => {
+                                                        if (window.confirm(`Delete ${s.name}?`)) {
+                                                            await deleteStaff(s.id);
+                                                            toast.success('Staff removed');
+                                                        }
+                                                    }}>🗑 Delete</button>
+                                                )}
+                                                <button className="details-btn" onClick={() => { setSelectedStaff(s); setIsDetailOpen(true); }}>Details ↓</button>
+                                            </div>
                                         </div>
-                                        <div className="action-grid">
-                                            <button className={`act-btn present ${status === 'PRESENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'PRESENT')}>✓<span>Present</span></button>
-                                            <button className={`act-btn absent ${status === 'ABSENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'ABSENT')}>✕<span>Absent</span></button>
-                                            <button className={`act-btn half ${status === 'HALF_DAY' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'HALF_DAY')}>½<span>Half</span></button>
-                                            <button className={`act-btn leave ${status === 'LEAVE' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'LEAVE')}>⛱<span>Leave</span></button>
-                                        </div>
-                                        <div className="bottom-row">
-                                            <button className="edit-btn" onClick={() => openEditModal(s)} title="Edit staff details">✏️ Edit</button>
-                                            {deleteStaff && (
-                                                <button className="del-btn" onClick={async () => {
-                                                    if (window.confirm(`Delete ${s.name}?`)) {
-                                                        await deleteStaff(s.id);
-                                                        toast.success('Staff removed');
-                                                    }
-                                                }}>🗑 Delete</button>
-                                            )}
-                                            <button className="details-btn" onClick={() => { setSelectedStaff(s); setIsDetailOpen(true); }}>Details ↓</button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
 
