@@ -5,7 +5,7 @@ import { useStore } from '@/lib/store';
 import { useSession } from 'next-auth/react';
 import { 
     FaPrint, FaDownload, FaWhatsapp, FaPalette, FaFileAlt, 
-    FaBolt, FaTag, FaCopy, FaEye, FaHeadset, FaCamera, FaGlobe
+    FaBolt, FaTag, FaCopy, FaEye, FaHeadset, FaExclamationTriangle, FaHourglassHalf
 } from 'react-icons/fa';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-hot-toast';
@@ -87,18 +87,19 @@ export default function MarketingStudioPage() {
         const message = `*🏪 किराना, जनरल स्टोर & 🔩 हार्डवेयर की दुकान के लिए 100% मुफ़्त ऐप!* 🚀\n\n` +
             `*BillGST* — भारत का सबसे आसान, सुरक्षित और *100% FREE* ऑल-इन-वन दुकान सॉफ्टवेयर!\n\n` +
             `⚡ *1. फास्ट बिलिंग:* 10 सेकंड में GST / Non-GST पक्का बिल (थर्मल 2"/3", A4 प्रिंट)\n` +
-            `🎙️ *2. AI बोलकर बिलिंग:* बिना टाइप किए सिर्फ बोलकर आइटम जोड़ें\n` +
-            `📸 *3. AI स्कैनर:* पुराने बिल या पर्चे की फोटो खींचकर तुरंत बिल बनाएं\n` +
-            `📷 *4. बारकोड स्कैनर:* मोबाइल कैमरे से स्कैन करके तुरंत बिक्री\n` +
-            `💬 *5. WhatsApp बॉट:* सीधे ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
-            `📒 *6. डिजिटल उधारी खाता:* ग्राहक & सप्लायर दोनों का 100% सुरक्षित हिसाब\n` +
-            `👥 *7. स्टाफ हाजिरी:* कर्मचारियों की अटेंडेंस और सैलरी मैनेजमेंट\n` +
-            `📦 *8. स्टॉक & बारकोड:* कम स्टॉक और एक्सपायरी का ऑटो अलर्ट\n` +
-            `🛒 *9. ऑनलाइन स्टोर:* फ्री में बनाएं अपनी डिजिटल दुकान और कैटलॉग\n` +
-            `📊 *10. GST & CA रिपोर्ट:* 1-क्लिक में GSTR-1, GSTR-3B Excel डाउनलोड\n` +
-            `💰 *11. खर्चे & मुनाफा:* दैनिक खर्चे, कमाई और शुद्ध मुनाफे का हिसाब\n` +
-            `📱 *12. मल्टी-डिवाइस:* मोबाइल और कंप्यूटर दोनों पर डेटा हमेशा सिंक\n\n` +
-            `📲 *Google Play Store पर भी उपलब्ध & वेब पर चलाएं!*\n` +
+            `🎙️ *2. AI बोलकर बिलिंग:* बिना टाइप किए सिर्फ आवाज से आइटम जोड़ें\n` +
+            `📸 *3. AI स्कैनर:* पर्चे या पुराने बिल की फोटो से तुरंत डिजिटल बिल बनाएं\n` +
+            `⚠️ *4. लो-स्टॉक अलर्ट:* दुकान का कोई भी सामान खत्म होने से पहले ऑटो अलर्ट\n` +
+            `⏳ *5. एक्सपायरी अलर्ट:* किराना, दवाई या खाने-पीने का सामान एक्सपायर होने से पहले चेतावनी\n` +
+            `📷 *6. बारकोड स्कैनर:* मोबाइल कैमरे से 1 सेकंड में स्कैन करके तुरंत बिक्री\n` +
+            `💬 *7. WhatsApp बॉट:* सीधे ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
+            `📒 *8. डिजिटल उधारी खाता:* ग्राहक & सप्लायर दोनों का 100% सुरक्षित हिसाब\n` +
+            `👥 *9. स्टाफ हाजिरी:* कर्मचारियों की अटेंडेंस और सैलरी मैनेजमेंट\n` +
+            `🛒 *10. ऑनलाइन स्टोर:* फ्री में बनाएं अपनी डिजिटल दुकान और कैटलॉग\n` +
+            `📊 *11. GST & CA रिपोर्ट:* 1-क्लिक में GSTR-1, GSTR-3B Excel डाउनलोड\n` +
+            `💰 *12. खर्चे & मुनाफा:* रोजाना खर्चे, कुल कमाई और शुद्ध मुनाफे का हिसाब\n` +
+            `📱 *13. मल्टी-डिवाइस:* मोबाइल और कंप्यूटर दोनों पर डेटा हमेशा सिंक\n\n` +
+            `📲 *Google Play Store और Website दोनों पर उपलब्ध!*\n` +
             `🎉 *100% मुफ़्त (LifeTime Free)* · कोई मंथली चार्ज नहीं!\n\n` +
             `🌐 *वेबसाइट:* www.billgst.com\n` +
             `📞 *24x7 हेल्पलाइन & WhatsApp सपोर्ट:* ${helplineNumber}`;
@@ -113,15 +114,16 @@ export default function MarketingStudioPage() {
             `⚡ 1. 10 सेकंड में GST / Non-GST बिल (थर्मल & A4 प्रिंट)\n` +
             `🎙️ 2. AI बोलकर बिल बनाएं (Voice AI Billing)\n` +
             `📸 3. AI स्कैनर (पर्चे की फोटो से तुरंत डिजिटल बिल)\n` +
-            `📷 4. बारकोड व QR स्कैनर से तेज बिक्री\n` +
-            `💬 5. ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
-            `📒 6. डिजिटल उधारी खाता (ग्राहक & सप्लायर दोनों का हिसाब)\n` +
-            `👥 7. स्टाफ अटेंडेंस (हाजिरी) और सैलरी मैनेजमेंट\n` +
-            `📦 8. इन्वेंटरी, स्टॉक और एक्सपायरी अलर्ट्स\n` +
-            `🛒 9. फ्री ऑनलाइन दुकान & डिजिटल कैटलॉग\n` +
-            `📊 10. CA के लिए GSTR-1, GSTR-3B 1-क्लिक रिपोर्ट\n` +
-            `💰 11. दैनिक खर्चे और शुद्ध मुनाफे का हिसाब\n` +
-            `📱 12. मोबाइल और कंप्यूटर दोनों पर चलता है\n\n` +
+            `⚠️ 4. लो-स्टॉक अलर्ट (सामान खत्म होने से पहले ऑटो सूचना)\n` +
+            `⏳ 5. एक्सपायरी अलर्ट (तारीख निकलने से पहले चेतावनी - नो नुकसान)\n` +
+            `📷 6. बारकोड व QR स्कैनर से तेज बिक्री\n` +
+            `💬 7. ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
+            `📒 8. डिजिटल उधारी खाता (ग्राहक & सप्लायर दोनों का हिसाब)\n` +
+            `👥 9. स्टाफ अटेंडेंस (हाजिरी) और सैलरी मैनेजमेंट\n` +
+            `🛒 10. फ्री ऑनलाइन दुकान & डिजिटल कैटलॉग\n` +
+            `📊 11. CA के लिए GSTR-1, GSTR-3B 1-क्लिक रिपोर्ट\n` +
+            `💰 12. दैनिक खर्चे और शुद्ध मुनाफे का हिसाब\n` +
+            `📱 13. मोबाइल और कंप्यूटर दोनों पर चलता है\n\n` +
             `📲 Google Play Store और Website दोनों पर उपलब्ध!\n` +
             `🎉 100% मुफ़्त (FREE App) · कोई छुपा हुआ चार्ज नहीं!\n` +
             `🌐 वेबसाइट: www.billgst.com\n` +
@@ -147,7 +149,9 @@ export default function MarketingStudioPage() {
                 border: '#94a3b8',
                 qrBg: '#ffffff',
                 qrFg: '#000000',
-                goldBadge: '#f59e0b'
+                goldBadge: '#f59e0b',
+                alertBg: '#fee2e2',
+                alertBorder: '#ef4444'
             };
         }
         if (theme === 'emerald') {
@@ -164,7 +168,9 @@ export default function MarketingStudioPage() {
                 border: 'rgba(52, 211, 153, 0.4)',
                 qrBg: '#ffffff',
                 qrFg: '#022c22',
-                goldBadge: '#fbbf24'
+                goldBadge: '#fbbf24',
+                alertBg: 'rgba(239, 68, 68, 0.18)',
+                alertBorder: 'rgba(239, 68, 68, 0.5)'
             };
         }
         // dark_royal default
@@ -181,26 +187,28 @@ export default function MarketingStudioPage() {
             border: 'rgba(56, 189, 248, 0.4)',
             qrBg: '#ffffff',
             qrFg: '#050d24',
-            goldBadge: '#f59e0b'
+            goldBadge: '#f59e0b',
+            alertBg: 'rgba(239, 68, 68, 0.15)',
+            alertBorder: 'rgba(239, 68, 68, 0.45)'
         };
     };
 
     const currentStyles = getThemeStyles();
 
-    // All 12 Comprehensive Feature Pillars with AI Scanner
+    // All Real 12 Feature Pillars with Low Stock & Expiry Highlighted
     const allFeatures = [
         { icon: '⚡', title: '10 सेकंड में GST / Non-GST बिल', desc: 'A4, A5, Thermal 2"/3" रसीद प्रिंट। कोटेशन, चालान & E-Way Bill।' },
-        { icon: '🎙️', title: 'AI बोलकर बिलिंग (Voice AI)', desc: 'बिना टाइप किए बोलें "2 तेल, 10 नट-बोल्ट" और बिल तुरंत तैयार।' },
+        { icon: '🎙️', title: 'AI बोलकर बिलिंग (Voice AI)', desc: 'बिना टाइप किए सिर्फ नाम और रेट बोलें, बिल तुरंत तैयार।' },
         { icon: '📸', title: 'AI स्मार्ट स्कैनर (AI Scanner)', desc: 'पर्चे या पुराने बिल की फोटो खींचें, AI से तुरंत बिल बनाएं।' },
+        { icon: '⚠️', title: 'लो-स्टॉक ऑटो अलर्ट (Low Stock)', desc: 'दुकान में माल खत्म होने से पहले ऑटोमैटिक अलर्ट, ताकि बिक्री न रुके।' },
+        { icon: '⏳', title: 'एक्सपायरी डेट अलर्ट (Expiry Alert)', desc: 'किराना, दवा या खाद्य सामग्री की एक्सपायरी से पहले चेतावनी।' },
         { icon: '📷', title: 'बारकोड & QR स्कैनर', desc: 'कैमरे या स्कैनर से तुरंत स्कैन करके 1 सेकंड में सेल करें।' },
         { icon: '💬', title: 'WhatsApp ऑटो बिल & रिमाइंडर', desc: 'सीधे ग्राहक के WhatsApp पर डिजिटल बिल और उधारी रिमाइंडर।' },
         { icon: '📒', title: 'डिजिटल उधारी & हिसाब खाता', desc: 'ग्राहक और सप्लायर दोनों का 100% सुरक्षित बहीखाता।' },
         { icon: '👥', title: 'स्टाफ अटेंडेंस & सैलरी मैनेजर', desc: 'कर्मचारियों की हाजिरी (Attendance), एडवांस और वेतन का हिसाब।' },
-        { icon: '📦', title: 'इन्वेंटरी & कम स्टॉक अलर्ट', desc: 'दुकान में कौन सा माल खत्म हो रहा है, तुरंत ऑटो अलर्ट पाएं।' },
         { icon: '🛒', title: 'फ्री ऑनलाइन स्टोर & कैटलॉग', desc: 'अपनी दुकान का लिंक व्हाट्सएप पर शेयर करें, ऑनलाइन ऑर्डर पाएं।' },
         { icon: '📊', title: '1-Click GSTR-1, GSTR-3B रिपोर्ट', desc: 'CA को हिसाब देना आसान। चुटकियों में Excel और JSON डाउनलोड।' },
         { icon: '💰', title: 'खर्चा, सेल & मुनाफा ट्रैकिंग', desc: 'दुकान के रोजाना खर्चे, कुल बिक्री और शुद्ध मुनाफे का हिसाब।' },
-        { icon: '📱', title: 'मोबाइल + कंप्यूटर (Sync)', desc: 'मोबाइल और कंप्यूटर दोनों पर चलाएं — सारा डेटा हमेशा सुरक्षित।' },
     ];
 
     return (
@@ -244,7 +252,7 @@ export default function MarketingStudioPage() {
                                     दुकान मार्केटिंग & प्रचार सामग्री <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">100% FREE App</span>
                                 </h1>
                                 <p className="text-xs md:text-sm text-slate-400">
-                                    BillGST लोगो, AI स्कैनर, Google Play Store बैज, www.billgst.com और हेल्पलाइन (+91 74985 71873) सहित।
+                                    लो-स्टॉक अलर्ट, एक्सपायरी अलर्ट, AI स्कैनर, BillGST लोगो, www.billgst.com और हेल्पलाइन (+91 74985 71873) सहित।
                                 </p>
                             </div>
                         </div>
@@ -288,7 +296,7 @@ export default function MarketingStudioPage() {
                         </h2>
                         <div className="grid grid-cols-2 gap-2.5">
                             {[
-                                { id: 'a4_flyer', label: 'A4 मास्टर पर्चा', desc: 'AI स्कैनर & Play Store सहित', icon: '📄' },
+                                { id: 'a4_flyer', label: 'A4 मास्टर पर्चा', desc: 'लो-स्टॉक & एक्सपायरी सहित', icon: '📄' },
                                 { id: 'a5_handbill', label: '2-in-1 हाफ पेज', desc: 'सस्ती प्रिंटिंग (2 प्रति शीट)', icon: '📑' },
                                 { id: 'whatsapp_square', label: 'WhatsApp स्क्वायर', desc: 'स्टेटस और ग्रुप्स के लिए', icon: '📱' },
                                 { id: 'counter_standee', label: 'काउंटर स्टैंडी', desc: 'दुकान काउंटर QR स्टीकर', icon: '📜' },
@@ -361,7 +369,7 @@ export default function MarketingStudioPage() {
                         </div>
 
                         <div>
-                            <label className="block text-[11px] font-semibold text-slate-400 mb-1">वेबसाइट URL (Official Domain)</label>
+                            <label className="block text-[11px] font-semibold text-slate-400 mb-1">वेबसाइट URL</label>
                             <input
                                 type="text"
                                 value={websiteUrl}
@@ -421,7 +429,7 @@ export default function MarketingStudioPage() {
                             <FaEye className="text-amber-400" /> लाइव पूर्वावलोकन (Live Print Preview):
                         </span>
                         <span className="text-[11px] text-emerald-400 font-bold">
-                            ✓ BillGST लोगो · AI स्कैनर · www.billgst.com · Helpline: +91 74985 71873
+                            ✓ लो-स्टॉक & एक्सपायरी अलर्ट शामिल · Helpline: +91 74985 71873
                         </span>
                     </div>
 
@@ -547,11 +555,11 @@ export default function MarketingStudioPage() {
                                         margin: '0 auto',
                                         lineHeight: '1.3'
                                     }}>
-                                        बिलिंग, AI स्कैनर, उधारी, स्टॉक, WhatsApp हिसाब, स्टाफ हाजिरी और ऑनलाइन दुकान — सब कुछ एक ऐप में!
+                                        बिलिंग, AI स्कैनर, लो-स्टॉक & एक्सपायरी अलर्ट, उधारी, WhatsApp हिसाब और ऑनलाइन दुकान!
                                     </p>
                                 </div>
 
-                                {/* SPECIAL HIGHLIGHT: AI SCANNER & VOICE BILLING SPOTLIGHT */}
+                                {/* SPECIAL SPOTLIGHT: LOW STOCK & EXPIRY ALERTS BANNER */}
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: '1fr 1fr',
@@ -559,41 +567,41 @@ export default function MarketingStudioPage() {
                                     marginBottom: '10px'
                                 }}>
                                     <div style={{
-                                        background: 'rgba(245, 158, 11, 0.12)',
-                                        border: '1.5px solid rgba(245, 158, 11, 0.4)',
+                                        background: currentStyles.alertBg,
+                                        border: `1.5px solid ${currentStyles.alertBorder}`,
                                         borderRadius: '10px',
                                         padding: '6px 10px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px'
                                     }}>
-                                        <span style={{ fontSize: '22px' }}>📸</span>
+                                        <span style={{ fontSize: '24px' }}>⚠️</span>
                                         <div>
-                                            <div style={{ fontSize: '11.5px', fontWeight: 900, color: currentStyles.highlight }}>
-                                                AI स्मार्ट स्कैनर (AI Scanner)
+                                            <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#ef4444' }}>
+                                                लो-स्टॉक ऑटो अलर्ट (Low Stock)
                                             </div>
                                             <div style={{ fontSize: '9.5px', color: currentStyles.textSecondary }}>
-                                                पुराने बिल या पर्चे की फोटो खींचें, AI से तुरंत बिल तैयार।
+                                                दुकान में सामान खत्म होने से पहले ऑटोमैटिक लाल अलर्ट।
                                             </div>
                                         </div>
                                     </div>
 
                                     <div style={{
-                                        background: 'rgba(56, 189, 248, 0.12)',
-                                        border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                                        background: 'rgba(245, 158, 11, 0.15)',
+                                        border: '1.5px solid rgba(245, 158, 11, 0.5)',
                                         borderRadius: '10px',
                                         padding: '6px 10px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px'
                                     }}>
-                                        <span style={{ fontSize: '22px' }}>🎙️</span>
+                                        <span style={{ fontSize: '24px' }}>⏳</span>
                                         <div>
-                                            <div style={{ fontSize: '11.5px', fontWeight: 900, color: currentStyles.accent }}>
-                                                AI बोलकर बिलिंग (Voice AI)
+                                            <div style={{ fontSize: '11.5px', fontWeight: 900, color: currentStyles.highlight }}>
+                                                एक्सपायरी डेट अलर्ट (Expiry Alert)
                                             </div>
                                             <div style={{ fontSize: '9.5px', color: currentStyles.textSecondary }}>
-                                                बिना टाइप किए सिर्फ नाम और रेट बोलें और बिल तुरंत तैयार।
+                                                सामान एक्सपायर होने से पहले चेतावनी, कोई घाटा नहीं।
                                             </div>
                                         </div>
                                     </div>
@@ -721,7 +729,7 @@ export default function MarketingStudioPage() {
                                                 </div>
                                             )}
                                             <div style={{ fontSize: '10px', color: currentStyles.textSecondary }}>
-                                                🌐 <span style={{ fontWeight: 700, color: currentStyles.accent }}>www.billgst.com</span>
+                                                📱 <span style={{ fontWeight: 700, color: currentStyles.accent }}>Play Store पर &apos;BillGST&apos; सर्च करें</span>
                                             </div>
                                         </div>
                                     </div>
