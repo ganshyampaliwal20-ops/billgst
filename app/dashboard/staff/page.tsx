@@ -33,12 +33,18 @@ export default function SmartAttendance() {
     const [currentFilter, setCurrentFilter] = useState('All');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'PRESENT' | 'ABSENT' | 'HALF_DAY' | 'LEAVE'>('ALL');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
     const [pdfActionSheet, setPdfActionSheet] = useState<{show: boolean, type: 'master' | 'salary'}>({show: false, type: 'master'});
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
 
-    // Add form state
+    // Form state (Add / Edit)
     const [newName, setNewName] = useState('');
+    const [newPhone, setNewPhone] = useState('');
     const [newRole, setNewRole] = useState('Worker');
+    const [newSalaryType, setNewSalaryType] = useState<'daily' | 'monthly'>('daily');
+    const [newDailyWage, setNewDailyWage] = useState('');
+    const [newMonthlySalary, setNewMonthlySalary] = useState('');
+    const [newAdvance, setNewAdvance] = useState('');
     const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
 
     // Detail Sheet
@@ -245,23 +251,65 @@ export default function SmartAttendance() {
         inp.click();
     };
 
-    const handleAddStaff = async () => {
-        if (!newName.trim()) return toast.error('Naam daalna zaroori hai');
+    const openAddModal = () => {
+        setEditingStaffId(null);
+        setNewName('');
+        setNewPhone('');
+        setNewRole('Worker');
+        setNewSalaryType('daily');
+        setNewDailyWage('');
+        setNewMonthlySalary('');
+        setNewAdvance('');
+        setPendingPhoto(null);
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (s: any) => {
+        setEditingStaffId(s.id);
+        setNewName(s.name || '');
+        setNewPhone(s.phone || '');
+        setNewRole(s.role || 'Worker');
+        setNewSalaryType(s.salary_type || 'daily');
+        setNewDailyWage(s.daily_wage !== undefined && s.daily_wage !== null ? String(s.daily_wage) : '');
+        setNewMonthlySalary(s.monthly_salary !== undefined && s.monthly_salary !== null ? String(s.monthly_salary) : '');
+        setNewAdvance(s.advance !== undefined && s.advance !== null ? String(s.advance) : '');
+        setPendingPhoto(s.photo || null);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveStaff = async () => {
+        if (!newName.trim()) return toast.error('Staff ka naam daalna zaroori hai');
         if (isSaving) return;
         setIsSaving(true);
         try {
-            await addStaff({
-                name: newName,
-                role: newRole,
-                photo: pendingPhoto,
-                salary_type: 'daily',
-                daily_wage: 0
-            });
-            setIsModalOpen(false);
-            setNewName('');
-            setPendingPhoto(null);
-            toast.success('Staff added');
-        } finally { setIsSaving(false); }
+            const staffPayload = {
+                name: newName.trim(),
+                phone: newPhone.trim(),
+                role: newRole || 'Worker',
+                salary_type: newSalaryType,
+                daily_wage: newSalaryType === 'daily' ? (parseFloat(newDailyWage) || 0) : 0,
+                monthly_salary: newSalaryType === 'monthly' ? (parseFloat(newMonthlySalary) || 0) : 0,
+                advance: parseFloat(newAdvance) || 0,
+                photo: pendingPhoto
+            };
+
+            if (editingStaffId) {
+                const res = await updateStaff(editingStaffId, staffPayload);
+                if (res && res.success !== false) {
+                    if (selectedStaff && selectedStaff.id === editingStaffId) {
+                        setSelectedStaff({ ...selectedStaff, ...staffPayload });
+                    }
+                    setIsModalOpen(false);
+                }
+            } else {
+                const res = await addStaff(staffPayload);
+                if (res && res.success !== false) {
+                    setIsModalOpen(false);
+                }
+            }
+        } finally { 
+            setIsSaving(false); 
+        }
     };
 
     const initials = (name: string) => {
@@ -680,13 +728,18 @@ export default function SmartAttendance() {
                 .act-btn.half.on{background:var(--half); color:#fff; border-color:var(--half);}
                 .act-btn.leave.on{background:var(--leave); color:#fff; border-color:var(--leave);}
                 
-                .bottom-row{display:flex; gap:8px;}
+                .bottom-row{display:flex; gap:6px;}
+                .edit-btn{
+                  flex:1; background:#F0EBFF; color:var(--primary); border:1px solid #D6C7FF; border-radius:12px;
+                  padding:9px; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;
+                }
+                .edit-btn:hover{background:#E5DCFF;}
                 .del-btn{
                   flex:1; background:var(--absent-bg); color:var(--absent); border:none; border-radius:12px;
                   padding:9px; font-size:12px; font-weight:600; cursor:pointer;
                 }
                 .details-btn{
-                  flex:1.4; background:#F5F3FE; color:var(--primary); border:none; border-radius:12px;
+                  flex:1.2; background:#F5F3FE; color:var(--primary); border:none; border-radius:12px;
                   padding:9px; font-size:12px; font-weight:600; cursor:pointer;
                 }
                 
@@ -762,7 +815,7 @@ export default function SmartAttendance() {
                                     <button 
                                         className="icon-btn" 
                                         title="Add Staff Member (नया स्टाफ जोड़ें)" 
-                                        onClick={() => setIsModalOpen(true)}
+                                        onClick={openAddModal}
                                         style={{ background: 'rgba(255,255,255,0.25)', fontSize: '20px', fontWeight: 600 }}
                                     >
                                         +
@@ -802,7 +855,7 @@ export default function SmartAttendance() {
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--ink-soft)" strokeWidth="2.5" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                     <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                                 </div>
-                                <button className="add-staff-quick-btn" onClick={() => setIsModalOpen(true)} title="Add Staff Member">
+                                <button className="add-staff-quick-btn" onClick={openAddModal} title="Add Staff Member">
                                     <span style={{ fontSize: '15px', fontWeight: 800 }}>+</span> Add
                                 </button>
                                 <button className="all-present-btn" onClick={markAllPresent}>
@@ -839,7 +892,7 @@ export default function SmartAttendance() {
                                 <div style={{textAlign:'center', color:'var(--ink-soft)', padding:'30px 0', fontSize:'13px', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px'}}>
                                     <div>Koi staff nahi mila</div>
                                     <button 
-                                        onClick={() => setIsModalOpen(true)}
+                                        onClick={openAddModal}
                                         style={{
                                             background: 'linear-gradient(135deg, var(--primary), #8B6BFF)',
                                             color: '#fff',
@@ -881,7 +934,7 @@ export default function SmartAttendance() {
                                             </div>
                                             <div className="staff-info">
                                                 <div className="staff-name">{s.name}</div>
-                                                <div className="staff-role">{s.role}</div>
+                                                <div className="staff-role">{s.role} {s.phone ? `• 📞 ${s.phone}` : ''}</div>
                                             </div>
                                             {meta && <span className="status-badge" style={{background: meta.bg, color: meta.color}}>{meta.label}</span>}
                                         </div>
@@ -892,6 +945,7 @@ export default function SmartAttendance() {
                                             <button className={`act-btn leave ${status === 'LEAVE' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'LEAVE')}>⛱<span>Leave</span></button>
                                         </div>
                                         <div className="bottom-row">
+                                            <button className="edit-btn" onClick={() => openEditModal(s)} title="Edit staff details">✏️ Edit</button>
                                             {deleteStaff && (
                                                 <button className="del-btn" onClick={async () => {
                                                     if (window.confirm(`Delete ${s.name}?`)) {
@@ -909,37 +963,136 @@ export default function SmartAttendance() {
                     </div>
 
                     {/* Fixed Floating Action Button (+) */}
-                    <button className="fab" onClick={() => setIsModalOpen(true)} title="Add Staff Member (+ नया स्टाफ जोड़ें)" aria-label="Add Staff">
+                    <button className="fab" onClick={openAddModal} title="Add Staff Member (+ नया स्टाफ जोड़ें)" aria-label="Add Staff">
                         +
                     </button>
 
+                    {/* Add / Edit Staff Modal */}
                     <div className={`modal-overlay ${isModalOpen ? 'show' : ''}`} onClick={() => setIsModalOpen(false)}>
                         <div className="modal" onClick={e => e.stopPropagation()}>
                             <div className="modal-handle"></div>
-                            <h3>Add Staff Member</h3>
-                            <label className="photo-upload-zone" htmlFor="photoInputAdd">
-                                {pendingPhoto ? <img src={pendingPhoto} alt="Upload" /> : <span className="plus-icon">📷<br/></span>}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700 }}>
+                                    {editingStaffId ? '✏️ Edit Staff Member' : '➕ Add Staff Member'}
+                                </h3>
+                                <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--ink-soft)', padding: '4px' }}>✕</button>
+                            </div>
+
+                            <label className="photo-upload-zone" htmlFor="photoInputAdd" title="Upload staff photo">
+                                {pendingPhoto ? <img src={pendingPhoto} alt="Upload" /> : <span className="plus-icon">📷<br/><span style={{fontSize:'11px', fontWeight:600}}>Photo</span></span>}
                             </label>
                             <input type="file" id="photoInputAdd" accept="image/*" style={{display:'none'}} onChange={handlePhotoUpload} />
                             
                             <div className="field">
-                                <label>Full name</label>
-                                <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Ramesh Kumar" />
+                                <label>Full Name *</label>
+                                <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Dilip Kumar" />
                             </div>
+
                             <div className="field">
-                                <label>Role</label>
+                                <label>Phone Number (Mobile)</label>
+                                <input type="tel" value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="e.g. 9876543210" />
+                            </div>
+
+                            <div className="field">
+                                <label>Role / Designation</label>
                                 <select value={newRole} onChange={e => setNewRole(e.target.value)}>
-                                    <option>Worker</option>
-                                    <option>Gardener</option>
-                                    <option>Security</option>
-                                    <option>Housekeeping</option>
-                                    <option>Cook</option>
-                                    <option>Driver</option>
+                                    <option value="Worker">Worker</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Accountant">Accountant</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Cook">Cook</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Housekeeping">Housekeeping</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Gardener">Gardener</option>
+                                    <option value="Helper">Helper</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
+
+                            <div className="field">
+                                <label>Salary Calculation Type</label>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '4px' }}>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setNewSalaryType('daily')}
+                                        style={{
+                                            padding: '9px',
+                                            borderRadius: '10px',
+                                            border: newSalaryType === 'daily' ? '2px solid var(--primary)' : '1.5px solid var(--line)',
+                                            background: newSalaryType === 'daily' ? 'var(--primary-light)' : 'var(--card)',
+                                            color: newSalaryType === 'daily' ? 'var(--primary)' : 'var(--ink)',
+                                            fontWeight: 700,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        📅 Daily Wage
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setNewSalaryType('monthly')}
+                                        style={{
+                                            padding: '9px',
+                                            borderRadius: '10px',
+                                            border: newSalaryType === 'monthly' ? '2px solid var(--primary)' : '1.5px solid var(--line)',
+                                            background: newSalaryType === 'monthly' ? 'var(--primary-light)' : 'var(--card)',
+                                            color: newSalaryType === 'monthly' ? 'var(--primary)' : 'var(--ink)',
+                                            fontWeight: 700,
+                                            fontSize: '13px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        🗓️ Monthly Salary
+                                    </button>
+                                </div>
+                            </div>
+
+                            {newSalaryType === 'daily' ? (
+                                <div className="field">
+                                    <label>Daily Wage Rate (₹ / Day)</label>
+                                    <input 
+                                        type="number" 
+                                        value={newDailyWage} 
+                                        onChange={e => setNewDailyWage(e.target.value)} 
+                                        placeholder="e.g. 500" 
+                                    />
+                                </div>
+                            ) : (
+                                <div className="field">
+                                    <label>Monthly Salary (₹ / Month)</label>
+                                    <input 
+                                        type="number" 
+                                        value={newMonthlySalary} 
+                                        onChange={e => setNewMonthlySalary(e.target.value)} 
+                                        placeholder="e.g. 15000" 
+                                    />
+                                </div>
+                            )}
+
+                            <div className="field">
+                                <label>Advance Balance (₹)</label>
+                                <input 
+                                    type="number" 
+                                    value={newAdvance} 
+                                    onChange={e => setNewAdvance(e.target.value)} 
+                                    placeholder="e.g. 0" 
+                                />
+                            </div>
+
                             <div className="modal-actions">
                                 <button className="btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                                <button className="btn-primary" onClick={handleAddStaff}>Save Staff</button>
+                                <button className="btn-primary" onClick={handleSaveStaff} disabled={isSaving}>
+                                    {isSaving ? 'Saving...' : editingStaffId ? '✓ Update Staff' : '✓ Save Staff'}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -953,16 +1106,39 @@ export default function SmartAttendance() {
                                 const sStatus = sRecord?.status;
                                 return (
                                 <>
-                                    <div style={{ display:'flex', gap:'12px', alignItems:'center', marginBottom:'16px' }}>
-                                        <div className="avatar-ring" style={{'--ring-color':'var(--primary)', '--ring-pct':'100%', width:'48px', height:'48px'} as any}>
-                                            <div className="avatar-inner" style={{width:'100%', height:'100%'}}>
-                                                {selectedStaff.photo ? <img src={selectedStaff.photo} /> : initials(selectedStaff.name)}
+                                    <div style={{ display:'flex', gap:'12px', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
+                                        <div style={{ display:'flex', gap:'12px', alignItems:'center' }}>
+                                            <div className="avatar-ring" style={{'--ring-color':'var(--primary)', '--ring-pct':'100%', width:'48px', height:'48px'} as any}>
+                                                <div className="avatar-inner" style={{width:'100%', height:'100%'}}>
+                                                    {selectedStaff.photo ? <img src={selectedStaff.photo} /> : initials(selectedStaff.name)}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div style={{fontWeight:600, fontSize:'16px'}}>{selectedStaff.name}</div>
+                                                <div style={{fontSize:'12px', color:'var(--ink-soft)'}}>{selectedStaff.role} {selectedStaff.phone ? `• 📞 ${selectedStaff.phone}` : ''}</div>
                                             </div>
                                         </div>
-                                        <div>
-                                            <div style={{fontWeight:600, fontSize:'16px'}}>{selectedStaff.name}</div>
-                                            <div style={{fontSize:'12px', color:'var(--ink-soft)'}}>{selectedStaff.role}</div>
-                                        </div>
+                                        <button 
+                                            style={{ 
+                                                padding: '6px 12px', 
+                                                fontSize: '12px', 
+                                                borderRadius: '10px', 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: '4px', 
+                                                background: '#F0EBFF', 
+                                                color: 'var(--primary)', 
+                                                border: '1px solid #D6C7FF',
+                                                fontWeight: 600,
+                                                cursor: 'pointer' 
+                                            }}
+                                            onClick={() => {
+                                                setIsDetailOpen(false);
+                                                openEditModal(selectedStaff);
+                                            }}
+                                        >
+                                            ✏️ Edit
+                                        </button>
                                     </div>
                                     
                                     {(sStatus === 'PRESENT' || sStatus === 'HALF_DAY') && (
@@ -986,16 +1162,36 @@ export default function SmartAttendance() {
 
                                     <div style={{background:'var(--card)', border:'1px solid var(--line)', borderRadius:'12px', padding:'12px', marginBottom:'16px'}}>
                                         <div style={{display:'flex', justifyContent:'space-between', marginBottom:'8px'}}>
-                                            <span style={{fontSize:'12px', color:'var(--ink-soft)'}}>Daily Wage / Salary</span>
-                                            <span style={{fontWeight:600}}>₹{selectedStaff.salary_type === 'monthly' ? selectedStaff.monthly_salary : selectedStaff.daily_wage}</span>
+                                            <span style={{fontSize:'12px', color:'var(--ink-soft)'}}>Salary Type</span>
+                                            <span style={{fontWeight:600, textTransform: 'capitalize'}}>{selectedStaff.salary_type || 'Daily'}</span>
                                         </div>
-                                        <div style={{display:'flex', justifyContent:'space-between'}}>
+                                        <div style={{display:'flex', justifyContent:'space-between', marginBottom:'8px'}}>
+                                            <span style={{fontSize:'12px', color:'var(--ink-soft)'}}>{selectedStaff.salary_type === 'monthly' ? 'Monthly Salary' : 'Daily Wage'}</span>
+                                            <span style={{fontWeight:600}}>₹{selectedStaff.salary_type === 'monthly' ? (selectedStaff.monthly_salary || 0) : (selectedStaff.daily_wage || 0)}</span>
+                                        </div>
+                                        <div style={{display:'flex', justifyContent:'space-between', marginBottom: selectedStaff.phone ? '8px' : '0'}}>
                                             <span style={{fontSize:'12px', color:'var(--ink-soft)'}}>Advance</span>
                                             <span style={{fontWeight:600, color:'var(--half)'}}>₹{selectedStaff.advance || 0}</span>
                                         </div>
+                                        {selectedStaff.phone && (
+                                            <div style={{display:'flex', justifyContent:'space-between'}}>
+                                                <span style={{fontSize:'12px', color:'var(--ink-soft)'}}>Phone</span>
+                                                <span style={{fontWeight:600}}>{selectedStaff.phone}</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="modal-actions">
                                         <button className="btn-secondary" onClick={() => setIsDetailOpen(false)}>Close</button>
+                                        <button 
+                                            className="btn-secondary" 
+                                            style={{ background: '#F0EBFF', color: 'var(--primary)', borderColor: '#D6C7FF' }}
+                                            onClick={() => {
+                                                setIsDetailOpen(false);
+                                                openEditModal(selectedStaff);
+                                            }}
+                                        >
+                                            ✏️ Edit Staff
+                                        </button>
                                         <button className="btn-primary" onClick={() => { setIsDetailOpen(false); setPdfActionSheet({ show: true, type: 'salary' }); }}>📄 Salary Slip</button>
                                     </div>
                                 </>
