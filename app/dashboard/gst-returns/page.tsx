@@ -14,8 +14,13 @@ type PeriodChip = 'cm' | 'lm' | 'cq' | 'custom';
 
 export default function GSTReturnsPage() {
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
+    const fetchBusinessProfile = useStore((state: any) => state.fetchBusinessProfile);
     const invoices = useStore((state: any) => state.invoices) || [];
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
+
+    const userGSTIN = useMemo(() => {
+        return (businessProfile?.gstin || businessProfile?.gst || businessProfile?.business_gstin || '').trim();
+    }, [businessProfile]);
 
     const [returnType, setReturnType] = useState<ReturnType>('GSTR1');
     const [filingFrequency, setFilingFrequency] = useState<FilingFrequency>('MONTHLY');
@@ -43,6 +48,9 @@ export default function GSTReturnsPage() {
         fetchSavedReturns();
         if (typeof fetchInvoices === 'function') {
             fetchInvoices();
+        }
+        if (typeof fetchBusinessProfile === 'function') {
+            fetchBusinessProfile();
         }
     }, []);
 
@@ -140,7 +148,7 @@ export default function GSTReturnsPage() {
     };
 
     const handleGenerate = async () => {
-        if (!businessProfile?.gstin) {
+        if (!userGSTIN) {
             toast.error('Please configure your GSTIN in Settings first!');
             return;
         }
@@ -323,9 +331,9 @@ export default function GSTReturnsPage() {
                     <p className="gst-hero-desc">
                         Generate GSTR‑1, GSTR‑3B and GSTR‑4 straight from your sales &amp; purchase ledgers — no manual entry.
                     </p>
-                    {businessProfile?.gstin ? (
+                    {userGSTIN ? (
                         <div className="gst-gstin-badge">
-                            <b>GSTIN:</b> {businessProfile.gstin}
+                            <b>GSTIN:</b> {userGSTIN}
                         </div>
                     ) : (
                         <Link href="/dashboard/settings" style={{ textDecoration: 'none' }}>

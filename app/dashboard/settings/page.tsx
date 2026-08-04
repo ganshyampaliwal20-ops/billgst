@@ -129,8 +129,9 @@ export default function SettingsPage() {
         setIsClient(true);
         if (businessProfile && Object.keys(formData).length === 0) {
             setFormData(businessProfile);
-            if (businessProfile.gst) {
-                verifyGst(businessProfile.gst);
+            const gstVal = businessProfile.gst || businessProfile.gstin || businessProfile.business_gstin || '';
+            if (gstVal) {
+                verifyGst(gstVal);
             }
         }
         if (settings && Object.keys(localSettings).length === 0) setLocalSettings(settings);
@@ -154,12 +155,19 @@ export default function SettingsPage() {
 
     const handleSubmit = async (e?: React.FormEvent) => {
         if(e) e.preventDefault();
-        updateProfile(formData);
+        const gstinVal = (formData.gst || formData.gstin || formData.business_gstin || '').trim().toUpperCase();
+        const payloadProfile = {
+            ...formData,
+            gst: gstinVal,
+            gstin: gstinVal,
+            business_gstin: gstinVal
+        };
+        updateProfile(payloadProfile);
         updateSettings(localSettings);
         
         const toastId = toast.loading('Saving your settings...');
         try {
-            await saveBusinessProfile({ ...formData, ...localSettings });
+            await saveBusinessProfile({ ...payloadProfile, ...localSettings });
             toast.success('Settings save ho gayi! ✅', { id: toastId });
         } catch (error) {
             toast.error('Could not save settings', { id: toastId });
@@ -214,7 +222,7 @@ export default function SettingsPage() {
 
     const handleGstInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value.toUpperCase();
-        setFormData({ ...formData, gst: val });
+        setFormData({ ...formData, gst: val, gstin: val, business_gstin: val });
         verifyGst(val);
     };
 

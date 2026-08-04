@@ -29,22 +29,42 @@ export async function POST(request: Request) {
         }
 
         const client = await pool.connect();
+        const userId = session.user.id;
+        const userEmail = session.user.email;
 
         // Fetch business profile
-        const profileResult = await client.query(
+        let profileResult = await client.query(
             `SELECT business_name, business_gstin
-       FROM users WHERE id = $1`,
-            [session.user.id]
+             FROM users WHERE id = $1`,
+            [userId]
         );
 
-        if (profileResult.rows.length === 0) {
+        let dbRow = profileResult.rows[0];
+
+        // If not found or empty GSTIN, check if user is staff of an owner
+        if ((!dbRow || !dbRow.business_gstin) && userEmail) {
+            const staffResult = await client.query('SELECT created_by FROM staff WHERE email = $1 LIMIT 1', [userEmail]);
+            if (staffResult.rows.length > 0 && staffResult.rows[0].created_by) {
+                const ownerId = staffResult.rows[0].created_by;
+                const ownerProfileResult = await client.query(
+                    `SELECT business_name, business_gstin
+                     FROM users WHERE id = $1`,
+                    [ownerId]
+                );
+                if (ownerProfileResult.rows.length > 0) {
+                    dbRow = ownerProfileResult.rows[0];
+                }
+            }
+        }
+
+        if (!dbRow) {
             client.release();
             return NextResponse.json({ error: 'Business profile not found' }, { status: 404 });
         }
 
         const businessProfile = {
-            name: profileResult.rows[0].business_name || 'My Business',
-            gstin: profileResult.rows[0].business_gstin || '',
+            name: dbRow.business_name || 'My Business',
+            gstin: (dbRow.business_gstin || '').trim(),
         };
 
         if (!businessProfile.gstin) {
