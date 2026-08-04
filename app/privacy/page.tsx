@@ -10,11 +10,11 @@ export default function PrivacyPolicy() {
     return (
         <>
             <Navbar3D />
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 pt-24">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">Privacy Policy</h1>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/40 pb-16 px-3 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32" style={{ paddingTop: 'calc(64px + env(safe-area-inset-top, 0px) + 1.5rem)' }}>
+                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-5 sm:p-8 md:p-12 border border-slate-200/80">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 mb-6 sm:mb-8 text-center tracking-tight">Privacy Policy</h1>
 
-                    <div className="space-y-6 text-gray-700">
+                    <div className="space-y-6 text-gray-700 text-sm sm:text-base leading-relaxed">
                         <section>
                             <p className="text-sm text-gray-500 mb-6">
                                 <strong>Last Updated:</strong> January 11, 2026

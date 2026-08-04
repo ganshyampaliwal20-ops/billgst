@@ -11,21 +11,21 @@ export default function AboutPage() {
     return (
         <>
             <Navbar3D />
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 pt-24">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div className="relative h-64 bg-indigo-600 sm:h-72 lg:h-80">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-90" />
-                        <div className="relative h-full flex items-center justify-center text-center px-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/40 pb-16 px-3 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32" style={{ paddingTop: 'calc(64px + env(safe-area-inset-top, 0px) + 1.5rem)' }}>
+                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200/80">
+                    <div className="relative py-12 sm:py-16 px-4 bg-indigo-600">
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 opacity-95" />
+                        <div className="relative h-full flex items-center justify-center text-center px-2">
                             <div>
-                                <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">We Are BillGST</h1>
-                                <p className="mt-4 text-xl text-indigo-100 max-w-2xl mx-auto">
+                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-sm">We Are BillGST</h1>
+                                <p className="mt-3 text-sm sm:text-lg text-indigo-100 max-w-2xl mx-auto font-medium">
                                     Empowering Indian Small Businesses with Free, Professional Billing Solutions.
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-8 md:p-12 space-y-12">
+                    <div className="p-5 sm:p-8 md:p-12 space-y-8 sm:space-y-12">
                         {/* Mission Section */}
                         <section className="text-center max-w-3xl mx-auto">
                             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>

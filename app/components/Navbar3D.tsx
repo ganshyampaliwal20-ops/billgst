@@ -48,44 +48,53 @@ export default function Navbar3D() {
 
     return (
         <>
-            {/* Header - Sticky on top */}
-            <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 flex justify-center ${isScrolled
-                ? 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg py-2 md:py-3 border-b border-white/10'
-                : 'bg-transparent py-4 md:py-6'
-                }`}>
-                <div className="px-8 sm:px-6 lg:px-8 w-full">
-                    <div className="flex items-center justify-between">
-                        {/* Left Side: Logo + Business Name */}
-                        <div className="flex items-center gap-3">
-                            <Link href="/" className="flex items-center gap-2 md:gap-3 group" style={{ paddingLeft: '11px', paddingRight: '11px', marginBottom: '0px' }}>
-                                <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
+            {/* Top Status Bar Safe Area Spacer */}
+            <div className="w-full bg-indigo-700 shrink-0 md:hidden fixed top-0 left-0 right-0 z-[101]" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
+
+            {/* Header - Fixed on top with solid gradient and safe-area */}
+            <header 
+                className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-md border-b border-white/10 flex justify-center transition-all duration-300"
+                style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+            >
+                <div className="px-4 sm:px-6 lg:px-8 w-full max-w-7xl">
+                    <div className="flex items-center justify-between h-[54px] md:h-[64px]">
+                        {/* Left Side: Logo + Back / Brand */}
+                        <div className="flex items-center gap-2 md:gap-3">
+                            <button
+                                onClick={() => router.back()}
+                                className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/15"
+                                title="Go Back"
+                                aria-label="Go Back"
+                            >
+                                <span className="text-sm font-bold">←</span>
+                            </button>
+                            <Link href="/" className="flex items-center gap-2 group">
+                                <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-md border border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
                                     <Image
                                         src="/logo.png"
                                         alt="BillGST Logo"
-                                        width={40}
-                                        height={40}
+                                        width={32}
+                                        height={32}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <h2 className={`text-sm md:text-xl font-bold tracking-tight leading-none group-hover:text-indigo-100 transition-colors drop-shadow-sm ${isScrolled ? 'text-white' : 'text-indigo-900'
-                                        }`} style={{ paddingLeft: '10px', paddingRight: '8px', paddingTop: '10px' }}>
+                                    <h2 className="text-base md:text-xl font-extrabold tracking-tight leading-none text-white drop-shadow-sm">
                                         BillGST
                                     </h2>
-                                    <p className={`text-[10px] font-bold uppercase tracking-wider hidden md:block ${isScrolled ? 'text-indigo-100/90' : 'text-slate-500'
-                                        }`}>Professional Billing</p>
+                                    <p className="text-[9px] md:text-[10px] font-semibold tracking-wider text-indigo-100/90 hidden sm:block">Professional Billing</p>
                                 </div>
                             </Link>
                         </div>
 
-                        {/* Right Side: Menu Button */}
-                        <div className="flex items-center gap-3 md:gap-4">
+                        {/* Right Side: Navigation & Menu Button */}
+                        <div className="flex items-center gap-2 md:gap-4">
                             {/* Desktop Auth Section */}
-                            <div className="hidden md:flex items-center gap-4">
+                            <div className="hidden md:flex items-center gap-3">
                                 {status === 'authenticated' ? (
                                     <Link
                                         href="/dashboard"
-                                        className="bg-white text-indigo-600 px-6 py-2 rounded-xl font-bold hover:bg-slate-50 transition shadow-lg"
+                                        className="bg-white text-indigo-600 px-5 py-2 rounded-xl text-sm font-bold hover:bg-indigo-50 transition shadow-md"
                                     >
                                         {t.dashboard}
                                     </Link>
@@ -93,7 +102,7 @@ export default function Navbar3D() {
                                     <>
                                         <Link
                                             href="/login"
-                                            className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-slate-50 hover:text-indigo-600 border border-transparent hover:border-indigo-100 transition shadow-lg"
+                                            className="bg-white/20 hover:bg-white text-white hover:text-indigo-600 px-5 py-2 rounded-xl text-sm font-bold border border-white/30 transition shadow-md"
                                         >
                                             {t.login}
                                         </Link>
@@ -103,13 +112,10 @@ export default function Navbar3D() {
 
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all border-2 active:scale-95 shadow-lg ${isScrolled
-                                    ? 'bg-white/10 text-white border-white/30 hover:bg-white/20'
-                                    : 'bg-white text-indigo-600 border-indigo-100 hover:bg-slate-50'
-                                    }`}
+                                className="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-xl transition-all border border-white/20 bg-white/10 text-white hover:bg-white/20 active:scale-95 shadow-md"
                                 aria-label="Open Menu"
                             >
-                                <FaBars size={20} />
+                                <FaBars size={18} />
                             </button>
                         </div>
                     </div>
