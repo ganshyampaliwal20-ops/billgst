@@ -249,7 +249,7 @@ export default function SettingsPage() {
                     color: var(--text);
                     font-family: 'Inter', sans-serif;
                     min-height: 100vh;
-                    padding-bottom: 110px;
+                    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
                 }
                 .bs-wrapper h1,.bs-wrapper h2,.bs-wrapper h3 { font-family:'Baloo 2', sans-serif; }
 
@@ -367,12 +367,16 @@ export default function SettingsPage() {
                 }
 
                 .terms-box{ background: var(--field); border:1.5px solid var(--field-border); border-radius:11px; padding:14px; }
-                .terms-box textarea{ width:100%; background:transparent; border:none; padding:0; color:#C4B5FD; font-size:13.5px; line-height:1.6; min-height:80px; outline:none; resize:none; font-family:inherit; }
-
-                .save-bar{ position: fixed; bottom:0; left:0; right:0; background: linear-gradient(180deg, transparent, var(--bg) 30%); padding: 18px 20px 22px; display:flex; justify-content:center; z-index:50; pointer-events:none; }
+                .save-bar{ position: fixed; bottom:0; left:0; right:0; background: linear-gradient(180deg, transparent, var(--bg) 35%); padding: 16px 20px calc(22px + env(safe-area-inset-bottom, 0px)); display:flex; justify-content:center; z-index:50; pointer-events:none; }
                 .save-btn{ pointer-events:auto; width:100%; max-width: 680px; background: var(--grad); color:#fff; border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; box-shadow: 0 8px 24px rgba(124,58,237,0.35); transition: transform 0.12s, box-shadow 0.12s; }
                 .save-btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(124,58,237,0.45); }
                 .save-btn svg{ width:18px; height:18px; }
+                @media (max-width: 600px){
+                    .save-bar {
+                        padding: 12px 16px calc(38px + env(safe-area-inset-bottom, 0px));
+                        background: linear-gradient(180deg, transparent 0%, rgba(10, 13, 24, 0.95) 45%, #0A0D18 100%);
+                    }
+                }
 
                 .collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
                 .collapse.open { grid-template-rows: 1fr; margin-top: 16px; }
