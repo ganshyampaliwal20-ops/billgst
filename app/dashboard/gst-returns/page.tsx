@@ -6,6 +6,7 @@ import { useStore } from '@/lib/store';
 import { FaDownload, FaFileExcel, FaCheckCircle, FaSpinner, FaCog, FaThLarge, FaCalendarAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
+import { downloadAndShareFile } from '@/lib/utils';
 import './gst-returns.css';
 
 type ReturnType = 'GSTR1' | 'GSTR3B' | 'GSTR4';
@@ -30,6 +31,12 @@ export default function GSTReturnsPage() {
     const [generatedData, setGeneratedData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [savedReturns, setSavedReturns] = useState<any[]>([]);
+    const [lastDownloadedFile, setLastDownloadedFile] = useState<{
+        name: string;
+        file: File | null;
+        mimeType: string;
+        url: string;
+    } | null>(null);
 
     const formatDateLocal = (d: Date) => {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -233,27 +240,23 @@ export default function GSTReturnsPage() {
         const toastId = toast.loading('Preparing JSON download...');
         try {
             const dataStr = JSON.stringify(generatedData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const fileObj = new File([blob], fileName, { type: 'application/json' });
             const base64Data = btoa(unescape(encodeURIComponent(dataStr)));
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            const url = URL.createObjectURL(blob);
+
+            setLastDownloadedFile({
+                name: fileName,
+                file: fileObj,
+                mimeType: 'application/json',
+                url
+            });
+
             await downloadAndShareFile(base64Data, fileName, 'application/json', 'download');
             toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
         } catch (err) {
             console.error('Error downloading JSON:', err);
-            try {
-                const dataStr = JSON.stringify(generatedData, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
-            } catch (e) {
-                toast.error('Failed to download JSON file', { id: toastId });
-            }
+            toast.error('Failed to download JSON file', { id: toastId });
         }
     };
 
@@ -308,13 +311,24 @@ export default function GSTReturnsPage() {
             }
 
             const base64Data = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-            const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(
-                base64Data,
-                fileName,
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'download'
-            );
+            const binary = atob(base64Data);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                array[i] = binary.charCodeAt(i);
+            }
+            const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            const blob = new Blob([array], { type: mime });
+            const fileObj = new File([blob], fileName, { type: mime });
+            const url = URL.createObjectURL(blob);
+
+            setLastDownloadedFile({
+                name: fileName,
+                file: fileObj,
+                mimeType: mime,
+                url
+            });
+
+            await downloadAndShareFile(base64Data, fileName, mime, 'download');
             toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
         } catch (error) {
             console.error('Error downloading excel:', error);
@@ -328,6 +342,29 @@ export default function GSTReturnsPage() {
             } catch (e) {
                 toast.error('Failed to download Excel file', { id: toastId });
             }
+        }
+    };
+
+    const handleOpenFileAction = async () => {
+        if (!lastDownloadedFile) return;
+        
+        // 1. Try Native Share / App Chooser
+        if (typeof navigator !== 'undefined' && navigator.canShare && lastDownloadedFile.file && navigator.canShare({ files: [lastDownloadedFile.file] })) {
+            try {
+                await navigator.share({
+                    files: [lastDownloadedFile.file],
+                    title: lastDownloadedFile.name,
+                    text: 'Open ' + lastDownloadedFile.name
+                });
+                return;
+            } catch (e) {
+                console.log('Share error or cancelled:', e);
+            }
+        }
+        
+        // 2. Open via URL in browser / viewer
+        if (lastDownloadedFile.url) {
+            window.open(lastDownloadedFile.url, '_blank');
         }
     };
 
@@ -544,6 +581,75 @@ export default function GSTReturnsPage() {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Downloaded File Immediate Open & Share Banner */}
+                            {lastDownloadedFile && (
+                                <div style={{
+                                    margin: '12px 0 16px',
+                                    padding: '12px 14px',
+                                    borderRadius: '12px',
+                                    background: '#ecfdf5',
+                                    border: '1.5px solid #10b981',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '10px'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ fontSize: '24px' }}>📥</span>
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#065f46', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {lastDownloadedFile.name}
+                                            </div>
+                                            <div style={{ fontSize: '11px', color: '#047857' }}>
+                                                ✓ Saved in Documents / Downloads folder
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenFileAction()}
+                                            style={{
+                                                padding: '9px 12px',
+                                                borderRadius: '8px',
+                                                background: '#059669',
+                                                color: '#ffffff',
+                                                fontWeight: 'bold',
+                                                fontSize: '12px',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '6px',
+                                                boxShadow: '0 2px 5px rgba(5,150,105,0.3)'
+                                            }}
+                                        >
+                                            📂 Open in Excel / Sheets
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenFileAction()}
+                                            style={{
+                                                padding: '9px 12px',
+                                                borderRadius: '8px',
+                                                background: '#ffffff',
+                                                color: '#065f46',
+                                                fontWeight: 'bold',
+                                                fontSize: '12px',
+                                                border: '1.5px solid #059669',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '6px'
+                                            }}
+                                        >
+                                            📤 Share File
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* GSTR-1 Metrics & Tables */}
                             {returnType === 'GSTR1' && (
