@@ -574,34 +574,62 @@
 }
 
 .gst-preview-head {
-  padding: 16px 20px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   background: rgba(18,35,59,0.03);
 }
 
+@media (min-width: 640px) {
+  .gst-preview-head {
+    padding: 16px 20px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+
 .gst-actions-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .gst-actions-row {
+    display: flex;
+    width: auto;
+    gap: 8px;
+  }
 }
 
 .gst-btn-action {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 6px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   border: none;
   transition: all 0.15s ease;
   font-family: 'IBM Plex Sans', sans-serif;
+  white-space: nowrap;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .gst-btn-action {
+    padding: 8px 14px;
+    font-size: 13px;
+    gap: 6px;
+  }
 }
 
 .gst-btn-save {

@@ -3,6 +3,28 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { checkLimit } from "@/lib/subscription";
+import { v4 as uuidv4 } from 'uuid';
+
+async function ensureGstReturnsTable(client: any) {
+    await client.query(`
+        CREATE TABLE IF NOT EXISTS gst_returns (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            return_type VARCHAR(50) NOT NULL,
+            period_from DATE NOT NULL,
+            period_to DATE NOT NULL,
+            filing_frequency VARCHAR(50) DEFAULT 'MONTHLY',
+            generated_data JSONB,
+            status VARCHAR(50) DEFAULT 'DRAFT',
+            created_by UUID REFERENCES users(id) ON DELETE CASCADE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+    await client.query(`ALTER TABLE gst_returns ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id) ON DELETE CASCADE;`).catch(() => {});
+    await client.query(`ALTER TABLE gst_returns ADD COLUMN IF NOT EXISTS generated_data JSONB;`).catch(() => {});
+    await client.query(`ALTER TABLE gst_returns ADD COLUMN IF NOT EXISTS filing_frequency VARCHAR(50) DEFAULT 'MONTHLY';`).catch(() => {});
+    await client.query(`ALTER TABLE gst_returns ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'DRAFT';`).catch(() => {});
+}
 
 // GET - Fetch all saved GST returns
 export async function GET() {
@@ -14,22 +36,25 @@ export async function GET() {
         }
 
         const client = await pool.connect();
+        try {
+            await ensureGstReturnsTable(client);
 
-        const result = await client.query(
-            `SELECT id, return_type, period_from, period_to, filing_frequency, 
-              status, created_at, updated_at
-       FROM gst_returns 
-       WHERE created_by = $1 
-       ORDER BY created_at DESC`,
-            [session.user.id]
-        );
+            const result = await client.query(
+                `SELECT id, return_type, period_from, period_to, filing_frequency, 
+                  status, created_at, updated_at
+           FROM gst_returns 
+           WHERE created_by = $1 
+           ORDER BY created_at DESC`,
+                [session.user.id]
+            );
 
-        client.release();
-
-        return NextResponse.json(result.rows);
-    } catch (error) {
+            return NextResponse.json(result.rows);
+        } finally {
+            client.release();
+        }
+    } catch (error: any) {
         console.error('Error fetching GST returns:', error);
-        return NextResponse.json({ error: 'Failed to fetch GST returns' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch GST returns', details: error.message }, { status: 500 });
     }
 }
 
@@ -64,29 +89,34 @@ export async function POST(request: Request) {
         }
 
         const client = await pool.connect();
+        try {
+            await ensureGstReturnsTable(client);
 
-        const result = await client.query(
-            `INSERT INTO gst_returns 
-       (return_type, period_from, period_to, filing_frequency, generated_data, status, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, return_type, period_from, period_to, status, created_at`,
-            [
-                return_type,
-                period_from,
-                period_to,
-                filing_frequency || 'MONTHLY',
-                JSON.stringify(generated_data),
-                status || 'DRAFT',
-                session.user.id
-            ]
-        );
+            const newId = uuidv4();
+            const result = await client.query(
+                `INSERT INTO gst_returns 
+           (id, return_type, period_from, period_to, filing_frequency, generated_data, status, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           RETURNING id, return_type, period_from, period_to, status, created_at`,
+                [
+                    newId,
+                    return_type,
+                    period_from,
+                    period_to,
+                    filing_frequency || 'MONTHLY',
+                    JSON.stringify(generated_data),
+                    status || 'DRAFT',
+                    userId
+                ]
+            );
 
-        client.release();
-
-        return NextResponse.json({ success: true, data: result.rows[0] });
-    } catch (error) {
+            return NextResponse.json({ success: true, data: result.rows[0] });
+        } finally {
+            client.release();
+        }
+    } catch (error: any) {
         console.error('Error saving GST return:', error);
-        return NextResponse.json({ error: 'Failed to save GST return' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to save GST return', details: error.message }, { status: 500 });
     }
 }
 

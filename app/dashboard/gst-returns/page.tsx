@@ -197,6 +197,7 @@ export default function GSTReturnsPage() {
     const handleSave = async () => {
         if (!generatedData) return;
 
+        const toastId = toast.loading('Saving draft return...');
         try {
             const response = await fetch('/api/gst-returns', {
                 method: 'POST',
@@ -214,34 +215,51 @@ export default function GSTReturnsPage() {
             const result = await response.json();
 
             if (response.ok && result.success) {
-                toast.success('Return saved to ledger successfully!');
+                toast.success('Return saved to ledger successfully!', { id: toastId });
                 fetchSavedReturns();
             } else {
-                toast.error('Failed to save return');
+                toast.error(result.error || result.details || 'Failed to save return', { id: toastId });
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving return:', error);
-            toast.error('Failed to save return');
+            toast.error(error.message || 'Failed to save return', { id: toastId });
         }
     };
 
-    const handleDownloadJSON = () => {
+    const handleDownloadJSON = async () => {
         if (!generatedData) return;
 
-        const dataStr = JSON.stringify(generatedData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${returnType}_${periodFrom}_to_${periodTo}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-        toast.success('JSON downloaded!');
+        const fileName = `${returnType}_${periodFrom}_to_${periodTo}.json`;
+        const toastId = toast.loading('Preparing JSON download...');
+        try {
+            const dataStr = JSON.stringify(generatedData, null, 2);
+            const base64Data = btoa(unescape(encodeURIComponent(dataStr)));
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(base64Data, fileName, 'application/json', 'view');
+            toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
+        } catch (err) {
+            console.error('Error downloading JSON:', err);
+            try {
+                const dataStr = JSON.stringify(generatedData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                URL.revokeObjectURL(url);
+                toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
+            } catch (e) {
+                toast.error('Failed to download JSON file', { id: toastId });
+            }
+        }
     };
 
-    const handleDownloadExcel = () => {
+    const handleDownloadExcel = async () => {
         if (!generatedData) return;
 
+        const fileName = `${returnType}_${periodFrom}_to_${periodTo}.xlsx`;
+        const toastId = toast.loading('Preparing Excel download...');
         try {
             const wb = XLSX.utils.book_new();
 
@@ -286,11 +304,23 @@ export default function GSTReturnsPage() {
                 XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
             }
 
-            XLSX.writeFile(wb, `${returnType}_${periodFrom}_to_${periodTo}.xlsx`);
-            toast.success('Excel downloaded successfully!');
+            const base64Data = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+            const { downloadAndShareFile } = await import('@/lib/utils');
+            await downloadAndShareFile(
+                base64Data,
+                fileName,
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'view'
+            );
+            toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
         } catch (error) {
             console.error('Error downloading excel:', error);
-            toast.error('Failed to download Excel file');
+            try {
+                XLSX.writeFile(wb, fileName);
+                toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
+            } catch (e) {
+                toast.error('Failed to download Excel file', { id: toastId });
+            }
         }
     };
 
