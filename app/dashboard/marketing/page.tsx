@@ -5,12 +5,13 @@ import { useStore } from '@/lib/store';
 import { useSession } from 'next-auth/react';
 import { 
     FaPrint, FaDownload, FaWhatsapp, FaPalette, FaFileAlt, 
-    FaBolt, FaTag, FaCopy, FaEye, FaHeadset, FaExclamationTriangle, FaHourglassHalf
+    FaBolt, FaTag, FaCopy, FaEye, FaHeadset, FaExclamationTriangle, 
+    FaHourglassHalf, FaFileInvoiceDollar, FaReceipt, FaCheckCircle
 } from 'react-icons/fa';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-hot-toast';
 
-type TemplateType = 'a4_flyer' | 'a5_handbill' | 'whatsapp_square' | 'counter_standee';
+type TemplateType = 'gst_nongst_special' | 'a4_flyer' | 'whatsapp_square' | 'counter_standee';
 type ThemeType = 'dark_royal' | 'emerald' | 'clean_print';
 
 export default function MarketingStudioPage() {
@@ -18,7 +19,7 @@ export default function MarketingStudioPage() {
     const businessProfile = useStore((state: any) => state.businessProfile) || {};
     const fetchBusinessProfile = useStore((state: any) => state.fetchBusinessProfile);
 
-    const [template, setTemplate] = useState<TemplateType>('a4_flyer');
+    const [template, setTemplate] = useState<TemplateType>('gst_nongst_special');
     const [theme, setTheme] = useState<ThemeType>('dark_royal');
     const [partnerName, setPartnerName] = useState('BillGST Official');
     const [phoneNumber, setPhoneNumber] = useState('+91 74985 71873');
@@ -84,23 +85,20 @@ export default function MarketingStudioPage() {
 
     // Handle WhatsApp Share
     const handleWhatsAppShare = () => {
-        const message = `*🏪 किराना, जनरल स्टोर & 🔩 हार्डवेयर की दुकान के लिए 100% मुफ़्त ऐप!* 🚀\n\n` +
-            `*BillGST* — भारत का सबसे आसान, सुरक्षित और *100% FREE* ऑल-इन-वन दुकान सॉफ्टवेयर!\n\n` +
-            `⚡ *1. फास्ट बिलिंग:* 10 सेकंड में GST / Non-GST पक्का बिल (थर्मल 2"/3", A4 प्रिंट)\n` +
-            `🎙️ *2. AI बोलकर बिलिंग:* बिना टाइप किए सिर्फ आवाज से आइटम जोड़ें\n` +
-            `📸 *3. AI स्कैनर:* पर्चे या पुराने बिल की फोटो से तुरंत डिजिटल बिल बनाएं\n` +
-            `⚠️ *4. लो-स्टॉक अलर्ट:* दुकान का कोई भी सामान खत्म होने से पहले ऑटो अलर्ट\n` +
-            `⏳ *5. एक्सपायरी अलर्ट:* किराना, दवाई या खाने-पीने का सामान एक्सपायर होने से पहले चेतावनी\n` +
-            `📷 *6. बारकोड स्कैनर:* मोबाइल कैमरे से 1 सेकंड में स्कैन करके तुरंत बिक्री\n` +
-            `💬 *7. WhatsApp बॉट:* सीधे ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
-            `📒 *8. डिजिटल उधारी खाता:* ग्राहक & सप्लायर दोनों का 100% सुरक्षित हिसाब\n` +
-            `👥 *9. स्टाफ हाजिरी:* कर्मचारियों की अटेंडेंस और सैलरी मैनेजमेंट\n` +
-            `🛒 *10. ऑनलाइन स्टोर:* फ्री में बनाएं अपनी डिजिटल दुकान और कैटलॉग\n` +
-            `📊 *11. GST & CA रिपोर्ट:* 1-क्लिक में GSTR-1, GSTR-3B Excel डाउनलोड\n` +
-            `💰 *12. खर्चे & मुनाफा:* रोजाना खर्चे, कुल कमाई और शुद्ध मुनाफे का हिसाब\n` +
-            `📱 *13. मल्टी-डिवाइस:* मोबाइल और कंप्यूटर दोनों पर डेटा हमेशा सिंक\n\n` +
-            `📲 *Google Play Store और Website दोनों पर उपलब्ध!*\n` +
-            `🎉 *100% मुफ़्त (LifeTime Free)* · कोई मंथली चार्ज नहीं!\n\n` +
+        const message = `*🧾 GST और Non-GST दोनों तरह के बिल बनाएं सिर्फ 10 सेकंड में!* 🚀\n\n` +
+            `*BillGST* — भारत का #1 ऑल-इन-वन GST & Non-GST बिलिंग सॉफ्टवेयर (100% FREE)\n\n` +
+            `🔹 *GST बिल (पक्का टैक्स इनवॉइस):*\n` +
+            `• HSN/SAC कोड, CGST, SGST, IGST ऑटो कैलकुलेशन\n` +
+            `• B2B & B2C बिलिंग, E-Way Bill & E-Invoice\n` +
+            `• CA के लिए 1-क्लिक GSTR-1, GSTR-3B Excel & JSON रिटर्न\n\n` +
+            `🔹 *Non-GST बिल (सादा बिल / कच्चा / कोटेशन):*\n` +
+            `• बिना GST नंबर के भी 100% लीगल रसीद और सादा पर्चा\n` +
+            `• 2"/3" थर्मल प्रिंटर या A4/A5 पेपर पर तुरंत प्रिंट\n` +
+            `• डिलीवरी चालान, एस्टीमेट और कोटेशन 1-क्लिक में\n\n` +
+            `⭐ *अन्य धांसू फीचर्स:*\n` +
+            `🎙️ AI बोलकर बिलिंग · 📸 AI पर्चा स्कैनर · ⚠️ लो-स्टॉक अलर्ट · ⏳ एक्सपायरी अलर्ट · 💬 WhatsApp ऑटो बिल · 📒 उधारी खाता · 👥 स्टाफ हाजिरी\n\n` +
+            `📲 *Google Play Store और Web दोनों पर उपलब्ध!*\n` +
+            `🎉 *100% मुफ़्त (LifeTime Free)* · कोई मंथली फीस नहीं!\n\n` +
             `🌐 *वेबसाइट:* www.billgst.com\n` +
             `📞 *24x7 हेल्पलाइन & WhatsApp सपोर्ट:* ${helplineNumber}`;
 
@@ -109,28 +107,22 @@ export default function MarketingStudioPage() {
     };
 
     const handleCopyText = () => {
-        const message = `🏪 किराना, जनरल स्टोर & 🔩 हार्डवेयर की दुकान के लिए 100% मुफ़्त ऐप! 🚀\n\n` +
-            `BillGST — भारत का सबसे आसान, सुरक्षित और 100% मुफ़्त (FREE) सॉफ्टवेयर!\n\n` +
-            `⚡ 1. 10 सेकंड में GST / Non-GST बिल (थर्मल & A4 प्रिंट)\n` +
-            `🎙️ 2. AI बोलकर बिल बनाएं (Voice AI Billing)\n` +
-            `📸 3. AI स्कैनर (पर्चे की फोटो से तुरंत डिजिटल बिल)\n` +
-            `⚠️ 4. लो-स्टॉक अलर्ट (सामान खत्म होने से पहले ऑटो सूचना)\n` +
-            `⏳ 5. एक्सपायरी अलर्ट (तारीख निकलने से पहले चेतावनी - नो नुकसान)\n` +
-            `📷 6. बारकोड व QR स्कैनर से तेज बिक्री\n` +
-            `💬 7. ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
-            `📒 8. डिजिटल उधारी खाता (ग्राहक & सप्लायर दोनों का हिसाब)\n` +
-            `👥 9. स्टाफ अटेंडेंस (हाजिरी) और सैलरी मैनेजमेंट\n` +
-            `🛒 10. फ्री ऑनलाइन दुकान & डिजिटल कैटलॉग\n` +
-            `📊 11. CA के लिए GSTR-1, GSTR-3B 1-क्लिक रिपोर्ट\n` +
-            `💰 12. दैनिक खर्चे और शुद्ध मुनाफे का हिसाब\n` +
-            `📱 13. मोबाइल और कंप्यूटर दोनों पर चलता है\n\n` +
+        const message = `🧾 GST और Non-GST दोनों तरह के बिल बनाएं सिर्फ 10 सेकंड में! 🚀\n\n` +
+            `BillGST — भारत का सबसे आसान, सुरक्षित और 100% मुफ़्त सॉफ्टवेयर!\n\n` +
+            `✅ 1. GST बिल (पक्का टैक्स इनवॉइस - CGST/SGST/IGST, B2B, GSTR-1/3B)\n` +
+            `✅ 2. Non-GST बिल (सादा रसीद, एस्टीमेट, कोटेशन, डिलीवरी चालान)\n` +
+            `✅ 3. थर्मल प्रिंटर (2"/3") और A4/A5 दोनों पर सपोर्ट\n` +
+            `✅ 4. AI बोलकर बिलिंग (Voice AI) और AI स्कैनर (फोटो से बिल)\n` +
+            `✅ 5. लो-स्टॉक & एक्सपायरी डेट ऑटो अलर्ट्स\n` +
+            `✅ 6. ग्राहक के WhatsApp पर ऑटो बिल & उधारी रिमाइंडर\n` +
+            `✅ 7. डिजिटल उधारी खाता & स्टाफ हाजिरी\n\n` +
             `📲 Google Play Store और Website दोनों पर उपलब्ध!\n` +
-            `🎉 100% मुफ़्त (FREE App) · कोई छुपा हुआ चार्ज नहीं!\n` +
+            `🎉 100% मुफ़्त (LifeTime Free App) · कोई चार्ज नहीं!\n` +
             `🌐 वेबसाइट: www.billgst.com\n` +
             `📞 हेल्पलाइन नंबर: ${helplineNumber}`;
 
         navigator.clipboard.writeText(message);
-        toast.success('📋 मार्केटिंग मैसेज कॉपी हो गया!');
+        toast.success('📋 GST & Non-GST मैसेज कॉपी हो गया!');
     };
 
     // Theme Variables
@@ -195,7 +187,7 @@ export default function MarketingStudioPage() {
 
     const currentStyles = getThemeStyles();
 
-    // All Real 12 Feature Pillars with Low Stock & Expiry Highlighted
+    // All Features
     const allFeatures = [
         { icon: '⚡', title: '10 सेकंड में GST / Non-GST बिल', desc: 'A4, A5, Thermal 2"/3" रसीद प्रिंट। कोटेशन, चालान & E-Way Bill।' },
         { icon: '🎙️', title: 'AI बोलकर बिलिंग (Voice AI)', desc: 'बिना टाइप किए सिर्फ नाम और रेट बोलें, बिल तुरंत तैयार।' },
@@ -245,14 +237,14 @@ export default function MarketingStudioPage() {
                     <div>
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-amber-500/20">
-                                📢
+                                🧾
                             </div>
                             <div>
                                 <h1 className="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                                    दुकान मार्केटिंग & प्रचार सामग्री <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">100% FREE App</span>
+                                    GST & Non-GST बिलिंग पोस्टर <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">100% FREE App</span>
                                 </h1>
                                 <p className="text-xs md:text-sm text-slate-400">
-                                    लो-स्टॉक अलर्ट, एक्सपायरी अलर्ट, AI स्कैनर, BillGST लोगो, www.billgst.com और हेल्पलाइन (+91 74985 71873) सहित।
+                                    पक्का GST बिल और सादा Non-GST बिल दोनों के लिए तैयार मार्केटिंग पोस्टर।
                                 </p>
                             </div>
                         </div>
@@ -296,8 +288,8 @@ export default function MarketingStudioPage() {
                         </h2>
                         <div className="grid grid-cols-2 gap-2.5">
                             {[
-                                { id: 'a4_flyer', label: 'A4 मास्टर पर्चा', desc: 'लो-स्टॉक & एक्सपायरी सहित', icon: '📄' },
-                                { id: 'a5_handbill', label: '2-in-1 हाफ पेज', desc: 'सस्ती प्रिंटिंग (2 प्रति शीट)', icon: '📑' },
+                                { id: 'gst_nongst_special', label: 'GST & Non-GST पोस्टर', desc: 'पक्का व सादा बिल स्पेशल', icon: '🧾' },
+                                { id: 'a4_flyer', label: 'A4 मास्टर पर्चा', desc: 'सभी 13 फीचर्स चार्ट', icon: '📄' },
                                 { id: 'whatsapp_square', label: 'WhatsApp स्क्वायर', desc: 'स्टेटस और ग्रुप्स के लिए', icon: '📱' },
                                 { id: 'counter_standee', label: 'काउंटर स्टैंडी', desc: 'दुकान काउंटर QR स्टीकर', icon: '📜' },
                             ].map((item) => (
@@ -417,7 +409,7 @@ export default function MarketingStudioPage() {
                             onClick={handleCopyText}
                             className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 transition-colors cursor-pointer"
                         >
-                            <FaCopy /> व्हाट्सएप टेक्स्ट कॉपी करें
+                            <FaCopy /> GST & Non-GST मैसेज कॉपी करें
                         </button>
                     </div>
                 </div>
@@ -429,7 +421,7 @@ export default function MarketingStudioPage() {
                             <FaEye className="text-amber-400" /> लाइव पूर्वावलोकन (Live Print Preview):
                         </span>
                         <span className="text-[11px] text-emerald-400 font-bold">
-                            ✓ लो-स्टॉक & एक्सपायरी अलर्ट शामिल · Helpline: +91 74985 71873
+                            ✓ GST & Non-GST बिलिंग पोस्टर · Helpline: +91 74985 71873
                         </span>
                     </div>
 
@@ -485,7 +477,7 @@ export default function MarketingStudioPage() {
                                                 Bill<span style={{ color: currentStyles.accent }}>GST</span>
                                             </div>
                                             <div style={{ fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase', color: currentStyles.textSecondary }}>
-                                                ऑल-इन-वन स्मार्ट बिलिंग & दुकान सॉफ्टवेयर
+                                                GST & सादा Non-GST बिलिंग सॉफ्टवेयर
                                             </div>
                                         </div>
                                     </div>
@@ -523,7 +515,7 @@ export default function MarketingStudioPage() {
                                 </div>
 
                                 {/* HERO HEADLINE */}
-                                <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '12px' }}>
                                     <div style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',
@@ -537,7 +529,7 @@ export default function MarketingStudioPage() {
                                         fontWeight: 800,
                                         marginBottom: '4px'
                                     }}>
-                                        <span>🏪 किराना & जनरल स्टोर</span> · <span>🔩 हार्डवेयर & सेनेटरी</span> · <span>📱 मोबाइल & गारमेंट्स</span>
+                                        <span>🧾 GST पक्का बिल</span> · <span>📄 Non-GST सादा बिल</span> · <span>🖨️ थर्मल 2"/3" & A4 प्रिंट</span>
                                     </div>
                                     <h2 style={{
                                         fontSize: template === 'whatsapp_square' ? '19px' : '23px',
@@ -546,7 +538,7 @@ export default function MarketingStudioPage() {
                                         marginBottom: '3px',
                                         letterSpacing: '-0.5px'
                                     }}>
-                                        कागजी बही-खाते और पुरानी बिल बुक को कहें अलविदा!
+                                        एक ही ऐप में GST और Non-GST दोनों तरह के बिल बनाएं!
                                     </h2>
                                     <p style={{
                                         fontSize: '12px',
@@ -555,85 +547,187 @@ export default function MarketingStudioPage() {
                                         margin: '0 auto',
                                         lineHeight: '1.3'
                                     }}>
-                                        बिलिंग, AI स्कैनर, लो-स्टॉक & एक्सपायरी अलर्ट, उधारी, WhatsApp हिसाब और ऑनलाइन दुकान!
+                                        चाहे टैक्स इनवॉइस हो या सादी पर्ची / कोटेशन — सिर्फ 10 सेकंड में प्रिंट निकालें और WhatsApp पर भेजें!
                                     </p>
                                 </div>
 
-                                {/* SPECIAL SPOTLIGHT: LOW STOCK & EXPIRY ALERTS BANNER */}
+                                {/* 2 BIG PILLARS: GST BILL VS NON-GST BILL SIDE-BY-SIDE */}
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: '1fr 1fr',
-                                    gap: '8px',
+                                    gap: '10px',
+                                    marginBottom: '10px'
+                                }}>
+                                    {/* GST Bill Card */}
+                                    <div style={{
+                                        background: 'rgba(56, 189, 248, 0.12)',
+                                        border: '2px solid rgba(56, 189, 248, 0.5)',
+                                        borderRadius: '12px',
+                                        padding: '10px 12px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '6px'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: '22px' }}>🧾</span>
+                                            <div>
+                                                <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.accent }}>
+                                                    1. GST बिल (पक्का टैक्स इनवॉइस)
+                                                </div>
+                                                <div style={{ fontSize: '9px', color: currentStyles.textSecondary }}>
+                                                    सरकारी GST नियमों के अनुसार 100% मान्य
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '10px', color: currentStyles.textPrimary }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> HSN/SAC कोड & ऑटो CGST, SGST, IGST
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> B2B (ट्रेडर्स) और B2C (ग्राहक) बिलिंग
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> E-Way Bill & E-Invoice सपोर्ट
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> CA के लिए 1-क्लिक GSTR-1, GSTR-3B रिपोर्ट
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Non-GST Bill Card */}
+                                    <div style={{
+                                        background: 'rgba(245, 158, 11, 0.12)',
+                                        border: '2px solid rgba(245, 158, 11, 0.5)',
+                                        borderRadius: '12px',
+                                        padding: '10px 12px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '6px'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span style={{ fontSize: '22px' }}>📄</span>
+                                            <div>
+                                                <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.highlight }}>
+                                                    2. Non-GST बिल (सादा पर्चा / एस्टीमेट)
+                                                </div>
+                                                <div style={{ fontSize: '9px', color: currentStyles.textSecondary }}>
+                                                    बिना GST नंबर के भी आसान और तेज बिलिंग
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '10px', color: currentStyles.textPrimary }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> बिना टैक्स जोड़े सादा बिल और रसीद
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> डिलीवरी चालान & कोटेशन 1-क्लिक में
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> 2" और 3" थर्मल प्रिंटर पर सुपरफास्ट रसीद
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <span style={{ color: '#10b981' }}>✓</span> सीधे WhatsApp पर ग्राहक को रसीद भेजें
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* SPECIAL SMART ALERTS: AI SCANNER, LOW STOCK & EXPIRY */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 1fr 1fr',
+                                    gap: '6px',
                                     marginBottom: '10px'
                                 }}>
                                     <div style={{
-                                        background: currentStyles.alertBg,
-                                        border: `1.5px solid ${currentStyles.alertBorder}`,
-                                        borderRadius: '10px',
-                                        padding: '6px 10px',
+                                        background: currentStyles.cardBg,
+                                        border: `1.5px solid ${currentStyles.cardBorder}`,
+                                        borderRadius: '8px',
+                                        padding: '5px 8px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '8px'
+                                        gap: '6px'
                                     }}>
-                                        <span style={{ fontSize: '24px' }}>⚠️</span>
+                                        <span style={{ fontSize: '18px' }}>📸</span>
                                         <div>
-                                            <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#ef4444' }}>
-                                                लो-स्टॉक ऑटो अलर्ट (Low Stock)
+                                            <div style={{ fontSize: '10.5px', fontWeight: 800, color: currentStyles.textPrimary }}>
+                                                AI स्मार्ट स्कैनर
                                             </div>
-                                            <div style={{ fontSize: '9.5px', color: currentStyles.textSecondary }}>
-                                                दुकान में सामान खत्म होने से पहले ऑटोमैटिक लाल अलर्ट।
+                                            <div style={{ fontSize: '8.5px', color: currentStyles.textSecondary }}>
+                                                पर्चे की फोटो से तुरंत बिल
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{
+                                        background: currentStyles.alertBg,
+                                        border: `1.5px solid ${currentStyles.alertBorder}`,
+                                        borderRadius: '8px',
+                                        padding: '5px 8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}>
+                                        <span style={{ fontSize: '18px' }}>⚠️</span>
+                                        <div>
+                                            <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#ef4444' }}>
+                                                लो-स्टॉक ऑटो अलर्ट
+                                            </div>
+                                            <div style={{ fontSize: '8.5px', color: currentStyles.textSecondary }}>
+                                                सामान खत्म होने से पहले सूचना
                                             </div>
                                         </div>
                                     </div>
 
                                     <div style={{
                                         background: 'rgba(245, 158, 11, 0.15)',
-                                        border: '1.5px solid rgba(245, 158, 11, 0.5)',
-                                        borderRadius: '10px',
-                                        padding: '6px 10px',
+                                        border: '1.5px solid rgba(245, 158, 11, 0.4)',
+                                        borderRadius: '8px',
+                                        padding: '5px 8px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '8px'
+                                        gap: '6px'
                                     }}>
-                                        <span style={{ fontSize: '24px' }}>⏳</span>
+                                        <span style={{ fontSize: '18px' }}>⏳</span>
                                         <div>
-                                            <div style={{ fontSize: '11.5px', fontWeight: 900, color: currentStyles.highlight }}>
-                                                एक्सपायरी डेट अलर्ट (Expiry Alert)
+                                            <div style={{ fontSize: '10.5px', fontWeight: 800, color: currentStyles.highlight }}>
+                                                एक्सपायरी डेट अलर्ट
                                             </div>
-                                            <div style={{ fontSize: '9.5px', color: currentStyles.textSecondary }}>
-                                                सामान एक्सपायर होने से पहले चेतावनी, कोई घाटा नहीं।
+                                            <div style={{ fontSize: '8.5px', color: currentStyles.textSecondary }}>
+                                                तारीख निकलने से पहले चेतावनी
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* ALL 12 FEATURE PILLARS GRID */}
+                                {/* ALL SUPPORTING FEATURES */}
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: template === 'whatsapp_square' ? '1fr 1fr' : '1fr 1fr 1fr',
                                     gap: '6px',
                                     marginBottom: '10px'
                                 }}>
-                                    {allFeatures.map((f, i) => (
+                                    {allFeatures.slice(1, 7).map((f, i) => (
                                         <div
                                             key={i}
                                             style={{
                                                 background: currentStyles.cardBg,
                                                 border: `1.5px solid ${currentStyles.cardBorder}`,
                                                 borderRadius: '8px',
-                                                padding: '6px 8px',
+                                                padding: '5px 8px',
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 gap: '2px'
                                             }}
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                <span style={{ fontSize: '14px' }}>{f.icon}</span>
-                                                <span style={{ fontSize: '10.5px', fontWeight: 800, color: currentStyles.textPrimary, lineHeight: '1.2' }}>
+                                                <span style={{ fontSize: '13px' }}>{f.icon}</span>
+                                                <span style={{ fontSize: '10px', fontWeight: 800, color: currentStyles.textPrimary, lineHeight: '1.2' }}>
                                                     {f.title}
                                                 </span>
                                             </div>
-                                            <div style={{ fontSize: '9px', color: currentStyles.textSecondary, lineHeight: '1.2' }}>
+                                            <div style={{ fontSize: '8.5px', color: currentStyles.textSecondary, lineHeight: '1.2' }}>
                                                 {f.desc}
                                             </div>
                                         </div>
