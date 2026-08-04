@@ -126,7 +126,7 @@ export default function BusinessExpensesPage() {
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
-    const { businessProfile, aiDraftData, setAiDraftData } = useStore();
+    const { businessProfile, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore();
 
     // Drawer / Modals
     const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
@@ -600,76 +600,103 @@ export default function BusinessExpensesPage() {
             const { description, amount } = aiDraftData;
             const searchName = (description || '').trim();
             const amt = Number(amount) || 0;
-            if (searchName && customers.length > 0) {
-                const target = customers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
-                if (target) {
-                    setCurCid(target.id);
-                    setActiveScreen('detail');
-                    window.location.hash = 'detail';
-                    if (amt > 0) {
-                        setCustomers(customers.map(c => {
-                            if (c.id === target.id) {
-                                const newTxn = {
-                                    id: Date.now(),
-                                    type: 'debit',
-                                    amt,
-                                    name: 'Expense (AI)',
-                                    note: '',
-                                    date: new Date().toISOString(),
-                                    category: 'General',
-                                    photos: []
-                                };
-                                return { ...c, balance: c.balance + amt, txns: [newTxn, ...c.txns] };
-                            }
-                            return c;
-                        }));
-                        setCanSave(true);
-                        showToast(t.entrySaved || `✅ ${target.name} me ₹${amt} add ho gaye!`);
+
+            // Step 1: Search & locate account (at 200ms)
+            const t1 = setTimeout(() => {
+                updateAiCopilotStep(0, 'done', searchName ? `Account "${searchName}" search ho gaya!` : 'Khata select ho gaya!');
+            }, 200);
+
+            // Step 2: Add Entry (at 800ms)
+            const t2 = setTimeout(() => {
+                if (searchName && customers.length > 0) {
+                    const target = customers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
+                    if (target) {
+                        setCurCid(target.id);
+                        setActiveScreen('detail');
+                        window.location.hash = 'detail';
+                        if (amt > 0) {
+                            setCustomers(customers.map(c => {
+                                if (c.id === target.id) {
+                                    const newTxn = {
+                                        id: Date.now(),
+                                        type: 'debit',
+                                        amt,
+                                        name: 'Expense (AI)',
+                                        note: '',
+                                        date: new Date().toISOString(),
+                                        category: 'General',
+                                        photos: []
+                                    };
+                                    return { ...c, balance: c.balance + amt, txns: [newTxn, ...c.txns] };
+                                }
+                                return c;
+                            }));
+                            setCanSave(true);
+                            showToast(t.entrySaved || `✅ ${target.name} me ₹${amt} add ho gaye!`);
+                        } else {
+                            setTimeout(() => openAddEntry('debit', String(amount || '')), 300);
+                        }
                     } else {
-                        setTimeout(() => openAddEntry('debit', String(amount || '')), 300);
+                        if (amt > 0) {
+                            const nc = { id: Date.now(), name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                                id: Date.now() + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                            }] };
+                            setCustomers([{ ...nc }, ...customers]);
+                            setCanSave(true);
+                            showToast(`✅ Naya account ${searchName} ban gaya aur ₹${amt} add ho gaye!`);
+                        } else {
+                            setAcName(searchName);
+                            setIsAddCustOpen(true);
+                        }
                     }
                 } else {
                     if (amt > 0) {
-                        const nc = { id: Date.now(), name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
-                            id: Date.now() + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                        const partyName = searchName || 'General Expense';
+                        const nc = { id: Date.now(), name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                            id: Date.now() + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
                         }] };
                         setCustomers([{ ...nc }, ...customers]);
                         setCanSave(true);
-                        showToast(`✅ Naya account ${searchName} ban gaya aur ₹${amt} add ho gaye!`);
+                        showToast(`✅ ${partyName} me ₹${amt} add ho gaye!`);
                     } else {
-                        setAcName(searchName);
+                        if (amount) setAcOpening(String(amount));
                         setIsAddCustOpen(true);
                     }
                 }
-            } else {
-                if (amt > 0) {
-                    const partyName = searchName || 'General Expense';
-                    const nc = { id: Date.now(), name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
-                        id: Date.now() + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
-                    }] };
-                    setCustomers([{ ...nc }, ...customers]);
-                    setCanSave(true);
-                    showToast(`✅ ${partyName} me ₹${amt} add ho gaye!`);
-                } else {
-                    if (amount) setAcOpening(String(amount));
-                    setIsAddCustOpen(true);
-                }
-            }
-            setAiDraftData(null);
+                updateAiCopilotStep(1, 'done', `₹${amt} kharcha entry add ho gayi!`);
+            }, 800);
+
+            // Step 3: Complete HUD (at 1500ms)
+            const t3 = setTimeout(() => {
+                updateAiCopilotStep(2, 'done', 'Khata balance update ho gaya!');
+                completeAiCopilotAction(`✅ ₹${amt} kharcha (${searchName || 'General'}) successfully add ho gaya!`);
+                setAiDraftData(null);
+            }, 1500);
+
+            return () => {
+                clearTimeout(t1);
+                clearTimeout(t2);
+                clearTimeout(t3);
+            };
         } else if (aiDraftData.type === 'BULK_REMINDER') {
             const pendingIds = customers.filter((c: any) => c.balance > 0).map((c: any) => c.id);
             if (pendingIds.length > 0) {
+                updateAiCopilotStep(0, 'done', `${pendingIds.length} pending customers mil gaye!`);
                 showToast(t.sendingReminders || '⏳ Sending reminders to all pending customers...');
-                setAiDraftData(null);
                 setTimeout(() => {
+                    updateAiCopilotStep(1, 'done', 'WhatsApp reminder messages ready!');
+                    completeAiCopilotAction(`✅ ${pendingIds.length} pending customers ke reminders taiyar hain!`);
+                    setAiDraftData(null);
                     handleBulkRemind(pendingIds);
-                }, 500);
+                }, 900);
             } else {
+                updateAiCopilotStep(0, 'done', 'Sabhi bills clear hain!');
+                completeAiCopilotAction('✅ Koi pending payment nahi hai.');
                 showToast('✅ No pending payments found!');
                 setAiDraftData(null);
             }
         }
-    }, [isMounted, aiDraftData, customers]);
+    }, [isMounted, aiDraftData, customers, updateAiCopilotStep, completeAiCopilotAction]);
 
     const showToast = (msg: string) => {
         setToastMsg(msg);

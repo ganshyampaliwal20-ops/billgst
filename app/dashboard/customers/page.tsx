@@ -10,7 +10,7 @@ import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
 
 export default function CustomersPage() {
     const router = useRouter();
-    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings, fetchCustomers, aiDraftData, setAiDraftData } = useStore() as any;
+    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings, fetchCustomers, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
 
@@ -35,17 +35,38 @@ export default function CustomersPage() {
     useEffect(() => {
         if (!isClient || !aiDraftData) return;
         if (aiDraftData.type === 'CUSTOMER') {
-            setNewName(aiDraftData.name || '');
-            setNewPhone(aiDraftData.phone || '');
-            setShowAddModal(true);
-            setAiDraftData(null);
+            const custName = aiDraftData.name || '';
+            const custPhone = aiDraftData.phone || '';
+            
+            const t1 = setTimeout(() => {
+                setShowAddModal(true);
+                updateAiCopilotStep(0, 'done', 'Customer form open ho gaya!');
+            }, 200);
+
+            const t2 = setTimeout(() => {
+                setNewName(custName);
+                setNewPhone(custPhone);
+                updateAiCopilotStep(1, 'done', `Details (${custName} ${custPhone}) fill ho gayi!`);
+                completeAiCopilotAction(`✅ Customer form auto-fill ho gaya!`);
+                setAiDraftData(null);
+            }, 800);
+
+            return () => {
+                clearTimeout(t1);
+                clearTimeout(t2);
+            };
         } else if (aiDraftData.type === 'PAYMENT') {
             if (aiDraftData.partyName) {
-                const targetCust = customers.find((c: any) => c.name.toLowerCase() === aiDraftData.partyName.toLowerCase());
+                const targetCust = customers.find((c: any) => c.name.toLowerCase().includes(aiDraftData.partyName.toLowerCase()));
                 if (targetCust) {
+                    updateAiCopilotStep(0, 'done', `Customer "${targetCust.name}" profile load ho gayi!`);
                     const amtParam = aiDraftData.amount ? `&amount=${aiDraftData.amount}` : '';
-                    router.push('/dashboard/customers/' + targetCust.id + '?action=payment' + amtParam);
-                    setAiDraftData(null);
+                    setTimeout(() => {
+                        updateAiCopilotStep(1, 'done', `Payment ₹${aiDraftData.amount || ''} ready!`);
+                        completeAiCopilotAction(`✅ Payment form open ho gaya!`);
+                        setAiDraftData(null);
+                        router.push('/dashboard/customers/' + targetCust.id + '?action=payment' + amtParam);
+                    }, 600);
                 } else {
                     toast.error('Customer not found for payment: ' + aiDraftData.partyName);
                     setSearchTerm(aiDraftData.partyName);
@@ -55,7 +76,7 @@ export default function CustomersPage() {
                 setAiDraftData(null);
             }
         }
-    }, [isClient, aiDraftData, customers]);
+    }, [isClient, aiDraftData, customers, updateAiCopilotStep, completeAiCopilotAction]);
 
     const getCustomerBalance = (customerId: string) => {
         const customerInvoices = invoices.filter((inv: any) => inv.customer_id === customerId || inv.customer?.id === customerId);

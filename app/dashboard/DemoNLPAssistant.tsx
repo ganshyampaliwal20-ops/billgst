@@ -16,6 +16,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
     const recognitionRef = useRef<any>(null);
     const router = useRouter();
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
+    const setAiCopilotAction = useStore((state: any) => state.setAiCopilotAction);
     const settings = useStore((state: any) => state.settings) || {};
     const customers = useStore((state: any) => state.customers) || [];
     const productsData = useStore((state: any) => state.products) || [];
@@ -133,44 +134,180 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 setMessages(prev => [...prev, { role: 'ai', text: replyText }]);
                 setIsProcessing(false);
 
-                // Handle navigation and state updates
+                // Handle navigation and state updates with live Copilot HUD
                 if (data.action === 'CREATE_INVOICE') {
+                    setAiCopilotAction({
+                        type: 'INVOICE',
+                        title: 'Invoice Generator',
+                        subtitle: `${data.payload?.customerName ? `"${data.payload.customerName}" ka ` : ''}bill auto-fill ho raha hai...`,
+                        steps: [
+                            { id: 1, label: `Customer "${data.payload?.customerName || 'Customer'}" select kiya ja raha hai`, status: 'active' },
+                            { id: 2, label: 'Items & Prices fill ho rahe hain', status: 'pending' },
+                            { id: 3, label: 'Tax & Total amount calculate ho raha hai', status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 20,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/invoices/new'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/invoices/new');
+                    }, 600);
                     
                 } else if (data.action === 'MARK_ATTENDANCE') {
+                    setAiCopilotAction({
+                        type: 'ATTENDANCE',
+                        title: 'Staff Attendance',
+                        subtitle: `${data.payload?.staffName || 'Staff'} ki attendance mark ho rahi hai...`,
+                        steps: [
+                            { id: 1, label: `Staff "${data.payload?.staffName || 'Staff'}" search ho raha hai`, status: 'active' },
+                            { id: 2, label: `Attendance status (${data.payload?.status || 'PRESENT'}) mark ho raha hai`, status: 'pending' },
+                            { id: 3, label: 'Record verify & save ho gaya', status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 25,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/staff'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/staff');
+                    }, 600);
                     
                 } else if (data.action === 'ADD_EXPENSE') {
+                    setAiCopilotAction({
+                        type: 'EXPENSE',
+                        title: 'Expense & Hisaab',
+                        subtitle: `₹${data.payload?.amount || ''} kharcha (${data.payload?.description || 'Expense'}) add ho raha hai...`,
+                        steps: [
+                            { id: 1, label: 'Khata search & verify ho raha hai', status: 'active' },
+                            { id: 2, label: `Amount ₹${data.payload?.amount || ''} entry ho rahi hai`, status: 'pending' },
+                            { id: 3, label: 'Transaction balance update ho gaya', status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 25,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/expenses'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/expenses');
+                    }, 600);
                     
                 } else if (data.action === 'ADD_INVENTORY') {
+                    setAiCopilotAction({
+                        type: 'INVENTORY',
+                        title: 'Inventory Item',
+                        subtitle: `Product (${data.payload?.itemName || ''}) inventory me fill ho raha hai...`,
+                        steps: [
+                            { id: 1, label: 'Add Product modal open ho raha hai', status: 'active' },
+                            { id: 2, label: `Item "${data.payload?.itemName || ''}" stock & unit fill ho raha hai`, status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 30,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/inventory'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/inventory');
+                    }, 600);
                     
                 } else if (data.action === 'ADD_CUSTOMER') {
+                    setAiCopilotAction({
+                        type: 'CUSTOMER',
+                        title: 'Customer Add',
+                        subtitle: `Naya customer (${data.payload?.name || ''}) add ho raha hai...`,
+                        steps: [
+                            { id: 1, label: 'Customer form open ho raha hai', status: 'active' },
+                            { id: 2, label: `Name (${data.payload?.name || ''}) aur Phone enter ho raha hai`, status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 30,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'CUSTOMER', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/customers'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/customers');
+                    }, 600);
                     
                 } else if (data.action === 'ADD_SUPPLIER') {
+                    setAiCopilotAction({
+                        type: 'SUPPLIER',
+                        title: 'Supplier Add',
+                        subtitle: `Naya Supplier (${data.payload?.name || ''}) add ho raha hai...`,
+                        steps: [
+                            { id: 1, label: 'Supplier form open ho raha hai', status: 'active' },
+                            { id: 2, label: `Supplier details fill ho rahi hai`, status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 30,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'SUPPLIER', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/suppliers'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/suppliers');
+                    }, 600);
                     
                 } else if (data.action === 'RECORD_PAYMENT') {
+                    setAiCopilotAction({
+                        type: 'PAYMENT',
+                        title: 'Payment Record',
+                        subtitle: `${data.payload?.partyName || 'Customer'} ki payment process ho rahi hai...`,
+                        steps: [
+                            { id: 1, label: 'Customer profile load ho raha hai', status: 'active' },
+                            { id: 2, label: `Payment amount ₹${data.payload?.amount || ''} fill ho raha hai`, status: 'pending' },
+                        ],
+                        currentStep: 0,
+                        progress: 30,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'PAYMENT', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/customers'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/customers');
+                    }, 600);
                     
                 } else if (data.action === 'CREATE_PURCHASE') {
+                    setAiCopilotAction({
+                        type: 'PURCHASE',
+                        title: 'Purchase Bill',
+                        subtitle: 'Purchase bill form auto-fill ho raha hai...',
+                        steps: [
+                            { id: 1, label: 'Supplier & Items fill ho rahe hain', status: 'active' }
+                        ],
+                        currentStep: 0,
+                        progress: 30,
+                        isVisible: true
+                    });
                     setAiDraftData({ type: 'PURCHASE', ...data.payload });
-                    setTimeout(() => router.push('/dashboard/purchases/new'), 1000);
+                    setTimeout(() => {
+                        onClose();
+                        router.push('/dashboard/purchases/new');
+                    }, 600);
                     
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
                     if (path) {
-                        setTimeout(() => router.push(path), 1000);
-                        
+                        setAiCopilotAction({
+                            type: 'NAVIGATE',
+                            title: 'Page Navigation',
+                            subtitle: `${path} open kiya ja raha hai...`,
+                            steps: [
+                                { id: 1, label: `Navigating to ${path}`, status: 'done' }
+                            ],
+                            currentStep: 1,
+                            progress: 100,
+                            isComplete: true,
+                            isVisible: true
+                        });
+                        setTimeout(() => {
+                            onClose();
+                            router.push(path);
+                        }, 500);
                     }
                 }
             } else {

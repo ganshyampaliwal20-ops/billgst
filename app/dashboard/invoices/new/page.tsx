@@ -54,9 +54,12 @@ function NewInvoiceContent() {
     const invoices = useStore((state: any) => state.invoices) || [];
     const aiDraftData = useStore((state: any) => state.aiDraftData);
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
+    const updateAiCopilotStep = useStore((state: any) => state.updateAiCopilotStep);
+    const completeAiCopilotAction = useStore((state: any) => state.completeAiCopilotAction);
 
     const [isClient, setIsClient] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [aiHighlight, setAiHighlight] = useState<string | null>(null);
     const t: any = translations[settings.language as keyof typeof translations] || translations.en;
 
     // Form State
@@ -250,21 +253,29 @@ function NewInvoiceContent() {
             }
         }
 
-        // --- AI Draft Data Logic ---
+        // --- AI Draft Data Logic with Step-by-Step Live Copilot Animation ---
         if (aiDraftData && aiDraftData.type === 'INVOICE') {
-            const timer = setTimeout(() => {
-                const { customerName, amount, items } = aiDraftData;
-                
+            const { customerName, amount, items } = aiDraftData;
+            
+            // Step 1: Customer (at 300ms)
+            const timer1 = setTimeout(() => {
                 if (customerName) {
                     const storeCustomers = useStore.getState().customers || [];
                     const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerName.toLowerCase()));
                     if (foundCust) {
                         setCustomerId(foundCust.id);
+                        setNewCustName(foundCust.name);
                     } else {
+                        setCustomerId('');
                         setNewCustName(customerName);
                     }
                 }
+                setAiHighlight('customer');
+                updateAiCopilotStep(0, 'done', customerName ? `Customer "${customerName}" select ho gaya!` : 'Customer select ho gaya!');
+            }, 300);
 
+            // Step 2: Items (at 900ms)
+            const timer2 = setTimeout(() => {
                 if (items && items.length > 0) {
                     const storeProducts = useStore.getState().products || [];
                     const newItems = items.map((aiItem: any) => {
@@ -285,7 +296,7 @@ function NewInvoiceContent() {
                                 product_id: '',
                                 product_name: prodName || 'Custom Item',
                                 quantity: aiItem.qty || 1,
-                                unit_price: amount ? (amount / items.length) : 0, // Fallback logic
+                                unit_price: amount ? (amount / items.length) : 0,
                                 gst_rate: 0,
                                 hsn_code: '',
                                 unit: 'PCS'
@@ -304,12 +315,24 @@ function NewInvoiceContent() {
                         unit: 'PCS'
                     }]);
                 }
-                
+                setAiHighlight('items');
+                updateAiCopilotStep(1, 'done', 'Items & Price auto-fill ho gaye!');
+            }, 900);
+
+            // Step 3: Calculation & Finish (at 1500ms)
+            const timer3 = setTimeout(() => {
+                setAiHighlight('totals');
+                updateAiCopilotStep(2, 'done', 'Calculations & GST ready!');
+                completeAiCopilotAction('✅ Bill taiyar hai! Aap verify karke save kar sakte hain.');
                 setAiDraftData(null);
-                toast.success('✅ AI ne bill auto-fill kar diya hai!');
+                setTimeout(() => setAiHighlight(null), 3000);
             }, 1500);
             
-            return () => clearTimeout(timer);
+            return () => {
+                clearTimeout(timer1);
+                clearTimeout(timer2);
+                clearTimeout(timer3);
+            };
         }
     }, [isClient, isDuplicating, quotations, searchParams, aiDraftData]);
 
@@ -1205,7 +1228,7 @@ function NewInvoiceContent() {
                     </div>
 
                     {/* Customer & Invoice Info */}
-                    <div className="card">
+                    <div className={`card transition-all duration-500 ${aiHighlight === 'customer' ? 'ring-4 ring-indigo-500 shadow-[0_0_35px_rgba(99,102,241,0.5)] scale-[1.01] bg-indigo-50/20' : ''}`}>
                         <div className="c-title"><div className="c-icon" style={{ background: '#e0f2fe', color: '#0ea5e9' }}><FaUserPlus /></div> Customer & Details</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div className="inv-pill" onClick={() => toast('Auto-generated number')}>
@@ -1216,7 +1239,7 @@ function NewInvoiceContent() {
                                 <label className="fl">{t.customer} *</label>
                                 <div className="flex items-center gap-2">
                                     <input
-                                        className="fi text-slate-900 flex-1"
+                                        className={`fi text-slate-900 flex-1 transition-all ${aiHighlight === 'customer' ? 'border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)] bg-white font-bold' : ''}`}
                                         list="customer-list"
                                         placeholder="Enter or select customer"
                                         value={customers.find((c: any) => c.id === customerId)?.name || newCustName}
@@ -1281,7 +1304,7 @@ function NewInvoiceContent() {
                     </div>
 
                     {/* Items Section */}
-                    <div className="scroll-body">
+                    <div className={`scroll-body transition-all duration-500 ${aiHighlight === 'items' ? 'ring-4 ring-purple-500 shadow-[0_0_35px_rgba(168,85,247,0.5)] rounded-2xl bg-purple-50/20 p-2' : ''}`}>
                         <style dangerouslySetInnerHTML={{ __html: `
                           :root {
                             --bg: #f2f4fb; --white: #fff; --ink: #0d0f1c; --ink2: #2e3250; --ink3: #6b6f90; --ink4: #a8adcc;
@@ -1781,12 +1804,12 @@ function NewInvoiceContent() {
                 </div>
             </form>
 
-            <div className="bottom-bar">
+            <div className={`bottom-bar transition-all duration-500 ${aiHighlight === 'totals' ? 'ring-4 ring-emerald-500 shadow-[0_0_40px_rgba(16,185,129,0.6)] scale-[1.02] bg-emerald-50/50' : ''}`}>
                 <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Grand Total</span>
                     <span className="t-val text-slate-800">₹{totals.grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 </div>
-                <button type="button" className="bb-save" onClick={handleSubmit} disabled={isSubmitting}>
+                <button type="button" className={`bb-save transition-all ${aiHighlight === 'totals' ? 'animate-bounce shadow-[0_0_25px_rgba(16,185,129,0.8)]' : ''}`} onClick={handleSubmit} disabled={isSubmitting}>
                     {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white rounded-full mr-2"></span> : <FaSave className="text-lg" />}
                     {isSubmitting ? 'Saving...' : 'Save Invoice'}
                 </button>

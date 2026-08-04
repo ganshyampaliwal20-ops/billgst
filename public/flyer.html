@@ -1,32 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BillGST - Complete AI Billing & Business Super-App | Official Pamphlet</title>
+    <title>BillGST - स्मार्ट AI बिलिंग, उधार खाता और ऑनलाइन दुकान | Master Hindi Flyer</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tiro+Devanagari+Hindi:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #05603A;
-            --primary-dark: #023820;
-            --primary-deep: #011c10;
-            --primary-light: #e8f5ed;
-            --primary-subtle: #f0fdf4;
-            --gold: #f59e0b;
-            --gold-dark: #d97706;
-            --gold-light: #fef3c7;
-            --accent-blue: #2563eb;
-            --accent-purple: #7c3aed;
-            --dark: #0f172a;
-            --gray-800: #1e293b;
-            --gray-700: #334155;
-            --gray-500: #64748b;
-            --gray-300: #cbd5e1;
-            --gray-100: #f1f5f9;
-            --white: #ffffff;
+            --bg-dark: #060d1f;
+            --bg-card: #0b1736;
+            --primary-blue: #1d4ed8;
+            --accent-cyan: #06b6d4;
+            --accent-neon: #38bdf8;
+            --accent-gold: #f59e0b;
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            --blue-gradient: linear-gradient(135deg, #0a1b4d 0%, #1e40af 50%, #2563eb 100%);
+            --ai-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
+            --text-white: #ffffff;
+            --text-dim: #94a3b8;
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --border-glow: rgba(56, 189, 248, 0.35);
         }
 
         * {
@@ -39,8 +35,8 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #cbd5e1;
-            color: var(--dark);
+            background: #020617;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -48,7 +44,11 @@
             padding: 20px 0;
         }
 
-        /* Floating Action Bar */
+        .hindi-text {
+            font-family: 'Tiro Devanagari Hindi', 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Action bar for printing */
         .no-print-bar {
             position: fixed;
             top: 14px;
@@ -59,59 +59,70 @@
         }
 
         .btn-action {
-            background: #05603A;
-            color: #ffffff;
+            background: var(--gold-gradient);
+            color: #000000;
             border: none;
             padding: 12px 26px;
             border-radius: 50px;
-            font-size: 15px;
-            font-weight: 800;
+            font-size: 14px;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.2s ease;
             font-family: inherit;
         }
 
         .btn-action:hover {
-            background: #023820;
             transform: translateY(-2px);
-            box-shadow: 0 8px 26px rgba(0,0,0,0.35);
+            box-shadow: 0 8px 26px rgba(245, 158, 11, 0.6);
         }
 
-        /* A4 Canvas Page */
+        /* A4 CANVAS */
         .flyer-canvas {
             width: 210mm;
             min-height: 297mm;
-            background: #ffffff;
-            box-shadow: 0 16px 50px rgba(15, 23, 42, 0.25);
-            border-radius: 4px;
+            background: linear-gradient(180deg, #050d24 0%, #08153b 40%, #030818 100%);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
+            border-radius: 6px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             position: relative;
+            border: 2px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* Glowing Background Mesh */
+        .glow-orb-top {
+            position: absolute;
+            top: -80px;
+            left: -60px;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(29, 78, 216, 0.45) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .glow-orb-right {
+            position: absolute;
+            top: 250px;
+            right: -100px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         /* HEADER */
         .header {
-            background: linear-gradient(135deg, #011c10 0%, #023820 40%, #05603A 100%);
-            color: #ffffff;
-            padding: 22px 32px 18px;
+            padding: 22px 32px 16px;
             position: relative;
-            border-bottom: 4px solid var(--gold);
-        }
-
-        .header-glow {
-            position: absolute;
-            top: -50px;
-            right: -30px;
-            width: 260px;
-            height: 260px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(5, 96, 58, 0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
+            z-index: 2;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+            background: rgba(11, 23, 54, 0.65);
+            backdrop-filter: blur(20px);
         }
 
         .brand-row {
@@ -119,430 +130,414 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            position: relative;
-            z-index: 2;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
         .logo-box {
+            width: 52px;
+            height: 52px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.5);
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
         }
 
         .logo-img {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            background: #ffffff;
-            padding: 3px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            width: 100%;
+            height: 100%;
             object-fit: contain;
         }
 
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .brand-name {
+        .brand-text h1 {
             font-family: 'Outfit', sans-serif;
             font-size: 32px;
             font-weight: 900;
-            letter-spacing: -0.5px;
-            line-height: 1;
             color: #ffffff;
+            line-height: 1;
+            letter-spacing: -0.5px;
         }
 
-        .brand-name span {
-            color: var(--gold);
+        .brand-text h1 span {
+            color: var(--accent-gold);
         }
 
-        .brand-sub {
-            font-size: 10.5px;
+        .brand-tagline {
+            font-size: 11px;
             font-weight: 800;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #a7f3d0;
+            color: var(--accent-neon);
+            letter-spacing: 1px;
             margin-top: 2px;
         }
 
-        .trust-pill {
-            background: rgba(255, 255, 255, 0.14);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 5px 12px;
+        .free-pill-3d {
+            background: var(--gold-gradient);
+            color: #000000;
+            padding: 7px 18px;
             border-radius: 30px;
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.5);
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .hero-title {
-            font-family: 'Outfit', sans-serif;
+        .hero-banner {
+            margin-top: 6px;
+        }
+
+        .hero-headline {
             font-size: 26px;
             font-weight: 900;
-            line-height: 1.25;
+            line-height: 1.22;
             color: #ffffff;
-            letter-spacing: -0.4px;
-            position: relative;
-            z-index: 2;
         }
 
-        .hero-title .highlight {
-            color: var(--gold);
-            text-decoration: underline;
-            text-decoration-color: rgba(245, 158, 11, 0.5);
-            text-underline-offset: 3px;
+        .hero-headline .gold-text {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .hero-desc {
-            font-size: 13.5px;
-            color: #d1fae5;
-            margin-top: 4px;
+        .hero-sub {
+            font-size: 13px;
+            color: #bae6fd;
             font-weight: 600;
-            position: relative;
-            z-index: 2;
+            margin-top: 3px;
         }
 
-        /* HIGHLIGHT BAR */
-        .highlight-strip {
-            background: linear-gradient(90deg, #fef3c7 0%, #fffbeb 100%);
-            border-bottom: 1px solid #fde68a;
-            padding: 8px 32px;
+        /* TICKER STRIP */
+        .feature-ticker {
+            background: rgba(6, 182, 212, 0.12);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 6px 32px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-weight: 800;
             font-size: 11.5px;
-            color: #92400e;
+            font-weight: 800;
+            color: #7dd3fc;
+            position: relative;
+            z-index: 2;
         }
 
-        .strip-item {
+        .ticker-tag {
             display: flex;
             align-items: center;
             gap: 5px;
         }
 
-        /* CONTENT */
+        /* MAIN CONTENT */
         .content {
-            padding: 16px 30px;
+            padding: 14px 30px;
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-        }
-
-        .section-header {
-            text-align: center;
-            position: relative;
-            margin-bottom: 2px;
-        }
-
-        .section-header h2 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--primary-dark);
-            display: inline-block;
-            background: #ffffff;
-            padding: 0 14px;
+            gap: 10px;
             position: relative;
             z-index: 2;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
         }
 
-        .section-header::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1.5px;
-            background: #e2e8f0;
-            z-index: 1;
-        }
-
-        /* 8 FEATURE GRID (2 columns x 4 rows) */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 9px;
-        }
-
-        .feature-card {
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 12px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        .feature-card.ai-special {
-            border-color: #8b5cf6;
-            background: linear-gradient(145deg, #ffffff 0%, #f5f3ff 100%);
-            box-shadow: 0 3px 10px rgba(139, 92, 246, 0.08);
-        }
-
-        .feature-card.fast-special {
-            border-color: #10b981;
-            background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
-            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.08);
-        }
-
-        .icon-badge {
-            width: 38px;
-            height: 38px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 19px;
-            flex-shrink: 0;
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .feature-card.ai-special .icon-badge {
-            background: #7c3aed;
-            color: #ffffff;
-        }
-
-        .feature-card.fast-special .icon-badge {
-            background: #10b981;
-            color: #ffffff;
-        }
-
-        .card-body h3 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 13.5px;
-            font-weight: 800;
-            color: var(--dark);
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .pill-tag {
-            font-size: 8.5px;
-            background: var(--gold);
-            color: #000000;
-            padding: 1.5px 5px;
-            border-radius: 4px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .pill-tag.purple {
-            background: #7c3aed;
-            color: #ffffff;
-        }
-
-        .card-body p {
-            font-size: 11.2px;
-            color: var(--gray-700);
-            line-height: 1.4;
-            font-weight: 500;
-        }
-
-        /* 3 VALUE PILLARS & SUITABLE SHOPS */
-        .middle-row {
+        /* 2 HERO SPOTLIGHTS: BILLING & AI SCAN */
+        .hero-blocks-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
-        .target-box {
-            background: #f8fafc;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 9px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+        .spotlight-card {
+            background: rgba(15, 29, 68, 0.75);
+            backdrop-filter: blur(16px);
+            border-radius: 13px;
+            padding: 11px 15px;
+            position: relative;
+            overflow: hidden;
+            border: 1.5px solid var(--border-glass);
         }
 
-        .target-title {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--primary-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
+        .spotlight-card.billing-card {
+            border-color: rgba(56, 189, 248, 0.5);
+            background: linear-gradient(145deg, rgba(15, 41, 94, 0.85) 0%, rgba(10, 24, 60, 0.95) 100%);
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.25);
+        }
+
+        .spotlight-card.ai-card {
+            border-color: rgba(168, 85, 247, 0.5);
+            background: linear-gradient(145deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.25);
+        }
+
+        .card-top-tag {
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            margin-bottom: 5px;
         }
 
-        .chips-wrap {
+        .badge-mini {
+            font-size: 9.5px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-mini.cyan {
+            background: #06b6d4;
+            color: #000000;
+        }
+
+        .badge-mini.purple {
+            background: #a855f7;
+            color: #ffffff;
+        }
+
+        .spotlight-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
+            align-items: center;
+            gap: 7px;
         }
 
-        .chip {
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            padding: 3px 8px;
-            border-radius: 14px;
-            font-size: 10.2px;
-            font-weight: 700;
-            color: #334155;
+        .spotlight-desc {
+            font-size: 11.2px;
+            color: #cbd5e1;
+            line-height: 1.4;
+            font-weight: 500;
         }
 
-        .pillars-box {
+        /* 6 CORE FEATURE TILES (3x2 Grid) */
+        .features-hex-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .tile-card {
+            background: rgba(11, 23, 54, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 11px;
+            padding: 9px 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5px;
+        }
+
+        .tile-card.highlight-amber {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .tile-card.highlight-green {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .tile-card.highlight-blue {
+            border-color: rgba(56, 189, 248, 0.4);
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .tile-head {
+            display: flex;
+            align-items: center;
             gap: 6px;
+        }
+
+        .tile-icon {
+            font-size: 17px;
+        }
+
+        .tile-name {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .tile-text {
+            font-size: 10.2px;
+            color: #94a3b8;
+            line-height: 1.35;
+            font-weight: 500;
+        }
+
+        /* 4 SUB-POWERS STRIP */
+        .sub-powers-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .sub-power-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9px;
+            padding: 6px 8px;
             text-align: center;
         }
 
-        .pillar-item {
-            background: #ffffff;
-            border: 1.5px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 8px 4px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .pillar-val {
-            font-family: 'Outfit', sans-serif;
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--primary);
-            line-height: 1;
+        .sub-power-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #7dd3fc;
             margin-bottom: 2px;
         }
 
-        .pillar-lbl {
+        .sub-power-info {
             font-size: 9.5px;
-            font-weight: 700;
-            color: var(--gray-700);
-            line-height: 1.2;
+            color: #cbd5e1;
+            line-height: 1.25;
         }
 
-        /* CALL TO ACTION BOX (BOTTOM) */
-        .cta-card {
-            background: linear-gradient(135deg, #011c10 0%, #05603A 100%);
-            border-radius: 12px;
-            padding: 14px 20px;
-            color: #ffffff;
+        /* BUSINESSES SUPPORTED */
+        .biz-strip {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10.2px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .biz-label {
+            color: var(--accent-gold);
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .biz-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* GRAND CTA FOOTER */
+        .cta-box {
+            background: linear-gradient(135deg, #09173b 0%, #17387e 50%, #0c2152 100%);
+            border: 2px solid var(--accent-gold);
+            border-radius: 13px;
+            padding: 12px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 2px solid var(--gold);
-            box-shadow: 0 6px 20px rgba(5, 96, 58, 0.25);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
         }
 
         .cta-left {
-            max-width: 66%;
+            max-width: 68%;
         }
 
-        .offer-tag {
-            background: var(--gold);
+        .cta-offer-pill {
+            background: var(--gold-gradient);
             color: #000000;
-            padding: 2.5px 8px;
-            border-radius: 20px;
-            font-size: 9.5px;
+            font-size: 10px;
             font-weight: 900;
+            padding: 2.5px 10px;
+            border-radius: 14px;
             display: inline-block;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+            letter-spacing: 0.3px;
         }
 
-        .cta-headline {
-            font-family: 'Outfit', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            line-height: 1.2;
+        .cta-main-title {
+            font-size: 17.5px;
+            font-weight: 900;
             color: #ffffff;
+            line-height: 1.2;
         }
 
-        .cta-contacts {
-            margin-top: 8px;
+        .support-row {
+            margin-top: 5px;
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
         }
 
-        .contact-row {
-            font-size: 14px;
-            font-weight: 800;
+        .support-num {
+            font-size: 15px;
+            font-weight: 900;
             color: #fef08a;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .contact-web {
-            font-size: 12px;
+        .support-details {
+            font-size: 11px;
             font-weight: 700;
-            color: #d1fae5;
+            color: #93c5fd;
+            display: flex;
+            gap: 14px;
         }
 
         .cta-right {
+            background: #ffffff;
+            border-radius: 9px;
+            padding: 6px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #ffffff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: var(--dark);
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            color: #0f172a;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
         }
 
-        .qr-box {
-            width: 74px;
-            height: 74px;
+        .qr-placeholder {
+            width: 62px;
+            height: 62px;
             background: #f8fafc;
             border: 1.5px solid #cbd5e1;
             border-radius: 6px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
-        .qr-box svg {
-            width: 44px;
-            height: 44px;
-            fill: #05603A;
+        .qr-placeholder svg {
+            width: 38px;
+            height: 38px;
+            fill: #1d4ed8;
         }
 
-        .qr-text {
-            font-size: 8.5px;
+        .qr-label {
+            font-size: 8px;
             font-weight: 900;
-            color: var(--primary-dark);
-            text-transform: uppercase;
             letter-spacing: 0.3px;
+            color: #1e3a8a;
         }
 
-        /* FOOTER */
+        /* BOTTOM COPYRIGHT */
         .footer {
-            background: #f8fafc;
-            padding: 8px 30px;
-            font-size: 10px;
+            padding: 7px 32px;
+            font-size: 9.5px;
             color: #64748b;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid #e2e8f0;
-            font-weight: 600;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            background: #020617;
         }
 
-        /* PRINT STYLES */
+        /* PRINT MEDIA */
         @media print {
             body {
                 background: none;
@@ -554,6 +549,7 @@
             .flyer-canvas {
                 box-shadow: none;
                 border-radius: 0;
+                border: none;
                 width: 100%;
                 height: 100%;
                 margin: 0;
@@ -567,204 +563,227 @@
 </head>
 <body>
 
-    <!-- Floating Print Control (Hidden when printing) -->
+    <!-- Floating Print Button -->
     <div class="no-print-bar">
         <button class="btn-action" onclick="window.print()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            Print / Save as PDF (A4)
+            🖨️ Print Master PDF (A4)
         </button>
     </div>
 
-    <!-- MAIN A4 FLYER CONTAINER -->
+    <!-- MAIN A4 FLYER CANVAS -->
     <div class="flyer-canvas">
-        
+        <div class="glow-orb-top"></div>
+        <div class="glow-orb-right"></div>
+
         <!-- HEADER -->
         <div class="header">
-            <div class="header-glow"></div>
-
             <div class="brand-row">
-                <div class="logo-box">
-                    <img src="/logo.png" alt="BillGST Logo" class="logo-img" onerror="this.src='/icon.png'">
+                <div class="logo-wrap">
+                    <div class="logo-box">
+                        <img src="/logo.png" alt="BillGST" class="logo-img" onerror="this.src='/icon.png'">
+                    </div>
                     <div class="brand-text">
-                        <div class="brand-name">Bill<span>GST</span></div>
-                        <div class="brand-sub">Smart Business Super-App</div>
+                        <h1>Bill<span>GST</span></h1>
+                        <div class="brand-tagline">स्मार्ट AI बिजनेस सुपर-ऐप</div>
                     </div>
                 </div>
 
-                <div class="trust-pill">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-                    100% Safe • Offline Ready
+                <div class="free-pill-3d">
+                    ⚡ अभी 100% मुफ़्त (FREE) में चलाएं
                 </div>
             </div>
 
-            <div class="hero-title">
-                Everything Your Shop Needs — <span class="highlight">In One Smart App!</span>
-            </div>
-            <div class="hero-desc">
-                AI Photo Scan Billing • Voice Billing • Instant UPI & QR Payments • Udhaar Khata • Online Dukaan
+            <div class="hero-banner">
+                <div class="hero-headline">
+                    अपनी दुकान को बनाएं <span class="gold-text">सुपरफास्ट स्मार्ट डिजिटल दुकान!</span>
+                </div>
+                <div class="hero-sub">
+                    GST & Non-GST बिलिंग • AI पर्ची फोटो स्कैन • बोलकर बिल बनाएं • उधार खाता • ऑनलाइन दुकान
+                </div>
             </div>
         </div>
 
-        <!-- HIGHLIGHT STRIP -->
-        <div class="highlight-strip">
-            <div class="strip-item">📸 AI Photo-to-Bill Scanner</div>
-            <div class="strip-item">🎙️ AI Voice Invoicing</div>
-            <div class="strip-item">💳 UPI & QR Payment Links</div>
-            <div class="strip-item">📲 Instant WhatsApp Receipts</div>
-            <div class="strip-item">📶 Works 100% Offline</div>
+        <!-- TICKER STRIP -->
+        <div class="feature-ticker">
+            <div class="ticker-tag">🚀 100% फ्री रजिस्ट्रेशन</div>
+            <div class="ticker-tag">🧾 GST & थर्मल बिल प्रिंट</div>
+            <div class="ticker-tag">📸 AI फोटो बिल स्कैनर</div>
+            <div class="ticker-tag">🔔 लो स्टॉक & एक्सपायरी अलर्ट</div>
+            <div class="ticker-tag">☁️ मोबाइल & कंप्यूटर पर 24/7</div>
         </div>
 
         <!-- MAIN BODY CONTENT -->
         <div class="content">
 
-            <div class="section-header">
-                <h2>Complete Superpowers for Retailers, Wholesalers & Services</h2>
-            </div>
-
-            <!-- 8 CORE FEATURES GRID -->
-            <div class="features-grid">
-
-                <!-- Feature 1: AI Photo Scan -->
-                <div class="feature-card ai-special">
-                    <div class="icon-badge">📸</div>
-                    <div class="card-body">
-                        <h3>AI Photo & Bill Scan <span class="pill-tag purple">Magic AI</span></h3>
-                        <p>Snap a photo of any handwritten parchi, paper bill, or product — AI automatically reads items, rates, quantities & fills the invoice instantly!</p>
-                    </div>
-                </div>
-
-                <!-- Feature 2: AI Voice Billing -->
-                <div class="feature-card ai-special">
-                    <div class="icon-badge">🎙️</div>
-                    <div class="card-body">
-                        <h3>AI Voice Billing <span class="pill-tag purple">Speak to Bill</span></h3>
-                        <p>Say goodbye to manual typing! Tap the mic and speak: <i>"2 kg Sugar, 1 Cooking Oil"</i> — BillGST generates the itemized bill in seconds.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 3: UPI & QR Payments -->
-                <div class="feature-card fast-special">
-                    <div class="icon-badge">💳</div>
-                    <div class="card-body">
-                        <h3>UPI & QR Payments <span class="pill-tag">Live Sync</span></h3>
-                        <p>Dynamic QR on every bill & payment link. Customers pay via GPay/PhonePe/Paytm with instant notification & 1-click ledger approval.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 4: Fast GST Billing -->
-                <div class="feature-card fast-special">
-                    <div class="icon-badge">🧾</div>
-                    <div class="card-body">
-                        <h3>Fast GST & Thermal Print <span class="pill-tag">Fast</span></h3>
-                        <p>Support for 2"/3" Bluetooth & USB Thermal Printers + A4/A5 PDF invoices. 1-Click WhatsApp bill delivery with payment receipts.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 5: Smart Udhaar Khata -->
-                <div class="feature-card">
-                    <div class="icon-badge">📒</div>
-                    <div class="card-body">
-                        <h3>Automated Udhaar Khata</h3>
-                        <p>Automated WhatsApp payment reminders with one-tap UPI payment links. Collect pending dues 3x faster with zero bad debts.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 6: Free Online Dukaan -->
-                <div class="feature-card">
-                    <div class="icon-badge">🛍️</div>
-                    <div class="card-body">
-                        <h3>Free 24/7 Online Store</h3>
-                        <p>Launch your digital store & QR catalog in 2 minutes. Customers browse products & place orders directly on your WhatsApp.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 7: Inventory & Stock -->
-                <div class="feature-card">
-                    <div class="icon-badge">📦</div>
-                    <div class="card-body">
-                        <h3>Live Stock & Barcodes</h3>
-                        <p>Scan barcodes with phone camera, get real-time low-stock alerts, purchase invoice tracking, and batch/expiry management.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 8: CA & GST Reports -->
-                <div class="feature-card">
-                    <div class="icon-badge">📊</div>
-                    <div class="card-body">
-                        <h3>1-Click CA & GST Reports</h3>
-                        <p>Export GSTR-1, GSTR-3B, Daily Sales, and Profit & Loss reports directly to Excel & PDF sheets ready for your CA.</p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- MIDDLE SECTION: TARGET SHOPS + VALUE PILLARS -->
-            <div class="middle-row">
+            <!-- 2 HERO SPOTLIGHTS: BILLING & AI SCAN/VOICE -->
+            <div class="hero-blocks-grid">
                 
-                <div class="target-box">
-                    <div class="target-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                        Perfect For All Businesses:
+                <!-- Spotlight 1: Professional Invoicing & Instant UPI -->
+                <div class="spotlight-card billing-card">
+                    <div class="card-top-tag">
+                        <span class="badge-mini cyan">सुपरफास्ट बिलिंग</span>
+                        <span style="font-size: 10.5px; font-weight: 800; color: #38bdf8;">थर्मल & A4 प्रिंट</span>
                     </div>
-                    <div class="chips-wrap">
-                        <div class="chip">🏪 Grocery & Kirana</div>
-                        <div class="chip">👕 Garments & Footwear</div>
-                        <div class="chip">📱 Mobile & Electronics</div>
-                        <div class="chip">💊 Pharmacy & Medical</div>
-                        <div class="chip">🔧 Hardware & Paints</div>
-                        <div class="chip">☕ Cafes & Restaurants</div>
-                        <div class="chip">📦 Wholesale & Distributors</div>
-                        <div class="chip">🚗 Auto Parts & Workshops</div>
+                    <div class="spotlight-title">
+                        🧾 GST & Non-GST बिलिंग + 💳 UPI QR कोड
+                    </div>
+                    <div class="spotlight-desc">
+                        दुकान के लिए मात्र 2 सेकंड में पक्का या कच्चा बिल बनाएं! 2"/3" ब्लूटूथ थर्मल प्रिंटर या A4/A5 PDF में प्रिंट करें। हर बिल पर डायनामिक UPI QR कोड और 1-क्लिक व्हाट्सएप बिल शेयरिंग!
                     </div>
                 </div>
 
-                <div class="pillars-box">
-                    <div class="pillar-item">
-                        <div class="pillar-val">3x Faster</div>
-                        <div class="pillar-lbl">Payment Recovery</div>
+                <!-- Spotlight 2: AI Photo & Voice Billing -->
+                <div class="spotlight-card ai-card">
+                    <div class="card-top-tag">
+                        <span class="badge-mini purple">AI मैजिक टेक्नोलॉजी</span>
+                        <span style="font-size: 10.5px; font-weight: 800; color: #c084fc;">3 सेकंड में ऑटो एंट्री</span>
                     </div>
-                    <div class="pillar-item">
-                        <div class="pillar-val">100%</div>
-                        <div class="pillar-lbl">Offline + Cloud Backup</div>
+                    <div class="spotlight-title">
+                        📸 AI पर्ची फोटो स्कैन & 🎙️ बोलकर बिलिंग
                     </div>
-                    <div class="pillar-item">
-                        <div class="pillar-val">All Devices</div>
-                        <div class="pillar-lbl">Mobile, PC & Thermal</div>
+                    <div class="spotlight-desc">
+                        हाथ से लिखी किसी भी पर्ची या सप्लायर बिल की फोटो खींचो — AI अपने आप आइटम, रेट व क्वांटिटी भरकर बिल बना देगा! या माइक दबाकर बोलो: <i>"2 किलो चीनी, 1 तेल"</i> — तुरंत बिल तैयार!
                     </div>
                 </div>
 
             </div>
 
-            <!-- CALL TO ACTION BOX -->
-            <div class="cta-card">
+            <!-- 6 CORE FEATURE TILES (3x2 Grid) -->
+            <div class="features-hex-grid">
+
+                <!-- 1. Low Stock & Expiry Alert -->
+                <div class="tile-card highlight-amber">
+                    <div class="tile-head">
+                        <span class="tile-icon">🔔</span>
+                        <span class="tile-name">लो स्टॉक & एक्सपायरी अलर्ट</span>
+                    </div>
+                    <div class="tile-text">
+                        सामान खत्म होने से पहले तुरंत अलर्ट ताकि बिक्री न छूटे। एक्सपायरी डेट ट्रैकिंग से खराब माल के नुकसान से बचें।
+                    </div>
+                </div>
+
+                <!-- 2. Daily Expense Tracker -->
+                <div class="tile-card highlight-green">
+                    <div class="tile-head">
+                        <span class="tile-icon">💸</span>
+                        <span class="tile-name">दुकान का रोज़ाना खर्चा ट्रैकर</span>
+                    </div>
+                    <div class="tile-text">
+                        दुकान का किराया, चाय, बिजली, सैलरी और अन्य खर्चे दर्ज करें और अपनी दुकान का असली Net Profit (मुनाफ़ा) जानें।
+                    </div>
+                </div>
+
+                <!-- 3. Automated Udhaar Khata -->
+                <div class="tile-card highlight-blue">
+                    <div class="tile-head">
+                        <span class="tile-icon">📒</span>
+                        <span class="tile-name">ऑटोमैटिक उधार खाता</span>
+                    </div>
+                    <div class="tile-text">
+                        ग्राहकों को व्हाट्सएप पर ऑटो पेमेंट रिमाइंडर और 1-क्लिक UPI लिंक भेजें। 3 गुना तेजी से बकाया पैसा वसूलें।
+                    </div>
+                </div>
+
+                <!-- 4. Free 24/7 Online Dukaan -->
+                <div class="tile-card highlight-blue">
+                    <div class="tile-head">
+                        <span class="tile-icon">🛍️</span>
+                        <span class="tile-name">फ्री 24/7 ऑनलाइन दुकान</span>
+                    </div>
+                    <div class="tile-text">
+                        2 मिनट में अपनी दुकान का डिजिटल कैटलॉग व QR कोड बनाएं। ग्राहक ऑनलाइन देखकर सीधे व्हाट्सएप पर ऑर्डर देंगे।
+                    </div>
+                </div>
+
+                <!-- 5. Staff Attendance & Roles -->
+                <div class="tile-card highlight-amber">
+                    <div class="tile-head">
+                        <span class="tile-icon">👥</span>
+                        <span class="tile-name">स्टाफ अटेंडेंस और रोल्स</span>
+                    </div>
+                    <div class="tile-text">
+                        स्टाफ की रोज़ाना हाजिरी, बिक्री का हिसाब और सुरक्षित कैशियर/मैनेजर परमिशन मैनेजमेंट।
+                    </div>
+                </div>
+
+                <!-- 6. 1-Click CA & GST Reports -->
+                <div class="tile-card highlight-green">
+                    <div class="tile-head">
+                        <span class="tile-icon">📊</span>
+                        <span class="tile-name">1-क्लिक CA और GST रिपोर्ट्स</span>
+                    </div>
+                    <div class="tile-text">
+                        GSTR-1, GSTR-3B, रोज़ाना बिक्री, बैलेंस शीट और मुनाफ़ा रिपोर्ट एक्सेल व पीडीएफ में CA के लिए डाउनलोड करें।
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 4 SUB-POWERS (Quick Summary Strip) -->
+            <div class="sub-powers-row">
+                <div class="sub-power-item">
+                    <div class="sub-power-title">🚚 सप्लायर खाता</div>
+                    <div class="sub-power-info">खरीदी बिल, सप्लायर बकाया और पेमेंट का पूरा हिसाब</div>
+                </div>
+                <div class="sub-power-item">
+                    <div class="sub-power-title">📦 बारकोड स्कैनर</div>
+                    <div class="sub-power-info">मोबाइल कैमरे से बारकोड स्कैन करके तुरंत बिल बनाएं</div>
+                </div>
+                <div class="sub-power-item">
+                    <div class="sub-power-title">☁️ सभी डिवाइस पर</div>
+                    <div class="sub-power-info">एंड्रॉइड मोबाइल, आईफोन, टैबलेट या कंप्यूटर से चलाएं</div>
+                </div>
+                <div class="sub-power-item">
+                    <div class="sub-power-title">🔒 सुरक्षित क्लाउड बैकअप</div>
+                    <div class="sub-power-info">आपका सारा डेटा 100% सेफ और हमेशा सुरक्षित रहेगा</div>
+                </div>
+            </div>
+
+            <!-- BUSINESSES SUPPORTED -->
+            <div class="biz-strip">
+                <span class="biz-label">🏢 सभी दुकानों के लिए:</span>
+                <div class="biz-list">
+                    <span>किराना & जनरल स्टोर</span> • 
+                    <span>कपड़ा & फुटवियर</span> • 
+                    <span>मोबाइल & इलेक्ट्रॉनिक्स</span> • 
+                    <span>दवा & मेडिकल</span> • 
+                    <span>हार्डवेयर</span> • 
+                    <span>होटल & रेस्टोरेंट</span> • 
+                    <span>होलसेलर</span>
+                </div>
+            </div>
+
+            <!-- GRAND CTA FOOTER -->
+            <div class="cta-box">
                 <div class="cta-left">
-                    <div class="offer-tag">🎉 Special Offer: 15-Day Free Trial</div>
-                    <div class="cta-headline">Get Your Free Demo & Start Growing Today!</div>
+                    <div class="cta-offer-pill">🔥 स्पेशल लॉन्च ऑफर: 100% फ्री में इस्तेमाल करें</div>
+                    <div class="cta-main-title">आज ही रजिस्टर करें और अपनी दुकान को आधुनिक बनाएं!</div>
                     
-                    <div class="cta-contacts">
-                        <div class="contact-row">
-                            📞 Call / WhatsApp: +91 98765 43210
+                    <div class="support-row">
+                        <div class="support-num">
+                            📞 व्हाट्सएप / कॉल सपोर्ट: +91 7498571873
                         </div>
-                        <div class="contact-web">
-                            🌐 Website: www.billgst.in
+                        <div class="support-details">
+                            <span>✉️ support@billgst.in</span>
+                            <span>🌐 फ्री रजिस्ट्रेशन: www.billgst.in</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="cta-right">
-                    <div class="qr-box">
+                    <div class="qr-placeholder">
                         <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-5 0h3v5h-3v-5zm3 3h2v3h-2v-3zm2 2h3v3h-3v-3zm-7 1h2v2h-2v-2z"/></svg>
                     </div>
-                    <div class="qr-text">Scan To Start Free</div>
+                    <div class="qr-label">स्कैन करके जुड़ें</div>
                 </div>
             </div>
 
         </div>
 
-        <!-- FOOTER -->
+        <!-- BOTTOM COPYRIGHT -->
         <div class="footer">
-            <div>Empowering Indian Businesses • Digital India • Atmanirbhar Bharat</div>
-            <div>© BillGST Technologies Pvt Ltd. All rights reserved.</div>
+            <div>भारतीय व्यापारियों को सशक्त बनाते हुए • डिजिटल इंडिया • आत्मनिर्भर भारत</div>
+            <div>© BillGST Technologies Pvt Ltd. • 24/7 सहायता उपलब्ध</div>
         </div>
 
     </div>

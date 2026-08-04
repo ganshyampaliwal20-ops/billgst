@@ -13,7 +13,7 @@ import { optimizeImage } from "@/lib/utils";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile, settings, aiDraftData, setAiDraftData } = useStore() as any;
+    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile, settings, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore() as any;
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
     const [showProfit, setShowProfit] = useState(true);
@@ -63,20 +63,38 @@ export default function InventoryPage() {
         if (fetchProducts) fetchProducts(true, 1);
     }, []);
 
-    // AI Draft Data handling
+    // AI Draft Data handling with Live Copilot animation
     useEffect(() => {
         if (aiDraftData && aiDraftData.type === 'INVENTORY') {
-            setFormData(prev => ({
-                ...prev,
-                name: aiDraftData.itemName || prev.name,
-                stock_quantity: aiDraftData.qty ? String(aiDraftData.qty) : prev.stock_quantity,
-                unit: aiDraftData.unit ? aiDraftData.unit.toUpperCase() : prev.unit,
-            }));
-            setShowAddModal(true);
-            setAiDraftData(null);
-            toast.success('✅ AI ne item details fill kar di hain!', { icon: '🤖' });
+            const itemName = aiDraftData.itemName || '';
+            const qty = aiDraftData.qty ? String(aiDraftData.qty) : '';
+            const unit = aiDraftData.unit ? aiDraftData.unit.toUpperCase() : 'PCS';
+
+            // Step 1: Open Modal (at 200ms)
+            const t1 = setTimeout(() => {
+                setShowAddModal(true);
+                updateAiCopilotStep(0, 'done', 'Add Product modal open ho gaya!');
+            }, 200);
+
+            // Step 2: Auto Fill & Finish (at 800ms)
+            const t2 = setTimeout(() => {
+                setFormData(prev => ({
+                    ...prev,
+                    name: itemName || prev.name,
+                    stock_quantity: qty || prev.stock_quantity,
+                    unit: unit || prev.unit,
+                }));
+                updateAiCopilotStep(1, 'done', `Product "${itemName}" fill ho gaya!`);
+                completeAiCopilotAction(`✅ Product "${itemName}" details form me auto-fill ho gayi!`);
+                setAiDraftData(null);
+            }, 800);
+
+            return () => {
+                clearTimeout(t1);
+                clearTimeout(t2);
+            };
         }
-    }, [aiDraftData, setAiDraftData]);
+    }, [aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction]);
 
     // ── HELPER FUNCTIONS ──
     const getStatusInfo = (stock: number) => {

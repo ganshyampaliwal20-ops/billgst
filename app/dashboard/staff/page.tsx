@@ -15,8 +15,9 @@ export default function SmartAttendance() {
     const { data: session } = useSession();
     const userRole = (session?.user as any)?.role || 'USER';
     const isOwnerOrAccountant = userRole === 'USER' || userRole === 'OWNER' || userRole === 'ADMIN' || userRole === 'ACCOUNTANT';
-    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff, aiDraftData, setAiDraftData } = useStore();
+    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore();
     const [isClient, setIsClient] = useState(false);
+    const [aiHighlightedStaffId, setAiHighlightedStaffId] = useState<string | null>(null);
 
     const getLocalISODate = (d: Date = new Date()) => {
         const offset = d.getTimezoneOffset() * 60000;
@@ -49,30 +50,55 @@ export default function SmartAttendance() {
         fetchAttendance();
     }, [fetchStaff, fetchAttendance]);
 
-    // AI Draft Data
+    // AI Draft Data with Live Step-by-Step Execution
     useEffect(() => {
         if (!isClient) return;
         if (aiDraftData && aiDraftData.type === 'ATTENDANCE') {
-            const timer = setTimeout(() => {
-                const { staffName, status } = aiDraftData;
-                if (staffName && staff && staff.length > 0) {
-                    const normalizedStaffName = staffName.toLowerCase().replace(/\s+/g, '');
-                    const foundStaff = staff.find((s: any) => {
-                        const sName = s.name.toLowerCase().replace(/\s+/g, '');
-                        return sName.includes(normalizedStaffName) || normalizedStaffName.includes(sName);
-                    });
-                    if (foundStaff) {
-                        const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : 'PRESENT';
+            const { staffName, status } = aiDraftData;
+            if (staffName && staff && staff.length > 0) {
+                const normalizedStaffName = staffName.toLowerCase().replace(/\s+/g, '');
+                const foundStaff = staff.find((s: any) => {
+                    const sName = s.name.toLowerCase().replace(/\s+/g, '');
+                    return sName.includes(normalizedStaffName) || normalizedStaffName.includes(sName);
+                });
+                if (foundStaff) {
+                    const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : status === 'HALF_DAY' ? 'HALF_DAY' : status === 'LEAVE' ? 'LEAVE' : 'PRESENT';
+                    
+                    // Step 1: Search & Scroll to staff card (at 200ms)
+                    const t1 = setTimeout(() => {
+                        setAiHighlightedStaffId(foundStaff.id);
+                        const cardEl = document.getElementById(`staff-card-${foundStaff.id}`);
+                        if (cardEl) {
+                            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        updateAiCopilotStep(0, 'done', `Staff "${foundStaff.name}" select ho gaya!`);
+                    }, 200);
+
+                    // Step 2: Mark status button (at 900ms)
+                    const t2 = setTimeout(() => {
                         markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
-                            toast.success(`✅ AI ne ${foundStaff.name} ki attendance laga di hai!`);
+                            updateAiCopilotStep(1, 'done', `Status "${attendanceStatus}" mark ho gaya!`);
                         }).catch(console.error);
-                    }
+                    }, 900);
+
+                    // Step 3: Complete HUD (at 1500ms)
+                    const t3 = setTimeout(() => {
+                        updateAiCopilotStep(2, 'done', 'Record verify ho gaya!');
+                        completeAiCopilotAction(`✅ ${foundStaff.name} ki attendance (${attendanceStatus}) successfully mark ho gayi!`);
+                        setAiDraftData(null);
+                        setTimeout(() => setAiHighlightedStaffId(null), 3500);
+                    }, 1500);
+
+                    return () => {
+                        clearTimeout(t1);
+                        clearTimeout(t2);
+                        clearTimeout(t3);
+                    };
                 }
-                setAiDraftData(null);
-            }, 1500);
-            return () => clearTimeout(timer);
+            }
+            setAiDraftData(null);
         }
-    }, [aiDraftData, staff, selectedDate, markAttendance, setAiDraftData, isClient]);
+    }, [aiDraftData, staff, selectedDate, markAttendance, setAiDraftData, isClient, updateAiCopilotStep, completeAiCopilotAction]);
 
     // Data filtering
     const getStatus = (staffId: string, dStr: string) => {
@@ -517,7 +543,6 @@ export default function SmartAttendance() {
                 @media(max-width:600px){ 
                   .phone { width: 100%; border-radius: 0; box-shadow: none; min-height: 100vh; } 
                   .att-wrapper{padding:0;} 
-                  .fab { position: fixed; bottom: 80px; right: 20px; z-index: 99; }
                 }
                 .scroll{ height:820px; overflow-y:auto; padding-bottom:110px; scrollbar-width:none; }
                 .scroll::-webkit-scrollbar{display:none;}
@@ -544,7 +569,10 @@ export default function SmartAttendance() {
                   width:38px; height:38px; border-radius:12px;
                   background:rgba(255,255,255,0.16); border:none; color:#fff; 
                   display:flex; align-items:center; justify-content:center; cursor:pointer;
+                  transition:all 0.2s ease;
                 }
+                .icon-btn:hover{background:rgba(255,255,255,0.25); transform:scale(1.05);}
+                .icon-btn:active{transform:scale(0.95);}
                 .date-nav{
                   display:flex; align-items:center; gap:10px;
                   background:rgba(255,255,255,0.14); border-radius:16px; padding:8px 10px;
@@ -567,10 +595,30 @@ export default function SmartAttendance() {
                 .search-box input{border:none; outline:none; font-size:13.5px; width:100%; background:transparent; color:var(--ink);}
                 .all-present-btn{
                   background: linear-gradient(135deg,var(--present) 0%, #17CC7A 100%);
-                  color:#fff; border:none; border-radius:16px; padding:0 16px;
+                  color:#fff; border:none; border-radius:16px; padding:0 14px;
                   font-weight:600; font-size:12.5px;
                   display:flex; align-items:center; gap:6px; cursor:pointer;
                   box-shadow:0 6px 14px rgba(18,183,106,0.28); white-space:nowrap;
+                }
+                .add-staff-quick-btn{
+                  background: var(--card);
+                  color: var(--primary);
+                  border: 1.5px solid var(--primary-light);
+                  border-radius: 16px;
+                  padding: 0 14px;
+                  font-weight: 700;
+                  font-size: 12.5px;
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                  cursor: pointer;
+                  box-shadow: var(--shadow-card);
+                  white-space: nowrap;
+                  transition: all 0.2s ease;
+                }
+                .add-staff-quick-btn:hover{
+                  background: var(--primary-light);
+                  transform: scale(1.02);
                 }
                 
                 .stats-row{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px;}
@@ -643,20 +691,39 @@ export default function SmartAttendance() {
                 }
                 
                 .fab{
-                  position:absolute; right:20px; bottom:24px; width:56px; height:56px; border-radius:18px;
-                  background: linear-gradient(135deg, var(--primary), #8B6BFF);
-                  display:flex; align-items:center; justify-content:center; color:#fff; border:none;
-                  box-shadow:0 10px 24px rgba(91,61,245,0.4); cursor:pointer; font-size:26px; z-index:5;
+                  position: fixed; right: 24px; bottom: 85px; width: 56px; height: 56px; border-radius: 50%;
+                  background: linear-gradient(135deg, var(--primary) 0%, #7B5CFA 100%);
+                  display: flex; align-items: center; justify-content: center; color: #fff; border: 2px solid rgba(255,255,255,0.4);
+                  box-shadow: 0 10px 25px rgba(91,61,245,0.45), 0 0 20px rgba(91,61,245,0.25);
+                  cursor: pointer; font-size: 32px; font-weight: 300; line-height: 1; z-index: 999;
+                  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+                .fab:hover{
+                  transform: scale(1.1) translateY(-2px);
+                  box-shadow: 0 14px 30px rgba(91,61,245,0.6), 0 0 25px rgba(91,61,245,0.35);
+                }
+                .fab:active{
+                  transform: scale(0.95);
+                }
+                @media(max-width:600px){
+                  .fab{ bottom: 85px; right: 18px; width: 54px; height: 54px; font-size: 28px; }
                 }
                 
                 .modal-overlay{
-                  position:absolute; inset:0; background:rgba(20,15,45,0.45); display:none;
-                  align-items:flex-end; z-index:20; border-radius:36px;
+                  position: fixed; inset: 0; background: rgba(20,15,45,0.65);
+                  backdrop-filter: blur(4px); display: none;
+                  align-items: flex-end; justify-content: center; z-index: 10000;
                 }
                 .modal-overlay.show{display:flex;}
                 .modal{
-                  background:var(--bg); width:100%; border-radius:26px 26px 0 0; padding:22px 20px 26px;
-                  animation:slideUp .25s ease;
+                  background: var(--bg); width: 100%; max-width: 500px;
+                  border-radius: 26px 26px 0 0; padding: 22px 20px 26px;
+                  animation: slideUp .25s ease; max-height: 90vh; overflow-y: auto;
+                  box-shadow: 0 -10px 40px rgba(0,0,0,0.25); margin: 0 auto;
+                }
+                @media(min-width: 601px){
+                  .modal-overlay { align-items: center; padding: 20px; }
+                  .modal { border-radius: 24px; max-height: 85vh; }
                 }
                 @keyframes slideUp{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
                 .modal-handle{width:40px; height:4px; background:var(--line); border-radius:4px; margin:0 auto 16px;}
@@ -691,9 +758,19 @@ export default function SmartAttendance() {
                                         <div className="t2">Attendance Manager</div>
                                     </div>
                                 </div>
-                                <button className="icon-btn" title="Export PDF" onClick={() => setPdfActionSheet({show: true, type: 'master'})}>
-                                    ⬇
-                                </button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <button 
+                                        className="icon-btn" 
+                                        title="Add Staff Member (नया स्टाफ जोड़ें)" 
+                                        onClick={() => setIsModalOpen(true)}
+                                        style={{ background: 'rgba(255,255,255,0.25)', fontSize: '20px', fontWeight: 600 }}
+                                    >
+                                        +
+                                    </button>
+                                    <button className="icon-btn" title="Export PDF" onClick={() => setPdfActionSheet({show: true, type: 'master'})}>
+                                        ⬇
+                                    </button>
+                                </div>
                             </div>
                             <div className="date-nav">
                                 <button onClick={() => shiftDay(-1)}>‹</button>
@@ -725,6 +802,9 @@ export default function SmartAttendance() {
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--ink-soft)" strokeWidth="2.5" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                     <input type="text" placeholder="Search name..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                                 </div>
+                                <button className="add-staff-quick-btn" onClick={() => setIsModalOpen(true)} title="Add Staff Member">
+                                    <span style={{ fontSize: '15px', fontWeight: 800 }}>+</span> Add
+                                </button>
                                 <button className="all-present-btn" onClick={markAllPresent}>
                                     ✓ All Present
                                 </button>
@@ -756,7 +836,25 @@ export default function SmartAttendance() {
 
                         <div className="list">
                             {filteredStaff.length === 0 && (
-                                <div style={{textAlign:'center', color:'var(--ink-soft)', padding:'40px 0', fontSize:'13px'}}>Koi staff nahi mila</div>
+                                <div style={{textAlign:'center', color:'var(--ink-soft)', padding:'30px 0', fontSize:'13px', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px'}}>
+                                    <div>Koi staff nahi mila</div>
+                                    <button 
+                                        onClick={() => setIsModalOpen(true)}
+                                        style={{
+                                            background: 'linear-gradient(135deg, var(--primary), #8B6BFF)',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            padding: '8px 18px',
+                                            fontSize: '13px',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            boxShadow: '0 4px 12px rgba(91,61,245,0.25)'
+                                        }}
+                                    >
+                                        + Add New Staff
+                                    </button>
+                                </div>
                             )}
                             {filteredStaff.map((s: any) => {
                                 const status = getStatus(s.id, selectedDate) as keyof typeof statusMeta | null;
@@ -765,7 +863,11 @@ export default function SmartAttendance() {
                                 const ringPct = meta ? '100%' : '0%';
 
                                 return (
-                                    <div className="staff-card" key={s.id}>
+                                    <div 
+                                        className={`staff-card transition-all duration-500 ${aiHighlightedStaffId === s.id ? 'ring-4 ring-emerald-500 shadow-[0_0_35px_rgba(16,185,129,0.7)] scale-[1.03] bg-emerald-50/40' : ''}`} 
+                                        key={s.id}
+                                        id={`staff-card-${s.id}`}
+                                    >
                                         <div className="staff-top">
                                             <div className="avatar-wrap">
                                                 <div className="avatar-ring" style={{ '--ring-color': ringColor, '--ring-pct': ringPct } as any}>
@@ -806,7 +908,10 @@ export default function SmartAttendance() {
                         </div>
                     </div>
 
-                    <button className="fab" onClick={() => setIsModalOpen(true)}>+</button>
+                    {/* Fixed Floating Action Button (+) */}
+                    <button className="fab" onClick={() => setIsModalOpen(true)} title="Add Staff Member (+ नया स्टाफ जोड़ें)" aria-label="Add Staff">
+                        +
+                    </button>
 
                     <div className={`modal-overlay ${isModalOpen ? 'show' : ''}`} onClick={() => setIsModalOpen(false)}>
                         <div className="modal" onClick={e => e.stopPropagation()}>

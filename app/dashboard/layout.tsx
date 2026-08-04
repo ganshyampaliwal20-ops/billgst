@@ -22,6 +22,7 @@ import UpgradeModal from '@/app/components/UpgradeModal';
 import WorkspaceSwitcher from '@/app/components/WorkspaceSwitcher';
 import VoiceAssistant from './VoiceAssistant';
 import DemoNLPAssistant from './DemoNLPAssistant';
+import AICopilotLiveHUD from './AICopilotLiveHUD';
 import { FaBolt } from 'react-icons/fa';
 import PushNotificationSetup from '@/app/components/PushNotificationSetup';
 
@@ -470,6 +471,7 @@ export default function DashboardLayout({
             <SupportChatWidget />
             <UpgradeModal />
             
+            <AICopilotLiveHUD />
             <DemoNLPAssistant isOpen={isDemoNLPOpen} onClose={() => setIsDemoNLPOpen(false)} />
 
             {/* NLP Assistant FAB */}

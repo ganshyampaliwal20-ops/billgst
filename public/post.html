@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BillGST - Marketing Post & Banner Generator</title>
+    <title>BillGST - प्रोफेशनल हिंदी सोशल मीडिया मार्केटिंग पोस्ट</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tiro+Devanagari+Hindi:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #05603A;
-            --primary-dark: #012213;
-            --gold: #f59e0b;
-            --gold-light: #fef3c7;
-            --dark: #0f172a;
-            --gray-700: #334155;
-            --gray-500: #64748b;
+            --bg-dark: #050d24;
+            --accent-gold: #f59e0b;
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            --accent-cyan: #06b6d4;
+            --accent-neon: #38bdf8;
+            --purple: #a855f7;
+            --green: #10b981;
         }
 
         * {
@@ -27,7 +27,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0f172a;
+            background: #020617;
             color: #ffffff;
             min-height: 100vh;
             display: flex;
@@ -45,15 +45,15 @@
         }
 
         .btn {
-            background: #10b981;
-            color: #ffffff;
+            background: var(--gold-gradient);
+            color: #000000;
             border: none;
             padding: 12px 24px;
             border-radius: 50px;
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -63,47 +63,57 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            background: #059669;
         }
 
         .btn-outline {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
             color: #ffffff;
             box-shadow: none;
         }
 
         .btn-outline:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
         }
 
-        /* SQUARE SOCIAL POST CONTAINER */
+        /* AGENCY GRADE SQUARE POST CONTAINER (1:1) */
         .post-card {
-            width: 600px;
-            height: 600px;
-            background: linear-gradient(135deg, #011c10 0%, #023820 40%, #05603A 100%);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            width: 680px;
+            height: 680px;
+            background: linear-gradient(145deg, #050d24 0%, #0c1a40 50%, #04091a 100%);
+            border-radius: 26px;
+            padding: 28px 34px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
-            border: 3px solid var(--gold);
+            border: 2px solid rgba(56, 189, 248, 0.35);
         }
 
-        .glow-orb {
+        /* Glowing Background Mesh */
+        .glow-top {
             position: absolute;
             top: -60px;
             right: -60px;
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, transparent 70%);
             pointer-events: none;
         }
 
-        /* Top Brand */
+        .glow-bottom {
+            position: absolute;
+            bottom: -60px;
+            left: -60px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Brand Top */
         .post-top {
             display: flex;
             justify-content: space-between;
@@ -112,54 +122,68 @@
             z-index: 2;
         }
 
-        .post-brand {
+        .brand-wrap {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
-        .post-logo {
+        .brand-logo-box {
             width: 50px;
             height: 50px;
-            border-radius: 12px;
             background: #ffffff;
+            border-radius: 12px;
             padding: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo-box img {
+            width: 100%;
+            height: 100%;
             object-fit: contain;
         }
 
-        .brand-title {
+        .brand-titles h2 {
             font-family: 'Outfit', sans-serif;
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 900;
             color: #ffffff;
             line-height: 1;
         }
 
-        .brand-title span {
-            color: var(--gold);
+        .brand-titles h2 span {
+            color: var(--accent-gold);
         }
 
-        .badge-pill {
-            background: var(--gold);
+        .brand-tag {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: var(--accent-neon);
+            letter-spacing: 1px;
+        }
+
+        .badge-offer {
+            background: var(--gold-gradient);
             color: #000000;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 11px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12px;
             font-weight: 900;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
         }
 
-        /* Headline */
+        /* Hero Text */
         .post-hero {
             position: relative;
             z-index: 2;
-            margin: 10px 0;
+            margin: 4px 0 2px;
         }
 
         .hero-h1 {
-            font-family: 'Outfit', sans-serif;
             font-size: 26px;
             font-weight: 900;
             line-height: 1.2;
@@ -167,21 +191,20 @@
         }
 
         .hero-h1 span {
-            color: var(--gold);
-            text-decoration: underline;
-            text-decoration-color: rgba(245, 158, 11, 0.5);
-            text-underline-offset: 4px;
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .hero-sub {
             font-size: 12.5px;
-            color: #a7f3d0;
+            color: #bae6fd;
             font-weight: 600;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
-        /* 6 Feature Grid */
-        .features-box {
+        /* FEATURE MATRIX (2x4 Glassmorphic Pods) */
+        .features-matrix {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
@@ -189,54 +212,69 @@
             z-index: 2;
         }
 
-        .feat-item {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
+        .feature-pod {
+            background: rgba(15, 29, 68, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
             padding: 8px 12px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .feat-item.special {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: rgba(245, 158, 11, 0.4);
+        .feature-pod.cyan-special {
+            border-color: rgba(56, 189, 248, 0.5);
+            background: rgba(6, 182, 212, 0.18);
         }
 
-        .feat-icon {
+        .feature-pod.ai-special {
+            border-color: rgba(168, 85, 247, 0.5);
+            background: rgba(124, 58, 237, 0.18);
+        }
+
+        .feature-pod.amber-special {
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .pod-icon {
             font-size: 20px;
             flex-shrink: 0;
         }
 
-        .feat-text {
-            font-size: 12px;
-            font-weight: 700;
+        .pod-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .pod-title {
+            font-size: 13px;
+            font-weight: 800;
             color: #ffffff;
             line-height: 1.2;
         }
 
-        .feat-text small {
-            display: block;
-            font-size: 10px;
+        .pod-desc {
+            font-size: 10.2px;
             font-weight: 500;
             color: #cbd5e1;
-            margin-top: 2px;
         }
 
-        /* Bottom CTA */
+        /* BOTTOM CTA */
         .post-bottom {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 10px 16px;
+            background: linear-gradient(135deg, #0d1e4c 0%, #1a3c87 50%, #0d1e4c 100%);
+            border: 1.5px solid var(--accent-gold);
+            border-radius: 14px;
+            padding: 11px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: var(--dark);
+            color: #ffffff;
             position: relative;
             z-index: 2;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            box-shadow: 0 6px 22px rgba(0,0,0,0.5);
         }
 
         .bottom-left {
@@ -246,18 +284,23 @@
         }
 
         .offer-tag {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 900;
-            color: var(--primary);
+            color: #fef08a;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .contact-num {
-            font-family: 'Outfit', sans-serif;
             font-size: 16px;
             font-weight: 900;
-            color: #023820;
+            color: #ffffff;
+        }
+
+        .contact-sub {
+            font-size: 10px;
+            font-weight: 700;
+            color: #93c5fd;
         }
 
         .bottom-right {
@@ -265,11 +308,12 @@
             align-items: center;
             gap: 8px;
             font-size: 11px;
-            font-weight: 800;
-            color: var(--primary);
-            background: var(--gold-light);
-            padding: 6px 12px;
-            border-radius: 8px;
+            font-weight: 900;
+            color: #000000;
+            background: var(--gold-gradient);
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
 
         /* PRINT STYLES */
@@ -295,86 +339,110 @@
             🖨️ Print / Save Post as PDF
         </button>
         <button class="btn btn-outline" onclick="window.location.href='/flyer.html'">
-            📄 Open A4 Flyer Template
+            📄 Open Master A4 Flyer Template
         </button>
     </div>
 
-    <!-- POST CONTAINER (Square 1:1) -->
+    <!-- HINDI PRO SQUARE POST CONTAINER -->
     <div class="post-card" id="marketingPost">
-        <div class="glow-orb"></div>
+        <div class="glow-top"></div>
+        <div class="glow-bottom"></div>
 
         <!-- TOP BAR -->
         <div class="post-top">
-            <div class="post-brand">
-                <img src="/logo.png" alt="BillGST Logo" class="post-logo" onerror="this.src='/icon.png'">
-                <div class="brand-title">Bill<span>GST</span></div>
+            <div class="brand-wrap">
+                <div class="brand-logo-box">
+                    <img src="/logo.png" alt="BillGST Logo" onerror="this.src='/icon.png'">
+                </div>
+                <div class="brand-titles">
+                    <h2>Bill<span>GST</span></h2>
+                    <div class="brand-tag">स्मार्ट AI बिजनेस सुपर-ऐप</div>
+                </div>
             </div>
-            <div class="badge-pill">⚡ 15-Day Free Trial</div>
+            <div class="badge-offer">⚡ 100% मुफ़्त में चलाएं</div>
         </div>
 
         <!-- HERO HEADLINE -->
         <div class="post-hero">
             <div class="hero-h1">
-                Transform Your Shop into a <span>Smart Digital Store!</span>
+                अपनी दुकान को बनाएं <span>स्मार्ट डिजिटल दुकान!</span>
             </div>
             <div class="hero-sub">
-                India's #1 All-in-One AI Billing, Udhaar Khata & Online Dukaan App
+                GST & Non-GST बिलिंग • AI फोटो स्कैन • लो स्टॉक व एक्सपायरी अलर्ट • उधार खाता
             </div>
         </div>
 
-        <!-- 6 POWER FEATURES -->
-        <div class="features-box">
-            <!-- 1. AI Photo Scan -->
-            <div class="feat-item special">
-                <div class="feat-icon">📸</div>
-                <div class="feat-text">
-                    AI Photo Bill Scan
-                    <small>Snap photo to auto-fill bills</small>
+        <!-- 8 POWER PODS (2x4 Matrix) -->
+        <div class="features-matrix">
+            <!-- 1. GST & Thermal Billing -->
+            <div class="feature-pod cyan-special">
+                <div class="pod-icon">🧾</div>
+                <div class="pod-content">
+                    <div class="pod-title">GST & थर्मल बिलिंग</div>
+                    <div class="pod-desc">थर्मल 2"/3" व A4 PDF बिल + WhatsApp</div>
                 </div>
             </div>
 
-            <!-- 2. AI Voice Billing -->
-            <div class="feat-item special">
-                <div class="feat-icon">🎙️</div>
-                <div class="feat-text">
-                    AI Voice Billing
-                    <small>Speak to create bills in 3 sec</small>
+            <!-- 2. AI Photo Bill Scan -->
+            <div class="feature-pod ai-special">
+                <div class="pod-icon">📸</div>
+                <div class="pod-content">
+                    <div class="pod-title">AI पर्ची फोटो स्कैन</div>
+                    <div class="pod-desc">पर्ची की फोटो खींचो, 3 सेकंड में बिल तैयार</div>
                 </div>
             </div>
 
-            <!-- 3. UPI & QR Pay -->
-            <div class="feat-item">
-                <div class="feat-icon">💳</div>
-                <div class="feat-text">
-                    UPI & QR Payments
-                    <small>Dynamic QR & Live Approval</small>
+            <!-- 3. AI Voice Invoicing -->
+            <div class="feature-pod ai-special">
+                <div class="pod-icon">🎙️</div>
+                <div class="pod-content">
+                    <div class="pod-title">बोलकर बिल बनाएं</div>
+                    <div class="pod-desc">माइक में बोलो और तुरंत बिल तैयार करो</div>
                 </div>
             </div>
 
-            <!-- 4. WhatsApp Invoices -->
-            <div class="feat-item">
-                <div class="feat-icon">🧾</div>
-                <div class="feat-text">
-                    WhatsApp Invoices
-                    <small>Thermal 2"/3" & A4 PDF Bills</small>
+            <!-- 4. Dynamic UPI QR Pay -->
+            <div class="feature-pod cyan-special">
+                <div class="pod-icon">💳</div>
+                <div class="pod-content">
+                    <div class="pod-title">UPI & QR पेमेंट</div>
+                    <div class="pod-desc">डायनामिक QR और लाइव पेमेंट अप्रूवल</div>
                 </div>
             </div>
 
-            <!-- 5. Automated Udhaar -->
-            <div class="feat-item">
-                <div class="feat-icon">📒</div>
-                <div class="feat-text">
-                    Automated Udhaar
-                    <small>WhatsApp Reminders + UPI link</small>
+            <!-- 5. Low Stock & Expiry Alert -->
+            <div class="feature-pod amber-special">
+                <div class="pod-icon">🔔</div>
+                <div class="pod-content">
+                    <div class="pod-title">लो स्टॉक & एक्सपायरी अलर्ट</div>
+                    <div class="pod-desc">माल खत्म होने व खराब होने से पहले चेतावनी</div>
                 </div>
             </div>
 
-            <!-- 6. Free Online Dukaan -->
-            <div class="feat-item">
-                <div class="feat-icon">🛍️</div>
-                <div class="feat-text">
-                    Free Online Store
-                    <small>QR Catalog & WhatsApp Orders</small>
+            <!-- 6. Expense Kharcha Tracker -->
+            <div class="feature-pod amber-special">
+                <div class="pod-icon">💸</div>
+                <div class="pod-content">
+                    <div class="pod-title">रोज़ाना खर्चा ट्रैकर</div>
+                    <div class="pod-desc">दुकान का खर्चा दर्ज करें और असली मुनाफ़ा जानें</div>
+                </div>
+            </div>
+
+            <!-- 7. Staff Attendance & Roles -->
+            <div class="feature-pod">
+                <div class="pod-icon">👥</div>
+                <div class="pod-content">
+                    <div class="pod-title">स्टाफ अटेंडेंस & रोल्स</div>
+                    <div class="pod-desc">रोज़ाना हाजिरी और कैशियर परमिशन</div>
+                </div>
+            </div>
+
+            <!-- 8. Udhaar & Online Dukaan -->
+            <div class="feature-pod">
+                <div class="pod-icon">🛍️</div>
+                <div class="pod-content">
+                    <div class="pod-title">उधार & ऑनलाइन दुकान</div>
+                    <div class="pod-desc">ऑटो व्हाट्सएप रिमाइंडर + 24/7 स्टोर</div>
                 </div>
             </div>
         </div>
@@ -382,11 +450,12 @@
         <!-- BOTTOM CALL TO ACTION -->
         <div class="post-bottom">
             <div class="bottom-left">
-                <div class="offer-tag">🎉 Get Free Demo on Phone & PC</div>
-                <div class="contact-num">📞 Call / WhatsApp: +91 98765 43210</div>
+                <div class="offer-tag">🔥 24/7 सहायता • 100% फ्री रजिस्ट्रेशन</div>
+                <div class="contact-num">📞 व्हाट्सएप सपोर्ट: +91 7498571873</div>
+                <div class="contact-sub">✉️ support@billgst.in • www.billgst.in</div>
             </div>
             <div class="bottom-right">
-                🌐 www.billgst.in
+                🚀 फ्री रजिस्टर करें
             </div>
         </div>
     </div>
