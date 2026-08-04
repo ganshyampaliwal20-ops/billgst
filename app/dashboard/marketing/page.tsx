@@ -4,10 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { useSession } from 'next-auth/react';
 import { 
-    FaPrint, FaDownload, FaWhatsapp, FaShareAlt, FaPalette, FaFileAlt, 
-    FaMobileAlt, FaQrcode, FaCheckCircle, FaBolt, FaMicrophone, FaStore, 
-    FaShieldAlt, FaPhoneAlt, FaMapMarkerAlt, FaCopy, FaEye, FaTag, FaUndo,
-    FaIdCard, FaReceipt, FaChartLine, FaBoxOpen, FaBarcode, FaTools, FaShoppingBasket, FaHeadset
+    FaPrint, FaDownload, FaWhatsapp, FaPalette, FaFileAlt, 
+    FaBolt, FaTag, FaCopy, FaEye, FaHeadset
 } from 'react-icons/fa';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-hot-toast';
@@ -22,11 +20,11 @@ export default function MarketingStudioPage() {
 
     const [template, setTemplate] = useState<TemplateType>('a4_flyer');
     const [theme, setTheme] = useState<ThemeType>('dark_royal');
-    const [partnerName, setPartnerName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [helplineNumber, setHelplineNumber] = useState('+91 98765 43210');
+    const [partnerName, setPartnerName] = useState('BillGST Official');
+    const [phoneNumber, setPhoneNumber] = useState('+91 74985 71873');
+    const [helplineNumber, setHelplineNumber] = useState('+91 74985 71873');
     const [areaCity, setAreaCity] = useState('');
-    const [customOffer, setCustomOffer] = useState('100% मुफ़्त ऐप · कोई छुपा हुआ चार्ज नहीं (FREE App)');
+    const [customOffer, setCustomOffer] = useState('100% मुफ़्त ऐप · लाइफटाइम कोई चार्ज नहीं (FREE App)');
     const [websiteUrl, setWebsiteUrl] = useState('https://billgst.vercel.app');
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
@@ -40,14 +38,13 @@ export default function MarketingStudioPage() {
 
     useEffect(() => {
         if (businessProfile) {
-            const bName = businessProfile.business_name || businessProfile.name || session?.user?.name || 'BillGST Partner';
-            const bPhone = businessProfile.phone || businessProfile.mobile || session?.user?.email || '';
+            const bName = businessProfile.business_name || businessProfile.name || session?.user?.name;
+            const bPhone = businessProfile.phone || businessProfile.mobile;
             const bCity = businessProfile.city || businessProfile.state || 'All India';
             
-            if (!partnerName) setPartnerName(bName);
-            if (!phoneNumber && bPhone && !bPhone.includes('@')) {
+            if (bName) setPartnerName(bName);
+            if (bPhone && !bPhone.includes('@')) {
                 setPhoneNumber(bPhone);
-                setHelplineNumber(bPhone);
             }
             if (!areaCity) setAreaCity(bCity);
         }
@@ -89,18 +86,20 @@ export default function MarketingStudioPage() {
     const handleWhatsAppShare = () => {
         const message = `*🏪 किराना, जनरल स्टोर & 🔩 हार्डवेयर की दुकान के लिए 100% मुफ़्त ऐप!* 🚀\n\n` +
             `*BillGST* — भारत का सबसे आसान, सुरक्षित और *100% FREE* ऑल-इन-वन दुकान सॉफ्टवेयर!\n\n` +
-            `⚡ *फास्ट बिलिंग:* 10 सेकंड में GST / Non-GST पक्का बिल (थर्मल 2"/3", A4 प्रिंट)\n` +
-            `🎙️ *AI बोलकर बिलिंग:* बिना टाइप किए सिर्फ नाम और रेट बोलें\n` +
-            `💬 *WhatsApp बॉट:* सीधे ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
-            `📒 *डिजिटल उधारी खाता:* ग्राहक & सप्लायर का 100% सुरक्षित हिसाब\n` +
-            `👥 *स्टाफ हाजिरी:* कर्मचारियों की अटेंडेंस और सैलरी मैनेजमेंट\n` +
-            `📦 *स्टॉक & बारकोड:* कम स्टॉक और एक्सपायरी का ऑटो अलर्ट\n` +
-            `🛒 *ऑनलाइन स्टोर:* फ्री में बनाएं अपनी डिजिटल दुकान\n` +
-            `📊 *GST & CA रिपोर्ट:* 1-क्लिक में GSTR-1, GSTR-3B Excel डाउनलोड\n` +
-            `📱 *मल्टी-डिवाइस:* मोबाइल और कंप्यूटर दोनों पर एक्टिव\n\n` +
+            `⚡ *1. फास्ट बिलिंग:* 10 सेकंड में GST / Non-GST पक्का बिल (थर्मल 2"/3", A4 प्रिंट)\n` +
+            `🎙️ *2. AI बोलकर बिलिंग:* बिना टाइप किए सिर्फ बोलकर आइटम जोड़ें\n` +
+            `💬 *3. WhatsApp बॉट:* सीधे ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
+            `📒 *4. डिजिटल उधारी खाता:* ग्राहक & सप्लायर दोनों का 100% सुरक्षित हिसाब\n` +
+            `👥 *5. स्टाफ हाजिरी:* कर्मचारियों की अटेंडेंस और सैलरी मैनेजमेंट\n` +
+            `📦 *6. स्टॉक & बारकोड:* कम स्टॉक और एक्सपायरी का ऑटो अलर्ट\n` +
+            `📷 *7. बारकोड स्कैनर:* मोबाइल कैमरे से स्कैन करके तुरंत बिक्री\n` +
+            `🛒 *8. ऑनलाइन स्टोर:* फ्री में बनाएं अपनी डिजिटल दुकान और कैटलॉग\n` +
+            `📊 *9. GST & CA रिपोर्ट:* 1-क्लिक में GSTR-1, GSTR-3B Excel डाउनलोड\n` +
+            `💰 *10. खर्चे & मुनाफा:* दैनिक खर्चे, कमाई और शुद्ध मुनाफे का हिसाब\n` +
+            `📱 *11. मल्टी-डिवाइस:* मोबाइल और कंप्यूटर दोनों पर डेटा हमेशा सिंक\n\n` +
             `🎉 *100% मुफ़्त (LifeTime Free)* · कोई मंथली चार्ज नहीं!\n\n` +
             `📲 *आज ही ऐप खोलें और शुरू करें:* ${websiteUrl}\n` +
-            `📞 *हेल्पलाइन नंबर:* ${helplineNumber || phoneNumber || '+91 98765 43210'}`;
+            `📞 *24x7 हेल्पलाइन & सपोर्ट नंबर:* ${helplineNumber}`;
 
         const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(waUrl, '_blank');
@@ -109,18 +108,20 @@ export default function MarketingStudioPage() {
     const handleCopyText = () => {
         const message = `🏪 किराना, जनरल स्टोर & 🔩 हार्डवेयर की दुकान के लिए 100% मुफ़्त ऐप! 🚀\n\n` +
             `BillGST — भारत का सबसे आसान, सुरक्षित और 100% मुफ़्त (FREE) सॉफ्टवेयर!\n\n` +
-            `⚡ 10 सेकंड में GST / Non-GST पक्का बिल (थर्मल & A4 प्रिंट)\n` +
-            `🎙️ AI बोलकर बिल बनाएं & बारकोड स्कैनर\n` +
-            `💬 ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
-            `📒 डिजिटल उधारी खाता (ग्राहक & सप्लायर दोनों का हिसाब)\n` +
-            `👥 स्टाफ अटेंडेंस (हाजिरी) और सैलरी मैनेजमेंट\n` +
-            `📦 इन्वेंटरी, स्टॉक और एक्सपायरी अलर्ट्स\n` +
-            `🛒 फ्री ऑनलाइन दुकान & डिजिटल कैटलॉग\n` +
-            `📊 CA के लिए GSTR-1, GSTR-3B 1-क्लिक रिपोर्ट\n` +
-            `📱 मोबाइल और कंप्यूटर दोनों पर चलता है\n\n` +
+            `⚡ 1. 10 सेकंड में GST / Non-GST बिल (थर्मल & A4 प्रिंट)\n` +
+            `🎙️ 2. AI बोलकर बिल बनाएं (Voice AI Billing)\n` +
+            `💬 3. ग्राहक के WhatsApp पर ऑटो बिल & पेमेंट रिमाइंडर\n` +
+            `📒 4. डिजिटल उधारी खाता (ग्राहक & सप्लायर दोनों का हिसाब)\n` +
+            `👥 5. स्टाफ अटेंडेंस (हाजिरी) और सैलरी मैनेजमेंट\n` +
+            `📦 6. इन्वेंटरी, स्टॉक और एक्सपायरी अलर्ट्स\n` +
+            `📷 7. बारकोड स्कैनर से तुरंत बिलिंग\n` +
+            `🛒 8. फ्री ऑनलाइन दुकान & डिजिटल कैटलॉग\n` +
+            `📊 9. CA के लिए GSTR-1, GSTR-3B 1-क्लिक रिपोर्ट\n` +
+            `💰 10. दैनिक खर्चे और मुनाफे का हिसाब\n` +
+            `📱 11. मोबाइल और कंप्यूटर दोनों पर चलता है\n\n` +
             `🎉 100% मुफ़्त (FREE App) · कोई छुपा हुआ चार्ज नहीं!\n` +
             `📲 लिंक: ${websiteUrl}\n` +
-            `📞 हेल्पलाइन नंबर: ${helplineNumber || phoneNumber || '+91 98765 43210'}`;
+            `📞 हेल्पलाइन नंबर: ${helplineNumber}`;
 
         navigator.clipboard.writeText(message);
         toast.success('📋 मार्केटिंग मैसेज कॉपी हो गया!');
@@ -182,17 +183,20 @@ export default function MarketingStudioPage() {
 
     const currentStyles = getThemeStyles();
 
-    // All Features Matrix
+    // All 11 Comprehensive Feature Pillars
     const allFeatures = [
-        { icon: '⚡', title: '10 सेकंड में GST / Non-GST बिल', desc: 'A4, A5, और 2"/3" थर्मल रसीद प्रिंट। कोटेशन, चालान और ई-वे बिल।' },
-        { icon: '🎙️', title: 'AI बोलकर बिलिंग (Voice Billing)', desc: 'बिना टाइप किए बोलें "2 तेल, 10 नट-बोल्ट" और बिल तुरंत तैयार।' },
+        { icon: '⚡', title: '10 सेकंड में GST / Non-GST बिल', desc: 'A4, A5, Thermal 2"/3" रसीद प्रिंट। कोटेशन, चालान & E-Way Bill।' },
+        { icon: '🎙️', title: 'AI बोलकर बिलिंग (Voice AI)', desc: 'बिना टाइप किए बोलें "2 तेल, 10 नट-बोल्ट" और बिल तुरंत तैयार।' },
         { icon: '💬', title: 'WhatsApp ऑटो बिल & रिमाइंडर', desc: 'सीधे ग्राहक के WhatsApp पर डिजिटल बिल और बकाया पेमेंट का मैसेज।' },
-        { icon: '📒', title: 'डिजिटल उधारी & हिसाब खाता', desc: 'ग्राहक और सप्लायर का 100% सुरक्षित खाता। पुराना बहीखाता भूल जाएं।' },
-        { icon: '👥', title: 'स्टाफ अटेंडेंस & सैलरी मैनेजर', desc: 'दुकान कर्मचारियों की हाजिरी (अटेंडेंस), एडवांस और वेतन का हिसाब।' },
-        { icon: '📦', title: 'इन्वेंटरी, स्टॉक & बारकोड', desc: 'बारकोड स्कैनर से बिक्री। दुकान का माल खत्म होने पर ऑटोमैटिक अलर्ट।' },
+        { icon: '📒', title: 'डिजिटल उधारी & हिसाब खाता', desc: 'ग्राहक और सप्लायर का 100% सुरक्षित खाता। बहीखाता भूल जाएं।' },
+        { icon: '👥', title: 'स्टाफ अटेंडेंस & सैलरी मैनेजर', desc: 'कर्मचारियों की हाजिरी (Attendance), एडवांस और वेतन का हिसाब।' },
+        { icon: '📦', title: 'इन्वेंटरी & कम स्टॉक अलर्ट', desc: 'दुकान में कौन सा माल खत्म हो रहा है, तुरंत ऑटो अलर्ट पाएं।' },
+        { icon: '📷', title: 'बारकोड & QR स्कैनर', desc: 'कैमरे या बारकोड स्कैनर से तुरंत स्कैन करके तेज बिक्री करें।' },
         { icon: '🛒', title: 'फ्री ऑनलाइन स्टोर & कैटलॉग', desc: 'अपनी दुकान का लिंक व्हाट्सएप पर शेयर करें, ऑनलाइन ऑर्डर पाएं।' },
-        { icon: '📊', title: '1-Click GSTR-1, GSTR-3B रिपोर्ट', desc: 'CA को हिसाब देना आसान। चुटकियों में Excel और JSON डाउनलोड करें।' },
-        { icon: '📱', title: 'मोबाइल + कंप्यूटर (Multi-Device)', desc: 'दुकान में कंप्यूटर से और बाहर मोबाइल से — सारा डेटा हमेशा सिंक।' },
+        { icon: '📊', title: '1-Click GSTR-1, GSTR-3B रिपोर्ट', desc: 'CA को हिसाब देना आसान। चुटकियों में Excel और JSON डाउनलोड।' },
+        { icon: '💰', title: 'खर्चा, सेल & मुनाफा ट्रैकिंग', desc: 'दुकान के रोजाना खर्चे, कुल बिक्री और शुद्ध मुनाफे का हिसाब।' },
+        { icon: '📱', title: 'मोबाइल + कंप्यूटर (Sync)', desc: 'मोबाइल और कंप्यूटर दोनों पर चलाएं — सारा डेटा हमेशा सुरक्षित।' },
+        { icon: '🎉', title: '100% मुफ़्त (LifeTime Free)', desc: 'कोई मंथली चार्ज नहीं · कोई रिन्यूअल फीस नहीं · 100% फ्री।' },
     ];
 
     return (
@@ -218,7 +222,7 @@ export default function MarketingStudioPage() {
                     }
                     @page {
                         size: A4;
-                        margin: 5mm;
+                        margin: 4mm;
                     }
                 }
             `}</style>
@@ -236,7 +240,7 @@ export default function MarketingStudioPage() {
                                     दुकान मार्केटिंग & प्रचार सामग्री <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">100% FREE App</span>
                                 </h1>
                                 <p className="text-xs md:text-sm text-slate-400">
-                                    किराना, जनरल स्टोर, हार्डवेयर और सभी दुकानों के लिए सभी फीचर्स व हेल्पलाइन नंबर सहित A4 पर्चा व WhatsApp पोस्टर।
+                                    किराना, जनरल स्टोर, हार्डवेयर और सभी दुकानों के लिए सभी 12+ फीचर्स और हेल्पलाइन नंबर (+91 74985 71873) के साथ पोस्टर।
                                 </p>
                             </div>
                         </div>
@@ -280,7 +284,7 @@ export default function MarketingStudioPage() {
                         </h2>
                         <div className="grid grid-cols-2 gap-2.5">
                             {[
-                                { id: 'a4_flyer', label: 'A4 मास्टर पर्चा', desc: 'सभी फीचर्स के साथ बड़ा पर्चा', icon: '📄' },
+                                { id: 'a4_flyer', label: 'A4 मास्टर पर्चा', desc: 'सभी 12+ फीचर्स के साथ', icon: '📄' },
                                 { id: 'a5_handbill', label: '2-in-1 हाफ पेज', desc: 'सस्ती प्रिंटिंग (2 प्रति शीट)', icon: '📑' },
                                 { id: 'whatsapp_square', label: 'WhatsApp स्क्वायर', desc: 'स्टेटस और ग्रुप्स के लिए', icon: '📱' },
                                 { id: 'counter_standee', label: 'काउंटर स्टैंडी', desc: 'दुकान काउंटर QR स्टीकर', icon: '📜' },
@@ -340,17 +344,6 @@ export default function MarketingStudioPage() {
                         </h2>
 
                         <div>
-                            <label className="block text-[11px] font-semibold text-slate-400 mb-1">दुकान / डिस्ट्रीब्यूटर / आपका नाम</label>
-                            <input
-                                type="text"
-                                value={partnerName}
-                                onChange={(e) => setPartnerName(e.target.value)}
-                                placeholder="जैसे: पालीवाल एजेंसी / घनश्याम"
-                                className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
-                            />
-                        </div>
-
-                        <div>
                             <label className="block text-[11px] font-semibold text-amber-400 mb-1 flex items-center gap-1">
                                 <FaHeadset /> 24x7 हेल्पलाइन नंबर (Helpline Number)
                             </label>
@@ -358,18 +351,18 @@ export default function MarketingStudioPage() {
                                 type="text"
                                 value={helplineNumber}
                                 onChange={(e) => setHelplineNumber(e.target.value)}
-                                placeholder="+91 98765 43210"
+                                placeholder="+91 74985 71873"
                                 className="w-full px-3 py-2 bg-slate-800/80 border border-amber-500/50 rounded-xl text-xs text-white font-bold focus:outline-none focus:border-amber-500"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-[11px] font-semibold text-slate-400 mb-1">मोबाइल / WhatsApp नंबर</label>
+                            <label className="block text-[11px] font-semibold text-slate-400 mb-1">दुकान / डिस्ट्रीब्यूटर / आपका नाम</label>
                             <input
                                 type="text"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="+91 98765 43210"
+                                value={partnerName}
+                                onChange={(e) => setPartnerName(e.target.value)}
+                                placeholder="जैसे: पालीवाल एजेंसी / घनश्याम"
                                 className="w-full px-3 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
                             />
                         </div>
@@ -424,7 +417,7 @@ export default function MarketingStudioPage() {
                             <FaEye className="text-amber-400" /> लाइव पूर्वावलोकन (Live Print Preview):
                         </span>
                         <span className="text-[11px] text-emerald-400 font-bold">
-                            ✓ किराना & हार्डवेयर स्पेशल · 100% मुफ़्त · हेल्पलाइन नंबर सहित
+                            ✓ सभी 12+ फीचर्स शामिल हैं · हेल्पलाइन: +91 74985 71873
                         </span>
                     </div>
 
@@ -441,7 +434,7 @@ export default function MarketingStudioPage() {
                                 border: `2px solid ${currentStyles.border}`,
                                 borderRadius: theme === 'clean_print' ? '0px' : '16px',
                                 boxShadow: theme === 'clean_print' ? 'none' : '0 25px 60px rgba(0,0,0,0.6)',
-                                padding: template === 'whatsapp_square' ? '22px' : '28px 26px',
+                                padding: template === 'whatsapp_square' ? '20px' : '24px 24px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
@@ -452,39 +445,39 @@ export default function MarketingStudioPage() {
                         >
                             {/* TOP HEADER / BRANDING */}
                             <div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `2px solid ${currentStyles.cardBorder}`, paddingBottom: '12px', marginBottom: '14px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `2px solid ${currentStyles.cardBorder}`, paddingBottom: '10px', marginBottom: '12px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         <div style={{
-                                            width: '44px',
-                                            height: '44px',
+                                            width: '42px',
+                                            height: '42px',
                                             borderRadius: '12px',
                                             background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             color: '#ffffff',
-                                            fontSize: '24px',
+                                            fontSize: '22px',
                                             fontWeight: 900,
                                             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
                                         }}>
                                             B
                                         </div>
                                         <div>
-                                            <div style={{ fontSize: '26px', fontWeight: 900, letterSpacing: '-0.5px', lineHeight: '1.1' }}>
+                                            <div style={{ fontSize: '24px', fontWeight: 900, letterSpacing: '-0.5px', lineHeight: '1.1' }}>
                                                 Bill<span style={{ color: currentStyles.accent }}>GST</span>
                                             </div>
-                                            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase', color: currentStyles.textSecondary }}>
+                                            <div style={{ fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase', color: currentStyles.textSecondary }}>
                                                 ऑल-इन-वन स्मार्ट बिलिंग & दुकान सॉफ्टवेयर
                                             </div>
                                         </div>
                                     </div>
 
                                     <div style={{
-                                        padding: '6px 14px',
+                                        padding: '5px 12px',
                                         borderRadius: '50px',
                                         background: '#10b981',
                                         color: '#ffffff',
-                                        fontSize: '12px',
+                                        fontSize: '11.5px',
                                         fontWeight: 900,
                                         display: 'flex',
                                         alignItems: 'center',
@@ -496,39 +489,39 @@ export default function MarketingStudioPage() {
                                 </div>
 
                                 {/* HERO HEADLINE */}
-                                <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '12px' }}>
                                     <div style={{
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '8px',
-                                        padding: '4px 16px',
+                                        padding: '3px 14px',
                                         borderRadius: '20px',
                                         background: currentStyles.cardBg,
                                         border: `1px solid ${currentStyles.cardBorder}`,
                                         color: currentStyles.highlight,
-                                        fontSize: '12px',
+                                        fontSize: '11.5px',
                                         fontWeight: 800,
-                                        marginBottom: '6px'
+                                        marginBottom: '4px'
                                     }}>
-                                        <span>🏪 किराना, जनरल स्टोर</span> · <span>🔩 हार्डवेयर & सेनेटरी</span> · <span>📱 इलेक्ट्रॉनिक्स</span>
+                                        <span>🏪 किराना & जनरल स्टोर</span> · <span>🔩 हार्डवेयर & सेनेटरी</span> · <span>📱 मोबाइल & गारमेंट्स</span>
                                     </div>
                                     <h2 style={{
-                                        fontSize: template === 'whatsapp_square' ? '21px' : '26px',
+                                        fontSize: template === 'whatsapp_square' ? '20px' : '24px',
                                         fontWeight: 900,
-                                        lineHeight: '1.25',
-                                        marginBottom: '4px',
+                                        lineHeight: '1.2',
+                                        marginBottom: '3px',
                                         letterSpacing: '-0.5px'
                                     }}>
                                         कागजी बही-खाते और पुरानी बिल बुक को कहें अलविदा!
                                     </h2>
                                     <p style={{
-                                        fontSize: '13px',
+                                        fontSize: '12.5px',
                                         color: currentStyles.textSecondary,
                                         maxWidth: '650px',
                                         margin: '0 auto',
-                                        lineHeight: '1.4'
+                                        lineHeight: '1.35'
                                     }}>
-                                        बिलिंग, उधारी, स्टॉक, WhatsApp हिसाब, स्टाफ हाजिरी और ऑनलाइन दुकान — सब कुछ अपने मोबाइल या कंप्यूटर पर संभालें!
+                                        बिलिंग, उधारी, स्टॉक, WhatsApp हिसाब, स्टाफ हाजिरी और ऑनलाइन दुकान — सब कुछ एक ऐप में!
                                     </p>
                                 </div>
 
@@ -536,24 +529,24 @@ export default function MarketingStudioPage() {
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: '1fr 1fr',
-                                    gap: '10px',
-                                    marginBottom: '14px'
+                                    gap: '8px',
+                                    marginBottom: '12px'
                                 }}>
                                     <div style={{
                                         background: 'rgba(245, 158, 11, 0.12)',
                                         border: '1.5px solid rgba(245, 158, 11, 0.4)',
-                                        borderRadius: '12px',
-                                        padding: '8px 12px',
+                                        borderRadius: '10px',
+                                        padding: '7px 10px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '10px'
+                                        gap: '8px'
                                     }}>
-                                        <span style={{ fontSize: '26px' }}>🏪</span>
+                                        <span style={{ fontSize: '24px' }}>🏪</span>
                                         <div>
-                                            <div style={{ fontSize: '12.5px', fontWeight: 900, color: currentStyles.highlight }}>
+                                            <div style={{ fontSize: '12px', fontWeight: 900, color: currentStyles.highlight }}>
                                                 किराना & जनरल स्टोर स्पेशल
                                             </div>
-                                            <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary }}>
+                                            <div style={{ fontSize: '10px', color: currentStyles.textSecondary }}>
                                                 बारकोड स्कैनिंग, लो-स्टॉक अलर्ट, एक्सपायरी और फास्ट बिलिंग।
                                             </div>
                                         </div>
@@ -562,30 +555,30 @@ export default function MarketingStudioPage() {
                                     <div style={{
                                         background: 'rgba(56, 189, 248, 0.12)',
                                         border: '1.5px solid rgba(56, 189, 248, 0.4)',
-                                        borderRadius: '12px',
-                                        padding: '8px 12px',
+                                        borderRadius: '10px',
+                                        padding: '7px 10px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '10px'
+                                        gap: '8px'
                                     }}>
-                                        <span style={{ fontSize: '26px' }}>🔩</span>
+                                        <span style={{ fontSize: '24px' }}>🔩</span>
                                         <div>
-                                            <div style={{ fontSize: '12.5px', fontWeight: 900, color: currentStyles.accent }}>
+                                            <div style={{ fontSize: '12px', fontWeight: 900, color: currentStyles.accent }}>
                                                 हार्डवेयर, सेनेटरी & बिल्डिंग
                                             </div>
-                                            <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary }}>
-                                                कोटेशन, डिलीवरी चालान, उधारी खाता और ऑटो पेमेंट रिमाइंडर।
+                                            <div style={{ fontSize: '10px', color: currentStyles.textSecondary }}>
+                                                कोटेशन, डिलीवरी चालान, उधारी खाता और ऑटो WhatsApp रिमाइंडर।
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* ALL 9 FEATURE PILLARS GRID */}
+                                {/* ALL 12 FEATURE PILLARS GRID */}
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: template === 'whatsapp_square' ? '1fr 1fr' : '1fr 1fr 1fr',
-                                    gap: '8px',
-                                    marginBottom: '14px'
+                                    gap: '7px',
+                                    marginBottom: '12px'
                                 }}>
                                     {allFeatures.map((f, i) => (
                                         <div
@@ -593,20 +586,20 @@ export default function MarketingStudioPage() {
                                             style={{
                                                 background: currentStyles.cardBg,
                                                 border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                borderRadius: '10px',
-                                                padding: '8px 10px',
+                                                borderRadius: '9px',
+                                                padding: '7px 9px',
                                                 display: 'flex',
                                                 flexDirection: 'column',
-                                                gap: '3px'
+                                                gap: '2px'
                                             }}
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <span style={{ fontSize: '16px' }}>{f.icon}</span>
-                                                <span style={{ fontSize: '11.5px', fontWeight: 800, color: currentStyles.textPrimary, lineHeight: '1.2' }}>
+                                                <span style={{ fontSize: '15px' }}>{f.icon}</span>
+                                                <span style={{ fontSize: '11px', fontWeight: 800, color: currentStyles.textPrimary, lineHeight: '1.2' }}>
                                                     {f.title}
                                                 </span>
                                             </div>
-                                            <div style={{ fontSize: '10px', color: currentStyles.textSecondary, lineHeight: '1.25' }}>
+                                            <div style={{ fontSize: '9.5px', color: currentStyles.textSecondary, lineHeight: '1.25' }}>
                                                 {f.desc}
                                             </div>
                                         </div>
@@ -617,32 +610,32 @@ export default function MarketingStudioPage() {
                                 <div style={{
                                     background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                                     color: '#ffffff',
-                                    borderRadius: '12px',
-                                    padding: '10px 16px',
+                                    borderRadius: '10px',
+                                    padding: '8px 14px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    gap: '12px',
-                                    marginBottom: '12px',
-                                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)'
+                                    gap: '10px',
+                                    marginBottom: '10px',
+                                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
                                 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ fontSize: '26px' }}>🎁</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '24px' }}>🎁</span>
                                         <div>
-                                            <div style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            <div style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                                 {customOffer}
                                             </div>
-                                            <div style={{ fontSize: '10.5px', fontWeight: 700, opacity: 0.95 }}>
-                                                कोई मंथली रेंट नहीं · मोबाइल और PC दोनों पर एक्टिव!
+                                            <div style={{ fontSize: '10px', fontWeight: 700, opacity: 0.95 }}>
+                                                कोई मंथली रेंट नहीं · मोबाइल और कंप्यूटर दोनों पर 100% एक्टिव!
                                             </div>
                                         </div>
                                     </div>
                                     <div style={{
                                         background: '#ffffff',
                                         color: '#065f46',
-                                        padding: '6px 12px',
-                                        borderRadius: '8px',
-                                        fontSize: '11px',
+                                        padding: '5px 10px',
+                                        borderRadius: '6px',
+                                        fontSize: '10.5px',
                                         fontWeight: 900,
                                         whiteSpace: 'nowrap'
                                     }}>
@@ -651,11 +644,11 @@ export default function MarketingStudioPage() {
                                 </div>
                             </div>
 
-                            {/* BOTTOM FOOTER WITH HELPLINE NUMBER AND QR CODE */}
+                            {/* BOTTOM FOOTER WITH EXACT HELPLINE NUMBER AND QR CODE */}
                             <div>
-                                {/* BIG GLOWING HELPLINE BANNER */}
+                                {/* BIG GLOWING HELPLINE BANNER WITH +91 74985 71873 */}
                                 <div style={{
-                                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                    background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
                                     color: '#000000',
                                     borderRadius: '10px',
                                     padding: '8px 14px',
@@ -663,38 +656,39 @@ export default function MarketingStudioPage() {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     gap: '10px',
-                                    marginBottom: '10px',
+                                    marginBottom: '8px',
                                     fontWeight: 900,
-                                    fontSize: '14px',
-                                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                                    fontSize: '15px',
+                                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)',
+                                    letterSpacing: '0.3px'
                                 }}>
                                     <span style={{ fontSize: '18px' }}>📞 / 💬</span>
-                                    <span>24x7 हेल्पलाइन & सपोर्ट (Helpline): {helplineNumber || phoneNumber || '+91 98765 43210'}</span>
+                                    <span>24x7 हेल्पलाइन & WhatsApp सपोर्ट: {helplineNumber}</span>
                                 </div>
 
                                 <div style={{
                                     borderTop: `2px dashed ${currentStyles.cardBorder}`,
-                                    paddingTop: '10px',
+                                    paddingTop: '8px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    gap: '16px'
+                                    gap: '14px'
                                 }}>
                                     {/* Contact Info */}
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '10px', fontWeight: 800, color: currentStyles.highlight, textTransform: 'uppercase' }}>
-                                            दुकान सेटअप & सहायता:
+                                        <div style={{ fontSize: '9.5px', fontWeight: 800, color: currentStyles.highlight, textTransform: 'uppercase' }}>
+                                            दुकान डेमो & फ्री सेटअप:
                                         </div>
-                                        <div style={{ fontSize: '16px', fontWeight: 900, color: currentStyles.textPrimary, lineHeight: '1.2' }}>
-                                            {partnerName || 'BillGST Authorized Partner'}
+                                        <div style={{ fontSize: '15px', fontWeight: 900, color: currentStyles.textPrimary, lineHeight: '1.2' }}>
+                                            {partnerName}
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '3px', flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px', flexWrap: 'wrap' }}>
                                             {areaCity && (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11.5px', color: currentStyles.textSecondary }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: currentStyles.textSecondary }}>
                                                     <span>📍</span> {areaCity}
                                                 </div>
                                             )}
-                                            <div style={{ fontSize: '11px', color: currentStyles.textSecondary }}>
+                                            <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary }}>
                                                 🌐 <span style={{ fontWeight: 700, color: currentStyles.textPrimary }}>{websiteUrl}</span>
                                             </div>
                                         </div>
@@ -706,19 +700,19 @@ export default function MarketingStudioPage() {
                                         flexDirection: 'column',
                                         alignItems: 'center',
                                         background: currentStyles.qrBg,
-                                        padding: '6px 8px',
+                                        padding: '5px 7px',
                                         borderRadius: '8px',
                                         border: `1.5px solid ${currentStyles.cardBorder}`,
                                         boxShadow: '0 3px 10px rgba(0,0,0,0.15)'
                                     }}>
                                         <QRCodeSVG
                                             value={websiteUrl}
-                                            size={75}
+                                            size={70}
                                             fgColor={currentStyles.qrFg}
                                             bgColor={currentStyles.qrBg}
                                             level="H"
                                         />
-                                        <span style={{ fontSize: '8px', fontWeight: 800, color: '#000000', marginTop: '3px', textAlign: 'center', lineHeight: '1.1' }}>
+                                        <span style={{ fontSize: '7.5px', fontWeight: 800, color: '#000000', marginTop: '2px', textAlign: 'center', lineHeight: '1.1' }}>
                                             📱 Google Pay / कैमरा से स्कैन करें
                                         </span>
                                     </div>
