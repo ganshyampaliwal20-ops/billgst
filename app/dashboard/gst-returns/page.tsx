@@ -1,24 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { useStore } from '@/lib/store';
-import { FaDownload, FaFileExcel, FaFilePdf, FaCalendarAlt, FaCheckCircle, FaSpinner } from 'react-icons/fa';
+import { FaDownload, FaFileExcel, FaCheckCircle, FaSpinner, FaCog, FaThLarge, FaCalendarAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
+import './gst-returns.css';
 
 type ReturnType = 'GSTR1' | 'GSTR3B' | 'GSTR4';
 type FilingFrequency = 'MONTHLY' | 'QUARTERLY';
+type PeriodChip = 'cm' | 'lm' | 'cq' | 'custom';
 
 export default function GSTReturnsPage() {
-    const businessProfile = useStore((state: any) => state.businessProfile);
+    const businessProfile = useStore((state: any) => state.businessProfile) || {};
+    const invoices = useStore((state: any) => state.invoices) || [];
+    const fetchInvoices = useStore((state: any) => state.fetchInvoices);
 
     const [returnType, setReturnType] = useState<ReturnType>('GSTR1');
     const [filingFrequency, setFilingFrequency] = useState<FilingFrequency>('MONTHLY');
+    const [activeChip, setActiveChip] = useState<PeriodChip>('cm');
     const [periodFrom, setPeriodFrom] = useState('');
     const [periodTo, setPeriodTo] = useState('');
     const [generatedData, setGeneratedData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [savedReturns, setSavedReturns] = useState<any[]>([]);
+
+    const formatDateLocal = (d: Date) => {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
 
     useEffect(() => {
         // Set default dates to current month
@@ -26,14 +36,14 @@ export default function GSTReturnsPage() {
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-        const formatDateLocal = (d: Date) => {
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        };
-
         setPeriodFrom(formatDateLocal(firstDay));
         setPeriodTo(formatDateLocal(lastDay));
+        setActiveChip('cm');
 
         fetchSavedReturns();
+        if (typeof fetchInvoices === 'function') {
+            fetchInvoices();
+        }
     }, []);
 
     const fetchSavedReturns = async () => {
@@ -41,33 +51,112 @@ export default function GSTReturnsPage() {
             const response = await fetch('/api/gst-returns');
             if (response.ok) {
                 const data = await response.json();
-                setSavedReturns(data);
+                if (Array.isArray(data)) {
+                    setSavedReturns(data);
+                }
             }
         } catch (error) {
             console.error('Error fetching saved returns:', error);
         }
     };
 
+    const setQuickPeriod = (chip: PeriodChip) => {
+        setActiveChip(chip);
+        const now = new Date();
+        let from: Date;
+        let to: Date;
+
+        if (chip === 'cm') {
+            // Current month
+            from = new Date(now.getFullYear(), now.getMonth(), 1);
+            to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        } else if (chip === 'lm') {
+            // Last month
+            from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            to = new Date(now.getFullYear(), now.getMonth(), 0);
+        } else if (chip === 'cq') {
+            // Current quarter
+            const q = Math.floor(now.getMonth() / 3);
+            from = new Date(now.getFullYear(), q * 3, 1);
+            to = new Date(now.getFullYear(), (q + 1) * 3, 0);
+        } else {
+            return;
+        }
+
+        setPeriodFrom(formatDateLocal(from));
+        setPeriodTo(formatDateLocal(to));
+    };
+
+    // Calculate days span and label
+    const { daysCount, periodLabel } = useMemo(() => {
+        if (!periodFrom || !periodTo) {
+            return { daysCount: 0, periodLabel: 'NO PERIOD SELECTED' };
+        }
+        const f = new Date(periodFrom);
+        const t = new Date(periodTo);
+        const diffTime = t.getTime() - f.getTime();
+        const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        let label = '';
+        if (f.getMonth() === t.getMonth() && f.getFullYear() === t.getFullYear()) {
+            label = `${months[f.getMonth()]} ${f.getFullYear()}`;
+        } else {
+            label = `${months[f.getMonth()]} ${f.getFullYear()} — ${months[t.getMonth()]} ${t.getFullYear()}`;
+        }
+
+        return {
+            daysCount: isNaN(days) ? 0 : Math.max(1, days),
+            periodLabel: label
+        };
+    }, [periodFrom, periodTo]);
+
+    // Count matching invoices in selected date range
+    const matchingInvoicesCount = useMemo(() => {
+        if (!invoices || !Array.isArray(invoices)) return 0;
+        if (!periodFrom || !periodTo) return invoices.length;
+
+        const from = new Date(periodFrom).getTime();
+        const to = new Date(periodTo).getTime() + 86400000; // inclusive
+
+        return invoices.filter((inv: any) => {
+            const raw = inv.invoice_date || inv.date || inv.created_at;
+            if (!raw) return false;
+            const d = new Date(raw).getTime();
+            return !isNaN(d) && d >= from && d <= to;
+        }).length;
+    }, [invoices, periodFrom, periodTo]);
+
+    const returnNames: Record<ReturnType, string> = {
+        GSTR1: 'GSTR‑1',
+        GSTR3B: 'GSTR‑3B',
+        GSTR4: 'GSTR‑4',
+    };
+
+    const formIndexMap: Record<ReturnType, string> = {
+        GSTR1: 'FORM 01',
+        GSTR3B: 'FORM 02',
+        GSTR4: 'FORM 03',
+    };
+
     const handleGenerate = async () => {
-        if (!businessProfile.gstin) {
+        if (!businessProfile?.gstin) {
             toast.error('Please configure your GSTIN in Settings first!');
             return;
         }
 
         if (!periodFrom || !periodTo) {
-            toast.error('Please select date range');
+            toast.error('Please select a valid date range');
             return;
         }
 
         setLoading(true);
-        setGeneratedData(null); // Clear previous data
+        setGeneratedData(null);
 
         try {
             const endpoint = returnType === 'GSTR1' ? '/api/gst-returns/gstr1' :
                 returnType === 'GSTR3B' ? '/api/gst-returns/gstr3b' :
                     '/api/gst-returns/gstr4';
-
-            // console.log('Generating return:', { returnType, endpoint, periodFrom, periodTo });
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -76,12 +165,11 @@ export default function GSTReturnsPage() {
             });
 
             const result = await response.json();
-            // console.log('Generation result:', result);
 
             if (response.ok && result.success) {
                 if (result.data) {
                     setGeneratedData(result.data);
-                    toast.success(`${returnType} generated successfully!`);
+                    toast.success(`${returnNames[returnType]} generated successfully!`);
                 } else {
                     toast.error(result.message || 'No invoices found for the selected period');
                 }
@@ -92,7 +180,7 @@ export default function GSTReturnsPage() {
             }
         } catch (error) {
             console.error('Error generating return:', error);
-            toast.error('Failed to generate return. Please check console for details.');
+            toast.error('Failed to generate return. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -118,7 +206,7 @@ export default function GSTReturnsPage() {
             const result = await response.json();
 
             if (response.ok && result.success) {
-                toast.success('Return saved successfully!');
+                toast.success('Return saved to ledger successfully!');
                 fetchSavedReturns();
             } else {
                 toast.error('Failed to save return');
@@ -198,655 +286,497 @@ export default function GSTReturnsPage() {
         }
     };
 
-    const setQuickPeriod = (type: 'current_month' | 'last_month' | 'current_quarter') => {
-        const now = new Date();
-        let from, to;
-
-        if (type === 'current_month') {
-            from = new Date(now.getFullYear(), now.getMonth(), 1);
-            to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        } else if (type === 'last_month') {
-            from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            to = new Date(now.getFullYear(), now.getMonth(), 0);
-        } else {
-            // Current quarter
-            const currentQuarter = Math.floor(now.getMonth() / 3);
-            from = new Date(now.getFullYear(), currentQuarter * 3, 1);
-            to = new Date(now.getFullYear(), (currentQuarter + 1) * 3, 0);
-        }
-
-        const formatDateLocal = (d: Date) => {
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        };
-
-        setPeriodFrom(formatDateLocal(from));
-        setPeriodTo(formatDateLocal(to));
+    const formatCurrency = (amount: number) => {
+        return '₹' + new Intl.NumberFormat('en-IN', {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: amount % 1 === 0 ? 0 : 2
+        }).format(amount || 0);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-6 px-4 md:px-8">
-            <div className="max-w-7xl mx-auto space-y-6">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-4xl font-bold text-gray-800">GST Returns</h1>
-                        <p className="text-gray-500 text-sm mt-2">Generate GSTR-1, GSTR-3B & GSTR-4 returns automatically</p>
-                    </div>
-                    {businessProfile.gstin && (
-                        <div className="text-sm text-gray-700 bg-blue-50 px-5 py-3 rounded-xl border-2 border-blue-200 shadow-sm">
-                            <span className="font-bold text-blue-700">GSTIN:</span> <span className="font-mono ml-2">{businessProfile.gstin}</span>
+        <div className="gst-container">
+            <div className="gst-device">
+
+                {/* ---------- Top bar ---------- */}
+                <div className="gst-topbar">
+                    <div className="gst-brand">
+                        <div className="gst-brand-mark">BG</div>
+                        <div>
+                            <div className="gst-brand-name">Billgst</div>
+                            <div className="gst-brand-sub">GST Filing Suite</div>
                         </div>
+                    </div>
+                    <div className="gst-topbar-icons">
+                        <Link href="/dashboard/settings" className="gst-icon-btn" title="Settings">
+                            <FaCog />
+                        </Link>
+                        <Link href="/dashboard" className="gst-icon-btn" title="Dashboard">
+                            <FaThLarge />
+                        </Link>
+                    </div>
+                </div>
+
+                {/* ---------- Hero ---------- */}
+                <div className="gst-hero">
+                    <div className="gst-hero-eyebrow">Filing / Returns</div>
+                    <h1 className="gst-hero-title">GST Returns</h1>
+                    <p className="gst-hero-desc">
+                        Generate GSTR‑1, GSTR‑3B and GSTR‑4 straight from your sales &amp; purchase ledgers — no manual entry.
+                    </p>
+                    {businessProfile?.gstin ? (
+                        <div className="gst-gstin-badge">
+                            <b>GSTIN:</b> {businessProfile.gstin}
+                        </div>
+                    ) : (
+                        <Link href="/dashboard/settings" style={{ textDecoration: 'none' }}>
+                            <div className="gst-gstin-badge" style={{ borderColor: 'var(--brass-deep)', color: 'var(--brass-deep)', cursor: 'pointer' }}>
+                                ⚠️ Configure GSTIN in Settings →
+                            </div>
+                        </Link>
                     )}
                 </div>
 
-                {/* Configuration Panel */}
-                <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8">
-                    <h2 className="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-3">Configure Return</h2>
+                {/* ---------- Form Card ---------- */}
+                <div className="gst-form-wrap">
+                    <div className="gst-form-card">
+                        <div className="gst-perf"></div>
 
-                    {/* Return Type Selector */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Select Return Type</label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {[
-                                { value: 'GSTR1', label: 'GSTR-1' },
-                                { value: 'GSTR3B', label: 'GSTR-3B' },
-                                { value: 'GSTR4', label: 'GSTR-4' },
-                            ].map((type) => (
-                                <button
-                                    key={type.value}
-                                    onClick={() => setReturnType(type.value as ReturnType)}
-                                    className={`p-2 rounded-lg border-2 transition-all text-center ${returnType === type.value
-                                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
-                                        : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <div className="font-bold text-xs sm:text-sm">{type.label}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Filing Frequency */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-4">Filing Frequency</label>
-                        <div className="flex gap-4">
-                            {['MONTHLY', 'QUARTERLY'].map((freq) => (
-                                <button
-                                    key={freq}
-                                    onClick={() => setFilingFrequency(freq as FilingFrequency)}
-                                    className={`px-6 py-3 rounded-xl border-2 transition-all font-medium ${filingFrequency === freq
-                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                                        }`}
-                                >
-                                    {freq}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Date Range */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-4">Select Period</label>
-
-                        {/* Quick Period Buttons */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                            <button
-                                onClick={() => setQuickPeriod('current_month')}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition"
-                            >
-                                Current Month
-                            </button>
-                            <button
-                                onClick={() => setQuickPeriod('last_month')}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition"
-                            >
-                                Last Month
-                            </button>
-                            <button
-                                onClick={() => setQuickPeriod('current_quarter')}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition"
-                            >
-                                Current Quarter
-                            </button>
+                        <div className="gst-stamp">
+                            <span>{generatedData ? 'RECONCILED\nREADY' : 'DRAFT\nNOT FILED'}</span>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-2">From Date</label>
-                                <div className="relative">
-                                    <input
-                                        type="date"
-                                        value={periodFrom}
-                                        onChange={(e) => setPeriodFrom(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                                    />
-                                    <FaCalendarAlt className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-gray-600 mb-2">To Date</label>
-                                <div className="relative">
-                                    <input
-                                        type="date"
-                                        value={periodTo}
-                                        onChange={(e) => setPeriodTo(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                                    />
-                                    <FaCalendarAlt className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                </div>
-                            </div>
+                        <div className="gst-form-card-head">
+                            <div className="gst-form-card-title">Configure Return</div>
+                            <div className="gst-form-index">{formIndexMap[returnType]}</div>
                         </div>
-                    </div>
 
-                    {/* Generate Button */}
-                    <button
-                        onClick={handleGenerate}
-                        disabled={loading}
-                        className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-6"
-                       >
-                        {loading ? (
-                            <>
-                                <FaSpinner className="animate-spin" />
-                                Generating...
-                            </>
-                        ) : (
-                            <>
-                                <FaCheckCircle />
-                                Generate {returnType}
-                            </>
-                        )}
-                    </button>
-                </div>
-
-                {/* Generated Data Preview */}
-                {generatedData && (
-                    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 space-y-8">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
-                            <h2 className="text-2xl font-bold text-gray-800 px-2" >Generated Return Preview</h2>
-                            <div className="flex flex-wrap gap-3">
+                        {/* Return type */}
+                        <div className="gst-field-group">
+                            <span className="gst-field-label">Return type</span>
+                            <div className="gst-tab-row">
                                 <button
-                                    onClick={handleSave}
-                                    className="px-6 py-3 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2" >
-                                    <FaCheckCircle />
-                                    Save Draft
+                                    type="button"
+                                    className={`gst-tab ${returnType === 'GSTR1' ? 'active' : ''}`}
+                                    onClick={() => setReturnType('GSTR1')}
+                                >
+                                    <span className="gst-tab-num">01</span>
+                                    GSTR‑1
                                 </button>
                                 <button
-                                    onClick={handleDownloadJSON}
-                                    className="px-6 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                                    type="button"
+                                    className={`gst-tab ${returnType === 'GSTR3B' ? 'active' : ''}`}
+                                    onClick={() => setReturnType('GSTR3B')}
                                 >
-                                    <FaDownload />
-                                    Download JSON
+                                    <span className="gst-tab-num">02</span>
+                                    GSTR‑3B
                                 </button>
                                 <button
-                                    onClick={handleDownloadExcel}
-                                    className="px-6 py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                                    type="button"
+                                    className={`gst-tab ${returnType === 'GSTR4' ? 'active' : ''}`}
+                                    onClick={() => setReturnType('GSTR4')}
                                 >
-                                    <FaFileExcel />
-                                    Download Excel
+                                    <span className="gst-tab-num">03</span>
+                                    GSTR‑4
                                 </button>
                             </div>
                         </div>
 
-                        {/* GSTR-1 Professional Display */}
-                        {returnType === 'GSTR1' && (
-                            <div className="space-y-8">
-                                {/* Summary Cards */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
-                                    <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm">
-                                        <div className="text-xs text-blue-700 font-bold mb-2 uppercase tracking-wider">B2B Invoices</div>
-                                        <div className="text-3xl font-bold text-blue-900">{generatedData.b2b?.length || 0}</div>
-                                    </div>
-                                    <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                                        <div className="text-xs text-green-700 font-bold mb-2 uppercase tracking-wider">B2C Large</div>
-                                        <div className="text-3xl font-bold text-green-900">{generatedData.b2cl?.length || 0}</div>
-                                    </div>
-                                    <div className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200 shadow-sm">
-                                        <div className="text-xs text-yellow-700 font-bold mb-2 uppercase tracking-wider">B2C Small</div>
-                                        <div className="text-3xl font-bold text-yellow-900">{generatedData.b2cs?.length || 0}</div>
-                                    </div>
-                                    <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 shadow-sm">
-                                        <div className="text-xs text-purple-700 font-bold mb-2 uppercase tracking-wider">HSN Codes</div>
-                                        <div className="text-3xl font-bold text-purple-900">{generatedData.hsn?.length || 0}</div>
+                        {/* Filing frequency */}
+                        <div className="gst-field-group">
+                            <span className="gst-field-label">Filing frequency</span>
+                            <div className="gst-seg-toggle">
+                                <button
+                                    type="button"
+                                    className={`gst-seg-option ${filingFrequency === 'MONTHLY' ? 'active' : ''}`}
+                                    onClick={() => setFilingFrequency('MONTHLY')}
+                                >
+                                    Monthly
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`gst-seg-option ${filingFrequency === 'QUARTERLY' ? 'active' : ''}`}
+                                    onClick={() => setFilingFrequency('QUARTERLY')}
+                                >
+                                    Quarterly
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Period Selection */}
+                        <div className="gst-field-group">
+                            <span className="gst-field-label">Select period</span>
+                            <div className="gst-chip-row">
+                                <button
+                                    type="button"
+                                    className={`gst-chip ${activeChip === 'cm' ? 'active' : ''}`}
+                                    onClick={() => setQuickPeriod('cm')}
+                                >
+                                    Current month
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`gst-chip ${activeChip === 'lm' ? 'active' : ''}`}
+                                    onClick={() => setQuickPeriod('lm')}
+                                >
+                                    Last month
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`gst-chip ${activeChip === 'cq' ? 'active' : ''}`}
+                                    onClick={() => setQuickPeriod('cq')}
+                                >
+                                    Current quarter
+                                </button>
+                            </div>
+
+                            <div className="gst-date-row">
+                                <div className="gst-date-field">
+                                    <span className="gst-date-field-label">From date</span>
+                                    <div className="gst-date-input-wrap">
+                                        <input
+                                            type="date"
+                                            value={periodFrom}
+                                            onChange={(e) => {
+                                                setPeriodFrom(e.target.value);
+                                                setActiveChip('custom');
+                                            }}
+                                            className="gst-date-input-native"
+                                        />
                                     </div>
                                 </div>
+                                <div className="gst-date-field">
+                                    <span className="gst-date-field-label">To date</span>
+                                    <div className="gst-date-input-wrap">
+                                        <input
+                                            type="date"
+                                            value={periodTo}
+                                            onChange={(e) => {
+                                                setPeriodTo(e.target.value);
+                                                setActiveChip('custom');
+                                            }}
+                                            className="gst-date-input-native"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                                {/* B2B Invoices Table */}
-                                {generatedData.b2b && generatedData.b2b.length > 0 && (
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between px-2">
-                                            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                                <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
-                                                B2B Invoices
-                                            </h3>
-                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                                                {generatedData.b2b.length} Records
-                                            </span>
+                            <div className="gst-period-span">
+                                FILING PERIOD SPANS <b>{daysCount} DAYS</b> · {periodLabel}
+                            </div>
+                        </div>
+
+                        {/* Status Strip */}
+                        <div className="gst-status-strip">
+                            <div className="gst-status-dot"></div>
+                            <div className="gst-status-text">
+                                <b>{matchingInvoicesCount} invoices</b> found in this period, ready to reconcile before generating.
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ---------- Generated Data Preview Card ---------- */}
+                    {generatedData && (
+                        <div className="gst-preview-card">
+                            <div className="gst-perf"></div>
+                            <div className="gst-preview-head">
+                                <div>
+                                    <div className="gst-form-card-title" style={{ fontSize: '18px' }}>
+                                        {returnNames[returnType]} Generated Preview
+                                    </div>
+                                    <div className="gst-form-index">
+                                        {periodFrom} TO {periodTo}
+                                    </div>
+                                </div>
+                                <div className="gst-actions-row">
+                                    <button onClick={handleSave} className="gst-btn-action gst-btn-save">
+                                        <FaCheckCircle /> Save Draft
+                                    </button>
+                                    <button onClick={handleDownloadJSON} className="gst-btn-action gst-btn-json">
+                                        <FaDownload /> JSON
+                                    </button>
+                                    <button onClick={handleDownloadExcel} className="gst-btn-action gst-btn-excel">
+                                        <FaFileExcel /> Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* GSTR-1 Metrics & Tables */}
+                            {returnType === 'GSTR1' && (
+                                <>
+                                    <div className="gst-metric-grid">
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">B2B Invoices</div>
+                                            <div className="gst-metric-val">{generatedData.b2b?.length || 0}</div>
                                         </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">B2C Large</div>
+                                            <div className="gst-metric-val">{generatedData.b2cl?.length || 0}</div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">B2C Small</div>
+                                            <div className="gst-metric-val">{generatedData.b2cs?.length || 0}</div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">HSN Codes</div>
+                                            <div className="gst-metric-val">{generatedData.hsn?.length || 0}</div>
+                                        </div>
+                                    </div>
 
-                                        <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white mx-2">
-                                            <div className="overflow-x-auto">
-                                                <table className="w-full text-sm text-left">
-                                                    <thead className="bg-slate-50 border-b border-slate-200">
+                                    {/* B2B Table */}
+                                    {generatedData.b2b && generatedData.b2b.length > 0 && (
+                                        <div className="gst-table-section">
+                                            <div className="gst-section-title">
+                                                <span>B2B Invoices</span>
+                                                <span className="gst-form-index">{generatedData.b2b.length} Records</span>
+                                            </div>
+                                            <div className="gst-table-wrap">
+                                                <table className="gst-ledger-table">
+                                                    <thead>
                                                         <tr>
-                                                            <th className="px-6 py-5 font-bold text-slate-700 w-32 min-w-[150px]">GSTIN</th>
-                                                            <th className="px-6 py-5 font-bold text-slate-700 min-w-[250px]">Customer Name</th>
-                                                            <th className="px-6 py-5 font-bold text-slate-700 w-32 min-w-[160px]">Invoice No.</th>
-                                                            <th className="px-6 py-5 font-bold text-slate-700 w-28 min-w-[100px]">Date</th>
-                                                            <th className="px-10 py-5 font-bold text-slate-700 text-right w-36 min-w-[150px]">Taxable Value</th>
-                                                            <th className="px-10 py-5 font-bold text-slate-700 text-right w-32 min-w-[120px]">IGST</th>
-                                                            <th className="px-10 py-5 font-bold text-slate-700 text-right w-32 min-w-[120px]">CGST</th>
-                                                            <th className="px-10 py-5 font-bold text-slate-700 text-right w-32 min-w-[120px]">SGST</th>
-                                                            <th className="px-10 py-5 font-bold text-slate-700 text-right w-36 min-w-[150px] bg-slate-100/50">Total</th>
+                                                            <th>GSTIN</th>
+                                                            <th>Customer</th>
+                                                            <th>Inv No</th>
+                                                            <th>Date</th>
+                                                            <th className="t-num">Taxable</th>
+                                                            <th className="t-num">IGST</th>
+                                                            <th className="t-num">CGST</th>
+                                                            <th className="t-num">SGST</th>
+                                                            <th className="t-num">Total</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody className="divide-y divide-slate-100">
-                                                        {generatedData.b2b.map((invoice: any, idx: number) => {
-                                                            const formatAmount = (amount: number) =>
-                                                                new Intl.NumberFormat('en-IN', {
-                                                                    maximumFractionDigits: 2,
-                                                                    minimumFractionDigits: amount % 1 === 0 ? 0 : 2
-                                                                }).format(amount);
-
-                                                            return (
-                                                                <tr key={idx} className="hover:bg-blue-50/30 transition-colors group">
-                                                                    <td className="px-6 py-5 font-mono text-xs font-medium text-slate-600">{invoice.gstin}</td>
-                                                                    <td className="px-6 py-5 font-medium text-slate-800">{invoice.customer_name}</td>
-                                                                    <td className="px-6 py-5 font-mono text-xs text-slate-500">{invoice.invoice_number}</td>
-                                                                    <td className="px-6 py-5 text-slate-500 text-xs">
-                                                                        {new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
-                                                                    </td>
-                                                                    <td className="px-10 py-5 text-right font-medium text-slate-700">
-                                                                        {formatAmount(invoice.taxable_value)}
-                                                                    </td>
-                                                                    <td className="px-10 py-5 text-right text-slate-500 group-hover:text-amber-600 transition-colors">
-                                                                        {invoice.igst_amount > 0 ? formatAmount(invoice.igst_amount) : '-'}
-                                                                    </td>
-                                                                    <td className="px-10 py-5 text-right text-slate-500 group-hover:text-emerald-600 transition-colors">
-                                                                        {invoice.cgst_amount > 0 ? formatAmount(invoice.cgst_amount) : '-'}
-                                                                    </td>
-                                                                    <td className="px-10 py-5 text-right text-slate-500 group-hover:text-blue-600 transition-colors">
-                                                                        {invoice.sgst_amount > 0 ? formatAmount(invoice.sgst_amount) : '-'}
-                                                                    </td>
-                                                                    <td className="px-10 py-5 text-right font-bold text-slate-900 bg-slate-50/30">
-                                                                        {formatAmount(invoice.invoice_value)}
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        })}
-                                                        {generatedData.b2b.length > 0 && (
-                                                            <tr className="bg-slate-50 font-bold border-t-2 border-slate-200 text-sm">
-                                                                <td colSpan={4} className="px-6 py-6 text-right uppercase tracking-wider text-slate-500 text-xs">Total</td>
-                                                                <td className="px-10 py-6 text-right text-slate-800">
-                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
-                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0)
-                                                                    )}
+                                                    <tbody>
+                                                        {generatedData.b2b.map((inv: any, idx: number) => (
+                                                            <tr key={idx}>
+                                                                <td className="t-mono">{inv.gstin}</td>
+                                                                <td>{inv.customer_name}</td>
+                                                                <td className="t-mono">{inv.invoice_number}</td>
+                                                                <td className="t-mono">
+                                                                    {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                                                                 </td>
-                                                                <td className="px-10 py-6 text-right text-amber-700">
-                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
-                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0)
-                                                                    )}
-                                                                </td>
-                                                                <td className="px-10 py-6 text-right text-emerald-700">
-                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
-                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.cgst_amount, 0)
-                                                                    )}
-                                                                </td>
-                                                                <td className="px-10 py-6 text-right text-blue-700">
-                                                                    {new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
-                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.sgst_amount, 0)
-                                                                    )}
-                                                                </td>
-                                                                <td className="px-10 py-6 text-right text-slate-900 text-base">
-                                                                    ₹{new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 0 }).format(
-                                                                        generatedData.b2b.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0)
-                                                                    )}
-                                                                </td>
+                                                                <td className="t-num">{formatCurrency(inv.taxable_value)}</td>
+                                                                <td className="t-num">{inv.igst_amount > 0 ? formatCurrency(inv.igst_amount) : '—'}</td>
+                                                                <td className="t-num">{inv.cgst_amount > 0 ? formatCurrency(inv.cgst_amount) : '—'}</td>
+                                                                <td className="t-num">{inv.sgst_amount > 0 ? formatCurrency(inv.sgst_amount) : '—'}</td>
+                                                                <td className="t-num"><b>{formatCurrency(inv.invoice_value)}</b></td>
                                                             </tr>
-                                                        )}
+                                                        ))}
+                                                        <tr className="t-foot">
+                                                            <td colSpan={4}>TOTAL</td>
+                                                            <td className="t-num">
+                                                                {formatCurrency(generatedData.b2b.reduce((s: number, i: any) => s + (i.taxable_value || 0), 0))}
+                                                            </td>
+                                                            <td className="t-num">
+                                                                {formatCurrency(generatedData.b2b.reduce((s: number, i: any) => s + (i.igst_amount || 0), 0))}
+                                                            </td>
+                                                            <td className="t-num">
+                                                                {formatCurrency(generatedData.b2b.reduce((s: number, i: any) => s + (i.cgst_amount || 0), 0))}
+                                                            </td>
+                                                            <td className="t-num">
+                                                                {formatCurrency(generatedData.b2b.reduce((s: number, i: any) => s + (i.sgst_amount || 0), 0))}
+                                                            </td>
+                                                            <td className="t-num">
+                                                                <b>{formatCurrency(generatedData.b2b.reduce((s: number, i: any) => s + (i.invoice_value || 0), 0))}</b>
+                                                            </td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                {/* B2CL Invoices Table */}
-                                {generatedData.b2cl && generatedData.b2cl.length > 0 && (
-                                    <div className="space-y-3">
-                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                                            B2CL Invoices (B2C Large - Above ₹2.5 Lakh)
-                                        </h3>
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                            <table className="w-full text-sm">
-                                                <thead className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                                    {/* HSN Table */}
+                                    {generatedData.hsn && generatedData.hsn.length > 0 && (
+                                        <div className="gst-table-section">
+                                            <div className="gst-section-title">
+                                                <span>HSN-Wise Summary</span>
+                                                <span className="gst-form-index">{generatedData.hsn.length} Items</span>
+                                            </div>
+                                            <div className="gst-table-wrap">
+                                                <table className="gst-ledger-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>HSN</th>
+                                                            <th>Description</th>
+                                                            <th>Qty</th>
+                                                            <th className="t-num">Taxable</th>
+                                                            <th className="t-num">Rate</th>
+                                                            <th className="t-num">Tax (IGST/CGST/SGST)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {generatedData.hsn.map((h: any, idx: number) => (
+                                                            <tr key={idx}>
+                                                                <td className="t-mono"><b>{h.hsn_code}</b></td>
+                                                                <td>{h.description}</td>
+                                                                <td className="t-mono">{h.total_quantity} {h.uqc}</td>
+                                                                <td className="t-num">{formatCurrency(h.taxable_value)}</td>
+                                                                <td className="t-num">{h.rate}%</td>
+                                                                <td className="t-num">
+                                                                    {formatCurrency((h.igst_amount || 0) + (h.cgst_amount || 0) + (h.sgst_amount || 0))}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {/* GSTR-3B Metrics & Breakdown */}
+                            {returnType === 'GSTR3B' && generatedData?.outward_supplies && (
+                                <>
+                                    <div className="gst-metric-grid">
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">Taxable Value</div>
+                                            <div className="gst-metric-val">
+                                                {formatCurrency(generatedData.outward_supplies.taxable_value)}
+                                            </div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">IGST</div>
+                                            <div className="gst-metric-val">
+                                                {formatCurrency(generatedData.total_tax_liability?.igst || generatedData.outward_supplies.igst || 0)}
+                                            </div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">CGST</div>
+                                            <div className="gst-metric-val">
+                                                {formatCurrency(generatedData.total_tax_liability?.cgst || generatedData.outward_supplies.cgst || 0)}
+                                            </div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">SGST</div>
+                                            <div className="gst-metric-val">
+                                                {formatCurrency(generatedData.total_tax_liability?.sgst || generatedData.outward_supplies.sgst || 0)}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="gst-table-section">
+                                        <div className="gst-section-title">
+                                            <span>Tax Liability Breakdown</span>
+                                        </div>
+                                        <div className="gst-table-wrap">
+                                            <table className="gst-ledger-table">
+                                                <thead>
                                                     <tr>
-                                                        <th className="px-4 py-3 text-left font-bold">Invoice No.</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Date</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Place of Supply</th>
-                                                        <th className="px-8 py-3 text-right font-bold min-w-[100px]">Rate</th>
-                                                        <th className="px-10 py-3 text-right font-bold min-w-[150px]">Taxable Value</th>
-                                                        <th className="px-10 py-3 text-right font-bold min-w-[120px]">IGST</th>
-                                                        <th className="px-10 py-3 text-right font-bold min-w-[150px]">Total</th>
+                                                        <th>Nature of Supply</th>
+                                                        <th className="t-num">Taxable Value</th>
+                                                        <th className="t-num">IGST</th>
+                                                        <th className="t-num">CGST</th>
+                                                        <th className="t-num">SGST</th>
+                                                        <th className="t-num">Total Tax</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {generatedData.b2cl.map((invoice: any, idx: number) => (
-                                                        <tr key={idx} className="hover:bg-green-50 transition">
-                                                            <td className="px-4 py-3 font-mono text-xs">{invoice.invoice_number}</td>
-                                                            <td className="px-4 py-3 text-gray-600">{new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
-                                                            <td className="px-4 py-3">{invoice.place_of_supply}</td>
-                                                            <td className="px-8 py-3 text-right">{invoice.rate}%</td>
-                                                            <td className="px-10 py-3 text-right font-semibold">₹{invoice.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-10 py-3 text-right text-orange-600">₹{invoice.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-10 py-3 text-right font-bold text-gray-900">₹{invoice.invoice_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        </tr>
-                                                    ))}
-                                                    <tr className="bg-green-100 font-bold">
-                                                        <td colSpan={4} className="px-8 py-3 text-right">Total</td>
-                                                        <td className="px-10 py-3 text-right">₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-10 py-3 text-right text-orange-700">₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-10 py-3 text-right text-gray-900">₹{generatedData.b2cl.reduce((sum: number, inv: any) => sum + inv.invoice_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><b>(a) Outward taxable supplies</b></td>
+                                                        <td className="t-num">{formatCurrency(generatedData.outward_supplies.taxable_value)}</td>
+                                                        <td className="t-num">{formatCurrency(generatedData.outward_supplies.igst || 0)}</td>
+                                                        <td className="t-num">{formatCurrency(generatedData.outward_supplies.cgst || 0)}</td>
+                                                        <td className="t-num">{formatCurrency(generatedData.outward_supplies.sgst || 0)}</td>
+                                                        <td className="t-num">
+                                                            <b>{formatCurrency((generatedData.outward_supplies.igst || 0) + (generatedData.outward_supplies.cgst || 0) + (generatedData.outward_supplies.sgst || 0))}</b>
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-                                )}
+                                </>
+                            )}
 
-                                {/* B2CS Summary Table */}
-                                {generatedData.b2cs && generatedData.b2cs.length > 0 && (
-                                    <div className="space-y-3">
-                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-yellow-600 rounded-full"></span>
-                                            B2CS Summary (B2C Small - Below ₹2.5 Lakh)
-                                        </h3>
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                            <table className="w-full text-sm">
-                                                <thead className="bg-gradient-to-r from-yellow-600 to-amber-600 text-white">
-                                                    <tr>
-                                                        <th className="px-4 py-3 text-left font-bold">Type</th>
-                                                        <th className="px-4 py-3 text-left font-bold">Place Supply</th>
-                                                        <th className="px-6 py-3 text-right font-bold min-w-[80px]">Rate</th>
-                                                        <th className="px-10 py-3 text-right font-bold min-w-[150px]">Taxable Value</th>
-                                                        <th className="px-8 py-3 text-right font-bold min-w-[100px]">IGST</th>
-                                                        <th className="px-8 py-3 text-right font-bold min-w-[100px]">CGST</th>
-                                                        <th className="px-8 py-3 text-right font-bold min-w-[100px]">SGST</th>
-                                                        <th className="px-10 py-3 text-right font-bold min-w-[150px]">Total Tax</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {generatedData.b2cs.map((summary: any, idx: number) => (
-                                                        <tr key={idx} className="hover:bg-yellow-50 transition">
-                                                            <td className="px-4 py-3">
-                                                                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">{summary.type}</span>
-                                                            </td>
-                                                            <td className="px-4 py-3">{summary.place_of_supply}</td>
-                                                            <td className="px-6 py-3 text-right">{summary.rate}%</td>
-                                                            <td className="px-10 py-3 text-right font-semibold">₹{summary.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-8 py-3 text-right text-orange-600">₹{summary.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-8 py-3 text-right text-green-600">₹{summary.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-8 py-3 text-right text-blue-600">₹{summary.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-10 py-3 text-right font-bold text-gray-900">₹{(summary.igst_amount + summary.cgst_amount + summary.sgst_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        </tr>
-                                                    ))}
-                                                    <tr className="bg-yellow-100 font-bold">
-                                                        <td colSpan={3} className="px-4 py-3 text-right">Total</td>
-                                                        <td className="px-6 py-3 text-right">₹{generatedData.b2cs.reduce((sum: number, s: any) => sum + s.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-10 py-3 text-right text-orange-700">₹{generatedData.b2cs.reduce((sum: number, s: any) => sum + s.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-8 py-3 text-right text-green-700">₹{generatedData.b2cs.reduce((sum: number, s: any) => sum + s.cgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-8 py-3 text-right text-blue-700">₹{generatedData.b2cs.reduce((sum: number, s: any) => sum + s.sgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-10 py-3 text-right text-gray-900">₹{generatedData.b2cs.reduce((sum: number, s: any) => sum + s.igst_amount + s.cgst_amount + s.sgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                            {/* GSTR-4 Composition Display */}
+                            {returnType === 'GSTR4' && generatedData?.total_turnover !== undefined && (
+                                <>
+                                    <div className="gst-metric-grid">
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">Total Turnover</div>
+                                            <div className="gst-metric-val">{formatCurrency(generatedData.total_turnover)}</div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">Total Tax Paid</div>
+                                            <div className="gst-metric-val">{formatCurrency(generatedData.total_tax_paid)}</div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">Intra-State</div>
+                                            <div className="gst-metric-val">{formatCurrency(generatedData.supplies_made?.intra_state || 0)}</div>
+                                        </div>
+                                        <div className="gst-metric-item">
+                                            <div className="gst-metric-label">Inter-State</div>
+                                            <div className="gst-metric-val">{formatCurrency(generatedData.supplies_made?.inter_state || 0)}</div>
                                         </div>
                                     </div>
-                                )}
+                                </>
+                            )}
 
-                                {/* HSN Summary Table */}
-                                {generatedData.hsn && generatedData.hsn.length > 0 && (
-                                    <div className="space-y-3">
-                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
-                                            HSN-wise Summary of Outward Supplies
-                                        </h3>
-                                        <div className="overflow-x-auto rounded-xl border border-gray-200 mx-2 shadow-md">
-                                            <table className="w-full text-sm">
-                                                <thead className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white">
-                                                    <tr>
-                                                        <th className="px-6 py-5 text-left font-bold min-w-[120px]">HSN Code</th>
-                                                        <th className="px-6 py-5 text-left font-bold min-w-[200px]">Description</th>
-                                                        <th className="px-6 py-5 text-center font-bold">UQC</th>
-                                                        <th className="px-6 py-5 text-right font-bold w-32">Quantity</th>
-                                                        <th className="px-10 py-5 text-right font-bold w-44 min-w-[180px]">Taxable Value</th>
-                                                        <th className="px-6 py-5 text-right font-bold w-24">Rate</th>
-                                                        <th className="px-10 py-5 text-right font-bold w-40 min-w-[150px]">IGST</th>
-                                                        <th className="px-10 py-5 text-right font-bold w-40 min-w-[150px]">CGST</th>
-                                                        <th className="px-10 py-5 text-right font-bold w-40 min-w-[150px]">SGST</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {generatedData.hsn.map((hsn: any, idx: number) => (
-                                                        <tr key={idx} className="hover:bg-purple-50/50 transition-colors group">
-                                                            <td className="px-6 py-5 font-mono font-bold text-purple-700">{hsn.hsn_code}</td>
-                                                            <td className="px-6 py-5 text-gray-700">{hsn.description}</td>
-                                                            <td className="px-6 py-5 text-center">
-                                                                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold">{hsn.uqc}</span>
-                                                            </td>
-                                                            <td className="px-6 py-5 text-right font-medium text-slate-700">{hsn.total_quantity}</td>
-                                                            <td className="px-10 py-5 text-right font-semibold text-slate-900 whitespace-nowrap">₹{hsn.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-6 py-5 text-right text-slate-600">{hsn.rate}%</td>
-                                                            <td className="px-10 py-5 text-right text-orange-600 font-medium whitespace-nowrap">₹{hsn.igst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-10 py-5 text-right text-green-600 font-medium whitespace-nowrap">₹{hsn.cgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                            <td className="px-10 py-5 text-right text-blue-600 font-medium whitespace-nowrap">₹{hsn.sgst_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        </tr>
-                                                    ))}
-                                                    <tr className="bg-purple-50/40 font-bold border-t-2 border-purple-100">
-                                                        <td colSpan={3} className="px-6 py-6 text-right uppercase tracking-wider text-purple-700 text-xs">Total</td>
-                                                        <td className="px-6 py-6 text-right text-slate-900">{generatedData.hsn.reduce((sum: number, h: any) => sum + h.total_quantity, 0)}</td>
-                                                        <td className="px-10 py-6 text-right text-slate-900 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.taxable_value, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-6 py-6 text-right"></td>
-                                                        <td className="px-10 py-6 text-right text-orange-700 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.igst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-10 py-6 text-right text-green-700 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.cgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                        <td className="px-10 py-6 text-right text-blue-700 whitespace-nowrap">₹{generatedData.hsn.reduce((sum: number, h: any) => sum + h.sgst_amount, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* GSTR-3B Professional Display */}
-                        {returnType === 'GSTR3B' && generatedData?.outward_supplies && generatedData?.total_tax_liability && (
-                            <div className="space-y-6">
-                                {/* Summary Cards */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
-                                    <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 shadow-sm overflow-hidden">
-                                        <div className="text-xs text-blue-700 font-bold mb-2 truncate">Taxable Value</div>
-                                        <div className="text-lg sm:text-2xl font-bold text-blue-900 truncate" title={generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}>
-                                            ₹{generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                        </div>
-                                    </div>
-                                    <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border-2 border-orange-200 shadow-sm overflow-hidden">
-                                        <div className="text-xs text-orange-700 font-bold mb-2 truncate">IGST</div>
-                                        <div className="text-lg sm:text-2xl font-bold text-orange-900 truncate" title={generatedData.total_tax_liability.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}>
-                                            ₹{generatedData.total_tax_liability.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                        </div>
-                                    </div>
-                                    <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 shadow-sm overflow-hidden">
-                                        <div className="text-xs text-green-700 font-bold mb-2 truncate">CGST</div>
-                                        <div className="text-lg sm:text-2xl font-bold text-green-900 truncate" title={generatedData.total_tax_liability.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}>
-                                            ₹{generatedData.total_tax_liability.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                        </div>
-                                    </div>
-                                    <div className="p-5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden">
-                                        <div className="text-xs text-indigo-700 font-bold mb-2 truncate">SGST</div>
-                                        <div className="text-lg sm:text-2xl font-bold text-indigo-900 truncate" title={generatedData.total_tax_liability.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}>
-                                            ₹{generatedData.total_tax_liability.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Total Tax Liability */}
-                                <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white text-center overflow-hidden">
-                                    <div className="text-sm font-bold mb-2">Total Tax Liability</div>
-                                    <div className="text-2xl sm:text-4xl font-bold truncate px-2">₹{(generatedData.total_tax_liability.igst + generatedData.total_tax_liability.cgst + generatedData.total_tax_liability.sgst).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                </div>
-
-                                {/* Detailed Summary Table */}
-                                <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-gray-800">Tax Liability Breakdown</h3>
-                                    <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                        <table className="w-full text-sm">
-                                            <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-                                                <tr>
-                                                    <th className="px-4 py-3 text-left font-bold">Description</th>
-                                                    <th className="px-4 py-3 text-right font-bold">Taxable Value</th>
-                                                    <th className="px-4 py-3 text-right font-bold">IGST</th>
-                                                    <th className="px-4 py-3 text-right font-bold">CGST</th>
-                                                    <th className="px-4 py-3 text-right font-bold">SGST</th>
-                                                    <th className="px-4 py-3 text-right font-bold">Total Tax</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white">
-                                                <tr className="hover:bg-indigo-50 transition">
-                                                    <td className="px-4 py-4 font-bold text-gray-800">Outward Taxable Supplies</td>
-                                                    <td className="px-4 py-4 text-right font-semibold">₹{generatedData.outward_supplies.taxable_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right text-orange-600 font-semibold">₹{generatedData.outward_supplies.igst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right text-green-600 font-semibold">₹{generatedData.outward_supplies.cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right text-blue-600 font-semibold">₹{generatedData.outward_supplies.sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                    <td className="px-4 py-4 text-right font-bold text-gray-900">₹{(generatedData.outward_supplies.igst + generatedData.outward_supplies.cgst + generatedData.outward_supplies.sgst).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* GSTR-4 Professional Display */}
-                        {returnType === 'GSTR4' && generatedData?.total_turnover !== undefined && generatedData?.supplies_made && (
-                            <div className="space-y-6">
-                                {/* Main Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border-2 border-emerald-200 shadow-sm">
-                                        <div className="text-sm text-emerald-700 font-bold mb-2">Total Turnover</div>
-                                        <div className="text-3xl font-bold text-emerald-900">₹{generatedData.total_turnover.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                    </div>
-                                    <div className="p-6 bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl border-2 border-rose-200 shadow-sm">
-                                        <div className="text-sm text-rose-700 font-bold mb-2">Total Tax Paid</div>
-                                        <div className="text-3xl font-bold text-rose-900">₹{generatedData.total_tax_paid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                    </div>
-                                </div>
-
-                                {/* State-wise Breakdown */}
-                                <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-gray-800">Supply Breakdown</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                                            <div className="text-xs text-blue-700 font-bold mb-2">Intra-State Supplies</div>
-                                            <div className="text-2xl font-bold text-blue-900">₹{generatedData.supplies_made.intra_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                            <div className="mt-2 text-xs text-blue-600">
-                                                {((generatedData.supplies_made.intra_state / generatedData.total_turnover) * 100).toFixed(1)}% of total
-                                            </div>
-                                        </div>
-                                        <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
-                                            <div className="text-xs text-purple-700 font-bold mb-2">Inter-State Supplies</div>
-                                            <div className="text-2xl font-bold text-purple-900">₹{generatedData.supplies_made.inter_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                                            <div className="mt-2 text-xs text-purple-600">
-                                                {((generatedData.supplies_made.inter_state / generatedData.total_turnover) * 100).toFixed(1)}% of total
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Summary Table */}
-                                <div className="space-y-3">
-                                    <h3 className="text-lg font-bold text-gray-800">Composition Scheme Summary</h3>
-                                    <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                        <table className="w-full text-sm">
-                                            <thead className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
-                                                <tr>
-                                                    <th className="px-4 py-3 text-left font-bold">Particulars</th>
-                                                    <th className="px-4 py-3 text-right font-bold">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Total Turnover</td>
-                                                    <td className="px-4 py-3 text-right font-bold text-emerald-700">₹{generatedData.total_turnover.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                </tr>
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Total Tax Paid</td>
-                                                    <td className="px-4 py-3 text-right font-bold text-rose-700">₹{generatedData.total_tax_paid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                </tr>
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Intra-State Supplies</td>
-                                                    <td className="px-4 py-3 text-right font-semibold">₹{generatedData.supplies_made.intra_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                </tr>
-                                                <tr className="hover:bg-emerald-50 transition">
-                                                    <td className="px-4 py-3 font-medium">Inter-State Supplies</td>
-                                                    <td className="px-4 py-3 text-right font-semibold">₹{generatedData.supplies_made.inter_state.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                                                </tr>
-                                                <tr className="bg-emerald-100">
-                                                    <td className="px-4 py-4 font-bold">Effective Tax Rate</td>
-                                                    <td className="px-4 py-4 text-right font-bold text-gray-900">{((generatedData.total_tax_paid / generatedData.total_turnover) * 100).toFixed(2)}%</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* View JSON Toggle */}
-                        <details className="bg-gray-50 rounded-xl border border-gray-200">
-                            <summary className="px-4 py-3 cursor-pointer font-bold text-gray-700 hover:bg-gray-100 transition rounded-xl">
-                                View Raw JSON Data
-                            </summary>
-                            <div className="p-4 max-h-96 overflow-auto">
-                                <pre className="text-xs text-gray-700 font-mono">
-                                    {JSON.stringify(generatedData, null, 2)}
-                                </pre>
-                            </div>
-                        </details>
-                    </div>
-                )}
-
-                {/* Saved Returns */}
-                {savedReturns.length > 0 && (
-                    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-3">Saved Returns</h2>
-                        <div className="space-y-3">
-                            {savedReturns.map((ret) => (
-                                <div key={ret.id} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="font-bold text-gray-800">{ret.return_type}</div>
-                                            <div className="text-xs text-gray-500">
-                                                {new Date(ret.period_from).toLocaleDateString()} - {new Date(ret.period_to).toLocaleDateString()}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${ret.status === 'FILED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                                                }`}>
-                                                {ret.status}
-                                            </span>
-                                            <span className="text-xs text-gray-400">
-                                                {new Date(ret.created_at).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                            {/* Raw JSON inspection */}
+                            <details className="gst-json-details">
+                                <summary>View Raw JSON Data</summary>
+                                <pre>{JSON.stringify(generatedData, null, 2)}</pre>
+                            </details>
                         </div>
+                    )}
+
+                    {/* ---------- Saved Returns Card ---------- */}
+                    {savedReturns.length > 0 && (
+                        <div className="gst-preview-card">
+                            <div className="gst-perf"></div>
+                            <div className="gst-form-card-head">
+                                <div className="gst-form-card-title" style={{ fontSize: '18px' }}>Saved Returns History</div>
+                                <div className="gst-form-index">{savedReturns.length} RETURNS</div>
+                            </div>
+                            <div className="gst-saved-list">
+                                {savedReturns.map((ret: any) => (
+                                    <div key={ret.id} className="gst-saved-item">
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
+                                                {ret.return_type}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--ink-soft)', fontFamily: 'IBM Plex Mono, monospace', marginTop: '2px' }}>
+                                                {new Date(ret.period_from).toLocaleDateString('en-IN')} — {new Date(ret.period_to).toLocaleDateString('en-IN')}
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span className={`gst-pill ${ret.status === 'FILED' ? 'gst-pill-filed' : 'gst-pill-draft'}`}>
+                                                {ret.status || 'DRAFT'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* ---------- Sticky CTA Action Bar ---------- */}
+                <div className="gst-cta-wrap">
+                    <button
+                        className="gst-cta-btn"
+                        id="generateBtn"
+                        onClick={handleGenerate}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                <FaSpinner className="animate-spin" />
+                                <span>Generating {returnNames[returnType]}...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="gst-seal">✓</span>
+                                <span>Generate {returnNames[returnType]}</span>
+                            </>
+                        )}
+                    </button>
+                    <div className="gst-cta-note">
+                        DUE BY 11TH OF NEXT MONTH — NO DATA LEAVES YOUR DEVICE UNTIL YOU FILE
                     </div>
-                )}
+                </div>
+
             </div>
-        </div >
+        </div>
     );
 }
