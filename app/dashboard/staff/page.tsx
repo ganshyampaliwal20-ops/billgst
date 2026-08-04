@@ -770,13 +770,21 @@ export default function SmartAttendance() {
                 .modal-overlay.show{display:flex;}
                 .modal{
                   background: var(--bg); width: 100%; max-width: 500px;
-                  border-radius: 26px 26px 0 0; padding: 22px 20px 26px;
-                  animation: slideUp .25s ease; max-height: 90vh; overflow-y: auto;
+                  border-radius: 26px 26px 0 0; 
+                  padding: 22px 20px 52px;
+                  padding-bottom: max(52px, calc(36px + env(safe-area-inset-bottom, 24px)));
+                  animation: slideUp .25s ease; max-height: 88vh; overflow-y: auto;
                   box-shadow: 0 -10px 40px rgba(0,0,0,0.25); margin: 0 auto;
+                }
+                @media(max-width:600px){
+                  .modal {
+                    padding: 20px 18px 60px;
+                    padding-bottom: max(60px, calc(40px + env(safe-area-inset-bottom, 28px)));
+                  }
                 }
                 @media(min-width: 601px){
                   .modal-overlay { align-items: center; padding: 20px; }
-                  .modal { border-radius: 24px; max-height: 85vh; }
+                  .modal { border-radius: 24px; max-height: 85vh; padding: 24px 24px 32px; }
                 }
                 @keyframes slideUp{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
                 .modal-handle{width:40px; height:4px; background:var(--line); border-radius:4px; margin:0 auto 16px;}
@@ -794,9 +802,96 @@ export default function SmartAttendance() {
                   width:100%; padding:11px 13px; border-radius:12px; border:1.5px solid var(--line);
                   background:var(--card); font-size:13.5px; outline:none; color:var(--ink);
                 }
-                .modal-actions{display:flex; gap:10px; margin-top:16px;}
+                .modal-actions{display:flex; gap:10px; margin-top:20px; margin-bottom:8px;}
                 .btn-secondary{flex:1; background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:12px; font-weight:600; font-size:13px; color:var(--ink-soft); cursor:pointer;}
                 .btn-primary{flex:1.4; background:linear-gradient(135deg,var(--primary),#8B6BFF); border:none; border-radius:14px; padding:12px; font-weight:600; font-size:13px; color:#fff; cursor:pointer;}
+                
+                /* Custom Time Boxes Styling */
+                .time-card-box {
+                  background: linear-gradient(145deg, #F8FAFC 0%, #EEF2FF 100%);
+                  border: 1.5px solid #C7D2FE;
+                  border-radius: 16px;
+                  padding: 14px 14px 16px;
+                  margin-bottom: 16px;
+                  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+                }
+                .time-grid-row {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 10px;
+                  margin-top: 4px;
+                }
+                .time-box-in {
+                  background: #F0FDF4;
+                  border: 2px solid #22C55E;
+                  border-radius: 14px;
+                  padding: 10px 10px 12px;
+                  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
+                  display: flex;
+                  flex-direction: column;
+                  gap: 6px;
+                }
+                .time-box-out {
+                  background: #FEF2F2;
+                  border: 2px solid #EF4444;
+                  border-radius: 14px;
+                  padding: 10px 10px 12px;
+                  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.12);
+                  display: flex;
+                  flex-direction: column;
+                  gap: 6px;
+                }
+                .time-input-field {
+                  width: 100%;
+                  padding: 9px 8px;
+                  border-radius: 10px;
+                  font-size: 15px;
+                  font-weight: 700;
+                  color: #0F172A;
+                  background: #FFFFFF;
+                  outline: none;
+                  cursor: pointer;
+                  text-align: center;
+                  transition: all 0.2s ease;
+                }
+                .time-box-in .time-input-field {
+                  border: 1.5px solid #86EFAC;
+                }
+                .time-box-in .time-input-field:focus {
+                  border-color: #16A34A;
+                  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+                }
+                .time-box-out .time-input-field {
+                  border: 1.5px solid #FCA5A5;
+                }
+                .time-box-out .time-input-field:focus {
+                  border-color: #DC2626;
+                  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+                }
+                .note-box-field {
+                  background: #FFFFFF;
+                  border: 1.5px solid #CBD5E1;
+                  border-radius: 12px;
+                  padding: 8px 12px;
+                  margin-top: 10px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                }
+                .note-input {
+                  width: 100%;
+                  padding: 8px 10px;
+                  border-radius: 8px;
+                  border: 1px solid #E2E8F0;
+                  font-size: 13px;
+                  background: #F8FAFC;
+                  color: var(--ink);
+                  outline: none;
+                }
+                .note-input:focus {
+                  border-color: var(--primary);
+                  background: #FFFFFF;
+                }
             `}} />
             
             <div className="att-wrapper">
@@ -1142,20 +1237,58 @@ export default function SmartAttendance() {
                                     </div>
                                     
                                     {(sStatus === 'PRESENT' || sStatus === 'HALF_DAY') && (
-                                        <div style={{ padding: '12px', background: 'var(--primary-light)', border: '1px solid var(--line)', borderRadius: '12px', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>In Time</label>
-                                                    <input type="time" value={sRecord?.in_time || ''} onChange={(e) => handleSetAtt(selectedStaff.id, sStatus, e.target.value, undefined, undefined)} style={{ padding: '6px 8px', borderRadius: '8px', border: '1px solid var(--line)', fontSize: '13px' }} />
+                                        <div className="time-card-box">
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                <span style={{ fontSize: '12px', fontWeight: 700, color: '#4338CA', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                    ⏰ उपस्थिति समय (Shift Timings)
+                                                </span>
+                                                <span style={{ fontSize: '10.5px', background: sStatus === 'PRESENT' ? '#DCFCE7' : '#FEF3C7', color: sStatus === 'PRESENT' ? '#166534' : '#92400E', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                                                    {sStatus === 'PRESENT' ? '✓ Present' : '½ Half Day'}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="time-grid-row">
+                                                {/* IN TIME - Distinct Green Box */}
+                                                <div className="time-box-in">
+                                                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#15803D', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        🟢 IN TIME (आने का समय)
+                                                    </label>
+                                                    <input 
+                                                        type="time" 
+                                                        className="time-input-field"
+                                                        value={sRecord?.in_time || ''} 
+                                                        onChange={(e) => handleSetAtt(selectedStaff.id, sStatus, e.target.value, undefined, undefined)} 
+                                                        title="Staff In Time (आने का समय दर्ज करें)"
+                                                    />
                                                 </div>
-                                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                    <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Out Time</label>
-                                                    <input type="time" value={sRecord?.out_time || ''} onChange={(e) => handleSetAtt(selectedStaff.id, sStatus, undefined, e.target.value, undefined)} style={{ padding: '6px 8px', borderRadius: '8px', border: '1px solid var(--line)', fontSize: '13px' }} />
+
+                                                {/* OUT TIME - Distinct Red/Coral Box */}
+                                                <div className="time-box-out">
+                                                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        🔴 OUT TIME (जाने का समय)
+                                                    </label>
+                                                    <input 
+                                                        type="time" 
+                                                        className="time-input-field"
+                                                        value={sRecord?.out_time || ''} 
+                                                        onChange={(e) => handleSetAtt(selectedStaff.id, sStatus, undefined, e.target.value, undefined)} 
+                                                        title="Staff Out Time (जाने का समय दर्ज करें)"
+                                                    />
                                                 </div>
                                             </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <label style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ink3)', textTransform: 'uppercase' }}>Note / Remark</label>
-                                                <input type="text" placeholder="e.g. 1 hour late..." defaultValue={sRecord?.note || ''} onBlur={(e) => { if(e.target.value !== sRecord?.note) handleSetAtt(selectedStaff.id, sStatus, undefined, undefined, e.target.value) }} style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--line)', fontSize: '13px', width: '100%' }} />
+
+                                            {/* Note / Remark Box */}
+                                            <div className="note-box-field">
+                                                <label style={{ fontSize: '10.5px', fontWeight: 700, color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    📝 Note / Remark (टिप्पणी या कारण)
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    className="note-input"
+                                                    placeholder="e.g. 1 ghanta late / overtime..." 
+                                                    defaultValue={sRecord?.note || ''} 
+                                                    onBlur={(e) => { if(e.target.value !== sRecord?.note) handleSetAtt(selectedStaff.id, sStatus, undefined, undefined, e.target.value) }} 
+                                                />
                                             </div>
                                         </div>
                                     )}
@@ -1203,9 +1336,15 @@ export default function SmartAttendance() {
                     <div className={`modal-overlay ${pdfActionSheet.show ? 'show' : ''}`} onClick={() => setPdfActionSheet({...pdfActionSheet, show: false})}>
                         <div className="modal" onClick={e => e.stopPropagation()}>
                             <div className="modal-handle"></div>
-                            <h3 style={{textAlign:'center'}}>{pdfActionSheet.type === 'master' ? 'Master PDF Options' : 'Salary Slip Options'}</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, textAlign: 'center', flex: 1 }}>
+                                    {pdfActionSheet.type === 'master' ? '📊 Master PDF Options' : '📄 Salary Slip Options'}
+                                </h3>
+                                <button onClick={() => setPdfActionSheet({...pdfActionSheet, show: false})} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--ink-soft)', padding: '4px' }}>✕</button>
+                            </div>
+
                             <div className="field">
-                                <label style={{textAlign:'center', display:'block'}}>Select Month for PDF</label>
+                                <label style={{textAlign:'center', display:'block', fontWeight: 600, color: 'var(--ink-soft)'}}>Select Month for PDF</label>
                                 <input 
                                     type="month" 
                                     value={`${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`}
@@ -1216,24 +1355,25 @@ export default function SmartAttendance() {
                                             setSelectedDate(`${year}-${month}-01`);
                                         }
                                     }}
-                                    style={{textAlign:'center', fontWeight:700, color:'var(--primary)'}}
+                                    style={{textAlign:'center', fontWeight:700, color:'var(--primary)', fontSize: '15px', padding: '12px'}}
                                 />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '16px' }}>
-                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('view') : generateSalarySlipPDF('view'); }}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '18px', marginBottom: '14px' }}>
+                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', padding: '13px', fontSize: '14px', borderRadius: '14px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('view') : generateSalarySlipPDF('view'); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                     View
                                 </button>
-                                <button className="btn-primary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('share') : generateSalarySlipPDF('share'); }}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+                                <button className="btn-primary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', padding: '13px', fontSize: '14px', borderRadius: '14px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('share') : generateSalarySlipPDF('share'); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
                                     Share
                                 </button>
-                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('download') : generateSalarySlipPDF('download'); }}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', padding: '13px', fontSize: '14px', borderRadius: '14px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('download') : generateSalarySlipPDF('download'); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
                                     Download
                                 </button>
-                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', color:'#ef4444', borderColor:'#ef4444'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('view') : generateSalarySlipPDF('view'); toast('Please print from the PDF viewer', { icon: '🖨️' }); }}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                                <button className="btn-secondary" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', color:'#ef4444', borderColor:'#ef4444', padding: '13px', fontSize: '14px', borderRadius: '14px'}} onClick={() => { setPdfActionSheet({...pdfActionSheet, show: false}); pdfActionSheet.type === 'master' ? generateMasterReportPDF('view') : generateSalarySlipPDF('view'); toast('Please print from the PDF viewer', { icon: '🖨️' }); }}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
                                     Print
                                 </button>
                             </div>
