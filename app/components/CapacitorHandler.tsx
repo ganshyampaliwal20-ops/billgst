@@ -34,9 +34,12 @@ export default function CapacitorHandler() {
 
         setupCapacitor();
         
-        // We DO NOT use window.history.pushState hacks because it corrupts 
-        // the Next.js App Router state tree (causing nested pages to break).
-
+        // Register Service Worker for Android System Notifications & PWA
+        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch((err) => {
+                console.log('ServiceWorker registration skipped or failed:', err);
+            });
+        }
     }, [router]);
 
     return null;
