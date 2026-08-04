@@ -17,7 +17,7 @@
 }
 
 .gst-container {
-  min-height: 100vh;
+  min-height: 100%;
   background: var(--paper);
   color: var(--ink);
   font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -26,12 +26,13 @@
   display: flex;
   justify-content: center;
   padding: 0;
+  margin-bottom: -48px;
 }
 
 .gst-device {
   width: 100%;
   max-width: 960px;
-  min-height: 100vh;
+  min-height: calc(100dvh - 56px);
   background: var(--paper);
   position: relative;
   display: flex;
@@ -497,8 +498,9 @@
   left: 0;
   right: 0;
   z-index: 20;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 8px));
-  background: linear-gradient(to top, var(--paper) 85%, rgba(245,241,230,0));
+  margin-top: auto;
+  padding: 6px 16px calc(6px + env(safe-area-inset-bottom, 2px));
+  background: linear-gradient(to top, var(--paper) 90%, rgba(245,241,230,0));
   box-shadow: 0 -4px 12px rgba(18,35,59,0.04);
 }
 
@@ -512,19 +514,19 @@
   color: #FBF8F1;
   border: none;
   border-radius: 12px;
-  padding: 13px 18px;
+  padding: 12px 18px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 700;
   font-size: 15px;
   letter-spacing: 0.02em;
   cursor: pointer;
-  box-shadow: 0 8px 20px -6px rgba(18,35,59,0.4);
+  box-shadow: 0 6px 16px -4px rgba(18,35,59,0.35);
   transition: transform .12s ease, box-shadow .12s ease, opacity .15s ease;
 }
 
 .gst-cta-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px -5px rgba(18,35,59,0.45);
+  box-shadow: 0 10px 20px -4px rgba(18,35,59,0.4);
 }
 
 .gst-cta-btn:active:not(:disabled) {
@@ -552,9 +554,9 @@
 
 .gst-cta-note {
   text-align: center;
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: var(--ink-soft);
-  margin-top: 6px;
+  margin-top: 4px;
   margin-bottom: 2px;
   font-family: 'IBM Plex Mono', monospace;
   letter-spacing: 0.03em;
