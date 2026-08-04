@@ -160,11 +160,7 @@ export default function DashboardLayout({
 
     if (canSeeAccounting) {
         menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
-        
-        // Show GST Returns only if GST Mode is ON (nonGstMode is false)
-        if (!settings.nonGstMode) {
-            menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
-        }
+        menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
     }
 
     if (isOwner) {
@@ -178,6 +174,7 @@ export default function DashboardLayout({
         label: 'Free AI Assistant', 
         href: '#',
         onClick: () => {
+            setIsSidebarOpen(false);
             setIsDemoNLPOpen(true);
         }
     });
@@ -195,8 +192,9 @@ export default function DashboardLayout({
     menuItems.push({ 
         icon: FaHeadset, 
         label: t.helpAndSupport || 'Help & Support', 
-        href: '#',
+        href: '/dashboard/help',
         onClick: () => {
+            setIsSidebarOpen(false);
             setSupportChatOpen(true);
         }
     });
@@ -323,11 +321,12 @@ export default function DashboardLayout({
                                     href={item.href}
                                     prefetch={true}
                                     onClick={(e) => {
+                                        setIsSidebarOpen(false);
                                         if (item.onClick) {
-                                            e.preventDefault();
+                                            if (item.href === '#') {
+                                                e.preventDefault();
+                                            }
                                             item.onClick();
-                                        } else {
-                                            setIsSidebarOpen(false);
                                         }
                                     }}
                                     className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
