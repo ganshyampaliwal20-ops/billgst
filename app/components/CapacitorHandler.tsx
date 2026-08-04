@@ -29,6 +29,36 @@ export default function CapacitorHandler() {
                 } catch (e) {
                     console.log("Capacitor App plugin not available.", e);
                 }
+
+                // Handle Notification Click / Tap to Open File
+                try {
+                    const { LocalNotifications } = await import('@capacitor/local-notifications');
+                    await LocalNotifications.removeAllListeners();
+                    await LocalNotifications.addListener('localNotificationActionPerformed', async (action) => {
+                        const extra = action?.notification?.extra;
+                        if (extra?.filePath) {
+                            try {
+                                const { FileOpener } = await import('@capacitor-community/file-opener');
+                                await FileOpener.open({
+                                    filePath: extra.filePath,
+                                    contentType: extra.mimeType || 'application/octet-stream',
+                                    openWithDefault: true
+                                });
+                            } catch (openErr) {
+                                try {
+                                    const { Share } = await import('@capacitor/share');
+                                    await Share.share({
+                                        title: extra.fileName || 'Open File',
+                                        url: extra.filePath,
+                                        dialogTitle: 'Open File'
+                                    });
+                                } catch (shareErr) {}
+                            }
+                        }
+                    });
+                } catch (notifErr) {
+                    console.log("LocalNotifications listener setup error:", notifErr);
+                }
             }
         };
 
