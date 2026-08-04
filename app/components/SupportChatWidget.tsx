@@ -128,7 +128,12 @@ export default function SupportChatWidget() {
         <>
             {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-[100] w-[calc(100vw-24px)] max-w-[360px] h-[520px] max-h-[85vh] bg-slate-50/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
+                <div 
+                    className="fixed right-3 sm:right-6 z-[100] w-[calc(100vw-24px)] max-w-[360px] h-[520px] max-h-[calc(80vh-env(safe-area-inset-bottom,0px))] bg-slate-50/95 backdrop-blur-md rounded-2xl shadow-2xl flex flex-col border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300"
+                    style={{
+                        bottom: 'calc(24px + env(safe-area-inset-bottom, 16px))'
+                    }}
+                >
                     {/* Header */}
                     <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 flex justify-between items-center shadow-sm relative z-10">
                         <div className="flex items-center gap-3">
