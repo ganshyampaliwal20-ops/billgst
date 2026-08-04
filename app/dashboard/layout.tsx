@@ -10,7 +10,7 @@ import {
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
     FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
-    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard, FaBookOpen, FaHeadset
+    FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard, FaBookOpen, FaHeadset, FaBullhorn
 } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { normalizeRole, isOwnerRole, isAccountantRole, isAttendanceRole, isSalesRole, ROLE_ATTENDANCE, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
@@ -167,6 +167,7 @@ export default function DashboardLayout({
         // TEMPORARY: Hide subscription until 1000 users
         // menuItems.push({ icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' });
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
+        menuItems.push({ icon: FaBullhorn, label: 'Marketing / प्रचार पर्चे', href: '/dashboard/marketing' });
     }
 
     menuItems.push({ 
