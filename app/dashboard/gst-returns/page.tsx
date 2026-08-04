@@ -235,7 +235,7 @@ export default function GSTReturnsPage() {
             const dataStr = JSON.stringify(generatedData, null, 2);
             const base64Data = btoa(unescape(encodeURIComponent(dataStr)));
             const { downloadAndShareFile } = await import('@/lib/utils');
-            await downloadAndShareFile(base64Data, fileName, 'application/json', 'view');
+            await downloadAndShareFile(base64Data, fileName, 'application/json', 'download');
             toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
         } catch (err) {
             console.error('Error downloading JSON:', err);
@@ -246,7 +246,9 @@ export default function GSTReturnsPage() {
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = fileName;
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
             } catch (e) {
@@ -311,7 +313,7 @@ export default function GSTReturnsPage() {
                 base64Data,
                 fileName,
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'view'
+                'download'
             );
             toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
         } catch (error) {
