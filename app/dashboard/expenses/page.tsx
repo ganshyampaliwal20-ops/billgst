@@ -1664,7 +1664,34 @@ export default function BusinessExpensesPage() {
                 <div className="search-row">
                     <div className="search-box">
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
-                        <input type="text" placeholder={t.searchCustomer || "Customer dhundho..."} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        <input
+                            type="text"
+                            placeholder={t.searchCustomer || "Customer / Expense dhundho..."}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchQuery('')}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: '2px 6px',
+                                    cursor: 'pointer',
+                                    color: 'var(--ink4, #94a3b8)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '13px',
+                                    borderRadius: '50%'
+                                }}
+                                title="Clear search"
+                                aria-label="Clear search"
+                            >
+                                ✕
+                            </button>
+                        )}
                     </div>
                 </div>
 

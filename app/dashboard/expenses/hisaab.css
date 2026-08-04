@@ -1315,6 +1315,10 @@
   padding: 10px 14px;
   background: var(--white);
   border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 95;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .search-box {
@@ -1326,6 +1330,13 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 9px 13px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+  border-color: var(--blue, #3b82f6);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .search-box input {
