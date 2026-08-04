@@ -260,8 +260,9 @@ export default function GSTReturnsPage() {
 
         const fileName = `${returnType}_${periodFrom}_to_${periodTo}.xlsx`;
         const toastId = toast.loading('Preparing Excel download...');
+        let wb: any = null;
         try {
-            const wb = XLSX.utils.book_new();
+            wb = XLSX.utils.book_new();
 
             if (returnType === 'GSTR1') {
                 if (generatedData.b2b?.length) {
@@ -299,7 +300,7 @@ export default function GSTReturnsPage() {
                 }
             }
 
-            if (wb.SheetNames.length === 0) {
+            if (!wb.SheetNames || wb.SheetNames.length === 0) {
                 const ws = XLSX.utils.json_to_sheet([{ message: "No data available" }]);
                 XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
             }
@@ -316,8 +317,12 @@ export default function GSTReturnsPage() {
         } catch (error) {
             console.error('Error downloading excel:', error);
             try {
-                XLSX.writeFile(wb, fileName);
-                toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
+                if (wb) {
+                    XLSX.writeFile(wb, fileName);
+                    toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
+                } else {
+                    toast.error('Failed to download Excel file', { id: toastId });
+                }
             } catch (e) {
                 toast.error('Failed to download Excel file', { id: toastId });
             }
