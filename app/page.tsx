@@ -23,7 +23,7 @@ export default function LandingPage() {
 
     useEffect(() => {
         if (status === 'authenticated') {
-            router.push('/dashboard');
+            router.replace('/dashboard');
         }
 
         if (typeof window !== 'undefined' && window.location.search) {
