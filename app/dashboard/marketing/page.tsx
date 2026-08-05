@@ -5,10 +5,10 @@ import { useStore } from '@/lib/store';
 import { useSession } from 'next-auth/react';
 import { 
     FaPrint, FaDownload, FaWhatsapp, FaPalette, FaFileAlt, 
-    FaTag, FaCopy, FaEye, FaHeadset, FaStore, FaQrcode,
-    FaCheckCircle, FaUndo, FaSearchPlus, FaSearchMinus, FaGift,
-    FaMotorcycle, FaIdCard, FaBullhorn, FaCreditCard, FaPhoneAlt,
-    FaMapMarkerAlt, FaPercent
+    FaTag, FaCopy, FaEye, FaStore, FaUndo, FaSearchPlus, FaSearchMinus,
+    FaMotorcycle, FaBullhorn, FaCreditCard, FaPhoneAlt, FaMapMarkerAlt,
+    FaPercent, FaCheckCircle, FaStar, FaBoxOpen, FaCommentDots,
+    FaReceipt, FaUserTie, FaQrcode, FaCheck
 } from 'react-icons/fa';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'react-hot-toast';
@@ -202,6 +202,7 @@ export default function MarketingStudioPage() {
                 textSecondary: '#475569',
                 cardBg: '#f8fafc',
                 cardBorder: '#cbd5e1',
+                cardGlow: 'none',
                 accent: '#2563eb',
                 badgeBg: '#e0e7ff',
                 badgeText: '#1e40af',
@@ -220,8 +221,9 @@ export default function MarketingStudioPage() {
                 bg: 'linear-gradient(145deg, #022c22 0%, #064e3b 50%, #022c22 100%)',
                 textPrimary: '#ffffff',
                 textSecondary: '#a7f3d0',
-                cardBg: 'rgba(6, 78, 59, 0.72)',
-                cardBorder: 'rgba(52, 211, 153, 0.4)',
+                cardBg: 'rgba(6, 78, 59, 0.75)',
+                cardBorder: 'rgba(52, 211, 153, 0.45)',
+                cardGlow: '0 8px 20px rgba(6, 78, 59, 0.4)',
                 accent: '#34d399',
                 badgeBg: '#fbbf24',
                 badgeText: '#000000',
@@ -240,8 +242,9 @@ export default function MarketingStudioPage() {
                 bg: 'linear-gradient(145deg, #3b0713 0%, #7f1d1d 50%, #2a040d 100%)',
                 textPrimary: '#ffffff',
                 textSecondary: '#fecdd3',
-                cardBg: 'rgba(76, 5, 25, 0.72)',
-                cardBorder: 'rgba(251, 113, 133, 0.4)',
+                cardBg: 'rgba(76, 5, 25, 0.75)',
+                cardBorder: 'rgba(251, 113, 133, 0.45)',
+                cardGlow: '0 8px 20px rgba(127, 29, 29, 0.4)',
                 accent: '#fb7185',
                 badgeBg: '#facc15',
                 badgeText: '#000000',
@@ -260,8 +263,9 @@ export default function MarketingStudioPage() {
                 bg: 'linear-gradient(145deg, #431407 0%, #7c2d12 50%, #2a0a03 100%)',
                 textPrimary: '#ffffff',
                 textSecondary: '#fed7aa',
-                cardBg: 'rgba(124, 45, 18, 0.65)',
-                cardBorder: 'rgba(251, 146, 60, 0.4)',
+                cardBg: 'rgba(124, 45, 18, 0.7)',
+                cardBorder: 'rgba(251, 146, 60, 0.45)',
+                cardGlow: '0 8px 20px rgba(124, 45, 18, 0.4)',
                 accent: '#fb923c',
                 badgeBg: '#facc15',
                 badgeText: '#000000',
@@ -280,13 +284,14 @@ export default function MarketingStudioPage() {
             bg: 'linear-gradient(145deg, #050d24 0%, #0d1b46 50%, #030818 100%)',
             textPrimary: '#ffffff',
             textSecondary: '#94a3b8',
-            cardBg: 'rgba(15, 23, 42, 0.8)',
-            cardBorder: 'rgba(56, 189, 248, 0.38)',
+            cardBg: 'rgba(15, 23, 42, 0.85)',
+            cardBorder: 'rgba(56, 189, 248, 0.4)',
+            cardGlow: '0 8px 20px rgba(15, 23, 42, 0.6)',
             accent: '#38bdf8',
             badgeBg: '#f59e0b',
             badgeText: '#000000',
             highlight: '#fbbf24',
-            border: 'rgba(56, 189, 248, 0.42)',
+            border: 'rgba(56, 189, 248, 0.45)',
             qrBg: '#ffffff',
             qrFg: '#050d24',
             goldBadge: '#f59e0b',
@@ -530,6 +535,17 @@ export default function MarketingStudioPage() {
                             />
                         </div>
 
+                        <div>
+                            <label className="block text-[10.5px] font-semibold text-slate-300 mb-1">दुकान की टैगलाइन / स्लोगन</label>
+                            <input
+                                type="text"
+                                value={tagline}
+                                onChange={(e) => setTagline(e.target.value)}
+                                placeholder="शुद्धता, विश्वास और उचित मूल्य का एकमात्र स्थान"
+                                className="w-full px-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"
+                            />
+                        </div>
+
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <label className="block text-[10.5px] font-semibold text-slate-300 mb-1">दुकानदार / प्रोपराइटर नाम</label>
@@ -689,7 +705,7 @@ export default function MarketingStudioPage() {
                             <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
                                 <button 
                                     onClick={() => setZoomLevel(Math.max(0.6, zoomLevel - 0.1))} 
-                                    className="px-2 py-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white"
+                                    className="px-2 py-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white cursor-pointer"
                                     title="Zoom Out"
                                 >
                                     <FaSearchMinus size={11} />
@@ -697,7 +713,7 @@ export default function MarketingStudioPage() {
                                 <span className="text-[11px] font-mono px-1.5 text-slate-300">{Math.round(zoomLevel * 100)}%</span>
                                 <button 
                                     onClick={() => setZoomLevel(Math.min(1.4, zoomLevel + 0.1))} 
-                                    className="px-2 py-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white"
+                                    className="px-2 py-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white cursor-pointer"
                                     title="Zoom In"
                                 >
                                     <FaSearchPlus size={11} />
@@ -722,12 +738,12 @@ export default function MarketingStudioPage() {
                                 id="print-marketing-canvas"
                                 ref={previewRef}
                                 style={{
-                                    width: (categoryMode === 'shop_marketing' && shopTemplate === 'shop_visiting_card') ? '650px' : '794px',
-                                    minHeight: (categoryMode === 'shop_marketing' && shopTemplate === 'shop_visiting_card') ? '380px' : (categoryMode === 'shop_marketing' && shopTemplate === 'shop_counter_upi') ? '800px' : '1123px',
+                                    width: (categoryMode === 'shop_marketing' && shopTemplate === 'shop_visiting_card') ? '680px' : '794px',
+                                    minHeight: (categoryMode === 'shop_marketing' && shopTemplate === 'shop_visiting_card') ? '390px' : (categoryMode === 'shop_marketing' && shopTemplate === 'shop_counter_upi') ? '860px' : '1123px',
                                     background: currentStyles.bg,
                                     color: currentStyles.textPrimary,
-                                    border: `2.5px solid ${currentStyles.border}`,
-                                    borderRadius: theme === 'clean_white_print' ? '0px' : '18px',
+                                    border: `3px solid ${currentStyles.border}`,
+                                    borderRadius: theme === 'clean_white_print' ? '0px' : '20px',
                                     boxShadow: theme === 'clean_white_print' ? 'none' : '0 25px 60px rgba(0,0,0,0.65)',
                                     padding: (categoryMode === 'shop_marketing' && shopTemplate === 'shop_visiting_card') ? '24px 28px' : '26px 26px',
                                     display: 'flex',
@@ -735,6 +751,9 @@ export default function MarketingStudioPage() {
                                     justifyContent: 'space-between',
                                     position: 'relative',
                                     boxSizing: 'border-box',
+                                    overflow: 'hidden',
+                                    wordBreak: 'break-word',
+                                    overflowWrap: 'break-word',
                                     fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
                                 }}
                             >
@@ -743,26 +762,54 @@ export default function MarketingStudioPage() {
                                     <>
                                         {/* TEMPLATE 1: SHOP SALE OFFER POSTER */}
                                         {shopTemplate === 'shop_sale_offer' && (
-                                            <>
-                                                <div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', minHeight: '1070px', boxSizing: 'border-box', gap: '14px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%' }}>
                                                     {/* Header Banner */}
                                                     <div style={{
                                                         background: currentStyles.headerGrad,
                                                         color: '#ffffff',
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '16px 20px',
                                                         textAlign: 'center',
-                                                        marginBottom: '16px',
                                                         boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-                                                        border: '2px solid rgba(255,255,255,0.2)'
+                                                        border: '2px solid rgba(255,255,255,0.2)',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#fde047', marginBottom: '3px' }}>
+                                                        <div style={{
+                                                            display: 'inline-block',
+                                                            background: 'rgba(0,0,0,0.25)',
+                                                            border: '1px solid rgba(253, 224, 71, 0.5)',
+                                                            padding: '3px 14px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '11px',
+                                                            fontWeight: 900,
+                                                            letterSpacing: '1.2px',
+                                                            textTransform: 'uppercase',
+                                                            color: '#fde047',
+                                                            marginBottom: '6px'
+                                                        }}>
                                                             ⭐ विशेष सेल & डिस्काउंट धमाका ⭐
                                                         </div>
-                                                        <h1 style={{ fontSize: '32px', fontWeight: 900, lineHeight: '1.15', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>
+                                                        <h1 style={{
+                                                            fontSize: '30px',
+                                                            fontWeight: 900,
+                                                            lineHeight: '1.25',
+                                                            margin: '0 0 6px 0',
+                                                            wordBreak: 'break-word',
+                                                            overflowWrap: 'break-word',
+                                                            letterSpacing: '-0.3px'
+                                                        }}>
                                                             {shopName}
                                                         </h1>
-                                                        <div style={{ fontSize: '13px', fontWeight: 600, opacity: 0.95 }}>
+                                                        <div style={{
+                                                            fontSize: '13px',
+                                                            fontWeight: 600,
+                                                            opacity: 0.95,
+                                                            lineHeight: '1.35',
+                                                            wordBreak: 'break-word',
+                                                            overflowWrap: 'break-word'
+                                                        }}>
                                                             {tagline}
                                                         </div>
                                                     </div>
@@ -771,135 +818,194 @@ export default function MarketingStudioPage() {
                                                     <div style={{
                                                         background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                                                         color: '#000000',
-                                                        borderRadius: '14px',
-                                                        padding: '16px 18px',
+                                                        borderRadius: '16px',
+                                                        padding: '14px 20px',
                                                         textAlign: 'center',
-                                                        marginBottom: '16px',
-                                                        boxShadow: '0 8px 20px rgba(245, 158, 11, 0.35)'
+                                                        boxShadow: '0 8px 20px rgba(245, 158, 11, 0.35)',
+                                                        border: '2px solid rgba(255, 255, 255, 0.35)',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                                        <div style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.9 }}>
                                                             {offerHeading}
                                                         </div>
-                                                        <div style={{ fontSize: '24px', fontWeight: 900, lineHeight: '1.2', marginTop: '4px' }}>
+                                                        <div style={{
+                                                            fontSize: '22px',
+                                                            fontWeight: 900,
+                                                            lineHeight: '1.3',
+                                                            marginTop: '4px',
+                                                            wordBreak: 'break-word',
+                                                            overflowWrap: 'break-word'
+                                                        }}>
                                                             {discountHighlight}
                                                         </div>
                                                     </div>
 
-                                                    {/* 4 Feature Value Pillars */}
+                                                    {/* 4 Feature Value Pillars (Structured Box Cards) */}
                                                     <div style={{
                                                         display: 'grid',
                                                         gridTemplateColumns: '1fr 1fr',
-                                                        gap: '12px',
-                                                        marginBottom: '16px'
+                                                        gap: '14px',
+                                                        width: '100%',
+                                                        boxSizing: 'border-box'
                                                     }}>
+                                                        {/* Box 1: Items */}
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 14px',
+                                                            borderRadius: '14px',
+                                                            padding: '14px 16px',
                                                             display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '10px'
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'flex-start',
+                                                            boxShadow: currentStyles.cardGlow,
+                                                            boxSizing: 'border-box',
+                                                            overflow: 'hidden'
                                                         }}>
-                                                            <span style={{ fontSize: '26px' }}>📦</span>
-                                                            <div>
-                                                                <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.accent }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                                <span style={{ fontSize: '20px' }}>📦</span>
+                                                                <div style={{ fontSize: '13.5px', fontWeight: 900, color: currentStyles.accent }}>
                                                                     उपलब्ध सामान:
                                                                 </div>
-                                                                <div style={{ fontSize: '11px', color: currentStyles.textSecondary, marginTop: '2px' }}>
-                                                                    {itemHighlights}
-                                                                </div>
+                                                            </div>
+                                                            <div style={{
+                                                                fontSize: '11.5px',
+                                                                color: currentStyles.textSecondary,
+                                                                lineHeight: '1.45',
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word'
+                                                            }}>
+                                                                {itemHighlights}
                                                             </div>
                                                         </div>
 
+                                                        {/* Box 2: Home Delivery */}
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 14px',
+                                                            borderRadius: '14px',
+                                                            padding: '14px 16px',
                                                             display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '10px'
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'flex-start',
+                                                            boxShadow: currentStyles.cardGlow,
+                                                            boxSizing: 'border-box',
+                                                            overflow: 'hidden'
                                                         }}>
-                                                            <span style={{ fontSize: '26px' }}>🛵</span>
-                                                            <div>
-                                                                <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.highlight }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                                <span style={{ fontSize: '20px' }}>🛵</span>
+                                                                <div style={{ fontSize: '13.5px', fontWeight: 900, color: currentStyles.highlight }}>
                                                                     फ्री होम डिलीवरी:
                                                                 </div>
-                                                                <div style={{ fontSize: '11px', color: currentStyles.textSecondary, marginTop: '2px' }}>
-                                                                    {freeDeliveryMin} से अधिक के ऑर्डर पर तुरंत डिलीवरी
-                                                                </div>
+                                                            </div>
+                                                            <div style={{
+                                                                fontSize: '11.5px',
+                                                                color: currentStyles.textSecondary,
+                                                                lineHeight: '1.45',
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word'
+                                                            }}>
+                                                                {freeDeliveryMin} से अधिक के ऑर्डर पर तुरंत सुरक्षित घर तक डिलीवरी
                                                             </div>
                                                         </div>
 
+                                                        {/* Box 3: WhatsApp Digital Bill */}
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 14px',
+                                                            borderRadius: '14px',
+                                                            padding: '14px 16px',
                                                             display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '10px'
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'flex-start',
+                                                            boxShadow: currentStyles.cardGlow,
+                                                            boxSizing: 'border-box',
+                                                            overflow: 'hidden'
                                                         }}>
-                                                            <span style={{ fontSize: '26px' }}>💬</span>
-                                                            <div>
-                                                                <div style={{ fontSize: '13px', fontWeight: 900, color: '#10b981' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                                <span style={{ fontSize: '20px' }}>💬</span>
+                                                                <div style={{ fontSize: '13.5px', fontWeight: 900, color: '#10b981' }}>
                                                                     WhatsApp डिजिटल बिल:
                                                                 </div>
-                                                                <div style={{ fontSize: '11px', color: currentStyles.textSecondary, marginTop: '2px' }}>
-                                                                    हर खरीदारी पर पक्का डिजिटल बिल मोबाइल पर
-                                                                </div>
+                                                            </div>
+                                                            <div style={{
+                                                                fontSize: '11.5px',
+                                                                color: currentStyles.textSecondary,
+                                                                lineHeight: '1.45',
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word'
+                                                            }}>
+                                                                हर खरीदारी पर पक्का डिजिटल बिल सीधे आपके मोबाइल पर
                                                             </div>
                                                         </div>
 
+                                                        {/* Box 4: Online Payment */}
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 14px',
+                                                            borderRadius: '14px',
+                                                            padding: '14px 16px',
                                                             display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '10px'
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'flex-start',
+                                                            boxShadow: currentStyles.cardGlow,
+                                                            boxSizing: 'border-box',
+                                                            overflow: 'hidden'
                                                         }}>
-                                                            <span style={{ fontSize: '26px' }}>💳</span>
-                                                            <div>
-                                                                <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.accent }}>
-                                                                    ऑनलाइन पेमेंट सुविधा:
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                                <span style={{ fontSize: '20px' }}>💳</span>
+                                                                <div style={{ fontSize: '13.5px', fontWeight: 900, color: currentStyles.accent }}>
+                                                                    ऑनलाइन पेमेंट स्वीकार्य:
                                                                 </div>
-                                                                <div style={{ fontSize: '11px', color: currentStyles.textSecondary, marginTop: '2px' }}>
-                                                                    GPay, PhonePe, Paytm, Cash स्वीकार्य
-                                                                </div>
+                                                            </div>
+                                                            <div style={{
+                                                                fontSize: '11.5px',
+                                                                color: currentStyles.textSecondary,
+                                                                lineHeight: '1.45',
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word'
+                                                            }}>
+                                                                Google Pay, PhonePe, Paytm, BHIM UPI एवं Cash
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 {/* Bottom Footer Section */}
-                                                <div>
+                                                <div style={{ width: '100%', boxSizing: 'border-box' }}>
                                                     <div style={{
                                                         background: currentStyles.footerGrad,
                                                         color: currentStyles.footerText,
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '14px 18px',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'space-between',
                                                         gap: '14px',
-                                                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                                                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <div style={{ fontSize: '10.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.8px', opacity: 0.9 }}>
                                                                 📍 दुकान का पता & संपर्क:
                                                             </div>
-                                                            <div style={{ fontSize: '15px', fontWeight: 900, marginTop: '2px' }}>
+                                                            <div style={{
+                                                                fontSize: '14.5px',
+                                                                fontWeight: 900,
+                                                                marginTop: '2px',
+                                                                lineHeight: '1.35',
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word'
+                                                            }}>
                                                                 {shopAddress}
                                                             </div>
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px', flexWrap: 'wrap' }}>
-                                                                <div style={{ fontSize: '14px', fontWeight: 900 }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                                                <div style={{ fontSize: '13.5px', fontWeight: 900 }}>
                                                                     📞 {phoneNumber}
                                                                 </div>
                                                                 {ownerName && (
-                                                                    <div style={{ fontSize: '12px', fontWeight: 700 }}>
+                                                                    <div style={{ fontSize: '11.5px', fontWeight: 800, opacity: 0.85 }}>
                                                                         (प्रो: {ownerName})
                                                                     </div>
                                                                 )}
@@ -908,12 +1014,13 @@ export default function MarketingStudioPage() {
 
                                                         {/* QR Code for WhatsApp Order */}
                                                         <div style={{
+                                                            flexShrink: 0,
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             alignItems: 'center',
                                                             background: currentStyles.qrBg,
                                                             padding: '6px 8px',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '10px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                                                         }}>
                                                             <QRCodeSVG
@@ -929,39 +1036,55 @@ export default function MarketingStudioPage() {
                                                         </div>
                                                     </div>
 
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', padding: '0 4px', fontSize: '9px', color: currentStyles.textSecondary }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', padding: '0 4px', fontSize: '9.5px', color: currentStyles.textSecondary }}>
                                                         <span>✅ 100% शुद्धता और विश्वास का भरोसा</span>
                                                         <span>Powered by BillGST.com</span>
                                                     </div>
                                                 </div>
-                                            </>
+                                            </div>
                                         )}
 
                                         {/* TEMPLATE 2: SHOP COUNTER UPI PAYMENT & DIGITAL BILL STANDEE */}
                                         {shopTemplate === 'shop_counter_upi' && (
-                                            <div style={{ textAlign: 'center', padding: '10px 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-                                                <div>
+                                            <div style={{ textAlign: 'center', padding: '6px 0', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', minHeight: '810px', boxSizing: 'border-box' }}>
+                                                <div style={{ width: '100%', boxSizing: 'border-box' }}>
                                                     <div style={{
                                                         display: 'inline-block',
                                                         padding: '4px 18px',
                                                         borderRadius: '30px',
                                                         background: '#10b981',
                                                         color: '#ffffff',
-                                                        fontSize: '13px',
+                                                        fontSize: '12.5px',
                                                         fontWeight: 900,
                                                         marginBottom: '10px',
                                                         boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
                                                     }}>
                                                         💳 ऑल-इन-वन UPI पेमेंट & डिजिटल बिल
                                                     </div>
-                                                    <h1 style={{ fontSize: '32px', fontWeight: 900, lineHeight: '1.15', margin: '0 0 4px 0' }}>
+                                                    <h1 style={{
+                                                        fontSize: '28px',
+                                                        fontWeight: 900,
+                                                        lineHeight: '1.25',
+                                                        margin: '0 0 4px 0',
+                                                        wordBreak: 'break-word',
+                                                        overflowWrap: 'break-word',
+                                                        padding: '0 10px'
+                                                    }}>
                                                         {shopName}
                                                     </h1>
-                                                    <p style={{ fontSize: '13px', color: currentStyles.textSecondary, margin: '0 0 16px 0' }}>
+                                                    <p style={{
+                                                        fontSize: '12.5px',
+                                                        color: currentStyles.textSecondary,
+                                                        margin: '0 0 16px 0',
+                                                        lineHeight: '1.35',
+                                                        wordBreak: 'break-word',
+                                                        overflowWrap: 'break-word',
+                                                        padding: '0 10px'
+                                                    }}>
                                                         {tagline}
                                                     </p>
 
-                                                    {/* Central Big UPI QR Code */}
+                                                    {/* Central Big UPI QR Code Box */}
                                                     <div style={{
                                                         display: 'inline-flex',
                                                         flexDirection: 'column',
@@ -969,58 +1092,77 @@ export default function MarketingStudioPage() {
                                                         background: '#ffffff',
                                                         padding: '18px 24px',
                                                         borderRadius: '20px',
-                                                        boxShadow: '0 15px 40px rgba(0,0,0,0.4)',
-                                                        border: '5px solid #38bdf8',
-                                                        margin: '0 auto 16px auto'
+                                                        boxShadow: '0 15px 40px rgba(0,0,0,0.35)',
+                                                        border: '4px solid #38bdf8',
+                                                        margin: '0 auto 16px auto',
+                                                        maxWidth: '90%',
+                                                        boxSizing: 'border-box'
                                                     }}>
                                                         <QRCodeSVG
                                                             value={getQrValue()}
-                                                            size={190}
+                                                            size={180}
                                                             fgColor="#000000"
                                                             bgColor="#ffffff"
                                                             level="H"
                                                         />
-                                                        <div style={{ fontSize: '14px', fontWeight: 900, color: '#000000', marginTop: '10px' }}>
+                                                        <div style={{ fontSize: '13.5px', fontWeight: 900, color: '#000000', marginTop: '10px' }}>
                                                             📱 किसी भी UPI ऐप से स्कैन कर भुगतान करें
                                                         </div>
-                                                        <div style={{ fontSize: '12px', fontWeight: 800, color: '#2563eb', marginTop: '2px', fontFamily: 'monospace' }}>
-                                                            UPI ID: {upiId || `${phoneNumber}@upi`}
+                                                        <div style={{
+                                                            fontSize: '12px',
+                                                            fontWeight: 800,
+                                                            color: '#1d4ed8',
+                                                            background: '#eff6ff',
+                                                            border: '1px solid #bfdbfe',
+                                                            padding: '3px 12px',
+                                                            borderRadius: '6px',
+                                                            marginTop: '4px',
+                                                            fontFamily: 'monospace',
+                                                            wordBreak: 'break-all'
+                                                        }}>
+                                                            UPI ID: {upiId || `${phoneNumber.replace(/[^0-9]/g, '')}@upi`}
                                                         </div>
                                                     </div>
 
-                                                    {/* Payment Logos Pill */}
+                                                    {/* Payment Logos Pill Badges */}
                                                     <div style={{
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        gap: '12px',
+                                                        gap: '8px',
                                                         background: currentStyles.cardBg,
                                                         border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                        borderRadius: '12px',
+                                                        borderRadius: '14px',
                                                         padding: '10px 16px',
-                                                        maxWidth: '520px',
-                                                        margin: '0 auto 16px auto',
-                                                        fontSize: '12px',
-                                                        fontWeight: 800
+                                                        maxWidth: '560px',
+                                                        margin: '0 auto 14px auto',
+                                                        fontSize: '11.5px',
+                                                        fontWeight: 800,
+                                                        flexWrap: 'wrap',
+                                                        boxSizing: 'border-box'
                                                     }}>
-                                                        <span>Google Pay</span> · <span>PhonePe</span> · <span>Paytm</span> · <span>BHIM UPI</span>
+                                                        <span style={{ padding: '3px 8px', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>🔵 Google Pay</span>
+                                                        <span style={{ padding: '3px 8px', borderRadius: '6px', background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>🟣 PhonePe</span>
+                                                        <span style={{ padding: '3px 8px', borderRadius: '6px', background: 'rgba(14, 165, 233, 0.15)', color: '#38bdf8' }}>🔷 Paytm</span>
+                                                        <span style={{ padding: '3px 8px', borderRadius: '6px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>🇮🇳 BHIM UPI</span>
                                                     </div>
 
-                                                    {/* WhatsApp Digital Bill Badge */}
+                                                    {/* WhatsApp Digital Bill Strip */}
                                                     <div style={{
                                                         background: 'rgba(16, 185, 129, 0.15)',
                                                         border: '2px dashed #10b981',
                                                         borderRadius: '12px',
                                                         padding: '10px 14px',
-                                                        maxWidth: '520px',
+                                                        maxWidth: '560px',
                                                         margin: '0 auto',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        gap: '8px'
+                                                        gap: '8px',
+                                                        boxSizing: 'border-box'
                                                     }}>
-                                                        <span style={{ fontSize: '20px' }}>💬</span>
-                                                        <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#10b981' }}>
+                                                        <span style={{ fontSize: '18px' }}>💬</span>
+                                                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#10b981', lineHeight: '1.35', wordBreak: 'break-word' }}>
                                                             हमारे यहाँ खरीदारी पर सीधे आपके WhatsApp पर पक्का डिजिटल बिल भेजा जाता है!
                                                         </span>
                                                     </div>
@@ -1035,12 +1177,15 @@ export default function MarketingStudioPage() {
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
                                                     fontSize: '12px',
-                                                    color: currentStyles.textSecondary
+                                                    color: currentStyles.textSecondary,
+                                                    boxSizing: 'border-box',
+                                                    gap: '10px',
+                                                    flexWrap: 'wrap'
                                                 }}>
-                                                    <div>
+                                                    <div style={{ flex: 1, minWidth: 0, textAlign: 'left', wordBreak: 'break-word' }}>
                                                         📍 <strong>{shopAddress}</strong>
                                                     </div>
-                                                    <div>
+                                                    <div style={{ flexShrink: 0 }}>
                                                         📞 <strong>{phoneNumber}</strong>
                                                     </div>
                                                 </div>
@@ -1049,47 +1194,81 @@ export default function MarketingStudioPage() {
 
                                         {/* TEMPLATE 3: SHOP HOME DELIVERY FLYER */}
                                         {shopTemplate === 'shop_home_delivery' && (
-                                            <>
-                                                <div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', minHeight: '1070px', boxSizing: 'border-box', gap: '14px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%' }}>
                                                     <div style={{
                                                         background: currentStyles.headerGrad,
                                                         color: '#ffffff',
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '16px 20px',
                                                         textAlign: 'center',
-                                                        marginBottom: '16px',
-                                                        boxShadow: '0 8px 24px rgba(0,0,0,0.35)'
+                                                        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+                                                        border: '2px solid rgba(255,255,255,0.2)',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#fde047', marginBottom: '3px' }}>
+                                                        <div style={{
+                                                            display: 'inline-block',
+                                                            background: 'rgba(0,0,0,0.25)',
+                                                            border: '1px solid rgba(253, 224, 71, 0.5)',
+                                                            padding: '3px 14px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '11px',
+                                                            fontWeight: 900,
+                                                            letterSpacing: '1.2px',
+                                                            textTransform: 'uppercase',
+                                                            color: '#fde047',
+                                                            marginBottom: '6px'
+                                                        }}>
                                                             🛵 अब दुकान पर आने की जरूरत नहीं! 🛵
                                                         </div>
-                                                        <h1 style={{ fontSize: '30px', fontWeight: 900, lineHeight: '1.2', margin: '0 0 4px 0' }}>
+                                                        <h1 style={{
+                                                            fontSize: '28px',
+                                                            fontWeight: 900,
+                                                            lineHeight: '1.25',
+                                                            margin: '0 0 6px 0',
+                                                            wordBreak: 'break-word',
+                                                            overflowWrap: 'break-word'
+                                                        }}>
                                                             घर बैठे सामान मंगाएं — {shopName}
                                                         </h1>
-                                                        <div style={{ fontSize: '13px', fontWeight: 600, opacity: 0.95 }}>
-                                                            बस सामान की लिस्ट WhatsApp करें और घर बैठे डिलीवरी पाएं!
+                                                        <div style={{
+                                                            fontSize: '13px',
+                                                            fontWeight: 600,
+                                                            opacity: 0.95,
+                                                            lineHeight: '1.35',
+                                                            wordBreak: 'break-word'
+                                                        }}>
+                                                            बस सामान की लिस्ट WhatsApp करें और घर बैठे सुपरफास्ट डिलीवरी पाएं!
                                                         </div>
                                                     </div>
 
-                                                    {/* 3 Step Ordering Process */}
+                                                    {/* 3 Step Ordering Process Cards */}
                                                     <div style={{
                                                         display: 'grid',
                                                         gridTemplateColumns: '1fr 1fr 1fr',
-                                                        gap: '10px',
-                                                        marginBottom: '16px'
+                                                        gap: '12px',
+                                                        width: '100%',
+                                                        boxSizing: 'border-box'
                                                     }}>
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 10px',
-                                                            textAlign: 'center'
+                                                            borderRadius: '14px',
+                                                            padding: '14px 10px',
+                                                            textAlign: 'center',
+                                                            boxSizing: 'border-box',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'space-between'
                                                         }}>
-                                                            <div style={{ fontSize: '28px', marginBottom: '4px' }}>📝</div>
-                                                            <div style={{ fontSize: '12px', fontWeight: 900, color: currentStyles.accent }}>
-                                                                1. लिस्ट भेजें
+                                                            <div>
+                                                                <div style={{ fontSize: '24px', marginBottom: '2px' }}>📝</div>
+                                                                <div style={{ fontSize: '12.5px', fontWeight: 900, color: currentStyles.accent }}>
+                                                                    1. लिस्ट भेजें
+                                                                </div>
                                                             </div>
-                                                            <div style={{ fontSize: '10px', color: currentStyles.textSecondary, marginTop: '2px' }}>
+                                                            <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary, marginTop: '4px', lineHeight: '1.35', wordBreak: 'break-word' }}>
                                                                 कागज पर लिखकर या बोलकर WhatsApp पर भेजें
                                                             </div>
                                                         </div>
@@ -1097,15 +1276,21 @@ export default function MarketingStudioPage() {
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 10px',
-                                                            textAlign: 'center'
+                                                            borderRadius: '14px',
+                                                            padding: '14px 10px',
+                                                            textAlign: 'center',
+                                                            boxSizing: 'border-box',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'space-between'
                                                         }}>
-                                                            <div style={{ fontSize: '28px', marginBottom: '4px' }}>🧾</div>
-                                                            <div style={{ fontSize: '12px', fontWeight: 900, color: currentStyles.highlight }}>
-                                                                2. बिल पाएं
+                                                            <div>
+                                                                <div style={{ fontSize: '24px', marginBottom: '2px' }}>🧾</div>
+                                                                <div style={{ fontSize: '12.5px', fontWeight: 900, color: currentStyles.highlight }}>
+                                                                    2. बिल पाएं
+                                                                </div>
                                                             </div>
-                                                            <div style={{ fontSize: '10px', color: currentStyles.textSecondary, marginTop: '2px' }}>
+                                                            <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary, marginTop: '4px', lineHeight: '1.35', wordBreak: 'break-word' }}>
                                                                 हम तुरंत पक्का डिजिटल बिल WhatsApp करेंगे
                                                             </div>
                                                         </div>
@@ -1113,15 +1298,21 @@ export default function MarketingStudioPage() {
                                                         <div style={{
                                                             background: currentStyles.cardBg,
                                                             border: `1.5px solid ${currentStyles.cardBorder}`,
-                                                            borderRadius: '12px',
-                                                            padding: '12px 10px',
-                                                            textAlign: 'center'
+                                                            borderRadius: '14px',
+                                                            padding: '14px 10px',
+                                                            textAlign: 'center',
+                                                            boxSizing: 'border-box',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'space-between'
                                                         }}>
-                                                            <div style={{ fontSize: '28px', marginBottom: '4px' }}>📦</div>
-                                                            <div style={{ fontSize: '12px', fontWeight: 900, color: '#10b981' }}>
-                                                                3. होम डिलीवरी
+                                                            <div>
+                                                                <div style={{ fontSize: '24px', marginBottom: '2px' }}>📦</div>
+                                                                <div style={{ fontSize: '12.5px', fontWeight: 900, color: '#10b981' }}>
+                                                                    3. होम डिलीवरी
+                                                                </div>
                                                             </div>
-                                                            <div style={{ fontSize: '10px', color: currentStyles.textSecondary, marginTop: '2px' }}>
+                                                            <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary, marginTop: '4px', lineHeight: '1.35', wordBreak: 'break-word' }}>
                                                                 सामान आपके घर तक सुरक्षित पहुंचाया जाएगा
                                                             </div>
                                                         </div>
@@ -1131,14 +1322,15 @@ export default function MarketingStudioPage() {
                                                     <div style={{
                                                         background: 'rgba(16, 185, 129, 0.15)',
                                                         border: '2px solid rgba(16, 185, 129, 0.4)',
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '14px 18px',
-                                                        marginBottom: '16px'
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div style={{ fontSize: '14px', fontWeight: 900, color: '#10b981', marginBottom: '4px' }}>
-                                                            ✨ हमारी विशेषताएं:
+                                                        <div style={{ fontSize: '13.5px', fontWeight: 900, color: '#10b981', marginBottom: '6px' }}>
+                                                            ✨ हमारी मुख्य विशेषताएं:
                                                         </div>
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '11px', color: currentStyles.textPrimary }}>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px', color: currentStyles.textPrimary }}>
                                                             <div>✓ 100% शुद्ध और ताजा सामान की गारंटी</div>
                                                             <div>✓ बाजार से उचित और सस्ते दाम</div>
                                                             <div>✓ ₹{freeDeliveryMin} से अधिक पर फ्री डिलीवरी</div>
@@ -1148,36 +1340,39 @@ export default function MarketingStudioPage() {
                                                 </div>
 
                                                 {/* Footer */}
-                                                <div>
+                                                <div style={{ width: '100%', boxSizing: 'border-box' }}>
                                                     <div style={{
                                                         background: currentStyles.footerGrad,
                                                         color: currentStyles.footerText,
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '14px 18px',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'space-between',
-                                                        gap: '14px'
+                                                        gap: '14px',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}>
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <div style={{ fontSize: '10.5px', fontWeight: 900, textTransform: 'uppercase', opacity: 0.9 }}>
                                                                 📲 WhatsApp ऑर्डर नंबर:
                                                             </div>
-                                                            <div style={{ fontSize: '20px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>
+                                                            <div style={{ fontSize: '19px', fontWeight: 900, color: '#000000', marginTop: '2px' }}>
                                                                 {phoneNumber}
                                                             </div>
-                                                            <div style={{ fontSize: '12px', marginTop: '2px', fontWeight: 700 }}>
+                                                            <div style={{ fontSize: '12px', marginTop: '2px', fontWeight: 700, wordBreak: 'break-word' }}>
                                                                 📍 {shopAddress}
                                                             </div>
                                                         </div>
 
                                                         <div style={{
+                                                            flexShrink: 0,
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             alignItems: 'center',
                                                             background: '#ffffff',
                                                             padding: '6px 8px',
-                                                            borderRadius: '8px',
+                                                            borderRadius: '10px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                                                         }}>
                                                             <QRCodeSVG
@@ -1193,33 +1388,60 @@ export default function MarketingStudioPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </>
+                                            </div>
                                         )}
 
                                         {/* TEMPLATE 4: DIGITAL VISITING / BUSINESS CARD */}
                                         {shopTemplate === 'shop_visiting_card' && (
-                                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
-                                                    <div>
-                                                        <div style={{ fontSize: '24px', fontWeight: 900, lineHeight: '1.2', color: currentStyles.textPrimary }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', minHeight: '340px', boxSizing: 'border-box', gap: '14px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', width: '100%', boxSizing: 'border-box' }}>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{
+                                                            fontSize: '22px',
+                                                            fontWeight: 900,
+                                                            lineHeight: '1.25',
+                                                            color: currentStyles.textPrimary,
+                                                            wordBreak: 'break-word',
+                                                            overflowWrap: 'break-word'
+                                                        }}>
                                                             {shopName}
                                                         </div>
-                                                        <div style={{ fontSize: '12px', color: currentStyles.highlight, fontWeight: 700, marginTop: '2px' }}>
+                                                        <div style={{
+                                                            fontSize: '11.5px',
+                                                            color: currentStyles.highlight,
+                                                            fontWeight: 700,
+                                                            marginTop: '2px',
+                                                            lineHeight: '1.35',
+                                                            wordBreak: 'break-word'
+                                                        }}>
                                                             {tagline}
                                                         </div>
-                                                        <div style={{ fontSize: '14px', fontWeight: 800, color: currentStyles.accent, marginTop: '12px' }}>
-                                                            {ownerName || 'प्रोपराइटर'}
+                                                        <div style={{
+                                                            fontSize: '13.5px',
+                                                            fontWeight: 800,
+                                                            color: currentStyles.accent,
+                                                            marginTop: '10px',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            background: 'rgba(255,255,255,0.06)',
+                                                            padding: '3px 10px',
+                                                            borderRadius: '20px',
+                                                            border: `1px solid ${currentStyles.cardBorder}`
+                                                        }}>
+                                                            <span>👤</span> {ownerName || 'प्रोपराइटर'}
                                                         </div>
                                                     </div>
 
                                                     {/* QR Code */}
                                                     <div style={{
+                                                        flexShrink: 0,
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                         alignItems: 'center',
                                                         background: '#ffffff',
                                                         padding: '8px',
-                                                        borderRadius: '10px',
+                                                        borderRadius: '12px',
                                                         boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                                                     }}>
                                                         <QRCodeSVG
@@ -1229,46 +1451,57 @@ export default function MarketingStudioPage() {
                                                             bgColor="#ffffff"
                                                             level="H"
                                                         />
-                                                        <span style={{ fontSize: '8px', fontWeight: 900, color: '#000000', marginTop: '3px' }}>
+                                                        <span style={{ fontSize: '7.5px', fontWeight: 900, color: '#000000', marginTop: '3px' }}>
                                                             Scan Contact / Pay
                                                         </span>
                                                     </div>
                                                 </div>
 
+                                                {/* Contact Details Grid */}
                                                 <div style={{
                                                     borderTop: `1.5px solid ${currentStyles.cardBorder}`,
                                                     paddingTop: '12px',
                                                     display: 'grid',
                                                     gridTemplateColumns: '1fr 1fr',
-                                                    gap: '8px',
+                                                    gap: '10px',
                                                     fontSize: '11.5px',
-                                                    color: currentStyles.textSecondary
+                                                    color: currentStyles.textSecondary,
+                                                    boxSizing: 'border-box',
+                                                    width: '100%'
                                                 }}>
-                                                    <div>📞 <strong>{phoneNumber}</strong></div>
-                                                    <div>📍 <strong>{shopAddress}</strong></div>
-                                                    {upiId && <div>💳 UPI: <strong>{upiId}</strong></div>}
-                                                    {gstin && <div>🧾 GSTIN: <strong>{gstin}</strong></div>}
+                                                    <div style={{ wordBreak: 'break-word' }}>📞 <strong>{phoneNumber}</strong></div>
+                                                    <div style={{ wordBreak: 'break-word' }}>📍 <strong>{shopAddress}</strong></div>
+                                                    {upiId && <div style={{ wordBreak: 'break-all' }}>💳 UPI: <strong>{upiId}</strong></div>}
+                                                    {gstin && <div style={{ wordBreak: 'break-all' }}>🧾 GSTIN: <strong>{gstin}</strong></div>}
                                                 </div>
                                             </div>
                                         )}
 
                                         {/* TEMPLATE 5: FESTIVAL WISHES GREETING POSTER */}
                                         {shopTemplate === 'shop_festival_wishes' && (
-                                            <>
-                                                <div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', minHeight: '1070px', boxSizing: 'border-box', gap: '14px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%' }}>
                                                     <div style={{
                                                         background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                                                         color: '#000000',
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '18px 20px',
                                                         textAlign: 'center',
-                                                        marginBottom: '16px',
-                                                        boxShadow: '0 8px 25px rgba(245, 158, 11, 0.35)'
+                                                        boxShadow: '0 8px 25px rgba(245, 158, 11, 0.35)',
+                                                        border: '2px solid rgba(255, 255, 255, 0.35)',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
                                                         <div style={{ fontSize: '13px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
                                                             ✨ पावन पर्व की हार्दिक शुभकामनाएं ✨
                                                         </div>
-                                                        <h1 style={{ fontSize: '34px', fontWeight: 900, lineHeight: '1.2', margin: '4px 0' }}>
+                                                        <h1 style={{
+                                                            fontSize: '32px',
+                                                            fontWeight: 900,
+                                                            lineHeight: '1.2',
+                                                            margin: '4px 0',
+                                                            wordBreak: 'break-word'
+                                                        }}>
                                                             {festivalName}
                                                         </h1>
                                                         <div style={{ fontSize: '13px', fontWeight: 800 }}>
@@ -1279,37 +1512,55 @@ export default function MarketingStudioPage() {
                                                     <div style={{
                                                         background: currentStyles.cardBg,
                                                         border: `2px solid ${currentStyles.cardBorder}`,
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '18px 20px',
                                                         textAlign: 'center',
-                                                        marginBottom: '16px'
+                                                        boxShadow: currentStyles.cardGlow,
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <p style={{ fontSize: '16px', fontWeight: 700, lineHeight: '1.6', color: currentStyles.textPrimary, margin: 0 }}>
+                                                        <p style={{
+                                                            fontSize: '15px',
+                                                            fontWeight: 700,
+                                                            lineHeight: '1.6',
+                                                            color: currentStyles.textPrimary,
+                                                            margin: 0,
+                                                            wordBreak: 'break-word',
+                                                            overflowWrap: 'break-word'
+                                                        }}>
                                                             &ldquo;{festivalWishes}&rdquo;
                                                         </p>
                                                     </div>
                                                 </div>
 
                                                 {/* Bottom Sender Branding */}
-                                                <div>
+                                                <div style={{ width: '100%', boxSizing: 'border-box' }}>
                                                     <div style={{
                                                         background: currentStyles.footerGrad,
                                                         color: currentStyles.footerText,
-                                                        borderRadius: '14px',
+                                                        borderRadius: '16px',
                                                         padding: '16px 20px',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'space-between',
-                                                        gap: '14px'
+                                                        gap: '14px',
+                                                        boxSizing: 'border-box',
+                                                        width: '100%'
                                                     }}>
-                                                        <div>
-                                                            <div style={{ fontSize: '10.5px', fontWeight: 900, textTransform: 'uppercase' }}>
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <div style={{ fontSize: '10.5px', fontWeight: 900, textTransform: 'uppercase', opacity: 0.9 }}>
                                                                 शुभेच्छुक:
                                                             </div>
-                                                            <div style={{ fontSize: '20px', fontWeight: 900, marginTop: '2px' }}>
+                                                            <div style={{
+                                                                fontSize: '19px',
+                                                                fontWeight: 900,
+                                                                marginTop: '2px',
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word'
+                                                            }}>
                                                                 {shopName}
                                                             </div>
-                                                            <div style={{ fontSize: '12px', fontWeight: 700, marginTop: '2px' }}>
+                                                            <div style={{ fontSize: '12px', fontWeight: 700, marginTop: '2px', wordBreak: 'break-word' }}>
                                                                 {ownerName ? `${ownerName} · ` : ''}{shopAddress}
                                                             </div>
                                                             <div style={{ fontSize: '13px', fontWeight: 900, marginTop: '2px' }}>
@@ -1318,12 +1569,13 @@ export default function MarketingStudioPage() {
                                                         </div>
 
                                                         <div style={{
+                                                            flexShrink: 0,
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             alignItems: 'center',
                                                             background: '#ffffff',
                                                             padding: '6px 8px',
-                                                            borderRadius: '8px'
+                                                            borderRadius: '10px'
                                                         }}>
                                                             <QRCodeSVG
                                                                 value={getQrValue()}
@@ -1338,16 +1590,24 @@ export default function MarketingStudioPage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </>
+                                            </div>
                                         )}
                                     </>
                                 )}
 
                                 {/* ==================== 2. BILLGST SOFTWARE PARTNER POSTER ==================== */}
                                 {categoryMode === 'software_partner' && (
-                                    <>
-                                        <div>
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `2px solid ${currentStyles.cardBorder}`, paddingBottom: '8px', marginBottom: '10px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', minHeight: '1070px', boxSizing: 'border-box', gap: '14px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                borderBottom: `2px solid ${currentStyles.cardBorder}`,
+                                                paddingBottom: '8px',
+                                                boxSizing: 'border-box',
+                                                width: '100%'
+                                            }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <div style={{ height: '40px', padding: '2px 8px', borderRadius: '8px', background: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1363,31 +1623,49 @@ export default function MarketingStudioPage() {
                                                 </div>
                                             </div>
 
-                                            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                                                <h2 style={{ fontSize: '22px', fontWeight: 900, lineHeight: '1.2', margin: '0 0 4px 0' }}>
+                                            <div style={{ textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
+                                                <h2 style={{
+                                                    fontSize: '22px',
+                                                    fontWeight: 900,
+                                                    lineHeight: '1.25',
+                                                    margin: '0 0 4px 0',
+                                                    wordBreak: 'break-word'
+                                                }}>
                                                     एक ही ऐप में GST और Non-GST दोनों तरह के बिल बनाएं!
                                                 </h2>
-                                                <p style={{ fontSize: '12px', color: currentStyles.textSecondary }}>
+                                                <p style={{ fontSize: '12px', color: currentStyles.textSecondary, lineHeight: '1.35', wordBreak: 'break-word' }}>
                                                     टैक्स इनवॉइस, सादी पर्ची, एस्टीमेट, AI बोलकर बिलिंग और CA रिपोर्ट सिर्फ 10 सेकंड में
                                                 </p>
                                             </div>
 
                                             {/* Dual Pillars */}
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
-                                                <div style={{ background: 'rgba(56, 189, 248, 0.12)', border: '2px solid rgba(56, 189, 248, 0.5)', borderRadius: '12px', padding: '10px 12px' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
+                                                <div style={{
+                                                    background: 'rgba(56, 189, 248, 0.12)',
+                                                    border: '2px solid rgba(56, 189, 248, 0.5)',
+                                                    borderRadius: '14px',
+                                                    padding: '12px 14px',
+                                                    boxSizing: 'border-box'
+                                                }}>
                                                     <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.accent }}>1. GST बिल (पक्का टैक्स इनवॉइस)</div>
-                                                    <div style={{ fontSize: '9.5px', color: currentStyles.textPrimary, marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    <div style={{ fontSize: '10px', color: currentStyles.textPrimary, marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
                                                         <div>✓ CGST, SGST, IGST ऑटो कैलकुलेशन</div>
                                                         <div>✓ B2B व B2C टैक्स इनवॉइस</div>
                                                         <div>✓ 1-क्लिक GSTR-1, GSTR-3B Excel रिपोर्ट</div>
                                                     </div>
                                                 </div>
 
-                                                <div style={{ background: 'rgba(245, 158, 11, 0.12)', border: '2px solid rgba(245, 158, 11, 0.5)', borderRadius: '12px', padding: '10px 12px' }}>
+                                                <div style={{
+                                                    background: 'rgba(245, 158, 11, 0.12)',
+                                                    border: '2px solid rgba(245, 158, 11, 0.5)',
+                                                    borderRadius: '14px',
+                                                    padding: '12px 14px',
+                                                    boxSizing: 'border-box'
+                                                }}>
                                                     <div style={{ fontSize: '13px', fontWeight: 900, color: currentStyles.highlight }}>2. Non-GST बिल (सादा पर्चा / एस्टीमेट)</div>
-                                                    <div style={{ fontSize: '9.5px', color: currentStyles.textPrimary, marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    <div style={{ fontSize: '10px', color: currentStyles.textPrimary, marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
                                                         <div>✓ बिना GST नंबर के तुरंत सादा बिल</div>
-                                                        <div>✓ 2" व 3" थर्मल प्रिंटर पर सुपरफास्ट प्रिंट</div>
+                                                        <div>✓ 2&quot; व 3&quot; थर्मल प्रिंटर पर सुपरफास्ट प्रिंट</div>
                                                         <div>✓ कोटेशन, डिलीवरी चालान व WhatsApp रसीद</div>
                                                     </div>
                                                 </div>
@@ -1395,23 +1673,45 @@ export default function MarketingStudioPage() {
                                         </div>
 
                                         {/* Partner Footer */}
-                                        <div>
-                                            <div style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', color: '#000000', borderRadius: '10px', padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', fontWeight: 900, fontSize: '13px' }}>
+                                        <div style={{ width: '100%', boxSizing: 'border-box' }}>
+                                            <div style={{
+                                                background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                                                color: '#000000',
+                                                borderRadius: '12px',
+                                                padding: '10px 16px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                marginBottom: '8px',
+                                                fontWeight: 900,
+                                                fontSize: '13px',
+                                                boxSizing: 'border-box',
+                                                width: '100%'
+                                            }}>
                                                 <div>📞 24x7 हेल्पलाइन: {helplineNumber}</div>
                                                 <div>🌐 www.billgst.com</div>
                                             </div>
 
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `2px dashed ${currentStyles.cardBorder}`, paddingTop: '8px' }}>
-                                                <div>
-                                                    <div style={{ fontSize: '13px', fontWeight: 900 }}>रेफरल पार्टनर: {shopName}</div>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                borderTop: `2px dashed ${currentStyles.cardBorder}`,
+                                                paddingTop: '8px',
+                                                boxSizing: 'border-box',
+                                                width: '100%',
+                                                gap: '10px'
+                                            }}>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ fontSize: '13px', fontWeight: 900, wordBreak: 'break-word' }}>रेफरल पार्टनर: {shopName}</div>
                                                     <div style={{ fontSize: '10.5px', color: currentStyles.textSecondary }}>📲 Google Play Store पर &apos;BillGST&apos; सर्च कर डाउनलोड करें</div>
                                                 </div>
-                                                <div style={{ background: '#ffffff', padding: '4px 6px', borderRadius: '6px' }}>
+                                                <div style={{ flexShrink: 0, background: '#ffffff', padding: '4px 6px', borderRadius: '6px' }}>
                                                     <QRCodeSVG value="https://www.billgst.com" size={56} fgColor="#000000" bgColor="#ffffff" level="H" />
                                                 </div>
                                             </div>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
