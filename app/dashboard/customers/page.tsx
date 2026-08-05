@@ -57,22 +57,30 @@ export default function CustomersPage() {
             };
         } else if (aiDraftData.type === 'PAYMENT') {
             if (aiDraftData.partyName) {
-                const targetCust = customers.find((c: any) => c.name.toLowerCase().includes(aiDraftData.partyName.toLowerCase()));
+                const searchClean = aiDraftData.partyName.trim().toLowerCase();
+                const targetCust = customers.find((c: any) => 
+                    c.name?.toLowerCase().includes(searchClean) ||
+                    searchClean.includes(c.name?.toLowerCase())
+                );
                 if (targetCust) {
                     updateAiCopilotStep(0, 'done', `Customer "${targetCust.name}" profile load ho gayi!`);
                     const amtParam = aiDraftData.amount ? `&amount=${aiDraftData.amount}` : '';
-                    setTimeout(() => {
+                    const t = setTimeout(() => {
                         updateAiCopilotStep(1, 'done', `Payment ₹${aiDraftData.amount || ''} ready!`);
-                        completeAiCopilotAction(`✅ Payment form open ho gaya!`);
+                        completeAiCopilotAction(`✅ "${targetCust.name}" ki payment entry ready!`);
                         setAiDraftData(null);
                         router.push('/dashboard/customers/' + targetCust.id + '?action=payment' + amtParam);
-                    }, 600);
-                } else {
+                    }, 500);
+                    return () => clearTimeout(t);
+                } else if (customers.length > 0) {
+                    updateAiCopilotStep(0, 'done', `Customer "${aiDraftData.partyName}" search kiya`);
+                    completeAiCopilotAction(`⚠️ Customer "${aiDraftData.partyName}" nahi mila. Search open kar diya gaya hai.`);
                     toast.error('Customer not found for payment: ' + aiDraftData.partyName);
                     setSearchTerm(aiDraftData.partyName);
                     setAiDraftData(null);
                 }
             } else {
+                completeAiCopilotAction('Payment screen ready');
                 setAiDraftData(null);
             }
         }

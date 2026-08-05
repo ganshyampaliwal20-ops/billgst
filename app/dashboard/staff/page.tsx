@@ -100,9 +100,15 @@ export default function SmartAttendance() {
                         clearTimeout(t2);
                         clearTimeout(t3);
                     };
+                } else {
+                    updateAiCopilotStep(0, 'done', `Staff "${staffName}" search kiya`);
+                    completeAiCopilotAction(`⚠️ Staff "${staffName}" staff list me nahi mila.`);
+                    setAiDraftData(null);
                 }
+            } else if (staff && staff.length > 0) {
+                completeAiCopilotAction('Staff list loaded');
+                setAiDraftData(null);
             }
-            setAiDraftData(null);
         }
     }, [aiDraftData, staff, selectedDate, markAttendance, setAiDraftData, isClient, updateAiCopilotStep, completeAiCopilotAction]);
 
