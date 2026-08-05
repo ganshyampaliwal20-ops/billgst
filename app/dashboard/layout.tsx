@@ -94,7 +94,21 @@ export default function DashboardLayout({
         return () => clearInterval(timer);
     }, []);
 
-    if (!isMounted || status === 'loading') return null;
+    if (!isMounted || status === 'loading') {
+        return (
+            <div className="min-h-screen bg-[#050810] text-slate-100 flex flex-col items-center justify-center p-4">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center shadow-xl shadow-indigo-600/30 animate-pulse">
+                        <span className="text-2xl font-black text-white tracking-wider">B</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="h-4 w-28 bg-slate-800/80 rounded-full animate-pulse"></div>
+                        <div className="h-2.5 w-36 bg-slate-800/40 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     if (status === 'unauthenticated') return null;
 
     // Get current translations based on store setting

@@ -15,7 +15,7 @@
   "startUrl": "/",
   "iconUrl": "https://www.billgst.in/logo.png",
   "maskableIconUrl": "https://www.billgst.in/logo.png",
-  "splashScreenFadeOutDuration": 300,
+  "splashScreenFadeOutDuration": 150,
   "signingKey": {
     "path": "F:\\bill\\android.keystore",
     "alias": "android"

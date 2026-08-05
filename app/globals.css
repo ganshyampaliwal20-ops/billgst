@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -51,18 +50,22 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Safe Area handled by Flex Layout in components */
-
-  /* Native App Feel */
+  /* Native App Feel & Instant Touch */
   -webkit-touch-callout: none; /* Disable long press context menu */
   -webkit-user-select: none; /* Disable text selection for native feel */
   user-select: none;
   -webkit-tap-highlight-color: transparent; /* Remove blue tap highlight */
   overscroll-behavior-y: none; /* Disable pull-to-refresh bounce */
+  touch-action: manipulation; /* Eliminate 300ms mobile tap delay */
+}
+
+/* Instant tap response on all interactive elements */
+button, a, input, select, textarea, [role="button"], label {
+  touch-action: manipulation;
 }
 
 /* Allow text selection only on inputs */
