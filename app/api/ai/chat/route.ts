@@ -6,37 +6,47 @@ import { authOptions } from "@/lib/auth";
 async function fetchGemini(apiKey: string, prompt: string): Promise<string> {
     const payload = {
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1 }
+        generationConfig: { 
+            temperature: 0.1,
+            responseMimeType: "application/json"
+        }
     };
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    const modelsToTry = [
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-2.5-flash'
+    ];
 
-    try {
-        const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        const data = await res.json();
-        
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${JSON.stringify(data)}`);
+    let lastError = null;
+
+    for (const modelName of modelsToTry) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s fast timeout per attempt
+
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            const data = await res.json();
+            
+            if (res.ok && data.candidates && data.candidates.length > 0 && data.candidates[0].content?.parts?.[0]?.text) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                lastError = new Error(`Model ${modelName} error: ${JSON.stringify(data)}`);
+            }
+        } catch (e: any) {
+            clearTimeout(timeoutId);
+            lastError = e;
         }
-        
-        if (data.candidates && data.candidates.length > 0) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            throw new Error("Invalid output from Gemini: " + JSON.stringify(data));
-        }
-    } catch (e: any) {
-        clearTimeout(timeoutId);
-        throw e;
     }
+
+    throw lastError || new Error("All Gemini models failed");
 }
 
 export async function POST(request: Request) {

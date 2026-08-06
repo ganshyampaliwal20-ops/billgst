@@ -17,14 +17,15 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Image data is missing' }, { status: 400 });
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
-        });
+        // Extract mime type if present
+        let mimeType = "image/jpeg";
+        const mimeMatch = imageBase64.match(/^data:([^;]+);base64,/);
+        if (mimeMatch && mimeMatch[1]) {
+            mimeType = mimeMatch[1];
+        }
 
-        // Remove the data:image/jpeg;base64, prefix if present
-        const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+        // Clean up base64 prefix
+        const base64Data = imageBase64.replace(/^data:[^;]+;base64,/, "").trim();
 
         const prompt = `
 You are an expert Data Extractor for Expense Receipts, Invoices, and Bills.
@@ -33,35 +34,66 @@ Analyze this receipt/bill image and extract the overall expense details.
 Return ONLY a valid JSON object matching this exact structure:
 {
   "vendorName": "Name of the shop, restaurant, petrol pump, or supplier (string)",
-  "totalAmount": "Final total amount paid on the bill as a number (number)",
-  "expenseDate": "Date of the bill in YYYY-MM-DD format (string)",
+  "totalAmount": 1500,
+  "expenseDate": "YYYY-MM-DD",
   "description": "A short 3-6 word summary of what the expense was for (e.g., 'Lunch at Restaurant', 'Petrol for Car', '2x Chairs, 1x Table') (string)"
 }
 
 Strict Rules:
-1. "totalAmount": Return the final payable amount as an actual JSON number (e.g., 1500), NOT a string ("1,500"). Remove all commas and currency symbols.
-2. "expenseDate": Understand Indian dates (DD-MM-YYYY, DD/MM/YY) and ALWAYS convert to YYYY-MM-DD. If no date is found, return today's date in YYYY-MM-DD.
-3. "description": Keep it very concise but informative. Mention main items or purpose of expense.
-4. Return a perfectly valid JSON. Do not include markdown code blocks like \`\`\`json. Just the raw JSON object.
+1. "totalAmount": Return the final payable amount as a number (e.g. 1500 or 1500.50). Remove commas, currency symbols, and slashes.
+2. "expenseDate": Understand Indian dates (DD-MM-YYYY, DD/MM/YY, etc.) and ALWAYS convert to YYYY-MM-DD format. If no date is found, return today's date in YYYY-MM-DD.
+3. "description": Keep it very concise but informative.
+4. Return ONLY raw valid JSON. Do not include markdown codeblocks.
 `;
 
         const imageParts = [{
-                inlineData: {
-                    data: base64Data,
-                    mimeType: "image/jpeg" // works for most common images
-                }
+            inlineData: {
+                data: base64Data,
+                mimeType: mimeType
             }
-        ];
+        }];
 
-        const result = await model.generateContent([prompt, ...imageParts]);
-        const responseText = result.response.text();
-        
-        // Clean up markdown in case the model ignored instructions
-        const jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const modelsToTry = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
+        let responseText = "";
+        let lastError = null;
+
+        for (const modelName of modelsToTry) {
+            try {
+                const model = genAI.getGenerativeModel({ 
+                    model: modelName,
+                    generationConfig: { responseMimeType: "application/json" }
+                });
+                const result = await model.generateContent([prompt, ...imageParts]);
+                responseText = result.response.text();
+                if (responseText) break;
+            } catch (err: any) {
+                lastError = err;
+                console.warn(`Model ${modelName} failed for vision expense:`, err?.message || err);
+            }
+        }
+
+        if (!responseText) {
+            throw lastError || new Error("All AI vision models failed to process the image");
+        }
+
+        // Clean up markdown code blocks if present
+        let jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            jsonStr = jsonMatch[0];
+        }
         
         try {
             const data = JSON.parse(jsonStr);
-            return NextResponse.json(data);
+            const totalNum = Number(String(data.totalAmount ?? data.amount ?? 0).replace(/[^0-9.]/g, '')) || 0;
+            return NextResponse.json({
+                vendorName: data.vendorName || '',
+                totalAmount: totalNum,
+                amount: totalNum,
+                expenseDate: data.expenseDate || new Date().toISOString().split('T')[0],
+                description: data.description || data.vendorName || 'Expense Bill'
+            });
         } catch (parseError) {
             console.error("Failed to parse Gemini JSON output:", jsonStr);
             return NextResponse.json({ error: 'AI returned invalid data format' }, { status: 500 });

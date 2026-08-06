@@ -257,82 +257,66 @@ function NewInvoiceContent() {
         if (aiDraftData && aiDraftData.type === 'INVOICE') {
             const { customerName, amount, items } = aiDraftData;
             
-            // Step 1: Customer (at 300ms)
-            const timer1 = setTimeout(() => {
-                if (customerName) {
-                    const storeCustomers = useStore.getState().customers || [];
-                    const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerName.toLowerCase()));
-                    if (foundCust) {
-                        setCustomerId(foundCust.id);
-                        setNewCustName(foundCust.name);
+            if (customerName) {
+                const storeCustomers = useStore.getState().customers || [];
+                const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerName.toLowerCase()));
+                if (foundCust) {
+                    setCustomerId(foundCust.id);
+                    setNewCustName(foundCust.name);
+                } else {
+                    setCustomerId('');
+                    setNewCustName(customerName);
+                }
+            }
+            updateAiCopilotStep(0, 'done', customerName ? `Customer "${customerName}" select ho gaya!` : 'Customer select ho gaya!');
+
+            if (items && items.length > 0) {
+                const storeProducts = useStore.getState().products || [];
+                const newItems = items.map((aiItem: any) => {
+                    const prodName = aiItem.name || '';
+                    const prod = storeProducts.find((p: any) => p.name.toLowerCase().includes(prodName.toLowerCase()));
+                    if (prod) {
+                        return {
+                            product_id: prod.id,
+                            product_name: prod.name,
+                            quantity: aiItem.qty || 1,
+                            unit_price: parseFloat(prod.price || prod.sale_price || prod.unit_price) || 0,
+                            gst_rate: parseFloat(prod.gst_rate) || 0,
+                            hsn_code: prod.hsn_code || '',
+                            unit: prod.unit || 'PCS'
+                        };
                     } else {
-                        setCustomerId('');
-                        setNewCustName(customerName);
+                        return {
+                            product_id: '',
+                            product_name: prodName || 'Custom Item',
+                            quantity: aiItem.qty || 1,
+                            unit_price: amount ? (amount / items.length) : 0,
+                            gst_rate: 0,
+                            hsn_code: '',
+                            unit: 'PCS'
+                        };
                     }
-                }
-                setAiHighlight('customer');
-                updateAiCopilotStep(0, 'done', customerName ? `Customer "${customerName}" select ho gaya!` : 'Customer select ho gaya!');
-            }, 300);
+                });
+                setSelectedItems(newItems);
+            } else if (amount) {
+                setSelectedItems([{
+                    product_id: '',
+                    product_name: 'Custom Item',
+                    quantity: 1,
+                    unit_price: amount,
+                    gst_rate: 0,
+                    hsn_code: '',
+                    unit: 'PCS'
+                }]);
+            }
+            setAiHighlight('items');
+            updateAiCopilotStep(1, 'done', 'Items & Price auto-fill ho gaye!');
 
-            // Step 2: Items (at 900ms)
-            const timer2 = setTimeout(() => {
-                if (items && items.length > 0) {
-                    const storeProducts = useStore.getState().products || [];
-                    const newItems = items.map((aiItem: any) => {
-                        const prodName = aiItem.name || '';
-                        const prod = storeProducts.find((p: any) => p.name.toLowerCase().includes(prodName.toLowerCase()));
-                        if (prod) {
-                            return {
-                                product_id: prod.id,
-                                product_name: prod.name,
-                                quantity: aiItem.qty || 1,
-                                unit_price: parseFloat(prod.price || prod.sale_price || prod.unit_price) || 0,
-                                gst_rate: parseFloat(prod.gst_rate) || 0,
-                                hsn_code: prod.hsn_code || '',
-                                unit: prod.unit || 'PCS'
-                            };
-                        } else {
-                            return {
-                                product_id: '',
-                                product_name: prodName || 'Custom Item',
-                                quantity: aiItem.qty || 1,
-                                unit_price: amount ? (amount / items.length) : 0,
-                                gst_rate: 0,
-                                hsn_code: '',
-                                unit: 'PCS'
-                            };
-                        }
-                    });
-                    setSelectedItems(newItems);
-                } else if (amount) {
-                    setSelectedItems([{
-                        product_id: '',
-                        product_name: 'Custom Item',
-                        quantity: 1,
-                        unit_price: amount,
-                        gst_rate: 0,
-                        hsn_code: '',
-                        unit: 'PCS'
-                    }]);
-                }
-                setAiHighlight('items');
-                updateAiCopilotStep(1, 'done', 'Items & Price auto-fill ho gaye!');
-            }, 900);
-
-            // Step 3: Calculation & Finish (at 1500ms)
-            const timer3 = setTimeout(() => {
-                setAiHighlight('totals');
-                updateAiCopilotStep(2, 'done', 'Calculations & GST ready!');
-                completeAiCopilotAction('✅ Bill taiyar hai! Aap verify karke save kar sakte hain.');
-                setAiDraftData(null);
-                setTimeout(() => setAiHighlight(null), 3000);
-            }, 1500);
-            
-            return () => {
-                clearTimeout(timer1);
-                clearTimeout(timer2);
-                clearTimeout(timer3);
-            };
+            setAiHighlight('totals');
+            updateAiCopilotStep(2, 'done', 'Calculations & GST ready!');
+            completeAiCopilotAction('✅ Bill taiyar hai! Aap verify karke save kar sakte hain.');
+            setAiDraftData(null);
+            setTimeout(() => setAiHighlight(null), 2000);
         }
     }, [isClient, isDuplicating, quotations, searchParams, aiDraftData]);
 

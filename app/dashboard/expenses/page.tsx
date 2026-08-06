@@ -194,6 +194,7 @@ export default function BusinessExpensesPage() {
     const toastTimeout = useRef<any>(null);
     // Track whether load has fully completed — prevent saving empty array during load
     const loadCompleted = useRef(false);
+    const processingDraftRef = useRef<any>(null);
     const dismissedPTxnIds = useRef<Set<any>>(new Set());
     const notifiedPTxnIds = useRef<Set<any>>(new Set());
 
@@ -534,46 +535,7 @@ export default function BusinessExpensesPage() {
         return () => clearTimeout(timer);
     }, [customers, canSave, isMounted, session?.user?.id]);
 
-    // AUTO-HEAL: Fix corrupted balances from old reversed math logic
-    useEffect(() => {
-        if (!isMounted || customers.length === 0) return;
 
-        let needsHeal = false;
-        const healedCustomers = customers.map(c => {
-            if (!c.txns || c.txns.length === 0) return c;
-
-            // Calculate what the balance SHOULD be if opening balance was 0
-            let debitSum = 0, creditSum = 0;
-            c.txns.forEach((t: any) => {
-                if (t.type === 'credit') creditSum += t.amt;
-                else debitSum += t.amt; // advance & debit
-            });
-
-            // Calculate Correct Balance (Debit = +, Credit = -)
-            const expectedCorrectBalance = debitSum - creditSum;
-
-            // If the current balance does not match the expected balance, we assume it's corrupted 
-            // (either missing opening balance or polluted by old logic).
-            // Let's assume opening balance was 0 for simplicity, or we recalculate it by reverse engineering the old logic:
-            // old logic: bal = opening + credit - debit. 
-            // So opening = oldBal - credit + debit.
-            const inferredOpeningBalance = c.balance - creditSum + debitSum;
-            const absoluteCorrectBalance = inferredOpeningBalance + debitSum - creditSum;
-
-            // However, it's safer to just reset it to pure transactions if it looks wrong and isn't exactly matching.
-            if (c.balance !== absoluteCorrectBalance && c.balance !== expectedCorrectBalance) {
-                needsHeal = true;
-                return { ...c, balance: expectedCorrectBalance }; // Just reset to pure transactions to wipe the corruption
-            }
-            return c;
-        });
-
-        if (needsHeal) {
-            setCustomers(healedCustomers);
-            // console.log("Auto-healed corrupted balances!");
-            showToast(t.toastAutoHeal || "🛠 Purani entries ka hisaab theek kar diya gaya hai!");
-        }
-    }, [isMounted, customers.length]); // only run once when loaded
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -596,57 +558,55 @@ export default function BusinessExpensesPage() {
 
     useEffect(() => {
         if (!isMounted || !loadCompleted.current || !aiDraftData) return;
-        if (aiDraftData.type === 'EXPENSE') {
-            const { description, amount } = aiDraftData;
+        if (processingDraftRef.current === aiDraftData) return;
+        processingDraftRef.current = aiDraftData;
+        const currentDraft = { ...aiDraftData };
+        setAiDraftData(null); // Consume immediately to prevent loop on state update!
+
+        if (currentDraft.type === 'EXPENSE') {
+            const { description, amount } = currentDraft;
             const searchName = (description || '').trim();
             const amt = Number(amount) || 0;
 
-            // Step 1: Search & locate account (at 200ms)
-            const t1 = setTimeout(() => {
-                updateAiCopilotStep(0, 'done', searchName ? `Account "${searchName}" search ho gaya!` : 'Khata select ho gaya!');
-            }, 200);
+            updateAiCopilotStep(0, 'done', searchName ? `Account "${searchName}" search ho gaya!` : 'Khata select ho gaya!');
 
-            // Step 2: Add Entry (at 800ms)
-            const t2 = setTimeout(() => {
-                if (searchName && customers.length > 0) {
-                    const target = customers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
+            setCustomers(prevCustomers => {
+                if (searchName && prevCustomers.length > 0) {
+                    const target = prevCustomers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
                     if (target) {
                         setCurCid(target.id);
                         setActiveScreen('detail');
                         window.location.hash = 'detail';
                         if (amt > 0) {
-                            setCustomers(customers.map(c => {
-                                if (c.id === target.id) {
-                                    const newTxn = {
-                                        id: Date.now(),
-                                        type: 'debit',
-                                        amt,
-                                        name: 'Expense (AI)',
-                                        note: '',
-                                        date: new Date().toISOString(),
-                                        category: 'General',
-                                        photos: []
-                                    };
-                                    return { ...c, balance: c.balance + amt, txns: [newTxn, ...c.txns] };
-                                }
-                                return c;
-                            }));
                             setCanSave(true);
                             showToast(t.entrySaved || `✅ ${target.name} me ₹${amt} add ho gaye!`);
+                            const newTxn = {
+                                id: Date.now(),
+                                type: 'debit',
+                                amt,
+                                name: 'Expense (AI)',
+                                note: '',
+                                date: new Date().toISOString(),
+                                category: 'General',
+                                photos: []
+                            };
+                            return prevCustomers.map(c => c.id === target.id ? { ...c, balance: c.balance + amt, txns: [newTxn, ...c.txns] } : c);
                         } else {
-                            setTimeout(() => openAddEntry('debit', String(amount || '')), 300);
+                            setTimeout(() => openAddEntry('debit', String(amount || '')), 100);
+                            return prevCustomers;
                         }
                     } else {
                         if (amt > 0) {
                             const nc = { id: Date.now(), name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
                                 id: Date.now() + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
                             }] };
-                            setCustomers([{ ...nc }, ...customers]);
                             setCanSave(true);
                             showToast(`✅ Naya account ${searchName} ban gaya aur ₹${amt} add ho gaye!`);
+                            return [{ ...nc }, ...prevCustomers];
                         } else {
                             setAcName(searchName);
                             setIsAddCustOpen(true);
+                            return prevCustomers;
                         }
                     }
                 } else {
@@ -655,48 +615,35 @@ export default function BusinessExpensesPage() {
                         const nc = { id: Date.now(), name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
                             id: Date.now() + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
                         }] };
-                        setCustomers([{ ...nc }, ...customers]);
                         setCanSave(true);
                         showToast(`✅ ${partyName} me ₹${amt} add ho gaye!`);
+                        return [{ ...nc }, ...prevCustomers];
                     } else {
                         if (amount) setAcOpening(String(amount));
                         setIsAddCustOpen(true);
+                        return prevCustomers;
                     }
                 }
-                updateAiCopilotStep(1, 'done', `₹${amt} kharcha entry add ho gayi!`);
-            }, 800);
+            });
+            updateAiCopilotStep(1, 'done', `₹${amt} kharcha entry add ho gayi!`);
+            updateAiCopilotStep(2, 'done', 'Khata balance update ho gaya!');
+            completeAiCopilotAction(`✅ ₹${amt} kharcha (${searchName || 'General'}) successfully add ho gaya!`);
 
-            // Step 3: Complete HUD (at 1500ms)
-            const t3 = setTimeout(() => {
-                updateAiCopilotStep(2, 'done', 'Khata balance update ho gaya!');
-                completeAiCopilotAction(`✅ ₹${amt} kharcha (${searchName || 'General'}) successfully add ho gaya!`);
-                setAiDraftData(null);
-            }, 1500);
-
-            return () => {
-                clearTimeout(t1);
-                clearTimeout(t2);
-                clearTimeout(t3);
-            };
-        } else if (aiDraftData.type === 'BULK_REMINDER') {
+        } else if (currentDraft.type === 'BULK_REMINDER') {
             const pendingIds = customers.filter((c: any) => c.balance > 0).map((c: any) => c.id);
             if (pendingIds.length > 0) {
                 updateAiCopilotStep(0, 'done', `${pendingIds.length} pending customers mil gaye!`);
+                updateAiCopilotStep(1, 'done', 'WhatsApp reminder messages ready!');
+                completeAiCopilotAction(`✅ ${pendingIds.length} pending customers ke reminders taiyar hain!`);
                 showToast(t.sendingReminders || '⏳ Sending reminders to all pending customers...');
-                setTimeout(() => {
-                    updateAiCopilotStep(1, 'done', 'WhatsApp reminder messages ready!');
-                    completeAiCopilotAction(`✅ ${pendingIds.length} pending customers ke reminders taiyar hain!`);
-                    setAiDraftData(null);
-                    handleBulkRemind(pendingIds);
-                }, 900);
+                handleBulkRemind(pendingIds);
             } else {
                 updateAiCopilotStep(0, 'done', 'Sabhi bills clear hain!');
                 completeAiCopilotAction('✅ Koi pending payment nahi hai.');
                 showToast('✅ No pending payments found!');
-                setAiDraftData(null);
             }
         }
-    }, [isMounted, aiDraftData, customers, updateAiCopilotStep, completeAiCopilotAction]);
+    }, [isMounted, aiDraftData, updateAiCopilotStep, completeAiCopilotAction]);
 
     const showToast = (msg: string) => {
         setToastMsg(msg);
@@ -991,14 +938,19 @@ export default function BusinessExpensesPage() {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const inputEl = e.target;
         setIsExpenseScanning(true);
         try {
             const reader = new FileReader();
             reader.onload = async (event) => {
                 const base64 = event.target?.result as string;
-                const compressedBase64 = await compressImage(base64, 800, 0.7);
-                
+                if (!base64) {
+                    setIsExpenseScanning(false);
+                    return;
+                }
                 try {
+                    const compressedBase64 = await compressImage(base64, 800, 0.7);
+                    
                     const res = await fetch('/api/vision-expense', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1007,28 +959,52 @@ export default function BusinessExpensesPage() {
                     
                     const data = await res.json();
                     
-                    if (data && data.totalAmount) {
-                        openAddEntry('debit', data.totalAmount.toString());
-                        setEntryDate(data.expenseDate || new Date().toISOString().split('T')[0]);
-                        setEntryNote(data.description || '');
-                        showToast(t.billScanned || '✅ Bill scanned successfully!');
+                    if (res.ok && data && (data.totalAmount !== undefined || data.amount !== undefined)) {
+                        const amtVal = data.totalAmount ?? data.amount;
+                        if (amtVal !== undefined && amtVal !== null && amtVal !== '') {
+                            const cleanAmt = String(amtVal).replace(/[^0-9.]/g, '');
+                            if (cleanAmt && cleanAmt !== '0') {
+                                setAmtInp(cleanAmt);
+                            }
+                        }
+                        if (data.expenseDate) {
+                            setEntryDate(data.expenseDate);
+                        }
+                        const noteDesc = [data.vendorName, data.description].filter(Boolean).join(' - ') || data.description || '';
+                        if (noteDesc) {
+                            setEntryNote(prev => prev ? `${prev} | ${noteDesc}` : noteDesc);
+                        }
+                        // Attach the scanned photo to pending photos
+                        setPendingPhotos(prev => [...prev, compressedBase64]);
+                        showToast(t.billScanned || '✅ Bill scan ho gaya aur details fill ho gayi!');
                     } else {
-                        showToast(t.errorScanningBill || '❌ Failed to extract details from bill');
+                        // Attach photo anyway so user doesn't lose it
+                        setPendingPhotos(prev => [...prev, compressedBase64]);
+                        showToast(data?.error || t.errorScanningBill || '⚠️ Bill scan hua par details poori nahi mili (Photo attach ho gayi)');
                     }
                 } catch (error) {
-                    showToast(t.errorParsingBill || '❌ Error parsing bill details');
+                    console.error("Expense AI Scan fetch error:", error);
+                    setPendingPhotos(prev => [...prev, base64]);
+                    showToast(t.errorParsingBill || '❌ Bill scan karne mein dikkat aayi (Photo attach ho gayi)');
                 } finally {
                     setIsExpenseScanning(false);
                     setIsAiScanMenuOpen(false);
+                    setAttachMenuType(null);
+                    if (inputEl) inputEl.value = '';
                     if (expenseFileInputRef.current) expenseFileInputRef.current.value = '';
                     if (expenseFileInputCameraRef.current) expenseFileInputCameraRef.current.value = '';
                     if (expenseFileInputGalleryRef.current) expenseFileInputGalleryRef.current.value = '';
                 }
             };
+            reader.onerror = () => {
+                setIsExpenseScanning(false);
+                setAttachMenuType(null);
+                showToast(t.errorReadingFile || '❌ Error reading file');
+            };
             reader.readAsDataURL(file);
         } catch (error) {
             setIsExpenseScanning(false);
-            setIsAiScanMenuOpen(false);
+            setAttachMenuType(null);
             showToast(t.errorReadingFile || '❌ Error reading file');
         }
     };
@@ -1228,6 +1204,7 @@ export default function BusinessExpensesPage() {
             }
             return c;
         }));
+        setCanSave(true);
         showToast(t.entryDeleted || '🗑 Entry delete ho gayi!');
     };
 
@@ -1285,6 +1262,7 @@ export default function BusinessExpensesPage() {
             return c;
         }));
 
+        setCanSave(true);
         setIsAddEntryOpen(false);
         setEditTxnId(null);
         showToast(editTxnId ? (t.entryUpdated || '✅ Entry update ho gayi!') : (t.entrySaved || '✅ Entry save ho gayi!'));
@@ -1418,10 +1396,22 @@ export default function BusinessExpensesPage() {
         if (editCustId) {
             setCustomers(customers.map(c => c.id === editCustId ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening } : c));
             setEditCustId(null);
+            setCanSave(true);
             showToast(t.custUpdated || '✅ Customer update ho gaya!');
         } else {
-            const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening, txns: [] };
+            const initialTxns = opening > 0 ? [{
+                id: Date.now(),
+                type: 'debit',
+                amt: opening,
+                name: 'Opening Balance',
+                note: 'Starting balance',
+                date: new Date().toISOString(),
+                category: 'General',
+                photos: []
+            }] : [];
+            const nc = { id: Date.now(), name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening, txns: initialTxns };
             setCustomers([{ ...nc }, ...customers]);
+            setCanSave(true);
             showToast(t.custAdded || '✅ Customer add ho gaya!');
         }
         setIsAddCustOpen(false);
@@ -1445,6 +1435,7 @@ export default function BusinessExpensesPage() {
         }
 
         setCustomers(customers.filter(c => String(c.id) !== String(curCid)));
+        setCanSave(true);
         handleBack();
         showToast(`🗑 ${currentCust.name} ${t.deleted || 'delete ho gaye!'}`);
     };
@@ -1505,6 +1496,7 @@ export default function BusinessExpensesPage() {
             if (url) {
                 const compressedUrl = await compressImage(url);
                 setCustomers(prev => prev.map(c => String(c.id) === String(curCid) ? { ...c, photo: compressedUrl } : c));
+                setCanSave(true);
                 showToast(t.profilePhotoUpdated || '📸 Profile photo lag gayi!');
             }
         };
@@ -1536,6 +1528,7 @@ export default function BusinessExpensesPage() {
                             txns: c.txns.map((t: any) => String(t.id) === String(txnId) ? { ...t, photos: [...(t.photos || []), compressedUrl] } : t)
                         };
                     }));
+                    setCanSave(true);
                     showToast(t.photoAdded || '📸 Photo add ho gaya!');
                 } catch (err) {
                     console.error(err);

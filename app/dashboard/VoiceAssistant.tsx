@@ -260,7 +260,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
 
                 setReply(spokenReply);
                 setIsProcessing(false);
-                await speakOutput(spokenReply);
+                // Speak response asynchronously in background so action executes instantly!
+                speakOutput(spokenReply);
 
                 if (data.action === 'SPEAK_ANSWER') {
                     // Do nothing else, it has already spoken
@@ -278,7 +279,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'BULK_REMINDER' });
-                    setTimeout(() => { onClose(); router.push('/dashboard/expenses'); }, 600);
+                    onClose();
+                    router.push('/dashboard/expenses');
                 } else if (data.action === 'CREATE_INVOICE') {
                     setAiCopilotAction({
                         type: 'INVOICE',
@@ -294,7 +296,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/invoices/new'); }, 600);
+                    onClose();
+                    router.push('/dashboard/invoices/new');
                 } else if (data.action === 'MARK_ATTENDANCE') {
                     setAiCopilotAction({
                         type: 'ATTENDANCE',
@@ -310,7 +313,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/staff'); }, 600);
+                    onClose();
+                    router.push('/dashboard/staff');
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiCopilotAction({
                         type: 'EXPENSE',
@@ -326,7 +330,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/expenses'); }, 600);
+                    onClose();
+                    router.push('/dashboard/expenses');
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiCopilotAction({
                         type: 'INVENTORY',
@@ -341,7 +346,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/inventory'); }, 600);
+                    onClose();
+                    router.push('/dashboard/inventory');
                 } else if (data.action === 'ADD_CUSTOMER') {
                     setAiCopilotAction({
                         type: 'CUSTOMER',
@@ -356,7 +362,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'CUSTOMER', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/customers'); }, 600);
+                    onClose();
+                    router.push('/dashboard/customers');
                 } else if (data.action === 'ADD_SUPPLIER') {
                     setAiCopilotAction({
                         type: 'SUPPLIER',
@@ -371,7 +378,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'SUPPLIER', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/suppliers'); }, 600);
+                    onClose();
+                    router.push('/dashboard/suppliers');
                 } else if (data.action === 'RECORD_PAYMENT') {
                     setAiCopilotAction({
                         type: 'PAYMENT',
@@ -386,7 +394,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'PAYMENT', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/customers'); }, 600);
+                    onClose();
+                    router.push('/dashboard/customers');
                 } else if (data.action === 'CREATE_PURCHASE') {
                     setAiCopilotAction({
                         type: 'PURCHASE',
@@ -400,7 +409,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                         isVisible: true
                     });
                     setAiDraftData({ type: 'PURCHASE', ...data.payload });
-                    setTimeout(() => { onClose(); router.push('/dashboard/purchases/new'); }, 600);
+                    onClose();
+                    router.push('/dashboard/purchases/new');
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
                     if (path) {
@@ -416,7 +426,8 @@ export default function VoiceAssistant({ isOpen, onClose }: VoiceAssistantProps)
                             isComplete: true,
                             isVisible: true
                         });
-                        setTimeout(() => { onClose(); router.push(path); }, 500);
+                        onClose();
+                        router.push(path);
                     }
                 } else if (data.action !== 'REPLY' && data.action !== 'GET_BALANCE') {
                     toast.error((isEn ? 'Action not understood: ' : 'Action samajh nahi aaya: ') + data.action);

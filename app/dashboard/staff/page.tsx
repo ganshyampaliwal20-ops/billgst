@@ -70,36 +70,20 @@ export default function SmartAttendance() {
                 if (foundStaff) {
                     const attendanceStatus = status === 'ABSENT' ? 'ABSENT' : status === 'HALF_DAY' ? 'HALF_DAY' : status === 'LEAVE' ? 'LEAVE' : 'PRESENT';
                     
-                    // Step 1: Search & Scroll to staff card (at 200ms)
-                    const t1 = setTimeout(() => {
-                        setAiHighlightedStaffId(foundStaff.id);
-                        const cardEl = document.getElementById(`staff-card-${foundStaff.id}`);
-                        if (cardEl) {
-                            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                        updateAiCopilotStep(0, 'done', `Staff "${foundStaff.name}" select ho gaya!`);
-                    }, 200);
+                    setAiHighlightedStaffId(foundStaff.id);
+                    const cardEl = document.getElementById(`staff-card-${foundStaff.id}`);
+                    if (cardEl) {
+                        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    updateAiCopilotStep(0, 'done', `Staff "${foundStaff.name}" select ho gaya!`);
 
-                    // Step 2: Mark status button (at 900ms)
-                    const t2 = setTimeout(() => {
-                        markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
-                            updateAiCopilotStep(1, 'done', `Status "${attendanceStatus}" mark ho gaya!`);
-                        }).catch(console.error);
-                    }, 900);
-
-                    // Step 3: Complete HUD (at 1500ms)
-                    const t3 = setTimeout(() => {
+                    markAttendance(foundStaff.id, selectedDate, attendanceStatus).then(() => {
+                        updateAiCopilotStep(1, 'done', `Status "${attendanceStatus}" mark ho gaya!`);
                         updateAiCopilotStep(2, 'done', 'Record verify ho gaya!');
                         completeAiCopilotAction(`✅ ${foundStaff.name} ki attendance (${attendanceStatus}) successfully mark ho gayi!`);
                         setAiDraftData(null);
-                        setTimeout(() => setAiHighlightedStaffId(null), 3500);
-                    }, 1500);
-
-                    return () => {
-                        clearTimeout(t1);
-                        clearTimeout(t2);
-                        clearTimeout(t3);
-                    };
+                        setTimeout(() => setAiHighlightedStaffId(null), 2000);
+                    }).catch(console.error);
                 } else {
                     updateAiCopilotStep(0, 'done', `Staff "${staffName}" search kiya`);
                     completeAiCopilotAction(`⚠️ Staff "${staffName}" staff list me nahi mila.`);

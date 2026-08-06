@@ -150,10 +150,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'INVOICE', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/invoices/new');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/invoices/new');
                     
                 } else if (data.action === 'MARK_ATTENDANCE') {
                     setAiCopilotAction({
@@ -170,10 +168,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'ATTENDANCE', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/staff');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/staff');
                     
                 } else if (data.action === 'ADD_EXPENSE') {
                     setAiCopilotAction({
@@ -190,10 +186,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'EXPENSE', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/expenses');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/expenses');
                     
                 } else if (data.action === 'ADD_INVENTORY') {
                     setAiCopilotAction({
@@ -209,10 +203,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'INVENTORY', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/inventory');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/inventory');
                     
                 } else if (data.action === 'ADD_CUSTOMER') {
                     setAiCopilotAction({
@@ -228,10 +220,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'CUSTOMER', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/customers');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/customers');
                     
                 } else if (data.action === 'ADD_SUPPLIER') {
                     setAiCopilotAction({
@@ -247,10 +237,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'SUPPLIER', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/suppliers');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/suppliers');
                     
                 } else if (data.action === 'RECORD_PAYMENT') {
                     setAiCopilotAction({
@@ -266,10 +254,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'PAYMENT', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/customers');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/customers');
                     
                 } else if (data.action === 'CREATE_PURCHASE') {
                     setAiCopilotAction({
@@ -284,10 +270,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                         isVisible: true
                     });
                     setAiDraftData({ type: 'PURCHASE', ...data.payload });
-                    setTimeout(() => {
-                        onClose();
-                        router.push('/dashboard/purchases/new');
-                    }, 600);
+                    onClose();
+                    router.push('/dashboard/purchases/new');
                     
                 } else if (data.action === 'NAVIGATE') {
                     const path = data.payload?.path || data.path;
