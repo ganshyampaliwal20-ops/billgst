@@ -476,6 +476,30 @@ export default function SettingsPage() {
                 .bs-preview-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
                 .bs-preview-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; box-shadow: 0 0 0 3px rgba(34,197,94,0.14); }
                 .bs-badge { font-size: 10.5px; background: var(--field); color: var(--text-faint); padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+                /* New Settings Section Layout */
+                .settings-section{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 16px; overflow: hidden; }
+                .section-header{ padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+                .section-header-top{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+                .section-title-group{ display: flex; align-items: center; gap: 10px; min-width: 0; }
+                .section-icon{ width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; background: linear-gradient(135deg, var(--violet), #a06bff); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+                .section-icon svg { width: 18px; height: 18px; stroke: white; }
+                .section-title{ font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+                .close-btn{ flex-shrink: 0; background: var(--field); border: 1px solid var(--field-border); color: var(--text); padding: 7px 14px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s; }
+                .close-btn:hover{ border-color: var(--violet); }
+                .section-desc{ font-size: 13px; color: var(--text-faint); line-height: 1.5; padding-left: 48px; }
+                
+                .module-row{ display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-top: 1px solid var(--card-border); cursor: pointer; transition: background 0.2s; }
+                .module-row:hover{ background: rgba(255,255,255,0.02); }
+                .module-left{ display:flex; align-items:center; gap:12px; min-width:0; }
+                .module-icon{ width: 36px; height:36px; border-radius: 10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size: 16px; }
+                .module-text{ min-width:0; }
+                .module-text h4{ font-size:14px; font-weight:600; margin-bottom:2px; color: var(--text); }
+                .module-text p{ font-size:12px; color: var(--text-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+                
+                .toggle-box{ width: 42px; height: 24px; border-radius: 20px; background: var(--field); position: relative; flex-shrink:0; border: 1px solid var(--field-border); transition: 0.2s; pointer-events: none; }
+                .toggle-box::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#7b84a8; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+                .toggle-box.active{ background: linear-gradient(135deg, var(--violet), #a06bff); border-color: transparent; }
+                .toggle-box.active::after{ transform: translateX(18px); background: #fff; }
             `}</style>
 
             <div className="shell">
@@ -783,61 +807,51 @@ export default function SettingsPage() {
                     </div>
 
                     {/* Features & Modules */}
-                    <div className="card" id="modules">
-                        <div className="link-row">
-                            <div className="card-head-left">
-                                <div className="card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    <div className="settings-section" id="modules">
+                        <div className="section-header">
+                            <div className="section-header-top">
+                                <div className="section-title-group">
+                                    <div className="section-icon">▦</div>
+                                    <div className="section-title">Features &amp; Modules</div>
                                 </div>
-                                <div>
-                                    <h2>Features &amp; Modules</h2>
-                                    <p>Enable or disable dashboard modules based on your business needs</p>
-                                </div>
+                                <button type="button" className="close-btn" onClick={() => setFeaturesOpen(!featuresOpen)}>
+                                    {featuresOpen ? 'Close ▲' : 'Open ▼'}
+                                </button>
                             </div>
-                            <button type="button" className={`bs-chevron-btn ${featuresOpen ? 'open' : ''}`} onClick={() => setFeaturesOpen(!featuresOpen)}>
-                                <span>{featuresOpen ? 'Close' : 'View Modules'}</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
-                            </button>
+                            <div className="section-desc">Enable or disable dashboard modules based on your business needs</div>
                         </div>
                         <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
-                            <div style={{ padding: '0 16px 16px' }}>
-                                <div className="bs-feature-grid">
-                                    {MODULES.map(mod => (
-                                        <div key={mod.id} className="bs-feature-item">
-                                            <div className="bs-f-icon" style={{ background: mod.color, color: mod.iconColor }}>
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                                            </div>
-                                            <div className="bs-f-text">
-                                                <strong>{mod.label}</strong>
-                                                <p>{mod.desc}</p>
-                                            </div>
-                                            <label className="bs-switch">
-                                                <input type="checkbox" checked={formData?.modules?.[mod.id] ?? true} onChange={(e) => setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: e.target.checked } })} />
-                                                <span className="bs-slider"></span>
-                                            </label>
+                            {MODULES.map(mod => (
+                                <div key={mod.id} className="module-row" onClick={() => {
+                                    const current = formData?.modules?.[mod.id] ?? true;
+                                    setFormData({ ...formData, modules: { ...formData.modules, [mod.id]: !current } });
+                                }}>
+                                    <div className="module-left">
+                                        <div className="module-icon" style={{ background: mod.color, color: mod.iconColor }}>▦</div>
+                                        <div className="module-text">
+                                            <h4>{mod.label}</h4>
+                                            <p>{mod.desc}</p>
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div className={`toggle-box ${(formData?.modules?.[mod.id] ?? true) ? 'active' : ''}`}></div>
                                 </div>
-                            </div>
+                            ))}
                         </div></div>
                     </div>
 
                     {/* Invoice Design */}
-                    <div className="card" id="design">
-                        <div className="link-row">
-                            <div className="card-head-left">
-                                <div className="card-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><circle cx="11" cy="11" r="2"/></svg>
+                    <div className="settings-section" id="design">
+                        <div className="section-header">
+                            <div className="section-header-top">
+                                <div className="section-title-group">
+                                    <div className="section-icon">🏷</div>
+                                    <div className="section-title">Design Your Invoice</div>
                                 </div>
-                                <div>
-                                    <h2>Design Your Invoice</h2>
-                                    <p>Customize invoice color theme, table layout, and logo position</p>
-                                </div>
+                                <button type="button" className="close-btn" onClick={() => setDesignOpen(!designOpen)}>
+                                    {designOpen ? 'Close ▲' : 'Customize ▼'}
+                                </button>
                             </div>
-                            <button type="button" className={`bs-chevron-btn ${designOpen ? 'open' : ''}`} onClick={() => setDesignOpen(!designOpen)}>
-                                <span>{designOpen ? 'Close' : 'Customize Design'}</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="6 9 12 15 18 9"/></svg>
-                            </button>
+                            <div className="section-desc">Customize invoice color theme, table layout, and logo position</div>
                         </div>
                         <div className={`bs-collapse ${designOpen ? 'open' : ''}`}><div>
                             <div style={{ padding: '0 16px 16px' }}>
