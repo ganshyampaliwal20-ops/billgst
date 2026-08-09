@@ -1212,7 +1212,7 @@ export default function BusinessExpensesPage() {
             const pin = window.prompt("Security Check:\nPlease enter your 4-digit Expense Deletion PIN:");
             if (pin === null) return false;
             
-            const tid = toast.loading('Verifying PIN...');
+            showToast('Verifying PIN...');
             try {
                 const res = await fetch('/api/auth/verify-pin', {
                     method: 'POST',
@@ -1221,13 +1221,13 @@ export default function BusinessExpensesPage() {
                 });
                 const data = await res.json();
                 if (!data.success) {
-                    toast.error(data.error || 'Incorrect PIN', { id: tid });
+                    showToast(data.error || 'Incorrect PIN');
                     return false;
                 }
-                toast.success('PIN Verified', { id: tid });
+                showToast('PIN Verified');
                 return true;
             } catch (e) {
-                toast.error('Failed to verify PIN', { id: tid });
+                showToast('Failed to verify PIN');
                 return false;
             }
         }
