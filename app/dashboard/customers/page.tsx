@@ -210,6 +210,11 @@ export default function CustomersPage() {
                                     title: 'Report Downloaded',
                                     body: `${fileName} saved to Documents folder.`,
                                     id: Math.floor(Math.random() * 100000),
+                                    extra: {
+                                        filePath: savedFile.uri,
+                                        fileName: fileName,
+                                        mimeType: 'text/csv'
+                                    }
                                 }]
                             });
                         } catch(e) {}
