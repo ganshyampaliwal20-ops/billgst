@@ -1291,7 +1291,7 @@ export default function BusinessExpensesPage() {
             const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
             await idb.set(storageKey, nextCustomers);
             
-            if (updatedCustObj && !isOffline) {
+            if (updatedCustObj && session?.user?.id) {
                 fetch('/api/hisaab/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
