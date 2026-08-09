@@ -1055,7 +1055,10 @@ export default function SmartAttendance() {
                                                 <div className="staff-info">
                                                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start'}}>
                                                         <div>
-                                                            <div className="staff-name">{s.name}</div>
+                                                            <div className="staff-name">
+                                                                {s.name}
+                                                                {s.is_deleted && <span style={{fontSize:'11px', color:'var(--absent)', marginLeft:'6px', fontWeight:'bold'}}>(Deleted)</span>}
+                                                            </div>
                                                             <div className="staff-role">{s.role} {s.phone ? `• 📞 ${s.phone}` : ''}</div>
                                                         </div>
                                                         {meta && (
@@ -1066,7 +1069,7 @@ export default function SmartAttendance() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="action-grid">
+                                            <div className="action-grid" style={s.is_deleted ? { opacity: 0.5, pointerEvents: 'none' } : {}}>
                                                 <button className={`act-btn present ${status === 'PRESENT' ? 'on' : ''}`} onClick={() => handleSetAtt(s.id, 'PRESENT')}>
                                                     <span style={{ fontSize: '13px' }}>✓</span><span>Present</span>
                                                 </button>
@@ -1082,7 +1085,7 @@ export default function SmartAttendance() {
                                             </div>
                                             <div className="bottom-row">
                                                 <button className="edit-btn" onClick={() => openEditModal(s)} title="Edit Staff Details">✏️ Edit</button>
-                                                {deleteStaff && (
+                                                {deleteStaff && !s.is_deleted && (
                                                     <button className="del-btn" onClick={async () => {
                                                         if (window.confirm(`Delete ${s.name}?`)) {
                                                             await deleteStaff(s.id);
