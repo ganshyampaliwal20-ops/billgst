@@ -197,6 +197,8 @@ export default function BusinessExpensesPage() {
     const processingDraftRef = useRef<any>(null);
     const dismissedPTxnIds = useRef<Set<any>>(new Set());
     const notifiedPTxnIds = useRef<Set<any>>(new Set());
+    const deletedCustIds = useRef<Set<string>>(new Set());
+    const deletedTxnIds = useRef<Set<string>>(new Set());
 
     // Helper to check if a pending txn is dismissed or already in txns
     const isDismissedOrHandled = (pId: any, localTxnIds: Set<string>) => {
@@ -207,7 +209,7 @@ export default function BusinessExpensesPage() {
         return false;
     };
 
-    // Initialize dismissed IDs from localStorage on mount
+    // Initialize dismissed IDs and deleted IDs from localStorage on mount
     useEffect(() => {
         try {
             const raw = localStorage.getItem('dismissed_ptxns');
@@ -218,6 +220,26 @@ export default function BusinessExpensesPage() {
                         dismissedPTxnIds.current.add(String(id));
                         dismissedPTxnIds.current.add(Number(id));
                     });
+                }
+            }
+        } catch (e) {}
+
+        try {
+            const rawCusts = localStorage.getItem('deleted_hisaab_custs');
+            if (rawCusts) {
+                const arr = JSON.parse(rawCusts);
+                if (Array.isArray(arr)) {
+                    arr.forEach((id: any) => deletedCustIds.current.add(String(id)));
+                }
+            }
+        } catch (e) {}
+
+        try {
+            const rawTxns = localStorage.getItem('deleted_hisaab_txns');
+            if (rawTxns) {
+                const arr = JSON.parse(rawTxns);
+                if (Array.isArray(arr)) {
+                    arr.forEach((id: any) => deletedTxnIds.current.add(String(id)));
                 }
             }
         } catch (e) {}
@@ -267,10 +289,13 @@ export default function BusinessExpensesPage() {
                     if (!Array.isArray(dataArray)) return;
                     let changed = false;
                     dataArray.forEach(cust => {
-                        if (!cust.id) return;
+                        if (!cust || !cust.id) return;
                         const custKey = String(cust.id);
+                        if (deletedCustIds.current.has(custKey)) return;
+
                         const existing = mergedCustomers.get(custKey);
-                        const custTxns = cust.txns || [];
+                        const rawCustTxns = cust.txns || [];
+                        const custTxns = rawCustTxns.filter((t: any) => !deletedTxnIds.current.has(String(t?.id)));
                         const custTxnIds = new Set<string>(custTxns.map((t: any) => String(t.id)));
                         const validCustPTxns = (cust.pending_txns || []).filter((p: any) => !isDismissedOrHandled(p.id, custTxnIds));
 
@@ -284,7 +309,7 @@ export default function BusinessExpensesPage() {
                             mergedCustomers.set(custKey, { ...cust, txns: custTxns, pending_txns: validCustPTxns });
                             changed = true;
                         } else {
-                            const existingTxns = existing.txns || [];
+                            const existingTxns = (existing.txns || []).filter((t: any) => !deletedTxnIds.current.has(String(t?.id)));
                             const existingTxnIds = new Set<string>(existingTxns.map((t: any) => String(t.id)));
                             const newTxns = custTxns.filter((t: any) => !existingTxnIds.has(String(t.id)));
                             const mergedTxns = [...existingTxns, ...newTxns].sort((a: any, b: any) =>
@@ -315,31 +340,18 @@ export default function BusinessExpensesPage() {
                     if (fastData) mergeIntoMap(fastData, true);
                 } catch(e) {}
                 
-                // Hide loading spinner IMMEDAITELY if we have some data
+                // Hide loading spinner IMMEDIATELY if we have some data
                 if (mergedCustomers.size > 0) {
                     setIsLoadingData(false);
                 }
 
-                // 2. Load from other keys in background (legacy)
-                try {
-                    const allKeys = await idb.keys();
-                    for (const k of allKeys) {
-                        if (typeof k === 'string' && k.startsWith('hisaab_pro_data') && k !== userStorageKey) {
-                            const idbData = await idb.get(k);
-                            if (idbData) mergeIntoMap(idbData, true);
-                        }
-                    }
-                } catch(e) {}
-
-                try {
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.startsWith('hisaab_pro_data')) {
-                            const lsData = localStorage.getItem(k);
-                            if (lsData) mergeIntoMap(JSON.parse(lsData), true);
-                        }
-                    }
-                } catch(e) {}
+                // 2. Clean up legacy unnamespaced keys when logged in to prevent deleted resurrection
+                if (session?.user?.id) {
+                    try {
+                        await idb.remove('hisaab_pro_data');
+                        localStorage.removeItem('hisaab_pro_data');
+                    } catch(e) {}
+                }
 
                 if (mergedCustomers.size > 0 && isLoadingData) {
                     setIsLoadingData(false);
@@ -394,16 +406,22 @@ export default function BusinessExpensesPage() {
                             const prevMap = new Map(prev.map(c => [String(c.id), c]));
 
                             serverCustomers.forEach(sCust => {
+                                if (!sCust || !sCust.id) return;
                                 const custKey = String(sCust.id);
+                                if (deletedCustIds.current.has(custKey)) return;
+
                                 const local = prevMap.get(custKey);
                                 if (!local) {
-                                    const filteredPTxns = (sCust.pending_txns || []).filter((p: any) => !isDismissedOrHandled(p.id, new Set()));
-                                    prevMap.set(custKey, { ...sCust, txns: sCust.txns || [], pending_txns: filteredPTxns });
+                                    const rawTxns = sCust.txns || [];
+                                    const validTxns = rawTxns.filter((t: any) => !deletedTxnIds.current.has(String(t?.id)));
+                                    const validTxnIds = new Set<string>(validTxns.map((t: any) => String(t.id)));
+                                    const filteredPTxns = (sCust.pending_txns || []).filter((p: any) => !isDismissedOrHandled(p.id, validTxnIds));
+                                    prevMap.set(custKey, { ...sCust, txns: validTxns, pending_txns: filteredPTxns });
                                     hasChanges = true;
                                 } else {
-                                    const localTxns = local.txns || [];
+                                    const localTxns = (local.txns || []).filter((t: any) => !deletedTxnIds.current.has(String(t?.id)));
                                     const localTxnIds = new Set<string>(localTxns.map((t: any) => String(t.id)));
-                                    const serverTxns = sCust.txns || [];
+                                    const serverTxns = (sCust.txns || []).filter((t: any) => !deletedTxnIds.current.has(String(t?.id)));
                                     const newTxns = serverTxns.filter((t: any) => !localTxnIds.has(String(t.id)));
                                     const mergedTxnIds = new Set<string>([...localTxnIds, ...serverTxns.map((t: any) => String(t.id))]);
 
@@ -1189,22 +1207,89 @@ export default function BusinessExpensesPage() {
 
         showToast(t.paymentRejected || '❌ Payment rejected!');
     };
-
-    const deleteTxn = (txnId: number, txnAmt: number, txnType: string) => {
-        if (!window.confirm(t.confirmDelete || 'Pukka delete karna hai?')) return;
-        setCustomers(customers.map(c => {
-            if (String(c.id) === String(curCid)) {
-                const isDebit = txnType !== 'credit';
-                const balChange = isDebit ? -txnAmt : txnAmt; // reverse the effect
-                return {
-                    ...c,
-                    txns: c.txns.filter((t: any) => String(t.id) !== String(txnId)),
-                    balance: c.balance + balChange
-                };
+    const verifyDeletePin = async () => {
+        if (businessProfile?.has_expense_pin) {
+            const pin = window.prompt("Security Check:\nPlease enter your 4-digit Expense Deletion PIN:");
+            if (pin === null) return false;
+            
+            const tid = toast.loading('Verifying PIN...');
+            try {
+                const res = await fetch('/api/auth/verify-pin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin })
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    toast.error(data.error || 'Incorrect PIN', { id: tid });
+                    return false;
+                }
+                toast.success('PIN Verified', { id: tid });
+                return true;
+            } catch (e) {
+                toast.error('Failed to verify PIN', { id: tid });
+                return false;
             }
-            return c;
-        }));
+        }
+        return true;
+    };
+
+    const deleteTxn = async (txnId: number, txnAmt: number, txnType: string) => {
+        if (!window.confirm(t.confirmDelete || 'Pukka delete karna hai?')) return;
+        const isPinValid = await verifyDeletePin();
+        if (!isPinValid) return;
+        const txnIdStr = String(txnId);
+        deletedTxnIds.current.add(txnIdStr);
+        try {
+            const raw = localStorage.getItem('deleted_hisaab_txns');
+            const arr = raw ? JSON.parse(raw) : [];
+            if (!arr.includes(txnIdStr)) {
+                arr.push(txnIdStr);
+                if (arr.length > 1000) arr.shift();
+                localStorage.setItem('deleted_hisaab_txns', JSON.stringify(arr));
+            }
+        } catch (e) {}
+
+        let updatedCustObj: any = null;
+        let updatedList: any[] = [];
+
+        setCustomers(prev => {
+            updatedList = prev.map(c => {
+                if (String(c.id) === String(curCid)) {
+                    const isDebit = txnType !== 'credit';
+                    const balChange = isDebit ? -txnAmt : txnAmt; // reverse the effect
+                    const remainingTxns = (c.txns || []).filter((t: any) => String(t.id) !== txnIdStr);
+                    updatedCustObj = {
+                        ...c,
+                        txns: remainingTxns,
+                        balance: c.balance + balChange
+                    };
+                    return updatedCustObj;
+                }
+                return c;
+            });
+            return updatedList;
+        });
+
         setCanSave(true);
+
+        // Immediate write to IDB & server sync
+        try {
+            const { idb } = await import('../../../lib/idb');
+            const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
+            if (updatedList.length > 0) await idb.set(storageKey, updatedList);
+        } catch (e) {}
+
+        if (updatedCustObj && session?.user?.id) {
+            try {
+                fetch('/api/hisaab/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedCustObj)
+                }).catch(e => console.error("Sync failed", e));
+            } catch (e) {}
+        }
+
         showToast(t.entryDeleted || '🗑 Entry delete ho gayi!');
     };
 
@@ -1394,7 +1479,7 @@ export default function BusinessExpensesPage() {
         if (!acName.trim()) { showToast(t.nameRequired || '⚠️ Naam zaroori hai!'); return; }
 
         if (editCustId) {
-            setCustomers(customers.map(c => c.id === editCustId ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening } : c));
+            setCustomers(customers.map(c => String(c.id) === String(editCustId) ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening } : c));
             setEditCustId(null);
             setCanSave(true);
             showToast(t.custUpdated || '✅ Customer update ho gaya!');
@@ -1418,26 +1503,72 @@ export default function BusinessExpensesPage() {
         setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening('');
     };
 
-    const deleteCustomer = async () => {
-        if (!currentCust) return;
+    const deleteCustomer = async (targetCustId?: any) => {
+        const targetId = targetCustId || curCid;
+        if (!targetId) return;
+
+        const targetCust = customers.find(c => String(c.id) === String(targetId)) || currentCust;
+        const targetName = targetCust?.name || 'Customer';
+
         if (!window.confirm(`${t.confirmDeleteCust || 'Kya aap sach mein delete karna chahte hain? Unka poora hisaab hamesha ke liye delete ho jayega.'}`)) return;
 
+        const isPinValid = await verifyDeletePin();
+        if (!isPinValid) return;
+
+        const targetIdStr = String(targetId);
+
+        // 1. Immediately track as deleted locally to block resurrecting during live sync
+        deletedCustIds.current.add(targetIdStr);
+        try {
+            const raw = localStorage.getItem('deleted_hisaab_custs');
+            const arr = raw ? JSON.parse(raw) : [];
+            if (!arr.includes(targetIdStr)) {
+                arr.push(targetIdStr);
+                if (arr.length > 1000) arr.shift();
+                localStorage.setItem('deleted_hisaab_custs', JSON.stringify(arr));
+            }
+        } catch (e) {}
+
+        // 2. Immediately update local state
+        const remainingCusts = customers.filter(c => String(c.id) !== targetIdStr);
+        setCustomers(remainingCusts);
+        setCanSave(true);
+        setIsAddCustOpen(false);
+
+        // 3. Immediately clean up storage
+        try {
+            const { idb } = await import('../../../lib/idb');
+            const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
+            await idb.set(storageKey, remainingCusts);
+            if (session?.user?.id) {
+                await idb.remove('hisaab_pro_data');
+                localStorage.removeItem('hisaab_pro_data');
+            }
+        } catch (e) {
+            console.error('Failed to cleanup IDB during delete', e);
+        }
+
+        // 4. Send delete request to server
         try {
             if (session?.user?.id) {
                 await fetch('/api/hisaab/delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ custId: curCid })
+                    body: JSON.stringify({ custId: targetIdStr })
                 });
             }
         } catch (e) {
             console.error('Failed to delete from server', e);
         }
 
-        setCustomers(customers.filter(c => String(c.id) !== String(curCid)));
-        setCanSave(true);
-        handleBack();
-        showToast(`🗑 ${currentCust.name} ${t.deleted || 'delete ho gaye!'}`);
+        // 5. Navigate back to list if currently viewing detail of deleted customer
+        if (String(curCid) === targetIdStr) {
+            setCurCid(null);
+            setActiveScreen('list');
+            handleBack();
+        }
+
+        showToast(`🗑 ${targetName} ${t.deleted || 'delete ho gaye!'}`);
     };
 
     // Excel Export Handlers
@@ -2186,6 +2317,30 @@ export default function BusinessExpensesPage() {
                         <button className="save-btn cr" onClick={saveCustomer}>
                             <span>💾</span> {editCustId ? 'Save Changes' : 'Save New Customer'}
                         </button>
+                        {editCustId && (
+                            <button
+                                type="button"
+                                onClick={() => deleteCustomer(editCustId)}
+                                style={{
+                                    width: '100%',
+                                    marginTop: '12px',
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    border: '1.5px solid #fecdd3',
+                                    background: '#fff1f2',
+                                    color: '#e11d48',
+                                    fontWeight: 700,
+                                    fontSize: '14px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                🗑️ Delete Customer
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

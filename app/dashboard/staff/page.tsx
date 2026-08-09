@@ -105,7 +105,18 @@ export default function SmartAttendance() {
     const roles = useMemo(() => ["All", ...Array.from(new Set((staff || []).map((s: any) => s.role || 'Worker'))).filter(Boolean)] as string[], [staff]);
 
     const { filteredStaff, todayStats } = useMemo(() => {
-        const filtered = (staff || []).filter((s: any) => {
+        const validStaff = (staff || []).filter((s: any) => {
+            const isCurrentlyActive = !s.is_deleted;
+            const viewingMonthPrefix = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,'0')}`;
+            const hasAttendanceThisMonth = attendance?.some((a: any) => 
+                a.staff_id === s.id && 
+                a.date.startsWith(viewingMonthPrefix) &&
+                a.status !== 'UNMARKED'
+            );
+            return isCurrentlyActive || hasAttendanceThisMonth;
+        });
+
+        const filtered = validStaff.filter((s: any) => {
             const matchRole = currentFilter === 'All' || s.role === currentFilter;
             const matchName = s.name.toLowerCase().includes(searchQuery.toLowerCase());
             const matchStatus = statusFilter === 'ALL' || getStatus(s.id, selectedDate) === statusFilter;
@@ -113,7 +124,7 @@ export default function SmartAttendance() {
         }).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
         const stats = { P: 0, A: 0, H: 0, L: 0 };
-        (staff || []).forEach((s: any) => {
+        validStaff.forEach((s: any) => {
             const st = getStatus(s.id, selectedDate);
             if (st === 'PRESENT') stats.P++;
             else if (st === 'ABSENT') stats.A++;
@@ -122,7 +133,7 @@ export default function SmartAttendance() {
         });
 
         return { filteredStaff: filtered, todayStats: stats };
-    }, [staff, currentFilter, searchQuery, statusFilter, selectedDate, attendance]);
+    }, [staff, currentFilter, searchQuery, statusFilter, selectedDate, attendance, currentMonth]);
 
     // Date nav
     const shiftDay = (delta: number) => {

@@ -36,6 +36,7 @@ export async function GET(request: Request) {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS salary_type VARCHAR(20) DEFAULT \'daily\'');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS monthly_salary NUMERIC DEFAULT 0');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo TEXT');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE');
 
         const result = await client.query('SELECT * FROM staff WHERE created_by = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3', [userId, limit, offset]);
         client.release();
@@ -83,6 +84,7 @@ export async function POST(req: Request) {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS salary_type VARCHAR(20) DEFAULT \'daily\'');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS monthly_salary NUMERIC DEFAULT 0');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo TEXT');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE');
 
         await client.query(
             `INSERT INTO staff (id, name, email, phone, role, daily_wage, created_by, salary_type, monthly_salary, photo) 
@@ -118,6 +120,7 @@ export async function PUT(req: Request) {
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS salary_type VARCHAR(20) DEFAULT \'daily\'');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS monthly_salary NUMERIC DEFAULT 0');
         await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo TEXT');
+        await client.query('ALTER TABLE staff ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE');
         
         await client.query(
             `UPDATE staff SET name = $1, email = $2, phone = $3, role = $4, daily_wage = $5, advance = $6, salary_type = $7, monthly_salary = $8, photo = $9 WHERE id = $10 AND created_by = $11`,
@@ -148,7 +151,7 @@ export async function DELETE(req: Request) {
         }
 
         const client = await pool.connect();
-        await client.query(`DELETE FROM staff WHERE id = $1 AND created_by = $2`, [id, userId]);
+        await client.query(`UPDATE staff SET is_deleted = TRUE WHERE id = $1 AND created_by = $2`, [id, userId]);
         
         client.release();
         return NextResponse.json({ success: true });

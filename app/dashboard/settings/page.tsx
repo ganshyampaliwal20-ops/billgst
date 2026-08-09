@@ -949,8 +949,22 @@ export default function SettingsPage() {
                             <div><h2>Account Security</h2><p>Manage how you sign in and keep your account safe</p></div>
                         </div>
                         <div className="field">
-                            <div className="hint" style={{ fontSize: '12.5px' }}>
-                                Manage your business profile and settings here. Press 'Save All Settings' below to apply changes.
+                            <label>Expense Deletion PIN (4 digits)</label>
+                            <input 
+                                type="text" 
+                                inputMode="numeric"
+                                maxLength={4}
+                                placeholder={formData.has_expense_pin ? '**** (PIN is set)' : 'Enter 4-digit PIN'} 
+                                value={formData.expense_delete_pin || ''} 
+                                onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, '');
+                                    setFormData({ ...formData, expense_delete_pin: val });
+                                }} 
+                            />
+                            <div className="hint">
+                                {formData.has_expense_pin 
+                                    ? 'A PIN is currently active. Enter a new PIN to change it, or leave blank and save to remove it.' 
+                                    : 'Set a 4-digit PIN to restrict who can delete expenses.'}
                             </div>
                         </div>
                     </div>
