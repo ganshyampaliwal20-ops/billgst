@@ -1525,7 +1525,9 @@ export default function BusinessExpensesPage() {
     };
 
     const deleteCustomer = async (targetCustId?: any) => {
-        const targetId = targetCustId || curCid;
+        // If called from onClick without arrow function, targetCustId is a MouseEvent
+        const isEvent = targetCustId && typeof targetCustId === 'object' && 'type' in targetCustId;
+        const targetId = (!isEvent && targetCustId) ? targetCustId : curCid;
         if (!targetId) return;
 
         const targetCust = customers.find(c => String(c.id) === String(targetId)) || currentCust;
