@@ -1209,25 +1209,38 @@ export default function BusinessExpensesPage() {
     };
     const verifyDeletePin = async () => {
         if (businessProfile?.has_expense_pin) {
-            const pin = window.prompt("Security Check:\nPlease enter your 4-digit Expense Deletion PIN:");
-            if (pin === null) return false;
+            const rawPin = window.prompt("Security Check:\nPlease enter your 4-digit Expense Deletion PIN:");
+            if (rawPin === null) return false;
             
-            showToast('Verifying PIN...');
+            const pin = rawPin.trim();
+            if (!pin) {
+                showToast('⚠️ PIN is required!');
+                return false;
+            }
+
+            showToast('⏳ Verifying PIN...');
             try {
                 const res = await fetch('/api/auth/verify-pin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pin })
                 });
-                const data = await res.json();
-                if (!data.success) {
-                    showToast(data.error || 'Incorrect PIN');
+                
+                if (!res.ok) {
+                    showToast('❌ Server error checking PIN: ' + res.status);
                     return false;
                 }
-                showToast('PIN Verified');
+                
+                const data = await res.json();
+                if (!data.success) {
+                    showToast('❌ ' + (data.error || 'Incorrect PIN'));
+                    return false;
+                }
+                
+                // Do not show "PIN Verified" as it overrides the success toast of deletion
                 return true;
-            } catch (e) {
-                showToast('Failed to verify PIN');
+            } catch (e: any) {
+                showToast('❌ Failed to verify PIN: ' + e.message);
                 return false;
             }
         }
