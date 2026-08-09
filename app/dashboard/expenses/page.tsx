@@ -1264,45 +1264,53 @@ export default function BusinessExpensesPage() {
         } catch (e) {}
 
         let updatedCustObj: any = null;
-        let updatedList: any[] = [];
-
-        setCustomers(prev => {
-            updatedList = prev.map(c => {
-                if (String(c.id) === String(curCid)) {
-                    const isDebit = txnType !== 'credit';
-                    const balChange = isDebit ? -txnAmt : txnAmt; // reverse the effect
-                    const remainingTxns = (c.txns || []).filter((t: any) => String(t.id) !== txnIdStr);
-                    updatedCustObj = {
-                        ...c,
-                        txns: remainingTxns,
-                        balance: c.balance + balChange
-                    };
-                    return updatedCustObj;
-                }
-                return c;
-            });
-            return updatedList;
+        
+        // 1. Calculate the new state synchronously
+        const nextCustomers = customers.map(c => {
+            if (String(c.id) === String(curCid)) {
+                const isDebit = txnType !== 'credit';
+                const balChange = isDebit ? -txnAmt : txnAmt; // reverse the effect
+                const remainingTxns = (c.txns || []).filter((t: any) => String(t.id) !== txnIdStr);
+                updatedCustObj = {
+                    ...c,
+                    txns: remainingTxns,
+                    balance: c.balance + balChange
+                };
+                return updatedCustObj;
+            }
+            return c;
         });
 
+        // 2. Update React State
+        setCustomers(nextCustomers);
         setCanSave(true);
 
-        // Immediate write to IDB & server sync
+        // 3. Immediate write to IDB & server sync
         try {
             const { idb } = await import('../../../lib/idb');
             const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
-            if (updatedList.length > 0) await idb.set(storageKey, updatedList);
-        } catch (e) {}
-
-        if (updatedCustObj && session?.user?.id) {
-            try {
+            await idb.set(storageKey, nextCustomers);
+            
+            if (updatedCustObj && !isOffline) {
                 fetch('/api/hisaab/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedCustObj)
-                }).catch(e => console.error("Sync failed", e));
-            } catch (e) {}
+                }).catch(e => console.error('Failed to sync deletion to server', e));
+            }
+        } catch (e) {
+            console.error('Failed to save deletion locally', e);
         }
 
+        if (editTxnId === txnId) {
+            setEditTxnId(null);
+            setEntryType('credit');
+            setAmtInp('');
+            setEntryDate('');
+            setEntryName('');
+            setEntryNote('');
+            setPendingPhotos([]);
+        }
         showToast(t.entryDeleted || '🗑 Entry delete ho gayi!');
     };
 
