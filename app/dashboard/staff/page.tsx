@@ -1080,7 +1080,7 @@ export default function SmartAttendance() {
                                                     <span style={{ fontSize: '13px' }}>☂</span><span>Leave</span>
                                                 </button>
                                             </div>
-                                            <div className="card-foot">
+                                            <div className="bottom-row">
                                                 <button className="edit-btn" onClick={() => openEditModal(s)} title="Edit Staff Details">✏️ Edit</button>
                                                 {deleteStaff && (
                                                     <button className="del-btn" onClick={async () => {
