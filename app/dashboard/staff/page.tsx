@@ -146,6 +146,7 @@ export default function SmartAttendance() {
     // Actions
     const handleSetAtt = async (id: string, status: string, in_time?: string | null, out_time?: string | null, note?: string | null) => {
         try {
+            if (staff?.find((s: any) => s.id === id)?.is_deleted) return;
             const currentStatus = getStatus(id, selectedDate);
             const isJustStatusClick = in_time === undefined && out_time === undefined && note === undefined;
             const newStatus = (isJustStatusClick && currentStatus === status) ? 'UNMARKED' : status; 
@@ -168,6 +169,7 @@ export default function SmartAttendance() {
         try {
             const promises = [];
             for (const s of filteredStaff) {
+                if (s.is_deleted) continue;
                 if (!getStatus(s.id, selectedDate) || getStatus(s.id, selectedDate) === 'UNMARKED') {
                     promises.push(markAttendance(s.id, selectedDate, 'PRESENT'));
                 }
