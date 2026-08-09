@@ -7,7 +7,7 @@ import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
 import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
 import * as XLSX from 'xlsx';
-import Chart from 'chart.js/auto';
+// Dynamic import used for Chart.js
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { drawFreeBranding } from '../../../lib/pdf-generator';
@@ -100,6 +100,11 @@ function ReportsContent() {
         };
 
         let revenueChart: any;
+        let profitChart: any;
+        let monthlyChart: any;
+
+        const initCharts = async () => {
+            const { default: Chart } = await import('chart.js/auto');
         if (revenueChartRef.current) {
             revenueChart = new Chart(revenueChartRef.current, {
                 type: 'line',
@@ -127,7 +132,6 @@ function ReportsContent() {
             });
         }
 
-        let profitChart: any;
         if (profitChartRef.current) {
             profitChart = new Chart(profitChartRef.current, {
                 type: 'bar',
@@ -149,7 +153,6 @@ function ReportsContent() {
             });
         }
 
-        let monthlyChart: any;
         if (monthlyChartRef.current) {
             monthlyChart = new Chart(monthlyChartRef.current, {
                 type: 'bar',
@@ -171,6 +174,8 @@ function ReportsContent() {
                 }
             });
         }
+        };
+        initCharts();
 
         return () => {
             if (revenueChart) revenueChart.destroy();

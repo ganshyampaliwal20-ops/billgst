@@ -6,6 +6,8 @@ import { generateHisaabPDF } from '../../../lib/pdf-generator';
 import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
 import { useStore } from '../../../lib/store';
+import { fetchWithRetry } from '@/lib/utils';
+import { useDebounce } from '@/lib/useDebounce';
 import { getTranslations } from '@/lib/translations';
 import { getVisitingCardText, openWhatsAppChat } from '../../../lib/whatsapp-utils';
 
@@ -122,6 +124,7 @@ export default function BusinessExpensesPage() {
     const [activeScreen, setActiveScreen] = useState<'list' | 'detail'>('list');
     const [curCid, setCurCid] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [currentFilter, setCurrentFilter] = useState('all');
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
@@ -318,7 +321,7 @@ export default function BusinessExpensesPage() {
                             const mergedTxnIds = new Set<string>(mergedTxns.map((t: any) => String(t.id)));
 
                             const existingPTxns = (existing.pending_txns || []).filter((p: any) => !isDismissedOrHandled(p.id, mergedTxnIds));
-                            const existingPTxnIds = new Set<string>(existingPTxns.map((t: any) => String(t.id)));
+                            const existingPTxnIds = new Set<string>(existingPTxns.map((p: any) => String(p.id)));
                             const newPTxns = validCustPTxns.filter((p: any) => !existingPTxnIds.has(String(p.id)) && !isDismissedOrHandled(p.id, mergedTxnIds));
                             const mergedPTxns = [...existingPTxns, ...newPTxns].sort((a: any, b: any) =>
                                 new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -334,7 +337,7 @@ export default function BusinessExpensesPage() {
                 };
 
                 // 1. FAST PATH: Recover from specific user IDB key FIRST
-                let userStorageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
+                const userStorageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
                 try {
                     const fastData = await idb.get(userStorageKey);
                     if (fastData) mergeIntoMap(fastData, true);
@@ -703,9 +706,11 @@ export default function BusinessExpensesPage() {
         return { credit: c, debit: d, net: Math.abs(currentCust.balance), entries: currentCust.txns.length, isNeg: currentCust.balance < 0 };
     }, [currentCust]);
 
-    const displayList = customers
-        .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        .sort((a, b) => (b.balance || 0) - (a.balance || 0));
+    const displayList = useMemo(() => {
+        return (customers || [])
+            .filter(c => c.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
+            .sort((a, b) => (b.balance || 0) - (a.balance || 0));
+    }, [customers, debouncedSearchQuery]);
 
     // Handlers
     const handleOpenDetail = (id: number) => {
@@ -1418,7 +1423,7 @@ export default function BusinessExpensesPage() {
                             setAcName(result.name);
                             
                             let foundNum = '';
-                            let numStr = result.phone;
+                            const numStr = result.phone;
                             if (numStr) {
                                 let num = numStr.replace(/[^\d+]/g, '');
                                 if (num.startsWith('+91')) num = num.slice(3);
@@ -1460,7 +1465,7 @@ export default function BusinessExpensesPage() {
                         
                         let foundNum = '';
                         if (contact.tel && contact.tel.length > 0) {
-                            for (let t of contact.tel) {
+                            for (const t of contact.tel) {
                                 const numStr = typeof t === 'string' ? t : (t.value || '');
                                 if (numStr) {
                                     let num = numStr.replace(/[^\d+]/g, '');

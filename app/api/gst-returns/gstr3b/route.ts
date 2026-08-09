@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         const userEmail = session.user.email;
 
         // Fetch business profile
-        let profileResult = await client.query(
+        const profileResult = await client.query(
             `SELECT business_name, business_gstin
              FROM users WHERE id = $1`,
             [userId]

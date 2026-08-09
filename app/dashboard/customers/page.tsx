@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
+import { useDebounce } from '@/lib/useDebounce';
 
 export default function CustomersPage() {
     const router = useRouter();
@@ -17,6 +18,7 @@ export default function CustomersPage() {
     const [activeTab, setActiveTab] = useState('Parties');
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     const [showAddModal, setShowAddModal] = useState(false);
 
@@ -99,8 +101,8 @@ export default function CustomersPage() {
 
     const { finalList, totalCount, pendingTotal, receivedTotal } = useMemo(() => {
         let filtered = customers.filter((c: any) =>
-            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (c.phone && c.phone.includes(searchTerm))
+            c.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            (c.phone && c.phone.includes(debouncedSearchTerm))
         );
 
         const uniqueMap = new Map();
@@ -134,7 +136,7 @@ export default function CustomersPage() {
             pendingTotal: processed.filter((c: any) => c.status === 'pending').reduce((s: number, c: any) => s + c.balance, 0),
             receivedTotal: processed.filter((c: any) => c.status === 'received').reduce((s: number, c: any) => s + Math.abs(c.balance), 0)
         };
-    }, [customers, searchTerm, activeFilter, invoices]);
+    }, [customers, debouncedSearchTerm, activeFilter, invoices]);
 
     const handleAdd = () => {
         if (!newName || newPhone.length < 10) {

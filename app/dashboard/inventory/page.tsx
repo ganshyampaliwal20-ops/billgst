@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { generateCatalogPDF } from "@/lib/pdf-generator";
 import { Html5Qrcode } from "html5-qrcode";
+import { useDebounce } from "@/lib/useDebounce";
 
 import { optimizeImage } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export default function InventoryPage() {
 
     // State
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [activeTab, setActiveTab] = useState("all");
     const [currentView, setCurrentView] = useState("list");
     const [sortBy, setSortBy] = useState("default");
@@ -130,9 +132,9 @@ export default function InventoryPage() {
             .filter((p: any) => p && p.status !== "INACTIVE")
             .filter((p: any) => {
                 const matchesSearch =
-                    !searchTerm ||
-                    (p.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (p.hsn_code || "").toLowerCase().includes(searchTerm.toLowerCase());
+                    !debouncedSearchTerm ||
+                    (p.name || "").toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                    (p.hsn_code || "").toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
                 const stock = parseInt(p.stock_quantity) || 0;
 
@@ -157,7 +159,7 @@ export default function InventoryPage() {
                 if (sortBy === "name_az") return a.name.localeCompare(b.name);
                 return 0;
             });
-    }, [products, searchTerm, activeTab, filterCategory, filterGst, sortBy]);
+    }, [products, debouncedSearchTerm, activeTab, filterCategory, filterGst, sortBy]);
 
     const totalItems = (products || []).filter((p: any) => p && p.status !== "INACTIVE").length;
     const lowStockCount = (products || []).filter((p: any) => {

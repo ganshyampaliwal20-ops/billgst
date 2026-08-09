@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import Chart from 'chart.js/auto';
+// Dynamic import used for Chart.js
 import { generateHisaabPDF } from '@/lib/pdf-generator';
 import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
 
@@ -115,7 +115,12 @@ export default function CustomerDetailPage() {
             }
         });
 
-        const chart = new Chart(chartRef.current, {
+        let chartInstance: any;
+
+        const initChart = async () => {
+            const { default: Chart } = await import('chart.js/auto');
+            if (!chartRef.current) return;
+            chartInstance = new Chart(chartRef.current, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -133,8 +138,12 @@ export default function CustomerDetailPage() {
                 }
             }
         });
+        };
+        initChart();
 
-        return () => chart.destroy();
+        return () => {
+            if (chartInstance) chartInstance.destroy();
+        };
     }, [isClient, customer, invoices, fetchedPayments]);
 
     if (!isClient) return null;

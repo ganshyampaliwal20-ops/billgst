@@ -10,7 +10,7 @@ import { formatCurrency, formatCompactNumber } from '@/lib/utils';
 import { openWhatsAppChat } from '@/lib/whatsapp-utils';
 import FreePlanPopup from './FreePlanPopup';
 import RegistrationPopup from './RegistrationPopup';
-import Chart from 'chart.js/auto';
+// Dynamic import used for Chart.js
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
@@ -142,7 +142,13 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (!isClient || !miniChartRef.current) return;
-        const chart = new Chart(miniChartRef.current, {
+        
+        let chartInstance: any;
+
+        const initChart = async () => {
+            const { default: Chart } = await import('chart.js/auto');
+            if (!miniChartRef.current) return;
+            chartInstance = new Chart(miniChartRef.current, {
             type: 'line',
             data: {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -163,7 +169,12 @@ export default function DashboardPage() {
                 }
             }
         });
-        return () => chart.destroy();
+        };
+        
+        initChart();
+        return () => {
+            if (chartInstance) chartInstance.destroy();
+        };
     }, [isClient]);
 
     if (!isClient) return (

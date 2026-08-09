@@ -104,7 +104,7 @@ export const authOptions: AuthOptions = {
                     if (existingUser.rows.length === 0) {
                         const userCountRes = await pool.query('SELECT COUNT(*) FROM users');
                         const userCount = parseInt(userCountRes.rows[0].count);
-                        let planType = userCount < 100 ? 'LIFETIME' : 'FREE';
+                        const planType = userCount < 100 ? 'LIFETIME' : 'FREE';
                         
                         const fakePassword = await bcrypt.hash(Math.random().toString(36), 10);
                         
