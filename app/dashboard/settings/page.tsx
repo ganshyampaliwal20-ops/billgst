@@ -40,7 +40,9 @@ export default function SettingsPage() {
     const [isClient, setIsClient] = useState(false);
     
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('general');
+    const [activeSection, setActiveSection] = useState('profile');
+    const [featuresOpen, setFeaturesOpen] = useState(false);
+    const [designOpen, setDesignOpen] = useState(false);
     
     // GST Verification State
     const [gstStatus, setGstStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
@@ -135,7 +137,21 @@ export default function SettingsPage() {
         if (settings && Object.keys(localSettings).length === 0) setLocalSettings(settings);
     }, [businessProfile, settings]);
 
-    // Removed scrollspy for tabbed layout
+    // Scrollspy effect
+    useEffect(() => {
+        if (!isClient) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { rootMargin: '-15% 0px -70% 0px' });
+
+        const sections = document.querySelectorAll('.card[id]');
+        sections.forEach(s => observer.observe(s));
+        return () => observer.disconnect();
+    }, [isClient]);
 
     const handleSubmit = async (e?: React.FormEvent) => {
         if(e) e.preventDefault();
@@ -210,9 +226,8 @@ export default function SettingsPage() {
         verifyGst(val);
     };
 
-    const handleTabClick = (id: string) => {
-        setActiveTab(id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const handleScrollTo = (id: string) => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     };
 
     if (!isClient) return null;
@@ -275,9 +290,9 @@ export default function SettingsPage() {
                 .completeness .info b{ font-size:14.5px; display:block; margin-bottom:2px; }
                 .completeness .info span{ font-size:12.5px; color: var(--text-muted); }
 
-                .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; scroll-margin-top: 24px; transition: border-color 0.2s; margin-bottom: 16px; }
+                .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; scroll-margin-top: 24px; transition: border-color 0.2s; }
                 .card:hover{ border-color: var(--card-border-hover); }
-                .card-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: space-between; }
+                .card-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: space-between; }
                 .card-head.with-toggle{ justify-content:space-between; }
                 .card-head-left{ display:flex; align-items:flex-start; gap:12px; flex: 1; min-width: 0; }
                 .card-head-left > div { flex: 1; min-width: 0; }
@@ -295,11 +310,11 @@ export default function SettingsPage() {
                 .row3{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
                 @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
 
-                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; }
+                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 11px; padding: 12px 14px; color: var(--text); font-size: 14.5px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; }
                 .field input::placeholder, .field textarea::placeholder{ color: var(--text-faint); }
                 .field input:focus, .field textarea:focus, .field select:focus{ border-color: var(--violet); background: #1A2036; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
-                .field textarea{ resize: vertical; min-height: 54px; }
-                .field select{ appearance:none; -webkit-appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; padding-right: 32px; cursor:pointer; }
+                .field textarea{ resize: vertical; min-height: 64px; }
+                .field select{ appearance:none; -webkit-appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 14px center; padding-right: 34px; cursor:pointer; }
                 
                 .hint{ font-size:11.5px; color: var(--text-faint); margin-top:6px; }
                 .hint.tax-hint{ color: var(--gold); }
@@ -495,28 +510,29 @@ export default function SettingsPage() {
                 </div>
 
                 <nav className="mobile-nav">
-                    {[
-                        { id: 'general', label: 'General' },
-                        { id: 'financials', label: 'Financials' },
-                        { id: 'invoice', label: 'Invoice Design' },
-                        { id: 'features', label: 'Features' },
-                        { id: 'account', label: 'Account' }
-                    ].map(tab => (
-                        <a key={tab.id} onClick={() => handleTabClick(tab.id)} className={activeTab === tab.id ? 'active' : ''}>
-                            {tab.label}
+                    {['profile', 'tax', 'bank', 'payments', 'whatsapp-automation', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
+                        <a key={id} onClick={() => handleScrollTo(id)} className={activeSection === id ? 'active' : ''}>
+                            {id === 'whatsapp-automation' ? 'WhatsApp' : (id.charAt(0).toUpperCase() + id.slice(1))}
                         </a>
                     ))}
                 </nav>
 
                 <nav className="side-nav">
                     {[
-                        { id: 'general', label: 'General Info' },
-                        { id: 'financials', label: 'Financial Details' },
-                        { id: 'invoice', label: 'Invoice Customization' },
-                        { id: 'features', label: 'Add-on Features' },
-                        { id: 'account', label: 'Account Security' },
+                        { id: 'profile', label: 'Business Profile' },
+                        { id: 'tax', label: 'Tax Settings' },
+                        { id: 'bank', label: 'Bank Details' },
+                        { id: 'payments', label: 'Payments' },
+                        { id: 'whatsapp-automation', label: 'WhatsApp' },
+                        { id: 'branding', label: 'Branding' },
+                        { id: 'signatory', label: 'Signatory' },
+                        { id: 'terms', label: 'Terms & Conditions' },
+                        { id: 'modules', label: 'Features & Modules' },
+                        { id: 'design', label: 'Invoice Design' },
+                        { id: 'prefs', label: 'Preferences' },
+                        { id: 'security', label: 'Account Security' },
                     ].map(item => (
-                        <a key={item.id} onClick={() => handleTabClick(item.id)} className={activeTab === item.id ? 'active' : ''}>
+                        <a key={item.id} onClick={() => handleScrollTo(item.id)} className={activeSection === item.id ? 'active' : ''}>
                             <span className="dot"></span>{item.label}
                         </a>
                     ))}
@@ -533,8 +549,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {activeTab === 'general' && (
-                    <>
                     {/* Profile */}
                     <div className="card" id="profile">
                         <div className="card-head">
@@ -627,11 +641,6 @@ export default function SettingsPage() {
                         )}
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'financials' && (
-                    <>
                     {/* Bank Details */}
                     <div className="card" id="bank">
                         <div className="card-head">
@@ -673,11 +682,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'features' && (
-                    <>
                     {/* WhatsApp Automation */}
                     <div className="card" id="whatsapp-automation">
                         <div className="card-head">
@@ -722,11 +726,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'invoice' && (
-                    <>
                     {/* Branding & Signatory */}
                     <div className="card" id="branding">
                         <div className="card-head">
@@ -785,11 +784,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'financials' && (
-                    <>
                     {/* Terms */}
                     <div className="card" id="terms">
                         <div className="card-head">
@@ -811,11 +805,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'features' && (
-                    <>
                     {/* Features & Modules */}
                     <div className="settings-section" id="modules">
                         <div className="section-header">
@@ -824,10 +813,13 @@ export default function SettingsPage() {
                                     <div className="section-icon">▦</div>
                                     <div className="section-title">Features &amp; Modules</div>
                                 </div>
+                                <button type="button" className="close-btn" onClick={() => setFeaturesOpen(!featuresOpen)}>
+                                    {featuresOpen ? 'Close ▲' : 'Open ▼'}
+                                </button>
                             </div>
                             <div className="section-desc">Enable or disable dashboard modules based on your business needs</div>
                         </div>
-                        <div className="bs-collapse open"><div>
+                        <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
                             {MODULES.map(mod => (
                                 <div key={mod.id} className="module-row" onClick={() => {
                                     const current = formData?.modules?.[mod.id] ?? true;
@@ -846,11 +838,6 @@ export default function SettingsPage() {
                         </div></div>
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'invoice' && (
-                    <>
                     {/* Invoice Design */}
                     <div className="settings-section" id="design">
                         <div className="section-header">
@@ -947,11 +934,6 @@ export default function SettingsPage() {
                         </div></div>
                     </div>
 
-                    </>
-                    )}
-
-                    {activeTab === 'account' && (
-                    <>
                     {/* Preferences */}
                     <div className="card" id="prefs">
                         <div className="card-head">
@@ -996,8 +978,6 @@ export default function SettingsPage() {
                             </div>
                         </div>
                     </div>
-                    </>
-                    )}
 
                 </div>
             </div>
