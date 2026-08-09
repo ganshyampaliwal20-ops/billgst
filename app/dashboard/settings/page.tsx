@@ -40,9 +40,7 @@ export default function SettingsPage() {
     const [isClient, setIsClient] = useState(false);
     
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('profile');
-    const [featuresOpen, setFeaturesOpen] = useState(false);
-    const [designOpen, setDesignOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('general');
     
     // GST Verification State
     const [gstStatus, setGstStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
@@ -137,21 +135,7 @@ export default function SettingsPage() {
         if (settings && Object.keys(localSettings).length === 0) setLocalSettings(settings);
     }, [businessProfile, settings]);
 
-    // Scrollspy effect
-    useEffect(() => {
-        if (!isClient) return;
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setActiveSection(entry.target.id);
-                }
-            });
-        }, { rootMargin: '-15% 0px -70% 0px' });
-
-        const sections = document.querySelectorAll('.card[id]');
-        sections.forEach(s => observer.observe(s));
-        return () => observer.disconnect();
-    }, [isClient]);
+    // Removed scrollspy for tabbed layout
 
     const handleSubmit = async (e?: React.FormEvent) => {
         if(e) e.preventDefault();
@@ -226,8 +210,9 @@ export default function SettingsPage() {
         verifyGst(val);
     };
 
-    const handleScrollTo = (id: string) => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const handleTabClick = (id: string) => {
+        setActiveTab(id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (!isClient) return null;
@@ -290,9 +275,9 @@ export default function SettingsPage() {
                 .completeness .info b{ font-size:14.5px; display:block; margin-bottom:2px; }
                 .completeness .info span{ font-size:12.5px; color: var(--text-muted); }
 
-                .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; scroll-margin-top: 24px; transition: border-color 0.2s; }
+                .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; scroll-margin-top: 24px; transition: border-color 0.2s; margin-bottom: 16px; }
                 .card:hover{ border-color: var(--card-border-hover); }
-                .card-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: space-between; }
+                .card-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: space-between; }
                 .card-head.with-toggle{ justify-content:space-between; }
                 .card-head-left{ display:flex; align-items:flex-start; gap:12px; flex: 1; min-width: 0; }
                 .card-head-left > div { flex: 1; min-width: 0; }
@@ -310,11 +295,11 @@ export default function SettingsPage() {
                 .row3{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
                 @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
 
-                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 11px; padding: 12px 14px; color: var(--text); font-size: 14.5px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; }
+                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; }
                 .field input::placeholder, .field textarea::placeholder{ color: var(--text-faint); }
                 .field input:focus, .field textarea:focus, .field select:focus{ border-color: var(--violet); background: #1A2036; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
-                .field textarea{ resize: vertical; min-height: 64px; }
-                .field select{ appearance:none; -webkit-appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 14px center; padding-right: 34px; cursor:pointer; }
+                .field textarea{ resize: vertical; min-height: 54px; }
+                .field select{ appearance:none; -webkit-appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 12px center; padding-right: 32px; cursor:pointer; }
                 
                 .hint{ font-size:11.5px; color: var(--text-faint); margin-top:6px; }
                 .hint.tax-hint{ color: var(--gold); }
@@ -352,11 +337,12 @@ export default function SettingsPage() {
                 .segmented button.active{ background: var(--grad); color:#fff; }
                 .segmented-hint{ font-size:11.5px; color: var(--text-faint); margin-top:10px; }
 
-                .upload-row{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
-                .upload-box{ width:76px; height:76px; border-radius:14px; background: var(--field); border: 1.5px dashed var(--field-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; position:relative; cursor:pointer; }
-                .upload-box svg{ width:24px; height:24px; stroke: var(--text-faint); }
-                .upload-box img{ width:100%; height:100%; object-fit:cover; display:block; }
-                .upload-box .verified-tick{ position:absolute; top:3px; right:3px; width:16px; height:16px; border-radius:50%; background: var(--green); display:flex; align-items:center; justify-content:center; }
+                .upload-row{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin-top: 8px; }
+                .upload-box{ width:64px; height:64px; border-radius:50%; background: var(--field); border: 1.5px dashed var(--field-border); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; position:relative; cursor:pointer; transition: 0.2s; }
+                .upload-box:hover { border-color: var(--violet); background: #1A2036; }
+                .upload-box svg{ width:20px; height:20px; stroke: var(--text-faint); }
+                .upload-box img{ width:100%; height:100%; object-fit:contain; display:block; padding: 4px; background: #fff; }
+                .upload-box .verified-tick{ position:absolute; bottom:2px; right:2px; width:16px; height:16px; border-radius:50%; background: var(--green); display:flex; align-items:center; justify-content:center; border: 2px solid var(--card); }
                 .upload-box .verified-tick svg{ width:10px; height:10px; stroke:#fff; stroke-width:3.5; }
                 .upload-btn{ background: var(--field); border:1.5px solid var(--field-border); color: var(--text); font-family:inherit; font-size:13px; font-weight:600; padding:9px 14px; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:7px; }
                 .upload-btn:hover{ border-color: var(--card-border-hover); }
@@ -509,29 +495,28 @@ export default function SettingsPage() {
                 </div>
 
                 <nav className="mobile-nav">
-                    {['profile', 'tax', 'bank', 'payments', 'whatsapp-automation', 'branding', 'signatory', 'terms', 'modules', 'design', 'prefs', 'security'].map(id => (
-                        <a key={id} onClick={() => handleScrollTo(id)} className={activeSection === id ? 'active' : ''}>
-                            {id === 'whatsapp-automation' ? 'WhatsApp' : (id.charAt(0).toUpperCase() + id.slice(1))}
+                    {[
+                        { id: 'general', label: 'General' },
+                        { id: 'financials', label: 'Financials' },
+                        { id: 'invoice', label: 'Invoice Design' },
+                        { id: 'features', label: 'Features' },
+                        { id: 'account', label: 'Account' }
+                    ].map(tab => (
+                        <a key={tab.id} onClick={() => handleTabClick(tab.id)} className={activeTab === tab.id ? 'active' : ''}>
+                            {tab.label}
                         </a>
                     ))}
                 </nav>
 
                 <nav className="side-nav">
                     {[
-                        { id: 'profile', label: 'Business Profile' },
-                        { id: 'tax', label: 'Tax Settings' },
-                        { id: 'bank', label: 'Bank Details' },
-                        { id: 'payments', label: 'Payments' },
-                        { id: 'whatsapp-automation', label: 'WhatsApp' },
-                        { id: 'branding', label: 'Branding' },
-                        { id: 'signatory', label: 'Signatory' },
-                        { id: 'terms', label: 'Terms & Conditions' },
-                        { id: 'modules', label: 'Features & Modules' },
-                        { id: 'design', label: 'Invoice Design' },
-                        { id: 'prefs', label: 'Preferences' },
-                        { id: 'security', label: 'Account Security' },
+                        { id: 'general', label: 'General Info' },
+                        { id: 'financials', label: 'Financial Details' },
+                        { id: 'invoice', label: 'Invoice Customization' },
+                        { id: 'features', label: 'Add-on Features' },
+                        { id: 'account', label: 'Account Security' },
                     ].map(item => (
-                        <a key={item.id} onClick={() => handleScrollTo(item.id)} className={activeSection === item.id ? 'active' : ''}>
+                        <a key={item.id} onClick={() => handleTabClick(item.id)} className={activeTab === item.id ? 'active' : ''}>
                             <span className="dot"></span>{item.label}
                         </a>
                     ))}
@@ -548,6 +533,8 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
+                    {activeTab === 'general' && (
+                    <>
                     {/* Profile */}
                     <div className="card" id="profile">
                         <div className="card-head">
@@ -640,6 +627,11 @@ export default function SettingsPage() {
                         )}
                     </div>
 
+                    </>
+                    )}
+
+                    {activeTab === 'financials' && (
+                    <>
                     {/* Bank Details */}
                     <div className="card" id="bank">
                         <div className="card-head">
@@ -681,6 +673,11 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
+                    </>
+                    )}
+
+                    {activeTab === 'features' && (
+                    <>
                     {/* WhatsApp Automation */}
                     <div className="card" id="whatsapp-automation">
                         <div className="card-head">
@@ -725,66 +722,74 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {/* Branding */}
+                    </>
+                    )}
+
+                    {activeTab === 'invoice' && (
+                    <>
+                    {/* Branding & Signatory */}
                     <div className="card" id="branding">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
-                            <div><h2>Branding</h2><p>Your business logo displayed on invoice headers</p></div>
+                            <div><h2>Branding &amp; Signature</h2><p>Your logo and authorized signature printed on invoices</p></div>
                         </div>
-                        <div className="upload-row">
-                            <label className="upload-box">
-                                {formData.logo ? (
-                                    <>
-                                        <img src={formData.logo} alt="Logo" />
-                                        <div className="verified-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg></div>
-                                    </>
-                                ) : (
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                                )}
-                                <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
-                            </label>
-                            <label className="upload-btn">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                Choose Logo File
-                                <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
-                            </label>
-                        </div>
-                        <div className="hint">Recommended: 200×200px · Max 2MB</div>
-                    </div>
-
-                    {/* Signatory */}
-                    <div className="card" id="signatory">
-                        <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 17l5-1 10-10a2 2 0 000-3l-1-1a2 2 0 00-3 0L4 12l-1 5z"/></svg></div>
-                            <div><h2>Authorized Signatory</h2><p>Your signature printed on invoices and quotations</p></div>
-                        </div>
-                        <div className="field">
-                            <label>Authorized Signatory Name</label>
-                            <input type="text" value={formData.owner_name || ''} onChange={e => setFormData({...formData, owner_name: e.target.value})} placeholder="Signatory Name" />
-                        </div>
-                        <div className="field">
-                            <label>Signature</label>
-                            <div className="signature-pad" onClick={() => setIsSignatureModalOpen(true)} style={{cursor: 'pointer'}}>
-                                {formData.signature ? (
-                                    <img src={formData.signature} alt="Signature" />
-                                ) : (
-                                    <span>{formData.owner_name || 'Signature'}</span>
-                                )}
+                        <div className="row2" style={{alignItems: 'flex-start'}}>
+                            {/* Logo Left */}
+                            <div>
+                                <label style={{display:'block', fontSize:'12.5px', fontWeight:600, color:'#A8B0D6', marginBottom:'12px'}}>Business Logo</label>
+                                <div className="upload-row" style={{marginTop:0}}>
+                                    <label className="upload-box">
+                                        {formData.logo ? (
+                                            <>
+                                                <img src={formData.logo} alt="Logo" />
+                                                <div className="verified-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg></div>
+                                            </>
+                                        ) : (
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                        )}
+                                        <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
+                                    </label>
+                                    <div>
+                                        <label className="upload-btn" style={{marginBottom:'6px', padding:'7px 12px', fontSize:'12px'}}>
+                                            Upload Logo
+                                            <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
+                                        </label>
+                                        <div className="hint" style={{margin:0}}>Square PNG/JPG max 2MB</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style={{display:'flex', gap:'10px'}}>
-                                <button type="button" className="upload-btn" onClick={() => setIsSignatureModalOpen(true)}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.85 2.85 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                                    Draw Signature
-                                </button>
-                                <label className="upload-btn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                    Upload
-                                    <input type="file" accept="image/*" style={{display:'none'}} onChange={handleSignatureChange} />
-                                </label>
+                            
+                            {/* Signature Right */}
+                            <div>
+                                <label style={{display:'block', fontSize:'12.5px', fontWeight:600, color:'#A8B0D6', marginBottom:'12px'}}>Authorized Signature</label>
+                                <div className="field" style={{marginBottom:'8px'}}>
+                                    <input type="text" value={formData.owner_name || ''} onChange={e => setFormData({...formData, owner_name: e.target.value})} placeholder="Signatory Name (e.g. John Doe)" style={{padding:'8px 12px', fontSize:'13px'}} />
+                                </div>
+                                <div className="signature-pad" onClick={() => setIsSignatureModalOpen(true)} style={{cursor: 'pointer', height:'60px', maxWidth:'100%', marginBottom:'8px', border:'1px solid var(--field-border)'}}>
+                                    {formData.signature ? (
+                                        <img src={formData.signature} alt="Signature" />
+                                    ) : (
+                                        <span style={{fontSize:'20px', color:'var(--text-faint)'}}>{formData.owner_name || 'Draw Signature'}</span>
+                                    )}
+                                </div>
+                                <div style={{display:'flex', gap:'8px'}}>
+                                    <button type="button" className="upload-btn" onClick={() => setIsSignatureModalOpen(true)} style={{padding:'6px 10px', fontSize:'12px', flex:1, justifyContent:'center'}}>
+                                        Draw
+                                    </button>
+                                    <label className="upload-btn" style={{padding:'6px 10px', fontSize:'12px', flex:1, justifyContent:'center'}}>
+                                        Upload
+                                        <input type="file" accept="image/*" style={{display:'none'}} onChange={handleSignatureChange} />
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    </>
+                    )}
+
+                    {activeTab === 'financials' && (
+                    <>
                     {/* Terms */}
                     <div className="card" id="terms">
                         <div className="card-head">
@@ -806,6 +811,11 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
+                    </>
+                    )}
+
+                    {activeTab === 'features' && (
+                    <>
                     {/* Features & Modules */}
                     <div className="settings-section" id="modules">
                         <div className="section-header">
@@ -814,13 +824,10 @@ export default function SettingsPage() {
                                     <div className="section-icon">▦</div>
                                     <div className="section-title">Features &amp; Modules</div>
                                 </div>
-                                <button type="button" className="close-btn" onClick={() => setFeaturesOpen(!featuresOpen)}>
-                                    {featuresOpen ? 'Close ▲' : 'Open ▼'}
-                                </button>
                             </div>
                             <div className="section-desc">Enable or disable dashboard modules based on your business needs</div>
                         </div>
-                        <div className={`bs-collapse ${featuresOpen ? 'open' : ''}`}><div>
+                        <div className="bs-collapse open"><div>
                             {MODULES.map(mod => (
                                 <div key={mod.id} className="module-row" onClick={() => {
                                     const current = formData?.modules?.[mod.id] ?? true;
@@ -839,6 +846,11 @@ export default function SettingsPage() {
                         </div></div>
                     </div>
 
+                    </>
+                    )}
+
+                    {activeTab === 'invoice' && (
+                    <>
                     {/* Invoice Design */}
                     <div className="settings-section" id="design">
                         <div className="section-header">
@@ -847,13 +859,10 @@ export default function SettingsPage() {
                                     <div className="section-icon">🏷</div>
                                     <div className="section-title">Design Your Invoice</div>
                                 </div>
-                                <button type="button" className="close-btn" onClick={() => setDesignOpen(!designOpen)}>
-                                    {designOpen ? 'Close ▲' : 'Customize ▼'}
-                                </button>
                             </div>
                             <div className="section-desc">Customize invoice color theme, table layout, and logo position</div>
                         </div>
-                        <div className={`bs-collapse ${designOpen ? 'open' : ''}`}><div>
+                        <div className="bs-collapse open"><div>
                             <div style={{ padding: '0 16px 16px' }}>
                                 <p className="bs-sec-label">Invoice Color Theme</p>
                                 <div className="bs-theme-grid">
@@ -938,6 +947,11 @@ export default function SettingsPage() {
                         </div></div>
                     </div>
 
+                    </>
+                    )}
+
+                    {activeTab === 'account' && (
+                    <>
                     {/* Preferences */}
                     <div className="card" id="prefs">
                         <div className="card-head">
@@ -982,6 +996,8 @@ export default function SettingsPage() {
                             </div>
                         </div>
                     </div>
+                    </>
+                    )}
 
                 </div>
             </div>
