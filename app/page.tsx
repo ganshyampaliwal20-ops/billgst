@@ -20,6 +20,7 @@ export default function LandingPage() {
     // Form States
     const [loginData, setLoginData] = useState({ email: '', password: '' });
     const [signupData, setSignupData] = useState({ name: '', shopName: '', email: '', password: '', refCode: '' });
+    const [showShopName, setShowShopName] = useState(false);
 
     useEffect(() => {
         if (status === 'authenticated') {
@@ -252,13 +253,46 @@ export default function LandingPage() {
                                 <input type="text" placeholder={isEnglish ? "Ramesh Sharma" : "रमेश शर्मा"} value={signupData.name} onChange={e => setSignupData({...signupData, name: e.target.value})} />
                             </div>
                         </div>
-                        <div className="field">
-                            <label>{isEnglish ? 'Shop Name' : 'दुकान का नाम'}</label>
-                            <div className="fi">
-                                <span className="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#484F66" strokeWidth="1.8" /></svg></span>
-                                <input type="text" placeholder={isEnglish ? "Sharma General Store" : "शर्मा जनरल स्टोर"} value={signupData.shopName} onChange={e => setSignupData({...signupData, shopName: e.target.value})} />
+                        {!showShopName ? (
+                            <button 
+                                type="button" 
+                                onClick={() => setShowShopName(true)}
+                                style={{
+                                    background: 'transparent',
+                                    border: '1px dashed #484F66',
+                                    color: '#A0ABC0',
+                                    padding: '10px',
+                                    borderRadius: '8px',
+                                    width: '100%',
+                                    marginBottom: '16px',
+                                    cursor: 'pointer',
+                                    fontSize: '13px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.borderColor = '#484F66'; e.currentTarget.style.color = '#A0ABC0'; }}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                                {isEnglish ? 'I have a Shop / Business' : 'मेरी एक दुकान / बिज़नेस है'}
+                            </button>
+                        ) : (
+                            <div className="field">
+                                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    {isEnglish ? 'Shop Name' : 'दुकान का नाम'}
+                                    <span onClick={() => { setShowShopName(false); setSignupData({...signupData, shopName: ''}); }} style={{ color: 'var(--re)', cursor: 'pointer', fontSize: '11.5px', fontWeight: 'normal', opacity: 0.8 }}>
+                                        {isEnglish ? 'Remove ✕' : 'हटाएं ✕'}
+                                    </span>
+                                </label>
+                                <div className="fi">
+                                    <span className="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#484F66" strokeWidth="1.8" /></svg></span>
+                                    <input type="text" placeholder={isEnglish ? "Sharma General Store" : "शर्मा जनरल स्टोर"} value={signupData.shopName} onChange={e => setSignupData({...signupData, shopName: e.target.value})} autoFocus />
+                                </div>
                             </div>
-                        </div>
+                        )}
                         <div className="field">
                             <label>{isEnglish ? 'Email Address' : 'ईमेल एड्रेस'}</label>
                             <div className="fi">
