@@ -1716,6 +1716,34 @@ export default function BusinessExpensesPage() {
     return (
         <div className="hisaab-root">
             <style>{`
+                .lightbox {
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.9);
+                    z-index: 9999;
+                    display: none;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 20px;
+                }
+                .lightbox.open {
+                    display: flex;
+                }
+                .lightbox img {
+                    max-width: 90%;
+                    max-height: 90vh;
+                    object-fit: contain;
+                    border-radius: 8px;
+                }
+                .lightbox-close {
+                    position: absolute;
+                    top: 20px;
+                    right: 30px;
+                    color: white;
+                    font-size: 30px;
+                    cursor: pointer;
+                    z-index: 10000;
+                }
                 @keyframes spin3d {
                     100% { transform: rotate(360deg); }
                 }
