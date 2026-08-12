@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const maxDuration = 60; // Allow enough time for AI response without timeout
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export async function POST(req: Request) {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
@@ -18,13 +20,16 @@ export async function POST(req: Request) {
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
-        });
+        
+        // Extract mime type if present
+        let mimeType = "image/jpeg";
+        const mimeMatch = imageBase64.match(/^data:([^;]+);base64,/);
+        if (mimeMatch && mimeMatch[1]) {
+            mimeType = mimeMatch[1];
+        }
 
         // Remove the data:image/jpeg;base64, prefix if present
-        const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+        const base64Data = imageBase64.replace(/^data:[^;]+;base64,/, "").trim();
 
         const prompt = `
 You are an expert Data Extractor for Indian Wholesale and Supplier Invoices.
@@ -56,16 +61,50 @@ Strict Rules:
 `;
 
         const imageParts = [{
-                inlineData: {
-                    data: base64Data,
-                    mimeType: "image/jpeg" // works for most common images
+            inlineData: {
+                data: base64Data,
+                mimeType: mimeType
+            }
+        }];
+
+        const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"];
+        let responseText = "";
+        let lastError = null;
+        const maxRetriesPerModel = 3; // Try each model up to 3 times with delay
+
+        for (const modelName of modelsToTry) {
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { responseMimeType: "application/json" }
+            });
+
+            for (let attempt = 1; attempt <= maxRetriesPerModel; attempt++) {
+                try {
+                    const result = await model.generateContent([prompt, ...imageParts]);
+                    responseText = result.response.text();
+                    break; // Success, break inner retry loop
+                } catch (err: any) {
+                    lastError = err;
+                    console.warn(`Attempt ${attempt} failed for model ${modelName}:`, err?.message || err);
+                    
+                    if (err?.message?.includes('503') || err?.message?.includes('429')) {
+                        // Rate limit or overloaded, wait and retry
+                        if (attempt < maxRetriesPerModel) {
+                            await sleep(2000 * attempt); // Wait 2s, 4s before retrying
+                        }
+                    } else {
+                        // Other error, no point retrying this model, break inner loop to try next model
+                        break; 
+                    }
                 }
             }
-        ];
+            if (responseText) break; // Success, break outer model loop
+        }
 
-        const result = await model.generateContent([prompt, ...imageParts]);
-        const responseText = result.response.text();
-        
+        if (!responseText) {
+            throw lastError || new Error("All AI vision models failed to process the image after retries.");
+        }
+
         // Clean up markdown in case the model ignored instructions
         const jsonStr = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
         

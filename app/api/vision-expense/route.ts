@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const maxDuration = 60; // Allow enough time for AI response without timeout
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export async function POST(req: Request) {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
@@ -57,20 +59,33 @@ Strict Rules:
         const modelsToTry = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
         let responseText = "";
         let lastError = null;
+        const maxRetriesPerModel = 3;
 
         for (const modelName of modelsToTry) {
-            try {
-                const model = genAI.getGenerativeModel({ 
-                    model: modelName,
-                    generationConfig: { responseMimeType: "application/json" }
-                });
-                const result = await model.generateContent([prompt, ...imageParts]);
-                responseText = result.response.text();
-                if (responseText) break;
-            } catch (err: any) {
-                lastError = err;
-                console.warn(`Model ${modelName} failed for vision expense:`, err?.message || err);
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { responseMimeType: "application/json" }
+            });
+
+            for (let attempt = 1; attempt <= maxRetriesPerModel; attempt++) {
+                try {
+                    const result = await model.generateContent([prompt, ...imageParts]);
+                    responseText = result.response.text();
+                    break;
+                } catch (err: any) {
+                    lastError = err;
+                    console.warn(`Attempt ${attempt} failed for model ${modelName} (vision expense):`, err?.message || err);
+                    
+                    if (err?.message?.includes('503') || err?.message?.includes('429')) {
+                        if (attempt < maxRetriesPerModel) {
+                            await sleep(2000 * attempt); // wait before retrying
+                        }
+                    } else {
+                        break; 
+                    }
+                }
             }
+            if (responseText) break;
         }
 
         if (!responseText) {
