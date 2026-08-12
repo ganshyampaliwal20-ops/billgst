@@ -184,6 +184,12 @@ function PayContent() {
                         </div>
                     )}
 
+                    {sid && (
+                        <a href={`/h/${sid}`} target="_blank" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(59, 130, 246, 0.15)', border: '1px solid rgba(59, 130, 246, 0.4)', color: '#60a5fa', padding: '10px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: 600, fontSize: '14px', marginBottom: '24px', transition: 'all 0.2s ease' }}>
+                            📄 Pura Hisaab Dekhein
+                        </a>
+                    )}
+
                     {/* QR Code container */}
                     <div style={{ background: '#ffffff', padding: '16px', borderRadius: '18px', display: 'inline-block', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)', marginBottom: '18px' }}>
                         <QRCodeSVG value={upiUrl} size={180} level="M" />
