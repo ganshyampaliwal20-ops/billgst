@@ -119,7 +119,7 @@ export default function RootLayout({
                 },
                 "contactPoint": {
                   "@type": "ContactPoint",
-                  "email": "support@billgst.in",
+                  "email": "billgstapp@gmail.com",
                   "contactType": "customer support"
                 }
               },

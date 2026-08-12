@@ -79,7 +79,7 @@ export default function AboutPage() {
                         <section className="text-center pt-8 border-t border-gray-100">
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">Have Questions?</h2>
                             <p className="text-gray-600 mb-8">We'd love to hear from you. Whether it's feedback, support, or just a hello.</p>
-                            <a href="mailto:support@billgst.in" className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg md:px-10 shadow-lg hover:shadow-xl transition-all">
+                            <a href="mailto:billgstapp@gmail.com" className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 md:text-lg md:px-10 shadow-lg hover:shadow-xl transition-all">
                                 Contact Support
                             </a>
                         </section>

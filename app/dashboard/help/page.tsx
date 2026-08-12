@@ -47,12 +47,12 @@ export default function HelpPage() {
                 </a>
 
                 <a
-                    href="mailto:support@billgst.in"
+                    href="mailto:billgstapp@gmail.com"
                     className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaEnvelope className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">Email</h3>
-                    <p className="text-sm opacity-90 mt-1">support@billgst.in</p>
+                    <p className="text-sm opacity-90 mt-1">billgstapp@gmail.com</p>
                 </a>
 
                 <a
@@ -116,7 +116,7 @@ export default function HelpPage() {
                         WhatsApp Support
                     </a>
                     <a
-                        href="mailto:support@billgst.in?subject=BillGST%20Help%20Request"
+                        href="mailto:billgstapp@gmail.com?subject=BillGST%20Help%20Request"
                         className="inline-flex items-center justify-center gap-2 bg-white/20 text-white px-6 py-3 rounded-xl font-bold transition-all hover:bg-white/30"
                     >
                         <FaEnvelope className="text-xl" />

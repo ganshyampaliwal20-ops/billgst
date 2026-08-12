@@ -178,7 +178,7 @@ export default function PrivacyPolicy() {
                             </p>
                             <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
                                 <p className="mb-2"><strong>BillGST Support</strong></p>
-                                <p className="mb-2">Email: <a href="mailto:support@billgst.in" className="text-blue-600 hover:text-blue-800 underline">support@billgst.in</a></p>
+                                <p className="mb-2">Email: <a href="mailto:billgstapp@gmail.com" className="text-blue-600 hover:text-blue-800 underline">billgstapp@gmail.com</a></p>
                                 <p className="mb-2">Website: <a href="https://billgst.in" className="text-blue-600 hover:text-blue-800 underline">https://billgst.in</a></p>
                                 <p className="mb-2">Address: India</p>
                             </div>
