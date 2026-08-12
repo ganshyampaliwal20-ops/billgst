@@ -16,7 +16,7 @@ export default function AdminPaymentsPage() {
     const [sendingNotify, setSendingNotify] = useState(false);
 
     const role = normalizeRole(session?.user?.role);
-    const isSuperAdmin = session?.user?.email === 'gpaliwal59@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
+    const isSuperAdmin = session?.user?.email === 'billgstapp@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
 
     if (status === 'loading') return <div>Loading...</div>;
     if (!isSuperAdmin) {

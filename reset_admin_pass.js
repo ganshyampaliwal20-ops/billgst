@@ -21,16 +21,16 @@ async function resetPass() {
         const client = await pool.connect();
         const hashedPassword = await bcrypt.hash('admin123', 10);
 
-        console.log("Updating password for gpaliwal59@gmail.com...");
+        console.log("Updating password for billgstapp@gmail.com...");
         const result = await client.query(
-            "UPDATE users SET password = $1 WHERE email = 'gpaliwal59@gmail.com' RETURNING id",
+            "UPDATE users SET password = $1 WHERE email = 'billgstapp@gmail.com' RETURNING id",
             [hashedPassword]
         );
 
         if (result.rows.length > 0) {
             console.log("SUCCESS! Password reset to: admin123");
         } else {
-            console.log("USER NOT FOUND: gpaliwal59@gmail.com");
+            console.log("USER NOT FOUND: billgstapp@gmail.com");
         }
 
         client.release();

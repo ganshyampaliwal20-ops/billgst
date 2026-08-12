@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const session: any = await getServerSession(authOptions as any);
     const role = normalizeRole(session?.user?.role);
-    const canAccess = isOwnerRole(role) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
+    const canAccess = isOwnerRole(role) || ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
 
     if (!canAccess) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   try {
     const session: any = await getServerSession(authOptions as any);
     const role = normalizeRole(session?.user?.role);
-    const canAccess = isOwnerRole(role) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
+    const canAccess = isOwnerRole(role) || ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
 
     if (!canAccess) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

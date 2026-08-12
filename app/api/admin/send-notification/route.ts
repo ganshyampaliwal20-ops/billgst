@@ -7,7 +7,7 @@ import { messaging } from '@/lib/firebase-admin';
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);
-        const isSuperAdmin = session?.user?.email === 'gpaliwal59@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
+        const isSuperAdmin = session?.user?.email === 'billgstapp@gmail.com' || session?.user?.email === 'ganshyampaliwal20@gmail.com';
         
         if (!isSuperAdmin) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

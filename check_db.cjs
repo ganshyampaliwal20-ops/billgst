@@ -4,7 +4,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 async function run() {
     try {
-        const adminEmails = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
+        const adminEmails = ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'];
         const userId = '123';
         const query = `
                 SELECT e.* FROM expenses e

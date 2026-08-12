@@ -10,7 +10,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const isAdmin = session.user.email === 'gpaliwal59@gmail.com' || session.user.email === 'ganshyampaliwal20@gmail.com';
+        const isAdmin = session.user.email === 'billgstapp@gmail.com' || session.user.email === 'ganshyampaliwal20@gmail.com';
         const client = await pool.connect();
 
         try {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const isAdmin = session.user.email === 'gpaliwal59@gmail.com' || session.user.email === 'ganshyampaliwal20@gmail.com';
+        const isAdmin = session.user.email === 'billgstapp@gmail.com' || session.user.email === 'ganshyampaliwal20@gmail.com';
         const data = await request.json();
 
         // If admin is replying, they must send target_user_email. Else target is self.

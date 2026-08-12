@@ -18,7 +18,7 @@ const pool = new Pool({
 async function checkUserDetail() {
     try {
         const client = await pool.connect();
-        const res = await client.query("SELECT id, name, email, phone FROM users WHERE email = 'gpaliwal59@gmail.com'");
+        const res = await client.query("SELECT id, name, email, phone FROM users WHERE email = 'billgstapp@gmail.com'");
         const user = res.rows[0];
         console.log("USER_JSON_START");
         console.log(JSON.stringify(user));

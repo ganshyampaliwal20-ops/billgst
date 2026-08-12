@@ -20,7 +20,7 @@ export default function SupportChatWidget() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const email = session?.user?.email;
-    const isAdmin = email === 'gpaliwal59@gmail.com' || email === 'ganshyampaliwal20@gmail.com';
+    const isAdmin = email === 'billgstapp@gmail.com' || email === 'ganshyampaliwal20@gmail.com';
 
     // Fetch messages when opened
     useEffect(() => {

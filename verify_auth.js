@@ -18,7 +18,7 @@ const pool = new Pool({
 
 async function testAuth() {
     try {
-        const email = 'gpaliwal59@gmail.com';
+        const email = 'billgstapp@gmail.com';
         const pass = 'admin123';
 
         const client = await pool.connect();

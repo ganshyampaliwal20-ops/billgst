@@ -32,7 +32,7 @@ export default function SmartAttendance() {
     const [deptFilter, setDeptFilter] = useState('all');
     const [activeTab, setActiveTab] = useState('workers');
     const currentUserRole = normalizeRole(session?.user?.role);
-    const canAccessRoleAdmin = isOwnerRole(currentUserRole) || ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
+    const canAccessRoleAdmin = isOwnerRole(currentUserRole) || ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
     const [sheet, setSheet] = useState<'none'|'detail'|'add'>('none');
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [isEditingStaff, setIsEditingStaff] = useState(false);

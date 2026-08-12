@@ -35,7 +35,7 @@ export default function SupportAdminPage() {
             router.push('/login');
         } else if (status === 'authenticated') {
             const email = session?.user?.email;
-            if (email !== 'gpaliwal59@gmail.com' && email !== 'ganshyampaliwal20@gmail.com') {
+            if (email !== 'billgstapp@gmail.com' && email !== 'ganshyampaliwal20@gmail.com') {
                 router.push('/dashboard');
             } else {
                 fetchInbox();

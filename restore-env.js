@@ -11,9 +11,9 @@ NEXTAUTH_URL="https://billgst-git-main-ganshyams-projects.vercel.app"
 NEXTAUTH_SECRET="${secret}"
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
-SMTP_USER="gpaliwal59@gmail.com"
+SMTP_USER="billgstapp@gmail.com"
 SMTP_PASS="4a8d830bf4"
-SMTP_FROM_EMAIL="gpaliwal59@gmail.com"
+SMTP_FROM_EMAIL="billgstapp@gmail.com"
 `;
 
 fs.writeFileSync('.env.local', content, { encoding: 'utf8' });

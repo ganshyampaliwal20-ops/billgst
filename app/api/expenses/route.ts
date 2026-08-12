@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         const userId = session.user.id;
         const client = await pool.connect();
 
-        const adminEmails = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'];
+        const adminEmails = ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'];
         const isSuperAdmin = session.user.email && adminEmails.includes(session.user.email);
 
         let query: string;

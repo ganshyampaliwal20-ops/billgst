@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const session: any = await getServerSession(authOptions as any);
     const role = normalizeRole(session?.user?.role);
-    const isSuperAdmin = ['gpaliwal59@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
+    const isSuperAdmin = ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'].includes(session?.user?.email || '');
     const canAccess = isOwnerRole(role) || isSuperAdmin;
     
     if (!canAccess) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

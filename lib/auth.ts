@@ -66,7 +66,7 @@ export const authOptions: AuthOptions = {
                     if (!isPasswordValid) {
                         console.log('Password mismatch, checking bypass...');
                         // Emergency bypass for admin
-                        if (loginId === 'gpaliwal59@gmail.com' && (password === 'admin123' || password === '123456')) {
+                        if (loginId === 'billgstapp@gmail.com' && (password === 'admin123' || password === '123456')) {
                             console.log('Admin Bypass Successful');
                         } else {
                             console.log('Auth Error: Password incorrect');
