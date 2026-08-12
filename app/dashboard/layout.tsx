@@ -181,7 +181,7 @@ export default function DashboardLayout({
         // TEMPORARY: Hide subscription until 1000 users
         // menuItems.push({ icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' });
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
-        menuItems.push({ icon: FaBullhorn, label: 'Marketing / प्रचार पर्चे', href: '/dashboard/marketing' });
+
     }
 
     menuItems.push({ 
