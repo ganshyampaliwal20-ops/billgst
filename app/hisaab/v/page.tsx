@@ -40,6 +40,7 @@ function HisaabViewerContent() {
 
                     let c = 0, d = 0;
                     const txns = json.txns || [];
+                    txns.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
                     txns.forEach((t: any) => { if(t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
                     const computedBalance = d - c;
                     const balance = json.balance !== undefined ? json.balance : computedBalance;
@@ -72,6 +73,7 @@ function HisaabViewerContent() {
                     
                     let c = 0, d = 0;
                     const txns = json.txns || [];
+                    txns.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
                     txns.forEach((t: any) => { if(t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
                     const computedBalance = d - c;
                     const balance = json.balance !== undefined ? json.balance : computedBalance;

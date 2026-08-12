@@ -304,6 +304,7 @@ export default function BusinessExpensesPage() {
                                 if (t.type === 'credit') creditSum += t.amt;
                                 else debitSum += t.amt;
                             });
+                            txns.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
                             return { ...c, balance: debitSum - creditSum, pending_txns: cleanPending };
                         });
                         setCustomers(balancedData);
@@ -1390,6 +1391,7 @@ export default function BusinessExpensesPage() {
                     newBalance += (isDebit ? amt : -amt);
                 }
 
+                newTxns.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
                 return { ...c, txns: newTxns, balance: newBalance };
             }
             return c;
