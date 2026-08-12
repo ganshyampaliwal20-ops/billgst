@@ -212,6 +212,22 @@ export default function BusinessExpensesPage() {
         return false;
     };
 
+    const getCleanPayload = (cust: any) => {
+        if (!cust) return cust;
+        const { txns, pending_txns, ...rest } = cust;
+        return {
+            ...rest,
+            txns: (txns || []).map((t: any) => {
+                const { photos, ...txnRest } = t;
+                return txnRest;
+            }),
+            pending_txns: (pending_txns || []).map((t: any) => {
+                const { photos, ...txnRest } = t;
+                return txnRest;
+            })
+        };
+    };
+
     // Initialize dismissed IDs and deleted IDs from localStorage on mount
     useEffect(() => {
         try {
@@ -279,6 +295,12 @@ export default function BusinessExpensesPage() {
                             const txnIds = new Set<string>(txns.map((t: any) => String(t.id)));
                             const cleanPending = (c.pending_txns || []).filter((p: any) => !isDismissedOrHandled(p.id, txnIds));
                             txns.forEach((t: any) => {
+                                if (t.date) {
+                                    const yMatch = String(t.date).match(/^(\d{4})/);
+                                    if (yMatch && parseInt(yMatch[1], 10) < 2026 && parseInt(yMatch[1], 10) > 2000) {
+                                        t.date = t.date.replace(yMatch[1], '2026');
+                                    }
+                                }
                                 if (t.type === 'credit') creditSum += t.amt;
                                 else debitSum += t.amt;
                             });
@@ -779,7 +801,7 @@ export default function BusinessExpensesPage() {
         showToast(t.generatingLink || '⏳ Generating Link...');
         try {
             if (session?.user?.id) {
-                try { await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }); } catch (e) {}
+                try { await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }); } catch (e) {}
             }
 
             let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
@@ -880,7 +902,7 @@ export default function BusinessExpensesPage() {
         try {
             if (session?.user?.id) {
                 // Fire and forget sync to speed up
-                fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cust) }).catch(e => {});
+                fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }).catch(e => {});
             }
 
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
@@ -899,7 +921,7 @@ export default function BusinessExpensesPage() {
         if (!currentCust?.id) return;
         showToast(t.openingStatement || '⏳ Opening Statement...');
         try {
-            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentCust) }).catch(e => {});
+            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(currentCust)) }).catch(e => {});
             const shareId = session?.user?.id ? `${session.user.id}_${currentCust.id}` : currentCust.id;
             window.location.href = `/h/${shareId}`;
         } catch (error) {
@@ -1146,7 +1168,7 @@ export default function BusinessExpensesPage() {
                 await fetch('/api/hisaab/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedCust)
+                    body: JSON.stringify(getCleanPayload(updatedCust))
                 });
             } catch (e) {
                 console.error('[Hisaab] Instant sync failed:', e);
@@ -1203,7 +1225,7 @@ export default function BusinessExpensesPage() {
                 await fetch('/api/hisaab/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedCust)
+                    body: JSON.stringify(getCleanPayload(updatedCust))
                 });
             } catch (e) {
                 console.error('[Hisaab] Instant sync failed:', e);
@@ -1300,7 +1322,7 @@ export default function BusinessExpensesPage() {
                 fetch('/api/hisaab/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedCustObj)
+                    body: JSON.stringify(getCleanPayload(updatedCustObj))
                 }).catch(e => console.error('Failed to sync deletion to server', e));
             }
         } catch (e) {

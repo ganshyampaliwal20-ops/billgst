@@ -40,8 +40,9 @@ function HisaabViewerContent() {
 
                     let c = 0, d = 0;
                     const txns = json.txns || [];
-                    txns.forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
-                    const balance = json.balance || 0;
+                    txns.forEach((t: any) => { if(t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
+                    const computedBalance = d - c;
+                    const balance = json.balance !== undefined ? json.balance : computedBalance;
                     const isNeg = balance < 0;
                     const net = Math.abs(balance);
                     
@@ -71,8 +72,9 @@ function HisaabViewerContent() {
                     
                     let c = 0, d = 0;
                     const txns = json.txns || [];
-                    txns.forEach((t: any) => { if(t.type === 'credit') c += t.amt; else d += t.amt; });
-                    const balance = json.balance || 0;
+                    txns.forEach((t: any) => { if(t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
+                    const computedBalance = d - c;
+                    const balance = json.balance !== undefined ? json.balance : computedBalance;
                     const isNeg = balance < 0;
                     const net = Math.abs(balance);
                     

@@ -234,6 +234,9 @@ export default function CustomerDetailPage() {
 
     const getHisaabPayload = () => {
         const txns: any[] = [];
+        let totalSalesComputed = 0;
+        let totalPaidComputed = 0;
+
         customerInvoices.forEach((inv: any) => {
              if (inv.invoice_date) {
                  txns.push({
@@ -242,6 +245,8 @@ export default function CustomerDetailPage() {
                      type: 'debit',
                      name: 'Invoice ' + inv.invoice_number
                  });
+                 totalSalesComputed += parseFloat(inv.total_amount || 0);
+
                  if (parseFloat(inv.paid_amount || 0) > 0) {
                      txns.push({
                          date: new Date(inv.invoice_date).toISOString(),
@@ -249,15 +254,30 @@ export default function CustomerDetailPage() {
                          type: 'credit',
                          name: 'Payment (Inv ' + inv.invoice_number + ')'
                      });
+                     totalPaidComputed += parseFloat(inv.paid_amount || 0);
                  }
              }
         });
+
+        fetchedPayments.forEach((p: any) => {
+             if (p.payment_date) {
+                 txns.push({
+                     date: new Date(p.payment_date).toISOString(),
+                     amt: parseFloat(p.amount || 0),
+                     type: 'credit',
+                     name: 'Payment ' + (p.payment_mode ? `(${p.payment_mode})` : '')
+                 });
+                 totalPaidComputed += parseFloat(p.amount || 0);
+             }
+        });
+
         txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        const realTotalDue = Math.max(0, totalSalesComputed - totalPaidComputed);
 
         return {
             ...customer,
             txns: txns,
-            balance: -totalDue
+            balance: -realTotalDue
         };
     };
 

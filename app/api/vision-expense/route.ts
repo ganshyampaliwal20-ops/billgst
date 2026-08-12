@@ -43,7 +43,7 @@ Return ONLY a valid JSON object matching this exact structure:
 
 Strict Rules:
 1. "totalAmount": Return the final payable amount as a number (e.g. 1500 or 1500.50). Remove commas, currency symbols, and slashes.
-2. "expenseDate": CAREFULLY inspect the bill for a handwritten or printed date (e.g. 20/04/2026, 20-4-26). It is often written at the top right or bottom of the bill. ALWAYS convert to YYYY-MM-DD format. If absolutely no date is found, return today's date in YYYY-MM-DD.
+2. "expenseDate": CAREFULLY inspect the bill for a handwritten or printed date (e.g. 20/04/2026, 20-4-26). It is often written at the top right or bottom of the bill. ALWAYS convert to YYYY-MM-DD format. If the year on the bill is before 2026 (e.g. 2023), ALWAYS change it to 2026. If absolutely no date is found, return today's date in YYYY-MM-DD.
 3. "description": Keep it very concise but informative.
 4. Return ONLY raw valid JSON. Do not include markdown codeblocks.
 `;
