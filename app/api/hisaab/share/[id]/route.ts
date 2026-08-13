@@ -58,43 +58,10 @@ export async function GET(request: Request, context: any) {
                     shareData = { ...shareData, ...customer }; // Merge to preserve any extra fields
                 }
 
-                // Fetch Invoices
-                const invResult = await client.query('SELECT invoice_date, total_amount, paid_amount, invoice_number FROM invoices WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
-                
-                if (invResult.rows.length > 0) {
-                    const txns: any[] = [];
-                    let totalSalesComputed = 0;
-                    let totalPaidComputed = 0;
-
-                    invResult.rows.forEach((inv: any) => {
-                         if (inv.invoice_date) {
-                             txns.push({
-                                 date: new Date(inv.invoice_date).toISOString(),
-                                 amt: parseFloat(inv.total_amount || 0),
-                                 type: 'debit',
-                                 name: 'Invoice ' + inv.invoice_number
-                             });
-                             totalSalesComputed += parseFloat(inv.total_amount || 0);
-
-                             if (parseFloat(inv.paid_amount || 0) > 0) {
-                                 txns.push({
-                                     date: new Date(inv.invoice_date).toISOString(),
-                                     amt: parseFloat(inv.paid_amount || 0),
-                                     type: 'credit',
-                                     name: 'Payment (Inv ' + inv.invoice_number + ')'
-                                 });
-                                 totalPaidComputed += parseFloat(inv.paid_amount || 0);
-                             }
-                         }
-                    });
-
-                    txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                    const realTotalDue = totalSalesComputed - totalPaidComputed;
-
-                    shareData.txns = txns;
-                    shareData.balance = realTotalDue;
-                }
-                // If no invoices exist, it leaves shareData.txns intact (preserving Hisaab Diary data)
+                // No longer overwriting with invoices table.
+                // The source of truth for the Hisaab Statement is ALWAYS the hisaab_shares JSON payload.
+                // This payload is automatically synced by the Expenses (Hisaab Diary) page and the Invoices dashboard when they share.
+                // Reverted this to fix the Hisaab Diary data being wiped out for customers who have both invoices and manual diary entries.
 
             } catch (e) {
                 console.error('Failed to fetch live data for hisaab share:', e);
