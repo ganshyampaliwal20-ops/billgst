@@ -61,62 +61,40 @@ export async function GET(request: Request, context: any) {
                 // Fetch Invoices
                 const invResult = await client.query('SELECT invoice_date, total_amount, paid_amount, invoice_number FROM invoices WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
                 
-                // Fetch Payments
-                const payResult = await client.query('SELECT payment_date, amount, payment_mode, payment_note FROM customer_payments WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
-                
-                const txns: any[] = [];
-                let totalSalesComputed = 0;
-                let totalPaidComputed = 0;
+                if (invResult.rows.length > 0) {
+                    const txns: any[] = [];
+                    let totalSalesComputed = 0;
+                    let totalPaidComputed = 0;
 
-                invResult.rows.forEach((inv: any) => {
-                     if (inv.invoice_date) {
-                         txns.push({
-                             date: new Date(inv.invoice_date).toISOString(),
-                             amt: parseFloat(inv.total_amount || 0),
-                             type: 'debit',
-                             name: 'Invoice ' + inv.invoice_number
-                         });
-                         totalSalesComputed += parseFloat(inv.total_amount || 0);
-
-                         if (parseFloat(inv.paid_amount || 0) > 0) {
+                    invResult.rows.forEach((inv: any) => {
+                         if (inv.invoice_date) {
                              txns.push({
                                  date: new Date(inv.invoice_date).toISOString(),
-                                 amt: parseFloat(inv.paid_amount || 0),
-                                 type: 'credit',
-                                 name: 'Payment (Inv ' + inv.invoice_number + ')'
+                                 amt: parseFloat(inv.total_amount || 0),
+                                 type: 'debit',
+                                 name: 'Invoice ' + inv.invoice_number
                              });
-                             totalPaidComputed += parseFloat(inv.paid_amount || 0);
+                             totalSalesComputed += parseFloat(inv.total_amount || 0);
+
+                             if (parseFloat(inv.paid_amount || 0) > 0) {
+                                 txns.push({
+                                     date: new Date(inv.invoice_date).toISOString(),
+                                     amt: parseFloat(inv.paid_amount || 0),
+                                     type: 'credit',
+                                     name: 'Payment (Inv ' + inv.invoice_number + ')'
+                                 });
+                                 totalPaidComputed += parseFloat(inv.paid_amount || 0);
+                             }
                          }
-                     }
-                });
+                    });
 
-                payResult.rows.forEach((p: any) => {
-                     if (p.payment_date) {
-                         txns.push({
-                             date: new Date(p.payment_date).toISOString(),
-                             amt: parseFloat(p.amount || 0),
-                             type: 'credit',
-                             name: 'Payment ' + (p.payment_mode ? `(${p.payment_mode})` : '')
-                         });
-                         totalPaidComputed += parseFloat(p.amount || 0);
-                     }
-                });
+                    txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    const realTotalDue = totalSalesComputed - totalPaidComputed;
 
-                txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                const realTotalDue = totalSalesComputed - totalPaidComputed;
-
-                shareData.txns = txns;
-                
-                // Keep the exact same logic as the frontend expects for balance
-                // If they owe money (realTotalDue > 0), the frontend expects balance to be positive for some reason?
-                // Wait! Let's check how frontend parses it:
-                // Frontend computes: computedBalance = d - c. (d is debit, c is credit)
-                // d - c = totalSales - totalPaid = realTotalDue.
-                // So balance should be d - c = realTotalDue!
-                // Wait, in my previous code I did: shareData.balance = -realTotalDue;
-                // If I pass negative, it's considered "Advance Jama Hai" by the frontend!
-                // Let's pass realTotalDue directly!
-                shareData.balance = realTotalDue;
+                    shareData.txns = txns;
+                    shareData.balance = realTotalDue;
+                }
+                // If no invoices exist, it leaves shareData.txns intact (preserving Hisaab Diary data)
 
             } catch (e) {
                 console.error('Failed to fetch live data for hisaab share:', e);
