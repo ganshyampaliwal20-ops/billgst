@@ -63,11 +63,11 @@ function PayContent() {
 
         let targetUrl = upiUrl;
         if (appScheme === 'gpay') {
-            targetUrl = `gpay://upi/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${amount ? `&am=${encodeURIComponent(amount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`;
+            targetUrl = `gpay://upi/pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${liveAmount ? `&am=${encodeURIComponent(liveAmount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`;
         } else if (appScheme === 'phonepe') {
-            targetUrl = `phonepe://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${amount ? `&am=${encodeURIComponent(amount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`;
+            targetUrl = `phonepe://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${liveAmount ? `&am=${encodeURIComponent(liveAmount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`;
         } else if (appScheme === 'paytm') {
-            targetUrl = `paytmmp://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${amount ? `&am=${encodeURIComponent(amount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`;
+            targetUrl = `paytmmp://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${liveAmount ? `&am=${encodeURIComponent(liveAmount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`;
         }
 
         window.location.href = targetUrl;
