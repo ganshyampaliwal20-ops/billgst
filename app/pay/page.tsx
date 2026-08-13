@@ -9,12 +9,13 @@ function PayContent() {
     const searchParams = useSearchParams();
     const upiId = searchParams.get('pa') || '';
     const name = searchParams.get('pn') || 'Merchant';
-    const amount = searchParams.get('am') || '';
+    const initialAmount = searchParams.get('am') || '';
     const note = searchParams.get('tn') || 'Payment via BillGST';
     const sid = searchParams.get('sid') || '';
     const cid = searchParams.get('cid') || '';
     const customerName = searchParams.get('cname') || '';
 
+    const [liveAmount, setLiveAmount] = useState(initialAmount);
     const [copied, setCopied] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [hasClickedPay, setHasClickedPay] = useState(false);
@@ -26,9 +27,22 @@ function PayContent() {
         setIsMobile(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
     }, []);
 
+    useEffect(() => {
+        if (sid) {
+            fetch(`/api/hisaab/share/${sid}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && typeof data.balance === 'number') {
+                        setLiveAmount(Math.round(data.balance).toString());
+                    }
+                })
+                .catch(err => console.error("Failed to fetch live amount", err));
+        }
+    }, [sid]);
+
     // Construct raw UPI URI
     const upiUrl = upiId 
-        ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${amount ? `&am=${encodeURIComponent(amount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`
+        ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}${liveAmount ? `&am=${encodeURIComponent(liveAmount)}` : ''}&cu=INR&tn=${encodeURIComponent(note)}`
         : '';
 
     const handleCopy = () => {
@@ -66,7 +80,7 @@ function PayContent() {
     };
 
     const handleConfirmPayment = async () => {
-        if (!amount || Number(amount) <= 0) {
+        if (!liveAmount || Number(liveAmount) <= 0) {
             toast.error('Amount is required');
             return;
         }
@@ -79,7 +93,7 @@ function PayContent() {
                 body: JSON.stringify({
                     sid,
                     cid,
-                    amt: Number(amount),
+                    amt: Number(liveAmount),
                     method: 'UPI Online',
                     utr: utr.trim(),
                     customerName,
@@ -123,13 +137,13 @@ function PayContent() {
                     </div>
                     <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#22c55e', margin: '0 0 8px' }}>Payment Notification Sent!</h2>
                     <p style={{ fontSize: '14px', color: '#cbd5e1', lineHeight: '1.5', margin: '0 0 20px' }}>
-                        Aapke ₹{Number(amount).toLocaleString('en-IN')} payment ki jaankari <strong>{name}</strong> ke hisaab mein record ho gayi hai.
+                        Aapke ₹{Number(liveAmount).toLocaleString('en-IN')} payment ki jaankari <strong>{name}</strong> ke hisaab mein record ho gayi hai.
                     </p>
 
                     <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '14px', padding: '14px', marginBottom: '24px', textAlign: 'left', fontSize: '13px', color: '#94a3b8' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                             <span>Amount:</span>
-                            <span style={{ color: '#fff', fontWeight: 600 }}>₹{Number(amount).toLocaleString('en-IN')}</span>
+                            <span style={{ color: '#fff', fontWeight: 600 }}>₹{Number(liveAmount).toLocaleString('en-IN')}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                             <span>To:</span>
@@ -147,7 +161,7 @@ function PayContent() {
                         </a>
                     )}
 
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '16px' }}>
+                    <div style={{ fontSize: '11px', color: '#64748b', margin: '16px 0 0 0' }}>
                         Powered by BillGST.in · India's Smart Billing App
                     </div>
                 </div>
@@ -171,11 +185,11 @@ function PayContent() {
 
                 {/* Amount Box */}
                 <div style={{ padding: '24px 20px', textAlign: 'center' }}>
-                    {amount ? (
+                    {liveAmount ? (
                         <div style={{ marginBottom: '20px' }}>
                             <span style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 600 }}>Amount to Pay</span>
                             <div style={{ fontSize: '38px', fontWeight: 800, color: '#22c55e', margin: '4px 0', letterSpacing: '-1px' }}>
-                                ₹{Number(amount).toLocaleString('en-IN')}
+                                ₹{Number(liveAmount).toLocaleString('en-IN')}
                             </div>
                         </div>
                     ) : (
