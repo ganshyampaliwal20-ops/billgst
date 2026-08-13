@@ -40,74 +40,87 @@ export async function GET(request: Request, context: any) {
             }
         }
 
-        // Try to compute live data if we can extract customerId from globalId
+        // Try to compute live data if we can extract customerId
+        let customerId = null;
         if (globalId && globalId.includes('_')) {
             const parts = globalId.split('_');
-            const customerId = parts[1];
+            customerId = parts[1];
+        } else if (shareData && shareData.id) {
+            customerId = shareData.id;
+        }
 
-            if (userId && customerId) {
-                try {
-                    // Fetch customer details to ensure they are up to date
-                    const custResult = await client.query('SELECT * FROM customers WHERE id = $1', [customerId]);
-                    if (custResult.rows.length > 0) {
-                        const customer = custResult.rows[0];
-                        shareData = { ...shareData, ...customer }; // Merge to preserve any extra fields
-                    }
+        if (userId && customerId) {
+            try {
+                // Fetch customer details to ensure they are up to date
+                const custResult = await client.query('SELECT * FROM customers WHERE id = $1', [customerId]);
+                if (custResult.rows.length > 0) {
+                    const customer = custResult.rows[0];
+                    shareData = { ...shareData, ...customer }; // Merge to preserve any extra fields
+                }
 
-                    // Fetch Invoices
-                    const invResult = await client.query('SELECT invoice_date, total_amount, paid_amount, invoice_number FROM invoices WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
-                    
-                    // Fetch Payments
-                    const payResult = await client.query('SELECT payment_date, amount, payment_mode, payment_note FROM customer_payments WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
-                    
-                    const txns: any[] = [];
-                    let totalSalesComputed = 0;
-                    let totalPaidComputed = 0;
+                // Fetch Invoices
+                const invResult = await client.query('SELECT invoice_date, total_amount, paid_amount, invoice_number FROM invoices WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
+                
+                // Fetch Payments
+                const payResult = await client.query('SELECT payment_date, amount, payment_mode, payment_note FROM customer_payments WHERE customer_id = $1 AND created_by = $2', [customerId, userId]);
+                
+                const txns: any[] = [];
+                let totalSalesComputed = 0;
+                let totalPaidComputed = 0;
 
-                    invResult.rows.forEach((inv: any) => {
-                         if (inv.invoice_date) {
+                invResult.rows.forEach((inv: any) => {
+                     if (inv.invoice_date) {
+                         txns.push({
+                             date: new Date(inv.invoice_date).toISOString(),
+                             amt: parseFloat(inv.total_amount || 0),
+                             type: 'debit',
+                             name: 'Invoice ' + inv.invoice_number
+                         });
+                         totalSalesComputed += parseFloat(inv.total_amount || 0);
+
+                         if (parseFloat(inv.paid_amount || 0) > 0) {
                              txns.push({
                                  date: new Date(inv.invoice_date).toISOString(),
-                                 amt: parseFloat(inv.total_amount || 0),
-                                 type: 'debit',
-                                 name: 'Invoice ' + inv.invoice_number
-                             });
-                             totalSalesComputed += parseFloat(inv.total_amount || 0);
-
-                             if (parseFloat(inv.paid_amount || 0) > 0) {
-                                 txns.push({
-                                     date: new Date(inv.invoice_date).toISOString(),
-                                     amt: parseFloat(inv.paid_amount || 0),
-                                     type: 'credit',
-                                     name: 'Payment (Inv ' + inv.invoice_number + ')'
-                                 });
-                                 totalPaidComputed += parseFloat(inv.paid_amount || 0);
-                             }
-                         }
-                    });
-
-                    payResult.rows.forEach((p: any) => {
-                         if (p.payment_date) {
-                             txns.push({
-                                 date: new Date(p.payment_date).toISOString(),
-                                 amt: parseFloat(p.amount || 0),
+                                 amt: parseFloat(inv.paid_amount || 0),
                                  type: 'credit',
-                                 name: 'Payment ' + (p.payment_mode ? `(${p.payment_mode})` : '')
+                                 name: 'Payment (Inv ' + inv.invoice_number + ')'
                              });
-                             totalPaidComputed += parseFloat(p.amount || 0);
+                             totalPaidComputed += parseFloat(inv.paid_amount || 0);
                          }
-                    });
+                     }
+                });
 
-                    txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                    const realTotalDue = Math.max(0, totalSalesComputed - totalPaidComputed);
+                payResult.rows.forEach((p: any) => {
+                     if (p.payment_date) {
+                         txns.push({
+                             date: new Date(p.payment_date).toISOString(),
+                             amt: parseFloat(p.amount || 0),
+                             type: 'credit',
+                             name: 'Payment ' + (p.payment_mode ? `(${p.payment_mode})` : '')
+                         });
+                         totalPaidComputed += parseFloat(p.amount || 0);
+                     }
+                });
 
-                    shareData.txns = txns;
-                    shareData.balance = -realTotalDue;
+                txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                const realTotalDue = totalSalesComputed - totalPaidComputed;
 
-                } catch (e) {
-                    console.error('Failed to fetch live data for hisaab share:', e);
-                    // If it fails, fallback to the statically saved shareData
-                }
+                shareData.txns = txns;
+                
+                // Keep the exact same logic as the frontend expects for balance
+                // If they owe money (realTotalDue > 0), the frontend expects balance to be positive for some reason?
+                // Wait! Let's check how frontend parses it:
+                // Frontend computes: computedBalance = d - c. (d is debit, c is credit)
+                // d - c = totalSales - totalPaid = realTotalDue.
+                // So balance should be d - c = realTotalDue!
+                // Wait, in my previous code I did: shareData.balance = -realTotalDue;
+                // If I pass negative, it's considered "Advance Jama Hai" by the frontend!
+                // Let's pass realTotalDue directly!
+                shareData.balance = realTotalDue;
+
+            } catch (e) {
+                console.error('Failed to fetch live data for hisaab share:', e);
+                // If it fails, fallback to the statically saved shareData
             }
         }
 

@@ -272,12 +272,12 @@ export default function CustomerDetailPage() {
         });
 
         txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        const realTotalDue = Math.max(0, totalSalesComputed - totalPaidComputed);
+        const realTotalDue = totalSalesComputed - totalPaidComputed;
 
         return {
             ...customer,
             txns: txns,
-            balance: -realTotalDue
+            balance: realTotalDue
         };
     };
 
