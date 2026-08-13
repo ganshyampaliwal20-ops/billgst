@@ -258,7 +258,7 @@ function PayContent() {
                             disabled={isSubmitting}
                             style={{ width: '100%', background: '#22c55e', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontSize: '14px', fontWeight: 700, cursor: isSubmitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                         >
-                            {isSubmitting ? 'Recording...' : `✅ Maine ₹${amount || 'Payment'} Pay Kar Diya`}
+                            {isSubmitting ? 'Recording...' : `✅ Maine ₹${liveAmount || 'Payment'} Pay Kar Diya`}
                         </button>
                     </div>
 
