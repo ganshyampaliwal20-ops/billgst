@@ -88,11 +88,7 @@ export default function DashboardLayout({
         return () => {};
     }, [status]); // Only re-run when authentication status changes
 
-    const [currentTime, setCurrentTime] = useState(new Date());
-    useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
+    // Removed unused 1-second interval state that caused aggressive layout re-renders.
 
     if (!isMounted || status === 'loading') {
         return (
