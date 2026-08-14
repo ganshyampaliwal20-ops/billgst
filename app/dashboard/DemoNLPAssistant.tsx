@@ -355,26 +355,32 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
     return (
         <>
             <style dangerouslySetInnerHTML={{ __html: `
-                @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+                
                 .nlp-widget-vars {
-                    --bg-deep:#0A0620;
-                    --bg-app:#120A2E;
-                    --panel:#170F3C;
-                    --panel-2:#1D1348;
-                    --purple-1:#7C3AED;
-                    --purple-2:#A78BFA;
-                    --violet-glow:#5B21B6;
-                    --teal-1:#0EA98A;
-                    --teal-2:#34D8B0;
-                    --gold:#F2B441;
-                    --text-hi:#F5F2FF;
-                    --text-mid:#C6BEE8;
-                    --text-dim:#8A81B3;
-                    --line:rgba(167,139,250,0.16);
-                    --danger:#F26D6D;
+                    --ink:#0E0C24;
+                    --panel:#171432;
+                    --panel-raised:#1E1A3F;
+                    --bubble-bot:#211D45;
+                    --bubble-user:#12B892;
+                    --border:rgba(255,255,255,0.08);
+                    --border-strong:rgba(255,255,255,0.14);
+                    --teal:#12B892;
+                    --teal-dim:#0C8A6E;
+                    --gold:#E8AE42;
+                    --text-primary:#F4F2FA;
+                    --text-secondary:#A6A2C4;
+                    --text-muted:#716D96;
+                    --danger:#E85C5C;
+                    --radius-lg:22px;
+                    --radius-md:16px;
+                    --radius-sm:10px;
+                    --safe-bottom:env(safe-area-inset-bottom,0px);
                 }
-                .nlp-chat-widget{
-                    font-family:'Poppins',sans-serif;
+
+                .nlp-chat-widget {
+                    font-family:'Inter',system-ui,sans-serif;
+                    color:var(--text-primary);
                     position:fixed;
                     bottom:0;
                     left:0;
@@ -383,18 +389,20 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     max-width: 100vw;
                     height:100%;
                     max-height:86vh;
-                    background:var(--panel);
+                    background: radial-gradient(120% 60% at 50% 0%, rgba(18,184,146,0.14), transparent 55%), linear-gradient(180deg, var(--ink) 0%, #0A0920 100%);
                     border-radius:28px 28px 0 0;
-                    box-shadow:0 -20px 60px rgba(0,0,0,0.55), 0 -1px 0 var(--line);
+                    box-shadow:0 -20px 60px rgba(0,0,0,0.55), 0 -1px 0 var(--border);
                     display:flex;
                     flex-direction:column;
                     animation:nlpRise 0.4s cubic-bezier(.2,.9,.25,1);
                     z-index: 1000;
+                    overflow:hidden;
                 }
                 @media (min-width: 768px) {
                     .nlp-chat-widget {
                         bottom: 80px;
                         right: 24px;
+                        left: auto;
                         width: 400px;
                         height: 600px;
                         border-radius: 28px;
@@ -404,277 +412,236 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     from{transform:translateY(24px);opacity:0;}
                     to{transform:translateY(0);opacity:1;}
                 }
+                .nlp-chat-widget * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
                 
                 .nlp-drag-handle{
                     width:38px;height:4px;border-radius:4px;
-                    background:rgba(197,190,232,0.25);
+                    background:rgba(255,255,255,0.15);
                     margin:10px auto 4px;
+                    flex-shrink: 0;
                 }
-                .nlp-chat-header{
+
+                /* assistant intro strip */
+                .assistant-strip{
                     display:flex;
                     align-items:center;
                     gap:12px;
-                    padding:10px 18px 14px;
-                    border-bottom:1px solid var(--line);
-                }
-                .nlp-bolt-badge{
-                    width:40px;height:40px;border-radius:13px;
-                    background:linear-gradient(145deg,var(--teal-2),var(--teal-1));
-                    display:flex;align-items:center;justify-content:center;
-                    box-shadow:0 4px 14px rgba(14,169,138,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+                    padding:10px 20px 14px;
+                    border-bottom:1px solid var(--border);
                     flex-shrink:0;
                 }
-                .nlp-bolt-badge svg{width:20px;height:20px;}
-                .nlp-header-text{flex:1;min-width:0;}
-                .nlp-header-text .nlp-title{
-                    font-family:'Baloo 2',sans-serif;
-                    font-weight:700;
-                    font-size:16.5px;
-                    color:var(--text-hi);
-                    display:flex;align-items:center;gap:8px;
-                    line-height:1.2;
+                .assistant-avatar{
+                    width:44px;height:44px;border-radius:13px;
+                    background:linear-gradient(155deg,var(--teal),var(--teal-dim));
+                    display:flex;align-items:center;justify-content:center;
+                    flex-shrink:0;
+                    box-shadow:0 4px 14px rgba(18,184,146,0.35);
                 }
-                .nlp-live-pill{
-                    font-family:'Poppins',sans-serif;
-                    font-size:9.5px;
-                    font-weight:600;
-                    color:var(--teal-2);
-                    background:rgba(52,216,176,0.12);
-                    border:1px solid rgba(52,216,176,0.35);
-                    padding:2px 8px 2px 7px;
-                    border-radius:20px;
-                    display:inline-flex;
-                    align-items:center;
-                    gap:4px;
-                    letter-spacing:0.3px;
+                .assistant-avatar svg{width:22px;height:22px;stroke:#04231A;}
+                .assistant-meta{flex:1; min-width:0;}
+                .assistant-name{font-family:'Sora',sans-serif; font-size:15px; font-weight:600;}
+                .assistant-status{
+                    display:flex; align-items:center; gap:6px;
+                    font-size:12px; color:var(--text-secondary); margin-top:3px;
                 }
-                .nlp-live-pill .nlp-dot{width:5px;height:5px;border-radius:50%;background:var(--teal-2);box-shadow:0 0 6px var(--teal-2);animation:nlpBlink 1.6s infinite;}
-                @keyframes nlpBlink{0%,100%{opacity:1;}50%{opacity:0.25;}}
-                .nlp-header-text .nlp-sub{
-                    font-size:11.5px;
-                    color:var(--text-dim);
-                    margin-top:2px;
+                .dot-live{width:6px;height:6px;border-radius:50%;background:var(--teal); box-shadow:0 0 0 3px rgba(18,184,146,0.18);}
+                .mode-pill{
+                    font-size:11px; font-weight:600; color:var(--teal);
+                    background:rgba(18,184,146,0.12);
+                    border:1px solid rgba(18,184,146,0.3);
+                    padding:4px 10px; border-radius:20px;
+                    flex-shrink:0;
                 }
                 .nlp-close-btn{
                     width:30px;height:30px;border-radius:50%;
                     background:rgba(255,255,255,0.05);
-                    border:1px solid var(--line);
-                    color:var(--text-mid);
+                    border:1px solid var(--border);
+                    color:var(--text-secondary);
                     display:flex;align-items:center;justify-content:center;
                     cursor:pointer;
                     flex-shrink:0;
-                    border:none;
+                    margin-left: 8px;
                 }
-                
-                .nlp-thread{
+
+                /* chat area */
+                .chat{
                     flex:1;
                     overflow-y:auto;
-                    padding:16px 16px 6px;
+                    padding:20px 16px 14px;
                     display:flex;
                     flex-direction:column;
-                    gap:14px;
+                    gap:4px;
                 }
-                .nlp-thread::-webkit-scrollbar{width:4px;}
-                .nlp-thread::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
-                
-                .nlp-row{display:flex;gap:9px;max-width:100%;}
-                .nlp-row.nlp-user{justify-content:flex-end;}
-                .nlp-row.nlp-assistant{justify-content:flex-start;}
-                
-                .nlp-avatar{
-                    width:26px;height:26px;border-radius:9px;
-                    background:linear-gradient(145deg,var(--teal-2),var(--teal-1));
-                    flex-shrink:0;
+                .chat::-webkit-scrollbar{width:4px;}
+                .chat::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px;}
+
+                .msg-row{display:flex; margin-bottom:14px; max-width:100%;}
+                .msg-row.bot{justify-content:flex-start;}
+                .msg-row.user{justify-content:flex-end;}
+
+                .msg-avatar{
+                    width:30px;height:30px;border-radius:9px;
+                    background:linear-gradient(155deg,var(--teal),var(--teal-dim));
                     display:flex;align-items:center;justify-content:center;
-                    margin-top:2px;
+                    margin-right:9px; flex-shrink:0; margin-top:2px;
                 }
-                .nlp-avatar svg{width:13px;height:13px;}
-                
-                .nlp-bubble{
-                    position:relative;
-                    max-width:280px;
-                    padding:11px 14px 13px;
-                    font-size:13.6px;
-                    line-height:1.5;
-                    color:var(--text-hi);
+                .msg-avatar svg{width:15px;height:15px;stroke:#04231A;}
+
+                .msg-col{display:flex; flex-direction:column; max-width:78%;}
+                .msg-row.user .msg-col{align-items:flex-end;}
+
+                .bubble{
+                    padding:12px 15px;
+                    font-size:14.5px;
+                    line-height:1.55;
+                    border-radius:var(--radius-md);
+                    white-space:pre-wrap;
                 }
-                .nlp-bubble.nlp-assistant{
-                    background:var(--panel-2);
-                    border:1px solid var(--line);
-                    border-radius:4px 16px 16px 16px;
+                .msg-row.bot .bubble{
+                    background:var(--bubble-bot);
+                    border:1px solid var(--border);
+                    border-top-left-radius:5px;
+                    color:var(--text-primary);
                 }
-                .nlp-bubble.nlp-assistant::after{
-                    content:"";
-                    position:absolute;
-                    left:0; right:0; bottom:-7px;
-                    height:8px;
-                    background:
-                        linear-gradient(-45deg, var(--panel-2) 5px, transparent 0) 0 0,
-                        linear-gradient(45deg, var(--panel-2) 5px, transparent 0) 0 0;
-                    background-size:10px 10px;
+                .msg-row.user .bubble{
+                    background:var(--bubble-user);
+                    color:#04231A;
+                    font-weight:500;
+                    border-top-right-radius:5px;
+                }
+                .bubble.error{
+                    background:rgba(232,92,92,0.1);
+                    border:1px solid rgba(232,92,92,0.35);
+                }
+                .bubble.error .err-title{
+                    display:flex; align-items:center; gap:7px;
+                    color:var(--danger); font-weight:600; font-size:13px; margin-bottom:5px;
+                }
+                .bubble.error .err-title svg{width:15px;height:15px; stroke:var(--danger); flex-shrink:0;}
+
+                .msg-time{font-size:11px; color:var(--text-muted); margin-top:5px; padding:0 3px;}
+
+                /* receipt-style perforation divider under bot messages */
+                .tear{
+                    width:100%; max-width:78%;
+                    height:9px;
+                    margin:2px 0 0 39px;
+                    background-image:radial-gradient(circle, var(--ink) 2.4px, transparent 2.5px);
+                    background-size:9px 9px;
+                    background-position:0 0;
                     background-repeat:repeat-x;
-                    opacity:0.9;
+                    opacity:0.5;
                 }
-                .nlp-bubble.nlp-user{
-                    background:linear-gradient(150deg, var(--purple-1), #5B21B6);
-                    border-radius:16px 4px 16px 16px;
-                    box-shadow:0 4px 14px rgba(124,58,237,0.3);
-                }
-                .nlp-bubble.nlp-user::after{
-                    content:"";
-                    position:absolute;
-                    left:0; right:0; bottom:-7px;
-                    height:8px;
-                    background:
-                        linear-gradient(-45deg, #5B21B6 5px, transparent 0) 0 0,
-                        linear-gradient(45deg, #5B21B6 5px, transparent 0) 0 0;
-                    background-size:10px 10px;
-                    background-repeat:repeat-x;
-                }
-                
-                .nlp-voice-tag{
-                    display:inline-flex;align-items:center;gap:6px;
-                    font-size:10.5px;color:rgba(255,255,255,0.75);
-                    margin-bottom:5px;
-                }
-                .nlp-voice-tag .nlp-bars{display:flex;align-items:flex-end;gap:1.5px;height:10px;}
-                .nlp-voice-tag .nlp-bars span{width:2px;background:var(--teal-2);border-radius:1px;animation:nlpEq 1s infinite ease-in-out;}
-                .nlp-voice-tag .nlp-bars span:nth-child(1){height:4px;animation-delay:0s;}
-                .nlp-voice-tag .nlp-bars span:nth-child(2){height:9px;animation-delay:0.15s;}
-                .nlp-voice-tag .nlp-bars span:nth-child(3){height:6px;animation-delay:0.3s;}
-                .nlp-voice-tag .nlp-bars span:nth-child(4){height:10px;animation-delay:0.45s;}
-                @keyframes nlpEq{0%,100%{transform:scaleY(0.5);}50%{transform:scaleY(1);}}
-                
-                .nlp-timestamp{
-                    font-size:9.5px;
-                    color:var(--text-dim);
-                    margin-top:12px;
-                    text-align:right;
-                }
-                .nlp-row.nlp-assistant .nlp-timestamp{text-align:left;}
-                
-                .nlp-chips{
-                    display:flex;
-                    gap:8px;
-                    overflow-x:auto;
-                    padding:12px 16px 4px;
-                    scrollbar-width:none;
-                }
-                .nlp-chips::-webkit-scrollbar{display:none;}
-                .nlp-chip{
-                    flex-shrink:0;
-                    font-size:11.5px;
-                    color:var(--text-mid);
-                    background:var(--panel-2);
-                    border:1px solid var(--line);
-                    padding:7px 13px;
-                    border-radius:20px;
-                    white-space:nowrap;
-                    cursor:pointer;
-                    transition:border-color 0.15s;
-                }
-                .nlp-chip:hover{border-color:var(--teal-2);color:var(--text-hi);}
-                
+
                 .nlp-typing{
                     display:flex;align-items:center;gap:4px;
                     padding:6px 3px;
                 }
                 .nlp-typing span{
                     width:5px;height:5px;border-radius:50%;
-                    background:var(--text-dim);
+                    background:var(--text-muted);
                     animation:nlpTbounce 1.2s infinite;
                 }
                 .nlp-typing span:nth-child(2){animation-delay:0.15s;}
                 .nlp-typing span:nth-child(3){animation-delay:0.3s;}
                 @keyframes nlpTbounce{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-4px);opacity:1;}}
-                
-                .nlp-input-bar{
+
+                /* quick replies */
+                .quick-replies{
+                    display:flex;
+                    gap:8px;
+                    padding:2px 16px 14px;
+                    overflow-x:auto;
+                    flex-shrink:0;
+                    scrollbar-width:none;
+                }
+                .quick-replies::-webkit-scrollbar{display:none;}
+                .chip{
+                    display:flex; align-items:center; gap:7px;
+                    white-space:nowrap;
+                    padding:9px 14px;
+                    border-radius:20px;
+                    border:1px solid var(--border-strong);
+                    background:var(--panel-raised);
+                    font-size:13px;
+                    color:var(--text-secondary);
+                    flex-shrink:0;
+                    cursor:pointer;
+                    transition:border-color 0.15s;
+                }
+                .chip:hover{border-color:var(--teal);color:var(--text-primary);}
+                .chip svg{width:14px;height:14px; flex-shrink:0;}
+
+                /* input bar - fixed, safe-area aware, nothing clipped */
+                .input-bar{
+                    flex-shrink:0;
+                    background:var(--panel);
+                    border-top:1px solid var(--border);
+                    padding:10px 12px calc(12px + var(--safe-bottom));
+                }
+                .input-row{
                     display:flex;
                     align-items:center;
                     gap:8px;
-                    padding:12px 10px calc(14px + env(safe-area-inset-bottom));
-                    border-top:1px solid var(--line);
-                    background:var(--panel);
                 }
-                .nlp-mic-btn{
-                    position:relative;
-                    width:42px;height:42px;
-                    border-radius:50%;
-                    background:linear-gradient(145deg,var(--teal-2),var(--teal-1));
+                .mic-btn{
+                    width:46px;height:46px;border-radius:50%;
+                    background:linear-gradient(155deg,var(--teal),var(--teal-dim));
+                    border:none;
                     display:flex;align-items:center;justify-content:center;
                     flex-shrink:0;
+                    box-shadow:0 4px 14px rgba(18,184,146,0.3);
                     cursor:pointer;
-                    box-shadow:0 4px 14px rgba(14,169,138,0.4);
-                    border:none;
+                    transition:all 0.2s;
                 }
-                .nlp-mic-btn.active {
+                .mic-btn.active {
                     background: linear-gradient(145deg, #ef4444, #dc2626);
                     box-shadow: 0 4px 14px rgba(239,68,68,0.5);
                 }
-                .nlp-mic-btn.active::before{
+                .mic-btn.active::before{
                     content:"";
                     position:absolute;
-                    inset:-6px;
+                    width: 58px; height: 58px;
                     border-radius:50%;
                     border:1.5px solid #ef4444;
                     opacity:0.55;
                     animation:nlpPulseRing 1.5s infinite;
                 }
-                @keyframes nlpPulseRing{
-                    0%{transform:scale(0.85);opacity:0.8;}
-                    70%{transform:scale(1.4);opacity:0;}
-                    100%{opacity:0;}
-                }
-                .nlp-mic-btn svg{width:18px;height:18px; transition:all 0.2s;}
-                .nlp-mic-btn.active svg { stroke: white; fill: white; }
-                
-                .nlp-text-field{
+                .mic-btn svg{width:20px;height:20px; stroke:#04231A; transition:stroke 0.2s;}
+                .mic-btn.active svg{stroke:#fff;}
+
+                .text-field{
                     flex:1;
-                    display:flex;
-                    align-items:center;
-                    background:var(--panel-2);
-                    border:1px solid var(--line);
-                    border-radius:22px;
-                    padding:0 6px 0 15px;
-                    height:42px;
-                }
-                .nlp-text-field input{
-                    flex:1;
-                    min-width: 0;
-                    background:transparent;
-                    border:none;
+                    min-width:0;
+                    height:46px;
+                    background:var(--panel-raised);
+                    border:1px solid var(--border-strong);
+                    border-radius:23px;
+                    padding:0 16px;
+                    color:var(--text-primary);
+                    font-size:14.5px;
+                    font-family:'Inter',sans-serif;
                     outline:none;
-                    color:var(--text-hi);
-                    font-family:'Poppins',sans-serif;
-                    font-size:13px;
                 }
-                .nlp-text-field input::placeholder{color:var(--text-dim);}
-                
-                .nlp-send-btn{
-                    width:32px;height:32px;
-                    border-radius:50%;
-                    background:linear-gradient(135deg,var(--purple-1),var(--violet-glow));
-                    display:flex;align-items:center;justify-content:center;
-                    cursor:pointer;
-                    flex-shrink:0;
-                    box-shadow:0 3px 10px rgba(124,58,237,0.45);
+                .text-field::placeholder{color:var(--text-muted);}
+
+                .send-btn{
+                    width:46px;height:46px;border-radius:50%;
+                    background:var(--teal);
                     border:none;
+                    display:flex;align-items:center;justify-content:center;
+                    flex-shrink:0;
+                    box-shadow:0 4px 14px rgba(18,184,146,0.35);
+                    cursor:pointer;
                 }
-                .nlp-send-btn:disabled{opacity:0.5; cursor:not-allowed;}
-                .nlp-send-btn svg{width:15px;height:15px;margin-left:1px;}
-                
-                .nlp-lang-hint{
+                .send-btn:disabled{opacity:0.5;cursor:not-allowed;}
+                .send-btn svg{width:19px;height:19px; fill:#04231A; margin-left:2px;}
+
+                .lang-note{
                     text-align:center;
-                    font-size:9.5px;
-                    color:var(--text-dim);
-                    padding-bottom:8px;
-                    letter-spacing:0.2px;
-                    background:var(--panel);
-                }
-                
-                /* Override default dark mode logic inside this widget */
-                .nlp-chat-widget, .nlp-chat-widget * {
-                    box-sizing: border-box;
+                    font-size:11px;
+                    color:var(--text-muted);
+                    padding-top:9px;
                 }
             `}} />
 
@@ -684,83 +651,106 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             <div className="nlp-chat-widget nlp-widget-vars">
                 <div className="nlp-drag-handle"></div>
 
-                <div className="nlp-chat-header">
-                    <div className="nlp-bolt-badge">
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
+                <div className="assistant-strip">
+                    <div className="assistant-avatar">
+                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
                     </div>
-                    <div className="nlp-header-text">
-                        <div className="nlp-title">BillGST Assistant
-                            <span className="nlp-live-pill"><span className="nlp-dot"></span>Voice+Text</span>
-                        </div>
-                        <div className="nlp-sub">Bolkar ya likhkar, dono chalega</div>
+                    <div className="assistant-meta">
+                        <div className="assistant-name">BillGST Assistant</div>
+                        <div className="assistant-status"><span className="dot-live"></span>Bolkar ya likhkar, dono chalega</div>
                     </div>
+                    <div className="mode-pill">Voice + Text</div>
                     <button className="nlp-close-btn" onClick={onClose}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                 </div>
 
-                <div className="nlp-thread" id="thread">
+                <div className="chat" id="thread">
                     {messages.map((msg, idx) => (
-                        <div key={idx} className={`nlp-row ${msg.role === 'user' ? 'nlp-user' : 'nlp-assistant'}`}>
-                            {msg.role === 'ai' && (
-                                <div className="nlp-avatar">
-                                    <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
+                        <React.Fragment key={idx}>
+                            <div className={`msg-row ${msg.role === 'user' ? 'user' : 'bot'}`}>
+                                {msg.role === 'ai' && (
+                                    <div className="msg-avatar">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+                                    </div>
+                                )}
+                                <div className="msg-col">
+                                    <div className={`bubble ${msg.text.includes('khatam') || msg.text.includes('issue') || msg.text.includes('failed') || msg.text.includes('exhausted') ? 'error' : ''}`}>
+                                        {msg.text.includes('khatam') || msg.text.includes('issue') || msg.text.includes('failed') || msg.text.includes('exhausted') ? (
+                                            <>
+                                                <div className="err-title">
+                                                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                                                    Connection issue
+                                                </div>
+                                                {msg.text}
+                                            </>
+                                        ) : msg.text}
+                                    </div>
+                                    <div className="msg-time">{getTime()}</div>
                                 </div>
-                            )}
-                            <div>
-                                <div className={`nlp-bubble ${msg.role === 'user' ? 'nlp-user' : 'nlp-assistant'} whitespace-pre-wrap`}>
-                                    {msg.text}
-                                </div>
-                                <div className="nlp-timestamp">{getTime()}</div>
                             </div>
-                        </div>
+                            {msg.role === 'ai' && <div className="tear"></div>}
+                        </React.Fragment>
                     ))}
 
                     {isProcessing && (
-                        <div className="nlp-row nlp-assistant">
-                            <div className="nlp-avatar">
-                                <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#06231C"/></svg>
+                        <div className="msg-row bot">
+                            <div className="msg-avatar">
+                                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
                             </div>
-                            <div className="nlp-bubble nlp-assistant">
-                                <div className="nlp-typing"><span></span><span></span><span></span></div>
+                            <div className="msg-col">
+                                <div className="bubble">
+                                    <div className="nlp-typing"><span></span><span></span><span></span></div>
+                                </div>
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="nlp-chips">
-                    <div className="nlp-chip" onClick={() => handleSend(`${exampleItem} ka bill banao`)}>🧾 "{exampleItem} ka bill banao"</div>
-                    <div className="nlp-chip" onClick={() => handleSend(`${exampleStaff} ki attendance laga`)}>🙋 "{exampleStaff} ki attendance laga"</div>
-                    <div className="nlp-chip" onClick={() => handleSend("Aaj ka kharcha 500 add karo")}>📊 "Kharcha 500 add karo"</div>
-                    <div className="nlp-chip" onClick={() => handleSend("Reports dikhao")}>📈 "Reports dikhao"</div>
+                <div className="quick-replies">
+                    <div className="chip" onClick={() => handleSend(`${exampleItem} ka bill banao`)}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+                        {exampleItem} ka bill banao
+                    </div>
+                    <div className="chip" onClick={() => handleSend(`${exampleStaff} ki attendance laga`)}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
+                        {exampleStaff} ki attendance laga
+                    </div>
+                    <div className="chip" onClick={() => handleSend("Aaj ka kharcha 500 add karo")}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><path d="M18.7 8 13 13.7l-4-4L3 15.7"/></svg>
+                        Kharcha 500 add karo
+                    </div>
                 </div>
 
-                <div className="nlp-input-bar">
-                    <button 
-                        className={`nlp-mic-btn ${isListening ? 'active' : ''}`}
-                        onClick={startListening}
-                        disabled={isListening || isProcessing}
-                    >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#06231C" strokeWidth="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
-                    </button>
-                    <div className="nlp-text-field">
+                <div className="input-bar">
+                    <div className="input-row">
+                        <button 
+                            className={`mic-btn ${isListening ? 'active' : ''}`}
+                            onClick={startListening}
+                            disabled={isListening || isProcessing}
+                            aria-label="Voice input"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>
+                        </button>
                         <input 
+                            className="text-field" 
                             type="text" 
-                            placeholder={isListening ? "🎙️ Sun raha hoon... Boliye" : "Type karein…"} 
+                            placeholder={isListening ? "🎙️ Sun raha hoon... Boliye" : "Type karein…"}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                         />
+                        <button 
+                            className="send-btn" 
+                            onClick={() => handleSend()}
+                            disabled={!input.trim() || isProcessing}
+                            aria-label="Send message"
+                        >
+                            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+                        </button>
                     </div>
-                    <button 
-                        className="nlp-send-btn"
-                        onClick={() => handleSend()}
-                        disabled={!input.trim() || isProcessing}
-                    >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                    </button>
+                    <div className="lang-note">हिंदी • English • Hinglish — jaisa aapko aasan lage</div>
                 </div>
-                <div className="nlp-lang-hint">हिंदी • English • Hinglish — jaisa aapko aasan lage</div>
             </div>
         </>
     );
