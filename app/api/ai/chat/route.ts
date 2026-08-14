@@ -50,14 +50,15 @@ async function fetchGemini(apiKey: string, prompt: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
+    let isEn = false;
     try {
         const session: any = await getServerSession(authOptions as any);
         if (!session?.user?.id) {
-            return NextResponse.json({ reply: "Aapko pehle login karna hoga." }, { status: 401 });
+            return NextResponse.json({ reply: 'Session expired. Kripya wapas login karein.', action: 'REPLY' }, { status: 401 });
         }
 
         const { message, language, customerNames = [], productNames = [], staffNames = [], businessContext = {} } = await request.json();
-        const isEn = language === 'en';
+        isEn = language === 'en';
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
