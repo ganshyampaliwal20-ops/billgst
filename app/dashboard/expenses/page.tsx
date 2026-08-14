@@ -622,7 +622,7 @@ export default function BusinessExpensesPage() {
     }, [curCid]);
 
     useEffect(() => {
-        if (!isMounted || !loadCompleted.current || !aiDraftData) return;
+        if (!isMounted || isLoadingData || !aiDraftData) return;
         if (processingDraftRef.current === aiDraftData) return;
         processingDraftRef.current = aiDraftData;
         const currentDraft = { ...aiDraftData };
@@ -708,7 +708,7 @@ export default function BusinessExpensesPage() {
                 showToast('✅ No pending payments found!');
             }
         }
-    }, [isMounted, aiDraftData, updateAiCopilotStep, completeAiCopilotAction]);
+    }, [isMounted, aiDraftData, updateAiCopilotStep, completeAiCopilotAction, isLoadingData]);
 
     const showToast = (msg: string) => {
         setToastMsg(msg);

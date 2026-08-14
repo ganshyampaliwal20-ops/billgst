@@ -34,7 +34,7 @@ export default function AICopilotLiveHUD() {
 
     return (
         <div 
-            className="fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[100000] w-[92%] max-w-[500px] transition-all duration-300 animate-slideUp"
+            className="fixed bottom-24 sm:bottom-6 left-0 right-0 mx-auto z-[100000] w-[92%] max-w-[500px] transition-all duration-300 animate-slideUp"
             style={{ 
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                 filter: 'drop-shadow(0 15px 35px rgba(15, 10, 40, 0.55))' 
@@ -170,8 +170,8 @@ export default function AICopilotLiveHUD() {
                     100% { background-position: 200% 0; }
                 }
                 @keyframes slideUp {
-                    from { transform: translate(-50%, 20px); opacity: 0; }
-                    to { transform: translate(-50%, 0); opacity: 1; }
+                    from { transform: translateY(20px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
                 }
                 .animate-slideUp {
                     animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
