@@ -125,7 +125,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 return null;
             };
 
-            let data = tryLocalMatch(textToSend);
+            let data: any = tryLocalMatch(textToSend);
 
             if (!data) {
                 const response = await fetch('/api/ai/chat', {
@@ -143,7 +143,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 data = await response.json();
             }
             
-            let replyText = data.reply;
+            let replyText = data?.reply || '';
 
             // Try to speak it if possible
             if (replyText && 'speechSynthesis' in window) {
