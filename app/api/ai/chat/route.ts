@@ -50,31 +50,36 @@ async function fetchGemini(apiKey: string, prompt: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
-    let isEn = false;
     try {
         const session: any = await getServerSession(authOptions as any);
         if (!session?.user?.id) {
             return NextResponse.json({ reply: "Aapko pehle login karna hoga." }, { status: 401 });
         }
 
-        const { message, language, customerNames = [], productNames = [], businessContext = {} } = await request.json();
-        isEn = language === 'en';
+        const { message, language, customerNames = [], productNames = [], staffNames = [], businessContext = {} } = await request.json();
+        const isEn = language === 'en';
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
             return NextResponse.json({ reply: "Gemini API key is missing. Contact admin." });
         }
 
-        const prompt = `You are a smart, helpful AI assistant for BillGST, an Indian retail/wholesale app.
-The user is speaking to you via voice typing.
+        const prompt = `
+You are BillGST AI, a helpful, polite, and very smart billing and accounting assistant.
+You strictly help the user with managing their business, invoices, customers, inventory, expenses, and staff attendance.
+If the user asks about ANYTHING ELSE (like coding, politics, general knowledge, weather), POLITELY REFUSE and remind them that you are a business assistant.
+
+Business Context:
+- Sales Today: ₹${businessContext?.salesToday || 0}
+- Total Outstanding to collect: ₹${businessContext?.totalOutstanding || 0}
+- Low Stock Items: ${businessContext?.lowStock || 'None'}
+
+Customer Names in database: ${customerNames?.join(', ') || 'None'}
+Product Names in database: ${productNames?.join(', ') || 'None'}
+Staff Names in database: ${staffNames?.join(', ') || 'None'}
+
 User's message: "${message}"
 
-App Context:
-- Available Customer Names: ${customerNames.join(', ') || 'None'}
-- Available Product Names: ${productNames.join(', ') || 'None'}
-- Today's Sales: ₹${businessContext.salesToday || 0}
-- Total Outstanding Balance (Lene hain): ₹${businessContext.totalOutstanding || 0}
-- Low Stock Items: ${businessContext.lowStock || 'None'}
 If the user mentions a name that sounds similar to one in the App Context, use the exact name from the App Context to avoid spelling mistakes.
 
 Your task is to determine the user's INTENT and return a JSON payload so the frontend can execute the task.

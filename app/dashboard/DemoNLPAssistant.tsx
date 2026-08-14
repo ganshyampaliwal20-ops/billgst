@@ -76,6 +76,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
         try {
             const customerNames = customers.map((c: any) => c.name);
             const productNames = productsData.map((p: any) => p.name);
+            const staffNames = staffData.map((s: any) => s.name);
             
             const invoices = useStore.getState().invoices || [];
             const todayStr = new Date().toISOString().split('T')[0];
@@ -92,6 +93,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     language: settings.language || 'hi',
                     customerNames,
                     productNames,
+                    staffNames,
                     businessContext
                 })
             });
