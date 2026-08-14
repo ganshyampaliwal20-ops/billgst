@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
