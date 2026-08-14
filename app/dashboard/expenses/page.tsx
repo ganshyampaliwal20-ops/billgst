@@ -632,16 +632,16 @@ export default function BusinessExpensesPage() {
             const { description, amount } = currentDraft;
             const searchName = (description || '').trim();
             const amt = Number(amount) || 0;
+            const fallbackNewId = Date.now();
+            let createdOrFoundId: any = null;
 
             updateAiCopilotStep(0, 'done', searchName ? `Account "${searchName}" search ho gaya!` : 'Khata select ho gaya!');
 
             setCustomers(prevCustomers => {
                 if (searchName && prevCustomers.length > 0) {
-                    const target = prevCustomers.find((c: any) => c.name.toLowerCase().includes(searchName.toLowerCase()));
+                    const target = prevCustomers.find((c: any) => (c.name || '').toLowerCase().includes(searchName.toLowerCase()));
                     if (target) {
-                        setCurCid(target.id);
-                        setActiveScreen('detail');
-                        window.location.hash = 'detail';
+                        createdOrFoundId = target.id;
                         if (amt > 0) {
                             setCanSave(true);
                             showToast(t.entrySaved || `✅ ${target.name} me ₹${amt} add ho gaye!`);
@@ -655,15 +655,16 @@ export default function BusinessExpensesPage() {
                                 category: 'General',
                                 photos: []
                             };
-                            return prevCustomers.map(c => c.id === target.id ? { ...c, balance: c.balance + amt, txns: [newTxn, ...c.txns] } : c);
+                            return prevCustomers.map(c => c.id === target.id ? { ...c, balance: (c.balance || 0) + amt, txns: [newTxn, ...(c.txns || [])] } : c);
                         } else {
                             setTimeout(() => openAddEntry('debit', String(amount || '')), 100);
                             return prevCustomers;
                         }
                     } else {
                         if (amt > 0) {
-                            const nc = { id: Date.now(), name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
-                                id: Date.now() + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                            createdOrFoundId = fallbackNewId;
+                            const nc = { id: fallbackNewId, name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                                id: fallbackNewId + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
                             }] };
                             setCanSave(true);
                             showToast(`✅ Naya account ${searchName} ban gaya aur ₹${amt} add ho gaye!`);
@@ -676,9 +677,10 @@ export default function BusinessExpensesPage() {
                     }
                 } else {
                     if (amt > 0) {
+                        createdOrFoundId = fallbackNewId;
                         const partyName = searchName || 'General Expense';
-                        const nc = { id: Date.now(), name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
-                            id: Date.now() + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                        const nc = { id: fallbackNewId, name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                            id: fallbackNewId + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
                         }] };
                         setCanSave(true);
                         showToast(`✅ ${partyName} me ₹${amt} add ho gaye!`);
@@ -690,6 +692,15 @@ export default function BusinessExpensesPage() {
                     }
                 }
             });
+
+            if (createdOrFoundId) {
+                setTimeout(() => {
+                    setCurCid(createdOrFoundId);
+                    setActiveScreen('detail');
+                    window.location.hash = 'detail';
+                }, 100);
+            }
+
             updateAiCopilotStep(1, 'done', `₹${amt} kharcha entry add ho gayi!`);
             updateAiCopilotStep(2, 'done', 'Khata balance update ho gaya!');
             completeAiCopilotAction(`✅ ₹${amt} kharcha (${searchName || 'General'}) successfully add ho gaya!`);
