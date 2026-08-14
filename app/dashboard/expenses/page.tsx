@@ -132,6 +132,12 @@ export default function BusinessExpensesPage() {
     const [tempSort, setTempSort] = useState('default');
     const [selectedReminder, setSelectedReminder] = useState('all');
     const [tempReminder, setTempReminder] = useState('all');
+    const [visibleCount, setVisibleCount] = useState(50);
+
+    useEffect(() => {
+        setVisibleCount(50);
+    }, [debouncedSearchQuery, selectedSort, selectedReminder, hideZeroBalance]);
+
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
@@ -519,7 +525,7 @@ export default function BusinessExpensesPage() {
         };
 
         // Poll every 3 seconds for near-instant updates on active screen
-        const intervalId = setInterval(syncFromServer, 3000);
+        const intervalId = setInterval(syncFromServer, 10000);
 
         const handleVisibilityOrFocus = () => {
             if (document.visibilityState === 'visible') {
@@ -1975,41 +1981,59 @@ export default function BusinessExpensesPage() {
                             <div className="empty-title">{t.noCustomerFound || 'Koi customer nahi mila'}</div>
                             <div className="empty-sub">{t.changeSearch || 'Search change karo'}</div>
                         </div>
-                    ) : (
-                        displayList
-                            .filter(c => hideZeroBalance ? Math.abs(c.balance) > 0 : true)
-                            .map(c => {
-                                const isNeg = c.balance < 0;
-                                const bal = Math.abs(c.balance);
-                                const fmtBal = bal >= 1000 ? '₹' + (bal / 1000).toFixed(1) + 'K' : '₹' + bal;
-                                const sortedTxns = [...c.txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                                const lastTxn = sortedTxns[0];
-                                const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
-                                return (
-                                    <div className="cust-item" key={c.id} onClick={() => isBulkMode ? toggleBulkSelect(c.id) : handleOpenDetail(c.id)} style={{ border: isBulkMode && bulkSelected.has(c.id) ? '2px solid #10b981' : '2px solid transparent', transition: 'all 0.2s' }}>
-                                        <div className="cust-av" style={{ background: isBulkMode ? (bulkSelected.has(c.id) ? '#10b981' : '#e5e7eb') : (c.photo ? 'transparent' : getColor(c.name)) }}>
-                                            {isBulkMode ? (
-                                                bulkSelected.has(c.id) ? <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" width="20" height="20"><polyline points="20 6 9 17 4 12" /></svg> : null
-                                            ) : (
-                                                c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)
-                                            )}
-                                        </div>
-                                        <div className="cust-mid">
-                                            <div className="cust-name">{c.name}</div>
-                                            <div className="cust-meta">
-                                                <span className="cust-tag">{c.txns.length} {t.entryText || 'entry'}</span>
-                                                <span className="cust-tag">{c.type}</span>
-                                                <span className="cust-date">{lastDate}</span>
+                    ) : (() => {
+                        const filtered = displayList.filter(c => hideZeroBalance ? Math.abs(c.balance) > 0 : true);
+                        return (
+                            <>
+                                {filtered.slice(0, visibleCount).map(c => {
+                                    const isNeg = c.balance < 0;
+                                    const bal = Math.abs(c.balance);
+                                    const fmtBal = bal >= 1000 ? '₹' + (bal / 1000).toFixed(1) + 'K' : '₹' + bal;
+                                    const sortedTxns = [...c.txns].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                                    const lastTxn = sortedTxns[0];
+                                    const lastDate = lastTxn ? formatDateShort(lastTxn.date) : '—';
+                                    return (
+                                        <div className="cust-item" key={c.id} onClick={() => isBulkMode ? toggleBulkSelect(c.id) : handleOpenDetail(c.id)} style={{ border: isBulkMode && bulkSelected.has(c.id) ? '2px solid #10b981' : '2px solid transparent', transition: 'all 0.2s' }}>
+                                            <div className="cust-av" style={{ background: isBulkMode ? (bulkSelected.has(c.id) ? '#10b981' : '#e5e7eb') : (c.photo ? 'transparent' : getColor(c.name)) }}>
+                                                {isBulkMode ? (
+                                                    bulkSelected.has(c.id) ? <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" width="20" height="20"><polyline points="20 6 9 17 4 12" /></svg> : null
+                                                ) : (
+                                                    c.photo ? <img src={c.photo} style={{ width: '100%', height: '100%', borderRadius: '13px', objectFit: 'cover' }} alt="" /> : initials(c.name)
+                                                )}
+                                            </div>
+                                            <div className="cust-mid">
+                                                <div className="cust-name">{c.name}</div>
+                                                <div className="cust-meta">
+                                                    <span className="cust-tag">{c.txns.length} {t.entryText || 'entry'}</span>
+                                                    <span className="cust-tag">{c.type}</span>
+                                                    <span className="cust-date">{lastDate}</span>
+                                                </div>
+                                            </div>
+                                            <div className="cust-right">
+                                                <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
+                                                <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (t.advanceToPay || 'Advance (To Pay)') : (t.dueToReceive || 'Due (To Receive)')}</div>
                                             </div>
                                         </div>
-                                        <div className="cust-right">
-                                            <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
-                                            <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (t.advanceToPay || 'Advance (To Pay)') : (t.dueToReceive || 'Due (To Receive)')}</div>
-                                        </div>
+                                    );
+                                })}
+                                {visibleCount < filtered.length && (
+                                    <div 
+                                        ref={(el) => {
+                                            if (!el) return;
+                                            const observer = new IntersectionObserver(([entry]) => {
+                                                if (entry.isIntersecting) setVisibleCount(v => v + 50);
+                                            }, { rootMargin: '100px' });
+                                            observer.observe(el);
+                                            return () => observer.disconnect();
+                                        }}
+                                        style={{ height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                        <span style={{ fontSize: '13px', color: 'var(--ink4)' }}>Loading more...</span>
                                     </div>
-                                );
-                            })
-                    )}
+                                )}
+                            </>
+                        );
+                    })()}
                 </div>
                 
                 {isBulkMode ? (

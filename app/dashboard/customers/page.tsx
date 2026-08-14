@@ -21,6 +21,12 @@ export default function CustomersPage() {
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     const [showAddModal, setShowAddModal] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(50);
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setVisibleCount(50);
+    }, [debouncedSearchTerm, activeFilter]);
 
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -634,38 +640,57 @@ export default function CustomersPage() {
                             <div className="emoji">🔍</div>
                             <p>Koi customer nahi mila.<br />Search change karein.</p>
                         </div>
-                    ) : (
-                        finalList.map((c: any, i: number) => (
-                            <Link key={c.id} href={'/dashboard/customers/' + c.id} className="customer-card" style={{ animationDelay: `${i * 0.04}s`, textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                                <div className="card-top">
-                                    <div className="avatar" style={{ background: getColor(i) }}>
-                                        {getInitials(c.name)}                                          <div className="num">{i + 1}</div>
-                                    </div>
-                                    <div className="card-info">
-                                        <div className="card-name">
-                                            {c.name}                                              {c.tag && <span style={{ fontSize: '9px', background: '#f0fdf8', color: '#00c48c', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '10px', fontWeight: 600, letterSpacing: '.3px' }}>{c.tag}</span>}
+                    ) : (() => {
+                        return (
+                            <>
+                                {finalList.slice(0, visibleCount).map((c: any, i: number) => (
+                                    <Link key={c.id} href={'/dashboard/customers/' + c.id} className="customer-card" style={{ animationDelay: `${(i % 50) * 0.04}s`, textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                                        <div className="card-top">
+                                            <div className="avatar" style={{ background: getColor(i) }}>
+                                                {getInitials(c.name)}                                          <div className="num">{i + 1}</div>
+                                            </div>
+                                            <div className="card-info">
+                                                <div className="card-name">
+                                                    {c.name}                                              {c.tag && <span style={{ fontSize: '9px', background: '#f0fdf8', color: '#00c48c', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '10px', fontWeight: 600, letterSpacing: '.3px' }}>{c.tag}</span>}
+                                                </div>
+                                                <div className="card-phone">📞 {c.phone}</div>
+                                            </div>
+                                            <div className="card-right">
+                                                <div className={`pending-tag ${c.status === 'pending' ? 'red' : 'green'}`}>
+                                                    {c.status === 'pending' ? `⚠ ${t.paymentPending}` : `✓ ${t.amountReceived}`}
+                                                </div>
+                                                <div className={`card-amount ${c.status === 'pending' ? 'red' : 'green'}`}>
+                                                    {c.amountStr}                                          </div>
+                                            </div>
                                         </div>
-                                        <div className="card-phone">📞 {c.phone}</div>
+                                        <div className="card-bottom">
+                                            <button className="action-btn" onClick={(e) => handleWhatsApp(c, e)}>💬 {t.whatsapp}</button>
+                                            <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 {t.call}</a>
+                                            <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ {t.delete}</button>
+                                            <span className="view-label">{t.view} →</span>                                  </div>
+                                    </Link>
+                                ))}
+                                {visibleCount < finalList.length && (
+                                    <div 
+                                        ref={(el) => {
+                                            if (!el) return;
+                                            const observer = new IntersectionObserver(([entry]) => {
+                                                if (entry.isIntersecting) setVisibleCount(v => v + 50);
+                                            }, { rootMargin: '100px' });
+                                            observer.observe(el);
+                                            return () => observer.disconnect();
+                                        }}
+                                        style={{ height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                        <span style={{ fontSize: '13px', color: 'var(--ink4, #9ca3af)' }}>Loading more...</span>
                                     </div>
-                                    <div className="card-right">
-                                        <div className={`pending-tag ${c.status === 'pending' ? 'red' : 'green'}`}>
-                                            {c.status === 'pending' ? `⚠ ${t.paymentPending}` : `✓ ${t.amountReceived}`}
-                                        </div>
-                                        <div className={`card-amount ${c.status === 'pending' ? 'red' : 'green'}`}>
-                                            {c.amountStr}                                          </div>
-                                    </div>
-                                </div>
-                                <div className="card-bottom">
-                                    <button className="action-btn" onClick={(e) => handleWhatsApp(c, e)}>💬 {t.whatsapp}</button>
-                                    <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 {t.call}</a>
-                                    <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ {t.delete}</button>
-                                    <span className="view-label">{t.view} →</span>                                  </div>
-                            </Link>
-                        ))
-                    )}                  </div>
+                                )}
+                            </>
+                        );
+                    })()}                  </div>
 
-                    {/* Centered Load More Button */}
-                    {customers?.length >= 20 && customers.length % 20 === 0 && (
+                    {/* Centered Load More Button for server-side pagination */}
+                    {customers?.length >= 20 && customers.length % 20 === 0 && visibleCount >= finalList.length && (
                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '80px' }}>
                             <button 
                                 onClick={handleLoadMore}
