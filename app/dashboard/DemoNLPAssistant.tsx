@@ -111,17 +111,6 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     }
                 }
 
-                // 4. Add Expense (Simple)
-                if (lowerText.includes('kharcha') || lowerText.includes('expense')) {
-                    const amtMatch = lowerText.match(/\d+/);
-                    if (amtMatch) {
-                        const amt = Number(amtMatch[0]);
-                        let desc = text.replace(amtMatch[0], '').replace(/kharcha/gi, '').replace(/expense/gi, '').replace(/add/gi, '').replace(/karo/gi, '').replace(/rupaye/gi, '').replace(/me/gi, '').replace(/ka/gi, '').trim();
-                        if (!desc || desc.length < 2) desc = 'General Expense';
-                        return { action: 'ADD_EXPENSE', payload: { description: desc, amount: amt }, reply: isEn ? `Adding expense of ${amt}.` : `Ji, ${amt} rupaye ka kharcha add kar diya hai.` };
-                    }
-                }
-
                 return null;
             };
 
