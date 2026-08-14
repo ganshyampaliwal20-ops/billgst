@@ -85,19 +85,63 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
             const lowStock = productsData.filter((p: any) => p.stock < 10).map((p: any) => `${p.name} (${p.stock})`).join(', ');
             const businessContext = { salesToday, totalOutstanding, lowStock };
 
-            const response = await fetch('/api/ai/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    message: textToSend, 
-                    language: settings.language || 'hi',
-                    customerNames,
-                    productNames,
-                    staffNames,
-                    businessContext
-                })
-            });
-            const data = await response.json();
+            const tryLocalMatch = (text: string) => {
+                const lowerText = text.toLowerCase();
+                
+                // 1. Navigation
+                if (lowerText.includes('report')) return { action: 'NAVIGATE', payload: { path: '/dashboard/reports' }, reply: isEn ? 'Opening reports.' : 'Ji, reports khol raha hu.' };
+                if (lowerText.includes('setting')) return { action: 'NAVIGATE', payload: { path: '/dashboard/settings' }, reply: isEn ? 'Opening settings.' : 'Ji, settings khol raha hu.' };
+                if (lowerText.includes('kharcha dikhao') || (lowerText.includes('kharcha') && lowerText.includes('kholo'))) return { action: 'NAVIGATE', payload: { path: '/dashboard/expenses' }, reply: isEn ? 'Opening expenses.' : 'Ji, kharcha page khol raha hu.' };
+                if (lowerText.includes('inventory') && (lowerText.includes('kholo') || lowerText.includes('dikhao'))) return { action: 'NAVIGATE', payload: { path: '/dashboard/inventory' }, reply: isEn ? 'Opening inventory.' : 'Ji, inventory khol raha hu.' };
+
+                // 2. Attendance
+                if (lowerText.includes('attendance') || lowerText.includes('present') || lowerText.includes('absent') || lowerText.includes('lagao')) {
+                    const staff = staffNames.find((n: string) => lowerText.includes(n.toLowerCase()));
+                    if (staff) {
+                        const status = lowerText.includes('absent') ? 'ABSENT' : 'PRESENT';
+                        return { action: 'MARK_ATTENDANCE', payload: { staffName: staff, status }, reply: isEn ? `Marking ${staff} as ${status.toLowerCase()}.` : `Ji, ${staff} ki ${status.toLowerCase()} lagayi ja rahi hai.` };
+                    }
+                }
+
+                // 3. Balance
+                if (lowerText.includes('balance') || lowerText.includes('baki') || lowerText.includes('hisaab')) {
+                    const cust = customerNames.find((n: string) => lowerText.includes(n.toLowerCase()));
+                    if (cust) {
+                        return { action: 'GET_BALANCE', payload: { partyName: cust }, reply: isEn ? `Checking balance for ${cust}.` : `Ji, main ${cust} ka balance check kar raha hu.` };
+                    }
+                }
+
+                // 4. Add Expense (Simple)
+                if (lowerText.includes('kharcha') || lowerText.includes('expense')) {
+                    const amtMatch = lowerText.match(/\d+/);
+                    if (amtMatch) {
+                        const amt = Number(amtMatch[0]);
+                        let desc = text.replace(amtMatch[0], '').replace(/kharcha/gi, '').replace(/expense/gi, '').replace(/add/gi, '').replace(/karo/gi, '').replace(/rupaye/gi, '').replace(/me/gi, '').replace(/ka/gi, '').trim();
+                        if (!desc || desc.length < 2) desc = 'General Expense';
+                        return { action: 'ADD_EXPENSE', payload: { description: desc, amount: amt }, reply: isEn ? `Adding expense of ${amt}.` : `Ji, ${amt} rupaye ka kharcha add kar diya hai.` };
+                    }
+                }
+
+                return null;
+            };
+
+            let data = tryLocalMatch(textToSend);
+
+            if (!data) {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message: textToSend, 
+                        language: settings.language || 'hi',
+                        customerNames,
+                        productNames,
+                        staffNames,
+                        businessContext
+                    })
+                });
+                data = await response.json();
+            }
             
             let replyText = data.reply;
 
