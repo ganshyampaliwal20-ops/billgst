@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { FaTimes, FaRobot, FaPaperPlane, FaBolt, FaMicrophone } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
