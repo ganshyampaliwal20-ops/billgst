@@ -1949,8 +1949,8 @@ export default function BusinessExpensesPage() {
                             setIsFilterOpen(true);
                         }}
                         style={{
-                            background: '#fff',
-                            border: '1px solid var(--border1, #e2e8f0)',
+                            background: 'var(--green, #10b981)',
+                            border: 'none',
                             borderRadius: '12px',
                             width: '44px',
                             height: '44px',
@@ -1958,13 +1958,13 @@ export default function BusinessExpensesPage() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            color: 'var(--ink2, #475569)',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            color: '#fff',
+                            boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)',
                             position: 'relative'
                         }}
                     >
                         <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M7 12h10M10 18h4"/></svg>
-                        {(selectedSort !== 'default' || selectedReminder !== 'all') && <div style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: 'var(--primary)', borderRadius: '50%', border: '1.5px solid #fff' }}></div>}
+                        {(selectedSort !== 'default' || selectedReminder !== 'all') && <div style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#ef4444', borderRadius: '50%', border: '1.5px solid #fff' }}></div>}
                     </button>
                 </div>
 
