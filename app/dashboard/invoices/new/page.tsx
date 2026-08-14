@@ -1375,7 +1375,211 @@ function NewInvoiceContent() {
                           .btn-save:active { transform:scale(.98); }
                           .btn-save svg { width:17px; height:17px; }
                           .btn-save:disabled { opacity: 0.7; cursor: not-allowed; }
-                        `} } />
+
+                                /* Custom Invoice Add Product Theme */
+                                .invoice-theme-wrapper {
+                                    --primary:#6C4FE0;
+                                    --primary-dark:#5636C4;
+                                    --primary-tint:#F1EDFD;
+                                    --green:#1CB57C;
+                                    --green-tint:#E4F8F0;
+                                    --amber:#D98A0F;
+                                    --amber-tint:#FCF1DD;
+                                    --bg:#F5F4FA;
+                                    --surface:#FFFFFF;
+                                    --border:#EBE8F5;
+                                    --border-strong:#DCD7EF;
+                                    --text-primary:#1E1B33;
+                                    --text-secondary:#6B6580;
+                                    --text-muted:#9E98B4;
+                                    --safe-bottom:env(safe-area-inset-bottom,0px);
+                                }
+                                .invoice-theme-wrapper * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+                                .invoice-theme-wrapper .field-label{font-family:'Sora',sans-serif; font-size:11.5px; font-weight:600; color:var(--text-muted); letter-spacing:0.4px; text-transform:uppercase; margin-bottom:7px;}
+                                .invoice-theme-wrapper .field-box{
+                                    height:48px; border-radius:12px;
+                                    background:var(--surface);
+                                    border:1.5px solid var(--primary);
+                                    display:flex; align-items:center; gap:10px;
+                                    padding:0 14px;
+                                    font-size:14.5px; color:var(--text-primary);
+                                    margin-bottom: 12px;
+                                    transition: box-shadow 0.2s;
+                                }
+                                .invoice-theme-wrapper .field-box:focus-within{
+                                    box-shadow:0 0 0 4px var(--primary-tint);
+                                }
+                                .invoice-theme-wrapper .field-box svg.box-icon{width:17px;height:17px; stroke:var(--text-muted); flex-shrink:0;}
+
+                                .invoice-theme-wrapper .autocomplete{
+                                    margin-bottom:12px;
+                                    background:var(--surface);
+                                    border:1px solid var(--border);
+                                    border-radius:16px;
+                                    box-shadow:0 14px 34px rgba(40,25,90,0.14);
+                                    overflow:hidden;
+                                    position:relative;
+                                    z-index: 20;
+                                }
+                                .invoice-theme-wrapper .ac-hint{
+                                    padding:10px 16px 8px;
+                                    font-size:11.5px; color:var(--text-muted);
+                                    border-bottom:1px solid var(--border);
+                                }
+                                .invoice-theme-wrapper .ac-row{
+                                    display:flex; align-items:center; gap:12px;
+                                    padding:12px 16px;
+                                    border-bottom:1px solid var(--border);
+                                    cursor:pointer;
+                                    transition: background 0.15s;
+                                }
+                                .invoice-theme-wrapper .ac-row:last-child{border-bottom:none;}
+                                .invoice-theme-wrapper .ac-row:hover, .invoice-theme-wrapper .ac-row.active{background:var(--primary-tint);}
+                                .invoice-theme-wrapper .ac-icon{
+                                    width:36px;height:36px;border-radius:10px;
+                                    background:var(--primary-tint);
+                                    display:flex;align-items:center;justify-content:center;
+                                    flex-shrink:0;
+                                }
+                                .invoice-theme-wrapper .ac-icon svg{width:17px;height:17px; stroke:var(--primary-dark);}
+                                .invoice-theme-wrapper .ac-main{flex:1; min-width:0;}
+                                .invoice-theme-wrapper .ac-name{font-size:14px; font-weight:500; color:var(--text-primary);
+                                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+                                .invoice-theme-wrapper .ac-name mark{background:none; color:var(--primary-dark); font-weight:600;}
+                                .invoice-theme-wrapper .ac-meta{font-size:12px; color:var(--text-muted); margin-top:2px;}
+                                .invoice-theme-wrapper .ac-price{font-size:14px; font-weight:600; color:var(--text-primary); flex-shrink:0;}
+                                .invoice-theme-wrapper .ac-add{
+                                    width:28px;height:28px;border-radius:8px;
+                                    background:var(--primary); border:none;
+                                    display:flex;align-items:center;justify-content:center;
+                                    flex-shrink:0;
+                                    cursor:pointer;
+                                }
+                                .invoice-theme-wrapper .ac-add svg{width:14px;height:14px; stroke:#fff;}
+
+                                .invoice-theme-wrapper .ac-footer{
+                                    display:flex; align-items:center; justify-content:center; gap:6px;
+                                    padding:11px;
+                                    font-size:13px; font-weight:600; color:var(--primary-dark);
+                                    background:var(--primary-tint);
+                                    cursor:pointer;
+                                }
+                                .invoice-theme-wrapper .ac-footer svg{width:15px;height:15px; stroke:var(--primary-dark);}
+
+                                /* Sheet CSS */
+                                .invoice-theme-wrapper .scrim{
+                                    background:
+                                      linear-gradient(180deg, rgba(20,15,45,0.0), rgba(20,15,45,0.55)),
+                                      repeating-linear-gradient(45deg, #EDEBF7 0 16px, #E6E3F2 16px 32px);
+                                }
+                                .invoice-theme-wrapper .sheet{
+                                    width:100%;
+                                    max-height:85vh;
+                                    background:var(--surface);
+                                    border-radius:24px 24px 0 0;
+                                    display:flex; flex-direction:column;
+                                    box-shadow:0 -10px 40px rgba(30,20,70,0.25);
+                                }
+                                .invoice-theme-wrapper .sheet-handle{
+                                    width:38px;height:4px;border-radius:2px;
+                                    background:var(--border-strong);
+                                    margin:10px auto 4px;
+                                    flex-shrink:0;
+                                }
+                                .invoice-theme-wrapper .sheet-head{
+                                    display:flex; align-items:flex-start; gap:12px;
+                                    padding:14px 20px 16px;
+                                    border-bottom:1px solid var(--border);
+                                    flex-shrink:0;
+                                }
+                                .invoice-theme-wrapper .sheet-icon{
+                                    width:42px;height:42px;border-radius:12px;
+                                    background:var(--primary-tint);
+                                    display:flex;align-items:center;justify-content:center;
+                                    flex-shrink:0;
+                                }
+                                .invoice-theme-wrapper .sheet-icon svg{width:20px;height:20px; stroke:var(--primary-dark);}
+                                .invoice-theme-wrapper .sheet-title{font-family:'Sora',sans-serif; font-size:16px; font-weight:600; color:var(--text-primary);}
+                                .invoice-theme-wrapper .sheet-sub{font-size:12.5px; color:var(--text-secondary); margin-top:3px;}
+                                .invoice-theme-wrapper .sheet-close{
+                                    margin-left:auto; width:30px;height:30px;border-radius:9px;
+                                    background:var(--bg);
+                                    display:flex;align-items:center;justify-content:center;
+                                    flex-shrink:0; cursor:pointer;
+                                }
+                                .invoice-theme-wrapper .sheet-close svg{width:15px;height:15px; stroke:var(--text-secondary);}
+
+                                .invoice-theme-wrapper .sheet-search{
+                                    display:flex; align-items:center; gap:9px;
+                                    margin:14px 20px; height:46px;
+                                    background:var(--bg);
+                                    border:1px solid var(--border);
+                                    border-radius:13px;
+                                    padding:0 14px;
+                                    flex-shrink:0;
+                                }
+                                .invoice-theme-wrapper .sheet-search svg.search-icon{width:17px;height:17px; stroke:var(--text-muted); flex-shrink:0;}
+                                .invoice-theme-wrapper .sheet-search input{
+                                    border:none; background:none; outline:none;
+                                    font-size:14px; color:var(--text-primary); width:100%;
+                                    font-family:'Inter',sans-serif;
+                                }
+                                .invoice-theme-wrapper .sheet-search input::placeholder{color:var(--text-muted);}
+                                .invoice-theme-wrapper .qty-chip{
+                                    flex-shrink:0; display:flex; align-items:center; gap:8px;
+                                    background:var(--surface); border:1px solid var(--border-strong);
+                                    border-radius:9px; padding:4px 8px; font-size:13px; font-weight:600; color:var(--text-primary);
+                                }
+
+                                .invoice-theme-wrapper .sheet-list{
+                                    flex:1; overflow-y:auto;
+                                    padding:2px 20px 8px;
+                                }
+                                .invoice-theme-wrapper .prod-row{
+                                    display:flex; align-items:center; gap:12px;
+                                    padding:12px 0;
+                                    border-bottom:1px solid var(--border);
+                                    cursor:pointer;
+                                }
+                                .invoice-theme-wrapper .prod-row:last-child{border-bottom:none;}
+                                .invoice-theme-wrapper .prod-main{flex:1; min-width:0;}
+                                .invoice-theme-wrapper .prod-name{font-size:14.5px; font-weight:500; color:var(--text-primary);}
+                                .invoice-theme-wrapper .prod-meta{
+                                    display:flex; align-items:center; gap:6px;
+                                    margin-top:5px;
+                                }
+                                .invoice-theme-wrapper .prod-price{font-size:13px; font-weight:600; color:var(--text-primary);}
+                                .invoice-theme-wrapper .prod-dot{width:3px;height:3px;border-radius:50%; background:var(--text-muted);}
+                                .invoice-theme-wrapper .prod-unit{font-size:12px; color:var(--text-secondary);}
+                                .invoice-theme-wrapper .gst-badge{
+                                    font-size:10.5px; font-weight:600; color:var(--amber);
+                                    background:var(--amber-tint);
+                                    padding:2px 7px; border-radius:6px;
+                                }
+                                .invoice-theme-wrapper .gst-badge.zero{color:var(--text-muted); background:var(--bg);}
+                                .invoice-theme-wrapper .prod-add{
+                                    width:32px;height:32px;border-radius:50%;
+                                    background:var(--primary-tint); border:none;
+                                    display:flex;align-items:center;justify-content:center;
+                                    flex-shrink:0; cursor:pointer;
+                                }
+                                .invoice-theme-wrapper .prod-add svg{width:15px;height:15px; stroke:var(--primary-dark);}
+
+                                .invoice-theme-wrapper .sheet-footer{
+                                    padding:12px 20px calc(14px + var(--safe-bottom));
+                                    border-top:1px solid var(--border);
+                                    background:var(--surface);
+                                    flex-shrink:0;
+                                }
+                                .invoice-theme-wrapper .btn-primary{
+                                    width:100%; height:50px; border:none; border-radius:14px;
+                                    background:linear-gradient(120deg,var(--primary),var(--primary-dark));
+                                    color:#fff; font-family:'Sora',sans-serif; font-size:14.5px; font-weight:600;
+                                    display:flex; align-items:center; justify-content:center; gap:8px;
+                                    cursor:pointer;
+                                }
+                                .invoice-theme-wrapper .btn-primary svg{width:17px;height:17px; stroke:#fff;}
+                            `} } />
 
                         {selectedItems.map((item, idx) => {
                             const qty = Number(item.quantity) || 1;
@@ -1403,27 +1607,65 @@ function NewInvoiceContent() {
                                     </div>
                                 </div>
 
-                                <div className="card-body-new">
-                                    <div className="product-field">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
+                                <div className="card-body-new invoice-theme-wrapper">
+                                    <div className="field-label">{t.productName || 'Product / service'}</div>
+                                    <div className="field-box">
+                                        <svg className="box-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
                                         <input 
-                                            className="product-input" 
+                                            className="flex-1 bg-transparent border-none outline-none text-[14.5px] text-[var(--text-primary)] min-w-0 font-['Inter',sans-serif]"
                                             type="text" 
-                                            list="product-list"
                                             placeholder={(t.productName || 'Product or service name') + "..."} 
                                             value={item.product_name || ''}
                                             onFocus={() => setExpandedItemIndex(idx)}
-                                            onChange={e => {
-                                                const val = e.target.value;
-                                                const prod = safeProducts.find((p) => p.name === val);
-                                                if (prod) updateItem(idx, 'product_id', prod.id);
-                                                else updateItem(idx, 'product_name', val);
-                                            }}
+                                            onChange={e => updateItem(idx, 'product_name', e.target.value)}
                                         />
                                         <div className="mic-btn" onClick={startVoiceBilling}>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
                                         </div>
                                     </div>
+
+                                    {isExpanded && item.product_name && (
+                                        <div className="autocomplete">
+                                            {(() => {
+                                                const matches = safeProducts.filter(p => p.name.toLowerCase().includes(item.product_name.toLowerCase())).slice(0, 4);
+                                                return (
+                                                    <>
+                                                        {matches.length > 0 && <div className="ac-hint">{matches.length} matches for "{item.product_name}"</div>}
+                                                        {matches.map(p => (
+                                                            <div key={p.id} className="ac-row" onClick={() => {
+                                                                updateItem(idx, 'product_id', p.id);
+                                                                updateItem(idx, 'product_name', p.name);
+                                                                updateItem(idx, 'unit_price', p.price);
+                                                                if (p.unit) updateItem(idx, 'unit', p.unit);
+                                                                updateItem(idx, 'gst_rate', p.gst_rate);
+                                                            }}>
+                                                                <div className="ac-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20.5 12H4M4 12l6-6M4 12l6 6"/></svg></div>
+                                                                <div className="ac-main">
+                                                                    <div className="ac-name">{p.name}</div>
+                                                                    <div className="ac-meta">{p.unit || 'PCS'} · GST {p.gst_rate || 0}%</div>
+                                                                </div>
+                                                                <div className="ac-price">₹{p.price}</div>
+                                                                <button className="ac-add" aria-label="Add" onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    updateItem(idx, 'product_id', p.id);
+                                                                    updateItem(idx, 'product_name', p.name);
+                                                                    updateItem(idx, 'unit_price', p.price);
+                                                                    if (p.unit) updateItem(idx, 'unit', p.unit);
+                                                                    updateItem(idx, 'gst_rate', p.gst_rate);
+                                                                }}><svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
+                                                            </div>
+                                                        ))}
+                                                        {matches.length === 0 && (
+                                                            <div className="ac-footer" onClick={() => setExpandedItemIndex(idx)}>
+                                                                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2"><path d="M12 5v14M5 12h14"/></svg>
+                                                                Naya product "{item.product_name}" banayein
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
 
                                     <div className={`details-dropdown ${isExpanded ? 'expanded' : ''}`}>
                                         <div className="details-dropdown-inner">
@@ -1801,65 +2043,66 @@ function NewInvoiceContent() {
 
             {/* Quick Add Panel - Voice + Type */}
             {showQuickAdd && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-end justify-center p-0">
-                    <div className="bg-white w-full max-w-lg rounded-t-3xl shadow-2xl py-6 px-5 sm:p-6 animate-in slide-in-from-bottom" style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-                        <div className="relative mb-4 flex justify-center items-center">
-                            <div className="text-center">
-                                <h3 className="text-lg font-black text-slate-900">⚡ Quick Add Product</h3>
-                                <p className="text-xs text-slate-400">{isListening ? '🎙️ Listening...' : 'Type ya voice se product add karo'}</p>
+                <div className="fixed inset-0 z-[300] invoice-theme-wrapper flex items-end">
+                    <div className="scrim absolute inset-0" onClick={() => setShowQuickAdd(false)}></div>
+                    <div className="sheet relative z-10 w-full md:max-w-lg md:mx-auto animate-in slide-in-from-bottom">
+                        <div className="sheet-handle"></div>
+                        <div className="sheet-head">
+                            <div className="sheet-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+                            <div>
+                                <div className="sheet-title">Quick add product</div>
+                                <div className="sheet-sub">{isListening ? '🎙️ Listening...' : 'Type karein ya voice se add karein'}</div>
                             </div>
-                            <button onClick={() => { setShowQuickAdd(false); setIsListening(false); }} className="absolute right-0 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">✕</button>
+                            <div className="sheet-close" onClick={() => setShowQuickAdd(false)}><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
                         </div>
 
-                        <div className="flex gap-2 mb-4">
-                            <input
+                        <div className="sheet-search">
+                            <svg className="search-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input 
                                 autoFocus
-                                className="fi flex-1 text-slate-900 border-2 border-indigo-300 focus:border-indigo-500"
-                                placeholder="Product ka naam type karo..."
-                                value={quickSearch}
-                                onChange={e => setQuickSearch(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter' && quickSearch.trim()) quickAddProduct(quickSearch.trim(), quickQty); }}
+                                type="text" 
+                                value={quickSearch} 
+                                onChange={e => setQuickSearch(e.target.value)} 
+                                onKeyDown={e => { if (e.key === 'Enter' && quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}
+                                placeholder="Product ka naam likhein" 
                             />
-                            <input
-                                type="number"
-                                min={1}
-                                className="fi w-20 text-slate-900 text-center border-2 border-indigo-300"
-                                value={quickQty}
-                                onChange={e => setQuickQty(Number(e.target.value) || 1)}
-                            />
+                            <div className="qty-chip">
+                                <input type="number" min="1" value={quickQty} onChange={e => setQuickQty(Number(e.target.value) || 1)} className="w-8 bg-transparent border-none outline-none text-center p-0 m-0 text-inherit" />
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>
+                            </div>
                         </div>
 
-                        {/* Filtered Product List */}
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                        <div className="sheet-list">
                             {(useStore.getState().products || [])
                                 .filter((p: any) => p?.id && p?.name && p?.status !== 'INACTIVE')
                                 .filter((p: any) => !quickSearch || p.name.toLowerCase().includes(quickSearch.toLowerCase()))
                                 .slice(0, 10)
                                 .map((p: any) => (
-                                    <div
-                                        key={p.id}
-                                        onClick={() => quickAddProduct(p.name, quickQty)}
-                                        className="flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-transparent rounded-xl cursor-pointer transition-all"
-                                    >
-                                        <div>
-                                            <div className="font-bold text-slate-800 text-sm">{p.name}</div>
-                                            <div className="text-xs text-slate-400">₹{p.price} · {p.unit || 'PCS'} · GST {p.gst_rate || 18}%</div>
+                                    <div key={p.id} className="prod-row" onClick={() => { quickAddProduct(p.name, quickQty); setShowQuickAdd(false); }}>
+                                        <div className="prod-main">
+                                            <div className="prod-name">{p.name}</div>
+                                            <div className="prod-meta">
+                                                <span className="prod-price">₹{p.price}</span>
+                                                <span className="prod-dot"></span>
+                                                <span className="prod-unit">{p.unit || 'PCS'}</span>
+                                                <span className={`gst-badge ${p.gst_rate === 0 ? 'zero' : ''}`}>GST {p.gst_rate || 0}%</span>
+                                            </div>
                                         </div>
-                                        <span className="text-indigo-500 font-black text-lg">+</span>
+                                        <button className="prod-add" aria-label="Add" onClick={(e) => { e.stopPropagation(); quickAddProduct(p.name, quickQty); setShowQuickAdd(false); }}>
+                                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                                        </button>
                                     </div>
-                                ))
-                            }
+                                ))}
                             {quickSearch && (useStore.getState().products || []).filter((p: any) => p?.name?.toLowerCase().includes(quickSearch.toLowerCase())).length === 0 && (
                                 <div className="text-center text-slate-400 py-6 text-sm">No product found for "{quickSearch}"</div>
                             )}
                         </div>
 
-                        <button
-                            onClick={() => quickSearch.trim() && quickAddProduct(quickSearch.trim(), quickQty)}
-                            className="mt-4 w-full py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all"
-                        >
-                            ✅ Add Product
-                        </button>
+                        <div className="sheet-footer">
+                            <button className="btn-primary" onClick={() => { if(quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}>
+                                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3"><path d="M20 6 9 17l-5-5"/></svg>Add product
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
