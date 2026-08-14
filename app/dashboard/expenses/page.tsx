@@ -501,10 +501,19 @@ export default function BusinessExpensesPage() {
                                         const mergedTxns = [...localTxns, ...newTxns].sort((a: any, b: any) =>
                                             new Date(b.date).getTime() - new Date(a.date).getTime()
                                         );
+                                        
+                                        let debitSum = 0, creditSum = 0;
+                                        mergedTxns.forEach((t: any) => {
+                                            if (t.type === 'credit') creditSum += Number(t.amt) || 0;
+                                            else debitSum += Number(t.amt) || 0;
+                                        });
+                                        const newBalance = debitSum - creditSum;
+
                                         prevMap.set(custKey, {
                                             ...local,
                                             txns: mergedTxns,
-                                            pending_txns: mergedPTxns
+                                            pending_txns: mergedPTxns,
+                                            balance: newBalance
                                         });
                                     }
                                 }
@@ -1573,7 +1582,7 @@ export default function BusinessExpensesPage() {
         if (!acName.trim()) { showToast(t.nameRequired || '⚠️ Naam zaroori hai!'); return; }
 
         if (editCustId) {
-            setCustomers(customers.map(c => String(c.id) === String(editCustId) ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit, balance: opening } : c));
+            setCustomers(customers.map(c => String(c.id) === String(editCustId) ? { ...c, name: acName.trim(), phone: acPhone.trim() || '', type: acType, limit } : c));
             setEditCustId(null);
             setCanSave(true);
             showToast(t.custUpdated || '✅ Customer update ho gaya!');
@@ -2480,7 +2489,9 @@ export default function BusinessExpensesPage() {
                                 <input className="fi" type="number" placeholder="20000" value={acLimit} onChange={e => setAcLimit(e.target.value)} />
                             </div>
                         </div>
-                        <div className="fg"><label className="fl">💰 Opening Balance</label><input className="fi" type="number" placeholder="0" value={acOpening} onChange={e => setAcOpening(e.target.value)} /></div>
+                        {!editCustId && (
+                            <div className="fg"><label className="fl">💰 Opening Balance</label><input className="fi" type="number" placeholder="0" value={acOpening} onChange={e => setAcOpening(e.target.value)} /></div>
+                        )}
                         <button className="save-btn cr" onClick={saveCustomer}>
                             <span>💾</span> {editCustId ? 'Save Changes' : 'Save New Customer'}
                         </button>
