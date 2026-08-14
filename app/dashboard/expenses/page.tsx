@@ -134,10 +134,6 @@ export default function BusinessExpensesPage() {
     const [tempReminder, setTempReminder] = useState('all');
     const [visibleCount, setVisibleCount] = useState(50);
 
-    useEffect(() => {
-        setVisibleCount(50);
-    }, [debouncedSearchQuery, selectedSort, selectedReminder, hideZeroBalance]);
-
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
@@ -177,6 +173,10 @@ export default function BusinessExpensesPage() {
     const [hideAlerts, setHideAlerts] = useState(false);
     const [isBulkMode, setIsBulkMode] = useState(false);
     const [bulkSelected, setBulkSelected] = useState<Set<number>>(new Set());
+
+    useEffect(() => {
+        setVisibleCount(50);
+    }, [debouncedSearchQuery, selectedSort, selectedReminder, hideZeroBalance]);
 
     // Custom Contact Picker state
     const [showContactPicker, setShowContactPicker] = useState(false);
