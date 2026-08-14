@@ -96,11 +96,18 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
 
                 // 2. Attendance
                 if (lowerText.includes('attendance') || lowerText.includes('present') || lowerText.includes('absent') || lowerText.includes('lagao')) {
-                    const staff = staffNames.find((n: string) => lowerText.includes(n.toLowerCase()));
-                    if (staff) {
-                        const status = lowerText.includes('absent') ? 'ABSENT' : 'PRESENT';
-                        return { action: 'MARK_ATTENDANCE', payload: { staffName: staff, status }, reply: isEn ? `Marking ${staff} as ${status.toLowerCase()}.` : `Ji, ${staff} ki ${status.toLowerCase()} lagayi ja rahi hai.` };
+                    let staff = staffNames.find((n: string) => lowerText.includes(n.toLowerCase()));
+                    if (!staff) {
+                        const words = lowerText.replace(/ki/g, '').replace(/attendance/g, '').replace(/laga/g, '').replace(/present/g, '').replace(/absent/g, '').replace(/lagao/g, '').replace(/karo/g, '').trim().split(' ');
+                        const firstWord = words[0];
+                        if (firstWord && firstWord.length > 1 && !['meri', 'uski', 'sabki', 'aaj', 'kal'].includes(firstWord)) {
+                            staff = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+                        } else {
+                            staff = 'Staff';
+                        }
                     }
+                    const status = lowerText.includes('absent') ? 'ABSENT' : 'PRESENT';
+                    return { action: 'MARK_ATTENDANCE', payload: { staffName: staff, status }, reply: isEn ? `Marking ${staff} as ${status.toLowerCase()}.` : `Ji, ${staff} ki ${status.toLowerCase()} lagayi ja rahi hai.` };
                 }
 
                 // 3. Balance
@@ -370,8 +377,10 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     font-family:'Poppins',sans-serif;
                     position:fixed;
                     bottom:0;
+                    left:0;
                     right:0;
                     width:100%;
+                    max-width: 100vw;
                     height:100%;
                     max-height:86vh;
                     background:var(--panel);
@@ -582,8 +591,8 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 .nlp-input-bar{
                     display:flex;
                     align-items:center;
-                    gap:9px;
-                    padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+                    gap:8px;
+                    padding:12px 10px calc(14px + env(safe-area-inset-bottom));
                     border-top:1px solid var(--line);
                     background:var(--panel);
                 }
