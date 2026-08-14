@@ -126,6 +126,12 @@ export default function BusinessExpensesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
     const [currentFilter, setCurrentFilter] = useState('all');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeFilterTab, setActiveFilterTab] = useState('sort');
+    const [selectedSort, setSelectedSort] = useState('default');
+    const [tempSort, setTempSort] = useState('default');
+    const [selectedReminder, setSelectedReminder] = useState('all');
+    const [tempReminder, setTempReminder] = useState('all');
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
@@ -730,10 +736,42 @@ export default function BusinessExpensesPage() {
     }, [currentCust]);
 
     const displayList = useMemo(() => {
-        return (customers || [])
-            .filter(c => c.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
-            .sort((a, b) => (b.balance || 0) - (a.balance || 0));
-    }, [customers, debouncedSearchQuery]);
+        let list = (customers || [])
+            .filter(c => c.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
+
+        if (selectedReminder === 'overdue') {
+            list = list.filter(c => {
+                const lastTxn = c.txns?.[0];
+                if (!lastTxn) return false;
+                const days = Math.floor((new Date().getTime() - new Date(lastTxn.date).getTime()) / (1000 * 3600 * 24));
+                return c.balance > 0 && days > 7;
+            });
+        } else if (selectedReminder === 'pending') {
+            list = list.filter(c => c.balance > 0);
+        }
+
+        if (selectedSort === 'name') {
+            list = list.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (selectedSort === 'latest_activity') {
+            list = list.sort((a, b) => {
+                const dateA = a.txns?.[0]?.date ? new Date(a.txns[0].date).getTime() : 0;
+                const dateB = b.txns?.[0]?.date ? new Date(b.txns[0].date).getTime() : 0;
+                return dateB - dateA;
+            });
+        } else if (selectedSort === 'last_payment') {
+            list = list.sort((a, b) => {
+                const getPaymentDate = (txns: any[]) => {
+                    const payment = txns?.find((t: any) => t.type === 'credit');
+                    return payment?.date ? new Date(payment.date).getTime() : 0;
+                };
+                return getPaymentDate(b.txns) - getPaymentDate(a.txns);
+            });
+        } else {
+            // default and due_amount
+            list = list.sort((a, b) => (b.balance || 0) - (a.balance || 0));
+        }
+        return list;
+    }, [customers, debouncedSearchQuery, selectedSort, selectedReminder]);
 
     // Handlers
     const handleOpenDetail = (id: number) => {
@@ -1865,8 +1903,8 @@ export default function BusinessExpensesPage() {
                     </div>
                 )}
 
-                <div className="search-row">
-                    <div className="search-box">
+                <div className="search-row" style={{ display: 'flex', gap: '8px', padding: '0 16px', marginBottom: '16px', marginTop: '16px' }}>
+                    <div className="search-box" style={{ flex: 1, margin: 0 }}>
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
                         <input
                             type="text"
@@ -1897,6 +1935,31 @@ export default function BusinessExpensesPage() {
                             </button>
                         )}
                     </div>
+                    <button 
+                        className="filter-btn-okc" 
+                        onClick={() => {
+                            setTempSort(selectedSort);
+                            setTempReminder(selectedReminder);
+                            setIsFilterOpen(true);
+                        }}
+                        style={{
+                            background: '#fff',
+                            border: '1px solid var(--border1, #e2e8f0)',
+                            borderRadius: '12px',
+                            width: '44px',
+                            height: '44px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'var(--ink2, #475569)',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                            position: 'relative'
+                        }}
+                    >
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M7 12h10M10 18h4"/></svg>
+                        {(selectedSort !== 'default' || selectedReminder !== 'all') && <div style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: 'var(--primary)', borderRadius: '50%', border: '1.5px solid #fff' }}></div>}
+                    </button>
                 </div>
 
                 <div className="cust-list">
@@ -2432,6 +2495,106 @@ export default function BusinessExpensesPage() {
             </div>
 
 
+
+            {/* OkCredit Style Filter Modal */}
+            {isFilterOpen && (
+                <div className="filter-modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 10000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    <div className="filter-modal-content" style={{ background: 'var(--bg2, #fff)', width: '100%', maxWidth: '500px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', display: 'flex', flexDirection: 'column', maxHeight: '80vh', overflow: 'hidden', transform: 'translateY(0)', transition: 'transform 0.3s ease-out' }}>
+                        
+                        <div className="filter-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--border, #e2e8f0)' }}>
+                            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink, #0f172a)' }}>Filter</div>
+                            <button onClick={() => setIsFilterOpen(false)} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'var(--ink3, #64748b)', cursor: 'pointer' }}>✕</button>
+                        </div>
+                        
+                        <div className="filter-modal-body" style={{ display: 'flex', flex: 1, minHeight: '300px' }}>
+                            <div className="filter-tabs" style={{ width: '140px', background: 'var(--bg, #f8fafc)', borderRight: '1px solid var(--border, #e2e8f0)' }}>
+                                <div 
+                                    onClick={() => setActiveFilterTab('sort')}
+                                    style={{ padding: '16px', fontSize: '14px', fontWeight: activeFilterTab === 'sort' ? 600 : 500, color: activeFilterTab === 'sort' ? 'var(--primary)' : 'var(--ink2, #334155)', background: activeFilterTab === 'sort' ? 'var(--bg2, #fff)' : 'transparent', borderLeft: activeFilterTab === 'sort' ? '3px solid var(--primary)' : '3px solid transparent', cursor: 'pointer' }}
+                                >
+                                    Sort By
+                                </div>
+                                <div 
+                                    onClick={() => setActiveFilterTab('reminder')}
+                                    style={{ padding: '16px', fontSize: '14px', fontWeight: activeFilterTab === 'reminder' ? 600 : 500, color: activeFilterTab === 'reminder' ? 'var(--primary)' : 'var(--ink2, #334155)', background: activeFilterTab === 'reminder' ? 'var(--bg2, #fff)' : 'transparent', borderLeft: activeFilterTab === 'reminder' ? '3px solid var(--primary)' : '3px solid transparent', cursor: 'pointer' }}
+                                >
+                                    Reminder Date
+                                </div>
+                            </div>
+                            
+                            <div className="filter-options" style={{ flex: 1, overflowY: 'auto', padding: '16px 0', background: 'var(--bg2, #fff)' }}>
+                                {activeFilterTab === 'sort' && (
+                                    <>
+                                        {[
+                                            { id: 'default', label: 'Default' },
+                                            { id: 'last_payment', label: 'Last Payment' },
+                                            { id: 'latest_activity', label: 'Latest Activity' },
+                                            { id: 'due_amount', label: 'Due Amount' },
+                                            { id: 'name', label: 'Name' }
+                                        ].map(opt => (
+                                            <div 
+                                                key={opt.id} 
+                                                onClick={() => setTempSort(opt.id)}
+                                                style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                                            >
+                                                <div style={{ fontSize: '15px', color: 'var(--ink, #0f172a)' }}>{opt.label}</div>
+                                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${tempSort === opt.id ? 'var(--primary)' : 'var(--ink4, #cbd5e1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    {tempSort === opt.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }}></div>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+                                {activeFilterTab === 'reminder' && (
+                                    <>
+                                        {[
+                                            { id: 'all', label: 'All' },
+                                            { id: 'overdue', label: 'Overdue Payments' },
+                                            { id: 'pending', label: 'Pending Payments' }
+                                        ].map(opt => (
+                                            <div 
+                                                key={opt.id} 
+                                                onClick={() => setTempReminder(opt.id)}
+                                                style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                                            >
+                                                <div style={{ fontSize: '15px', color: 'var(--ink, #0f172a)' }}>{opt.label}</div>
+                                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${tempReminder === opt.id ? 'var(--primary)' : 'var(--ink4, #cbd5e1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    {tempReminder === opt.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }}></div>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="filter-modal-footer" style={{ padding: '16px', borderTop: '1px solid var(--border, #e2e8f0)', display: 'flex', gap: '12px', background: 'var(--bg2, #fff)' }}>
+                            <button 
+                                onClick={() => {
+                                    setTempSort('default');
+                                    setSelectedSort('default');
+                                    setTempReminder('all');
+                                    setSelectedReminder('all');
+                                    setIsFilterOpen(false);
+                                }}
+                                style={{ flex: 1, padding: '12px', background: 'transparent', border: '1px solid var(--primary)', borderRadius: '8px', color: 'var(--primary)', fontWeight: 600, fontSize: '15px', cursor: 'pointer' }}
+                            >
+                                Clear
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setSelectedSort(tempSort);
+                                    setSelectedReminder(tempReminder);
+                                    setIsFilterOpen(false);
+                                }}
+                                style={{ flex: 1, padding: '12px', background: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', color: '#fff', fontWeight: 600, fontSize: '15px', cursor: 'pointer' }}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Toast */}
             <div id="toast" className={toastMsg ? 'show' : ''}>{toastMsg}</div>
