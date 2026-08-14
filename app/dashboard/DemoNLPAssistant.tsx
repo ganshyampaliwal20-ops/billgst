@@ -565,21 +565,26 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     box-shadow:0 4px 14px rgba(14,169,138,0.4);
                     border:none;
                 }
+                .nlp-mic-btn.active {
+                    background: linear-gradient(145deg, #ef4444, #dc2626);
+                    box-shadow: 0 4px 14px rgba(239,68,68,0.5);
+                }
                 .nlp-mic-btn.active::before{
                     content:"";
                     position:absolute;
                     inset:-6px;
                     border-radius:50%;
-                    border:1.5px solid var(--teal-2);
+                    border:1.5px solid #ef4444;
                     opacity:0.55;
-                    animation:nlpPulseRing 2s infinite;
+                    animation:nlpPulseRing 1.5s infinite;
                 }
                 @keyframes nlpPulseRing{
-                    0%{transform:scale(0.85);opacity:0.6;}
-                    70%{transform:scale(1.35);opacity:0;}
+                    0%{transform:scale(0.85);opacity:0.8;}
+                    70%{transform:scale(1.4);opacity:0;}
                     100%{opacity:0;}
                 }
-                .nlp-mic-btn svg{width:18px;height:18px;}
+                .nlp-mic-btn svg{width:18px;height:18px; transition:all 0.2s;}
+                .nlp-mic-btn.active svg { stroke: white; fill: white; }
                 
                 .nlp-text-field{
                     flex:1;
@@ -593,6 +598,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 }
                 .nlp-text-field input{
                     flex:1;
+                    min-width: 0;
                     background:transparent;
                     border:none;
                     outline:none;
@@ -625,7 +631,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                 }
                 
                 /* Override default dark mode logic inside this widget */
-                .nlp-chat-widget * {
+                .nlp-chat-widget, .nlp-chat-widget * {
                     box-sizing: border-box;
                 }
             `}} />
@@ -698,7 +704,7 @@ export default function DemoNLPAssistant({ isOpen, onClose }: { isOpen: boolean;
                     <div className="nlp-text-field">
                         <input 
                             type="text" 
-                            placeholder="Type karein…" 
+                            placeholder={isListening ? "🎙️ Sun raha hoon... Boliye" : "Type karein…"} 
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
