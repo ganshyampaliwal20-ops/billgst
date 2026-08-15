@@ -103,6 +103,29 @@ export async function POST(request: Request) {
         const userId = session.user.id;
         client = await pool.connect();
 
+        let rawPhone = data.phone || data.business_phone || '';
+        let cleanPhone = rawPhone;
+        if (cleanPhone) {
+            cleanPhone = cleanPhone.replace(/\D/g, '');
+            if (cleanPhone.length > 10) {
+                if (cleanPhone.startsWith('91') && cleanPhone.length === 12) {
+                    cleanPhone = cleanPhone.substring(2);
+                } else if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+                    cleanPhone = cleanPhone.substring(1);
+                } else {
+                    cleanPhone = cleanPhone.slice(-10);
+                }
+            }
+        }
+
+        let rawEmail = data.email || data.business_email || '';
+        if (rawEmail) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(rawEmail)) {
+                return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+            }
+        }
+
         const updateQuery = `
             UPDATE users 
             SET business_name = $1, 
@@ -142,8 +165,8 @@ export async function POST(request: Request) {
             data.name || data.business_name || 'My Business',
             data.gstin || data.gst || data.business_gstin || '',
             data.address || data.business_address || '',
-            data.phone || data.business_phone || '',
-            data.email || data.business_email || '',
+            cleanPhone,
+            rawEmail,
             data.logo || data.business_logo || null,
             data.upi_id || data.business_upi_id || '',
             data.owner_name || data.business_owner_name || '',

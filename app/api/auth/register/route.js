@@ -15,6 +15,14 @@ export async function POST(request) {
             );
         }
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return NextResponse.json(
+                { error: 'Invalid email format' },
+                { status: 400 }
+            );
+        }
+
         // Check if user already exists
         const existingUser = await pool.query(
             'SELECT id FROM users WHERE email = $1',
