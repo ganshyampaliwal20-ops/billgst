@@ -163,7 +163,7 @@ export default function LandingPage() {
                         {isEnglish ? 'Log In' : 'लॉगिन'}
                     </button>
                     <button className="btn-v" onClick={() => { setActiveTab('signup'); document.getElementById('authCard')?.scrollIntoView({behavior:'smooth'}); }}>
-                        {isEnglish ? 'Start Free' : 'मुफ्त शुरू करें'}
+                        {isEnglish ? 'Register Free' : 'मुफ्त रजिस्टर करें'}
                     </button>
                 </div>
             </header>
@@ -199,7 +199,7 @@ export default function LandingPage() {
                         {isEnglish ? 'Log In' : 'लॉगिन'}
                     </button>
                     <button className={`auth-tab ${activeTab === 'signup' ? 'active' : ''}`} onClick={() => setActiveTab('signup')}>
-                        {isEnglish ? 'Create Account' : 'अकाउंट बनाएं'}
+                        {isEnglish ? 'Register' : 'रजिस्टर करें'}
                     </button>
                 </div>
                 <div className="auth-body">
@@ -237,13 +237,13 @@ export default function LandingPage() {
                             )}
                         </button>
 
-                        <p className="form-note">{isEnglish ? 'No account yet?' : 'अभी तक अकाउंट नहीं है?'} <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('signup');}}>{isEnglish ? 'Create one free →' : 'मुफ्त बनाएं →'}</a></p>
+                        <p className="form-note">{isEnglish ? 'No account yet?' : 'अभी तक अकाउंट नहीं है?'} <a href="#" onClick={(e) => {e.preventDefault(); setActiveTab('signup');}}>{isEnglish ? 'Register free →' : 'मुफ्त रजिस्टर करें →'}</a></p>
                     </div>
 
                     {/* SIGNUP */}
                     <div className={`auth-pane ${activeTab === 'signup' ? 'active' : ''}`}>
                         <div className="auth-greeting">
-                            {isEnglish ? 'Create your free account 🏪' : 'अपना मुफ्त अकाउंट बनाएं 🏪'} 
+                            {isEnglish ? 'Register your free account 🏪' : 'मुफ्त रजिस्टर करें 🏪'} 
                             <span>{isEnglish ? 'Set up in 60 seconds — no credit card needed' : '60 सेकंड में सेटअप करें — कोई क्रेडिट कार्ड नहीं चाहिए'}</span>
                         </div>
                         <div className="field">
@@ -320,7 +320,7 @@ export default function LandingPage() {
                             {isLoading ? (isEnglish ? 'Creating...' : 'बन रहा है...') : (
                                 <>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" /></svg>
-                                    {isEnglish ? 'Create Free Account' : 'मुफ्त अकाउंट बनाएं'}
+                                    {isEnglish ? 'Register Free Account' : 'मुफ्त रजिस्टर करें'}
                                 </>
                             )}
                         </button>
@@ -511,7 +511,7 @@ export default function LandingPage() {
                     <div className="step">
                         <div className="snum">1</div>
                         <div className="sinfo">
-                            <h3>{isEnglish ? 'Create your free account' : 'अपना मुफ्त अकाउंट बनाएं'}</h3>
+                            <h3>{isEnglish ? 'Register your free account' : 'मुफ्त रजिस्टर करें'}</h3>
                             <p>{isEnglish ? 'Sign up with your email in under a minute. No documents, no credit card, no waiting.' : 'एक मिनट से कम समय में साइन अप करें। ना डॉक्यूमेंट, ना क्रेडिट कार्ड।'}</p>
                         </div>
                     </div>
@@ -608,7 +608,7 @@ export default function LandingPage() {
                 <h2>{isEnglish ? 'Take your shop digital today' : 'आज ही अपनी दुकान को डिजिटल बनाएं'}</h2>
                 <p>{isEnglish ? 'Free account, ready in 60 seconds. No credit card required.' : 'मुफ्त अकाउंट, 60 सेकंड में तैयार। कोई क्रेडिट कार्ड नहीं चाहिए।'}</p>
                 <button className="btn-full" onClick={() => { setActiveTab('signup'); document.getElementById('authCard')?.scrollIntoView({behavior:'smooth'}); }}>
-                    {isEnglish ? 'Create Free Account →' : 'मुफ्त अकाउंट बनाएं →'}
+                    {isEnglish ? 'Register Free Account →' : 'मुफ्त रजिस्टर करें →'}
                 </button>
             </div>
 
