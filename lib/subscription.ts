@@ -80,9 +80,10 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
         const end = endOfMonth(now).toISOString();
 
         let count = 0;
-        let limit = plan === 'BASIC_30' ? 100 : 30; // Invoice limits
+        let limit = 30; // limit for Free
 
         if (feature === 'INVOICE') {
+            if (plan === 'BASIC_30') return { allowed: true, plan }; // Unlimited for Basic
             const countRes = await client.query(
                 `SELECT COUNT(*) FROM invoices WHERE created_by = $1 AND created_at >= $2 AND created_at <= $3`,
                 [userId, start, end]

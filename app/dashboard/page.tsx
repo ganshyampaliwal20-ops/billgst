@@ -35,6 +35,21 @@ export default function DashboardPage() {
     const [invVideoIndex, setInvVideoIndex] = useState(0);
     const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
+    const [referralData, setReferralData] = useState<any>(null);
+
+    useEffect(() => {
+        if (businessProfile?.plan_type === 'FREE' || !businessProfile?.plan_type) {
+            fetch('/api/referrals')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.balance !== undefined) {
+                        setReferralData(data);
+                    }
+                })
+                .catch(err => console.error("Error fetching referral data:", err));
+        }
+    }, [businessProfile?.plan_type]);
+
     const inventoryVideos = ['DZPJ6mvofNg', 'DYMIQH5Ipjf'];
 
     const router = useRouter();
@@ -445,6 +460,19 @@ export default function DashboardPage() {
                         {getGreeting()}, <span>{businessProfile.name || 'Business'}</span>! 👋
                     </h1>
                 </div>
+
+                {/* Low Invoice Balance Alert */}
+                {referralData && referralData.balance !== undefined && referralData.balance <= 5 && (
+                    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', animation: 'fadeUp .4s ease both' }}>
+                        <div>
+                            <div style={{ color: '#991b1b', fontWeight: 800, fontSize: '14px', marginBottom: '4px' }}>⚠️ Aapke Free Invoices Khatam Hone Wale Hain!</div>
+                            <div style={{ color: '#b91c1c', fontSize: '12px' }}>Sirf <strong>{referralData.balance} invoices</strong> bache hain. Kisi dost ko refer karein aur turant <strong>20 Free Invoices</strong> payein.</div>
+                        </div>
+                        <Link href="/dashboard/referral" style={{ background: '#dc2626', color: '#fff', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', display: 'inline-block', boxShadow: '0 4px 12px rgba(220,38,38,0.3)', whiteSpace: 'nowrap' }}>
+                            Refer & Earn 20 Invoices
+                        </Link>
+                    </div>
+                )}
 
                 <div className="qa-grid">
                     {businessProfile?.modules?.invoicing !== false && (

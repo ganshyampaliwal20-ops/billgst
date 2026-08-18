@@ -507,19 +507,19 @@ export default function PricingPage() {
                             <ul className="feats3">
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    30 Invoices &amp; 30 Quotations/mo
+                                    30 Invoices & Quotes / mo
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Basic Customer Ledger
+                                    Single Device Access
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Single Business Manage
+                                    BillGST Watermark on PDF
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon no"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
-                                    UPI QR Code Payment
+                                    UPI QR Code on Bill
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon no"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
@@ -552,12 +552,12 @@ export default function PricingPage() {
 
                             <div className="price-block">
                                 <div className="original-price">
-                                    <span className="strikethrough">₹99</span>
-                                    <span className="save-tag">Save ₹69</span>
+                                    <span className="strikethrough">₹199</span>
+                                    <span className="save-tag">Save ₹100</span>
                                 </div>
                                 <div className="price-main">
                                     <span className="price-sym" style={{ color: '#1a56ff' }}>₹</span>
-                                    <span className="price-num" style={{ color: '#1a56ff' }}>30</span>
+                                    <span className="price-num" style={{ color: '#1a56ff' }}>99</span>
                                     <span className="price-per">/month</span>
                                 </div>
                             </div>
@@ -567,11 +567,11 @@ export default function PricingPage() {
                             <ul className="feats3">
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    100 Invoices / Month
+                                    Unlimited Invoices & Quotes
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Unlimited Quotations
+                                    No BillGST Watermark
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
@@ -593,7 +593,7 @@ export default function PricingPage() {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={() => handleUpgrade({ name: 'Basic Starter', price: 30, type: 'BASIC_30' })}
+                                    onClick={() => handleUpgrade({ name: 'Basic Starter', price: 99, type: 'BASIC_30' })}
                                     disabled={transactionId === 'PENDING_REVIEW'}
                                     className="cta3 cta-blue"
                                 >
@@ -619,15 +619,15 @@ export default function PricingPage() {
 
                             <div className="price-block">
                                 <div className="original-price">
-                                    <span className="strikethrough" style={{ color: '#666' }}>₹199</span>
+                                    <span className="strikethrough" style={{ color: '#666' }}>₹299</span>
                                     <span className="save-tag">Save ₹100</span>
                                 </div>
                                 <div className="price-main">
                                     <span className="price-sym" style={{ color: '#c4b5fd' }}>₹</span>
-                                    <span className="price-num" style={{ color: '#fff' }}>99</span>
-                                    <span className="price-per" style={{ color: '#777' }}>/3 months</span>
+                                    <span className="price-num" style={{ color: '#fff' }}>199</span>
+                                    <span className="price-per" style={{ color: '#777' }}>/month</span>
                                 </div>
-                                <div className="per-month-note">= Sirf ₹33/month</div>
+                                <div className="per-month-note">= Complete Business Suite</div>
                             </div>
 
                             <div className="divider3"></div>
@@ -635,19 +635,19 @@ export default function PricingPage() {
                             <ul className="feats3">
                                 <li className="feat3" style={{ color: '#d0d0d0' }}>
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Unlimited Invoices &amp; Quotations
+                                    GST Returns (GSTR-1, 3B)
                                 </li>
                                 <li className="feat3" style={{ color: '#d0d0d0' }}>
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Customer Hisaab &amp; Unlimited Ledger
+                                    Staff Management (Multi-user)
                                 </li>
                                 <li className="feat3" style={{ color: '#d0d0d0' }}>
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Advanced Inventory Control
+                                    AI Copilot & Voice Billing
                                 </li>
                                 <li className="feat3" style={{ color: '#d0d0d0' }}>
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Auto QR Code &amp; WhatsApp Export
+                                    Customer Online Store
                                 </li>
                                 <li className="feat3" style={{ color: '#d0d0d0' }}>
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
@@ -661,7 +661,7 @@ export default function PricingPage() {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={() => handleUpgrade({ name: 'Premium Growth', price: 99, type: 'PREMIUM_99' })}
+                                    onClick={() => handleUpgrade({ name: 'Premium Growth', price: 199, type: 'PREMIUM_99' })}
                                     disabled={transactionId === 'PENDING_REVIEW'}
                                     className="cta3 cta-white"
                                 >
@@ -686,15 +686,15 @@ export default function PricingPage() {
 
                             <div className="price-block">
                                 <div className="original-price">
-                                    <span className="strikethrough">₹999</span>
-                                    <span className="save-tag">Save ₹700</span>
+                                    <span className="strikethrough">₹2388</span>
+                                    <span className="save-tag">Save ₹889</span>
                                 </div>
                                 <div className="price-main">
                                     <span className="price-sym" style={{ color: '#00a86b' }}>₹</span>
-                                    <span className="price-num" style={{ color: '#00a86b' }}>299</span>
+                                    <span className="price-num" style={{ color: '#00a86b' }}>1499</span>
                                     <span className="price-per">/year</span>
                                 </div>
-                                <div className="per-month-note">= Sirf ₹25/month — Best Deal!</div>
+                                <div className="per-month-note">= Sirf ₹125/month — Best Deal!</div>
                             </div>
 
                             <div className="divider3"></div>
@@ -702,19 +702,19 @@ export default function PricingPage() {
                             <ul className="feats3">
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    All Premium — 365 Days
+                                    All Premium Features — 365 Days
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Fully Unlimited Billing &amp; Inventory
+                                    Fully Unlimited Billing & Inventory
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Custom Invoice Themes &amp; Branding
+                                    Custom Invoice Themes
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
-                                    Cloud Auto-Backup &amp; Reports
+                                    Cloud Auto-Backup
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
@@ -728,7 +728,7 @@ export default function PricingPage() {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={() => handleUpgrade({ name: 'Yearly Pro', price: 299, type: 'YEARLY_299' })}
+                                    onClick={() => handleUpgrade({ name: 'Yearly Pro', price: 1499, type: 'YEARLY_299' })}
                                     disabled={transactionId === 'PENDING_REVIEW'}
                                     className="cta3 cta-green"
                                 >
