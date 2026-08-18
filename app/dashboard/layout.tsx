@@ -174,8 +174,7 @@ export default function DashboardLayout({
     }
 
     if (isOwner) {
-        // TEMPORARY: Hide subscription until 1000 users
-        // menuItems.push({ icon: FaStar, label: t.subscription || 'Subscription', href: '/dashboard/pricing' });
+        menuItems.push({ icon: FaStar, label: t.subscription || 'Premium Plans', href: '/dashboard/pricing' });
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
 
     }
