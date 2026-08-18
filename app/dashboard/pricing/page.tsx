@@ -91,9 +91,9 @@ export default function PricingPage() {
                     }
                 },
                 prefill: {
-                    name: businessProfile?.business_owner_name || '',
-                    email: session?.user?.email || '',
-                    contact: businessProfile?.business_phone || ''
+                    name: '',
+                    email: '',
+                    contact: ''
                 },
                 theme: {
                     color: '#1a56ff'
