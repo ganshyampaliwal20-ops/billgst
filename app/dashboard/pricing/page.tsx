@@ -518,8 +518,8 @@ export default function PricingPage() {
                                     BillGST Watermark on PDF
                                 </li>
                                 <li className="feat3">
-                                    <span className="feat3-icon no"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
-                                    UPI QR Code on Bill
+                                    <span className="feat3-icon ok"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.8L8.5 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+                                    UPI QR Code (1 Month Free)
                                 </li>
                                 <li className="feat3">
                                     <span className="feat3-icon no"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
