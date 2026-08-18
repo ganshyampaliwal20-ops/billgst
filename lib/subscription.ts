@@ -37,7 +37,14 @@ export async function checkLimit(userId: string, feature: FeatureType): Promise<
         }
 
         const user = userRes.rows[0];
-        const plan: PlanType = user.plan_type || 'FREE';
+        let plan: PlanType = user.plan_type || 'FREE';
+        if (user.created_at) {
+            const createdDate = new Date(user.created_at);
+            if (new Date() <= new Date(createdDate.getTime() + 30 * 24 * 60 * 60 * 1000)) {
+                // Grant all premium features for 1st month
+                plan = 'LIFETIME';
+            }
+        }
         const expiry = user.plan_expiry ? new Date(user.plan_expiry) : null;
         let status = user.subscription_status || 'ACTIVE';
 
