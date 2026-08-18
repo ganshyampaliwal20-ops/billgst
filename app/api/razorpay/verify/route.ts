@@ -52,8 +52,7 @@ export async function POST(request: Request) {
             UPDATE users 
             SET plan_type = $1, 
                 subscription_status = 'ACTIVE',
-                plan_expiry = $2,
-                updated_at = NOW()
+                plan_expiry = $2
             WHERE id = $3
         `, [planType, planExpiry.toISOString(), userId]);
 
