@@ -19,6 +19,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 500 });
         }
 
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+             return NextResponse.json({ error: 'Missing payment signature details' }, { status: 400 });
+        }
+
         // Verify Signature
         const body = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSignature = crypto
@@ -54,9 +58,9 @@ export async function POST(request: Request) {
         `, [planType, planExpiry.toISOString(), userId]);
 
         return NextResponse.json({ success: true, message: 'Payment verified and plan activated' });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Razorpay Verify Error:", error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     } finally {
         if (client) client.release();
     }
