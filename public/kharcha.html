@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kharcha Tracker — BillGST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg-deep:#0a0f1e;
+    --bg-navy:#0f1729;
+    --card:#141d34;
+    --card-border:#232f4d;
+    --indigo:#6366f1;
+    --purple:#a855f7;
+    --gold:#d4af37;
+    --gold-soft:#f0d878;
+    --text-main:#eef1fb;
+    --text-mute:#8b93ac;
+    --green:#34d399;
+    --red:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:radial-gradient(circle at 20% 0%, #17213e 0%, var(--bg-deep) 55%);
+    min-height:100vh;
+    font-family:'Inter',sans-serif;
+    color:var(--text-main);
+    padding:28px 16px 60px;
+  }
+  .hindi{font-family:'Baloo 2',sans-serif;}
+  .wrap{max-width:480px;margin:0 auto;}
+
+  header{margin-bottom:22px;}
+  .brand{display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+  .brand-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-soft));box-shadow:0 0 12px var(--gold);}
+  .brand span{font-size:13px;letter-spacing:2px;color:var(--text-mute);text-transform:uppercase;}
+  h1{font-family:'Baloo 2',sans-serif;font-size:26px;font-weight:700;line-height:1.3;}
+  h1 .accent{background:linear-gradient(90deg,var(--gold),var(--gold-soft));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sub{color:var(--text-mute);font-size:14px;margin-top:6px;}
+
+  .card{
+    background:linear-gradient(160deg,var(--card) 0%, #101a30 100%);
+    border:1px solid var(--card-border);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:16px;
+  }
+
+  /* Income entry */
+  .income-row{display:flex;gap:10px;align-items:center;}
+  .income-row input{
+    flex:1;
+    background:var(--bg-deep);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    color:var(--text-main);
+    padding:13px 14px;
+    font-size:16px;
+    font-weight:600;
+    outline:none;
+  }
+  .income-row input:focus{border-color:var(--gold);}
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold),#b8912a);
+    color:#1a1400;
+    border:none;
+    border-radius:12px;
+    padding:13px 18px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn-gold:active{transform:scale(0.97);}
+  .label-eyebrow{font-size:12px;color:var(--text-mute);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+
+  /* Balance strip */
+  .balance-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .balance-item{text-align:center;}
+  .balance-item .val{font-size:18px;font-weight:800;font-family:'Baloo 2',sans-serif;}
+  .balance-item .lbl{font-size:11px;color:var(--text-mute);margin-top:3px;}
+  .val.income{color:var(--gold-soft);}
+  .val.spent{color:var(--red);}
+  .val.left{color:var(--green);}
+
+  /* Meter */
+  .meter-bar{
+    display:flex;height:14px;border-radius:8px;overflow:hidden;
+    background:var(--bg-deep);margin:14px 0 4px;
+    border:1px solid var(--card-border);
+  }
+  .meter-seg{height:100%;transition:width .4s ease;}
+  .meter-caption{display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);}
+
+  /* Add expense form */
+  .form-row{display:flex;gap:8px;margin-bottom:10px;}
+  select, .form-row input{
+    background:var(--bg-deep);
+    border:1px solid var(--card-border);
+    border-radius:10px;
+    color:var(--text-main);
+    padding:11px 12px;
+    font-size:14px;
+    outline:none;
+  }
+  select{flex:1.3;}
+  #catInput{flex:1.3;}
+  .form-row input{flex:1;}
+  #dateInput{
+    width:100%;color-scheme:dark;
+  }
+  select:focus,.form-row input:focus{border-color:var(--indigo);}
+  .btn-indigo{
+    width:100%;
+    background:linear-gradient(135deg,var(--indigo),var(--purple));
+    color:#fff;border:none;border-radius:10px;
+    padding:12px;font-weight:700;font-size:14px;cursor:pointer;
+  }
+  .btn-indigo:active{transform:scale(0.98);}
+
+  /* Category breakdown list */
+  .cat-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 0;border-bottom:1px solid var(--card-border);
+  }
+  .cat-item:last-child{border-bottom:none;}
+  .cat-icon{
+    width:38px;height:38px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;flex-shrink:0;
+  }
+  .cat-info{flex:1;min-width:0;}
+  .cat-name{font-weight:600;font-size:14px;font-family:'Baloo 2',sans-serif;}
+  .cat-bar-track{background:var(--bg-deep);height:6px;border-radius:4px;margin-top:6px;overflow:hidden;}
+  .cat-bar-fill{height:100%;border-radius:4px;}
+  .cat-amt{text-align:right;flex-shrink:0;}
+  .cat-amt .n{font-weight:700;font-size:14px;}
+  .cat-amt .p{font-size:11px;color:var(--text-mute);}
+
+  .empty-note{color:var(--text-mute);font-size:13px;text-align:center;padding:10px 0;}
+
+  /* Donut chart */
+  .donut-wrap{display:flex;justify-content:center;align-items:center;padding:8px 0 4px;position:relative;}
+  .donut-center{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    text-align:center;pointer-events:none;
+  }
+  .donut-center .n{font-size:20px;font-weight:800;font-family:'Baloo 2',sans-serif;}
+  .donut-center .l{font-size:10px;color:var(--text-mute);margin-top:2px;}
+  .donut-seg{transition:stroke-dasharray .4s ease;}
+  .legend-grid{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;margin-top:14px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-mute);}
+  .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+
+  /* AI Suggestions */
+  .ai-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .ai-badge{
+    background:linear-gradient(135deg,var(--indigo),var(--purple));
+    width:26px;height:26px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;
+  }
+  .suggestion-card{
+    background:rgba(99,102,241,0.07);
+    border:1px solid rgba(99,102,241,0.25);
+    border-radius:12px;
+    padding:13px 14px;
+    margin-bottom:10px;
+  }
+  .suggestion-card:last-child{margin-bottom:0;}
+  .sc-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .sc-icon{font-size:15px;}
+  .sc-cat{font-weight:700;font-size:13px;font-family:'Baloo 2',sans-serif;}
+  .sc-save{
+    margin-left:auto;font-size:12px;font-weight:800;color:var(--green);
+    background:rgba(52,211,153,0.12);padding:2px 8px;border-radius:20px;
+  }
+  .sc-text{font-size:12.5px;color:var(--text-mute);line-height:1.5;}
+  .sc-text b{color:var(--text-main);}
+  .all-good{
+    text-align:center;padding:14px 0;color:var(--green);font-size:13px;font-weight:600;
+  }
+
+  .topspend-card{
+    background:rgba(212,175,55,0.08);
+    border:1px solid rgba(212,175,55,0.25);
+    border-radius:12px;
+    padding:13px 14px;
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .topspend-card:last-child{margin-bottom:0;}
+  .topspend-rank{
+    width:24px;height:24px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--gold),var(--gold-soft));
+    color:#1a1400;font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .topspend-info{flex:1;min-width:0;}
+  .topspend-info .cat{font-weight:700;font-size:13px;font-family:'Baloo 2',sans-serif;}
+  .topspend-info .txt{font-size:11.5px;color:var(--text-mute);margin-top:2px;}
+  .topspend-amt{text-align:right;flex-shrink:0;}
+  .topspend-amt .n{font-weight:800;font-size:14px;color:var(--gold-soft);}
+  .topspend-amt .p{font-size:11px;color:var(--text-mute);}
+
+  /* Savings Goal */
+  .goal-input-row{display:flex;gap:8px;margin-bottom:12px;}
+  .goal-input-row input{
+    flex:1;background:var(--bg-deep);border:1px solid var(--card-border);
+    border-radius:10px;color:var(--text-main);padding:11px 12px;font-size:14px;outline:none;
+  }
+  .goal-input-row input:focus{border-color:var(--gold);}
+  .goal-progress-track{
+    background:var(--bg-deep);height:16px;border-radius:10px;overflow:hidden;
+    border:1px solid var(--card-border);position:relative;
+  }
+  .goal-progress-fill{
+    height:100%;border-radius:10px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-soft));
+    transition:width .4s ease;
+  }
+  .goal-caption{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--text-mute);}
+  .goal-caption b{color:var(--gold-soft);}
+  .goal-hit{
+    text-align:center;margin-top:10px;color:var(--green);font-size:13px;font-weight:700;
+    background:rgba(52,211,153,0.1);border-radius:10px;padding:8px;
+  }
+
+  /* Month comparison / streak */
+  .streak-row{display:flex;gap:12px;margin-bottom:14px;}
+  .streak-box{
+    flex:1;background:var(--bg-deep);border:1px solid var(--card-border);
+    border-radius:12px;padding:12px;text-align:center;
+  }
+  .streak-box .n{font-size:22px;font-weight:800;font-family:'Baloo 2',sans-serif;}
+  .streak-box .l{font-size:11px;color:var(--text-mute);margin-top:2px;}
+  .compare-input-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+  .compare-input-row label{font-size:12px;color:var(--text-mute);flex-shrink:0;}
+  .compare-input-row input{
+    flex:1;background:var(--bg-deep);border:1px solid var(--card-border);
+    border-radius:10px;color:var(--text-main);padding:9px 10px;font-size:13px;outline:none;
+  }
+  .compare-result{
+    display:flex;align-items:center;gap:10px;
+    border-radius:12px;padding:12px 14px;font-size:13px;
+  }
+  .compare-result.good{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);color:var(--green);}
+  .compare-result.bad{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);}
+
+  /* WhatsApp share */
+  .wa-btn{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(135deg,#25D366,#1fae53);
+    color:#fff;border:none;border-radius:12px;padding:13px;
+    font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;
+  }
+  .wa-btn:active{transform:scale(0.98);}
+
+  /* Animated value pulse */
+  .val-pop{animation:valPop .35s ease;}
+  @keyframes valPop{0%{transform:scale(1);}40%{transform:scale(1.12);}100%{transform:scale(1);}}
+
+  /* Confetti */
+  .confetti-piece{
+    position:fixed;top:-20px;font-size:18px;z-index:9999;pointer-events:none;
+    animation:confettiFall linear forwards;
+  }
+  @keyframes confettiFall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1;}
+    100%{transform:translateY(100vh) rotate(360deg);opacity:0.2;}
+  }
+
+  /* Achievement badges */
+  .badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .badge-item{
+    background:var(--bg-deep);border:1px solid var(--card-border);
+    border-radius:14px;padding:14px 8px;text-align:center;
+    opacity:0.35;filter:grayscale(1);transition:all .3s ease;
+  }
+  .badge-item.unlocked{
+    opacity:1;filter:none;
+    border-color:rgba(212,175,55,0.4);
+    background:linear-gradient(160deg,rgba(212,175,55,0.1),transparent);
+  }
+  .badge-icon{font-size:24px;margin-bottom:6px;}
+  .badge-name{font-size:10.5px;font-weight:700;font-family:'Baloo 2',sans-serif;line-height:1.3;}
+  .badge-item.unlocked .badge-name{color:var(--gold-soft);}
+
+  /* Yearly projection */
+  .yearly-hero{
+    text-align:center;padding:6px 0 4px;
+  }
+  .yearly-hero .amt{
+    font-size:32px;font-weight:800;font-family:'Baloo 2',sans-serif;
+    background:linear-gradient(90deg,var(--gold),var(--gold-soft));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .yearly-hero .cap{font-size:12.5px;color:var(--text-mute);margin-top:4px;}
+  .yearly-relatable{
+    margin-top:14px;background:rgba(99,102,241,0.08);
+    border:1px solid rgba(99,102,241,0.22);border-radius:12px;
+    padding:12px 14px;font-size:13px;color:var(--text-main);line-height:1.5;
+  }
+
+  /* Recurring items */
+  .rec-item{
+    display:flex;align-items:center;gap:10px;
+    background:var(--bg-deep);border:1px solid var(--card-border);
+    border-radius:10px;padding:10px 12px;margin-top:8px;
+  }
+  .rec-item .rn{flex:1;font-size:13px;font-weight:600;}
+  .rec-item .ra{font-size:13px;font-weight:700;color:var(--gold-soft);}
+  .rec-del{
+    background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:0 2px;
+  }
+
+  /* Budget alerts */
+  .budget-item{
+    display:flex;align-items:center;gap:10px;
+    border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12.5px;
+  }
+  .budget-item.ok{background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--text-mute);}
+  .budget-item.warn{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;}
+  .budget-item.over{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);}
+  .budget-item b{color:var(--text-main);}
+  .budget-del{background:none;border:none;color:var(--text-mute);font-size:15px;cursor:pointer;margin-left:auto;}
+
+  /* Calendar heatmap */
+  .cal-month-label{font-size:13px;color:var(--text-mute);margin-bottom:10px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .cal-day{
+    aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-size:10.5px;font-weight:600;color:var(--text-mute);
+  }
+  .cal-day.empty{background:transparent;}
+  .cal-legend{display:flex;align-items:center;gap:5px;justify-content:center;margin-top:12px;font-size:10.5px;color:var(--text-mute);}
+  .cal-legend-swatch{width:12px;height:12px;border-radius:3px;}
+  .insight{
+    display:flex;gap:10px;align-items:flex-start;
+    background:rgba(212,175,55,0.08);
+    border:1px solid rgba(212,175,55,0.25);
+    border-radius:12px;padding:12px 14px;margin-top:14px;font-size:13px;color:var(--gold-soft);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand"><div class="brand-dot"></div><span>BillGST</span></div>
+    <h1 class="hindi">Kharcha <span class="accent">Tracker</span></h1>
+    <p class="sub">Salary/Income add karein, phir har kharcha category ke saath — pata chalega paisa kahan ja raha hai.</p>
+  </header>
+
+  <!-- Income entry -->
+  <div class="card">
+    <div class="label-eyebrow">Is mahine ki Income / Salary</div>
+    <div class="income-row">
+      <input type="number" id="incomeInput" placeholder="₹ Amount daalein" />
+      <button class="btn-gold" onclick="setIncome()">Add Karein</button>
+    </div>
+  </div>
+
+  <!-- Balance overview -->
+  <div class="card">
+    <div class="balance-grid">
+      <div class="balance-item">
+        <div class="val income" id="incomeVal">₹0</div>
+        <div class="lbl hindi">Aayi</div>
+      </div>
+      <div class="balance-item">
+        <div class="val spent" id="spentVal">₹0</div>
+        <div class="lbl hindi">Kharch Hui</div>
+      </div>
+      <div class="balance-item">
+        <div class="val left" id="leftVal">₹0</div>
+        <div class="lbl hindi">Bachi</div>
+      </div>
+    </div>
+    <div class="meter-bar" id="meterBar"></div>
+    <div class="meter-caption">
+      <span id="spentPct">0% kharch hua</span>
+      <span id="leftPct">100% bacha</span>
+    </div>
+  </div>
+
+  <!-- Add expense -->
+  <div class="card">
+    <div class="label-eyebrow">Naya Kharcha Add Karein</div>
+    <div class="form-row">
+      <input type="text" id="catInput" list="categoryOptions" placeholder="Category likhein ya chunein" autocomplete="off" />
+      <input type="number" id="amtInput" placeholder="₹ Amount" />
+    </div>
+    <div class="form-row">
+      <input type="date" id="dateInput" />
+    </div>
+    <datalist id="categoryOptions">
+      <option value="Dukan Kharcha">
+      <option value="Ghar Kharcha">
+      <option value="Transport">
+      <option value="Khana-Peena">
+      <option value="Bijli-Pani">
+      <option value="Stock/Maal">
+      <option value="Aur">
+    </datalist>
+    <button class="btn-indigo" onclick="addExpense()">+ Kharcha Jodo</button>
+  </div>
+
+  <!-- Recurring / Fixed monthly expenses -->
+  <div class="card">
+    <div class="label-eyebrow">🔁 Fixed Mahine Ke Kharche</div>
+    <p class="sub" style="margin-bottom:10px;">Dukan kiraya, bijli bill jaise fix kharche ek baar set karein, har mahine khud add ho jaayenge</p>
+    <div class="form-row">
+      <input type="text" id="recCatInput" list="categoryOptions" placeholder="Naam (jaise: Dukan Kiraya)" autocomplete="off" />
+      <input type="number" id="recAmtInput" placeholder="₹ Amount" />
+    </div>
+    <button class="btn-indigo" onclick="addRecurring()">+ Fixed Kharcha Jodo</button>
+    <div id="recurringList" style="margin-top:6px;"></div>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="card">
+    <div class="label-eyebrow">Kharcha Kahan Ho Raha Hai</div>
+    <div class="donut-wrap" id="donutWrap" style="display:none;">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="70" fill="none" stroke="#1c2540" stroke-width="20"/>
+        <g id="donutSegs" transform="rotate(-90 90 90)"></g>
+      </svg>
+      <div class="donut-center">
+        <div class="n" id="donutCenterN">₹0</div>
+        <div class="l hindi">Total Kharcha</div>
+      </div>
+    </div>
+    <div class="legend-grid" id="legendGrid"></div>
+    <div id="catList"><div class="empty-note hindi">Abhi tak koi kharcha add nahi hua</div></div>
+    <div class="insight" id="insightBox" style="display:none;">
+      💡 <span id="insightText"></span>
+    </div>
+  </div>
+
+  <!-- AI Suggestions -->
+  <div class="card" id="aiCard" style="display:none;">
+    <div class="ai-header">
+      <div class="ai-badge">✨</div>
+      <div>
+        <div class="cat-name hindi" style="font-size:15px;">AI Sujhav</div>
+        <div class="lbl" style="font-size:11px;color:var(--text-mute);">Kaha zyada kharcha ho raha hai, kaha kam karein</div>
+      </div>
+    </div>
+    <div class="label-eyebrow" style="margin-top:4px;">📈 Sabse Zyada Kharcha Yahan</div>
+    <div id="topSpendList"></div>
+    <div class="label-eyebrow" style="margin-top:16px;">📉 Yahan Kam Karke Bacha Sakte Hain</div>
+    <div id="suggestionsList"></div>
+  </div>
+
+  <!-- Savings Goal -->
+  <div class="card">
+    <div class="label-eyebrow">Savings Goal</div>
+    <div class="goal-input-row">
+      <input type="number" id="goalInput" placeholder="Kitna bachana hai is mahine? (₹)" />
+      <button class="btn-gold" onclick="setGoal()">Set Karein</button>
+    </div>
+    <div id="goalProgressArea" style="display:none;">
+      <div class="goal-progress-track">
+        <div class="goal-progress-fill" id="goalFill" style="width:0%;"></div>
+      </div>
+      <div class="goal-caption">
+        <span>Abhi tak bachaya: <b id="goalSavedTxt">₹0</b></span>
+        <span>Goal: <b id="goalTargetTxt">₹0</b></span>
+      </div>
+      <div class="goal-hit hindi" id="goalHitMsg" style="display:none;">🎉 Badhai ho! Goal achieve kar liya</div>
+    </div>
+  </div>
+
+  <!-- Month comparison / streak -->
+  <div class="card">
+    <div class="label-eyebrow">Mahine Ki Tulna</div>
+    <div class="streak-row">
+      <div class="streak-box">
+        <div class="n" id="streakVal">🔥 0</div>
+        <div class="l hindi">Bachat Streak (mahine)</div>
+      </div>
+      <div class="streak-box">
+        <div class="n" id="diffVal">₹0</div>
+        <div class="l hindi">Farak Pichle Mahine Se</div>
+      </div>
+    </div>
+    <div class="compare-input-row">
+      <label class="hindi">Pichle mahine ka kharcha</label>
+      <input type="number" id="prevMonthInput" placeholder="₹ amount" oninput="renderComparison()" />
+    </div>
+    <div id="compareResultArea"></div>
+  </div>
+
+  <!-- WhatsApp share -->
+  <div class="card">
+    <div class="label-eyebrow">Apni Bachat Share Karein</div>
+    <p class="sub" style="margin-bottom:10px;">Apni family ya khud ko WhatsApp pe bachat ka summary bhejein</p>
+    <button class="wa-btn" onclick="shareOnWhatsApp()">
+      📤 WhatsApp Par Share Karein
+    </button>
+  </div>
+
+  <!-- Budget Alerts -->
+  <div class="card">
+    <div class="label-eyebrow">🔔 Budget Alert</div>
+    <p class="sub" style="margin-bottom:10px;">Category ka budget set karein, 80% paar hote hi warning milegi</p>
+    <div class="form-row">
+      <input type="text" id="budgetCatInput" list="categoryOptions" placeholder="Category" autocomplete="off" />
+      <input type="number" id="budgetAmtInput" placeholder="₹ Budget" />
+    </div>
+    <button class="btn-indigo" onclick="setBudget()">Budget Set Karein</button>
+    <div id="budgetAlertList" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Yearly Projection -->
+  <div class="card" id="yearlyCard" style="display:none;">
+    <div class="label-eyebrow">Saal Bhar Ka Hisaab</div>
+    <div class="yearly-hero">
+      <div class="amt" id="yearlyAmt">₹0</div>
+      <div class="cap hindi">Is raftar se, saal bhar mein itni bachat ho sakti hai</div>
+    </div>
+    <div class="yearly-relatable hindi" id="yearlyRelatable"></div>
+  </div>
+
+  <!-- Achievement Badges -->
+  <div class="card">
+    <div class="label-eyebrow">Aapki Uplabdhiyan (Badges)</div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </div>
+
+  <!-- Calendar / date-wise view -->
+  <div class="card" id="calendarCard" style="display:none;">
+    <div class="label-eyebrow">📅 Din-Wise Kharcha</div>
+    <div class="cal-month-label hindi" id="calMonthLabel"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span>Kam</span>
+      <span class="cal-legend-swatch" style="background:#1c2540;"></span>
+      <span class="cal-legend-swatch" style="background:#3730a3;"></span>
+      <span class="cal-legend-swatch" style="background:#6366f1;"></span>
+      <span class="cal-legend-swatch" style="background:#d4af37;"></span>
+      <span>Zyada</span>
+    </div>
+  </div>
+
+  <!-- PDF Report Export -->
+  <div class="card">
+    <div class="label-eyebrow">📄 Report Download Karein</div>
+    <p class="sub" style="margin-bottom:10px;">Poora mahine ka hisaab ek PDF report mein — record ya CA ko dikhane ke liye</p>
+    <button class="wa-btn" style="background:linear-gradient(135deg,var(--indigo),var(--purple));" onclick="downloadReport()">
+      ⬇️ PDF Report Download Karein
+    </button>
+  </div>
+
+</div>
+
+<script>
+let income = 0;
+let expenses = []; // {cat, icon, color, amt}
+let savingsGoal = 0;
+let streak = 3; // demo streak — real app mein ye backend se aayega based on monthly history
+let donutGrown = false;
+let allGoodFired = false;
+let recurringItems = []; // {name, cat, icon, color, amt}
+let budgets = {}; // {catName: amount}
+
+function setIncome(){
+  const v = parseFloat(document.getElementById('incomeInput').value);
+  if(!v || v<=0) return;
+  income = v;
+  document.getElementById('incomeInput').value='';
+  render();
+}
+
+const catStyleMap = {
+  'Dukan Kharcha': {icon:'🏪', color:'#a855f7'},
+  'Ghar Kharcha': {icon:'🏠', color:'#6366f1'},
+  'Transport': {icon:'🛵', color:'#34d399'},
+  'Khana-Peena': {icon:'🍽️', color:'#f59e0b'},
+  'Bijli-Pani': {icon:'💡', color:'#f87171'},
+  'Stock/Maal': {icon:'📦', color:'#38bdf8'},
+  'Aur': {icon:'✨', color:'#d4af37'}
+};
+const customColors = ['#ec4899','#22d3ee','#f97316','#84cc16','#8b5cf6','#eab308'];
+let customColorIdx = 0;
+const customColorMap = {};
+
+function addExpense(){
+  const catInput = document.getElementById('catInput');
+  const cat = catInput.value.trim();
+  const amt = parseFloat(document.getElementById('amtInput').value);
+  const dateInput = document.getElementById('dateInput');
+  const date = dateInput.value || todayStr();
+  if(!cat || !amt || amt<=0) return;
+
+  let icon, color;
+  if(catStyleMap[cat]){
+    icon = catStyleMap[cat].icon;
+    color = catStyleMap[cat].color;
+  } else {
+    icon = '✍️';
+    if(!customColorMap[cat]){
+      customColorMap[cat] = customColors[customColorIdx % customColors.length];
+      customColorIdx++;
+    }
+    color = customColorMap[cat];
+  }
+
+  expenses.push({cat, icon, color, amt, date});
+  catInput.value='';
+  document.getElementById('amtInput').value='';
+  render();
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const di = document.getElementById('dateInput');
+  if(di) di.value = todayStr();
+});
+
+function render(){
+  const totalSpent = expenses.reduce((s,e)=>s+e.amt,0);
+  const left = income - totalSpent;
+
+  animateValue('incomeVal', income, '₹');
+  animateValue('spentVal', totalSpent, '₹');
+  animateValue('leftVal', left, '₹');
+
+  const spentPct = income>0 ? Math.min(100,(totalSpent/income*100)) : 0;
+  document.getElementById('spentPct').textContent = Math.round(spentPct)+'% kharch hua';
+  document.getElementById('leftPct').textContent = Math.max(0,Math.round(100-spentPct))+'% bacha';
+
+  // meter bar by category
+  const meter = document.getElementById('meterBar');
+  meter.innerHTML='';
+  if(income>0){
+    const byCat = groupByCategory();
+    byCat.forEach(c=>{
+      const seg = document.createElement('div');
+      seg.className='meter-seg';
+      seg.style.width = (c.amt/income*100)+'%';
+      seg.style.background = c.color;
+      meter.appendChild(seg);
+    });
+  }
+
+  // category list
+  const listEl = document.getElementById('catList');
+  const donutWrap = document.getElementById('donutWrap');
+  const legendGrid = document.getElementById('legendGrid');
+  if(expenses.length===0){
+    listEl.innerHTML = '<div class="empty-note hindi">Abhi tak koi kharcha add nahi hua</div>';
+    document.getElementById('insightBox').style.display='none';
+    donutWrap.style.display='none';
+    legendGrid.innerHTML='';
+    return;
+  }
+  const byCat = groupByCategory().sort((a,b)=>b.amt-a.amt);
+
+  // draw donut
+  donutWrap.style.display='flex';
+  animateValue('donutCenterN', totalSpent, '₹');
+  const R = 70, C = 2*Math.PI*R;
+  let offsetAcc = 0;
+  const segsHTML = byCat.map(c=>{
+    const frac = totalSpent>0 ? (c.amt/totalSpent) : 0;
+    const dash = frac*C;
+    const seg = `<circle class="donut-seg" cx="90" cy="90" r="${R}" fill="none" stroke="${c.color}"
+      stroke-width="20" stroke-dasharray="${dash} ${C-dash}" stroke-dashoffset="${-offsetAcc}" stroke-linecap="butt"/>`;
+    offsetAcc += dash;
+    return seg;
+  }).join('');
+  const donutSegsEl = document.getElementById('donutSegs');
+  if(!donutGrown){
+    // start all segments collapsed, then grow to real size next frame
+    donutSegsEl.innerHTML = byCat.map(c=>
+      `<circle class="donut-seg" cx="90" cy="90" r="${R}" fill="none" stroke="${c.color}" stroke-width="20" stroke-dasharray="0 ${C}"/>`
+    ).join('');
+    requestAnimationFrame(()=>{ donutSegsEl.innerHTML = segsHTML; });
+    donutGrown = true;
+  } else {
+    donutSegsEl.innerHTML = segsHTML;
+  }
+
+  legendGrid.innerHTML = byCat.map(c=>{
+    const pct = totalSpent>0 ? Math.round(c.amt/totalSpent*100) : 0;
+    return `<div class="legend-item"><span class="legend-dot" style="background:${c.color};"></span>${c.cat} · ${pct}%</div>`;
+  }).join('');
+  listEl.innerHTML = byCat.map(c=>{
+    const pct = totalSpent>0 ? (c.amt/totalSpent*100) : 0;
+    return `<div class="cat-item">
+      <div class="cat-icon" style="background:${c.color}22;">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.cat}</div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${c.color};"></div></div>
+      </div>
+      <div class="cat-amt">
+        <div class="n">₹${c.amt.toLocaleString('en-IN')}</div>
+        <div class="p">${Math.round(pct)}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // insight — top category
+  const top = byCat[0];
+  const box = document.getElementById('insightBox');
+  if(top && income>0){
+    const topPctOfIncome = Math.round(top.amt/income*100);
+    document.getElementById('insightText').innerHTML =
+      `Sabse zyada kharcha <b>${top.cat}</b> mein ho raha hai — aapki income ka <b>${topPctOfIncome}%</b>.`;
+    box.style.display='flex';
+  } else {
+    box.style.display='none';
+  }
+
+  renderAISuggestions(byCat);
+  renderGoal(totalSpent);
+  renderComparison();
+  renderYearly(left);
+  renderBadges(totalSpent);
+  renderRecurring();
+  renderBudgets();
+  renderCalendar();
+}
+
+// Count-up animation for ₹ values
+const animCache = {};
+function animateValue(id, target, prefix){
+  const el = document.getElementById(id);
+  const start = animCache[id] !== undefined ? animCache[id] : 0;
+  animCache[id] = target;
+  const duration = 500;
+  const startTime = performance.now();
+  function step(now){
+    const t = Math.min(1, (now-startTime)/duration);
+    const eased = 1 - Math.pow(1-t, 3);
+    const val = Math.round(start + (target-start)*eased);
+    el.textContent = prefix + val.toLocaleString('en-IN');
+    if(t<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+  el.classList.remove('val-pop');
+  void el.offsetWidth;
+  el.classList.add('val-pop');
+}
+
+// Confetti burst
+function fireConfetti(){
+  const emojis = ['🎉','✨','💰','🎊','⭐'];
+  for(let i=0;i<24;i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    piece.style.left = Math.random()*100+'vw';
+    piece.style.animationDuration = (2+Math.random()*1.5)+'s';
+    piece.style.fontSize = (14+Math.random()*14)+'px';
+    document.body.appendChild(piece);
+    setTimeout(()=>piece.remove(), 3600);
+  }
+}
+
+// Yearly projection
+let yearlyFired = false;
+function renderYearly(monthlyLeft){
+  const card = document.getElementById('yearlyCard');
+  if(income<=0){ card.style.display='none'; return; }
+  card.style.display='block';
+  const yearly = Math.max(0, monthlyLeft*12);
+  animateValue('yearlyAmt', yearly, '₹');
+
+  const relatable = document.getElementById('yearlyRelatable');
+  if(yearly<=0){
+    relatable.textContent = 'Kharcha thoda kam karein, tabhi yaha ek achi bachat dikhegi.';
+  } else if(yearly < 20000){
+    relatable.textContent = `₹${yearly.toLocaleString('en-IN')} se aap ek naya smartphone accessory ya ek mahine ka bijli bill nikal sakte hain.`;
+  } else if(yearly < 80000){
+    relatable.textContent = `₹${yearly.toLocaleString('en-IN')} se aap dukan ka naya stock badha sakte hain ya ek chhoti family trip plan kar sakte hain.`;
+  } else {
+    relatable.textContent = `₹${yearly.toLocaleString('en-IN')} — itne mein aap dukan mein naya investment ya bada saving goal poora kar sakte hain!`;
+  }
+}
+
+// Achievement badges
+let goalHitFired = false;
+function renderBadges(totalSpent){
+  const grid = document.getElementById('badgeGrid');
+  const saved = Math.max(0, income - totalSpent);
+  const entryCount = expenses.length;
+  const categoryCount = new Set(expenses.map(e=>e.cat)).size;
+  const goalAchieved = savingsGoal>0 && saved>=savingsGoal;
+
+  const badges = [
+    {icon:'🌱', name:'Pehli Entry', unlocked: entryCount>=1},
+    {icon:'📊', name:'5 Entries', unlocked: entryCount>=5},
+    {icon:'🗂️', name:'3+ Category', unlocked: categoryCount>=3},
+    {icon:'🔥', name:'Bachat Streak', unlocked: streak>=3},
+    {icon:'🎯', name:'Goal Hit', unlocked: goalAchieved},
+    {icon:'💎', name:'Smart Saver', unlocked: income>0 && saved >= income*0.2},
+  ];
+
+  grid.innerHTML = badges.map(b=>`
+    <div class="badge-item ${b.unlocked?'unlocked':''}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name hindi">${b.name}</div>
+    </div>
+  `).join('');
+
+  if(goalAchieved && !goalHitFired){
+    goalHitFired = true;
+    fireConfetti();
+  }
+  if(!goalAchieved) goalHitFired = false;
+}
+
+// ---- Recurring / Fixed monthly expenses ----
+function addRecurring(){
+  const catInput = document.getElementById('recCatInput');
+  const cat = catInput.value.trim();
+  const amt = parseFloat(document.getElementById('recAmtInput').value);
+  if(!cat || !amt || amt<=0) return;
+
+  let icon, color;
+  if(catStyleMap[cat]){ icon = catStyleMap[cat].icon; color = catStyleMap[cat].color; }
+  else {
+    icon = '✍️';
+    if(!customColorMap[cat]){ customColorMap[cat] = customColors[customColorIdx % customColors.length]; customColorIdx++; }
+    color = customColorMap[cat];
+  }
+
+  const item = {name:cat, cat, icon, color, amt};
+  recurringItems.push(item);
+  // is mahine ke expenses mein turant add ho jaata hai
+  expenses.push({cat, icon, color, amt, date:todayStr(), recurringId:item});
+
+  catInput.value='';
+  document.getElementById('recAmtInput').value='';
+  render();
+}
+
+function removeRecurring(idx){
+  const item = recurringItems[idx];
+  expenses = expenses.filter(e=>e.recurringId!==item);
+  recurringItems.splice(idx,1);
+  render();
+}
+
+function renderRecurring(){
+  const listEl = document.getElementById('recurringList');
+  if(recurringItems.length===0){ listEl.innerHTML=''; return; }
+  listEl.innerHTML = recurringItems.map((item,i)=>`
+    <div class="rec-item">
+      <span>${item.icon}</span>
+      <span class="rn">${item.name}</span>
+      <span class="ra">₹${item.amt.toLocaleString('en-IN')}/mahina</span>
+      <button class="rec-del" onclick="removeRecurring(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+// ---- Budget Alerts ----
+function setBudget(){
+  const catInput = document.getElementById('budgetCatInput');
+  const cat = catInput.value.trim();
+  const amt = parseFloat(document.getElementById('budgetAmtInput').value);
+  if(!cat || !amt || amt<=0) return;
+  budgets[cat] = amt;
+  catInput.value='';
+  document.getElementById('budgetAmtInput').value='';
+  render();
+}
+
+function removeBudget(cat){
+  delete budgets[cat];
+  render();
+}
+
+function renderBudgets(){
+  const listEl = document.getElementById('budgetAlertList');
+  const catKeys = Object.keys(budgets);
+  if(catKeys.length===0){ listEl.innerHTML=''; return; }
+
+  const byCat = groupByCategory();
+  listEl.innerHTML = catKeys.map(cat=>{
+    const spent = (byCat.find(c=>c.cat===cat) || {amt:0}).amt;
+    const budget = budgets[cat];
+    const pct = Math.round(spent/budget*100);
+    let cls='ok', msg=`${pct}% use hua`;
+    if(pct>=100){ cls='over'; msg=`⚠️ Budget paar ho gaya! ${pct}% use hua`; }
+    else if(pct>=80){ cls='warn'; msg=`⚠️ 80% paar — sambhal ke kharch karein (${pct}%)`; }
+    return `<div class="budget-item ${cls}">
+      <span>${(catStyleMap[cat]||{icon:'✍️'}).icon}</span>
+      <span><b>${cat}</b>: ₹${spent.toLocaleString('en-IN')} / ₹${budget.toLocaleString('en-IN')} — ${msg}</span>
+      <button class="budget-del" onclick="removeBudget('${cat.replace(/'/g,"\\'")}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ---- Calendar heatmap ----
+const monthNames = ['Janwari','Farwari','March','April','May','June','July','August','September','October','November','December'];
+function renderCalendar(){
+  const card = document.getElementById('calendarCard');
+  if(expenses.length===0){ card.style.display='none'; return; }
+  card.style.display='block';
+
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  document.getElementById('calMonthLabel').textContent = monthNames[m]+' '+y;
+
+  const totalsByDay = {};
+  expenses.forEach(e=>{
+    if(!e.date) return;
+    const d = new Date(e.date+'T00:00:00');
+    if(d.getFullYear()===y && d.getMonth()===m){
+      totalsByDay[d.getDate()] = (totalsByDay[d.getDate()]||0) + e.amt;
+    }
+  });
+  const maxDay = Math.max(1, ...Object.values(totalsByDay));
+
+  const firstDow = new Date(y,m,1).getDay();
+  const daysInMonth = new Date(y,m+1,0).getDate();
+
+  let html = '';
+  for(let i=0;i<firstDow;i++) html += '<div class="cal-day empty"></div>';
+  for(let day=1; day<=daysInMonth; day++){
+    const amt = totalsByDay[day] || 0;
+    const intensity = amt/maxDay;
+    let bg = '#1c2540';
+    if(intensity>0.66) bg='#d4af37';
+    else if(intensity>0.33) bg='#6366f1';
+    else if(intensity>0) bg='#3730a3';
+    html += `<div class="cal-day" style="background:${bg};" title="₹${amt}">${day}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+// ---- PDF Report Export ----
+function downloadReport(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const totalSpent = expenses.reduce((s,e)=>s+e.amt,0);
+  const saved = Math.max(0, income - totalSpent);
+  const byCat = groupByCategory().sort((a,b)=>b.amt-a.amt);
+
+  doc.setFontSize(16);
+  doc.text('BillGST - Kharcha Report', 14, 18);
+  doc.setFontSize(10);
+  doc.text('Date: '+todayStr(), 14, 25);
+
+  doc.setFontSize(12);
+  doc.text('Income: Rs.'+income.toLocaleString('en-IN'), 14, 36);
+  doc.text('Total Kharcha: Rs.'+totalSpent.toLocaleString('en-IN'), 14, 43);
+  doc.text('Bachat: Rs.'+saved.toLocaleString('en-IN'), 14, 50);
+
+  doc.setFontSize(13);
+  doc.text('Category-wise Kharcha:', 14, 62);
+  doc.setFontSize(11);
+  let y = 70;
+  byCat.forEach(c=>{
+    doc.text(c.cat+': Rs.'+c.amt.toLocaleString('en-IN'), 18, y);
+    y += 7;
+  });
+
+  y += 6;
+  doc.setFontSize(13);
+  doc.text('Saari Entries:', 14, y);
+  y += 8;
+  doc.setFontSize(10);
+  expenses.forEach(e=>{
+    if(y>280){ doc.addPage(); y=20; }
+    doc.text(`${e.date||''}  ${e.cat}  Rs.${e.amt.toLocaleString('en-IN')}`, 18, y);
+    y += 6;
+  });
+
+  doc.save('kharcha-report-'+todayStr()+'.pdf');
+}
+
+function setGoal(){
+  const v = parseFloat(document.getElementById('goalInput').value);
+  if(!v || v<=0) return;
+  savingsGoal = v;
+  document.getElementById('goalInput').value='';
+  render();
+}
+
+function renderGoal(totalSpent){
+  const area = document.getElementById('goalProgressArea');
+  if(savingsGoal<=0){ area.style.display='none'; return; }
+  area.style.display='block';
+  const saved = Math.max(0, income - totalSpent);
+  const pct = Math.min(100, (saved/savingsGoal*100));
+  document.getElementById('goalFill').style.width = pct+'%';
+  document.getElementById('goalSavedTxt').textContent = '₹'+saved.toLocaleString('en-IN');
+  document.getElementById('goalTargetTxt').textContent = '₹'+savingsGoal.toLocaleString('en-IN');
+  document.getElementById('goalHitMsg').style.display = saved>=savingsGoal ? 'block' : 'none';
+}
+
+function renderComparison(){
+  const totalSpent = expenses.reduce((s,e)=>s+e.amt,0);
+  document.getElementById('streakVal').textContent = '🔥 '+streak;
+  const prevInput = document.getElementById('prevMonthInput');
+  const prev = parseFloat(prevInput.value);
+  const resultArea = document.getElementById('compareResultArea');
+  const diffEl = document.getElementById('diffVal');
+
+  if(!prev || prev<=0){
+    diffEl.textContent = '₹0';
+    resultArea.innerHTML='';
+    return;
+  }
+  const diff = prev - totalSpent; // positive = kam kharcha hua
+  diffEl.textContent = (diff>=0?'-₹':'+₹') + Math.abs(diff).toLocaleString('en-IN');
+  diffEl.style.color = diff>=0 ? 'var(--green)' : 'var(--red)';
+
+  if(diff>0){
+    resultArea.innerHTML = `<div class="compare-result good hindi">✅ Is mahine aapne pichle mahine se <b>₹${diff.toLocaleString('en-IN')}</b> kam kharcha kiya — badhiya ja rahe ho!</div>`;
+  } else if(diff<0){
+    resultArea.innerHTML = `<div class="compare-result bad hindi">⚠️ Is mahine kharcha pichle mahine se <b>₹${Math.abs(diff).toLocaleString('en-IN')}</b> zyada ho gaya.</div>`;
+  } else {
+    resultArea.innerHTML = `<div class="compare-result good hindi">➖ Kharcha pichle mahine jaisa hi hai.</div>`;
+  }
+}
+
+function shareOnWhatsApp(){
+  const totalSpent = expenses.reduce((s,e)=>s+e.amt,0);
+  const saved = Math.max(0, income - totalSpent);
+  const byCat = groupByCategory().sort((a,b)=>b.amt-a.amt);
+  const top = byCat[0];
+  let msg = `📊 Mera Kharcha Summary (BillGST)\n\n`;
+  msg += `Income: ₹${income.toLocaleString('en-IN')}\n`;
+  msg += `Kharcha: ₹${totalSpent.toLocaleString('en-IN')}\n`;
+  msg += `Bachat: ₹${saved.toLocaleString('en-IN')}\n`;
+  if(top) msg += `Sabse zyada kharcha: ${top.cat}\n`;
+  if(savingsGoal>0) msg += `Savings Goal: ₹${savingsGoal.toLocaleString('en-IN')} (${Math.min(100,Math.round(saved/savingsGoal*100))}% pura)\n`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+}
+
+// Ideal spend as % of income — jab actual is se zyada ho, wahan saving ka sujhav milega
+const idealPct = {
+  'Dukan Kharcha': {ideal:40, tip:'Supplier se bulk rate negotiate karein ya kam zaroori stock filhal roken.'},
+  'Ghar Kharcha': {ideal:25, tip:'Is mahine ke non-zaroori ghar kharche ko agle mahine tak taal dein.'},
+  'Transport': {ideal:10, tip:'Nazdeek trips ke liye shared ride ya public transport try karein.'},
+  'Khana-Peena': {ideal:15, tip:'Bahar khane ki jagah ghar ka khana badhayein, isse kaafi bach sakta hai.'},
+  'Bijli-Pani': {ideal:8, tip:'Bijli bill check karein — bekar chal rahe appliances band karein.'},
+  'Stock/Maal': {ideal:35, tip:'Sirf fast-moving items ka stock badhayein, slow items pe kharch roken.'},
+  'Aur': {ideal:10, tip:'Is category ko track karke dekhein kahan avoidable kharcha ho raha hai.'}
+};
+
+function renderAISuggestions(byCat){
+  const aiCard = document.getElementById('aiCard');
+  const listEl = document.getElementById('suggestionsList');
+  const topListEl = document.getElementById('topSpendList');
+  if(income<=0 || byCat.length===0){
+    aiCard.style.display='none';
+    return;
+  }
+  aiCard.style.display='block';
+
+  // Top spending categories (highest amount first) — top 3
+  const totalSpent = byCat.reduce((s,c)=>s+c.amt,0);
+  const topSpends = [...byCat].sort((a,b)=>b.amt-a.amt).slice(0,3);
+  topListEl.innerHTML = topSpends.map((c,i)=>{
+    const pctOfSpend = totalSpent>0 ? Math.round(c.amt/totalSpent*100) : 0;
+    const pctOfIncome = Math.round(c.amt/income*100);
+    return `<div class="topspend-card">
+      <div class="topspend-rank">${i+1}</div>
+      <div class="topspend-info">
+        <div class="cat">${c.icon} ${c.cat}</div>
+        <div class="txt">Total kharche ka ${pctOfSpend}% · Income ka ${pctOfIncome}%</div>
+      </div>
+      <div class="topspend-amt">
+        <div class="n">₹${c.amt.toLocaleString('en-IN')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const suggestions = byCat.map(c=>{
+    const rule = idealPct[c.cat] || {ideal:15, tip:'Is category ka kharcha track karte rahein.'};
+    const actualPct = (c.amt/income*100);
+    if(actualPct <= rule.ideal) return null;
+    const excessPct = actualPct - rule.ideal;
+    const savingAmt = Math.round((excessPct/100) * income);
+    return {cat:c.cat, icon:c.icon, actualPct:Math.round(actualPct), idealPct:rule.ideal, savingAmt, tip:rule.tip};
+  }).filter(Boolean).sort((a,b)=>b.savingAmt-a.savingAmt);
+
+  if(suggestions.length===0){
+    listEl.innerHTML = '<div class="all-good hindi">👍 Aapka kharcha sab categories mein healthy range mein hai!</div>';
+    if(!allGoodFired){ allGoodFired = true; fireConfetti(); }
+    return;
+  }
+  allGoodFired = false;
+
+  listEl.innerHTML = suggestions.slice(0,4).map(s=>`
+    <div class="suggestion-card">
+      <div class="sc-top">
+        <span class="sc-icon">${s.icon}</span>
+        <span class="sc-cat">${s.cat}</span>
+        <span class="sc-save">~₹${s.savingAmt.toLocaleString('en-IN')} bach sakte hain</span>
+      </div>
+      <div class="sc-text">Abhi income ka <b>${s.actualPct}%</b> ja raha hai, ideal range <b>~${s.idealPct}%</b> tak hai. ${s.tip}</div>
+    </div>
+  `).join('');
+}
+
+function groupByCategory(){
+  const map = {};
+  expenses.forEach(e=>{
+    if(!map[e.cat]) map[e.cat] = {cat:e.cat, icon:e.icon, color:e.color, amt:0};
+    map[e.cat].amt += e.amt;
+  });
+  return Object.values(map);
+}
+</script>
+</body>
+</html>
