@@ -877,7 +877,7 @@ export default function BusinessExpensesPage() {
                     if (json.shortId) shareId = json.shortId;
                 }
             } catch(e) {}
-            const shareUrl = `${window.location.origin}/h/${shareId}`;
+            const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             openWhatsAppChat(phone, textMsg);
@@ -913,7 +913,7 @@ export default function BusinessExpensesPage() {
                     if (json.shortId) shareId = json.shortId;
                 }
             } catch(e) {}
-            const shareUrl = `${window.location.origin}/h/${shareId}`;
+            const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
             try {
@@ -971,7 +971,7 @@ export default function BusinessExpensesPage() {
             }
 
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-            const shareUrl = `${window.location.origin}/h/${shareId}`;
+            const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
 
 

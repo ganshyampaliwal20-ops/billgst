@@ -175,7 +175,11 @@ export default function CustomersPage() {
             return;
         }
         const businessName = businessProfile?.name || 'Our Business';
-        let message = `Namaste ${c.name} ji, hope you are doing well. This is a gentle reminder regarding your total outstanding balance of ${c.amountStr} with ${businessName}. Please process the payment at your earliest convenience. Thank you!`;
+        let message = `${t.namaste || 'Namaste'} ${c.name} 🙏\n\n`;
+        message += `${t.paymentPendingMsg || 'Aapka payment pending hai, kripya apna hisaab clear karein.'}\n\n`;
+        message += `💰 *${t.totalAmount || 'Total Amount'}:* ${c.amountStr}\n`;
+        message += `👉 *${t.status || 'Status'}:* ${t.outstanding || 'Aapko Dena Hai (Outstanding)'}\n\n`;
+        message += `${t.thankYou || 'Dhanyawad'},\n*${businessName}*`;
         message += getVisitingCardText(businessProfile);
         openWhatsAppChat(phone, message);
         toast.success('Opening WhatsApp...');

@@ -7,12 +7,14 @@ import { toast } from 'react-hot-toast';
 // Dynamic import used for Chart.js
 import { generateHisaabPDF } from '@/lib/pdf-generator';
 import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
+import { getTranslations } from '@/lib/translations';
 
 export default function CustomerDetailPage() {
     const { id } = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { customers, invoices, fetchInvoices, fetchCustomers, updateCustomer, businessProfile } = useStore() as any;
+    const { customers, invoices, fetchInvoices, fetchCustomers, updateCustomer, businessProfile, settings } = useStore() as any;
+    const t = getTranslations(settings?.language || 'en');
     const [isClient, setIsClient] = useState(false);
 
     // Payment State
@@ -298,14 +300,14 @@ export default function CustomerDetailPage() {
             if (json.shortId) shareId = json.shortId;
         } catch(e) {}
 
-        const shareUrl = `${window.location.origin}/h/${shareId}`;
+        const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
 
-        let text = `Namaste ${customer.name || 'Customer'} 🙏\n\n`;
-        text += `Aapka *Ledger Statement* ready hai.\n\n`;
-        text += `💰 *Total Outstanding Amount:* ₹${totalDue.toLocaleString('en-IN')}\n`;
-        text += `📉 *Status:* Aapko Dena Hai\n\n`;
-        text += `📄 *Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:*\n${shareUrl}\n\n`;
-        text += `Dhanyawad,\n*${businessProfile?.name || 'BillGST Pro'}*`;
+        let text = `${t.namaste || 'Namaste'} ${customer.name || 'Customer'} 🙏\n\n`;
+        text += `${t.statementReadyMsg || 'Aapka *Ledger Statement* ready hai.'}\n\n`;
+        text += `💰 *${t.totalAmount || 'Total Outstanding Amount'}:* ₹${totalDue.toLocaleString('en-IN')}\n`;
+        text += `📉 *${t.status || 'Status'}:* ${t.outstanding || 'Aapko Dena Hai'}\n\n`;
+        text += `📄 *${t.statementLinkMsg || 'Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:'}*\n${shareUrl}\n\n`;
+        text += `${t.thankYou || 'Dhanyawad'},\n*${businessProfile?.name || 'BillGST Pro'}*`;
 
         openWhatsAppChat(phone, text);
         toast.success('Opening WhatsApp...');

@@ -10,9 +10,27 @@ function fmt(n: number) {
 // Next.js config to ensure the route accepts dynamic params properly
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: any): Promise<Metadata> {
     const id = (await params).id;
-    let title = 'Hisaab Statement';
+    const search = await searchParams;
+    const lang = search?.lang || 'en';
+    
+    // Import translations safely (cannot import full client-side module due to hooks if any, but translations is just an object)
+    let t: any = {};
+    try {
+        const tr = await import('@/lib/translations');
+        t = tr.getTranslations(lang);
+    } catch (e) {
+        t = { 
+            statementReadyMsg: 'Hisaab Statement',
+            outstanding: 'Dena Hai',
+            advanceJamaHai: 'Advance',
+            totalToReceive: 'Total Rcvd',
+            totalGiven: 'Total Given'
+        };
+    }
+    
+    let title = t.statementReadyMsg || 'Hisaab Statement';
     let description = 'View your account statement and hisaab details securely on BillGST.in';
     
     try {
@@ -26,21 +44,21 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
                 try { data = JSON.parse(data); } catch (e) {}
             }
             if (data && data.name) {
-                title = `Hisaab Statement - ${data.name}`;
+                title = `${title} - ${data.name}`;
                 
                 let c = 0, d = 0;
-                (data.txns || []).forEach((t: any) => {
-                    if (t.type === 'credit') c += t.amt;
-                    else d += t.amt;
+                (data.txns || []).forEach((txn: any) => {
+                    if (txn.type === 'credit') c += txn.amt;
+                    else d += txn.amt;
                 });
                 
                 const balance = data.balance || (c - d);
                 const netBal = Math.abs(balance);
                 const isNeg = balance < 0;
                 
-                const dueStr = isNeg ? `🔴 Dena Hai: ${fmt(netBal)}` : (balance > 0 ? `🟢 Advance: ${fmt(netBal)}` : `✅ Settled`);
-                const givenStr = `📈 Total Given: ${fmt(d)}`;
-                const rcvStr = `📉 Total Rcvd: ${fmt(c)}`;
+                const dueStr = isNeg ? `🔴 ${t.outstanding || 'Dena Hai'}: ${fmt(netBal)}` : (balance > 0 ? `🟢 ${t.advanceJamaHai || 'Advance'}: ${fmt(netBal)}` : `✅ Settled`);
+                const givenStr = `📈 ${t.totalGiven || 'Total Given'}: ${fmt(d)}`;
+                const rcvStr = `📉 ${t.totalToReceive || 'Total Rcvd'}: ${fmt(c)}`;
                 
                 description = `${dueStr} | ${givenStr} | ${rcvStr} \nClick to view full details and UPI payment option.`;
             }
