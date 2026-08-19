@@ -23,7 +23,7 @@
     --red:#f87171;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{
+  body{overflow-x:hidden;max-width:100%;
     background:radial-gradient(circle at 20% 0%, #17213e 0%, var(--bg-deep) 55%);
     min-height:100vh;
     font-family:'Inter',sans-serif;
@@ -51,7 +51,7 @@
 
   /* Income entry */
   .income-row{display:flex;gap:10px;align-items:center;}
-  .income-row input{
+  .income-row input{min-width:0;min-width:0;
     flex:1;
     background:var(--bg-deep);
     border:1px solid var(--card-border);
@@ -63,7 +63,7 @@
     outline:none;
   }
   .income-row input:focus{border-color:var(--gold);}
-  .btn-gold{
+  .btn-gold{white-space:normal;
     background:linear-gradient(135deg,var(--gold),#b8912a);
     color:#1a1400;
     border:none;
@@ -96,8 +96,9 @@
   .meter-caption{display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);}
 
   /* Add expense form */
-  .form-row{display:flex;gap:8px;margin-bottom:10px;}
-  select, .form-row input{
+  .form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:nowrap;}
+  @media (max-width:380px) { .form-row { flex-wrap:wrap; } .form-row input, .form-row select { width: 100%; flex: none !important; } }
+  select, .form-row input{min-width:0;min-width:0;
     background:var(--bg-deep);
     border:1px solid var(--card-border);
     border-radius:10px;
@@ -108,12 +109,12 @@
   }
   select{flex:1.3;}
   #catInput{flex:1.3;}
-  .form-row input{flex:1;}
+  .form-row input{min-width:0;flex:1;}
   #dateInput{
     width:100%;color-scheme:dark;
   }
   select:focus,.form-row input:focus{border-color:var(--indigo);}
-  .btn-indigo{
+  .btn-indigo{white-space:normal;
     width:100%;
     background:linear-gradient(135deg,var(--indigo),var(--purple));
     color:#fff;border:none;border-radius:10px;
@@ -207,7 +208,7 @@
 
   /* Savings Goal */
   .goal-input-row{display:flex;gap:8px;margin-bottom:12px;}
-  .goal-input-row input{
+  .goal-input-row input{min-width:0;min-width:0;
     flex:1;background:var(--bg-deep);border:1px solid var(--card-border);
     border-radius:10px;color:var(--text-main);padding:11px 12px;font-size:14px;outline:none;
   }
@@ -238,7 +239,7 @@
   .streak-box .l{font-size:11px;color:var(--text-mute);margin-top:2px;}
   .compare-input-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
   .compare-input-row label{font-size:12px;color:var(--text-mute);flex-shrink:0;}
-  .compare-input-row input{
+  .compare-input-row input{min-width:0;min-width:0;
     flex:1;background:var(--bg-deep);border:1px solid var(--card-border);
     border-radius:10px;color:var(--text-main);padding:9px 10px;font-size:13px;outline:none;
   }
@@ -250,7 +251,7 @@
   .compare-result.bad{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);}
 
   /* WhatsApp share */
-  .wa-btn{
+  .wa-btn{white-space:normal;
     width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
     background:linear-gradient(135deg,#25D366,#1fae53);
     color:#fff;border:none;border-radius:12px;padding:13px;
