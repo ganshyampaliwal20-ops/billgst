@@ -5,13 +5,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { signOut, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import {
+import { 
     FaFileInvoice, FaUsers, FaBox, FaChartBar,
     FaCog, FaBars, FaTimes, FaStore, FaSignOutAlt,
-    FaLanguage, FaReceipt, FaWallet, FaTruck, FaCalendarCheck, FaGift,
+    FaLanguage, FaReceipt,
     FaFileAlt, FaMoneyBillWave, FaFileContract, FaStar,
     FaInfoCircle, FaShieldAlt, FaChevronDown, FaChevronUp, FaRobot, FaIdCard, FaBookOpen, FaHeadset, FaBullhorn
-} from 'react-icons/fa';
+, FaWallet } from 'react-icons/fa';
 import { useStore } from '@/lib/store';
 import { normalizeRole, isOwnerRole, isAccountantRole, isAttendanceRole, isSalesRole, ROLE_ATTENDANCE, ROLE_ACCOUNTANT, ROLE_SALES, ROLE_ADMIN, ROLE_OWNER } from '@/lib/role-utils';
 import LanguageSelector from '@/app/components/LanguageSelector';
@@ -149,6 +149,7 @@ export default function DashboardLayout({
 
     if (canSeeAccounting) {
         menuItems.push({ icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' });
+    menuItems.push({ icon: FaWallet, label: 'Kharcha Tracker (New)', href: '/dashboard/kharcha-tracker' });
     }
 
     if (canSeeSales) {
@@ -227,168 +228,173 @@ export default function DashboardLayout({
 
             {/* Sidebar */}
             <aside
-                className={`absolute md:relative inset-y-0 left-0 z-[60] w-[260px] min-w-[260px] bg-white md:border-r border-[#e8e8e8] flex flex-col transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none overflow-hidden pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`absolute md:relative inset-y-0 left-0 z-[60] w-[82%] max-w-[300px] md:w-72 bg-white md:border-r border-slate-200 transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static shadow-2xl md:shadow-none rounded-r-[16px] md:rounded-none overflow-hidden pb-[env(safe-area-inset-bottom)] ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
             >
-                {/* sb-header */}
-                <div className="bg-[#1B5E3B] pt-[18px] px-[16px] pb-[14px]">
-                    {/* Mobile Close Button */}
-                    <button onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }} className="md:hidden absolute top-2 right-2 w-[28px] h-[28px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border border-white/10 z-20"><FaTimes size={12} /></button>
-
-                    <div className="flex items-center gap-[10px] cursor-pointer" onClick={() => { router.push('/dashboard'); setIsSidebarOpen(false); }}>
-                        <div className="w-[38px] h-[38px] rounded-[10px] bg-white/20 flex items-center justify-center overflow-hidden relative shrink-0">
-                            {businessProfile?.logo ? (
-                                <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
-                            ) : (
-                                <FaReceipt className="text-white text-[20px]" />
-                            )}
+                <div className="h-full flex flex-col">
+                    {/* Combined Header & Business Card - Professional Royal 3D Design */}
+                    <div className="relative mx-4 mt-6 mb-4 p-[2px] rounded-[20px] bg-gradient-to-b from-[#8E84F3] to-[#4235B8] shadow-[0_12px_28px_-6px_rgba(45,36,138,0.4)] group cursor-pointer" onClick={() => { router.push('/dashboard'); setIsSidebarOpen(false); }}>
+                        <div className="relative bg-gradient-to-br from-[#352B9C] to-[#1A1454] rounded-[18px] p-6 flex flex-col items-center text-center transition-all overflow-hidden border border-[#4A3DB5]/50">
+                            {/* Decorative background glow */}
+                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#8E84F3] rounded-full filter blur-[40px] opacity-20"></div>
+                            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#D1CFF8] rounded-full filter blur-[40px] opacity-10"></div>
+                            
+                            {/* 3D Logo Container */}
+                            <div className="w-[76px] h-[76px] rounded-[22px] bg-white flex items-center justify-center text-[#352B9C] text-[34px] overflow-hidden relative shadow-[0_8px_20px_rgba(0,0,0,0.3)] mb-4 border-[3px] border-[#8E84F3]/30 group-hover:scale-105 transition-transform duration-300 z-10">
+                                {businessProfile.logo ? (
+                                    <Image src={businessProfile.logo} alt="Logo" fill className="object-cover" />
+                                ) : (
+                                    <FaReceipt />
+                                )}
+                            </div>
+                            
+                            {/* Business Name replacing BillGST */}
+                            <div className="w-full relative z-10">
+                                <h2 className="text-[20px] font-extrabold text-white leading-tight truncate tracking-tight px-1" style={{ textShadow: '0px 3px 0px #2D248A, 0px 4px 6px rgba(0,0,0,0.5)' }}>
+                                    {businessProfile.name || 'Your Business'}
+                                </h2>
+                                <div className="text-[13px] text-[#C4BFF0] mt-1.5 flex items-center justify-center gap-1.5 font-medium">
+                                    {/* Text removed as requested */}
+                                </div>
+                            </div>
+                            
+                            {/* Mobile Close Button */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }}
+                                className="md:hidden absolute top-3 right-3 w-[32px] h-[32px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border border-white/10 z-20"
+                            >
+                                <FaTimes size={14} />
+                            </button>
                         </div>
-                        <div className="min-w-0">
-                            <div className="text-white text-[16px] font-bold truncate">{businessProfile?.name || 'BillGST'}</div>
-                            <div className="text-white/60 text-[11px] mt-[1px] truncate">GST & Non-GST Billing</div>
+                    </div>
+
+                    {/* Language row */}
+                    <div className="flex shrink-0 mb-5 mt-3 px-6">
+                        <LanguageSelector showLabel={true} />
+                    </div>
+
+                    {/* Menu Items Container */}
+                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-3 pt-2 pb-6 flex flex-col gap-[8px]">
+                        {/* Removed 'Menu' text */}
+                        
+                        {menuItems.filter(item => !item.isAuth).map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href));
+                            const hasSubItems = item.subItems && item.subItems.length > 0;
+
+                            if (hasSubItems) {
+                                return (
+                                    <div key={item.label} className="flex flex-col">
+                                        <button
+                                            onClick={() => setIsInvoiceOpen(!isInvoiceOpen)}
+                                            className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all w-full text-left
+                                                ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                        >
+                                            <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
+                                                ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
+                                                <Icon />
+                                            </div>
+                                            <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                            {isInvoiceOpen ? <FaChevronUp className="text-[#bbb] text-[13px]" /> : <FaChevronDown className="text-[#bbb] text-[13px]" />}
+                                        </button>
+
+                                        {isInvoiceOpen && (
+                                            <div className="flex flex-col gap-2 mt-2 px-2 py-3 bg-[#F4F3FF] rounded-[16px] border border-[#E4E1FA] shadow-inner mx-1">
+                                                {item.subItems?.map((sub) => {
+                                                    const SubIcon = sub.icon || FaFileAlt;
+                                                    const isSubActive = pathname === sub.href;
+                                                    return (
+                                                        <Link
+                                                            key={sub.href}
+                                                            href={sub.href}
+                                                            prefetch={true}
+                                                            onClick={() => setIsSidebarOpen(false)}
+                                                            className={`flex items-center gap-4 px-3 py-3 rounded-[12px] transition-all
+                                                                ${isSubActive ? 'bg-[#534AB7] text-white shadow-md transform scale-[1.02]' : 'bg-white hover:bg-[#EAE8FD] text-[#444] hover:text-[#3C3489] shadow-sm hover:shadow-md'}`}
+                                                        >
+                                                            <div className={`w-[36px] h-[36px] rounded-[10px] flex items-center justify-center text-[16px] shrink-0 transition-colors
+                                                                ${isSubActive ? 'bg-white/20 text-white' : 'bg-[#F4F3FF] text-[#534AB7]'}`}>
+                                                                <SubIcon />
+                                                            </div>
+                                                            <span className={`text-[15px] ${isSubActive ? 'font-bold' : 'font-semibold'}`}>{sub.label}</span>
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    prefetch={true}
+                                    onClick={(e) => {
+                                        setIsSidebarOpen(false);
+                                        if (item.onClick) {
+                                            if (item.href === '#') {
+                                                e.preventDefault();
+                                            }
+                                            item.onClick();
+                                        }
+                                    }}
+                                    className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                >
+                                    <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
+                                        <Icon />
+                                    </div>
+                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                </Link>
+                            );
+                        })}
+
+                        <div className="h-[1px] bg-[#ebebeb] mx-2 my-3" />
+
+                        {/* Auth / Bottom Items */}
+                        {menuItems.filter(item => item.isAuth).map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname === item.href;
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    prefetch={true}
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                >
+                                    <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
+                                        <Icon />
+                                    </div>
+                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                </Link>
+                            );
+                        })}
+
+                        {/* Additional Quick Action: Settings */}
+                        <div className="mt-4 px-3">
+                            <WorkspaceSwitcher />
                         </div>
+                    </nav>
+
+                    {/* Footer */}
+                    <div className="border-t-[0.5px] border-[#ebebeb] p-3 bg-white">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center justify-center gap-2 w-full p-2.5 rounded-[9px] bg-[#FCEBEB] border-[0.5px] border-[#F7C1C1] text-[#791F1F] text-[14px] font-medium transition-colors hover:bg-[#F7C1C1]"
+                        >
+                            <FaSignOutAlt /> Logout Safe
+                        </button>
+                        <p className="text-[10px] text-[#aaa] text-center mt-2 leading-[1.5]">
+                            BillGST ek private app hai, government entity nahi.<br />
+                            Official GST info ke liye <a href="https://gst.gov.in" target="_blank" className="text-[#534AB7] no-underline">gst.gov.in</a> dekhein.
+                        </p>
                     </div>
-                    
-                    <div className="mt-[12px] flex items-center gap-[9px] bg-white/10 rounded-[8px] py-[8px] px-[10px]">
-                        <div className="w-[28px] h-[28px] rounded-full bg-white/25 flex items-center justify-center text-[12px] font-bold text-white uppercase shrink-0">
-                            {(session?.user?.name || 'GJ').substring(0, 2)}
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-white text-[12px] font-bold truncate">{session?.user?.name || 'GJP'}</div>
-                            <div className="text-white/60 text-[11px] truncate">All India</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Language row */}
-                <div className="flex shrink-0 mb-1 mt-2 px-2">
-                    <LanguageSelector showLabel={true} />
-                </div>
-
-                {/* sb-nav */}
-                <nav className="flex-1 py-[10px] px-[8px] overflow-y-auto custom-scrollbar flex flex-col">
-                    
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px]">Main</div>
-                    {canSeeSales && (
-                        <Link href="/dashboard/invoices" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaFileInvoice className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.invoices || 'Invoices'}</span>
-                        </Link>
-                    )}
-                    {canSeeAccounting && (
-                        <>
-                        <Link href="/dashboard/expenses" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/expenses') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaWallet className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/expenses') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/expenses') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.expenses || 'Expenses'}</span>
-                        </Link>
-                            <Link href="/dashboard/kharcha-tracker" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith("/dashboard/kharcha-tracker") ? "bg-[#EAF4EE]" : "hover:bg-[#f5f5f5]"}`}>
-                                <FaWallet className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith("/dashboard/kharcha-tracker") ? "text-[#1B5E3B]" : "text-[#777]"}`} />
-                                <span className={`text-[16px] flex-1 truncate ${pathname.startsWith("/dashboard/kharcha-tracker") ? "text-[#1B5E3B] font-bold" : "text-[#333] font-medium"}`}>Kharcha Tracker (New)</span>
-                            </Link>
-                        </>
-                    )}
-                    {canSeeAccounting && (
-                        <Link href="/dashboard/purchases" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/purchases') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaReceipt className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/purchases') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/purchases') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>Purchases</span>
-                        </Link>
-                    )}
-
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">People</div>
-                    {canSeeSales && (
-                        <Link href="/dashboard/customers" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/customers') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaUsers className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/customers') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/customers') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.customers || 'Customers'}</span>
-                        </Link>
-                    )}
-                    {canSeeAccounting && (
-                        <Link href="/dashboard/suppliers" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/suppliers') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaTruck className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/suppliers') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/suppliers') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>Suppliers</span>
-                        </Link>
-                    )}
-                    {canSeeStaff && (
-                        <Link href="/dashboard/staff" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/staff') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaCalendarCheck className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/staff') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/staff') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>Attendance</span>
-                        </Link>
-                    )}
-
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">Business</div>
-                    {canSeeInventory && (
-                        <Link href="/dashboard/inventory" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/inventory') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                            <FaBox className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/inventory') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                            <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/inventory') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.inventory || 'Inventory'}</span>
-                        </Link>
-                    )}
-                    {canSeeAccounting && (
-                        <>
-                            <Link href="/dashboard/reports" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/reports') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                                <FaChartBar className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/reports') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                                <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/reports') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.reports || 'Reports'}</span>
-                            </Link>
-                            <Link href="/dashboard/gst-returns" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/gst-returns') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                                <FaFileContract className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/gst-returns') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                                <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/gst-returns') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.gstReturns || 'GST Returns'}</span>
-                            </Link>
-                        </>
-                    )}
-
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">More</div>
-                    
-                    <div onClick={() => { setIsSidebarOpen(false); setIsDemoNLPOpen(true); }} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors hover:bg-[#f5f5f5]`}>
-                        <FaRobot className="text-[22px] w-[28px] text-center text-[#777] shrink-0" />
-                        <span className="text-[16px] flex-1 truncate text-[#333] font-medium">Free AI Assistant</span>
-                    </div>
-                    
-                    {isOwner && (
-                        <>
-                            <Link href="/dashboard/pricing" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/pricing') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                                <FaStar className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/pricing') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                                <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/pricing') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.subscription || 'Subscription'}</span>
-                            </Link>
-                            <Link href="/dashboard/referral" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/referral') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                                <FaGift className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/referral') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                                <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/referral') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.referEarn || 'Refer and Earn'}</span>
-                            </Link>
-                        </>
-                    )}
-
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">Settings</div>
-                    <Link href="/dashboard/settings" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/settings') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                        <FaCog className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/settings') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                        <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/settings') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.settings || 'Business Settings'}</span>
-                    </Link>
-                    <Link href="/about" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/about') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                        <FaInfoCircle className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/about') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                        <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/about') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.aboutUs || 'About Us'}</span>
-                    </Link>
-                    <Link href="/privacy" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/privacy') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
-                        <FaShieldAlt className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/privacy') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
-                        <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/privacy') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.privacyPolicy || 'Privacy Policy'}</span>
-                    </Link>
-                    <div onClick={() => { setIsSidebarOpen(false); setSupportChatOpen(true); }} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors hover:bg-[#f5f5f5]`}>
-                        <FaHeadset className={`text-[22px] w-[28px] text-center shrink-0 text-[#777]`} />
-                        <span className={`text-[16px] flex-1 truncate text-[#333] font-medium`}>Support Inbox</span>
-                    </div>
-
-                    <div className="mt-4 px-2">
-                        <WorkspaceSwitcher />
-                    </div>
-                </nav>
-
-                {/* Footer */}
-                <div className="border-t border-[#f0f0f0] py-[10px] px-[8px] bg-white">
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer w-full mb-[10px] border-none bg-transparent hover:bg-[#FFEBEE] transition-colors group"
-                    >
-                        <FaSignOutAlt className="text-[#E53935] text-[17px]" />
-                        <span className="text-[13px] text-[#E53935] font-bold">Logout Safe</span>
-                    </button>
-                    <p className="text-[10px] text-[#aaa] text-center mt-2 leading-[1.5]">
-                        BillGST ek private app hai, government entity nahi.<br />
-                        Official GST info ke liye <a href="https://gst.gov.in" target="_blank" className="text-[#534AB7] no-underline">gst.gov.in</a> dekhein.
-                    </p>
                 </div>
             </aside>
 
