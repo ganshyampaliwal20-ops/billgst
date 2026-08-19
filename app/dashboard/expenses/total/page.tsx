@@ -10,7 +10,10 @@ import toast from 'react-hot-toast';
 
 export default function TotalExpensesPage() {
     const router = useRouter();
-    const { expenses, fetchExpenses, deleteExpense, settings } = useStore() as any;
+    const expenses = useStore((state: any) => state.expenses);
+    const fetchExpenses = useStore((state: any) => state.fetchExpenses);
+    const deleteExpense = useStore((state: any) => state.deleteExpense);
+    const settings = useStore((state: any) => state.settings);
     const [isClient, setIsClient] = useState(false);
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);

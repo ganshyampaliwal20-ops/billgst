@@ -10,7 +10,12 @@ import { optimizeImage } from '@/lib/utils';
 
 export default function StoreManagerPage() {
     const router = useRouter();
-    const { businessProfile, products, updateProduct, fetchBusinessProfile, fetchProducts, saveBusinessProfile } = useStore() as any;
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const products = useStore((state: any) => state.products);
+    const updateProduct = useStore((state: any) => state.updateProduct);
+    const fetchBusinessProfile = useStore((state: any) => state.fetchBusinessProfile);
+    const fetchProducts = useStore((state: any) => state.fetchProducts);
+    const saveBusinessProfile = useStore((state: any) => state.saveBusinessProfile);
     const [isClient, setIsClient] = useState(false);
 
     // States for Store Settings

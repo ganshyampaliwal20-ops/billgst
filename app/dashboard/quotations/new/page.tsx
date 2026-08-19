@@ -9,7 +9,11 @@ import { FaSave, FaPlus, FaTrash, FaFileInvoice, FaCalculator, FaUser, FaPhone, 
 
 export default function NewQuotationPage() {
     const router = useRouter();
-    const { addQuotation, businessProfile, products, fetchProducts, fetchQuotations } = useStore() as any;
+    const addQuotation = useStore((state: any) => state.addQuotation);
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const products = useStore((state: any) => state.products);
+    const fetchProducts = useStore((state: any) => state.fetchProducts);
+    const fetchQuotations = useStore((state: any) => state.fetchQuotations);
     
     const generateQuoNumber = () => {
         const now = new Date();

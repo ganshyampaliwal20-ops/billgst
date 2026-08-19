@@ -8,7 +8,9 @@ import { useStore } from '@/lib/store';
 
 export default function NewExpensePage() {
     const router = useRouter();
-    const { addExpense, aiDraftData, setAiDraftData } = useStore();
+    const addExpense = useStore((state) => state.addExpense);
+    const aiDraftData = useStore((state) => state.aiDraftData);
+    const setAiDraftData = useStore((state) => state.setAiDraftData);
     const [formData, setFormData] = useState({
         category: 'Office Supplies',
         description: '',

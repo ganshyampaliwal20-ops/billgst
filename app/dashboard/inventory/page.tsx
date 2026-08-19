@@ -14,7 +14,17 @@ import { optimizeImage } from "@/lib/utils";
 
 export default function InventoryPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, deleteProduct, fetchProducts, businessProfile, settings, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore() as any;
+    const products = useStore((state: any) => state.products);
+    const addProduct = useStore((state: any) => state.addProduct);
+    const updateProduct = useStore((state: any) => state.updateProduct);
+    const deleteProduct = useStore((state: any) => state.deleteProduct);
+    const fetchProducts = useStore((state: any) => state.fetchProducts);
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const settings = useStore((state: any) => state.settings);
+    const aiDraftData = useStore((state: any) => state.aiDraftData);
+    const setAiDraftData = useStore((state: any) => state.setAiDraftData);
+    const updateAiCopilotStep = useStore((state: any) => state.updateAiCopilotStep);
+    const completeAiCopilotAction = useStore((state: any) => state.completeAiCopilotAction);
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
     const [showProfit, setShowProfit] = useState(true);

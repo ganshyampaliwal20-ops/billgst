@@ -21,7 +21,9 @@ export default function Navbar3D() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
-    const { businessProfile, settings, resetStore } = useStore();
+    const businessProfile = useStore((state) => state.businessProfile);
+    const settings = useStore((state) => state.settings);
+    const resetStore = useStore((state) => state.resetStore);
 
     useEffect(() => {
         const handleScroll = () => {

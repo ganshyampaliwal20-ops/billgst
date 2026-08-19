@@ -8,7 +8,8 @@ import { toast } from 'react-hot-toast';
 
 export default function AIChat() {
     const router = useRouter();
-    const { aiChatOpen: isOpen, setAiChatOpen: setIsOpen } = useStore();
+    const isOpen = useStore((state) => state.aiChatOpen);
+    const setIsOpen = useStore((state) => state.setAiChatOpen);
     const [isHidden, setIsHidden] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [messages, setMessages] = useState([

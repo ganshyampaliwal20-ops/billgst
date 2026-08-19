@@ -8,7 +8,8 @@ import { useStore } from '@/lib/store';
 
 export default function NewPurchasePage() {
     const router = useRouter();
-    const { aiDraftData, setAiDraftData } = useStore() as any;
+    const aiDraftData = useStore((state: any) => state.aiDraftData);
+    const setAiDraftData = useStore((state: any) => state.setAiDraftData);
     const [isClient, setIsClient] = useState(false);
     
     // Data sources

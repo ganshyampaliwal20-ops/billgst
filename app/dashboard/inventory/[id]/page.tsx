@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 export default function ProductDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const { products } = useStore();
+    const products = useStore((state) => state.products);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {

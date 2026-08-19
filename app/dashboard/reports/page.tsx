@@ -15,7 +15,14 @@ import { drawFreeBranding } from '../../../lib/pdf-generator';
 function ReportsContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { getAnalytics, fetchInvoices, invoices, customers, settings, fetchExpenses, expenses, businessProfile } = useStore() as any;
+    const getAnalytics = useStore((state: any) => state.getAnalytics);
+    const fetchInvoices = useStore((state: any) => state.fetchInvoices);
+    const invoices = useStore((state: any) => state.invoices);
+    const customers = useStore((state: any) => state.customers);
+    const settings = useStore((state: any) => state.settings);
+    const fetchExpenses = useStore((state: any) => state.fetchExpenses);
+    const expenses = useStore((state: any) => state.expenses);
+    const businessProfile = useStore((state: any) => state.businessProfile);
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('This Month');
     const t = getTranslations(settings?.language || 'en');

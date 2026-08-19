@@ -8,7 +8,8 @@ import { useStore } from '../../../../lib/store';
 
 export default function CategoryExpensesPage() {
     const router = useRouter();
-    const { expenses, fetchExpenses } = useStore() as any;
+    const expenses = useStore((state: any) => state.expenses);
+    const fetchExpenses = useStore((state: any) => state.fetchExpenses);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {

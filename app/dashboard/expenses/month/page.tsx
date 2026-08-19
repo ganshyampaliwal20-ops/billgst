@@ -9,7 +9,9 @@ import toast from 'react-hot-toast';
 
 export default function MonthExpensesPage() {
     const router = useRouter();
-    const { expenses, fetchExpenses, deleteExpense } = useStore() as any;
+    const expenses = useStore((state: any) => state.expenses);
+    const fetchExpenses = useStore((state: any) => state.fetchExpenses);
+    const deleteExpense = useStore((state: any) => state.deleteExpense);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {

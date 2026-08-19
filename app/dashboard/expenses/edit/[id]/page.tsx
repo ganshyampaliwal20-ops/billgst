@@ -9,7 +9,9 @@ import toast from 'react-hot-toast';
 
 export default function EditExpensePage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
-    const { expenses, updateExpense, fetchExpenses } = useStore();
+    const expenses = useStore((state) => state.expenses);
+    const updateExpense = useStore((state) => state.updateExpense);
+    const fetchExpenses = useStore((state) => state.fetchExpenses);
 
     // Unwrap params in Next.js 15+ compatible way
     const { id } = use(params);

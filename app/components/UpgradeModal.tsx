@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { FaCrown, FaTimes } from 'react-icons/fa';
 
 export default function UpgradeModal() {
-    const { upgradeModal, setUpgradeModal } = useStore();
+    const upgradeModal = useStore((state) => state.upgradeModal);
+    const setUpgradeModal = useStore((state) => state.setUpgradeModal);
     const router = useRouter();
 
     if (!upgradeModal?.isOpen) return null;

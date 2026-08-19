@@ -11,7 +11,18 @@ import { useDebounce } from '@/lib/useDebounce';
 
 export default function CustomersPage() {
     const router = useRouter();
-    const { customers, invoices, addCustomer, updateCustomer, deleteCustomer, businessProfile, settings, fetchCustomers, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore() as any;
+    const customers = useStore((state: any) => state.customers);
+    const invoices = useStore((state: any) => state.invoices);
+    const addCustomer = useStore((state: any) => state.addCustomer);
+    const updateCustomer = useStore((state: any) => state.updateCustomer);
+    const deleteCustomer = useStore((state: any) => state.deleteCustomer);
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const settings = useStore((state: any) => state.settings);
+    const fetchCustomers = useStore((state: any) => state.fetchCustomers);
+    const aiDraftData = useStore((state: any) => state.aiDraftData);
+    const setAiDraftData = useStore((state: any) => state.setAiDraftData);
+    const updateAiCopilotStep = useStore((state: any) => state.updateAiCopilotStep);
+    const completeAiCopilotAction = useStore((state: any) => state.completeAiCopilotAction);
     const [isClient, setIsClient] = useState(false);
     const t = getTranslations(settings?.language || 'en');
 

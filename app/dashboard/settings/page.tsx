@@ -34,7 +34,11 @@ const MODULES = [
 ];
 
 export default function SettingsPage() {
-    const { businessProfile, updateProfile, saveBusinessProfile, settings, updateSettings } = useStore();
+    const businessProfile = useStore((state) => state.businessProfile);
+    const updateProfile = useStore((state) => state.updateProfile);
+    const saveBusinessProfile = useStore((state) => state.saveBusinessProfile);
+    const settings = useStore((state) => state.settings);
+    const updateSettings = useStore((state) => state.updateSettings);
     const [formData, setFormData] = useState<any>({});
     const [localSettings, setLocalSettings] = useState<any>({});
     const [isClient, setIsClient] = useState(false);

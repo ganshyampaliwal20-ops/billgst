@@ -14,11 +14,17 @@ import RegistrationPopup from './RegistrationPopup';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
-    const {
-        invoices, customers, products, businessProfile, settings,
-        getAnalytics, getTopProducts,
-        fetchCustomers, fetchProducts, fetchInvoices, fetchBusinessProfile
-    } = useStore() as any;
+        const invoices = useStore((state: any) => state.invoices);
+    const customers = useStore((state: any) => state.customers);
+    const products = useStore((state: any) => state.products);
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const settings = useStore((state: any) => state.settings);
+    const getAnalytics = useStore((state: any) => state.getAnalytics);
+    const getTopProducts = useStore((state: any) => state.getTopProducts);
+    const fetchCustomers = useStore((state: any) => state.fetchCustomers);
+    const fetchProducts = useStore((state: any) => state.fetchProducts);
+    const fetchInvoices = useStore((state: any) => state.fetchInvoices);
+    const fetchBusinessProfile = useStore((state: any) => state.fetchBusinessProfile);
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('monthly');
     const [customRange, setCustomRange] = useState({ start: '', end: '' });
@@ -140,13 +146,13 @@ export default function DashboardPage() {
             const bannerDismissed = localStorage.getItem('setupBannerDismissed');
             if (bannerDismissed) setShowSetupBanner(false);
         } catch (e) { /* ignore */ }
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        // setInterval removed
         fetchCustomers();
         fetchProducts();
         fetchInvoices();
         fetchBusinessProfile();
         fetchAutoReminders();
-        return () => clearInterval(timer);
+        // clearInterval removed
     }, []);
 
     useEffect(() => {

@@ -137,7 +137,11 @@ export default function BusinessExpensesPage() {
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
-    const { businessProfile, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore();
+        const businessProfile = useStore((state: any) => state.businessProfile);
+    const aiDraftData = useStore((state: any) => state.aiDraftData);
+    const setAiDraftData = useStore((state: any) => state.setAiDraftData);
+    const updateAiCopilotStep = useStore((state: any) => state.updateAiCopilotStep);
+    const completeAiCopilotAction = useStore((state: any) => state.completeAiCopilotAction);
 
     // Drawer / Modals
     const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);

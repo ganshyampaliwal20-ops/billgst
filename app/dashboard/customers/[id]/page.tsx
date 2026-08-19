@@ -13,7 +13,13 @@ export default function CustomerDetailPage() {
     const { id } = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { customers, invoices, fetchInvoices, fetchCustomers, updateCustomer, businessProfile, settings } = useStore() as any;
+    const customers = useStore((state: any) => state.customers);
+    const invoices = useStore((state: any) => state.invoices);
+    const fetchInvoices = useStore((state: any) => state.fetchInvoices);
+    const fetchCustomers = useStore((state: any) => state.fetchCustomers);
+    const updateCustomer = useStore((state: any) => state.updateCustomer);
+    const businessProfile = useStore((state: any) => state.businessProfile);
+    const settings = useStore((state: any) => state.settings);
     const t = getTranslations(settings?.language || 'en');
     const [isClient, setIsClient] = useState(false);
 

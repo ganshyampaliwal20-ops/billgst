@@ -82,7 +82,10 @@ const scannerTranslations: any = {
 
 export default function SmartAddPage() {
     const router = useRouter();
-    const { products, addProduct, updateProduct, settings } = useStore() as any;
+    const products = useStore((state: any) => state.products);
+    const addProduct = useStore((state: any) => state.addProduct);
+    const updateProduct = useStore((state: any) => state.updateProduct);
+    const settings = useStore((state: any) => state.settings);
     const lang = settings?.language || 'en';
     const st = scannerTranslations[lang] || scannerTranslations.en;
     

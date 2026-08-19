@@ -6,7 +6,8 @@ import { FaLanguage, FaCheck } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
 
 export default function LanguageSelector({ showLabel = true }: { showLabel?: boolean }) {
-    const { settings, updateSettings } = useStore();
+    const settings = useStore((state) => state.settings);
+    const updateSettings = useStore((state) => state.updateSettings);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 

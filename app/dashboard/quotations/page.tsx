@@ -11,7 +11,10 @@ import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
 
 export default function QuotationsPage() {
     const router = useRouter();
-    const { quotations, fetchQuotations, updateQuotation, businessProfile } = useStore();
+    const quotations = useStore((state) => state.quotations);
+    const fetchQuotations = useStore((state) => state.fetchQuotations);
+    const updateQuotation = useStore((state) => state.updateQuotation);
+    const businessProfile = useStore((state) => state.businessProfile);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('all');
     const [openCards, setOpenCards] = useState<string[]>([]);

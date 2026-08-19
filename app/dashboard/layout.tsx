@@ -41,7 +41,14 @@ export default function DashboardLayout({
     const { data: session, status } = useSession();
 
     // Get store values
-    const { businessProfile, resetStore, fetchBusinessProfile, settings, setAiChatOpen, setSupportChatOpen, fetchStaff, fetchAttendance } = useStore();
+        const businessProfile = useStore(state => state.businessProfile);
+    const resetStore = useStore(state => state.resetStore);
+    const fetchBusinessProfile = useStore(state => state.fetchBusinessProfile);
+    const settings = useStore(state => state.settings);
+    const setAiChatOpen = useStore(state => state.setAiChatOpen);
+    const setSupportChatOpen = useStore(state => state.setSupportChatOpen);
+    const fetchStaff = useStore(state => state.fetchStaff);
+    const fetchAttendance = useStore(state => state.fetchAttendance);
 
     useEffect(() => {
         setIsMounted(true);

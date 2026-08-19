@@ -15,7 +15,19 @@ export default function SmartAttendance() {
     const { data: session } = useSession();
     const userRole = (session?.user as any)?.role || 'USER';
     const isOwnerOrAccountant = userRole === 'USER' || userRole === 'OWNER' || userRole === 'ADMIN' || userRole === 'ACCOUNTANT';
-    const { staff, attendance, businessProfile, fetchStaff, fetchAttendance, addStaff, updateStaff, markAttendance, deleteStaff, aiDraftData, setAiDraftData, updateAiCopilotStep, completeAiCopilotAction } = useStore();
+    const staff = useStore((state) => state.staff);
+    const attendance = useStore((state) => state.attendance);
+    const businessProfile = useStore((state) => state.businessProfile);
+    const fetchStaff = useStore((state) => state.fetchStaff);
+    const fetchAttendance = useStore((state) => state.fetchAttendance);
+    const addStaff = useStore((state) => state.addStaff);
+    const updateStaff = useStore((state) => state.updateStaff);
+    const markAttendance = useStore((state) => state.markAttendance);
+    const deleteStaff = useStore((state) => state.deleteStaff);
+    const aiDraftData = useStore((state) => state.aiDraftData);
+    const setAiDraftData = useStore((state) => state.setAiDraftData);
+    const updateAiCopilotStep = useStore((state) => state.updateAiCopilotStep);
+    const completeAiCopilotAction = useStore((state) => state.completeAiCopilotAction);
     const [isClient, setIsClient] = useState(false);
     const [aiHighlightedStaffId, setAiHighlightedStaffId] = useState<string | null>(null);
 
