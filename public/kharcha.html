@@ -566,12 +566,214 @@ let streak = 3; // demo streak — real app mein ye backend se aayega based on m
 let donutGrown = false;
 let allGoodFired = false;
 let recurringItems = []; // {name, cat, icon, color, amt}
-let budgets = {}; // {catName: amount}
+let budgets = {};
+
+// Persistence Logic
+const DB_KEY = 'kharcha-db';
+function saveData() {
+  localStorage.setItem(DB_KEY, JSON.stringify({
+    income, expenses, savingsGoal, recurringItems, budgets, prevMonthExpense: document.getElementById('prevMonthInput')?.value
+  }));
+}
+function loadData() {
+  const data = JSON.parse(localStorage.getItem(DB_KEY) || 'null');
+  if (data) {
+    income = data.income || 0;
+    expenses = data.expenses || [];
+    savingsGoal = data.savingsGoal || 0;
+    recurringItems = data.recurringItems || [];
+    budgets = data.budgets || {};
+    if (data.prevMonthExpense && document.getElementById('prevMonthInput')) {
+      document.getElementById('prevMonthInput').value = data.prevMonthExpense;
+    }
+  }
+}
+loadData();
+
+// Translate DOM based on parent language
+const storeStr = localStorage.getItem('billgst-storage');
+let lang = 'en';
+if (storeStr) {
+  try { lang = JSON.parse(storeStr).state.settings.language || 'en'; } catch(e){}
+}
+
+const translations = {
+  'en': {
+    'Kharcha Tracker': 'Expense Tracker',
+    'Salary/Income add karein, phir har kharcha category ke saath — pata chalega paisa kahan ja raha hai.': 'Add your Salary/Income, then add expenses by category to track where your money goes.',
+    'Is mahine ki Income / Salary': 'This Month\'s Income / Salary',
+    'Add Karein': 'Add',
+    'Aayi': 'Income',
+    'Kharch Hui': 'Spent',
+    'Bachi': 'Saved',
+    'Naya Kharcha Add Karein': 'Add New Expense',
+    '+ Kharcha Jodo': '+ Add Expense',
+    'Fixed Mahine Ke Kharche': 'Fixed Monthly Expenses',
+    'Dukan kiraya, bijli bill jaise fix kharche ek baar set karein, har mahine khud add ho jaayenge': 'Set fixed expenses like shop rent, electricity bill once, they will be added automatically every month',
+    '+ Fixed Kharcha Jodo': '+ Add Fixed Expense',
+    'Kharcha Kahan Ho Raha Hai': 'Where is the money going',
+    'Total Kharcha': 'Total Expense',
+    'Abhi tak koi kharcha add nahi hua': 'No expenses added yet',
+    'AI Sujhav': 'AI Suggestions',
+    'Kaha zyada kharcha ho raha hai, kaha kam karein': 'Where you are spending more, where to cut down',
+    'Sabse Zyada Kharcha Yahan': 'Highest Expense Here',
+    'Yahan Kam Karke Bacha Sakte Hain': 'Save by reducing here',
+    'Savings Goal': 'Savings Goal',
+    'Set Karein': 'Set Goal',
+    'Abhi tak bachaya:': 'Saved so far:',
+    'Goal:': 'Goal:',
+    'Badhai ho! Goal achieve kar liya': 'Congratulations! Goal achieved',
+    'Mahine Ki Tulna': 'Monthly Comparison',
+    'Bachat Streak (mahine)': 'Saving Streak (months)',
+    'Farak Pichle Mahine Se': 'Difference from Last Month',
+    'Pichle mahine ka kharcha': 'Last month\'s expense',
+    'Apni Bachat Share Karein': 'Share Your Savings',
+    'Apni family ya khud ko WhatsApp pe bachat ka summary bhejein': 'Send a summary of savings to your family or yourself on WhatsApp',
+    'WhatsApp Par Share Karein': 'Share on WhatsApp',
+    'Budget Alert': 'Budget Alert',
+    'Category ka budget set karein, 80% paar hote hi warning milegi': 'Set budget for category, get warned at 80%',
+    'Budget Set Karein': 'Set Budget',
+    'Saal Bhar Ka Hisaab': 'Yearly Projection',
+    'Is raftar se, saal bhar mein itni bachat ho sakti hai': 'At this rate, you can save this much in a year',
+    'Aapki Uplabdhiyan (Badges)': 'Your Achievements (Badges)',
+    'Din-Wise Kharcha': 'Day-Wise Expense',
+    'Kam': 'Low',
+    'Zyada': 'High',
+    'Report Download Karein': 'Download Report',
+    'Poora mahine ka hisaab ek PDF report mein — record ya CA ko dikhane ke liye': 'Full month\'s account in a PDF report — for record or CA',
+    'PDF Report Download Karein': 'Download PDF Report',
+    '₹ Amount daalein': '₹ Enter Amount',
+    'Category likhein ya chunein': 'Type or select category',
+    '₹ Amount': '₹ Amount',
+    'Naam (jaise: Dukan Kiraya)': 'Name (e.g., Shop Rent)',
+    'Kitna bachana hai is mahine? (₹)': 'How much to save this month? (₹)',
+    '₹ amount': '₹ amount',
+    'Category': 'Category',
+    '₹ Budget': '₹ Budget',
+    'Dukan Kharcha': 'Shop Expense',
+    'Ghar Kharcha': 'Home Expense',
+    'Transport': 'Transport',
+    'Khana-Peena': 'Food & Drinks',
+    'Bijli-Pani': 'Electricity & Water',
+    'Stock/Maal': 'Inventory/Stock',
+    'Aur': 'Other'
+  },
+  'gu': {
+    'Kharcha Tracker': 'ખર્ચ ટ્રેકર',
+    'Is mahine ki Income / Salary': 'આ મહિનાની આવક / પગાર',
+    'Add Karein': 'ઉમેરો',
+    'Aayi': 'આવી',
+    'Kharch Hui': 'ખર્ચાયેલ',
+    'Bachi': 'બચત',
+    'Naya Kharcha Add Karein': 'નવો ખર્ચ ઉમેરો',
+    '+ Kharcha Jodo': '+ ખર્ચ ઉમેરો',
+    'Fixed Mahine Ke Kharche': 'ચોક્કસ માસિક ખર્ચ',
+    '+ Fixed Kharcha Jodo': '+ નિશ્ચિત ખર્ચ ઉમેરો',
+    'Kharcha Kahan Ho Raha Hai': 'પૈસા ક્યાં ખર્ચાય છે',
+    'Total Kharcha': 'કુલ ખર્ચ',
+    'Abhi tak koi kharcha add nahi hua': 'હજુ કોઈ ખર્ચ ઉમેર્યો નથી',
+    'AI Sujhav': 'AI સૂચનો',
+    'Sabse Zyada Kharcha Yahan': 'અહીં સૌથી વધુ ખર્ચ',
+    'Yahan Kam Karke Bacha Sakte Hain': 'અહીં ઘટાડીને બચાવી શકો છો',
+    'Savings Goal': 'બચત લક્ષ્ય',
+    'Set Karein': 'સેટ કરો',
+    'Mahine Ki Tulna': 'માસિક સરખામણી',
+    'Pichle mahine ka kharcha': 'ગયા મહિનાનો ખર્ચ',
+    'WhatsApp Par Share Karein': 'WhatsApp પર શેર કરો',
+    'Budget Alert': 'બજેટ એલર્ટ',
+    'Budget Set Karein': 'બજેટ સેટ કરો',
+    'Saal Bhar Ka Hisaab': 'વાર્ષિક અંદાજ',
+    'Aapki Uplabdhiyan (Badges)': 'તમારી સિદ્ધિઓ',
+    'Din-Wise Kharcha': 'દિવસ મુજબનો ખર્ચ',
+    'PDF Report Download Karein': 'PDF રિપોર્ટ ડાઉનલોડ કરો',
+    '₹ Amount daalein': '₹ રકમ દાખલ કરો',
+    'Category likhein ya chunein': 'કેટેગરી પસંદ કરો',
+    'Naam (jaise: Dukan Kiraya)': 'નામ (દા.ત. દુકાન ભાડું)',
+    'Kitna bachana hai is mahine? (₹)': 'આ મહિને કેટલું બચાવવું છે? (₹)',
+    'Dukan Kharcha': 'દુકાનનો ખર્ચ',
+    'Ghar Kharcha': 'ઘરનો ખર્ચ',
+    'Transport': 'પરિવહન',
+    'Khana-Peena': 'ખાણીપીણી',
+    'Bijli-Pani': 'વીજળી અને પાણી',
+    'Stock/Maal': 'સ્ટોક/માલ',
+    'Aur': 'અન્ય'
+  },
+  'mr': {
+    "Kharcha Tracker": "खर्च ट्रॅकर",
+    "Is mahine ki Income / Salary": "या महिन्याचे उत्पन्न / पगार",
+    "Add Karein": "जोडा",
+    "Aayi": "आले",
+    "Kharch Hui": "खर्च झाले",
+    "Bachi": "उरले",
+    "Naya Kharcha Add Karein": "नवीन खर्च जोडा",
+    "+ Kharcha Jodo": "+ खर्च जोडा",
+    "Fixed Mahine Ke Kharche": "ठराविक मासिक खर्च",
+    "+ Fixed Kharcha Jodo": "+ निश्चित खर्च जोडा",
+    "Kharcha Kahan Ho Raha Hai": "पैसे कुठे खर्च होत आहेत",
+    "Total Kharcha": "एकूण खर्च",
+    "Abhi tak koi kharcha add nahi hua": "अद्याप कोणताही खर्च जोडलेला नाही",
+    "AI Sujhav": "AI सूचना",
+    "Sabse Zyada Kharcha Yahan": "येथे सर्वाधिक खर्च",
+    "Yahan Kam Karke Bacha Sakte Hain": "येथे कमी करून वाचवू शकता",
+    "Savings Goal": "बचत ध्येय",
+    "Set Karein": "सेट करा",
+    "Mahine Ki Tulna": "मासिक तुलना",
+    "Pichle mahine ka kharcha": "मागील महिन्याचा खर्च",
+    "WhatsApp Par Share Karein": "WhatsApp वर शेअर करा",
+    "Budget Alert": "बजेट अलर्ट",
+    "Budget Set Karein": "बजेट सेट करा",
+    "Saal Bhar Ka Hisaab": "वार्षिक अंदाज",
+    "Aapki Uplabdhiyan (Badges)": "तुमची कृत्ये (बॅजेस)",
+    "Din-Wise Kharcha": "दिवसानुसार खर्च",
+    "PDF Report Download Karein": "PDF रिपोर्ट डाउनलोड करा",
+    "₹ Amount daalein": "₹ रक्कम टाका",
+    "Category likhein ya chunein": "कॅटेगरी निवडा",
+    "Naam (jaise: Dukan Kiraya)": "नाव (उदा. दुकान भाडे)",
+    "Kitna bachana hai is mahine? (₹)": "या महिन्यात किती वाचवायचे? (₹)",
+    "Dukan Kharcha": "दुकान खर्च",
+    "Ghar Kharcha": "घर खर्च",
+    "Transport": "वाहतूक",
+    "Khana-Peena": "खाद्यपेय",
+    "Bijli-Pani": "वीज आणि पाणी",
+    "Stock/Maal": "स्टॉक/माल",
+    "Aur": "इतर"
+}
+};
+
+function translateDOM(lang) {
+  if (lang === 'hi' || !translations[lang]) return;
+  const dict = translations[lang];
+
+  const walk = (node) => {
+    if (node.nodeType === 3) {
+      const text = node.nodeValue.trim();
+      if (text && dict[text]) node.nodeValue = node.nodeValue.replace(text, dict[text]);
+    } else if (node.nodeType === 1) {
+      if (node.placeholder && dict[node.placeholder]) node.placeholder = dict[node.placeholder];
+      if (node.tagName === 'OPTION' && dict[node.value]) node.value = dict[node.value];
+      for (let i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+    }
+  };
+  walk(document.body);
+}
+
+// Call translateDOM when document is ready
+document.addEventListener("DOMContentLoaded", () => {
+    translateDOM(lang);
+});
+
+// Update render and input functions to save data
+const _render = render;
+render = function() {
+  _render();
+  saveData();
+};
+
 
 function setIncome(){
   const v = parseFloat(document.getElementById('incomeInput').value);
   if(!v || v<=0) return;
-  income = v;
+  income += v;
   document.getElementById('incomeInput').value='';
   render();
 }
@@ -978,7 +1180,10 @@ function downloadReport(){
     y += 6;
   });
 
-  doc.save('kharcha-report-'+todayStr()+'.pdf');
+  
+  const pdfBase64 = doc.output('datauristring');
+  window.parent.postMessage({ type: 'DOWNLOAD_KHARCHA_PDF', base64: pdfBase64, filename: 'kharcha-report-'+todayStr()+'.pdf' }, '*');
+
 }
 
 function setGoal(){
@@ -1002,6 +1207,7 @@ function renderGoal(totalSpent){
 }
 
 function renderComparison(){
+  saveData();
   const totalSpent = expenses.reduce((s,e)=>s+e.amt,0);
   document.getElementById('streakVal').textContent = '🔥 '+streak;
   const prevInput = document.getElementById('prevMonthInput');
