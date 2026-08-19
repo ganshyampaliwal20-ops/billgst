@@ -267,106 +267,106 @@ export default function DashboardLayout({
                 {/* sb-nav */}
                 <nav className="flex-1 py-[10px] px-[8px] overflow-y-auto custom-scrollbar flex flex-col">
                     
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[16px] px-[12px] pb-[8px]">Main</div>
+                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px]">Main</div>
                     {canSeeSales && (
-                        <Link href="/dashboard/invoices" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/invoices" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaFileInvoice className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/invoices') || pathname.startsWith('/dashboard/quotations') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.invoices || 'Invoices'}</span>
                         </Link>
                     )}
                     {canSeeAccounting && (
                         <>
-                        <Link href="/dashboard/expenses" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/expenses') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/expenses" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/expenses') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaWallet className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/expenses') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/expenses') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.expenses || 'Expenses'}</span>
                         </Link>
-                            <Link href="/dashboard/kharcha-tracker" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith("/dashboard/kharcha-tracker") ? "bg-[#EAF4EE]" : "hover:bg-[#f5f5f5]"}`}>
+                            <Link href="/dashboard/kharcha-tracker" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith("/dashboard/kharcha-tracker") ? "bg-[#EAF4EE]" : "hover:bg-[#f5f5f5]"}`}>
                                 <FaWallet className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith("/dashboard/kharcha-tracker") ? "text-[#1B5E3B]" : "text-[#777]"}`} />
                                 <span className={`text-[16px] flex-1 truncate ${pathname.startsWith("/dashboard/kharcha-tracker") ? "text-[#1B5E3B] font-bold" : "text-[#333] font-medium"}`}>Kharcha Tracker (New)</span>
                             </Link>
                         </>
                     )}
                     {canSeeAccounting && (
-                        <Link href="/dashboard/purchases" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/purchases') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/purchases" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/purchases') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaReceipt className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/purchases') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/purchases') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>Purchases</span>
                         </Link>
                     )}
 
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[16px] px-[12px] pb-[8px] mt-[4px]">People</div>
+                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">People</div>
                     {canSeeSales && (
-                        <Link href="/dashboard/customers" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/customers') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/customers" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/customers') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaUsers className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/customers') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/customers') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.customers || 'Customers'}</span>
                         </Link>
                     )}
                     {canSeeAccounting && (
-                        <Link href="/dashboard/suppliers" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/suppliers') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/suppliers" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/suppliers') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaTruck className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/suppliers') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/suppliers') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>Suppliers</span>
                         </Link>
                     )}
                     {canSeeStaff && (
-                        <Link href="/dashboard/staff" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/staff') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/staff" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/staff') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaCalendarCheck className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/staff') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/staff') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>Attendance</span>
                         </Link>
                     )}
 
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[16px] px-[12px] pb-[8px] mt-[4px]">Business</div>
+                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">Business</div>
                     {canSeeInventory && (
-                        <Link href="/dashboard/inventory" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/inventory') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                        <Link href="/dashboard/inventory" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/inventory') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaBox className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/inventory') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/inventory') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.inventory || 'Inventory'}</span>
                         </Link>
                     )}
                     {canSeeAccounting && (
                         <>
-                            <Link href="/dashboard/reports" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/reports') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                            <Link href="/dashboard/reports" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/reports') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                                 <FaChartBar className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/reports') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                                 <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/reports') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.reports || 'Reports'}</span>
                             </Link>
-                            <Link href="/dashboard/gst-returns" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/gst-returns') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                            <Link href="/dashboard/gst-returns" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/gst-returns') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                                 <FaFileContract className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/gst-returns') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                                 <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/gst-returns') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.gstReturns || 'GST Returns'}</span>
                             </Link>
                         </>
                     )}
 
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[16px] px-[12px] pb-[8px] mt-[4px]">More</div>
+                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">More</div>
                     
-                    <div onClick={() => { setIsSidebarOpen(false); setIsDemoNLPOpen(true); }} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors hover:bg-[#f5f5f5]`}>
+                    <div onClick={() => { setIsSidebarOpen(false); setIsDemoNLPOpen(true); }} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors hover:bg-[#f5f5f5]`}>
                         <FaRobot className="text-[22px] w-[28px] text-center text-[#777] shrink-0" />
                         <span className="text-[16px] flex-1 truncate text-[#333] font-medium">Free AI Assistant</span>
                     </div>
                     
                     {isOwner && (
                         <>
-                            <Link href="/dashboard/pricing" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/pricing') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                            <Link href="/dashboard/pricing" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/pricing') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                                 <FaStar className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/pricing') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                                 <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/pricing') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.subscription || 'Subscription'}</span>
                             </Link>
-                            <Link href="/dashboard/referral" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/referral') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                            <Link href="/dashboard/referral" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/referral') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                                 <FaGift className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/referral') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                                 <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/referral') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.referEarn || 'Refer and Earn'}</span>
                             </Link>
                         </>
                     )}
 
-                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[16px] px-[12px] pb-[8px] mt-[4px]">Settings</div>
-                    <Link href="/dashboard/settings" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/settings') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                    <div className="text-[11px] font-bold text-[#888] uppercase tracking-[0.6px] pt-[24px] px-[12px] pb-[12px] mt-[8px]">Settings</div>
+                    <Link href="/dashboard/settings" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/dashboard/settings') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                         <FaCog className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/dashboard/settings') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                         <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/dashboard/settings') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.settings || 'Business Settings'}</span>
                     </Link>
-                    <Link href="/about" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/about') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                    <Link href="/about" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/about') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                         <FaInfoCircle className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/about') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                         <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/about') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.aboutUs || 'About Us'}</span>
                     </Link>
-                    <Link href="/privacy" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/privacy') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
+                    <Link href="/privacy" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors ${pathname.startsWith('/privacy') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                         <FaShieldAlt className={`text-[22px] w-[28px] text-center shrink-0 ${pathname.startsWith('/privacy') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                         <span className={`text-[16px] flex-1 truncate ${pathname.startsWith('/privacy') ? 'text-[#1B5E3B] font-bold' : 'text-[#333] font-medium'}`}>{t?.privacyPolicy || 'Privacy Policy'}</span>
                     </Link>
-                    <div onClick={() => { setIsSidebarOpen(false); setSupportChatOpen(true); }} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[4px] transition-colors hover:bg-[#f5f5f5]`}>
+                    <div onClick={() => { setIsSidebarOpen(false); setSupportChatOpen(true); }} className={`flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer mb-[10px] transition-colors hover:bg-[#f5f5f5]`}>
                         <FaHeadset className={`text-[22px] w-[28px] text-center shrink-0 text-[#777]`} />
                         <span className={`text-[16px] flex-1 truncate text-[#333] font-medium`}>Support Inbox</span>
                     </div>
@@ -380,7 +380,7 @@ export default function DashboardLayout({
                 <div className="border-t border-[#f0f0f0] py-[10px] px-[8px] bg-white">
                     <button
                         onClick={handleLogout}
-                        className="flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer w-full mb-[4px] border-none bg-transparent hover:bg-[#FFEBEE] transition-colors group"
+                        className="flex items-center gap-[16px] py-[14px] px-[12px] rounded-[12px] cursor-pointer w-full mb-[10px] border-none bg-transparent hover:bg-[#FFEBEE] transition-colors group"
                     >
                         <FaSignOutAlt className="text-[#E53935] text-[17px]" />
                         <span className="text-[13px] text-[#E53935] font-bold">Logout Safe</span>
