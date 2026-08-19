@@ -275,6 +275,7 @@ export default function DashboardLayout({
                         </Link>
                     )}
                     {canSeeAccounting && (
+                        <>
                         <Link href="/dashboard/expenses" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[14px] py-[12px] px-[14px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/expenses') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
                             <FaWallet className={`text-[20px] w-[26px] text-center shrink-0 ${pathname.startsWith('/dashboard/expenses') ? 'text-[#1B5E3B]' : 'text-[#777]'}`} />
                             <span className={`text-[15px] flex-1 truncate ${pathname.startsWith('/dashboard/expenses') ? 'text-[#1B5E3B] font-semibold' : 'text-[#333]'}`}>{t?.expenses || 'Expenses'}</span>
@@ -283,6 +284,7 @@ export default function DashboardLayout({
                                 <FaWallet className={`text-[20px] w-[26px] text-center shrink-0 ${pathname.startsWith("/dashboard/kharcha-tracker") ? "text-[#1B5E3B]" : "text-[#777]"}`} />
                                 <span className={`text-[15px] flex-1 truncate ${pathname.startsWith("/dashboard/kharcha-tracker") ? "text-[#1B5E3B] font-semibold" : "text-[#333]"}`}>Kharcha Tracker (New)</span>
                             </Link>
+                        </>
                     )}
                     {canSeeAccounting && (
                         <Link href="/dashboard/purchases" onClick={() => setIsSidebarOpen(false)} className={`flex items-center gap-[14px] py-[12px] px-[14px] rounded-[12px] cursor-pointer mb-[4px] transition-colors ${pathname.startsWith('/dashboard/purchases') ? 'bg-[#EAF4EE]' : 'hover:bg-[#f5f5f5]'}`}>
