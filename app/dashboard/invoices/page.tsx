@@ -56,28 +56,7 @@ export default function InvoicesPage() {
         };
         window.addEventListener('scroll', handleScroll);
         
-    // Hardware back button modal close
-    useEffect(() => {
-        const handlePopState = () => {
-            if (selectedInvoice) {
-                setSelectedInvoice(null);
-            }
-        };
-        window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
-    }, [selectedInvoice]);
 
-    // Push hash to history when opening
-    useEffect(() => {
-        if (selectedInvoice) {
-            window.history.pushState({ modal: 'invoice' }, '', window.location.pathname + '#invoice');
-        } else {
-            // cleanup hash if closed without back button
-            if (window.location.hash === '#invoice') {
-                window.history.back();
-            }
-        }
-    }, [selectedInvoice]);
 
     return () => window.removeEventListener('scroll', handleScroll);
     }, [fetchInvoices]);
@@ -533,6 +512,29 @@ export default function InvoicesPage() {
             toast.error("Failed to generate JSON");
         }
     };
+
+        // Hardware back button modal close
+    useEffect(() => {
+        const handlePopState = () => {
+            if (selectedInvoice) {
+                setSelectedInvoice(null);
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [selectedInvoice]);
+
+    // Push hash to history when opening
+    useEffect(() => {
+        if (selectedInvoice) {
+            window.history.pushState({ modal: 'invoice' }, '', window.location.pathname + '#invoice');
+        } else {
+            // cleanup hash if closed without back button
+            if (window.location.hash === '#invoice') {
+                window.history.back();
+            }
+        }
+    }, [selectedInvoice]);
 
     if (!isClient) return <div style={{ background: '#f5f6fa', minHeight: '100vh' }} />;
 
