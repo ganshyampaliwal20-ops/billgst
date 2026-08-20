@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { FaDownload, FaFileExcel, FaCheckCircle, FaSpinner, FaCog, FaThLarge, FaCalendarAlt } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import * as XLSX from 'xlsx';
+
 import { downloadAndShareFile } from '@/lib/utils';
 import './gst-returns.css';
 
@@ -267,7 +267,8 @@ export default function GSTReturnsPage() {
         const toastId = toast.loading('Preparing Excel download...');
         let wb: any = null;
         try {
-            wb = XLSX.utils.book_new();
+            const XLSX = await import("xlsx");
+                    wb = XLSX.utils.book_new();
 
             if (returnType === 'GSTR1') {
                 if (generatedData.b2b?.length) {
@@ -334,7 +335,8 @@ export default function GSTReturnsPage() {
             console.error('Error downloading excel:', error);
             try {
                 if (wb) {
-                    XLSX.writeFile(wb, fileName);
+                    const XLSX2 = await import("xlsx");
+                    XLSX2.writeFile(wb, fileName);
                     toast.success(`✅ ${fileName} Downloaded!`, { id: toastId });
                 } else {
                     toast.error('Failed to download Excel file', { id: toastId });

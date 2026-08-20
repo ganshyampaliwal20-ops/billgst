@@ -6,7 +6,7 @@ import { useStore } from '@/lib/store';
 import { getTranslations } from '@/lib/translations';
 import { toast } from 'react-hot-toast';
 import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
-import * as XLSX from 'xlsx';
+
 // Dynamic import used for Chart.js
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -261,6 +261,7 @@ function ReportsContent() {
                 'Status': inv.status || 'PENDING'
             }));
 
+            const XLSX = await import("xlsx");
             const ws = XLSX.utils.json_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
@@ -288,6 +289,7 @@ function ReportsContent() {
                 'Status': inv.status || 'PENDING'
             }));
 
+            const XLSX = await import("xlsx");
             const ws = XLSX.utils.json_to_sheet(excelData);
             const csv = XLSX.utils.sheet_to_csv(ws);
             const b64 = btoa(unescape(encodeURIComponent(csv)));
@@ -370,6 +372,7 @@ function ReportsContent() {
                 'Total Value': inv.total_amount || 0
             }));
 
+            const XLSX = await import("xlsx");
             const ws = XLSX.utils.json_to_sheet(gstData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
