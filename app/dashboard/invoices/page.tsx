@@ -938,195 +938,117 @@ export default function InvoicesPage() {
                 </div>
             </div>
 
+            
             {selectedInvoice && (
-                <div className="modal-ov" onClick={() => setSelectedInvoice(null)}>
-                    <div className="modal-sheet" onClick={e => e.stopPropagation()}>
-                        <div style={{ width: '40px', height: '4px', background: 'rgba(0,0,0,0.1)', borderRadius: '2px', margin: '0 auto 1.5rem' }} />
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', fontWeight: 700 }}>Invoice #{selectedInvoice.invoice_number}</div>
-                            <div style={{ fontSize: '24px', fontWeight: 800 }}>{formatCurrency(selectedInvoice.total_amount)}</div>
-                            <div style={{ fontSize: '13px', color: '#6b7280' }}>{selectedInvoice.customer?.name}</div>
-                        </div>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
-                            <button className="btn-action solid-whatsapp" onClick={(e) => handleWhatsApp(selectedInvoice, e)}>
-                                <FaWhatsapp size={20} color="white" />
-                                Send on WhatsApp
-                            </button>
-                            <button className="btn-action solid-share" onClick={() => handleViewPdf(selectedInvoice)} style={{ background: '#ef4444', color: 'white', border: 'none', boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)' }}>
-                                <FaFilePdf size={20} color="white" />
-                                PDF
-                            </button>
-                            <button className="btn-action" onClick={() => handleDownloadEwayJSON(selectedInvoice)} style={{ gridColumn: 'span 2' }}>
-                                <FaBox size={20} color="#eab308" />
-                                E-Way JSON
-                            </button>
+                <div className="modal-ov ns-wrapper" onClick={() => setSelectedInvoice(null)}>
+                    <div className="ns-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="ns-grabber"></div>
+
+                        <div className="ns-head">
+                            <div className="ns-eyebrow">
+                                <span className="ns-inv-no">Invoice #{selectedInvoice.invoice_number}</span>
+                                {((selectedInvoice.status || 'UNPAID').toLowerCase() === 'paid' || 
+                                  Number(selectedInvoice.total_amount) <= Number(selectedInvoice.paid_amount || 0)) ? (
+                                    <span className="ns-status-pill ns-status-paid">Paid in full</span>
+                                ) : (
+                                    <span className="ns-status-pill">Balance due</span>
+                                )}
+                            </div>
+                            <div className="ns-amount-row">
+                                <span className="ns-amount-currency">₹</span>
+                                <span className="ns-amount">
+                                    {Number(selectedInvoice.total_amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                            <div className="ns-type-tag">
+                                {selectedInvoice.type === 'QUOTATION' ? 'Quotation' : 'Cash sale'} 
+                                <span> &middot; {new Date(selectedInvoice.invoice_date || selectedInvoice.created_at).toLocaleDateString('en-IN')}</span>
+                            </div>
+                            <div className="ns-punch"></div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                            <Link href={`/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`} className="btn-action" style={{ textDecoration: 'none' }}>
-                                <FaCopy size={20} color="#4338ca" />
-                                Duplicate
-                            </Link>
-                            <button className="btn-action" onClick={() => handleDelete(selectedInvoice)}>
-                                <FaTrash size={20} color="#6b7280" />
-                                Delete
-                            </button>
-                        </div>
-                        
-                        {/* RECORD PAYMENT SECTION */}
-                        {((selectedInvoice.status || 'UNPAID').toLowerCase() !== 'paid') && (
-                            <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f8f9fc', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.08)' }}>
-                                <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>Record Payment</div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
+                        <div className="ns-body-pad">
+                            <div className="ns-section-label">Share invoice</div>
+                            <div className="ns-primary-actions">
+                                <button className="ns-btn ns-btn-whatsapp" onClick={(e) => handleWhatsApp(selectedInvoice, e)}>
+                                    <svg className="ns-btn-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.48 3.53 1.32 5.01L2 22l5.12-1.28A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Z" stroke="#F3FAF7" strokeWidth="1.4"/><path d="M8.7 8.4c.2-.5.4-.5.6-.5h.5c.16 0 .38 0 .55.42.2.5.68 1.72.74 1.85.06.13.1.28.02.44-.08.16-.13.26-.26.4-.13.14-.27.32-.39.43-.13.13-.26.26-.12.5.14.25.63 1.03 1.36 1.67.94.83 1.72 1.09 1.97 1.21.25.13.4.11.55-.06.16-.18.65-.75.82-1.02.17-.25.34-.2.56-.12.23.08 1.44.68 1.68.8.25.13.4.19.47.3.06.13.06.7-.18 1.37-.24.66-1.4 1.28-1.94 1.36-.5.08-1.12.11-1.8-.11-.42-.14-.95-.32-1.64-.62-2.9-1.25-4.79-4.17-4.94-4.36-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.13 1.02-2.42Z" fill="#F3FAF7"/></svg>
+                                    Send on WhatsApp
+                                </button>
+                                <button className="ns-btn ns-btn-pdf" onClick={() => handleViewPdf(selectedInvoice)}>
+                                    <svg className="ns-btn-icon" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="#12182A" strokeWidth="1.4"/><path d="M14 3v5h5" stroke="#12182A" strokeWidth="1.4"/><text x="8" y="17" fontFamily="Inter" fontSize="6.5" fontWeight="700" fill="#12182A">PDF</text></svg>
+                                    Download PDF
+                                </button>
+                            </div>
+
+                            <div className="ns-section-label">More actions</div>
+                            <div className="ns-secondary-grid">
+                                <div className="ns-tile" onClick={() => handleDownloadEwayJSON(selectedInvoice)}>
+                                    <div className="ns-tile-icon" style={{background: 'var(--brass-tint)'}}>
+                                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M21 8 12 3 3 8l9 5 9-5Z" stroke="var(--brass-dark)" strokeWidth="1.4" strokeLinejoin="round"/><path d="M3 8v8l9 5 9-5V8" stroke="var(--brass-dark)" strokeWidth="1.4" strokeLinejoin="round"/><path d="M12 13v8" stroke="var(--brass-dark)" strokeWidth="1.4"/></svg>
+                                    </div>
+                                    <div className="ns-tile-label">E-Way JSON</div>
+                                </div>
+                                <Link href={`/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`} style={{textDecoration: 'none', display: 'contents'}}>
+                                    <div className="ns-tile">
+                                        <div className="ns-tile-icon" style={{background: 'var(--brass-tint)'}}>
+                                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="var(--brass-dark)" strokeWidth="1.4"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="var(--brass-dark)" strokeWidth="1.4"/></svg>
+                                        </div>
+                                        <div className="ns-tile-label">Duplicate</div>
+                                    </div>
+                                </Link>
+                                <div className="ns-tile ns-full ns-tile-danger" onClick={() => handleDelete(selectedInvoice)}>
+                                    <div className="ns-tile-icon" style={{background: 'var(--red-tint)'}}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7h12Z" stroke="var(--red)" strokeWidth="1.4" strokeLinejoin="round"/></svg>
+                                    </div>
+                                    <div className="ns-tile-label">Delete invoice</div>
+                                </div>
+                            </div>
+
+                            <div className="ns-payment-card">
+                                <div className="ns-payment-head">
+                                    <div className="ns-payment-title">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" stroke="var(--brass-dark)" strokeWidth="1.4"/><path d="M2 10h20" stroke="var(--brass-dark)" strokeWidth="1.4"/></svg>
+                                        Record payment
+                                    </div>
+                                </div>
+                                <div className="ns-payment-row">
                                     <input 
+                                        className="ns-amt-input" 
                                         type="number" 
                                         placeholder="Amount received (₹)" 
-                                        value={paymentAmount}
-                                        onChange={(e) => setPaymentAmount(e.target.value)}
-                                        style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.13)', outline: 'none' }}
+                                        value={paymentAmount} 
+                                        onChange={e => setPaymentAmount(e.target.value)} 
+                                        disabled={isSubmittingPayment} 
                                     />
                                     <button 
-                                        onClick={handleRecordPayment}
+                                        className="ns-add-btn" 
+                                        onClick={handleRecordPayment} 
                                         disabled={isSubmittingPayment}
-                                        style={{ background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontWeight: 600, cursor: 'pointer' }}
                                     >
-                                        {isSubmittingPayment ? 'Saving...' : 'Add'}
+                                        {isSubmittingPayment ? '...' : 'Add'}
                                     </button>
                                 </div>
-                                <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px' }}>
-                                    Balance Due: {formatCurrency(Number(selectedInvoice.total_amount) - Number(selectedInvoice.paid_amount || 0))}
+                                <div className="ns-balance-line">
+                                    <span className="ns-label">Balance due</span>
+                                    <span className="ns-val" style={{ color: Number(Math.max(Number(selectedInvoice.total_amount || 0) - Number(selectedInvoice.paid_amount || 0), 0)) <= 0 ? 'var(--green)' : 'var(--red)' }}>
+                                        ₹{Number(Math.max(Number(selectedInvoice.total_amount || 0) - Number(selectedInvoice.paid_amount || 0), 0)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                                    </span>
                                 </div>
-                            </div>
-                        )}
-                        
-                        <button 
-                            style={{ width: '100%', marginTop: '1.5rem', height: '50px', background: '#4338ca', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 600, cursor: 'pointer' }}
-                            onClick={() => setSelectedInvoice(null)}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* HTML PREVIEW MODAL */}
-            {isPreviewing && selectedInvoice && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ padding: '16px 20px', background: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', flexShrink: 0 }}>
-                        <span style={{ fontWeight: 800, fontSize: '16px' }}>Invoice Preview</span>
-                        <button onClick={() => setIsPreviewing(false)} style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', padding: '8px 16px', borderRadius: '8px', color: '#f87171', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>✕ Close</button>
-                    </div>
-                    
-                    <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-                        <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', maxWidth: '800px', margin: '0 auto', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', fontFamily: 'Arial, sans-serif' }}>
-                            <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '20px' }}>
-                                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 5px 0', textTransform: 'uppercase' }}>{businessProfile?.name || 'Your Business'}</h1>
-                                {businessProfile?.address && <p style={{ margin: '0', color: '#475569', fontSize: '14px' }}>{businessProfile.address}</p>}
-                                {businessProfile?.phone && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>Phone: {businessProfile.phone}</p>}
-                                {businessProfile?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px', fontWeight: 'bold' }}>GSTIN: {businessProfile.gstin}</p>}
-                            </div>
-                            
-                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '20px', marginBottom: '30px' }}>
-                                <div style={{ flex: '1 1 200px' }}>
-                                    <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 10px 0', fontWeight: 800 }}>Billed To:</h3>
-                                    <h2 style={{ fontSize: '18px', color: '#0f172a', margin: '0 0 5px 0', fontWeight: 700 }}>{selectedInvoice.customer?.name}</h2>
-                                    {selectedInvoice.customer?.phone && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>Phone: {selectedInvoice.customer.phone}</p>}
-                                    {selectedInvoice.customer?.address && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}>{selectedInvoice.customer.address}</p>}
-                                    {selectedInvoice.customer?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>GSTIN: {selectedInvoice.customer.gstin}</p>}
+                                <div className="ns-progress">
+                                    <div 
+                                        className="ns-progress-fill" 
+                                        style={{ width: `${Math.min((Number(selectedInvoice.paid_amount || 0) / Number(selectedInvoice.total_amount || 1)) * 100, 100)}%` }}
+                                    ></div>
                                 </div>
-                                <div style={{ textAlign: 'right', flex: '1 1 200px' }}>
-                                    <h1 style={{ fontSize: 'clamp(18px, 5vw, 24px)', color: '#3b82f6', margin: '0 0 15px 0', fontWeight: 900, textTransform: 'uppercase' }}>{(selectedInvoice.type || 'TAX_INVOICE').replace('_', ' ')}</h1>
-                                    <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Invoice No:</strong> {selectedInvoice.invoice_number}</p>
-                                    <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Date:</strong> {selectedInvoice.invoice_date}</p>
-                                    {selectedInvoice.due_date && <p style={{ margin: '0 0 5px 0', color: '#475569', fontSize: '14px' }}><strong>Due Date:</strong> {selectedInvoice.due_date}</p>}
-                                </div>
-                            </div>
-
-                            <div style={{ overflowX: 'auto', width: '100%', marginBottom: '30px' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '450px' }}>
-                                    <thead>
-                                        <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
-                                            <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '5%' }}>#</th>
-                                            <th style={{ padding: '12px', textAlign: 'left', color: '#0f172a', fontSize: '13px', width: '45%' }}>Item Description</th>
-                                            <th style={{ padding: '12px', textAlign: 'center', color: '#0f172a', fontSize: '13px', width: '15%' }}>Qty</th>
-                                            <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '15%' }}>Rate</th>
-                                            <th style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '13px', width: '20%' }}>Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {(selectedInvoice.items || []).map((item: any, idx: number) => {
-                                            const qty = Number(item.quantity) || 1;
-                                            const rate = Number(item.unit_price) || 0;
-                                            const amt = qty * rate;
-                                            return (
-                                                <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                                    <td style={{ padding: '12px', color: '#475569', fontSize: '14px' }}>{idx + 1}</td>
-                                                    <td style={{ padding: '12px', color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{item.product_name}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{qty} {item.unit || 'PCS'}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>₹{rate.toFixed(2)}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right', color: '#0f172a', fontSize: '14px', fontWeight: 700 }}>₹{amt.toFixed(2)}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <div style={{ width: '300px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
-                                        <span>Subtotal:</span>
-                                        <span style={{ fontWeight: 600, color: '#0f172a' }}>₹{Number(selectedInvoice.subtotal || 0).toFixed(2)}</span>
-                                    </div>
-                                    {(Number(selectedInvoice.cgst_amount) > 0 || Number(selectedInvoice.igst_amount) > 0) && (
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
-                                            <span>Tax Amount (GST):</span>
-                                            <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{(Number(selectedInvoice.cgst_amount || 0) + Number(selectedInvoice.sgst_amount || 0) + Number(selectedInvoice.igst_amount || 0)).toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {Number(selectedInvoice.discount_pct || 0) > 0 && (
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#ef4444', fontSize: '14px' }}>
-                                            <span>Discount ({selectedInvoice.discount_pct}%):</span>
-                                            <span style={{ fontWeight: 600 }}>- ₹{(Number(selectedInvoice.subtotal || 0) * (Number(selectedInvoice.discount_pct) / 100)).toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', color: '#0f172a', fontSize: '20px', fontWeight: 900 }}>
-                                        <span>Total:</span>
-                                        <span style={{ color: '#3b82f6' }}>₹{Number(selectedInvoice.total_amount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#16a34a', fontSize: '14px', fontWeight: 700 }}>
-                                        <span>Paid:</span>
-                                        <span>₹{Number(selectedInvoice.paid_amount || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', color: '#ef4444', fontSize: '14px', fontWeight: 700 }}>
-                                        <span>Balance:</span>
-                                        <span>₹{(Number(selectedInvoice.total_amount || 0) - Number(selectedInvoice.paid_amount || 0)).toFixed(2)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {selectedInvoice.notes && (
-                                <div style={{ marginTop: '30px', padding: '15px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                                    <h4 style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Notes / Terms</h4>
-                                    <p style={{ margin: '0', fontSize: '13px', color: '#334155', whiteSpace: 'pre-wrap' }}>{selectedInvoice.notes}</p>
-                                </div>
-                            )}
-
-                            <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                                <button onClick={() => setIsPreviewing(false)} style={{ background: '#0f172a', border: 'none', padding: '12px 24px', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                                    ❌ Close
-                                </button>
-                                <button onClick={() => { setIsPreviewing(false); handleDownload(selectedInvoice); }} style={{ background: '#10b981', border: 'none', padding: '12px 24px', borderRadius: '12px', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(16,185,129,0.3)' }}>
-                                    📥 Download PDF
-                                </button>
                             </div>
                         </div>
+
+                        <button className="ns-close-btn" onClick={() => setSelectedInvoice(null)}>Close</button>
                     </div>
                 </div>
             )}
-
-            {/* Animated Bottom FAB */}
+            
+{/* Animated Bottom FAB */}
             <Link href="/dashboard/invoices/new" className={`fab-animated ${isScrolled ? 'show' : ''}`} style={{ textDecoration: 'none' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
                     <line x1="12" y1="5" x2="12" y2="19"/>
