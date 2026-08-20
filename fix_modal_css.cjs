@@ -9,6 +9,9 @@ const exactCSS = `
 .ns-wrapper {
     --ink:#12182A; --ink-soft:#3A4356; --muted:#7C8399; --hairline:#E7E3D8; --paper:#FBF9F4; --paper-2:#F3EFE3; --page:#EDE9DC; --brass:#A9803F; --brass-dark:#7C5C29; --brass-tint:#F3E6CC; --green:#1E7A5F; --green-tint:#DEEFE7; --red:#B23B34; --red-tint:#F7E3E0; --navy:#0E1526; --radius-lg:20px; --radius-md:12px;
 }
+.ns-wrapper, .ns-wrapper * {
+    box-sizing: border-box;
+}
 .ns-phone {
     width: 390px;
     max-width: 100%;
@@ -16,34 +19,17 @@ const exactCSS = `
     animation: scaleUp 0.2s ease;
     font-family: 'Inter', sans-serif;
     position: relative;
+    box-sizing: border-box;
 }
-.ns-app-bar {
-    background: var(--navy);
-    border-radius: 18px 18px 0 0;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.ns-brand { display: flex; align-items: center; gap: 10px; }
-.ns-brand-mark {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: var(--brass); display: flex; align-items: center; justify-content: center;
-    color: var(--navy); font-weight: 700; font-size: 13px; font-family: 'Fraunces', serif;
-}
-.ns-brand-name { color: #F4F1E8; font-weight: 600; font-size: 15px; letter-spacing: 0.01em; }
-.ns-brand-sub { color: #9AA3B8; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
-.ns-app-icons { display: flex; gap: 14px; color: #C7CCDA; font-size: 18px; }
 .ns-sheet {
     background: var(--paper);
-    border-radius: 0 0 18px 18px;
+    border-radius: 18px;
     padding: 0 0 24px;
     position: relative;
     box-shadow: 0 30px 60px -20px rgba(14,21,38,0.35);
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
 }
-.ns-grabber { width: 36px; height: 4px; background: var(--hairline); border-radius: 99px; margin: 14px auto 0; }
 .ns-head { padding: 22px 24px 20px; border-bottom: 1px dashed var(--hairline); position: relative; }
 .ns-eyebrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .ns-inv-no { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
@@ -78,11 +64,11 @@ const exactCSS = `
 .ns-payment-card { margin-top: 22px; background: var(--paper-2); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 18px; }
 .ns-payment-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .ns-payment-title { font-size: 13.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
-.ns-payment-row { display: flex; gap: 8px; }
-.ns-amt-input { flex: 1; border: 1px solid var(--hairline); background: var(--paper); border-radius: 10px; padding: 0 14px; height: 44px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink); outline: none; }
+.ns-payment-row { display: flex; gap: 8px; width: 100%; box-sizing: border-box; }
+.ns-amt-input { min-width: 0; flex: 1; border: 1px solid var(--hairline); background: var(--paper); border-radius: 10px; padding: 0 14px; height: 44px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink); outline: none; box-sizing: border-box; }
 .ns-amt-input:focus { border-color: var(--brass); }
 .ns-amt-input::placeholder { color: var(--muted); }
-.ns-add-btn { background: var(--green); color: #F3FAF7; border: none; border-radius: 10px; padding: 0 20px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+.ns-add-btn { background: var(--green); color: #F3FAF7; border: none; border-radius: 10px; padding: 0 20px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
 .ns-add-btn:active { transform: scale(0.97); }
 .ns-add-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 .ns-balance-line { margin-top: 12px; display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; }
@@ -94,40 +80,26 @@ const exactCSS = `
 .ns-close-btn:active { transform: scale(0.985); }
 `;
 
-// 1. First remove the old CSS I injected earlier (if any)
-if (content.includes('.ns-wrapper {')) {
-    // We already injected some bad CSS, let's remove it
-    const startCSS = content.indexOf('.ns-wrapper {');
-    const endCSS = content.indexOf('</style>', startCSS) > -1 ? content.indexOf('</style>', startCSS) : content.indexOf('\` }} />', startCSS);
+// 1. Remove the old exactCSS (we find the @import and the .ns-close-btn)
+const startCSS = content.indexOf("@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');");
+if (startCSS !== -1) {
+    const endCSS = content.indexOf('.ns-close-btn:active { transform: scale(0.985); }', startCSS);
     if (endCSS !== -1) {
-        content = content.substring(0, startCSS) + content.substring(endCSS);
+        content = content.substring(0, startCSS) + content.substring(endCSS + '.ns-close-btn:active { transform: scale(0.985); }'.length);
     }
 }
 
-// 2. Inject the correct CSS before the end of the style block
+// 2. Inject new exactCSS before the end of the style block
 const styleBlockEnd = content.indexOf('\` }} />');
 if (styleBlockEnd !== -1) {
     content = content.substring(0, styleBlockEnd) + exactCSS + '\n' + content.substring(styleBlockEnd);
 }
 
+// JSX to replace modal
 const exactJSX = `
             {selectedInvoice && (
-                <div className="modal-ov ns-wrapper" onClick={() => setSelectedInvoice(null)}>
+                <div className="modal-ov ns-wrapper" onClick={() => { window.history.back(); }}>
                     <div className="ns-phone" onClick={e => e.stopPropagation()}>
-                        <div className="ns-app-bar">
-                            <div className="ns-brand">
-                            <div className="ns-brand-mark">B</div>
-                            <div>
-                                <div className="ns-brand-name">Billgst</div>
-                                <div className="ns-brand-sub">Manage invoices</div>
-                            </div>
-                            </div>
-                            <div className="ns-app-icons">
-                                <span>&#9881;</span>
-                                <span>&#9776;</span>
-                            </div>
-                        </div>
-
                         <div className="ns-sheet">
                             <div className="ns-head">
                                 <div className="ns-eyebrow">
@@ -228,23 +200,54 @@ const exactJSX = `
                                 </div>
                             </div>
 
-                            <button className="ns-close-btn" onClick={() => setSelectedInvoice(null)}>Close</button>
+                            <button className="ns-close-btn" onClick={() => { window.history.back(); }}>Close</button>
                         </div>
                     </div>
                 </div>
             )}
 `;
 
-// Replace JSX
-const startIndex = content.indexOf('{selectedInvoice && (');
+const jsxStart = content.indexOf('{selectedInvoice && (');
 const endStr = '{/* Animated Bottom FAB */}';
-const endIndex = content.indexOf(endStr, startIndex);
+const jsxEnd = content.indexOf(endStr, jsxStart);
 
-if (startIndex !== -1 && endIndex !== -1) {
-    content = content.substring(0, startIndex) + exactJSX + '\n            ' + content.substring(endIndex);
-    fs.writeFileSync('app/dashboard/invoices/page.tsx', content);
-    console.log('Success JSX replacement!');
-} else {
-    console.log('Failed to find replacement boundaries.');
+if (jsxStart !== -1 && jsxEnd !== -1) {
+    content = content.substring(0, jsxStart) + exactJSX + '\n            ' + content.substring(jsxEnd);
 }
 
+const popStateHook = `
+    // Hardware back button modal close
+    useEffect(() => {
+        const handlePopState = () => {
+            if (selectedInvoice) {
+                setSelectedInvoice(null);
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [selectedInvoice]);
+
+    // Push hash to history when opening
+    useEffect(() => {
+        if (selectedInvoice) {
+            window.history.pushState({ modal: 'invoice' }, '', window.location.pathname + '#invoice');
+        } else {
+            // cleanup hash if closed without back button
+            if (window.location.hash === '#invoice') {
+                window.history.back();
+            }
+        }
+    }, [selectedInvoice]);
+`;
+
+const useClientPos = content.indexOf('export default function InvoicesPage');
+const returnPos = content.indexOf('return (', useClientPos);
+
+if (useClientPos > -1 && returnPos > -1) {
+    if (!content.includes("window.addEventListener('popstate', handlePopState)")) {
+        content = content.substring(0, returnPos) + popStateHook + '\n    ' + content.substring(returnPos);
+    }
+}
+
+fs.writeFileSync('app/dashboard/invoices/page.tsx', content);
+console.log('Success JSX replacement!');
