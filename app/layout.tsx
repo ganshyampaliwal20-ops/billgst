@@ -24,9 +24,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://billgst.in"),
-  title: "BillGST: Free Billing, Inventory, Expense & Staff Management App",
-  description: "India's best 100% Free App for Business & Personal use. Manage GST/Non-GST billing, expenses, inventory, staff attendance, and online shop (dukaan).",
-  keywords: "free billing software, expense manager app, inventory management, online shop creator, staff attendance app, free gst billing app, invoice maker, vyapar alternative, business accounting app, personal expense tracker, dukaan hisaab, free invoice generator",
+  title: "BillGST: #1 Free GST Billing App, Invoice Maker & Expense Manager",
+  description: "India's Best 100% Free Billing Software. Create GST/Non-GST invoices in seconds, manage inventory, track expenses, make online dukaan, and handle staff attendance. 100% Free Lifetime.",
+  keywords: "free billing software, best gst billing app, invoice maker app, inventory management free, expense manager, vyapar app alternative, mybillbook alternative, free invoice generator, online dukaan, staff attendance app, khata book, ledger app, free accounting software india",
   verification: {
     google: "vPtda0GcH0gspOZA2hOGpfGpCVkT1e21W1AqfpHxCpw",
   },
@@ -55,8 +55,8 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   openGraph: {
-    title: "BillGST - All-in-one Business & Expense Manager",
-    description: "100% Free App for Billing, Expenses, Inventory & Attendance. Perfect for shops and personal use.",
+    title: "BillGST - #1 Free Business, Billing & Expense Manager App",
+    description: "Create instant invoices, track daily expenses, manage shop stock & staff attendance entirely for free! Download or use on web today.",
     type: "website",
     siteName: 'BillGST',
     url: 'https://billgst.in',
@@ -65,14 +65,14 @@ export const metadata: Metadata = {
         url: '/logo.png',
         width: 512,
         height: 512,
-        alt: 'BillGST Logo',
+        alt: 'BillGST Best Free Billing App Logo',
       },
     ],
   },
   twitter: {
-    card: 'summary',
-    title: 'BillGST - Free Business & Expense App',
-    description: '100% Free App for Billing, Expenses, Inventory & Staff Management.',
+    card: 'summary_large_image',
+    title: 'BillGST - 100% Free GST Invoice & Expense App',
+    description: 'Grow your business with free billing, inventory, dukaan and attendance management.',
     images: ['/logo.png'],
   },
 };
