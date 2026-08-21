@@ -24,3 +24,5 @@ self.addEventListener('notificationclick', (event) => {
         })
     );
 });
+
+// Cache bust: v2
