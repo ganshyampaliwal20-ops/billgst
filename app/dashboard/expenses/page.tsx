@@ -1000,6 +1000,12 @@ export default function BusinessExpensesPage() {
 
     const handleDownloadPDF = async () => {
         if (!currentCust) return;
+        let newWindow = null;
+        // Check if we are on web (not native app)
+        const isNative = typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform();
+        if (!isNative) {
+            newWindow = window.open('', '_blank');
+        }
         showToast(t.generatingPDF || '⏳ Generating PDF...');
         try {
             const { generateHisaabPDF } = await import('@/lib/pdf-generator');
@@ -1007,10 +1013,13 @@ export default function BusinessExpensesPage() {
             if (doc) {
                 const base64Data = doc.output('datauristring').split(',')[1];
                 const { downloadAndShareFile } = await import('@/lib/utils');
-                await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view');
+                await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view', newWindow);
                 showToast(t.pdfReady || '✅ PDF ready!');
+            } else if (newWindow) {
+                newWindow.close();
             }
         } catch (e) {
+            if (newWindow) newWindow.close();
             showToast(t.pdfError || '❌ PDF Error');
         }
     };
