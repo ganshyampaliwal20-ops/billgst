@@ -131,9 +131,15 @@ function HisaabViewerContent() {
 
     const handleGeneratePDF = async (action: 'view' | 'download' | 'share') => {
         if (!rawData) return;
+        
+        let newWindow = null;
+        if (action === 'view') {
+            const isNative = typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform();
+            if (!isNative) newWindow = window.open('', '_blank');
+        }
+
         setPdfGenerating(true);
         try {
-            
             const businessDetails = b ? { name: b.business_name, phone: b.business_phone, email: b.business_email, logo: b.logo } : { name: 'Business Statement' };
             const custStats = { credit: s.r, debit: s.g, net: s.net, isNeg: s.neg };
             
@@ -142,8 +148,9 @@ function HisaabViewerContent() {
             
             const base64Data = doc.output('datauristring').split(',')[1];
             const fileName = `Hisaab_${c.n || 'Customer'}.pdf`;
-            await downloadAndShareFile(base64Data, fileName, 'application/pdf', action);
+            await downloadAndShareFile(base64Data, fileName, 'application/pdf', action, newWindow as any);
         } catch (e) {
+            if (newWindow) newWindow.close();
             console.error('PDF error', e);
             alert('Failed to generate PDF. Please try again later.');
         } finally {
