@@ -3,6 +3,10 @@
 import { useEffect } from 'react';
 import { preloadPDFGenerator } from '../../lib/pdf-generator';
 import { useRouter, usePathname } from 'next/navigation';
+import { App } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { FileOpener } from '@capacitor-community/file-opener';
+import { Share } from '@capacitor/share';
 
 export default function CapacitorHandler() {
     const router = useRouter();
@@ -15,7 +19,7 @@ export default function CapacitorHandler() {
         const setupCapacitor = async () => {
             if (typeof window !== 'undefined' && (window as any).Capacitor) {
                 try {
-                    const { App } = await import('@capacitor/app');
+                    
                     await App.removeAllListeners();
                     
                     App.addListener('backButton', ({ canGoBack }) => {
@@ -34,13 +38,13 @@ export default function CapacitorHandler() {
 
                 // Handle Notification Click / Tap to Open File
                 try {
-                    const { LocalNotifications } = await import('@capacitor/local-notifications');
+                    
                     await LocalNotifications.removeAllListeners();
                     await LocalNotifications.addListener('localNotificationActionPerformed', async (action) => {
                         const extra = action?.notification?.extra;
                         if (extra?.filePath) {
                             try {
-                                const { FileOpener } = await import('@capacitor-community/file-opener');
+                                
                                 await FileOpener.open({
                                     filePath: extra.filePath,
                                     contentType: extra.mimeType || 'application/octet-stream',
@@ -48,7 +52,7 @@ export default function CapacitorHandler() {
                                 });
                             } catch (openErr) {
                                 try {
-                                    const { Share } = await import('@capacitor/share');
+                                    
                                     await Share.share({
                                         title: extra.fileName || 'Open File',
                                         url: extra.filePath,
