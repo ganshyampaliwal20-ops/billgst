@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../../../lib/store';
 import { getTranslations } from '../../../lib/translations';
 import { generateInvoicePDF } from '../../../lib/pdf-generator';
+import { downloadAndShareFile } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../lib/utils';
 import { getVisitingCardText, openWhatsAppChat } from '../../../lib/whatsapp-utils';
@@ -410,7 +411,7 @@ export default function InvoicesPage() {
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' });
             const fileName = "Invoices_Export.xlsx";
             
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(excelBuffer, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             
             toast.success("Excel file downloaded!", { id: toastId });
@@ -503,7 +504,7 @@ export default function InvoicesPage() {
             const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
             const fileName = `EWayBill_${invoice.invoice_number}.json`;
             
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(base64Data, fileName, 'application/json', 'download');
             
             toast.success("E-Way Bill JSON Downloaded to Documents!");

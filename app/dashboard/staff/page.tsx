@@ -9,6 +9,7 @@ import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { drawFreeBranding } from '../../../lib/pdf-generator';
+import { downloadAndShareFile } from '@/lib/utils';
 
 export default function SmartAttendance() {
     const router = useRouter();
@@ -437,7 +438,7 @@ export default function SmartAttendance() {
         const filename = `Master_Report_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}_${Date.now()}.pdf`;
         try {
             const base64Data = doc.output('datauristring').split(',')[1];
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(base64Data, filename, 'application/pdf', action);
             if (action !== 'view') toast.success('Master Report Ready!');
         } catch (err) { toast.error('Failed to save PDF'); }
@@ -566,7 +567,7 @@ export default function SmartAttendance() {
         const filename = `Salary_Slip_${selectedStaff.name.replace(/\s+/g, '_')}_${currentMonth.toLocaleString('default', { month: 'short', year: 'numeric' })}.pdf`;
         try {
             const base64Data = doc.output('datauristring').split(',')[1];
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(base64Data, filename, 'application/pdf', action);
             if (action !== 'view') toast.success('Salary Slip Ready!');
         } catch (err) { toast.error('Failed to save PDF'); }

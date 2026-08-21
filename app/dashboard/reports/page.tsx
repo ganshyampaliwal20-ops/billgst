@@ -3,7 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { useStore } from '@/lib/store';
-import { getTranslations } from '@/lib/translations';
+import { getTranslations } from '../../../lib/translations';
+import { downloadAndShareFile } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
 
@@ -266,7 +267,7 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
             const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(b64, `Business_Report_${period}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'view');
             toast.success(t.excelDownloaded, { duration: 5000 });
         } catch (error) {
@@ -293,7 +294,7 @@ function ReportsContent() {
             const ws = XLSX.utils.json_to_sheet(excelData);
             const csv = XLSX.utils.sheet_to_csv(ws);
             const b64 = btoa(unescape(encodeURIComponent(csv)));
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(b64, `Business_Report_${period}.csv`, 'text/csv', 'view');
             toast.success('CSV downloaded/opened!', { duration: 5000 });
         } catch (error) {
@@ -344,7 +345,7 @@ function ReportsContent() {
             }
 
             const base64Data = doc.output('datauristring').split(',')[1];
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(base64Data, `Business_Report_${period}_${Date.now()}.pdf`, 'application/pdf', 'view');
             toast.success('PDF Opened Successfully', { duration: 5000 });
         } catch (error) {
@@ -377,7 +378,7 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
             const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(b64, `GST_Report_${period}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'view');
             toast.success(t.gstReportDownloaded, { duration: 5000 });
         } catch (error) {
@@ -392,7 +393,7 @@ function ReportsContent() {
         }
         const xml = generateTallyXML(invoices, 'Business');
         const b64 = btoa(unescape(encodeURIComponent(xml)));
-        const { downloadAndShareFile } = await import('@/lib/utils');
+        
         await downloadAndShareFile(b64, `Tally_Sales_${period}.xml`, 'application/xml', 'view');
         toast.success(t.tallyXmlDownloaded, { duration: 5000 });
     };
