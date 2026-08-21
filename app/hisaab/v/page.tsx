@@ -2,7 +2,8 @@
 
 import { useSearchParams, useParams } from 'next/navigation';
 import React, { useEffect, useState, Suspense } from 'react';
-import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';\nimport { downloadAndShareFile } from '../../../lib/utils';
+import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';
+import { downloadAndShareFile } from '../../../lib/utils';
 
 function formatCurrency(amount: number) {
     if (isNaN(amount) || amount === undefined || amount === null) return '₹0';

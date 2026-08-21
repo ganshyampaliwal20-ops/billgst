@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './hisaab.css';
-import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';\nimport { downloadAndShareFile } from '../../../lib/utils';
+import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';
+import { downloadAndShareFile } from '../../../lib/utils';
 import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
 import { useStore } from '../../../lib/store';
