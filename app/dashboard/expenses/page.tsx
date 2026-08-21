@@ -1013,7 +1013,7 @@ export default function BusinessExpensesPage() {
             if (doc) {
                 const base64Data = doc.output('datauristring').split(',')[1];
                 const { downloadAndShareFile } = await import('@/lib/utils');
-                await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view', newWindow);
+                await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view', newWindow as any);
                 showToast(t.pdfReady || '✅ PDF ready!');
             } else if (newWindow) {
                 newWindow.close();
