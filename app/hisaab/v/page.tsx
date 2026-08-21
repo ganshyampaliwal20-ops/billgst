@@ -2,7 +2,7 @@
 
 import { useSearchParams, useParams } from 'next/navigation';
 import React, { useEffect, useState, Suspense } from 'react';
-import { generateHisaabPDF } from '../../../lib/pdf-generator';
+import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';\nimport { downloadAndShareFile } from '../../../lib/utils';
 
 function formatCurrency(amount: number) {
     if (isNaN(amount) || amount === undefined || amount === null) return '₹0';
@@ -132,7 +132,7 @@ function HisaabViewerContent() {
         if (!rawData) return;
         setPdfGenerating(true);
         try {
-            const { downloadAndShareFile } = await import('../../../lib/utils');
+            
             const businessDetails = b ? { name: b.business_name, phone: b.business_phone, email: b.business_email, logo: b.logo } : { name: 'Business Statement' };
             const custStats = { credit: s.r, debit: s.g, net: s.net, isNeg: s.neg };
             

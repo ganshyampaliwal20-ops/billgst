@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './hisaab.css';
-import { generateHisaabPDF } from '../../../lib/pdf-generator';
+import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';\nimport { downloadAndShareFile } from '../../../lib/utils';
 import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
 import { useStore } from '../../../lib/store';
@@ -1000,26 +1000,15 @@ export default function BusinessExpensesPage() {
 
     const handleDownloadPDF = async () => {
         if (!currentCust) return;
-        let newWindow = null;
-        // Check if we are on web (not native app)
-        const isNative = typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform();
-        if (!isNative) {
-            newWindow = window.open('', '_blank');
-        }
         showToast(t.generatingPDF || '⏳ Generating PDF...');
         try {
-            const { generateHisaabPDF } = await import('@/lib/pdf-generator');
             const doc = await generateHisaabPDF(currentCust, businessProfile || { name: 'BillGST Pro' }, custStats, false);
             if (doc) {
                 const base64Data = doc.output('datauristring').split(',')[1];
-                const { downloadAndShareFile } = await import('@/lib/utils');
-                await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view', newWindow as any);
+                await downloadAndShareFile(base64Data, `Statement_${currentCust.name}_${Date.now()}.pdf`, 'application/pdf', 'view');
                 showToast(t.pdfReady || '✅ PDF ready!');
-            } else if (newWindow) {
-                newWindow.close();
             }
         } catch (e) {
-            if (newWindow) newWindow.close();
             showToast(t.pdfError || '❌ PDF Error');
         }
     };
@@ -1713,7 +1702,7 @@ export default function BusinessExpensesPage() {
             const fileName = `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
             const base64Data = btoa(unescape(encodeURIComponent(csv)));
             
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(base64Data, fileName, 'text/csv');
             showToast(t.excelDownloaded || '✅ Excel Downloaded/Shared!');
         } catch (e: any) {
@@ -1739,7 +1728,7 @@ export default function BusinessExpensesPage() {
             const fileName = `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
             const base64Data = btoa(unescape(encodeURIComponent(csv)));
             
-            const { downloadAndShareFile } = await import('@/lib/utils');
+            
             await downloadAndShareFile(base64Data, fileName, 'text/csv');
             showToast(t.excelDownloaded || '✅ Excel Downloaded/Shared!');
         } catch (e: any) {
