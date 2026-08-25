@@ -186,7 +186,7 @@ export default function DashboardPage() {
                 plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + ((ctx.raw as number) / 1000).toFixed(0) + 'K' } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#7c88a6' } },
-                    y: { display: false }
+                    y: { display: true, ticks: { callback: ctx => "?" + (ctx / 1000).toFixed(0) + "K" } }
                 }
             }
         });
@@ -350,7 +350,7 @@ export default function DashboardPage() {
 .inv-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--faint); cursor: pointer; transition: all .15s; }
 .inv-row:last-child { border-bottom: none; }
 .inv-row:hover { background: var(--faint); margin: 0 -8px; padding: 10px 8px; border-radius: 10px; }
-.inv-av { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.inv-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0; }
 .inv-info { flex: 1; min-width: 0; }
 .inv-name { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .inv-meta { font-size: 11px; color: var(--muted); font-weight: 400; font-family: 'JetBrains Mono', monospace; margin-top: 1px; }
@@ -365,7 +365,7 @@ export default function DashboardPage() {
 .coll-card { background: var(--faint); border: 1.5px solid var(--border); border-radius: 13px; padding: 16px; cursor: pointer; transition: all .2s; }
 .coll-card:hover { border-color: var(--indigo); background: #fff; transform: translateY(-1px); box-shadow: var(--shadow); }
 .coll-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.coll-num { width: 24px; height: 24px; background: var(--slate); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
+.coll-num { width: 32px; height: 32px; background: var(--slate); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
 .coll-bills { font-size: 10.5px; font-weight: 700; color: var(--teal); }
 .coll-name { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
 .coll-last { font-size: 10.5px; color: var(--muted); font-weight: 400; }
@@ -384,7 +384,7 @@ export default function DashboardPage() {
 .prod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .prod-card { background: var(--faint); border: 1.5px solid var(--border); border-radius: 13px; padding: 12px; position: relative; cursor: pointer; transition: all .2s; }
 .prod-card:hover { border-color: var(--amber); background: #fff; transform: translateY(-2px); box-shadow: var(--shadow); }
-.prod-rank { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.prod-rank { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; margin-bottom: 6px; }
 .rank-1 { background: linear-gradient(135deg, #f59e0b, #f97316); }
 .rank-2 { background: linear-gradient(135deg, #6b7280, #9ca3af); }
 .rank-3 { background: linear-gradient(135deg, #92400e, #b45309); }
@@ -413,7 +413,7 @@ export default function DashboardPage() {
 .gst-key { color: var(--muted); font-weight: 500; }
 .gst-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
 
-.support-btn { width: 100%; margin-top: 20px; padding: 16px; background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(79,70,229,0.35); transition: all .2s; }
+.support-btn { width: fit-content; min-width: 280px; margin: 20px auto; margin-top: 20px; padding: 16px; background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(79,70,229,0.35); transition: all .2s; }
 .support-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(79,70,229,0.45); }
 
 /* Follow Us Section */
@@ -506,7 +506,7 @@ export default function DashboardPage() {
                             
                             {/* Invoicing / Inventory Video */}
                             {(businessProfile?.modules?.inventory !== false || businessProfile?.modules?.invoicing !== false) && (
-                                <div className="shrink-0 snap-center flex flex-col items-center group" style={{ width: '85vw', maxWidth: '360px' }}>
+                                <div className="shrink-0 snap-center flex flex-col items-center group" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full transition-opacity duration-500" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === inventoryVideos[invVideoIndex] ? (
                                         <iframe 
@@ -563,7 +563,7 @@ export default function DashboardPage() {
                                         )}
                                     </div>
                                     <div className="mt-2 text-center bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2">
-                                        <span className="text-xs font-bold text-gray-800 tracking-wide uppercase">📦 Inventory & Billing</span>
+                                        <span className="text-sm font-bold text-gray-800">📦 Inventory & Billing</span>
                                         <div className="flex gap-1 ml-1">
                                             {inventoryVideos.map((_, i) => (
                                                 <div key={i} className={`h-1.5 w-1.5 rounded-full ${i === invVideoIndex ? 'bg-blue-500' : 'bg-gray-200'}`}></div>
@@ -575,7 +575,7 @@ export default function DashboardPage() {
 
                             {/* Expenses / Accounting Video */}
                             {(businessProfile?.modules?.accounting !== false) && (
-                                <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '85vw', maxWidth: '360px' }}>
+                                <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === 'DZHTY54IR_l' ? (
                                         <iframe 
@@ -619,7 +619,7 @@ export default function DashboardPage() {
 
                             {/* Attendance / Staff Video */}
                             {(businessProfile?.modules?.staff !== false) && (
-                                <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '85vw', maxWidth: '360px' }}>
+                                <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === 'DZARRuCI0rT' ? (
                                         <iframe 

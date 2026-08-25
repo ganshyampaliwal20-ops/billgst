@@ -495,7 +495,7 @@ export default function DashboardLayout({
             {pathname === '/dashboard' && (
                 <button
                     onClick={() => setIsDemoNLPOpen(true)}
-                    className="fixed bottom-[100px] md:bottom-[80px] right-6 z-[90] w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.8)] transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
+                    className="fixed bottom-6 md:bottom-8 right-6 md:right-8 z-[90] w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.8)] transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
                     title="Free AI Assistant"
                 >
                     <FaRobot size={24} className="animate-pulse" />
