@@ -186,7 +186,7 @@ export default function DashboardPage() {
                 plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + ((ctx.raw as number) / 1000).toFixed(0) + 'K' } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#7c88a6' } },
-                    y: { display: true, ticks: { callback: ctx => "?" + (ctx / 1000).toFixed(0) + "K" } }
+                    y: { display: true, ticks: { callback: (val: any) => "₹" + (Number(val) / 1000).toFixed(0) + "K" } }
                 }
             }
         });
