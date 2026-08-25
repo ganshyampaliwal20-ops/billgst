@@ -397,9 +397,9 @@ export default function DashboardLayout({
                         >
                             <FaSignOutAlt /> Logout Safe
                         </button>
-                        <p className="text-[10px] text-[#aaa] text-center mt-2 leading-[1.5]">
+                        <p className="text-xs text-slate-500 text-center mt-2 leading-relaxed">
                             BillGST ek private app hai, government entity nahi.<br />
-                            Official GST info ke liye <a href="https://gst.gov.in" target="_blank" className="text-[#534AB7] no-underline">gst.gov.in</a> dekhein.
+                            Official GST info ke liye <a href="https://gst.gov.in" target="_blank" className="text-indigo-600 no-underline">gst.gov.in</a> dekhein.
                         </p>
                     </div>
                 </div>
