@@ -894,16 +894,16 @@ export default function DashboardPage() {
                     <a className="f-card card-wide fc-web" href="https://billgst.in" target="_blank" rel="noopener">
                         <div className="fc-icon">
                             <svg viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
-                                <path d="M2 12h20M12 2c-2.5 3-4 6-4 10s1.5 7 4 10M12 2c2.5 3 4 6 4 10s-1.5 7-4 10" stroke="white" strokeWidth="2"/>
+                                <circle cx="12" cy="12" r="10" stroke="var(--slate)" strokeWidth="2"/>
+                                <path d="M2 12h20M12 2c-2.5 3-4 6-4 10s1.5 7 4 10M12 2c2.5 3 4 6 4 10s-1.5 7-4 10" stroke="var(--slate)" strokeWidth="2"/>
                             </svg>
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: "10.5px", fontWeight: 700, color: "#fff", fontFamily: "'Syne', sans-serif" }}>billgst.in — Free account banao abhi</div>
+                            <div style={{ fontSize: "10.5px", fontWeight: 700, color: "var(--ink)", fontFamily: "'Syne', sans-serif" }}>billgst.in — Free account banao abhi</div>
                             <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Invoice, hisaab, GST — sab kuch ek jagah</div>
                         </div>
                         <div className="fc-arrow">
-                            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="var(--slate)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </div>
                     </a>
                 </div>
