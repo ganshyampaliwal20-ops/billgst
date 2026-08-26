@@ -596,7 +596,7 @@ export default function DashboardPage() {
                                                 rel="noopener noreferrer"
                                                 className="flex flex-col items-center gap-2 text-white w-full h-full"
                                                 onClick={() => setPlayingVideo(null)}
-                                                style={display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}
+                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
                                             >
                                                 <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0}} />
                                                 <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
@@ -648,7 +648,7 @@ export default function DashboardPage() {
                                                 rel="noopener noreferrer"
                                                 className="flex flex-col items-center gap-2 text-white w-full h-full"
                                                 onClick={() => setPlayingVideo(null)}
-                                                style={display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}
+                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
                                             >
                                                 <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0}} />
                                                 <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
