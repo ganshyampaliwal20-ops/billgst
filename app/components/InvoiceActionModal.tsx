@@ -361,6 +361,67 @@ export default function InvoiceActionModal({
         }
         .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast .dot{ width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+        .modal-overlay {
+          position: fixed; inset: 0;
+          background: rgba(10, 14, 26, 0.7);
+          backdrop-filter: blur(4px);
+          display: flex; align-items: center; justify-content: center;
+          padding: 20px;
+          z-index: 10000;
+          opacity: 0; pointer-events: none;
+          transition: opacity 0.2s ease;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        
+        .modal-sheet {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 24px;
+          width: 100%; max-width: 360px;
+          box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+          transform: translateY(20px) scale(0.95);
+          transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-overlay.show .modal-sheet { transform: translateY(0) scale(1); }
+        
+        .modal-handle { display: none; }
+        .modal-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .modal-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
+        
+        .modal-option {
+          display: flex; align-items: center; gap: 14px;
+          padding: 16px;
+          background: var(--surface-2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          margin-bottom: 12px;
+          cursor: pointer;
+          transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .modal-option:hover { border-color: var(--indigo); background: #1E2743; }
+        .modal-option:active { transform: scale(0.98); }
+        .modal-option .icon-wrap {
+          width: 40px; height: 40px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        .modal-option.view .icon-wrap { background: rgba(227,178,60,0.15); }
+        .modal-option.download .icon-wrap { background: linear-gradient(135deg, var(--indigo), var(--indigo-2)); }
+        
+        .modal-option-text { display: flex; flex-direction: column; gap: 3px; }
+        .modal-option-text b { font-size: 14px; font-weight: 700; color: var(--text); }
+        .modal-option-text span { font-size: 12px; color: var(--text-faint); }
+        
+        .modal-cancel {
+          width: 100%; margin-top: 8px;
+          padding: 14px; background: transparent; border: none;
+          color: var(--text-dim); font-size: 14px; font-weight: 600;
+          cursor: pointer;
+          border-radius: var(--radius-md);
+        }
+        .modal-cancel:hover { background: rgba(255,255,255,0.05); color: var(--text); }
       `}} />
 
       <div className="phone" onClick={(e) => e.stopPropagation()}>
