@@ -123,6 +123,7 @@ export default function DashboardLayout({
         href: string;
         show?: boolean;
         isAuth?: boolean;
+        highlight?: boolean;
         subItems?: { label: string; href: string; icon?: any }[];
         onClick?: () => void;
     }
@@ -138,6 +139,7 @@ export default function DashboardLayout({
     const canSeeInventory = (isAccountantRole(userRole) || userRole === 'USER') && businessProfile?.modules?.inventory !== false;
     const isOwner = isOwnerRole(userRole) || userRole === 'USER';
 
+    const needsProfileSetup = !businessProfile?.name || !businessProfile?.address;
     if (canSeeSales) {
         menuItems.push({
             icon: FaFileInvoice,
@@ -173,6 +175,10 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' });
     }
 
+    if (canSeeAccounting) {
+        menuItems.push({ icon: FaWallet, label: 'Kharcha Tracker (New)', href: '/dashboard/kharcha-tracker' });
+    }
+
     if (canSeeStaff) {
         menuItems.push({ icon: FaIdCard, label: 'Attendance', href: '/dashboard/staff' });
     }
@@ -182,7 +188,12 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
     }
 
-    menuItems.push({ icon: FaCog, label: t.settings || 'Business Settings', href: '/dashboard/settings' });
+    menuItems.push({ 
+        icon: FaCog, 
+        label: needsProfileSetup ? 'Setup Business' : (t.settings || 'Business Settings'), 
+        href: '/dashboard/settings',
+        highlight: needsProfileSetup
+    });
 
     menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
 
@@ -195,11 +206,6 @@ export default function DashboardLayout({
             setSupportChatOpen(true);
         }
     });
-
-    // Extra menus added below Help & Support
-    if (canSeeAccounting) {
-        menuItems.push({ icon: FaWallet, label: 'Kharcha Tracker (New)', href: '/dashboard/kharcha-tracker' });
-    }
 
     menuItems.push({ 
         icon: FaBolt, 
@@ -214,7 +220,6 @@ export default function DashboardLayout({
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
     if (isSuperAdmin) {
-        menuItems.push({ icon: FaHeadset, label: 'Admin Support Inbox', href: '/dashboard/support' });
         menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
     }
 
@@ -348,14 +353,22 @@ export default function DashboardLayout({
                                             item.onClick();
                                         }
                                     }}
-                                    className={`flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
-                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}`}
+                                    className={`relative flex items-center gap-4 px-3 py-3.5 rounded-[12px] cursor-pointer transition-all
+                                        ${isActive ? 'bg-[#EEEDFE] shadow-sm' : 'text-[#333] hover:bg-[#f5f5f5]'}
+                                        ${item.highlight ? 'ring-2 ring-indigo-500 bg-indigo-50 animate-pulse' : ''}`}
                                 >
                                     <div className={`w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[18px] shrink-0 transition-colors
-                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}`}>
+                                        ${isActive ? 'bg-[#CECBF6] text-[#3C3489]' : 'bg-[#f0f0f0] text-[#666]'}
+                                        ${item.highlight ? 'bg-indigo-600 text-white shadow-md' : ''}`}>
                                         <Icon />
                                     </div>
-                                    <span className={`text-[15px] flex-1 ${isActive ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                    <span className={`text-[15px] flex-1 ${isActive || item.highlight ? 'text-[#3C3489] font-bold' : 'font-medium'}`}>{item.label}</span>
+                                    {item.highlight && (
+                                        <span className="absolute top-1/2 -translate-y-1/2 right-4 flex h-3 w-3">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                                        </span>
+                                    )}
                                 </Link>
                             );
                         })}
