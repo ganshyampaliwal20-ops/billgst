@@ -11,6 +11,7 @@ import { getVisitingCardText, openWhatsAppChat } from '../../../lib/whatsapp-uti
 import { translations } from '../../../lib/translations';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import InvoiceActionModal from '../../components/InvoiceActionModal';
 import {
     FaFilePdf, FaWhatsapp, FaTrash, FaCopy, FaEye, FaPrint, FaBox
 } from 'react-icons/fa';
@@ -1048,112 +1049,18 @@ export default function InvoicesPage() {
             
             
             {selectedInvoice && (
-                <div className="modal-ov ns-wrapper" onClick={() => { window.history.back(); }}>
-                    <div className="ns-phone" onClick={e => e.stopPropagation()}>
-                        <div className="ns-sheet">
-                            <div className="ns-head">
-                                <div className="ns-eyebrow">
-                                    <span className="ns-inv-no">Invoice #{selectedInvoice.invoice_number}</span>
-                                    {((selectedInvoice.status || 'UNPAID').toLowerCase() === 'paid' || 
-                                    Number(selectedInvoice.total_amount) <= Number(selectedInvoice.paid_amount || 0)) ? (
-                                        <span className="ns-status-pill ns-status-paid">Paid in full</span>
-                                    ) : (
-                                        <span className="ns-status-pill">Balance due</span>
-                                    )}
-                                </div>
-                                <div className="ns-amount-row">
-                                    <span className="ns-amount-currency">₹</span>
-                                    <span className="ns-amount">
-                                        {Number(selectedInvoice.total_amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                                <div className="ns-type-tag">
-                                    {selectedInvoice.type === 'QUOTATION' ? 'Quotation' : 'Cash sale'} 
-                                    <span> &middot; {new Date(selectedInvoice.invoice_date || selectedInvoice.created_at).toLocaleDateString('en-IN')}</span>
-                                </div>
-                                <div className="ns-punch"></div>
-                            </div>
-
-                            <div className="ns-body-pad">
-                                <div className="ns-section-label">Share invoice</div>
-                                <div className="ns-primary-actions">
-                                    <button className="ns-btn ns-btn-whatsapp" onClick={(e) => handleWhatsApp(selectedInvoice, e)}>
-                                        <svg className="ns-btn-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.48 3.53 1.32 5.01L2 22l5.12-1.28A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Z" stroke="#F3FAF7" strokeWidth="1.4"/><path d="M8.7 8.4c.2-.5.4-.5.6-.5h.5c.16 0 .38 0 .55.42.2.5.68 1.72.74 1.85.06.13.1.28.02.44-.08.16-.13.26-.26.4-.13.14-.27.32-.39.43-.13.13-.26.26-.12.5.14.25.63 1.03 1.36 1.67.94.83 1.72 1.09 1.97 1.21.25.13.4.11.55-.06.16-.18.65-.75.82-1.02.17-.25.34-.2.56-.12.23.08 1.44.68 1.68.8.25.13.4.19.47.3.06.13.06.7-.18 1.37-.24.66-1.4 1.28-1.94 1.36-.5.08-1.12.11-1.8-.11-.42-.14-.95-.32-1.64-.62-2.9-1.25-4.79-4.17-4.94-4.36-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.13 1.02-2.42Z" fill="#F3FAF7"/></svg>
-                                        Send on WhatsApp
-                                    </button>
-                                    <button className="ns-btn ns-btn-pdf" onClick={() => handleViewPdf(selectedInvoice)}>
-                                        <svg className="ns-btn-icon" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="#12182A" strokeWidth="1.4"/><path d="M14 3v5h5" stroke="#12182A" strokeWidth="1.4"/><text x="8" y="17" fontFamily="Inter" fontSize="6.5" fontWeight="700" fill="#12182A">PDF</text></svg>
-                                        Download PDF
-                                    </button>
-                                </div>
-
-                                <div className="ns-section-label">More actions</div>
-                                <div className="ns-secondary-grid">
-                                    <div className="ns-tile" onClick={() => handleDownloadEwayJSON(selectedInvoice)}>
-                                        <div className="ns-tile-icon" style={{background: 'var(--brass-tint)'}}>
-                                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M21 8 12 3 3 8l9 5 9-5Z" stroke="var(--brass-dark)" strokeWidth="1.4" strokeLinejoin="round"/><path d="M3 8v8l9 5 9-5V8" stroke="var(--brass-dark)" strokeWidth="1.4" strokeLinejoin="round"/><path d="M12 13v8" stroke="var(--brass-dark)" strokeWidth="1.4"/></svg>
-                                        </div>
-                                        <div className="ns-tile-label">E-Way JSON</div>
-                                    </div>
-                                    <Link href={`/dashboard/invoices/new?duplicateId=${selectedInvoice.id}`} style={{textDecoration: 'none', display: 'contents'}}>
-                                        <div className="ns-tile">
-                                            <div className="ns-tile-icon" style={{background: 'var(--brass-tint)'}}>
-                                                <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="var(--brass-dark)" strokeWidth="1.4"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="var(--brass-dark)" strokeWidth="1.4"/></svg>
-                                            </div>
-                                            <div className="ns-tile-label">Duplicate</div>
-                                        </div>
-                                    </Link>
-                                    <div className="ns-tile ns-full ns-tile-danger" onClick={() => handleDelete(selectedInvoice)}>
-                                        <div className="ns-tile-icon" style={{background: 'var(--red-tint)'}}>
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7h12Z" stroke="var(--red)" strokeWidth="1.4" strokeLinejoin="round"/></svg>
-                                        </div>
-                                        <div className="ns-tile-label">Delete invoice</div>
-                                    </div>
-                                </div>
-
-                                <div className="ns-payment-card">
-                                    <div className="ns-payment-head">
-                                        <div className="ns-payment-title">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" stroke="var(--brass-dark)" strokeWidth="1.4"/><path d="M2 10h20" stroke="var(--brass-dark)" strokeWidth="1.4"/></svg>
-                                            Record payment
-                                        </div>
-                                    </div>
-                                    <div className="ns-payment-row">
-                                        <input 
-                                            className="ns-amt-input" 
-                                            type="number" 
-                                            placeholder="Amount received (₹)" 
-                                            value={paymentAmount} 
-                                            onChange={e => setPaymentAmount(e.target.value)} 
-                                            disabled={isSubmittingPayment} 
-                                        />
-                                        <button 
-                                            className="ns-add-btn" 
-                                            onClick={handleRecordPayment} 
-                                            disabled={isSubmittingPayment}
-                                        >
-                                            {isSubmittingPayment ? '...' : 'Add'}
-                                        </button>
-                                    </div>
-                                    <div className="ns-balance-line">
-                                        <span className="ns-label">Balance due</span>
-                                        <span className="ns-val" style={{ color: Number(Math.max(Number(selectedInvoice.total_amount || 0) - Number(selectedInvoice.paid_amount || 0), 0)) <= 0 ? 'var(--green)' : 'var(--red)' }}>
-                                            ₹{Number(Math.max(Number(selectedInvoice.total_amount || 0) - Number(selectedInvoice.paid_amount || 0), 0)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-                                        </span>
-                                    </div>
-                                    <div className="ns-progress">
-                                        <div 
-                                            className="ns-progress-fill" 
-                                            style={{ width: `${Math.min((Number(selectedInvoice.paid_amount || 0) / Number(selectedInvoice.total_amount || 1)) * 100, 100)}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button className="ns-close-btn" onClick={() => { window.history.back(); }}>Close</button>
-                        </div>
-                    </div>
-                </div>
+                <InvoiceActionModal
+                    invoice={selectedInvoice}
+                    onClose={() => { window.history.back(); }}
+                    onWhatsApp={(e) => handleWhatsApp(selectedInvoice, e)}
+                    onPdf={() => handleViewPdf(selectedInvoice)}
+                    onEway={() => handleDownloadEwayJSON(selectedInvoice)}
+                    onDelete={() => handleDelete(selectedInvoice)}
+                    paymentAmount={paymentAmount}
+                    setPaymentAmount={setPaymentAmount}
+                    onRecordPayment={handleRecordPayment}
+                    isSubmittingPayment={isSubmittingPayment}
+                />
             )}
 
             {/* Animated Bottom FAB */}

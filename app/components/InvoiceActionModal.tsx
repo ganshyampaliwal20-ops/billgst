@@ -1,9 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
-export default function InvoiceActionModal({ invoice, onClose }: any) {
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+export default function InvoiceActionModal({ 
+  invoice, 
+  onClose,
+  onWhatsApp,
+  onPdf,
+  onEway,
+  onDelete,
+  paymentAmount,
+  setPaymentAmount,
+  onRecordPayment,
+  isSubmittingPayment
+}: any) {
   const [toastMsg, setToastMsg] = useState('');
   const [showToast, setShowToast] = useState(false);
 
@@ -15,10 +26,14 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
     toastTimer = setTimeout(() => setShowToast(false), 2200);
   };
 
+  const balDue = Math.max(Number(invoice?.total_amount || 0) - Number(invoice?.paid_amount || 0), 0);
+  const isPaid = (invoice?.status || '').toLowerCase() === 'paid' || (Number(invoice?.total_amount) > 0 && balDue <= 0);
+  const paidPct = Math.min((Number(invoice?.paid_amount || 0) / Number(invoice?.total_amount || 1)) * 100, 100);
+
   return (
-    <div className="invoice-action-wrapper">
+    <div className="invoice-action-wrapper" onClick={onClose}>
       <style dangerouslySetInnerHTML={{ __html: `
-        :root{
+        .invoice-action-wrapper {
           --bg: #0A0E1A;
           --bg-soft: #0D1220;
           --surface: #131A2C;
@@ -41,7 +56,8 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           --radius-sm: 11px;
         }
         .invoice-action-wrapper {
-          background: radial-gradient(ellipse 120% 80% at 50% -10%, #16204A 0%, var(--bg) 55%);
+          background: rgba(10, 14, 26, 0.85);
+          backdrop-filter: blur(8px);
           min-height: 100vh;
           display: flex;
           align-items: flex-start;
@@ -51,7 +67,7 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           color: var(--text);
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          z-index: 100;
+          z-index: 9999;
           overflow-y: auto;
         }
         .invoice-action-wrapper * { box-sizing: border-box; }
@@ -59,6 +75,11 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           width: 100%;
           max-width: 402px;
           position: relative;
+          animation: slideUp .3s cubic-bezier(.22,1,.36,1);
+        }
+        @keyframes slideUp{
+          from{ transform: translateY(100%); opacity: 0; }
+          to{ transform: translateY(0); opacity: 1; }
         }
         .inv-card{
           background: var(--surface);
@@ -108,6 +129,15 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           padding: 7px 13px 7px 10px;
           border-radius: 999px;
           font-size: 12px; font-weight: 700;
+        }
+        .status-pill.paid {
+          background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(34,197,94,0.08));
+          border: 1px solid rgba(34,197,94,0.35);
+          color: #99F6E4;
+        }
+        .status-pill.paid .dot {
+          background: var(--green);
+          box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
         }
         .status-pill .dot{
           width: 6px; height: 6px; border-radius: 50%;
@@ -275,6 +305,7 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           box-shadow: 0 8px 20px -8px rgba(108,92,231,0.6);
         }
         .add-btn:active{ transform: scale(0.97); }
+        .add-btn:disabled{ opacity: 0.6; cursor: not-allowed; }
 
         .balance-strip{
           margin-top: 16px; position: relative; z-index: 1;
@@ -297,6 +328,9 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           background: linear-gradient(90deg, var(--rose), #FF9A6B);
           border-radius: 999px;
         }
+        .progress-fill.paid{
+          background: linear-gradient(90deg, #10B981, #34D399);
+        }
 
         .close-btn{
           margin-top: 22px;
@@ -311,74 +345,6 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
           letter-spacing: 0.01em;
         }
         .close-btn:hover{ background: #1B2138; }
-
-        /* ---------- Modal ---------- */
-        .modal-overlay{
-          position: fixed; inset: 0;
-          background: rgba(6,8,16,0.72);
-          backdrop-filter: blur(6px);
-          display: none;
-          align-items: flex-end;
-          justify-content: center;
-          z-index: 50;
-          padding: 0;
-        }
-        .modal-overlay.show{ display: flex; }
-        .modal-sheet{
-          width: 100%;
-          max-width: 402px;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-bottom: none;
-          border-radius: 26px 26px 0 0;
-          padding: 10px 20px 26px;
-          animation: slideUp .28s cubic-bezier(.22,1,.36,1);
-          box-shadow: 0 -20px 60px -20px rgba(0,0,0,0.6);
-        }
-        @keyframes slideUp{
-          from{ transform: translateY(100%); }
-          to{ transform: translateY(0); }
-        }
-        .modal-handle{
-          width: 38px; height: 4px; border-radius: 999px;
-          background: var(--border); margin: 6px auto 18px;
-        }
-        .modal-title{
-          font-size: 15px; font-weight: 700; color: var(--text);
-          margin-bottom: 4px;
-        }
-        .modal-sub{
-          font-size: 12.5px; color: var(--text-faint); margin-bottom: 18px;
-        }
-        .modal-option{
-          display: flex; align-items: center; gap: 14px;
-          padding: 15px 14px;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border);
-          background: var(--surface-2);
-          margin-bottom: 10px;
-          cursor: pointer;
-          transition: border-color .15s ease, background .15s ease;
-        }
-        .modal-option:hover{ border-color: #33406B; background: #1E2743; }
-        .modal-option .icon-wrap{
-          width: 40px; height: 40px; border-radius: 11px;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-        }
-        .modal-option.download .icon-wrap{ background: linear-gradient(135deg, var(--indigo), var(--indigo-2)); }
-        .modal-option.view .icon-wrap{ background: rgba(227,178,60,0.15); border: 1px solid rgba(227,178,60,0.3); }
-        .modal-option-text b{
-          display: block; font-size: 13.5px; font-weight: 700; color: var(--text);
-          margin-bottom: 2px;
-        }
-        .modal-option-text span{ font-size: 11.5px; color: var(--text-faint); }
-        .modal-cancel{
-          width: 100%; text-align: center;
-          padding: 14px; margin-top: 6px;
-          font-size: 13.5px; font-weight: 700; color: var(--text-dim);
-          background: none; border: none; cursor: pointer;
-        }
 
         .toast{
           position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -395,21 +361,21 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
         .toast .dot{ width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
       `}} />
 
-      <div className="phone">
+      <div className="phone" onClick={(e) => e.stopPropagation()}>
         <div className="inv-card">
           <div className="inv-header">
             <div className="top-row">
               <div className="inv-meta">
                 <span className="inv-label">Invoice</span>
-                <span className="inv-number">{invoice?.invoice_number ? '#' + invoice.invoice_number : '#INV-766402-948'}</span>
+                <span className="inv-number">{invoice?.invoice_number ? '#' + invoice.invoice_number : '#INV'}</span>
               </div>
-              <div className="status-pill"><span className="dot"></span>{invoice?.status === 'PAID' ? 'Paid' : 'Baaki Hai'}</div>
+              <div className={"status-pill " + (isPaid ? 'paid' : '')}><span className="dot"></span>{isPaid ? 'Paid in full' : 'Baaki Hai'}</div>
             </div>
 
             <div className="amount-block">
-              <div className="amount-tag">Kul Raashi<span className="cash-chip">Cash Sale</span></div>
-              <div className="amount"><span className="rupee">₹</span>{invoice?.total_amount ? Number(invoice.total_amount).toLocaleString('en-IN') : '1,25,088'}</div>
-              <div className="amount-sub">{invoice?.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ko banaya gaya' : '25 Aug 2026 ko banaya gaya'} · <b>{invoice?.customer?.name || 'Ramesh Traders'}</b></div>
+              <div className="amount-tag">Kul Raashi<span className="cash-chip">{invoice?.type === 'QUOTATION' ? 'Quotation' : 'Cash Sale'}</span></div>
+              <div className="amount"><span className="rupee">₹</span>{invoice?.total_amount ? Number(invoice.total_amount).toLocaleString('en-IN', {maximumFractionDigits: 2}) : '0'}</div>
+              <div className="amount-sub">{(invoice?.invoice_date || invoice?.created_at) ? new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN') + ' ko banaya' : ''} · <b>{invoice?.customer?.name || 'Customer'}</b></div>
             </div>
           </div>
 
@@ -421,42 +387,44 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
 
           <div className="inv-body">
             <div className="section">
-              <div className="section-label">Invoice Share Karein</div>
+              <div className="section-label">Share invoice</div>
               <div className="actions-row">
-                <button className="btn whatsapp" onClick={() => triggerToast('WhatsApp khul raha hai…')}>
+                <button className="btn whatsapp" onClick={(e) => onWhatsApp ? onWhatsApp(e) : triggerToast('WhatsApp khul raha hai…')}>
                   <div className="icon-wrap">
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 3.4z" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0zm5 0a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0zM9.5 13.5c.5 1 1.5 1.5 2.5 1.5s2-.5 2.5-1.5" /></svg>
                   </div>
                   WhatsApp Bhejein
                 </button>
-                <button className="btn pdf" onClick={() => setIsPdfModalOpen(true)}>
+                <button className="btn pdf" onClick={() => onPdf ? onPdf() : triggerToast('PDF download hoga...')}>
                   <div className="icon-wrap">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M12 18v-6" /><path d="M9 15l3 3 3-3" /></svg>
                   </div>
-                  PDF (View/Download)
+                  Download PDF
                 </button>
               </div>
             </div>
 
             <div className="section">
-              <div className="section-label">Aur Options</div>
+              <div className="section-label">More actions</div>
               <div className="more-grid">
-                <div className="tile" onClick={() => triggerToast('E-Way JSON taiyar ho raha hai…')}>
+                <div className="tile" onClick={() => onEway ? onEway() : triggerToast('E-Way JSON taiyar ho raha hai…')}>
                   <div className="icon-wrap">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
                   </div>
                   <span>E-Way JSON</span>
                 </div>
-                <div className="tile" onClick={() => triggerToast('Invoice duplicate ho gaya')}>
-                  <div className="icon-wrap">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+                <Link href={invoice?.id ? \`/dashboard/invoices/new?duplicateId=\${invoice.id}\` : '#'} style={{textDecoration: 'none', display: 'contents'}}>
+                  <div className="tile">
+                    <div className="icon-wrap">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+                    </div>
+                    <span>Duplicate Karein</span>
                   </div>
-                  <span>Duplicate Karein</span>
-                </div>
+                </Link>
               </div>
             </div>
 
-            <div className="delete-row" onClick={() => triggerToast('Invoice delete karne ki pushti karein')}>
+            <div className="delete-row" onClick={() => onDelete ? onDelete() : triggerToast('Invoice delete karne ki pushti karein')}>
               <div className="icon-wrap">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FB6D6D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2-2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
               </div>
@@ -471,54 +439,35 @@ export default function InvoiceActionModal({ invoice, onClose }: any) {
                 Payment Record Karein
               </div>
               <div className="payment-input-row">
-                <input className="payment-input" type="number" placeholder="Kitna paisa mila (₹)" />
-                <button className="add-btn" onClick={() => triggerToast('Payment jud gaya ✓')}>Add</button>
+                <input 
+                  className="payment-input" 
+                  type="number" 
+                  placeholder="Kitna paisa mila (₹)" 
+                  value={paymentAmount || ''}
+                  onChange={e => setPaymentAmount && setPaymentAmount(e.target.value)}
+                  disabled={isSubmittingPayment}
+                />
+                <button 
+                  className="add-btn" 
+                  onClick={onRecordPayment}
+                  disabled={isSubmittingPayment}
+                >
+                  {isSubmittingPayment ? '...' : 'Add'}
+                </button>
               </div>
               <div className="balance-strip">
                 <div className="balance-strip-top">
                   <span className="label">Baaki Raashi</span>
-                  <span className="value">₹{invoice?.pending_amount ? Number(invoice.pending_amount).toLocaleString('en-IN') : '1,25,088'}</span>
+                  <span className="value" style={{color: balDue <= 0 ? 'var(--green)' : 'var(--rose)'}}>₹{balDue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                 </div>
-                <div className="progress"><div className="progress-fill"></div></div>
+                <div className="progress"><div className={"progress-fill " + (balDue <= 0 ? 'paid' : '')} style={{width: `${paidPct}%`}}></div></div>
               </div>
             </div>
 
             <button className="close-btn" onClick={() => {
-              triggerToast('Band kar diya');
               if (onClose) onClose();
             }}>Band Karein</button>
           </div>
-        </div>
-      </div>
-
-      {/* Modal */}
-      <div className={`modal-overlay ${isPdfModalOpen ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setIsPdfModalOpen(false) }}>
-        <div className="modal-sheet">
-          <div className="modal-handle"></div>
-          <div className="modal-title">Invoice PDF</div>
-          <div className="modal-sub">Dekhna hai ya seedha download karna hai?</div>
-
-          <div className="modal-option view" onClick={() => { triggerToast('PDF khul raha hai…'); setIsPdfModalOpen(false); }}>
-            <div className="icon-wrap">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0CB6E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-            </div>
-            <div className="modal-option-text">
-              <b>PDF Dekhein</b>
-              <span>Browser mein seedha khol kar dekhein</span>
-            </div>
-          </div>
-
-          <div className="modal-option download" onClick={() => { triggerToast('PDF download ho raha hai…'); setIsPdfModalOpen(false); }}>
-            <div className="icon-wrap">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-            </div>
-            <div className="modal-option-text">
-              <b>Download Karein</b>
-              <span>Phone mein PDF save karein</span>
-            </div>
-          </div>
-
-          <button className="modal-cancel" onClick={() => setIsPdfModalOpen(false)}>Cancel</button>
         </div>
       </div>
 
