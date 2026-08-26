@@ -514,17 +514,23 @@ export default function DashboardPage() {
                                 <div className="shrink-0 snap-center flex flex-col items-center group" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full transition-opacity duration-500" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === inventoryVideos[invVideoIndex] ? (
-                                        <iframe 
-                                            key={invVideoIndex}
-                                            src={`https://www.instagram.com/reel/${inventoryVideos[invVideoIndex]}/embed`} 
-                                            width="100%" 
-                                            height="600" 
-                                            frameBorder="0" 
-                                            scrolling="no" 
-                                            allowTransparency 
-                                            className="absolute top-0 left-0 w-full animate-in fade-in duration-500"
-                                            style={{ marginTop: '-55px' }}
-                                        ></iframe>
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black">
+                                            <a 
+                                                href={`https://www.instagram.com/reel/${inventoryVideos[invVideoIndex]}/`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex flex-col items-center gap-2 text-white"
+                                                onClick={() => setPlayingVideo(null)}
+                                            >
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0 }} />
+                                                <div style={{ position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }}>
+                                                    <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{ marginLeft: '3px' }}>
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                                <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>Instagram par dekhein</span>
+                                            </a>
+                                        </div>
                                         ) : (
                                                 <div 
                                                     style={{ 
@@ -583,16 +589,24 @@ export default function DashboardPage() {
                                 <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === 'DZHTY54IR_l' ? (
-                                        <iframe 
-                                            src="https://www.instagram.com/reel/DZHTY54IR_l/embed" 
-                                            width="100%" 
-                                            height="600" 
-                                            frameBorder="0" 
-                                            scrolling="no" 
-                                            allowTransparency 
-                                            className="absolute top-0 left-0 w-full"
-                                            style={{ marginTop: '-300px', transform: 'scale(1.5)', transformOrigin: 'top center' }}
-                                        ></iframe>
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black">
+                                            <a 
+                                                href="https://www.instagram.com/reel/DZHTY54IR_l/"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex flex-col items-center gap-2 text-white w-full h-full"
+                                                onClick={() => setPlayingVideo(null)}
+                                                style={display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}
+                                            >
+                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0}} />
+                                                <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
+                                                    <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{marginLeft: '3px'}}>
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                                <span style={{position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', marginTop: '8px'}}>Instagram par dekhein</span>
+                                            </a>
+                                        </div>
                                         ) : (
                                             <div 
                                                 style={{ 
@@ -627,16 +641,24 @@ export default function DashboardPage() {
                                 <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === 'DZARRuCI0rT' ? (
-                                        <iframe 
-                                            src="https://www.instagram.com/reel/DZARRuCI0rT/embed" 
-                                            width="100%" 
-                                            height="600" 
-                                            frameBorder="0" 
-                                            scrolling="no" 
-                                            allowTransparency 
-                                            className="absolute top-0 left-0 w-full"
-                                            style={{ marginTop: '-55px' }}
-                                        ></iframe>
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black">
+                                            <a 
+                                                href="https://www.instagram.com/reel/DZARRuCI0rT/"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex flex-col items-center gap-2 text-white w-full h-full"
+                                                onClick={() => setPlayingVideo(null)}
+                                                style={display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}
+                                            >
+                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0}} />
+                                                <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
+                                                    <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{marginLeft: '3px'}}>
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                                <span style={{position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', marginTop: '8px'}}>Instagram par dekhein</span>
+                                            </a>
+                                        </div>
                                         ) : (
                                             <div 
                                                 style={{ 
