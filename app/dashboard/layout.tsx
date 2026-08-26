@@ -154,11 +154,6 @@ export default function DashboardLayout({
         });
     }
 
-    if (canSeeAccounting) {
-        menuItems.push({ icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' });
-    menuItems.push({ icon: FaWallet, label: 'Kharcha Tracker (New)', href: '/dashboard/kharcha-tracker' });
-    }
-
     if (canSeeSales) {
         menuItems.push({ icon: FaUsers, label: t.customers, href: '/dashboard/customers' });
     }
@@ -168,44 +163,23 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaReceipt, label: 'Purchases', href: '/dashboard/purchases' });
     }
 
-    if (canSeeStaff) {
-        menuItems.push({ icon: FaIdCard, label: 'Attendance', href: '/dashboard/staff' });
-    }
-
     if (canSeeInventory) {
         menuItems.push({ icon: FaBox, label: t.inventory, href: '/dashboard/inventory' });
     }
 
     if (canSeeAccounting) {
-        menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
         menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
+        menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
     }
 
     if (isOwner) {
         menuItems.push({ icon: FaStar, label: t.subscription || 'Premium Plans', href: '/dashboard/pricing' });
         menuItems.push({ icon: FaUsers, label: t.referEarn || 'Refer & Earn', href: '/dashboard/referral' });
-
     }
 
-    menuItems.push({ 
-        icon: FaBolt, 
-        label: 'Free AI Assistant', 
-        href: '#',
-        onClick: () => {
-            setIsSidebarOpen(false);
-            setIsDemoNLPOpen(true);
-        }
-    });
-
-    menuItems.push({ icon: FaCog, label: t.settings || 'Settings', href: '/dashboard/settings' });
+    menuItems.push({ icon: FaCog, label: t.settings || 'Business Settings', href: '/dashboard/settings' });
 
     menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
-    menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
-
-    if (isSuperAdmin) {
-        menuItems.push({ icon: FaHeadset, label: 'Admin Support Inbox', href: '/dashboard/support' });
-        menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
-    }
 
     menuItems.push({ 
         icon: FaHeadset, 
