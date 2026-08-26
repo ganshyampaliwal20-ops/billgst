@@ -170,6 +170,11 @@ export default function DashboardLayout({
     if (canSeeAccounting) {
         menuItems.push({ icon: FaFileContract, label: t.gstReturns || 'GST Returns', href: '/dashboard/gst-returns' });
         menuItems.push({ icon: FaChartBar, label: t.reports, href: '/dashboard/reports' });
+        menuItems.push({ icon: FaMoneyBillWave, label: t.expenses || 'Expenses', href: '/dashboard/expenses' });
+    }
+
+    if (canSeeStaff) {
+        menuItems.push({ icon: FaIdCard, label: 'Attendance', href: '/dashboard/staff' });
     }
 
     if (isOwner) {
@@ -190,6 +195,28 @@ export default function DashboardLayout({
             setSupportChatOpen(true);
         }
     });
+
+    // Extra menus added below Help & Support
+    if (canSeeAccounting) {
+        menuItems.push({ icon: FaWallet, label: 'Kharcha Tracker (New)', href: '/dashboard/kharcha-tracker' });
+    }
+
+    menuItems.push({ 
+        icon: FaBolt, 
+        label: 'Free AI Assistant', 
+        href: '#',
+        onClick: () => {
+            setIsSidebarOpen(false);
+            setIsDemoNLPOpen(true);
+        }
+    });
+
+    menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
+
+    if (isSuperAdmin) {
+        menuItems.push({ icon: FaHeadset, label: 'Admin Support Inbox', href: '/dashboard/support' });
+        menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
+    }
 
     const handleLogout = () => {
         document.cookie = 'billgst_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
