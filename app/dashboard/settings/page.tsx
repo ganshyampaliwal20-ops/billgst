@@ -16,6 +16,7 @@ const THEMES = {
     TEMPLATE_5: { accent: '#16a34a', name: 'Classic Green' },
     TEMPLATE_6: { accent: '#e11d48', name: 'Rose Pink' },
     TEMPLATE_7: { accent: '#1a1a1a', name: 'Classic B&W' },
+    TEMPLATE_8: { accent: '#3b82f6', name: 'Vyapar Style' },
 };
 
 const LAYOUTS = [

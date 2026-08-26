@@ -219,9 +219,8 @@ export default function InvoicesPage() {
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             
             const invoiceLink = `${window.location.origin}/i/${invoice.id}`;
-            let text = `Hi ${invoice.customer?.name || 'Customer'},\n\nYour invoice *#${invoice.invoice_number}* for *${formatCurrency(invoice.total_amount)}* is ready.\n\n📄 *View Invoice & Pay Online*:\n${invoiceLink}\n\nRegards,\n${businessProfile.name}`;
-            text += getVisitingCardText(businessProfile);
-            
+            let bal = Math.max(Number(invoice.total_amount || 0) - Number(invoice.paid_amount || 0), 0);
+            let text = `${invoice.type === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${Number(invoice.total_amount || 0).toFixed(2)}\nBalance: ${bal.toFixed(2)}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.business_name || businessProfile?.name || 'Business'}`;
             if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
                 try {
                     let Filesystem;
