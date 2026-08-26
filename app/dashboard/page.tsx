@@ -416,21 +416,26 @@ export default function DashboardPage() {
 .support-btn { width: fit-content; min-width: 280px; margin: 20px auto; margin-top: 20px; padding: 16px; background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(79,70,229,0.35); transition: all .2s; }
 .support-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(79,70,229,0.45); }
 
-/* Follow Us Section */
-.follow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
-.f-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 4px; border-radius: 8px; text-decoration: none; border: none; transition: transform 0.18s ease; text-align: center; background: transparent; }
-.f-card:hover { transform: translateY(-2px); }
-.f-card.card-wide { grid-column: 1 / -1; flex-direction: row; justify-content: flex-start; gap: 8px; padding: 4px 10px; text-align: left; }
-.fc-ig { animation: fadeUp .5s .5s ease both; }
-.fc-fb { animation: fadeUp .5s .55s ease both; }
-.fc-yt { animation: fadeUp .5s .6s ease both; }
-.fc-wa { animation: fadeUp .5s .65s ease both; }
-.fc-web { animation: fadeUp .5s .7s ease both; }
-.fc-icon { width: 32px; height: 32px; flex-shrink: 0; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--slate); box-shadow: var(--shadow); }
-.fc-icon svg { width: 14px; height: 14px; fill: var(--slate); }
-.fc-label { display: none; }
-.fc-sub { display: none; }
-.fc-arrow { display: none; }
+.footer-dark{
+  background:#151a2e;
+  border-radius:16px;
+  padding:24px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:20px;
+  margin-top: 16px;
+}
+.footer-dark-text p.t{color:#fff;font-size:15px;font-weight:700;margin:0 0 3px;}
+.footer-dark-text p.s{color:#8b90a8;font-size:12.5px;margin:0;}
+.social-dark-row{display:flex;gap:10px;}
+.social-dark-btn{
+  width:42px;height:42px;border-radius:10px;
+  background:#232945;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;transition:.18s;
+}
+.social-dark-btn svg{width:19px;height:19px;fill:#c7cadd;}
+.social-dark-btn:hover{background:#7c5cff;}
+.social-dark-btn:hover svg{fill:#fff;}
 
 @media(max-width:1024px) { 
   .qa-grid { gap: 8px; } 
@@ -866,46 +871,25 @@ export default function DashboardPage() {
                 </div>
 
 
-                <div className="follow-grid">
-                    <a className="f-card fc-ig" href="https://www.instagram.com/billgst_app?utm_source=qr&igsh=bzJrMGphemNpa2dm" target="_blank" rel="noopener">
-                        <div className="fc-icon"><svg viewBox="0 0 24 24" fill="var(--slate)"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
-                        <div className="fc-label">Instagram</div>
-                        <div className="fc-sub">@billgst_app<br/>Tips & reels</div>
-                    </a>
-
-                    <a className="f-card fc-fb" href="https://www.facebook.com/share/1GrM77Pp4c/" target="_blank" rel="noopener">
-                        <div className="fc-icon"><svg viewBox="0 0 24 24" fill="var(--slate)"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
-                        <div className="fc-label">Facebook</div>
-                        <div className="fc-sub">BillGST Page<br/>Follow karein</div>
-                    </a>
-
-                    <a className="f-card fc-yt" href="https://www.youtube.com/@billgstapp" target="_blank" rel="noopener">
-                        <div className="fc-icon"><svg viewBox="0 0 24 24" fill="var(--slate)"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
-                        <div className="fc-label">YouTube</div>
-                        <div className="fc-sub">Tutorials<br/>& how-to videos</div>
-                    </a>
-
-                    <a className="f-card fc-wa" href="https://wa.me/917498571873" target="_blank" rel="noopener">
-                        <div className="fc-icon"><svg viewBox="0 0 24 24" fill="var(--slate)"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.486 2 2 6.486 2 12c0 1.73.445 3.397 1.293 4.875L2.05 21.95l5.19-1.232A9.948 9.948 0 0012 22c5.514 0 10-4.486 10-10S17.514 2 12 2zm0 18a7.951 7.951 0 01-4.063-1.117l-.289-.172-3.082.731.776-2.999-.188-.307A7.946 7.946 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg></div>
-                        <div className="fc-label">WhatsApp</div>
-                        <div className="fc-sub">Seedha hamare<br/>se baat karein</div>
-                    </a>
-
-                    <a className="f-card card-wide fc-web" href="https://billgst.in" target="_blank" rel="noopener">
-                        <div className="fc-icon">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="10" stroke="var(--slate)" strokeWidth="2"/>
-                                <path d="M2 12h20M12 2c-2.5 3-4 6-4 10s1.5 7 4 10M12 2c2.5 3 4 6 4 10s-1.5 7-4 10" stroke="var(--slate)" strokeWidth="2"/>
-                            </svg>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: "10.5px", fontWeight: 700, color: "var(--ink)", fontFamily: "'Syne', sans-serif" }}>billgst.in — Free account banao abhi</div>
-                            <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>Invoice, hisaab, GST — sab kuch ek jagah</div>
-                        </div>
-                        <div className="fc-arrow">
-                            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="var(--slate)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </div>
-                    </a>
+                <div className="footer-dark">
+                    <div className="footer-dark-text">
+                        <p className="t">billgst.in</p>
+                        <p className="s">Invoice, hisaab, GST — sab kuch ek jagah</p>
+                    </div>
+                    <div className="social-dark-row">
+                        <a className="social-dark-btn" href="https://www.instagram.com/billgst_app?utm_source=qr&igsh=bzJrMGphemNpa2dm" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24"><path d="M12 2c2.7 0 3 .01 4.1.06 1.1.05 1.8.22 2.4.46.66.26 1.2.6 1.75 1.14.5.5.85 1.08 1.14 1.75.24.6.4 1.3.46 2.4.05 1.1.06 1.4.06 4.1s-.01 3-.06 4.1c-.05 1.1-.22 1.8-.46 2.4-.26.66-.6 1.2-1.14 1.75-.5.5-1.08.85-1.75 1.14-.6.24-1.3.4-2.4.46-1.1.05-1.4.06-4.1.06s-3-.01-4.1-.06c-1.1-.05-1.8-.22-2.4-.46a4.9 4.9 0 0 1-1.75-1.14 4.9 4.9 0 0 1-1.14-1.75c-.24-.6-.4-1.3-.46-2.4C2.01 15 2 14.7 2 12s.01-3 .06-4.1c.05-1.1.22-1.8.46-2.4.26-.66.6-1.2 1.14-1.75A4.9 4.9 0 0 1 5.4 2.6c.6-.24 1.3-.4 2.4-.46C8.9 2.06 9.2 2.05 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.2-2.7a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/></svg>
+                        </a>
+                        <a className="social-dark-btn" href="https://www.youtube.com/@billgstapp" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                            <svg viewBox="0 0 24 24"><path d="M23 12s0-3.4-.44-5c-.24-.9-1-1.6-1.9-1.84C18.9 4.7 12 4.7 12 4.7s-6.9 0-8.66.46c-.9.24-1.66.95-1.9 1.84C1 8.6 1 12 1 12s0 3.4.44 5c.24.9 1 1.6 1.9 1.84C5.1 19.3 12 19.3 12 19.3s6.9 0 8.66-.46c.9-.24 1.66-.95 1.9-1.84.44-1.6.44-5 .44-5ZM9.8 15.3V8.7L15.8 12l-6 3.3Z"/></svg>
+                        </a>
+                        <a className="social-dark-btn" href="https://www.facebook.com/share/1GrM77Pp4c/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24"><path d="M13.5 21v-7.6h2.55l.38-2.96h-2.93V8.56c0-.86.24-1.44 1.47-1.44h1.57V4.48C16.24 4.4 15.32 4.32 14.25 4.32c-2.24 0-3.77 1.37-3.77 3.87v2.24H7.9v2.96h2.58V21h3.02Z"/></svg>
+                        </a>
+                        <a className="social-dark-btn" href="https://wa.me/917498571873" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                            <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.15-1.75-.86-2-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.93 1.16-.17.2-.34.22-.63.07-.3-.15-1.24-.46-2.37-1.46-.87-.78-1.47-1.74-1.64-2.04-.17-.3-.02-.46.13-.6.13-.13.3-.34.44-.5.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.6-.9-2.18-.24-.58-.48-.5-.66-.5h-.56c-.2 0-.5.07-.77.37-.26.3-1 1-1 2.4s1.03 2.78 1.17 2.98c.15.2 2.02 3.1 4.9 4.34.68.3 1.22.47 1.63.6.68.22 1.3.19 1.8.12.55-.08 1.75-.72 2-1.4.24-.7.24-1.3.17-1.42-.07-.13-.27-.2-.57-.36ZM12.02 2C6.5 2 2 6.5 2 12c0 1.85.5 3.58 1.4 5.06L2 22l5.1-1.34A9.94 9.94 0 0 0 12.02 22C17.5 22 22 17.5 22 12S17.5 2 12.02 2Zm0 18.1a8.06 8.06 0 0 1-4.13-1.13l-.3-.18-3.03.8.8-2.95-.2-.3A8.07 8.07 0 1 1 12.02 20.1Z"/></svg>
+                        </a>
+                    </div>
                 </div>
 
                 <button className="support-btn" onClick={() => router.push('/dashboard/help')}>👥 {t.supportHelp}</button>
