@@ -7,7 +7,8 @@ export default function InvoiceActionModal({
   invoice, 
   onClose,
   onWhatsApp,
-  onPdf,
+  onViewPdf,
+  onDownloadPdf,
   onEway,
   onDelete,
   paymentAmount,
@@ -17,6 +18,7 @@ export default function InvoiceActionModal({
 }: any) {
   const [toastMsg, setToastMsg] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   let toastTimer: any;
   const triggerToast = (msg: string) => {
@@ -395,11 +397,11 @@ export default function InvoiceActionModal({
                   </div>
                   WhatsApp Bhejein
                 </button>
-                <button className="btn pdf" onClick={() => onPdf ? onPdf() : triggerToast('PDF download hoga...')}>
+                <button className="btn pdf" onClick={() => setIsPdfModalOpen(true)}>
                   <div className="icon-wrap">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M12 18v-6" /><path d="M9 15l3 3 3-3" /></svg>
                   </div>
-                  Download PDF
+                  PDF (View/Download)
                 </button>
               </div>
             </div>
@@ -468,6 +470,45 @@ export default function InvoiceActionModal({
               if (onClose) onClose();
             }}>Band Karein</button>
           </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      <div className={`modal-overlay ${isPdfModalOpen ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setIsPdfModalOpen(false) }}>
+        <div className="modal-sheet">
+          <div className="modal-handle"></div>
+          <div className="modal-title">Invoice PDF</div>
+          <div className="modal-sub">Dekhna hai ya seedha download karna hai?</div>
+
+          <div className="modal-option view" onClick={() => { 
+            setIsPdfModalOpen(false); 
+            if (onViewPdf) onViewPdf(); 
+            else triggerToast('PDF khul raha hai…'); 
+          }}>
+            <div className="icon-wrap">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0CB6E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+            </div>
+            <div className="modal-option-text">
+              <b>PDF Dekhein</b>
+              <span>Browser mein seedha khol kar dekhein</span>
+            </div>
+          </div>
+
+          <div className="modal-option download" onClick={() => { 
+            setIsPdfModalOpen(false); 
+            if (onDownloadPdf) onDownloadPdf(); 
+            else triggerToast('PDF download ho raha hai…'); 
+          }}>
+            <div className="icon-wrap">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            </div>
+            <div className="modal-option-text">
+              <b>Download Karein</b>
+              <span>Phone mein PDF save karein</span>
+            </div>
+          </div>
+
+          <button className="modal-cancel" onClick={() => setIsPdfModalOpen(false)}>Cancel</button>
         </div>
       </div>
 

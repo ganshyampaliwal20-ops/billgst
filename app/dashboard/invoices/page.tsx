@@ -176,6 +176,14 @@ export default function InvoicesPage() {
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
+    const handleDownloadPdf = async (invoice: any) => {
+        const toastId = toast.loading('Downloading PDF...');
+        try {
+            await generateInvoicePDF(invoice, businessProfile, true, 'download');
+            toast.dismiss(toastId);
+        } catch (error) { toast.error('PDF Error', { id: toastId }); }
+    };
+
     const handleSharePdf = async (invoice: any) => {
         const toastId = toast.loading('Generating PDF for Share...');
         try {
@@ -1052,7 +1060,8 @@ export default function InvoicesPage() {
                     invoice={selectedInvoice}
                     onClose={() => { window.history.back(); }}
                     onWhatsApp={(e: any) => handleWhatsApp(selectedInvoice, e)}
-                    onPdf={() => handleViewPdf(selectedInvoice)}
+                    onViewPdf={() => handleViewPdf(selectedInvoice)}
+                    onDownloadPdf={() => handleDownloadPdf(selectedInvoice)}
                     onEway={() => handleDownloadEwayJSON(selectedInvoice)}
                     onDelete={() => handleDelete(selectedInvoice)}
                     paymentAmount={paymentAmount}
