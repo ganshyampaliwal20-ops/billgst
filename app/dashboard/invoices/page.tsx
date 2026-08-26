@@ -1052,7 +1052,7 @@ export default function InvoicesPage() {
                 <InvoiceActionModal
                     invoice={selectedInvoice}
                     onClose={() => { window.history.back(); }}
-                    onWhatsApp={(e) => handleWhatsApp(selectedInvoice, e)}
+                    onWhatsApp={(e: any) => handleWhatsApp(selectedInvoice, e)}
                     onPdf={() => handleViewPdf(selectedInvoice)}
                     onEway={() => handleDownloadEwayJSON(selectedInvoice)}
                     onDelete={() => handleDelete(selectedInvoice)}

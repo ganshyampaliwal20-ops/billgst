@@ -413,7 +413,7 @@ export default function InvoiceActionModal({
                   </div>
                   <span>E-Way JSON</span>
                 </div>
-                <Link href={invoice?.id ? \`/dashboard/invoices/new?duplicateId=\${invoice.id}\` : '#'} style={{textDecoration: 'none', display: 'contents'}}>
+                <Link href={invoice?.id ? `/dashboard/invoices/new?duplicateId=${invoice.id}` : '#'} style={{textDecoration: 'none', display: 'contents'}}>
                   <div className="tile">
                     <div className="icon-wrap">
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
