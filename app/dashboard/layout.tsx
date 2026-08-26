@@ -195,8 +195,6 @@ export default function DashboardLayout({
         highlight: needsProfileSetup
     });
 
-    menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
-
     menuItems.push({ 
         icon: FaHeadset, 
         label: t.helpAndSupport || 'Help & Support', 
@@ -217,6 +215,7 @@ export default function DashboardLayout({
         }
     });
 
+    menuItems.push({ icon: FaInfoCircle, label: t.aboutUs || 'About Us', href: '/about' });
     menuItems.push({ icon: FaShieldAlt, label: t.privacyPolicy || 'Privacy Policy', href: '/privacy' });
 
     if (isSuperAdmin) {
