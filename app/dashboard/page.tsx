@@ -426,8 +426,8 @@ export default function DashboardPage() {
 .fc-yt { animation: fadeUp .5s .6s ease both; }
 .fc-wa { animation: fadeUp .5s .65s ease both; }
 .fc-web { animation: fadeUp .5s .7s ease both; }
-.fc-icon { width: 22px; height: 22px; flex-shrink: 0; background: var(--faint); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--muted); }
-.fc-icon svg { width: 11px; height: 11px; fill: var(--muted); }
+.fc-icon { width: 32px; height: 32px; flex-shrink: 0; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--slate); box-shadow: var(--shadow); }
+.fc-icon svg { width: 14px; height: 14px; fill: var(--slate); }
 .fc-label { display: none; }
 .fc-sub { display: none; }
 .fc-arrow { display: none; }
