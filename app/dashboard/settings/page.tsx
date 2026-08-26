@@ -16,7 +16,7 @@ const THEMES = {
     TEMPLATE_5: { accent: '#16a34a', name: 'Classic Green' },
     TEMPLATE_6: { accent: '#e11d48', name: 'Rose Pink' },
     TEMPLATE_7: { accent: '#1a1a1a', name: 'Classic B&W' },
-    TEMPLATE_8: { accent: '#3b82f6', name: 'Vyapar Style' },
+    TEMPLATE_8: { accent: '#3b82f6', name: 'Professional Boxed' },
 };
 
 const LAYOUTS = [
@@ -911,29 +911,54 @@ export default function SettingsPage() {
                                         </span>
                                         <span className="bs-badge">Sample Data</span>
                                     </div>
-                                    <div style={{ padding: '20px', background: '#fff', borderRadius: '10px', color: '#1a1a2e', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        <div style={{ display: 'flex', flexDirection: formData.logo_position === 'CENTER' ? 'column' : (formData.logo_position === 'RIGHT' ? 'row-reverse' : 'row'), justifyContent: 'space-between', alignItems: formData.logo_position === 'CENTER' ? 'center' : 'flex-start', textAlign: formData.logo_position === 'CENTER' ? 'center' : (formData.logo_position === 'RIGHT' ? 'right' : 'left'), gap: '16px' }}>
-                                            {formData.logo ? (
-                                                <img src={formData.logo} alt="Logo" style={{ height: '36px', objectFit: 'contain' }} />
-                                            ) : (
-                                                <div style={{ width: '80px', height: '36px', background: '#e2e8f0', borderRadius: '4px' }}></div>
-                                            )}
-                                            <div style={{ flex: 1 }}>
-                                                <h3 style={{ margin: 0, fontSize: '16px', color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || THEMES.TEMPLATE_1.accent, fontWeight: 700 }}>{formData.name || 'Your Business Name'}</h3>
-                                                <p style={{ margin: '2px 0 0', fontSize: '10px', color: '#64748b' }}>{formData.address || 'Your Business Address'}</p>
+                                    {formData.invoice_template === 'TEMPLATE_8' ? (
+                                        <div style={{ padding: '20px', background: '#fff', borderRadius: '10px', color: '#1a1a2e', display: 'flex', flexDirection: 'column', border: '1px solid #1a1a2e' }}>
+                                            <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '12px', paddingBottom: '10px' }}>TAX INVOICE</div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    {formData.logo ? <img src={formData.logo} alt="Logo" style={{ height: '30px' }} /> : <div style={{ width: '30px', height: '30px', background: '#e2e8f0', borderRadius: '4px' }}></div>}
+                                                    <div>
+                                                        <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{(formData.business_name || formData.name || 'Your Business Name').toUpperCase()}</div>
+                                                        <div style={{ fontSize: '9px', color: '#64748b' }}>{formData.address || 'Business Address'}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', borderTop: '1px solid #1a1a2e', borderBottom: '1px solid #1a1a2e', marginTop: '12px' }}>
+                                                <div style={{ flex: 1, padding: '8px', borderRight: '1px solid #1a1a2e' }}>
+                                                    <div style={{ fontWeight: 'bold', fontSize: '9px' }}>Bill To:</div>
+                                                    <div style={{ fontSize: '11px', marginTop: '4px' }}>Customer Name</div>
+                                                </div>
+                                                <div style={{ flex: 1, padding: '8px' }}>
+                                                    <div style={{ fontWeight: 'bold', fontSize: '9px' }}>Invoice Details:</div>
+                                                    <div style={{ fontSize: '11px', marginTop: '4px' }}>Invoice Total: ₹ 24,500</div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #f1f5f9', borderBottom: '2px solid #f1f5f9', padding: '10px 0' }}>
-                                            <div>
-                                                <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>BILLED TO</p>
-                                                <p style={{ fontSize: '11px', fontWeight: 600, margin: '1px 0 0' }}>Customer Name</p>
+                                    ) : (
+                                        <div style={{ padding: '20px', background: '#fff', borderRadius: '10px', color: '#1a1a2e', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: formData.logo_position === 'CENTER' ? 'column' : (formData.logo_position === 'RIGHT' ? 'row-reverse' : 'row'), justifyContent: 'space-between', alignItems: formData.logo_position === 'CENTER' ? 'center' : 'flex-start', textAlign: formData.logo_position === 'CENTER' ? 'center' : (formData.logo_position === 'RIGHT' ? 'right' : 'left'), gap: '16px' }}>
+                                                {formData.logo ? (
+                                                    <img src={formData.logo} alt="Logo" style={{ height: '36px', objectFit: 'contain' }} />
+                                                ) : (
+                                                    <div style={{ width: '80px', height: '36px', background: '#e2e8f0', borderRadius: '4px' }}></div>
+                                                )}
+                                                <div style={{ flex: 1 }}>
+                                                    <h3 style={{ margin: 0, fontSize: '16px', color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || THEMES.TEMPLATE_1.accent, fontWeight: 700 }}>{formData.name || 'Your Business Name'}</h3>
+                                                    <p style={{ margin: '2px 0 0', fontSize: '10px', color: '#64748b' }}>{formData.address || 'Your Business Address'}</p>
+                                                </div>
                                             </div>
-                                            <div style={{ textAlign: 'right' }}>
-                                                <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>INVOICE TOTAL</p>
-                                                <p style={{ fontSize: '14px', fontWeight: 800, margin: '1px 0 0', color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || THEMES.TEMPLATE_1.accent }}>₹ 24,500</p>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #f1f5f9', borderBottom: '2px solid #f1f5f9', padding: '10px 0' }}>
+                                                <div>
+                                                    <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>BILLED TO</p>
+                                                    <p style={{ fontSize: '11px', fontWeight: 600, margin: '1px 0 0' }}>Customer Name</p>
+                                                </div>
+                                                <div style={{ textAlign: 'right' }}>
+                                                    <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>INVOICE TOTAL</p>
+                                                    <p style={{ fontSize: '14px', fontWeight: 800, margin: '1px 0 0', color: THEMES[formData.invoice_template as keyof typeof THEMES]?.accent || THEMES.TEMPLATE_1.accent }}>₹ 24,500</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
                         </div></div>
