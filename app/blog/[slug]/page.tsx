@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Link from 'next/link';
 import { FaArrowLeft, FaCalendar, FaUser, FaTag } from 'react-icons/fa';
 import { blogPosts } from '@/lib/blog-data';

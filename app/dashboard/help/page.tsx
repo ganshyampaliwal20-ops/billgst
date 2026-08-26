@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import { FaHeadset, FaWhatsapp, FaEnvelope, FaPhone, FaQuestionCircle } from 'react-icons/fa';

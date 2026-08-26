@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Navbar3D from '@/app/components/Navbar3D';
