@@ -269,13 +269,14 @@ export default function InvoiceActionModal({
           padding: 18px;
           background: linear-gradient(165deg, #1C2440 0%, #141A30 100%);
           border: 1px solid var(--border);
-          position: relative; overflow: hidden;
+          position: relative; overflow: visible;
         }
         .payment-card::before{
           content: "";
           position: absolute; top: -40px; right: -40px;
           width: 140px; height: 140px; border-radius: 50%;
           background: radial-gradient(circle, rgba(227,178,60,0.16), transparent 70%);
+          pointer-events: none;
         }
         .payment-head{
           display: flex; align-items: center; gap: 9px;
@@ -287,9 +288,10 @@ export default function InvoiceActionModal({
           background: rgba(227,178,60,0.15);
           display: flex; align-items: center; justify-content: center;
         }
-        .payment-input-row{ display: flex; gap: 10px; position: relative; z-index: 1; }
+        .payment-input-row{ display: flex; gap: 10px; position: relative; z-index: 1; align-items: stretch; }
         .payment-input{
           flex: 1;
+          min-width: 0;
           background: var(--bg-soft);
           border: 1px solid var(--border);
           border-radius: var(--radius-sm);
@@ -303,12 +305,14 @@ export default function InvoiceActionModal({
         .add-btn{
           background: linear-gradient(135deg, var(--indigo), var(--indigo-2));
           border: none; color: #fff; font-weight: 700; font-size: 14px;
-          padding: 0 22px; border-radius: var(--radius-sm);
-          cursor: pointer;
+          padding: 0 20px; border-radius: var(--radius-sm);
+          cursor: pointer; flex-shrink: 0;
+          min-width: 64px;
           box-shadow: 0 8px 20px -8px rgba(108,92,231,0.6);
         }
         .add-btn:active{ transform: scale(0.97); }
         .add-btn:disabled{ opacity: 0.6; cursor: not-allowed; }
+
 
         .balance-strip{
           margin-top: 16px; position: relative; z-index: 1;
