@@ -207,7 +207,7 @@ async function translateAll() {
     }
 
     // Write back to translations.js
-    const outString = `export const languages = ${JSON.stringify(langs, null, 4)};\n\nexport const translations = ${JSON.stringify(trans, null, 4)};\n`;
+    const outString = `export const languages = ${JSON.stringify(langs, null, 4)};\n\nexport const translations = ${JSON.stringify(trans, null, 4)};\nexport const getTranslations = (code) => { return translations[code] || translations.en; };\n`;
     fs.writeFileSync('./lib/translations.js', outString, 'utf8');
     console.log("Translations successfully updated!");
 }
