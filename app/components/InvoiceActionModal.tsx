@@ -15,7 +15,8 @@ export default function InvoiceActionModal({
   paymentAmount,
   setPaymentAmount,
   onRecordPayment,
-  isSubmittingPayment
+  isSubmittingPayment,
+  t = {}
 }: any) {
   const [toastMsg, setToastMsg] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -65,7 +66,7 @@ export default function InvoiceActionModal({
           display: flex;
           align-items: flex-start;
           justify-content: center;
-          padding: 28px 14px 60px;
+          padding: 80px 14px 60px;
           font-family: 'Inter', sans-serif;
           color: var(--text);
           position: fixed;
@@ -434,16 +435,16 @@ export default function InvoiceActionModal({
           <div className="inv-header">
             <div className="top-row">
               <div className="inv-meta">
-                <span className="inv-label">Invoice</span>
+                <span className="inv-label">{t.invoice || 'Invoice'}</span>
                 <span className="inv-number">{invoice?.invoice_number ? '#' + invoice.invoice_number : '#INV'}</span>
               </div>
-              <div className={"status-pill " + (isPaid ? 'paid' : '')}><span className="dot"></span>{isPaid ? 'Paid in full' : 'Baaki Hai'}</div>
+              <div className={"status-pill " + (isPaid ? 'paid' : '')}><span className="dot"></span>{isPaid ? (t.paidInFull || 'Paid in full') : (t.baakiHai || 'Due')}</div>
             </div>
 
             <div className="amount-block">
-              <div className="amount-tag">Kul Raashi<span className="cash-chip">{invoice?.type === 'QUOTATION' ? 'Quotation' : 'Cash Sale'}</span></div>
+              <div className="amount-tag">{t.totalAmount || 'Total Amount'}<span className="cash-chip">{invoice?.type === 'QUOTATION' ? (t.quotation || 'Quotation') : (t.cashSale || 'Cash Sale')}</span></div>
               <div className="amount"><span className="rupee">₹</span>{invoice?.total_amount ? Number(invoice.total_amount).toLocaleString('en-IN', {maximumFractionDigits: 2}) : '0'}</div>
-              <div className="amount-sub">{(invoice?.invoice_date || invoice?.created_at) ? new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN') + ' ko banaya' : ''} · <b>{invoice?.customer?.name || 'Customer'}</b></div>
+              <div className="amount-sub">{(invoice?.invoice_date || invoice?.created_at) ? new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN') + ' ' + (t.createdOn || 'created') : ''} · <b>{invoice?.customer?.name || 'Customer'}</b></div>
             </div>
           </div>
 
@@ -455,48 +456,48 @@ export default function InvoiceActionModal({
 
           <div className="inv-body">
             <div className="section">
-              <div className="section-label">Share invoice</div>
+              <div className="section-label">{t.shareInvoice || 'Share invoice'}</div>
               <div className="actions-row">
-                <button className="btn whatsapp" onClick={(e) => onWhatsApp ? onWhatsApp(e) : triggerToast('WhatsApp khul raha hai…')}>
+                <button className="btn whatsapp" onClick={(e) => onWhatsApp ? onWhatsApp(e) : triggerToast(t.openingWhatsApp || 'WhatsApp opening…')}>
                   <div className="icon-wrap">
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 3.4z" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0zm5 0a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0zM9.5 13.5c.5 1 1.5 1.5 2.5 1.5s2-.5 2.5-1.5" /></svg>
                   </div>
-                  WhatsApp Bhejein
+                  {t.whatsappShare || 'WhatsApp Share'}
                 </button>
                 <button className="btn pdf" onClick={() => setIsPdfModalOpen(true)}>
                   <div className="icon-wrap">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M12 18v-6" /><path d="M9 15l3 3 3-3" /></svg>
                   </div>
-                  PDF (View/Download)
+                  {t.pdfViewDownload || 'PDF (View/Download)'}
                 </button>
               </div>
             </div>
 
             <div className="section">
-              <div className="section-label">More actions</div>
+              <div className="section-label">{t.actions || 'More actions'}</div>
               <div className="more-grid">
-                <div className="tile" onClick={() => onEway ? onEway() : triggerToast('E-Way JSON taiyar ho raha hai…')}>
+                <div className="tile" onClick={() => onEway ? onEway() : triggerToast(t.eWayBill || 'E-Way JSON')}>
                   <div className="icon-wrap">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
                   </div>
-                  <span>E-Way JSON</span>
+                  <span>{t.eWayBill || 'E-Way JSON'}</span>
                 </div>
                 <Link href={invoice?.id ? `/dashboard/invoices/new?duplicateId=${invoice.id}` : '#'} style={{textDecoration: 'none', display: 'contents'}}>
                   <div className="tile">
                     <div className="icon-wrap">
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
                     </div>
-                    <span>Duplicate Karein</span>
+                    <span>{t.duplicateInvoice || 'Duplicate Invoice'}</span>
                   </div>
                 </Link>
               </div>
             </div>
 
-            <div className="delete-row" onClick={() => onDelete ? onDelete() : triggerToast('Invoice delete karne ki pushti karein')}>
+            <div className="delete-row" onClick={() => onDelete ? onDelete() : triggerToast(t.deleteInvoice || 'Delete Invoice')}>
               <div className="icon-wrap">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FB6D6D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2-2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></svg>
               </div>
-              <span>Invoice Delete Karein</span>
+              <span>{t.deleteInvoice || 'Delete Invoice'}</span>
             </div>
 
             <div className="payment-card">
@@ -504,13 +505,13 @@ export default function InvoiceActionModal({
                 <div className="icon-wrap">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F0CB6E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
                 </div>
-                Payment Record Karein
+                {t.recordPayment || 'Record Payment'}
               </div>
               <div className="payment-input-row">
                 <input 
                   className="payment-input" 
                   type="number" 
-                  placeholder="Kitna paisa mila (₹)" 
+                  placeholder={t.amountReceivedPlaceholder || "Amount Received (₹)"}
                   value={paymentAmount || ''}
                   onChange={e => setPaymentAmount && setPaymentAmount(e.target.value)}
                   disabled={isSubmittingPayment}
@@ -520,12 +521,12 @@ export default function InvoiceActionModal({
                   onClick={onRecordPayment}
                   disabled={isSubmittingPayment}
                 >
-                  {isSubmittingPayment ? '...' : 'Add'}
+                  {isSubmittingPayment ? '...' : (t.save || 'Add')}
                 </button>
               </div>
               <div className="balance-strip">
                 <div className="balance-strip-top">
-                  <span className="label">Baaki Raashi</span>
+                  <span className="label">{t.balanceDue || 'Balance Due'}</span>
                   <span className="value" style={{color: balDue <= 0 ? 'var(--green)' : 'var(--rose)'}}>₹{balDue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="progress"><div className={"progress-fill " + (balDue <= 0 ? 'paid' : '')} style={{width: `${paidPct}%`}}></div></div>
@@ -534,7 +535,7 @@ export default function InvoiceActionModal({
 
             <button className="close-btn" onClick={() => {
               if (onClose) onClose();
-            }}>Band Karein</button>
+            }}>{t.cancel || 'Close'}</button>
           </div>
         </div>
       </div>
@@ -543,38 +544,38 @@ export default function InvoiceActionModal({
       <div className={`modal-overlay ${isPdfModalOpen ? 'show' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setIsPdfModalOpen(false) }}>
         <div className="modal-sheet">
           <div className="modal-handle"></div>
-          <div className="modal-title">Invoice PDF</div>
-          <div className="modal-sub">Dekhna hai ya seedha download karna hai?</div>
+          <div className="modal-title">{t.invoicePdf || 'Invoice PDF'}</div>
+          <div className="modal-sub">{t.pdfViewDownloadSubtitle || 'Do you want to view or download?'}</div>
 
           <div className="modal-option view" onClick={() => { 
             setIsPdfModalOpen(false); 
             if (onViewPdf) onViewPdf(); 
-            else triggerToast('PDF khul raha hai…'); 
+            else triggerToast(t.openingPdf || 'Opening PDF...'); 
           }}>
             <div className="icon-wrap">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0CB6E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
             </div>
             <div className="modal-option-text">
-              <b>PDF Dekhein</b>
-              <span>Browser mein seedha khol kar dekhein</span>
+              <b>{t.viewPdf || 'View PDF'}</b>
+              <span>{t.viewPdfSubtitle || 'Open and view directly in browser'}</span>
             </div>
           </div>
 
           <div className="modal-option download" onClick={() => { 
             setIsPdfModalOpen(false); 
             if (onDownloadPdf) onDownloadPdf(); 
-            else triggerToast('PDF download ho raha hai…'); 
+            else triggerToast(t.downloadingPdf || 'Downloading PDF...'); 
           }}>
             <div className="icon-wrap">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             </div>
             <div className="modal-option-text">
-              <b>Download Karein</b>
-              <span>Phone mein PDF save karein</span>
+              <b>{t.downloadPdf || 'Download PDF'}</b>
+              <span>{t.downloadPdfSubtitle || 'Save PDF to your phone'}</span>
             </div>
           </div>
 
-          <button className="modal-cancel" onClick={() => setIsPdfModalOpen(false)}>Cancel</button>
+          <button className="modal-cancel" onClick={() => setIsPdfModalOpen(false)}>{t.cancel || 'Cancel'}</button>
         </div>
       </div>
 

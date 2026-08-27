@@ -1069,6 +1069,7 @@ export default function InvoicesPage() {
                     setPaymentAmount={setPaymentAmount}
                     onRecordPayment={handleRecordPayment}
                     isSubmittingPayment={isSubmittingPayment}
+                    t={t}
                 />
             )}
 
