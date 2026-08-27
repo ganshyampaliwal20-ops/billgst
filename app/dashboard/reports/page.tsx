@@ -472,7 +472,8 @@ function ReportsContent() {
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.15);
   color: #fff;
-  padding: 9px 14px;
+  padding: 0 14px;
+  height: 42px;
   border-radius: 10px;
   font-family: 'Sora', sans-serif;
   font-size: 13px;
@@ -484,8 +485,9 @@ function ReportsContent() {
 .period-select option { background: #1c2340; color: #fff; }
 
 .export-btn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 9px 14px;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 0 14px;
+  height: 42px;
   border-radius: 10px;
   border: none;
   font-family: 'Sora', sans-serif;
