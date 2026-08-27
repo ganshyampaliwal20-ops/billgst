@@ -896,7 +896,7 @@ export default function DashboardPage() {
                 <div className="footer-dark">
                     <div className="footer-dark-text">
                         <p className="t">billgst.in</p>
-                        <p className="s">Invoice, hisaab, GST — sab kuch ek jagah</p>
+                        <p className="s">{t.footerTagline || 'Invoice, hisaab, GST — sab kuch ek jagah'}</p>
                     </div>
                     <div className="social-dark-row">
                         <a className="social-dark-btn" href="https://www.instagram.com/billgst_app?utm_source=qr&igsh=bzJrMGphemNpa2dm" target="_blank" rel="noopener noreferrer" aria-label="Instagram">

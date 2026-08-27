@@ -78,6 +78,7 @@ const newKeys = {
     close: "Close",
     pdfViewDownloadSubtitle: "Do you want to view or download?",
     viewPdf: "View PDF",
+    footerTagline: "Invoice, accounts, GST — everything in one place",
     viewPdfSubtitle: "Open and view directly in browser",
     downloadPdf: "Download PDF",
     downloadPdfSubtitle: "Save PDF to your phone",
