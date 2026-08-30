@@ -11,9 +11,9 @@ export async function POST(req: Request) {
         let cleanPhone = phone.replace(/\D/g, '');
         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-        const chatId = \\@c.us\;
+        const chatId = `${cleanPhone}@c.us`;
 
-        const url = \https://api.green-api.com/waInstance\/sendMessage/\\;
+        const url = `https://api.green-api.com/waInstance${instanceId}/sendMessage/${apiToken}`;
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
