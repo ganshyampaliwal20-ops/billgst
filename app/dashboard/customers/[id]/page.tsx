@@ -6,7 +6,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 // Dynamic import used for Chart.js
 import { generateHisaabPDF } from '@/lib/pdf-generator';
-import { getVisitingCardText, openWhatsAppChat } from '@/lib/whatsapp-utils';
+import { getVisitingCardText, openWhatsAppChat, sendViaGreenAPI } from '@/lib/whatsapp-utils';
 import { getTranslations } from '@/lib/translations';
 
 export default function CustomerDetailPage() {
@@ -319,6 +319,47 @@ export default function CustomerDetailPage() {
         toast.success('Opening WhatsApp...');
     };
 
+    const handleGreenAPIWhatsApp = async () => {
+        const phone = customer.phone?.replace(/\D/g, '') || '';
+        if (!phone) {
+            toast.error('Customer ka mobile number add karein');
+            return;
+        }
+        if (!businessProfile?.whatsapp_api_key || !businessProfile.whatsapp_api_key.includes(':')) {
+            toast.error('Pehle Settings mein apna WhatsApp connect karein (Step 1)');
+            return;
+        }
+
+        const tid = toast.loading('Sending message automatically...');
+        const payload = getHisaabPayload();
+        
+        let shareId = customer.id;
+        try {
+            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: customer.id }) });
+            const json = await res.json();
+            if (json.shortId) shareId = json.shortId;
+        } catch(e) {}
+
+        const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
+
+        let text = `${t.namaste || 'Namaste'} ${customer.name || 'Customer'} 🙏\n\n`;
+        text += `${t.statementReadyMsg || 'Aapka *Ledger Statement* ready hai.'}\n\n`;
+        text += `💰 *${t.totalAmount || 'Total Outstanding Amount'}:* ₹${totalDue.toLocaleString('en-IN')}\n`;
+        text += `📉 *${t.status || 'Status'}:* ${t.outstanding || 'Aapko Dena Hai'}\n\n`;
+        text += `📄 *${t.statementLinkMsg || 'Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:'}*\n${shareUrl}\n\n`;
+        text += `${t.thankYou || 'Dhanyawad'},\n*${businessProfile?.name || 'BillGST Pro'}*`;
+
+        const [instanceId, apiToken] = businessProfile.whatsapp_api_key.split(':').map((s: string) => s.trim());
+        const success = await sendViaGreenAPI(phone, text, instanceId, apiToken);
+        if (success) {
+            toast.success('Message sent automatically!', { id: tid });
+        } else {
+            toast.error('Failed to send message', { id: tid });
+        }
+    };
+
+
     const handleDownloadStatement = async () => {
         const toastId = toast.loading('Statement open ho raha hai...');
         try {
@@ -612,8 +653,11 @@ canvas{max-height:140px; width: 100%;}
                         <a href={`tel:${customer.phone}`} className="qa-btn call" style={{ textDecoration: 'none' }}>
                             <span className="qa-icon">📞</span><span className="qa-label">Call</span>
                         </a>
+                        <div className="qa-btn whatsapp" onClick={handleGreenAPIWhatsApp} style={{ background: 'var(--green)' }}>
+                            <span className="qa-icon">🤖</span><span className="qa-label">Auto Msg</span>
+                        </div>
                         <div className="qa-btn whatsapp" onClick={handleWhatsApp}>
-                            <span className="qa-icon">💬</span><span className="qa-label">WhatsApp</span>
+                            <span className="qa-icon">💬</span><span className="qa-label">Manual</span>
                         </div>
                         <a href={`sms:${customer.phone}?body=${encodeURIComponent('Hi ' + customer.name + ', \n\nPlease clear your outstanding balance of ₹' + totalDue)}`} className="qa-btn sms" style={{ textDecoration: 'none' }}>
                             <span className="qa-icon">✉️</span><span className="qa-label">Send SMS</span>

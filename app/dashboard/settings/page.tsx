@@ -700,61 +700,87 @@ export default function SettingsPage() {
                             </div>
                         </div>
 
-                        {/* STEP 1 — Connect Your WhatsApp */}
-                        <div style={{ border: waStatus === 'READY' || waStatus === 'CONNECTED' ? '2px solid rgba(34,197,94,0.5)' : '2px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '20px', marginBottom: '14px', background: waStatus === 'READY' || waStatus === 'CONNECTED' ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.02)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                        {/* STEP 1 — Connect Your WhatsApp (Green API) */}
+                        <div style={{ border: formData.whatsapp_api_key ? '2px solid rgba(34,197,94,0.5)' : '2px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '20px', marginBottom: '14px', background: formData.whatsapp_api_key ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.02)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                                 <div>
                                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ background: waStatus === 'READY' || waStatus === 'CONNECTED' ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: waStatus === 'READY' || waStatus === 'CONNECTED' ? '#4ade80' : '#94a3b8', flexShrink: 0 }}>1</span>
-                                        Apna WhatsApp Connect Karo
+                                        <span style={{ background: formData.whatsapp_api_key ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: formData.whatsapp_api_key ? '#4ade80' : '#94a3b8', flexShrink: 0 }}>1</span>
+                                        Apna WhatsApp Connect Karo (Free)
                                     </div>
                                     <p style={{ fontSize: '12.5px', color: '#64748b', margin: '0 0 0 34px', lineHeight: 1.5 }}>
-                                        {waStatus === 'READY' || waStatus === 'CONNECTED'
-                                            ? '✅ Aapka WhatsApp connected hai! Reminders aapke is number se jayenge.'
-                                            : 'Sirf ek baar QR scan karo — phir reminder automatic aapke number se jayenge, jaise Vyapar mein hota hai.'}
+                                        <a href="https://green-api.com/en/" target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', textDecoration: 'underline' }}>green-api.com</a> par free account banao, Instance create karke apna WhatsApp QR scan karo. Phir details yahan daalo.
                                     </p>
-                                </div>
-
-                                {/* Status Badge + Button */}
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                                    {/* Status */}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid', ...(waStatus === 'READY' || waStatus === 'CONNECTED' ? { background: 'rgba(34,197,94,0.12)', color: '#4ade80', borderColor: 'rgba(34,197,94,0.3)' } : waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE' ? { background: 'rgba(251,191,36,0.12)', color: '#fbbf24', borderColor: 'rgba(251,191,36,0.3)' } : { background: 'rgba(255,255,255,0.04)', color: '#64748b', borderColor: 'rgba(255,255,255,0.1)' }) }}>
-                                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: waStatus === 'READY' || waStatus === 'CONNECTED' ? '#22c55e' : waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE' ? '#f59e0b' : '#475569', display: 'inline-block' }}></span>
-                                        {waStatus === 'READY' || waStatus === 'CONNECTED' ? 'Connected ✅' : waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE' ? 'Connecting...' : 'Not Connected'}
-                                    </span>
-
-                                    {/* Action Button */}
-                                    {waStatus === 'READY' || waStatus === 'CONNECTED' ? (
-                                        <button type="button" onClick={handleDisconnectWhatsApp} disabled={waLoading} style={{ fontSize: '12px', padding: '7px 14px', borderRadius: '20px', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#f87171', cursor: 'pointer', fontWeight: 600 }}>
-                                            Disconnect
-                                        </button>
-                                    ) : (
-                                        <button type="button" onClick={handleConnectWhatsApp} disabled={waLoading || waStatus === 'STARTING_SERVICE' || waStatus === 'STARTING'} style={{ fontSize: '12.5px', padding: '8px 16px', borderRadius: '20px', border: 'none', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: '#fff', cursor: 'pointer', fontWeight: 700, opacity: waLoading ? 0.6 : 1 }}>
-                                            {waLoading || waStatus === 'STARTING_SERVICE' || waStatus === 'STARTING' ? '⏳ QR Generate ho raha hai...' : '📱 Connect Karo'}
-                                        </button>
-                                    )}
                                 </div>
                             </div>
 
-                            {/* QR Code — show when connecting */}
-                            {(waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE') && (
-                                <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                                    {waQr ? (
-                                        <div>
-                                            <div style={{ fontSize: '13px', color: '#86efac', marginBottom: '12px', fontWeight: 600 }}>📱 Apne phone se WhatsApp kholein → Linked Devices → QR Scan karein</div>
-                                            <div style={{ display: 'inline-block', background: '#fff', padding: '12px', borderRadius: '12px' }}>
-                                                <QRCodeSVG value={waQr} size={180} />
-                                            </div>
-                                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '10px' }}>QR 60 seconds mein expire hota hai — scan jaldi karein!</div>
-                                        </div>
-                                    ) : (
-                                        <div style={{ padding: '20px', color: '#64748b', fontSize: '13px' }}>
-                                            <div style={{ fontSize: '24px', marginBottom: '8px' }}>⏳</div>
-                                            QR Code generate ho raha hai... thoda intezaar karein
-                                        </div>
-                                    )}
+                            <div style={{ paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div className="field" style={{ margin: 0 }}>
+                                    <label>Instance ID</label>
+                                    <input
+                                        type="text"
+                                        value={(formData.whatsapp_api_key || '').split(':')[0] || ''}
+                                        onChange={e => {
+                                            const token = (formData.whatsapp_api_key || '').split(':')[1] || '';
+                                            setFormData({ ...formData, whatsapp_api_key: `${e.target.value.trim()}:${token}` });
+                                        }}
+                                        placeholder="E.g. 7103XXXXX"
+                                        style={{ fontFamily: 'monospace', fontSize: '13px' }}
+                                    />
                                 </div>
-                            )}
+                                <div className="field" style={{ margin: 0 }}>
+                                    <label>API Token</label>
+                                    <input
+                                        type="text"
+                                        value={(formData.whatsapp_api_key || '').split(':')[1] || ''}
+                                        onChange={e => {
+                                            const instance = (formData.whatsapp_api_key || '').split(':')[0] || '';
+                                            setFormData({ ...formData, whatsapp_api_key: `${instance}:${e.target.value.trim()}` });
+                                        }}
+                                        placeholder="E.g. a1b2c3d4..."
+                                        style={{ fontFamily: 'monospace', fontSize: '13px' }}
+                                    />
+                                </div>
+                                <div className="field" style={{ margin: 0 }}>
+                                    <label>Aapka WhatsApp Number (Testing ke liye)</label>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <input
+                                            type="tel"
+                                            value={formData.whatsapp_sender_number || ''}
+                                            onChange={e => setFormData({ ...formData, whatsapp_sender_number: e.target.value })}
+                                            placeholder="919876543210"
+                                            style={{ fontSize: '13px', flex: 1 }}
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={async () => {
+                                                const parts = (formData.whatsapp_api_key || '').split(':');
+                                                if(parts.length !== 2 || !parts[0] || !parts[1] || !formData.whatsapp_sender_number) {
+                                                    toast.error('Instance ID, Token aur Number fill karein!');
+                                                    return;
+                                                }
+                                                const tid = toast.loading('Sending test message...');
+                                                try {
+                                                    const res = await fetch('/api/whatsapp/send-green', {
+                                                        method: 'POST',
+                                                        headers: {'Content-Type': 'application/json'},
+                                                        body: JSON.stringify({ phone: formData.whatsapp_sender_number, message: '✅ BillGST: WhatsApp successfully connected! Yeh ek test message hai.', instanceId: parts[0], apiToken: parts[1] })
+                                                    });
+                                                    const json = await res.json();
+                                                    if(json.success) toast.success('Test message sent! Phone check karein.', { id: tid });
+                                                    else toast.error('Connection failed! Details check karein.', { id: tid });
+                                                } catch(e) {
+                                                    toast.error('Connection failed!', { id: tid });
+                                                }
+                                            }}
+                                            style={{ padding: '0 16px', borderRadius: '10px', border: 'none', background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: 600, cursor: 'pointer', fontSize: '13px', whiteSpace: 'nowrap' }}
+                                        >
+                                            Test Connection
+                                        </button>
+                                    </div>
+                                    <div className="hint">91 lagakar apna number daalein (Test message ke liye)</div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* STEP 2 — Auto Reminder Settings */}
@@ -823,16 +849,17 @@ export default function SettingsPage() {
                                             <div className="hint">Is waqt automatically reminder jayega</div>
                                         </div>
                                     </div>
-                                    {!(waStatus === 'READY' || waStatus === 'CONNECTED') && (
+                                    {!(formData.whatsapp_api_key && formData.whatsapp_api_key.includes(':')) && (
                                         <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#fcd34d', lineHeight: 1.5 }}>
                                             ⚠️ <strong>WhatsApp connected nahi hai!</strong> Upar Step 1 mein pehle apna WhatsApp connect karo — warna reminder nahi jayega.
                                         </div>
                                     )}
-                                    {(waStatus === 'READY' || waStatus === 'CONNECTED') && (
+                                    {(formData.whatsapp_api_key && formData.whatsapp_api_key.includes(':')) && (
                                         <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#86efac', lineHeight: 1.5 }}>
                                             ✅ <strong>Sab ready hai!</strong> Settings save karo — kal se har roz <strong>{formData.reminderTime || '10:00'}</strong> baje pending customers ko aapke number se automatic reminder jayega.
                                         </div>
                                     )}
+
                                 </div>
                             )}
                         </div>

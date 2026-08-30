@@ -70,3 +70,19 @@ export const getVisitingCardText = (profile: any, amount?: number, sid?: string,
     
     return card;
 };
+
+export const sendViaGreenAPI = async (phone: string, message: string, instanceId: string, apiToken: string) => {
+    try {
+        const response = await fetch('/api/whatsapp/send-green', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, message, instanceId, apiToken })
+        });
+        const data = await response.json();
+        return data.success;
+    } catch (e) {
+        console.error('Green API sending error:', e);
+        return false;
+    }
+};
+

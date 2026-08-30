@@ -95,19 +95,22 @@ export async function GET(request: Request) {
                 // 3. Send if gateway found
                 if (instanceId && token) {
                     try {
-                        const res = await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
+                        let cleanPhone = inv.customer_phone.replace(/\D/g, '');
+                        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+                        const chatId = `${cleanPhone}@c.us`;
+
+                        const res = await fetch(`https://api.green-api.com/waInstance${instanceId}/sendMessage/${token}`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: new URLSearchParams({
-                                token: token,
-                                to: inv.customer_phone.startsWith('91') ? inv.customer_phone.trim() : `91${inv.customer_phone.trim()}`,
-                                body: message
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chatId: chatId,
+                                message: message
                             })
                         });
                         const resData = await res.json();
-                        console.log(`WhatsApp Status: ${resData.sent === 'true' ? 'SENT' : 'FAILED'} to ${inv.customer_phone}`);
+                        console.log(`WhatsApp Status: ${res.ok ? 'SENT' : 'FAILED'} to ${inv.customer_phone}`);
                     } catch (e) {
-                        console.error('Failed to auto-send via UltraMsg:', e);
+                        console.error('Failed to auto-send via Green API:', e);
                     }
                 } else {
                     // 4. Fallback to Multi-User Bot (whatsapp-service.js via DB Queue)
