@@ -539,7 +539,7 @@ export default function BusinessExpensesPage() {
         };
 
         // Poll every 3 seconds for near-instant updates on active screen
-        const intervalId = setInterval(syncFromServer, 10000);
+        const intervalId = setInterval(syncFromServer, 300000); // Changed from 10s to 5m to prevent massive data egress
 
         const handleVisibilityOrFocus = () => {
             if (document.visibilityState === 'visible') {

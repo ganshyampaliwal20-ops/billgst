@@ -26,7 +26,7 @@ export default function SupportChatWidget() {
     useEffect(() => {
         if (isOpen && status === 'authenticated') {
             fetchMessages();
-            const interval = setInterval(fetchMessages, 10000); // poll every 10s
+            const interval = setInterval(fetchMessages, 60000); // poll every 60s
             return () => clearInterval(interval);
         }
     }, [isOpen, status]);
