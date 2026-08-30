@@ -3,5 +3,11 @@
     "devCommand": "npm run dev",
     "installCommand": "npm install",
     "framework": "nextjs",
-    "outputDirectory": ".next"
-}
+    "outputDirectory": ".next",
+    "crons": [
+        {
+            "path": "/api/public/whatsapp/reminders?secret=say_friend_and_enter_billgst_secure_token_2026",
+            "schedule": "0 * * * *"
+        }
+    ]
+}

@@ -64,7 +64,8 @@ export async function GET(request: Request) {
 
             for (const inv of invoicesResult.rows) {
                 const pendingAmount = parseFloat(inv.total_amount) - parseFloat(inv.paid_amount);
-                const message = `Namaste ${inv.customer_name} ji, this is an automatic reminder for your pending balance of ₹${pendingAmount.toLocaleString('en-IN')} for Invoice #${inv.invoice_number} from ${user.business_name}. Please ignore if already paid.`;
+                const formattedAmount = pendingAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+                const message = `Dear, ${inv.customer_name}\nYour payment of *${formattedAmount}* is pending with *${user.business_name}*\n\nIf you have already made the payment, kindly ignore this message.\n\nThank You\n${user.business_name}`;
 
                 const reminderData = {
                     business_id: user.id,
