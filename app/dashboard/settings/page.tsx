@@ -696,40 +696,77 @@ export default function SettingsPage() {
                             </div>
                             <div>
                                 <h2>WhatsApp Automation &amp; Reminders</h2>
-                                <p>Automatic payment reminders aur instant invoice sharing — bilkul Vyapar jaisa!</p>
+                                <p>Apne number se automatic payment reminders — bilkul Vyapar jaisa!</p>
                             </div>
                         </div>
 
-                        {/* Instant WhatsApp Sharing */}
-                        <div style={{ border: '1px solid var(--card-border)', borderRadius: '14px', padding: '18px', background: 'rgba(255,255,255,0.02)', marginBottom: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+                        {/* STEP 1 — Connect Your WhatsApp */}
+                        <div style={{ border: waStatus === 'READY' || waStatus === 'CONNECTED' ? '2px solid rgba(34,197,94,0.5)' : '2px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '20px', marginBottom: '14px', background: waStatus === 'READY' || waStatus === 'CONNECTED' ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.02)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                                 <div>
-                                    <strong style={{ fontSize: '15px', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span>💬</span> 1-Tap Instant WhatsApp Sharing
-                                    </strong>
-                                    <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '4px 0 0', lineHeight: 1.4 }}>
-                                        Bill banate waqt 1-tap me customer ke WhatsApp par invoice aur payment link send karein.
+                                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ background: waStatus === 'READY' || waStatus === 'CONNECTED' ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: waStatus === 'READY' || waStatus === 'CONNECTED' ? '#4ade80' : '#94a3b8', flexShrink: 0 }}>1</span>
+                                        Apna WhatsApp Connect Karo
+                                    </div>
+                                    <p style={{ fontSize: '12.5px', color: '#64748b', margin: '0 0 0 34px', lineHeight: 1.5 }}>
+                                        {waStatus === 'READY' || waStatus === 'CONNECTED'
+                                            ? '✅ Aapka WhatsApp connected hai! Reminders aapke is number se jayenge.'
+                                            : 'Sirf ek baar QR scan karo — phir reminder automatic aapke number se jayenge, jaise Vyapar mein hota hai.'}
                                     </p>
                                 </div>
-                                <div>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', padding: '6px 14px', borderRadius: '20px', fontWeight: 600, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-                                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
-                                        Always Ready ⚡
+
+                                {/* Status Badge + Button */}
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                                    {/* Status */}
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', padding: '5px 12px', borderRadius: '20px', fontWeight: 600, border: '1px solid', ...(waStatus === 'READY' || waStatus === 'CONNECTED' ? { background: 'rgba(34,197,94,0.12)', color: '#4ade80', borderColor: 'rgba(34,197,94,0.3)' } : waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE' ? { background: 'rgba(251,191,36,0.12)', color: '#fbbf24', borderColor: 'rgba(251,191,36,0.3)' } : { background: 'rgba(255,255,255,0.04)', color: '#64748b', borderColor: 'rgba(255,255,255,0.1)' }) }}>
+                                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: waStatus === 'READY' || waStatus === 'CONNECTED' ? '#22c55e' : waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE' ? '#f59e0b' : '#475569', display: 'inline-block' }}></span>
+                                        {waStatus === 'READY' || waStatus === 'CONNECTED' ? 'Connected ✅' : waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE' ? 'Connecting...' : 'Not Connected'}
                                     </span>
+
+                                    {/* Action Button */}
+                                    {waStatus === 'READY' || waStatus === 'CONNECTED' ? (
+                                        <button type="button" onClick={handleDisconnectWhatsApp} disabled={waLoading} style={{ fontSize: '12px', padding: '7px 14px', borderRadius: '20px', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#f87171', cursor: 'pointer', fontWeight: 600 }}>
+                                            Disconnect
+                                        </button>
+                                    ) : (
+                                        <button type="button" onClick={handleConnectWhatsApp} disabled={waLoading || waStatus === 'STARTING_SERVICE' || waStatus === 'STARTING'} style={{ fontSize: '12.5px', padding: '8px 16px', borderRadius: '20px', border: 'none', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: '#fff', cursor: 'pointer', fontWeight: 700, opacity: waLoading ? 0.6 : 1 }}>
+                                            {waLoading || waStatus === 'STARTING_SERVICE' || waStatus === 'STARTING' ? '⏳ QR Generate ho raha hai...' : '📱 Connect Karo'}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
+
+                            {/* QR Code — show when connecting */}
+                            {(waStatus === 'STARTING' || waStatus === 'STARTING_SERVICE') && (
+                                <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                                    {waQr ? (
+                                        <div>
+                                            <div style={{ fontSize: '13px', color: '#86efac', marginBottom: '12px', fontWeight: 600 }}>📱 Apne phone se WhatsApp kholein → Linked Devices → QR Scan karein</div>
+                                            <div style={{ display: 'inline-block', background: '#fff', padding: '12px', borderRadius: '12px' }}>
+                                                <QRCodeSVG value={waQr} size={180} />
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '10px' }}>QR 60 seconds mein expire hota hai — scan jaldi karein!</div>
+                                        </div>
+                                    ) : (
+                                        <div style={{ padding: '20px', color: '#64748b', fontSize: '13px' }}>
+                                            <div style={{ fontSize: '24px', marginBottom: '8px' }}>⏳</div>
+                                            QR Code generate ho raha hai... thoda intezaar karein
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
-                        {/* === AUTO PAYMENT REMINDER SECTION === */}
-                        <div style={{ border: '2px solid rgba(34,197,94,0.3)', borderRadius: '14px', padding: '20px', background: 'rgba(34,197,94,0.04)' }}>
-                            {/* Header with Toggle */}
+                        {/* STEP 2 — Auto Reminder Settings */}
+                        <div style={{ border: '2px solid rgba(99,102,241,0.3)', borderRadius: '14px', padding: '20px', background: 'rgba(99,102,241,0.04)' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
                                 <div style={{ flex: 1 }}>
-                                    <strong style={{ fontSize: '15px', color: '#f0fdf4', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                        <span>🔔</span> Auto Payment Reminder
-                                    </strong>
-                                    <p style={{ fontSize: '12.5px', color: '#86efac', margin: 0, lineHeight: 1.5 }}>
-                                        Pending payment wale customers ko <strong>automatically WhatsApp reminder</strong> bhejta hai — ek baar set karo, app khud karta rahega!
+                                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ background: formData.autoRemindersEnabled ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: formData.autoRemindersEnabled ? '#a5b4fc' : '#94a3b8', flexShrink: 0 }}>2</span>
+                                        🔔 Auto Payment Reminder ON Karo
+                                    </div>
+                                    <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '0 0 0 34px', lineHeight: 1.5 }}>
+                                        Pending customers ko <strong style={{ color: '#c4b5fd' }}>aapke WhatsApp number se</strong> automatic reminder jayega — roz, aapki set timing par
                                     </p>
                                 </div>
                                 <label className="bs-switch" style={{ flexShrink: 0, marginTop: '2px' }}>
@@ -742,17 +779,21 @@ export default function SettingsPage() {
                                 </label>
                             </div>
 
-                            {/* Example preview */}
-                            <div style={{ background: 'rgba(0,0,0,0.25)', borderRadius: '12px', padding: '14px', marginBottom: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>📱 Example Message (Auto Send होगा)</div>
-                                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: 1.6, fontStyle: 'italic' }}>
-                                    "Namaste <strong style={{color:'#4ade80'}}>Ghanshyam ji</strong>, this is an automatic reminder for your pending balance of <strong style={{color:'#fbbf24'}}>₹15,938</strong> for Invoice #INV-001 from <strong style={{color:'#60a5fa'}}>{formData.name || 'Your Business'}</strong>. Please ignore if already paid."
+                            {/* Message Preview */}
+                            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', marginBottom: formData.autoRemindersEnabled ? '16px' : '0', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <div style={{ fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>📱 Aisa Message Jayega Customer Ko (Aapke Number Se)</div>
+                                <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: 1.7 }}>
+                                    Dear, <strong style={{ color: '#4ade80' }}>[Customer Name]</strong><br/>
+                                    Your payment of <strong style={{ color: '#fbbf24' }}>*₹15,938*</strong> is pending with <strong style={{ color: '#60a5fa' }}>*{formData.name || 'Aapki Dukan'}*</strong><br/><br/>
+                                    If you have already made the payment, kindly ignore this message.<br/><br/>
+                                    Thank You<br/>
+                                    <strong style={{ color: '#60a5fa' }}>{formData.name || 'Aapki Dukan'}</strong>
                                 </div>
                             </div>
 
-                            {/* Settings — show when enabled */}
+                            {/* Reminder Settings — only show when ON */}
                             {formData.autoRemindersEnabled && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                         <div className="field" style={{ margin: 0 }}>
                                             <label>📅 Kitne din baad reminder?</label>
@@ -769,7 +810,7 @@ export default function SettingsPage() {
                                                 <option value={14}>14 din baad</option>
                                                 <option value={30}>30 din baad</option>
                                             </select>
-                                            <div className="hint">Invoice date ke baad kitne din pending rahe to reminder bheje</div>
+                                            <div className="hint">Invoice ke baad kitne din pending rahe tab reminder bheje</div>
                                         </div>
                                         <div className="field" style={{ margin: 0 }}>
                                             <label>⏰ Kaunse waqt bheja jaye?</label>
@@ -782,46 +823,16 @@ export default function SettingsPage() {
                                             <div className="hint">Is waqt automatically reminder jayega</div>
                                         </div>
                                     </div>
-
-                                    {/* UltraMsg API Setup */}
-                                    <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '16px', border: '1px solid rgba(255,255,255,0.07)' }}>
-                                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#e2e8f0', marginBottom: '4px' }}>🔌 WhatsApp API Setup (UltraMsg)</div>
-                                        <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '14px', lineHeight: 1.5 }}>
-                                            Free setup ke liye <a href="https://ultramsg.com" target="_blank" rel="noopener" style={{ color: '#60a5fa' }}>ultramsg.com</a> par account banao, Instance ID aur Token copy karo.
+                                    {!(waStatus === 'READY' || waStatus === 'CONNECTED') && (
+                                        <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#fcd34d', lineHeight: 1.5 }}>
+                                            ⚠️ <strong>WhatsApp connected nahi hai!</strong> Upar Step 1 mein pehle apna WhatsApp connect karo — warna reminder nahi jayega.
                                         </div>
-                                        <div className="field" style={{ margin: '0 0 10px' }}>
-                                            <label>Instance ID : Token</label>
-                                            <input
-                                                type="text"
-                                                value={formData.whatsapp_api_key || ''}
-                                                onChange={e => setFormData({ ...formData, whatsapp_api_key: e.target.value })}
-                                                placeholder="instance12345 : abc123token"
-                                                style={{ fontFamily: 'monospace', fontSize: '13px' }}
-                                            />
-                                            <div className="hint">Format: <code style={{background:'rgba(255,255,255,0.08)', padding:'1px 6px', borderRadius:'4px'}}>InstanceID : Token</code> (colon se alag karein)</div>
+                                    )}
+                                    {(waStatus === 'READY' || waStatus === 'CONNECTED') && (
+                                        <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#86efac', lineHeight: 1.5 }}>
+                                            ✅ <strong>Sab ready hai!</strong> Settings save karo — kal se har roz <strong>{formData.reminderTime || '10:00'}</strong> baje pending customers ko aapke number se automatic reminder jayega.
                                         </div>
-                                        <div className="field" style={{ margin: 0 }}>
-                                            <label>Aapka WhatsApp Number (Sender)</label>
-                                            <input
-                                                type="tel"
-                                                value={formData.whatsapp_sender_number || ''}
-                                                onChange={e => setFormData({ ...formData, whatsapp_sender_number: e.target.value })}
-                                                placeholder="919876543210"
-                                                style={{ fontSize: '13px' }}
-                                            />
-                                            <div className="hint">91 ke saath pura number (UltraMsg se connected number)</div>
-                                        </div>
-                                    </div>
-
-                                    <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#fcd34d', lineHeight: 1.5 }}>
-                                        ⚠️ <strong>Note:</strong> Settings save karne ke baad reminder daily automatic chalega. UltraMsg setup nahi kiya to reminder queue me save hoga.
-                                    </div>
-                                </div>
-                            )}
-
-                            {!formData.autoRemindersEnabled && (
-                                <div style={{ textAlign: 'center', padding: '8px 0', color: '#475569', fontSize: '13px' }}>
-                                    👆 Upar toggle ON karo — daily automatic reminder shuru ho jayega!
+                                    )}
                                 </div>
                             )}
                         </div>
