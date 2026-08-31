@@ -643,7 +643,7 @@ export default function SmartAddPage() {
                   width: 100%; max-width: 480px;
                   background: rgba(8,11,20,.95); backdrop-filter: blur(20px);
                   border-top: 1px solid var(--border2);
-                  padding: 14px 16px 18px; display: flex; gap: 10px; z-index: 200;
+                  padding: 14px 16px 36px; display: flex; gap: 10px; z-index: 200;
                 }
                 .discard-btn {
                   padding: 13px 20px; border-radius: 12px;
@@ -847,10 +847,7 @@ export default function SmartAddPage() {
                         <div className="pb-top">
                             <div className="profit-toggle" onClick={() => setIsProfitOpen(!isProfitOpen)}>
                                 <div className="pb-title">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <line x1="12" y1="1" x2="12" y2="23"/>
-                                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                                    </svg>
+                                    <span style={{ color: 'var(--amber)', fontSize: '16px', fontWeight: 'bold' }}>₹</span>
                                     {st.profitMarginSet}
                                 </div>
                                 <div className={`pt-arrow ${isProfitOpen ? 'open' : ''}`}>
@@ -1051,7 +1048,7 @@ export default function SmartAddPage() {
 
                                         <div className="profit-indicator">
                                             <div className="pi-left">
-                                                <div className="pi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                                                <div className="pi-icon"><span style={{ fontWeight: 'bold' }}>₹</span></div>
                                                 <div className="pi-text">{st.profit}: ₹{profit.toFixed(1)} ({item.markup}%)</div>
                                             </div>
                                             <div className="pi-amt">₹{totalMargin.toFixed(1)}</div>
