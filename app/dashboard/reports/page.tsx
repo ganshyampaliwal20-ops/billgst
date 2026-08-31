@@ -598,7 +598,62 @@ function ReportsContent() {
   }
   .export-btn:active{ transform:scale(0.98); }
   .export-btn svg{ width:15px; height:15px; }
-` }} />
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+}
+@media(max-width:768px){ .bottom-grid{grid-template-columns:1fr} }
+
+.table-section {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.table-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--faint);
+  transition: all 0.15s;
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: var(--faint); margin: 0 -8px; padding: 10px 8px; border-radius: 10px; }
+.row-num { width: 22px; height: 22px; background: var(--faint); border-radius: 7px; font-size: 11px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.row-avatar { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.row-info { flex: 1; min-width: 0; }
+.row-name { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-txn  { font-size: 11px; color: var(--muted); font-weight: 400; }
+.row-amt  { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+
+.gst-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.gst-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--faint);
+  font-size: 13px;
+}
+.gst-row:last-child { border-bottom: none; font-weight: 700; }
+.gst-key { color: var(--muted); font-weight: 500; }
+.gst-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
+.gst-compliance {
+  margin-top: 14px;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border: 1px solid #bbf7d0;
+  border-radius: 11px;
+  padding: 12px 14px;
+}
+.compliance-top { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--green); margin-bottom: 7px; }
+.compliance-bar { height: 6px; background: #d1fae5; border-radius: 10px; overflow: hidden; }
+.compliance-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 10px; width: 92%; transition: width 1s ease; }
+            ` }} />
 
             <div className="report-wrapper">
                 <div className="app">
@@ -727,7 +782,60 @@ function ReportsContent() {
                                 <svg viewBox="0 0 24 24" fill="none" stroke="#0E7C61" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                 {t.exportExcel || 'Export Excel'}
                             </div>
+                        
+<div className="bottom-grid">
+                        <div className="table-section" style={{ animation: "fadeUp .5s .4s ease both" }}>
+                            <div className="chart-header">
+                                <div>
+                                    <div className="chart-title">Top Customers</div>
+                                    <div className="chart-sub">By transaction value</div>
+                                </div>
+                                <div
+                                    style={{ fontSize: "11px", fontWeight: 600, color: "var(--indigo)", cursor: "pointer" }}
+                                    onClick={() => router.push('/dashboard/customers')}
+                                >
+                                    View All →
+                                </div>
+                            </div>
+                            <div>
+                                {customersWithTotals.map((c: any, i: number) => (
+                                    <div className="table-row" key={i} onClick={() => c.id ? router.push('/dashboard/customers/' + c.id) : null} style={{ cursor: c.id ? 'pointer' : 'default' }}>
+                                        <div className="row-num">{i + 1}</div>
+                                        <div className="row-avatar" style={{ background: colors[i % colors.length] }}>{(c.name || 'U').charAt(0).toUpperCase()}</div>
+                                        <div className="row-info">
+                                            <div className="row-name">{c.name}</div>
+                                            <div className="row-txn">📞 {c.phone}</div>
+                                        </div>
+                                        <div className="row-amt">{formatLakhs(c.total)}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
+
+                        <div className="gst-card" style={{ animation: "fadeUp .5s .45s ease both" }}>
+                            <div className="chart-header">
+                                <div>
+                                    <div className="chart-title">GST Summary</div>
+                                    <div className="chart-sub">Current month</div>
+                                </div>
+                                <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--green)", cursor: "pointer" }} onClick={handleGSTExcel}>📥 Download</span>
+                            </div>
+                            <div className="gst-row"><span className="gst-key">Taxable Amount</span><span className="gst-val">{formatLakhs(totalTaxable)}</span></div>
+                            <div className="gst-row"><span className="gst-key">CGST (9%)</span><span className="gst-val">{formatLakhs(totalCGST)}</span></div>
+                            <div className="gst-row"><span className="gst-key">SGST (9%)</span><span className="gst-val">{formatLakhs(totalSGST)}</span></div>
+                            <div className="gst-row"><span className="gst-key">IGST</span><span className="gst-val">{formatLakhs(totalIGST)}</span></div>
+                            <div className="gst-row"><span className="gst-key" style={{ color: "var(--ink)" }}>Total Tax</span><span className="gst-val" style={{ color: "var(--indigo)" }}>{formatLakhs(totalTax)}</span></div>
+
+                            <div className="gst-compliance">
+                                <div className="compliance-top">
+                                    <span>HSN Compliance</span>
+                                    <span>{hsnCompliance}%</span>
+                                </div>
+                                <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${hsnCompliance}%` }} /></div>
+                            </div>
+                        </div>
+                    </div>
+</div>
                     </div>
                 </div>
             </div>

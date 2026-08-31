@@ -31,7 +31,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                          'business_upi_id', b.business_upi_id,
                          'logo', b.logo,
                          'business_address', b.business_address,
-                         'gstin', b.gstin
+                         'gstin', b.gstin,
+                         'bank_name', b.business_bank_name,
+                         'account_no', b.business_account_no,
+                         'ifsc_code', b.business_ifsc_code,
+                         'account_holder', b.business_account_holder,
+                         'show_bank_details', b.business_show_bank_details
                      ) as business_profile
               FROM invoices i
               LEFT JOIN customers c ON i.customer_id = c.id
