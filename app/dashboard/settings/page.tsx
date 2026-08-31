@@ -526,18 +526,18 @@ export default function SettingsPage() {
 
                 <nav className="side-nav">
                     {[
-                        { id: \'profile\', label: t.businessProfile },
-                        { id: \'tax\', label: t.taxSettings },
-                        { id: \'bank\', label: t.bankDetails },
-                        { id: \'payments\', label: t.payments },
+                        { id: 'profile', label: t.businessProfile },
+                        { id: 'tax', label: t.taxSettings },
+                        { id: 'bank', label: t.bankDetails },
+                        { id: 'payments', label: t.payments },
                         { id: 'whatsapp-automation', label: 'WhatsApp' },
-                        { id: \'branding\', label: t.branding },
-                        { id: \'signatory\', label: t.signatory },
-                        { id: \'terms\', label: t.termsAndConditions },
-                        { id: \'modules\', label: t.featuresAndModules },
-                        { id: \'design\', label: t.invoiceDesign },
-                        { id: \'prefs\', label: t.preferences },
-                        { id: \'security\', label: t.accountSecurity },
+                        { id: 'branding', label: t.branding },
+                        { id: 'signatory', label: t.signatory },
+                        { id: 'terms', label: t.termsAndConditions },
+                        { id: 'modules', label: t.featuresAndModules },
+                        { id: 'design', label: t.invoiceDesign },
+                        { id: 'prefs', label: t.preferences },
+                        { id: 'security', label: t.accountSecurity },
                     ].map(item => (
                         <a key={item.id} onClick={() => handleScrollTo(item.id)} className={activeSection === item.id ? 'active' : ''}>
                             <span className="dot"></span>{item.label}
@@ -1041,7 +1041,7 @@ export default function SettingsPage() {
                                 placeholder={formData.has_expense_pin ? '**** (PIN is set)' : 'Enter 4-digit PIN'} 
                                 value={formData.expense_delete_pin || ''} 
                                 onChange={e => {
-                                    const val = e.target.value.replace(/\D/g, '');
+                                    const val = e.target.value.replace(/D/g, '');
                                     setFormData({ ...formData, expense_delete_pin: val });
                                 }} 
                             />
