@@ -686,9 +686,7 @@ export default function SettingsPage() {
                             <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({...formData, upi_id: e.target.value})} placeholder="businessname@okhdfcbank" />
                             <div className="hint">Customers can scan the Dynamic QR code on your bills to pay directly to this UPI ID</div>
                         </div>
-                    </div>
-
-                    {/* WhatsApp Automation */}
+                                       {/* WhatsApp Automation */}
                     <div className="card" id="whatsapp-automation">
                         <div className="card-head">
                             <div className="card-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>
@@ -696,103 +694,20 @@ export default function SettingsPage() {
                             </div>
                             <div>
                                 <h2>WhatsApp Automation &amp; Reminders</h2>
-                                <p>Apne number se automatic payment reminders — bilkul Vyapar jaisa!</p>
+                                <p>Customers ko automatic payment reminders bhejein — 100% Free!</p>
                             </div>
                         </div>
 
-                        {/* STEP 1 — Connect Your WhatsApp (Green API) */}
-                        <div style={{ border: formData.whatsapp_api_key ? '2px solid rgba(34,197,94,0.5)' : '2px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '20px', marginBottom: '14px', background: formData.whatsapp_api_key ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.02)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-                                <div>
-                                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ background: formData.whatsapp_api_key ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: formData.whatsapp_api_key ? '#4ade80' : '#94a3b8', flexShrink: 0 }}>1</span>
-                                        Apna WhatsApp Connect Karo (Free)
-                                    </div>
-                                    <p style={{ fontSize: '12.5px', color: '#64748b', margin: '0 0 0 34px', lineHeight: 1.5 }}>
-                                        <a href="https://green-api.com/en/" target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', textDecoration: 'underline' }}>green-api.com</a> par free account banao, Instance create karke apna WhatsApp QR scan karo. Phir details yahan daalo.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div style={{ paddingLeft: '34px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div className="field" style={{ margin: 0 }}>
-                                    <label>Instance ID</label>
-                                    <input
-                                        type="text"
-                                        value={(formData.whatsapp_api_key || '').split(':')[0] || ''}
-                                        onChange={e => {
-                                            const token = (formData.whatsapp_api_key || '').split(':')[1] || '';
-                                            setFormData({ ...formData, whatsapp_api_key: `${e.target.value.trim()}:${token}` });
-                                        }}
-                                        placeholder="E.g. 7103XXXXX"
-                                        style={{ fontFamily: 'monospace', fontSize: '13px' }}
-                                    />
-                                </div>
-                                <div className="field" style={{ margin: 0 }}>
-                                    <label>API Token</label>
-                                    <input
-                                        type="text"
-                                        value={(formData.whatsapp_api_key || '').split(':')[1] || ''}
-                                        onChange={e => {
-                                            const instance = (formData.whatsapp_api_key || '').split(':')[0] || '';
-                                            setFormData({ ...formData, whatsapp_api_key: `${instance}:${e.target.value.trim()}` });
-                                        }}
-                                        placeholder="E.g. a1b2c3d4..."
-                                        style={{ fontFamily: 'monospace', fontSize: '13px' }}
-                                    />
-                                </div>
-                                <div className="field" style={{ margin: 0 }}>
-                                    <label>Aapka WhatsApp Number (Testing ke liye)</label>
-                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                        <input
-                                            type="tel"
-                                            value={formData.whatsapp_sender_number || ''}
-                                            onChange={e => setFormData({ ...formData, whatsapp_sender_number: e.target.value })}
-                                            placeholder="919876543210"
-                                            style={{ fontSize: '13px', flex: 1 }}
-                                        />
-                                        <button 
-                                            type="button" 
-                                            onClick={async () => {
-                                                const parts = (formData.whatsapp_api_key || '').split(':');
-                                                if(parts.length !== 2 || !parts[0] || !parts[1] || !formData.whatsapp_sender_number) {
-                                                    toast.error('Instance ID, Token aur Number fill karein!');
-                                                    return;
-                                                }
-                                                const tid = toast.loading('Sending test message...');
-                                                try {
-                                                    const res = await fetch('/api/whatsapp/send-green', {
-                                                        method: 'POST',
-                                                        headers: {'Content-Type': 'application/json'},
-                                                        body: JSON.stringify({ phone: formData.whatsapp_sender_number, message: '✅ BillGST: WhatsApp successfully connected! Yeh ek test message hai.', instanceId: parts[0], apiToken: parts[1] })
-                                                    });
-                                                    const json = await res.json();
-                                                    if(json.success) toast.success('Test message sent! Phone check karein.', { id: tid });
-                                                    else toast.error('Connection failed! Details check karein.', { id: tid });
-                                                } catch(e) {
-                                                    toast.error('Connection failed!', { id: tid });
-                                                }
-                                            }}
-                                            style={{ padding: '0 16px', borderRadius: '10px', border: 'none', background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: 600, cursor: 'pointer', fontSize: '13px', whiteSpace: 'nowrap' }}
-                                        >
-                                            Test Connection
-                                        </button>
-                                    </div>
-                                    <div className="hint">91 lagakar apna number daalein (Test message ke liye)</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* STEP 2 — Auto Reminder Settings */}
+                        {/* Auto Reminder Settings */}
                         <div style={{ border: '2px solid rgba(99,102,241,0.3)', borderRadius: '14px', padding: '20px', background: 'rgba(99,102,241,0.04)' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ background: formData.autoRemindersEnabled ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: formData.autoRemindersEnabled ? '#a5b4fc' : '#94a3b8', flexShrink: 0 }}>2</span>
+                                        <span style={{ background: formData.autoRemindersEnabled ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: formData.autoRemindersEnabled ? '#a5b4fc' : '#94a3b8', flexShrink: 0 }}>1</span>
                                         🔔 Auto Payment Reminder ON Karo
                                     </div>
                                     <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '0 0 0 34px', lineHeight: 1.5 }}>
-                                        Pending customers ko <strong style={{ color: '#c4b5fd' }}>aapke WhatsApp number se</strong> automatic reminder jayega — roz, aapki set timing par
+                                        Pending customers ko <strong style={{ color: '#c4b5fd' }}>BillGST Support Bot (+7498571873)</strong> se automatic reminder jayega — aapke behalf par.
                                     </p>
                                 </div>
                                 <label className="bs-switch" style={{ flexShrink: 0, marginTop: '2px' }}>
@@ -807,13 +722,14 @@ export default function SettingsPage() {
 
                             {/* Message Preview */}
                             <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', marginBottom: formData.autoRemindersEnabled ? '16px' : '0', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                <div style={{ fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>📱 Aisa Message Jayega Customer Ko (Aapke Number Se)</div>
+                                <div style={{ fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>📱 Aisa Message Jayega Customer Ko (BillGST System Se)</div>
                                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: 1.7 }}>
                                     Dear, <strong style={{ color: '#4ade80' }}>[Customer Name]</strong><br/>
                                     Your payment of <strong style={{ color: '#fbbf24' }}>*₹15,938*</strong> is pending with <strong style={{ color: '#60a5fa' }}>*{formData.name || 'Aapki Dukan'}*</strong><br/><br/>
                                     If you have already made the payment, kindly ignore this message.<br/><br/>
                                     Thank You<br/>
-                                    <strong style={{ color: '#60a5fa' }}>{formData.name || 'Aapki Dukan'}</strong>
+                                    <strong style={{ color: '#60a5fa' }}>{formData.name || 'Aapki Dukan'}</strong><br/>
+                                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>- Sent automatically via BillGST App</span>
                                 </div>
                             </div>
 
@@ -849,20 +765,13 @@ export default function SettingsPage() {
                                             <div className="hint">Is waqt automatically reminder jayega</div>
                                         </div>
                                     </div>
-                                    {!(formData.whatsapp_api_key && formData.whatsapp_api_key.includes(':')) && (
-                                        <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#fcd34d', lineHeight: 1.5 }}>
-                                            ⚠️ <strong>WhatsApp connected nahi hai!</strong> Upar Step 1 mein pehle apna WhatsApp connect karo — warna reminder nahi jayega.
-                                        </div>
-                                    )}
-                                    {(formData.whatsapp_api_key && formData.whatsapp_api_key.includes(':')) && (
-                                        <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#86efac', lineHeight: 1.5 }}>
-                                            ✅ <strong>Sab ready hai!</strong> Settings save karo — kal se har roz <strong>{formData.reminderTime || '10:00'}</strong> baje pending customers ko aapke number se automatic reminder jayega.
-                                        </div>
-                                    )}
-
+                                    <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#86efac', lineHeight: 1.5 }}>
+                                        ✅ <strong>Sab ready hai!</strong> Settings save karo — kal se har roz <strong>{formData.reminderTime || '10:00'}</strong> baje pending customers ko aapke behalf par automatic reminder jayega.
+                                    </div>
                                 </div>
                             )}
                         </div>
+                    </div>           </div>
                     </div>
 
                     {/* Branding & Signatory */}

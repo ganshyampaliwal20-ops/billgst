@@ -99,7 +99,10 @@ export async function GET(request: Request) {
                         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
                         const chatId = `${cleanPhone}@c.us`;
 
-                        const res = await fetch(`https://api.green-api.com/waInstance${instanceId}/sendMessage/${token}`, {
+                        const hostPrefix = instanceId.substring(0, 4);
+                        const apiUrl = `https://${hostPrefix}.api.greenapi.com/waInstance${instanceId}/sendMessage/${token}`;
+                        
+                        const res = await fetch(apiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
