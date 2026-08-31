@@ -695,7 +695,7 @@ function ReportsContent() {
                             <div className="kpi" onClick={() => router.push('/dashboard/invoices')}>
                                 <div className="kpi-top">
                                     <div className="kpi-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-6 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
                                     </div>
                                     <div className="delta up">↑</div>
                                 </div>
@@ -706,7 +706,7 @@ function ReportsContent() {
                             <div className="kpi" onClick={handleDownloadExcel}>
                                 <div className="kpi-top">
                                     <div className="kpi-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="M6 13h8.5l-6 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
                                     </div>
                                     <div className="delta up">↑</div>
                                 </div>
