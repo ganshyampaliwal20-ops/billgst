@@ -43,6 +43,7 @@ export default function SettingsPage() {
     const updateSettings = useStore((state) => state.updateSettings);
     const [formData, setFormData] = useState<any>({});
     const [localSettings, setLocalSettings] = useState<any>({});
+    const t: any = translations[(settings.language || 'en') as keyof typeof translations] || translations.en;
     const [isClient, setIsClient] = useState(false);
     
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
@@ -511,8 +512,8 @@ export default function SettingsPage() {
 
             <div className="shell">
                 <div className="page-head">
-                    <h1>Business Settings</h1>
-                    <p>Manage your business profile, tax settings, and invoice preferences</p>
+                    <h1>{t.settings}</h1>
+                    <p>{t.manageProfile}</p>
                 </div>
 
                 <nav className="mobile-nav">
@@ -525,18 +526,18 @@ export default function SettingsPage() {
 
                 <nav className="side-nav">
                     {[
-                        { id: 'profile', label: 'Business Profile' },
-                        { id: 'tax', label: 'Tax Settings' },
-                        { id: 'bank', label: 'Bank Details' },
-                        { id: 'payments', label: 'Payments' },
+                        { id: \'profile\', label: t.businessProfile },
+                        { id: \'tax\', label: t.taxSettings },
+                        { id: \'bank\', label: t.bankDetails },
+                        { id: \'payments\', label: t.payments },
                         { id: 'whatsapp-automation', label: 'WhatsApp' },
-                        { id: 'branding', label: 'Branding' },
-                        { id: 'signatory', label: 'Signatory' },
-                        { id: 'terms', label: 'Terms & Conditions' },
-                        { id: 'modules', label: 'Features & Modules' },
-                        { id: 'design', label: 'Invoice Design' },
-                        { id: 'prefs', label: 'Preferences' },
-                        { id: 'security', label: 'Account Security' },
+                        { id: \'branding\', label: t.branding },
+                        { id: \'signatory\', label: t.signatory },
+                        { id: \'terms\', label: t.termsAndConditions },
+                        { id: \'modules\', label: t.featuresAndModules },
+                        { id: \'design\', label: t.invoiceDesign },
+                        { id: \'prefs\', label: t.preferences },
+                        { id: \'security\', label: t.accountSecurity },
                     ].map(item => (
                         <a key={item.id} onClick={() => handleScrollTo(item.id)} className={activeSection === item.id ? 'active' : ''}>
                             <span className="dot"></span>{item.label}
@@ -559,7 +560,7 @@ export default function SettingsPage() {
                     <div className="card" id="profile">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
-                            <div><h2>Business Profile</h2><p>Basic details about your business</p></div>
+                            <div><h2>{t.businessProfile}</h2><p>Basic details about your business</p></div>
                         </div>
                         <div className="field">
                             <label>Business Name</label>
@@ -609,7 +610,7 @@ export default function SettingsPage() {
                         <div className="card-head with-toggle">
                             <div className="card-head-left">
                                 <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-                                <div><h2>Tax Settings</h2><p>GST configuration applied on invoices</p></div>
+                                <div><h2>{t.taxSettings}</h2><p>GST configuration applied on invoices</p></div>
                             </div>
                         </div>
                         <div className="toggle-row">
@@ -651,7 +652,7 @@ export default function SettingsPage() {
                     <div className="card" id="bank">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-                            <div><h2>Bank Details</h2><p>Payment information printed on invoice footer</p></div>
+                            <div><h2>{t.bankDetails}</h2><p>Payment information printed on invoice footer</p></div>
                         </div>
                         <div className="row2">
                             <div className="field">
@@ -1011,10 +1012,10 @@ export default function SettingsPage() {
                     <div className="card" id="prefs">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg></div>
-                            <div><h2>Preferences</h2><p>Select display language for your dashboard</p></div>
+                            <div><h2>{t.preferences}</h2><p>{t.selectDisplayLanguage}</p></div>
                         </div>
                         <div className="field">
-                            <label>Language</label>
+                            <label>{t.language}</label>
                             <select value={localSettings.language || 'en'} onChange={e => setLocalSettings({...localSettings, language: e.target.value})}>
                                 {languages.map(lang => (
                                     <option key={lang.code} value={lang.code}>
@@ -1029,7 +1030,7 @@ export default function SettingsPage() {
                     <div className="card" id="security">
                         <div className="card-head">
                             <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-                            <div><h2>Account Security</h2><p>Manage how you sign in and keep your account safe</p></div>
+                            <div><h2>{t.accountSecurity}</h2><p>Manage how you sign in and keep your account safe</p></div>
                         </div>
                         <div className="field">
                             <label>Expense Deletion PIN (4 digits)</label>
@@ -1058,7 +1059,7 @@ export default function SettingsPage() {
             <div className="save-bar">
                 <button className="save-btn" onClick={handleSubmit}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-                    Save All Settings
+                    {t.saveAllSettings}
                 </button>
             </div>
             
