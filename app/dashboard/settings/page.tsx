@@ -666,11 +666,11 @@ export default function SettingsPage() {
                         <div className="row2">
                             <div className="field">
                                 <label>Account Number</label>
-                                <input type="text" value={formData.account_number || ''} onChange={(e) => setFormData({...formData, account_number: e.target.value})} placeholder="00000000000000" />
+                                <input type="text" value={formData.account_no || ''} onChange={(e) => setFormData({...formData, account_no: e.target.value})} placeholder="00000000000000" />
                             </div>
                             <div className="field">
                                 <label>IFSC Code</label>
-                                <input type="text" value={formData.ifsc || ''} onChange={(e) => setFormData({...formData, ifsc: e.target.value.toUpperCase()})} placeholder="HDFC0001234" maxLength={11} />
+                                <input type="text" value={formData.ifsc_code || ''} onChange={(e) => setFormData({...formData, ifsc_code: e.target.value.toUpperCase()})} placeholder="HDFC0001234" maxLength={11} />
                             </div>
                         </div>
                     </div>

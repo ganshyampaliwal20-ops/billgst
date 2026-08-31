@@ -158,7 +158,8 @@ export async function POST(request: Request) {
                 store_banner = $28,
                 business_modules = $29,
                 invoice_pdf_size = $30,
-                expense_delete_pin = $31
+                expense_delete_pin = $31,
+                language = $32
             WHERE id = $15
             RETURNING *`;
 
@@ -193,7 +194,8 @@ export async function POST(request: Request) {
             data.store_banner || null,
             data.modules ? (typeof data.modules === 'string' ? data.modules : JSON.stringify(data.modules)) : JSON.stringify({ invoicing: true, accounting: true, staff: true, inventory: true }),
             data.pdf_size || data.invoice_pdf_size || 'A4',
-            data.expense_delete_pin || null
+            data.expense_delete_pin || null,
+            data.language || 'en'
         ];
 
         try {
@@ -290,6 +292,7 @@ function normalizeProfile(dbRow: any, userId: string) {
         modules: dbRow.business_modules || { invoicing: true, accounting: true, staff: true, inventory: true },
         pdf_size: dbRow.invoice_pdf_size || 'A4',
         has_expense_pin: !!dbRow.expense_delete_pin,
+        language: dbRow.language || 'en',
         id: userId
     };
 }
@@ -318,6 +321,7 @@ async function runMigration(client: any) {
         ADD COLUMN IF NOT EXISTS business_logo_position VARCHAR(20) DEFAULT 'RIGHT',
         ADD COLUMN IF NOT EXISTS auto_reminders_enabled BOOLEAN DEFAULT FALSE,
         ADD COLUMN IF NOT EXISTS reminder_frequency INTEGER DEFAULT 3,
+        ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'en',
         ADD COLUMN IF NOT EXISTS reminder_time VARCHAR(10) DEFAULT '10:00',
         ADD COLUMN IF NOT EXISTS whatsapp_bot_enabled BOOLEAN DEFAULT FALSE,
         ADD COLUMN IF NOT EXISTS whatsapp_sender_number VARCHAR(20),
