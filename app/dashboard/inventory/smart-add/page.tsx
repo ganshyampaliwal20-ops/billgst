@@ -251,7 +251,7 @@ export default function SmartAddPage() {
                         purchase_price: item.purchasePrice,
                         price: item.sellingPrice || item.purchasePrice,
                         unit: item.unit
-                    });
+                    }, { silent: true });
                     if (res?.error) {
                         failures.push({ name: item.name, reason: res.error });
                     } else {
@@ -270,7 +270,7 @@ export default function SmartAddPage() {
                         unit: item.unit,
                         type: 'PRODUCT',
                         created_at: new Date().toISOString()
-                    });
+                    }, { silent: true });
                     if (res?.error) {
                         failures.push({ name: item.name, reason: res.error });
                     } else {
