@@ -686,7 +686,8 @@ export default function SettingsPage() {
                             <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({...formData, upi_id: e.target.value})} placeholder="businessname@okhdfcbank" />
                             <div className="hint">Customers can scan the Dynamic QR code on your bills to pay directly to this UPI ID</div>
                         </div>
-                                       {/* WhatsApp Automation */}
+                    </div>
+                    {/* WhatsApp Automation */}
                     <div className="card" id="whatsapp-automation">
                         <div className="card-head">
                             <div className="card-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>
