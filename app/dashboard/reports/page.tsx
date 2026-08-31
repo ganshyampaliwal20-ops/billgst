@@ -411,604 +411,324 @@ function ReportsContent() {
     const totalIGST = invoices?.reduce((sum: number, inv: any) => sum + (parseFloat(inv.igst_amount) || 0), 0) || 0;
 
     const totalTax = totalCGST + totalSGST + totalIGST;
-
     return (
         <>
             <style dangerouslySetInnerHTML={{
                 __html: `
-:root {
-  --bg: #f0f2f8;
-  --white: #ffffff;
-  --ink: #0b0f1e;
-  --ink2: #1c2340;
-  --slate: #3d4766;
-  --muted: #7c88a6;
-  --border: #e2e6f3;
-  --faint: #f5f7fd;
-  --indigo: #4f46e5;
-  --indigo-soft: rgba(79,70,229,0.1);
-  --teal: #0ea5e9;
-  --teal-soft: rgba(14,165,233,0.1);
-  --green: #10b981;
-  --green-soft: rgba(16,185,129,0.1);
-  --amber: #f59e0b;
-  --amber-soft: rgba(245,158,11,0.1);
-  --red: #ef4444;
-  --red-soft: rgba(239,68,68,0.1);
-  --orange: #f97316;
-  --shadow: 0 2px 16px rgba(11,15,30,0.07), 0 1px 4px rgba(11,15,30,0.04);
-  --shadow-md: 0 8px 32px rgba(11,15,30,0.1), 0 2px 8px rgba(11,15,30,0.06);
-}
+  :root{
+    --ink:#0B1330;
+    --ink-soft:#454E6B;
+    --muted:#7A8199;
+    --bg:#F1F3F9;
+    --card:#FFFFFF;
+    --border:#E5E8F2;
+    --gold:#B9862F;
+    --gold-soft:#F4E9D8;
+    --teal:#0E7C61;
+    --teal-soft:#E3F3EE;
+    --red:#C0392B;
+    --red-soft:#FBEAE8;
+    --navy-deep:#0B1330;
+  }
+  .report-wrapper *{box-sizing:border-box;}
+  .report-wrapper{background:var(--bg); font-family:'Inter',sans-serif; color:var(--ink); display:flex; justify-content:center; padding:32px 16px; min-height:100vh;}
+  .app{
+    width:100%;
+    max-width:412px;
+    background:var(--bg);
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(11,19,48,0.25);
+    border:1px solid #d9dcea;
+  }
 
-.report-wrapper { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--ink); min-height: 100dvh; overflow-y: visible; }
-.report-wrapper * { box-sizing: border-box; }
+  /* Header */
+  .header{
+    background:var(--navy-deep);
+    padding:22px 20px 26px;
+    color:#fff;
+  }
+  .header-top{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:linear-gradient(160deg,var(--gold) 0%, #8f6420 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:16px; color:#fff;
+  }
+  .brand-name{ font-family:'Fraunces',serif; font-weight:500; font-size:19px; letter-spacing:0.2px;}
+  .brand-name span{ color:var(--gold); }
+  .header-icons{ display:flex; gap:14px; align-items:center; }
+  .icon-btn{
+    width:34px; height:34px; border-radius:9px;
+    background:rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .icon-btn svg{ width:17px; height:17px; stroke:#EDEFF6; }
 
-.topbar {
-  background: linear-gradient(135deg, #0b0f1e 0%, #1c2340 60%, #2d3561 100%);
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  box-shadow: 0 4px 24px rgba(11,15,30,0.3);
-  perspective: 1000px;
-  animation: dropIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-}
-@keyframes dropIn3D {
-  from { opacity: 0; transform: rotateX(-30deg) translateY(-40px); }
-  to { opacity: 1; transform: rotateX(0) translateY(0); }
-}
-@media(max-width: 768px) {
-  .topbar { padding: 16px; gap: 14px; }
-  .topbar-right { justify-content: center; width: 100%; flex-wrap: wrap; }
-}
-.topbar-left { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.topbar h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.4px; margin: 0; }
-.topbar p  { font-size: 11.5px; color: rgba(255,255,255,0.45); font-weight: 400; margin-top: 1px; margin-bottom: 0;}
+  .hero-title{ font-family:'Fraunces',serif; font-size:30px; font-weight:500; line-height:1.1;}
+  .hero-sub{ color:#B7BCD6; font-size:13.5px; margin-top:5px; }
 
-.topbar-right { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
-.period-select {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #fff;
-  padding: 0 14px;
-  height: 42px;
-  border-radius: 10px;
-  font-family: 'Sora', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-  -webkit-appearance: none;
-}
-.period-select option { background: #1c2340; color: #fff; }
+  .period-row{
+    display:flex; gap:8px; margin-top:20px; overflow-x: auto; padding-bottom: 4px;
+  }
+  .period-row::-webkit-scrollbar { display: none; }
+  .pill{
+    flex:1;
+    text-align:center;
+    padding:10px 12px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.14);
+    color:#EDEFF6;
+    background:rgba(255,255,255,0.06);
+    white-space: nowrap;
+  }
+  .pill.active{
+    background:var(--gold);
+    color:#241800;
+    border-color:var(--gold);
+  }
+  .pill svg{ width:14px; height:14px; }
 
-.export-btn {
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  padding: 0 14px;
-  height: 42px;
-  border-radius: 10px;
-  border: none;
-  font-family: 'Sora', sans-serif;
-  font-size: 13px; font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-.btn-tally { background: linear-gradient(135deg, #dc4a1a, #f97316); color: #fff; box-shadow: 0 4px 14px rgba(249,115,22,0.35); }
-.btn-excel { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
-.export-btn:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.15); box-shadow: 0 10px 20px rgba(0,0,0,0.25); }
-@media(max-width: 500px) {
-  .export-btn { padding: 8px 12px; font-size: 11px; gap: 4px; }
-  .period-select { padding: 8px 10px; font-size: 11px; }
-}
+  /* Content */
+  .content{ padding:18px 18px 28px; }
 
-.advisory {
-  margin: 14px 16px 0;
-  background: linear-gradient(135deg, #312e81, #4338ca, #4f46e5);
-  border-radius: 12px;
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  box-shadow: 0 4px 20px rgba(79,70,229,0.3);
-  animation: slideIn 0.5s ease both;
-}
-@media(max-width: 768px) {
-  .advisory { margin: 10px 12px 0; padding: 6px 12px; gap: 8px; }
-}
-@keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-.advisory-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.advisory-icon { font-size: 18px; flex-shrink: 0; }
-.advisory-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-.advisory-text p { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.6); margin: 0; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
-.advisory-text h3 { font-size: 12px; font-weight: 500; color: #fff; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media(max-width: 600px) {
-  .advisory-icon { display: none; }
-  .advisory-text h3 { font-size: 11px; }
-}
-.advisory-badge {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff; padding: 6px 14px; border-radius: 8px;
-  font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
-  transition: all 0.2s; flex-shrink: 0;
-}
-.advisory-badge:hover { background: rgba(255,255,255,0.25); }
-.page-content-box { 
-  padding: 24px 16px 40px; 
-  max-width: 1200px; 
-  margin: 0 auto; 
-  animation: scaleIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; 
-  transform-origin: top center;
-  perspective: 1000px;
-}
-@keyframes scaleIn3D {
-  from { opacity: 0; transform: scale(0.9) rotateX(15deg) translateY(30px); }
-  to { opacity: 1; transform: scale(1) rotateX(0) translateY(0); }
-}
-@media(min-width: 769px) {
-  .page-content-box { padding: 28px 24px 40px; }
-}
+  .advisory{
+    background:var(--gold-soft);
+    border:1px solid #e6d3ac;
+    border-left:4px solid var(--gold);
+    border-radius:10px;
+    padding:13px 14px;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .advisory svg{ width:17px; height:17px; stroke:#8f6420; flex-shrink:0; margin-top:1px;}
+  .advisory-text{ font-size:12.8px; line-height:1.4; color:#5c4415; flex:1; }
+  .advisory-text b{ display:block; font-size:13.2px; color:#402f0d; margin-bottom:1px; text-transform: uppercase; }
+  .advisory-link{
+    font-size:12.5px; font-weight:700; color:var(--navy-deep);
+    text-decoration:underline; text-underline-offset:2px; white-space:nowrap; align-self:center; cursor: pointer;
+  }
 
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-}
-@media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(2,1fr)} }
-@media(max-width:500px){ .kpi-grid{grid-template-columns:repeat(4, 1fr); gap: 6px;} }
+  .section-label{
+    font-size:12.5px; font-weight:600; color:var(--muted);
+    margin:0 2px 10px; text-transform:none;
+  }
 
-.kpi-card {
-  background: var(--white);
-  border-radius: 16px;
-  padding: 20px 18px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.25s;
-  animation: fadeUp 0.4s ease both;
-  cursor: pointer;
-  user-select: none;
-}
-.kpi-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--shadow-md); border-color: var(--indigo); }
-.kpi-card:active { transform: translateY(-1px) scale(0.99); }
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  border-radius: 16px 16px 0 0;
-}
-.kpi-card.indigo::before { background: linear-gradient(90deg, #4f46e5, #818cf8); }
-.kpi-card.teal::before   { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-.kpi-card.green::before  { background: linear-gradient(90deg, #10b981, #34d399); }
-.kpi-card.amber::before  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.kpi-card.red::before    { background: linear-gradient(90deg, #ef4444, #f87171); }
-.kpi-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .kpi{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+    cursor: pointer;
+  }
+  .kpi-top{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
+  }
+  .kpi-icon{
+    width:30px; height:30px; border-radius:8px;
+    background:#EEF0F8;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .kpi-icon svg{ width:15px; height:15px; stroke:var(--navy-deep); }
+  .kpi.warn .kpi-icon{ background:var(--red-soft); }
+  .kpi.warn .kpi-icon svg{ stroke:var(--red); }
+  .delta{
+    font-size:11.5px; font-weight:700; display:flex; align-items:center; gap:2px;
+  }
+  .delta.up{ color:var(--teal); }
+  .delta.down{ color:var(--red); }
+  .kpi-value{
+    font-family:'Inter',sans-serif; font-variant-numeric:tabular-nums;
+    font-size:19px; font-weight:700; color:var(--ink); line-height:1.15;
+  }
+  .kpi-label{
+    font-size:11.8px; color:var(--muted); margin-top:3px; font-weight:500;
+  }
 
-@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .chart-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 16px 8px;
+  }
+  .chart-head{
+    display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;
+  }
+  .chart-head h3{ font-size:15.5px; font-weight:700; color:var(--ink); }
+  .chart-head p{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .legend{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); font-weight:600; }
+  .legend-dot{ width:8px; height:8px; border-radius:50%; background:var(--gold); }
 
-.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.kpi-icon {
-  width: 40px; height: 40px;
-  border-radius: 11px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-.kpi-icon.indigo { background: var(--indigo-soft); }
-.kpi-icon.teal   { background: var(--teal-soft); }
-.kpi-icon.green  { background: var(--green-soft); }
-.kpi-icon.amber  { background: var(--amber-soft); }
-.kpi-icon.red    { background: var(--red-soft); }
-.kpi-icon.purple { background: rgba(139,92,246,0.1); }
+  .chart-wrap{ margin-top:6px; position:relative; height:120px; width:100%; }
+  .week-labels{
+    display:flex; justify-content:space-between; padding:6px 4px 4px;
+    font-size:11px; color:var(--muted); font-weight:500;
+  }
 
-.kpi-trend {
-  font-size: 11px; font-weight: 700;
-  padding: 3px 8px; border-radius: 20px;
-  display: flex; align-items: center; gap: 3px;
-}
-.kpi-trend.up   { background: var(--green-soft); color: var(--green); }
-.kpi-trend.down { background: var(--red-soft); color: var(--red); }
-
-.kpi-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 22px; font-weight: 700;
-  letter-spacing: -0.5px;
-  color: var(--ink);
-  margin-bottom: 4px;
-}
-.kpi-label {
-  font-size: 10.5px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.8px;
-  color: var(--muted);
-}
-
-@media(max-width: 500px) {
-  .kpi-card { padding: 8px 6px; border-radius: 10px; }
-  .kpi-value { font-size: 11px; margin-bottom: 2px; }
-  .kpi-icon { width: 22px; height: 22px; font-size: 11px; border-radius: 6px; }
-  .kpi-label { font-size: 7px; letter-spacing: 0; line-height: 1.1; }
-  .kpi-top { margin-bottom: 4px; }
-  .kpi-trend { font-size: 7px; padding: 2px 3px; border-radius: 3px; }
-}
-
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-@media(max-width:768px){ .charts-grid{grid-template-columns:1fr} }
-
-.chart-card {
-  background: var(--white);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  animation: fadeUp 0.5s ease both;
-}
-.chart-card.wide { grid-column: span 2; }
-@media(max-width:768px){ .chart-card.wide{grid-column:span 1} }
-
-.chart-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px;
-}
-.chart-title { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; }
-.chart-sub   { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
-.chart-legend { display: flex; gap: 14px; }
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--muted); }
-.legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-.download-section {
-  background: var(--white);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  margin-bottom: 18px;
-}
-.section-title {
-  font-size: 12px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--muted); margin-bottom: 14px;
-  display: flex; align-items: center; gap: 8px;
-}
-.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-
-.download-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-@media(max-width:600px){ .download-grid{grid-template-columns:repeat(2,1fr)} }
-
-.dl-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  padding: 16px 10px;
-  border-radius: 12px;
-  border: 1.5px solid var(--border);
-  background: var(--faint);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-}
-.dl-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: transparent; }
-.dl-btn.tally { --hc: #f97316; }
-.dl-btn.excel { --hc: #10b981; }
-.dl-btn.pdf   { --hc: #ef4444; }
-.dl-btn.csv   { --hc: #4f46e5; }
-.dl-btn:hover { background: color-mix(in srgb, var(--hc) 8%, white); border-color: color-mix(in srgb, var(--hc) 30%, white); }
-.dl-icon { font-size: 28px; }
-.dl-name { font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
-.dl-desc { font-size: 9px; color: var(--muted); font-weight: 400; text-align: center; line-height: 1.2; }
-@media(max-width: 400px) {
-  .dl-btn { padding: 12px 6px; }
-  .dl-name { font-size: 10.5px; }
-}
-
-.bottom-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 16px;
-}
-@media(max-width:768px){ .bottom-grid{grid-template-columns:1fr} }
-
-.table-section {
-  background: var(--white);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-}
-.table-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--faint);
-  transition: all 0.15s;
-}
-.table-row:last-child { border-bottom: none; }
-.table-row:hover { background: var(--faint); margin: 0 -8px; padding: 10px 8px; border-radius: 10px; }
-.row-num { width: 22px; height: 22px; background: var(--faint); border-radius: 7px; font-size: 11px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.row-avatar { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.row-info { flex: 1; min-width: 0; }
-.row-name { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.row-txn  { font-size: 11px; color: var(--muted); font-weight: 400; }
-.row-amt  { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
-
-.gst-card {
-  background: var(--white);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-}
-.gst-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 9px 0; border-bottom: 1px solid var(--faint);
-  font-size: 13px;
-}
-.gst-row:last-child { border-bottom: none; font-weight: 700; }
-.gst-key { color: var(--muted); font-weight: 500; }
-.gst-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
-.gst-compliance {
-  margin-top: 14px;
-  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-  border: 1px solid #bbf7d0;
-  border-radius: 11px;
-  padding: 12px 14px;
-}
-.compliance-top { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--green); margin-bottom: 7px; }
-.compliance-bar { height: 6px; background: #d1fae5; border-radius: 10px; overflow: hidden; }
-.compliance-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 10px; width: 92%; transition: width 1s ease; }
-            ` }} />
+  .export-row{
+    display:flex; gap:10px; margin-top:18px;
+  }
+  .export-btn{
+    flex:1;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    padding:12px 10px;
+    border-radius:11px;
+    font-size:13px; font-weight:700;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .export-btn:active{ transform:scale(0.98); }
+  .export-btn svg{ width:15px; height:15px; }
+` }} />
 
             <div className="report-wrapper">
-                <div className="topbar">
-                    <div className="topbar-left">
-                        <div>
-                            <h1>{t.reports || 'Reports'}</h1>
-                            <p>{t.businessOverview || 'Business Overview'}</p>
-                        </div>
-                    </div>
-                    <div className="topbar-right">
-                        <select className="period-select" value={period} onChange={(e) => { setPeriod(e.target.value); toast(`${t.periodChanged || 'Period Changed'}: ${e.target.value}`); }}>
-                            <option>{t.periodThisMonth || 'This Month'}</option>
-                            <option>{t.periodLastMonth || 'Last Month'}</option>
-                            <option>{t.periodThisQuarter || 'This Quarter'}</option>
-                            <option>{t.periodThisYear || 'This Year'}</option>
-                            <option>{t.periodCustomRange || 'Custom Range'}</option>
-                        </select>
-                        <button className="export-btn btn-tally" onClick={handleTallyXML}>📊 {t.tallyXml || 'Tally XML'}</button>
-                        <button className="export-btn btn-excel" onClick={handleDownloadExcel}>📗 {t.excel || 'Excel'}</button>
-                    </div>
-                </div>
-
-                <div className="advisory">
-                    <div className="advisory-left">
-                        <span className="advisory-icon">💡</span>
-                        <div className="advisory-text">
-                            <p>{t.advisory || 'ADVISORY'}</p>
-                            <h3>{t.hsnComplianceHint || 'Ensure HSN codes for GST compliance'}</h3>
-                        </div>
-                    </div>
-                    <div className="advisory-badge" onClick={() => toast(t.itcMaximizeToast || 'Claim ITC efficiently')}>{t.maximizeItc || 'Maximize ITC'}</div>
-                </div>
-
-                <div className="page-content-box" style={{ paddingBottom: '80px' }}>
-
-                    <div className="kpi-grid">
-                        {/* 1. Total Revenue → Invoices Page */}
-                        <div className="kpi-card indigo" onClick={() => router.push('/dashboard/invoices')} title="View all invoices">
-                            <div className="kpi-top">
-                                <div className="kpi-icon indigo">📈</div>
-                                <div className="kpi-trend up">↑ 12.4%</div>
+                <div className="app">
+                    <div className="header">
+                        <div className="header-top">
+                            <div className="brand">
+                                <div className="brand-mark">{businessProfile?.business_name?.[0]?.toUpperCase() || 'B'}</div>
+                                <div className="brand-name">{businessProfile?.business_name || 'BillGST'}</div>
                             </div>
-                            <div className="kpi-value">{formatLakhs(totalSales)}</div>
-                            <div className="kpi-label">{t.totalRevenue || 'Total Revenue'}</div>
+                            <div className="header-icons">
+                                <div className="icon-btn" onClick={() => router.push('/dashboard/settings')}>
+                                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* 2. Net Profit → Excel Download */}
-                        <div className="kpi-card green" style={{ animationDelay: ".1s" }} onClick={handleDownloadExcel} title="Download profit report">
-                            <div className="kpi-top">
-                                <div className="kpi-icon green">💰</div>
-                                <div className="kpi-trend up">↑ 8.1%</div>
-                            </div>
-                            <div className="kpi-value">{formatLakhs(totalProfit)}</div>
-                            <div className="kpi-label">{t.netProfit || 'Net Profit'}</div>
-                        </div>
+                        <div className="hero-title">{t.reports || 'Reports'}</div>
+                        <div className="hero-sub">{t.businessOverview || 'Business overview'} &middot; {period}</div>
 
-                        {/* 3. Total Invoices → Invoices Page */}
-                        <div className="kpi-card teal" style={{ animationDelay: ".15s" }} onClick={() => router.push('/dashboard/invoices')} title="View all invoices">
-                            <div className="kpi-top">
-                                <div className="kpi-icon teal">🧾</div>
-                                <div className="kpi-trend down">↓ 3.2%</div>
-                            </div>
-                            <div className="kpi-value">{invoiceCount}</div>
-                            <div className="kpi-label">{t.totalInvoices || 'Total Invoices'}</div>
-                        </div>
-
-                        {/* 4. Avg Order Value → toast info */}
-                        <div className="kpi-card amber" style={{ animationDelay: ".2s" }} onClick={() => toast(`Average Order Value: ${formatLakhs(avgOrderValue)} | Total Orders: ${invoiceCount}`, { duration: 4000 })} title="Average order info">
-                            <div className="kpi-top">
-                                <div className="kpi-icon amber">🛒</div>
-                                <div className="kpi-trend up">↑ 5.6%</div>
-                            </div>
-                            <div className="kpi-value">{formatLakhs(avgOrderValue)}</div>
-                            <div className="kpi-label">{t.avgOrderValue || 'Avg Order Value'}</div>
-                        </div>
-
-                        {/* 5. Payment Pending → Pending Invoices */}
-                        <div className="kpi-card red" style={{ animationDelay: ".25s" }} onClick={() => router.push('/dashboard/invoices?status=PENDING')} title="View pending payments">
-                            <div className="kpi-top">
-                                <div className="kpi-icon red">⚠️</div>
-                                <div className="kpi-trend down">↓ 2.1%</div>
-                            </div>
-                            <div className="kpi-value">{formatLakhs(paymentPending)}</div>
-                            <div className="kpi-label">{t.paymentPending || 'Payment Pending'}</div>
-                        </div>
-
-                        {/* 6. Active Customers → Customers Page */}
-                        <div className="kpi-card purple" style={{ animationDelay: ".3s" }} onClick={() => router.push('/dashboard/customers')} title="View all customers">
-                            <div className="kpi-top">
-                                <div className="kpi-icon purple">👥</div>
-                                <div className="kpi-trend up">↑ 18%</div>
-                            </div>
-                            <div className="kpi-value">{activeCustomers}</div>
-                            <div className="kpi-label">{t.activeCustomers || 'Active Customers'}</div>
-                        </div>
-
-                        {/* 7. Total Sales → Excel Download */}
-                        <div className="kpi-card teal" style={{ animationDelay: ".35s" }} onClick={handleDownloadExcel} title="Download sales report">
-                            <div className="kpi-top">
-                                <div className="kpi-icon teal">💸</div>
-                                <div className="kpi-trend up">↑ 4.3%</div>
-                            </div>
-                            <div className="kpi-value">{formatLakhs(totalSales)}</div>
-                            <div className="kpi-label">{t.totalSales || 'Total Sales'}</div>
-                        </div>
-
-                        {/* 8. Items Sold → Inventory Page */}
-                        <div className="kpi-card green" style={{ animationDelay: ".4s" }} onClick={() => router.push('/dashboard/inventory')} title="View inventory">
-                            <div className="kpi-top">
-                                <div className="kpi-icon green">📦</div>
-                                <div className="kpi-trend up">↑ 9.7%</div>
-                            </div>
-                            <div className="kpi-value">{itemsSold}</div>
-                            <div className="kpi-label">{t.itemsSold || 'Items Sold'}</div>
+                        <div className="period-row">
+                            <div className={`pill ${period === 'This Month' ? 'active' : ''}`} onClick={() => setPeriod('This Month')}>{t.periodThisMonth || 'This Month'}</div>
+                            <div className={`pill ${period === 'Last Month' ? 'active' : ''}`} onClick={() => setPeriod('Last Month')}>{t.periodLastMonth || 'Last Month'}</div>
+                            <div className={`pill ${period === 'This Year' ? 'active' : ''}`} onClick={() => setPeriod('This Year')}>{t.periodThisYear || 'This Year'}</div>
                         </div>
                     </div>
 
-                    <div className="charts-grid">
-                        <div className="chart-card" style={{ animationDelay: ".2s" }}>
-                            <div className="chart-header">
-                                <div>
-                                    <div className="chart-title">{t.revenueTrend || 'Revenue Trend'}</div>
-                                    <div className="chart-sub">{t.weeklyBreakdown || 'Weekly breakdown'}</div>
-                                </div>
-                                <div className="chart-legend">
-                                    <div className="legend-item"><div className="legend-dot" style={{ background: "#4f46e5" }} />Revenue</div>
-                                </div>
+                    <div className="content">
+                        <div className="advisory">
+                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <div className="advisory-text">
+                                <b>{t.advisory || 'ADVISORY'}</b>
+                                {t.hsnComplianceHint || 'Ensure HSN codes for GST compliance'}
                             </div>
-                            <div style={{ position: 'relative', height: '220px', width: '100%' }}>
-                                <canvas ref={revenueChartRef} />
-                            </div>
+                            <div className="advisory-link" onClick={() => toast(t.itcMaximizeToast || 'Claim ITC efficiently')}>{t.maximizeItc || 'Maximize ITC'}</div>
                         </div>
 
-                        <div className="chart-card" style={{ animationDelay: ".25s" }}>
-                            <div className="chart-header">
-                                <div>
-                                    <div className="chart-title">Profit vs Sales</div>
-                                    <div className="chart-sub">Weekly comparison</div>
-                                </div>
-                                <div className="chart-legend">
-                                    <div className="legend-item"><div className="legend-dot" style={{ background: "#4f46e5" }} />Sales</div>
-                                    <div className="legend-item"><div className="legend-dot" style={{ background: "#10b981" }} />Profit</div>
-                                </div>
-                            </div>
-                            <div style={{ position: 'relative', height: '220px', width: '100%' }}>
-                                <canvas ref={profitChartRef} />
-                            </div>
-                        </div>
-
-                        <div className="chart-card wide" style={{ animationDelay: ".3s" }}>
-                            <div className="chart-header">
-                                <div>
-                                    <div className="chart-title">Monthly Sales Overview</div>
-                                    <div className="chart-sub">January – December {new Date().getFullYear()}</div>
-                                </div>
-                                <div className="chart-legend">
-                                    <div className="legend-item"><div className="legend-dot" style={{ background: "#0ea5e9" }} />Sales</div>
-                                    <div className="legend-item"><div className="legend-dot" style={{ background: "#f59e0b" }} />Expenses</div>
-                                    <div className="legend-item"><div className="legend-dot" style={{ background: "#10b981" }} />Profit</div>
-                                </div>
-                            </div>
-                            <div style={{ position: 'relative', height: '180px', width: '100%' }}>
-                                <canvas ref={monthlyChartRef} />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="download-section" style={{ animation: "fadeUp .5s .35s ease both" }}>
-                        <div className="section-title">{t.downloadReports || 'Download Reports'}</div>
-                        <div className="download-grid">
-                            <div className="dl-btn tally" onClick={handleTallyXML}>
-                                <span className="dl-icon">📊</span>
-                                <span className="dl-name">{t.tallyXml || 'Tally XML'}</span>
-                                <span className="dl-desc">{t.forTallySoftware || 'For Tally ERP / Prime'}</span>
-                            </div>
-                            <div className="dl-btn excel" onClick={handleDownloadExcel}>
-                                <span className="dl-icon">📗</span>
-                                <span className="dl-name">{t.excel || 'Excel'}</span>
-                                <span className="dl-desc">{t.spreadsheetFormat || 'Spreadsheet format'}</span>
-                            </div>
-                            <div className="dl-btn pdf" onClick={handlePDF}>
-                                <span className="dl-icon">📄</span>
-                                <span className="dl-name">{t.pdfReport || 'PDF Report'}</span>
-                                <span className="dl-desc">{t.printReadyFormat || 'Print ready format'}</span>
-                            </div>
-                            <div className="dl-btn csv" onClick={handleCSV}>
-                                <span className="dl-icon">🗂️</span>
-                                <span className="dl-name">CSV Export</span>
-                                <span className="dl-desc">Raw data format</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bottom-grid">
-                        <div className="table-section" style={{ animation: "fadeUp .5s .4s ease both" }}>
-                            <div className="chart-header">
-                                <div>
-                                    <div className="chart-title">Top Customers</div>
-                                    <div className="chart-sub">By transaction value</div>
-                                </div>
-                                <div
-                                    style={{ fontSize: "11px", fontWeight: 600, color: "var(--indigo)", cursor: "pointer" }}
-                                    onClick={() => router.push('/dashboard/customers')}
-                                >
-                                    View All →
-                                </div>
-                            </div>
-                            <div>
-                                {customersWithTotals.map((c: any, i: number) => (
-                                    <div className="table-row" key={i} onClick={() => c.id ? router.push('/dashboard/customers/' + c.id) : null} style={{ cursor: c.id ? 'pointer' : 'default' }}>
-                                        <div className="row-num">{i + 1}</div>
-                                        <div className="row-avatar" style={{ background: colors[i % colors.length] }}>{(c.name || 'U').charAt(0).toUpperCase()}</div>
-                                        <div className="row-info">
-                                            <div className="row-name">{c.name}</div>
-                                            <div className="row-txn">📞 {c.phone}</div>
-                                        </div>
-                                        <div className="row-amt">{formatLakhs(c.total)}</div>
+                        <div className="section-label">{t.keyMetrics || 'Key metrics'}</div>
+                        <div className="kpi-grid">
+                            <div className="kpi" onClick={() => router.push('/dashboard/invoices')}>
+                                <div className="kpi-top">
+                                    <div className="kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                                     </div>
-                                ))}
+                                    <div className="delta up">↑</div>
+                                </div>
+                                <div className="kpi-value">{formatLakhs(totalSales)}</div>
+                                <div className="kpi-label">{t.totalRevenue || 'Total revenue'}</div>
+                            </div>
+
+                            <div className="kpi" onClick={handleDownloadExcel}>
+                                <div className="kpi-top">
+                                    <div className="kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H7"/></svg>
+                                    </div>
+                                    <div className="delta up">↑</div>
+                                </div>
+                                <div className="kpi-value">{formatLakhs(totalProfit)}</div>
+                                <div className="kpi-label">{t.netProfit || 'Net profit'}</div>
+                            </div>
+
+                            <div className="kpi" onClick={() => router.push('/dashboard/invoices')}>
+                                <div className="kpi-top">
+                                    <div className="kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+                                    </div>
+                                    <div className="delta down">↓</div>
+                                </div>
+                                <div className="kpi-value">{invoiceCount}</div>
+                                <div className="kpi-label">{t.totalInvoices || 'Total invoices'}</div>
+                            </div>
+
+                            <div className="kpi" onClick={() => toast(`Average Order Value: ${formatLakhs(avgOrderValue)}`)}>
+                                <div className="kpi-top">
+                                    <div className="kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                                    </div>
+                                    <div className="delta up">↑</div>
+                                </div>
+                                <div className="kpi-value">{formatLakhs(avgOrderValue)}</div>
+                                <div className="kpi-label">{t.avgOrderValue || 'Avg order value'}</div>
+                            </div>
+
+                            <div className="kpi warn" onClick={() => router.push('/dashboard/invoices?status=PENDING')}>
+                                <div className="kpi-top">
+                                    <div className="kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    </div>
+                                    <div className="delta down">↓</div>
+                                </div>
+                                <div className="kpi-value">{formatLakhs(paymentPending)}</div>
+                                <div className="kpi-label">{t.paymentPending || 'Payment pending'}</div>
+                            </div>
+
+                            <div className="kpi" onClick={() => router.push('/dashboard/customers')}>
+                                <div className="kpi-top">
+                                    <div className="kpi-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    </div>
+                                    <div className="delta up">↑</div>
+                                </div>
+                                <div className="kpi-value">{customers?.length || 0}</div>
+                                <div className="kpi-label">{t.activeCustomers || 'Active customers'}</div>
+                            </div>
+
+                        </div>
+
+                        <div className="section-label">{t.revenueTrend || 'Revenue trend'}</div>
+                        <div className="chart-card">
+                            <div className="chart-head">
+                                <div>
+                                    <h3>{t.revenueTrend || 'Revenue breakdown'}</h3>
+                                </div>
+                                <div className="legend"><span className="legend-dot"></span>{t.totalRevenue || 'Revenue'}</div>
+                            </div>
+                            <div className="chart-wrap">
+                                <canvas ref={monthlyChartRef}></canvas>
                             </div>
                         </div>
 
-                        <div className="gst-card" style={{ animation: "fadeUp .5s .45s ease both" }}>
-                            <div className="chart-header">
-                                <div>
-                                    <div className="chart-title">GST Summary</div>
-                                    <div className="chart-sub">Current month</div>
-                                </div>
-                                <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--green)", cursor: "pointer" }} onClick={handleGSTExcel}>📥 Download</span>
+                        <div className="export-row">
+                            <div className="export-btn" onClick={handleTallyXML}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0E7C61" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                {t.exportTally || 'Export Tally XML'}
                             </div>
-                            <div className="gst-row"><span className="gst-key">Taxable Amount</span><span className="gst-val">{formatLakhs(totalTaxable)}</span></div>
-                            <div className="gst-row"><span className="gst-key">CGST (9%)</span><span className="gst-val">{formatLakhs(totalCGST)}</span></div>
-                            <div className="gst-row"><span className="gst-key">SGST (9%)</span><span className="gst-val">{formatLakhs(totalSGST)}</span></div>
-                            <div className="gst-row"><span className="gst-key">IGST</span><span className="gst-val">{formatLakhs(totalIGST)}</span></div>
-                            <div className="gst-row"><span className="gst-key" style={{ color: "var(--ink)" }}>Total Tax</span><span className="gst-val" style={{ color: "var(--indigo)" }}>{formatLakhs(totalTax)}</span></div>
-
-                            <div className="gst-compliance">
-                                <div className="compliance-top">
-                                    <span>HSN Compliance</span>
-                                    <span>{hsnCompliance}%</span>
-                                </div>
-                                <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${hsnCompliance}%` }} /></div>
+                            <div className="export-btn" onClick={handleDownloadExcel}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0E7C61" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                {t.exportExcel || 'Export Excel'}
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </>
