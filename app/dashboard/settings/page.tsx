@@ -8,6 +8,7 @@ import SignatureModal from '@/app/components/SignatureModal';
 import { optimizeImage } from '@/lib/utils';
 import { languages } from '@/lib/translations';
 import { QRCodeSVG } from 'qrcode.react';
+import { translations } from '@/lib/translations';
 
 const THEMES = {
     TEMPLATE_1: { accent: '#7c3aed', name: 'Modern Purple' },
