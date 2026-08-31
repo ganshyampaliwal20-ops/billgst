@@ -623,13 +623,13 @@ function NewInvoiceContent() {
             
             segments.forEach(segment => {
                 let qty = 1;
-                const numMatch = segment.match(/\d+/);
+                const numMatch = segment.match(/d+/);
                 if (numMatch) {
                     qty = parseInt(numMatch[0], 10);
-                    segment = segment.replace(/\d+/g, '');
+                    segment = segment.replace(/d+/g, '');
                 }
 
-                const cleanWord = segment.replace(/[^a-z0-9\s]/g, '').trim();
+                const cleanWord = segment.replace(/[^a-z0-9s]/g, '').trim();
                 if (!cleanWord || cleanWord.length < 2) return;
 
                 let bestMatch: any = null;
@@ -826,7 +826,7 @@ function NewInvoiceContent() {
                 const projectedBalance = pastDue + newDue + (Number(customer.opening_balance) || 0);
                 
                 if (projectedBalance > customer.credit_limit) {
-                    if (!window.confirm(`⚠️ ALERT: ${customer.name} ki credit limit (₹${customer.credit_limit}) cross ho rahi hai!\n\nUnka total udhaar (Pichla baki + abhi ka) ₹${projectedBalance} ho jayega.\n\nKya aap phir bhi ye invoice save karna chahte hain?`)) {
+                    if (!window.confirm(`⚠️ ALERT: ${customer.name} ki credit limit (₹${customer.credit_limit}) cross ho rahi hai!nnUnka total udhaar (Pichla baki + abhi ka) ₹${projectedBalance} ho jayega.nnKya aap phir bhi ye invoice save karna chahte hain?`)) {
                         setIsSubmitting(false);
                         return;
                     }
@@ -1749,7 +1749,7 @@ function NewInvoiceContent() {
                                                 <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="7" y2="12.01"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="13" y1="9" x2="13" y2="14"/><line x1="16" y1="11" x2="16" y2="14"/>
                                             </svg>
                                         </div>
-                                        <div className="qa-title">{t.usbScanner || \'USB Scanner\'}</div>
+                                        <div className="qa-title">{t.usbScanner || 'USB Scanner'}</div>
                                         <input ref={scannerInputRef} type="text" className="opacity-0 absolute w-0 h-0" value={scannerInput} onChange={e => setScannerInput(e.target.value)} onKeyDown={handleScannerInput} />
                                     </div>
 
@@ -1757,14 +1757,14 @@ function NewInvoiceContent() {
                                         <div className="qa-icon qi-purple">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                                         </div>
-                                        <div className="qa-title">{t.camera || \'Camera\'}</div>
+                                        <div className="qa-title">{t.camera || 'Camera'}</div>
                                     </div>
 
                                     <div className="qa-card inventory" onClick={() => setShowQuickAdd(true)}>
                                         <div className="qa-icon qi-amber">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/><path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5"/></svg>
                                         </div>
-                                        <div className="qa-title">{t.inventory || \'Inventory\'}</div>
+                                        <div className="qa-title">{t.inventory || 'Inventory'}</div>
                                     </div>
                                 </div>
                             </div>
@@ -2205,7 +2205,7 @@ function NewInvoiceContent() {
                                 </div>
                                 <div className="qap-field-inner">
                                     <span className="qap-field-lbl">{t.phoneNumberLabel || 'Phone Number'} <span className="qap-opt-tag">{t.optional || 'Optional'}</span></span>
-                                    <input type="tel" placeholder="10 digit mobile number" value={newCustPhone} maxLength={10} onChange={e => setNewCustPhone(e.target.value.replace(/\D/g, ''))} />
+                                    <input type="tel" placeholder="10 digit mobile number" value={newCustPhone} maxLength={10} onChange={e => setNewCustPhone(e.target.value.replace(/D/g, ''))} />
                                 </div>
                                 <div className="qap-field-check">
                                     <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>

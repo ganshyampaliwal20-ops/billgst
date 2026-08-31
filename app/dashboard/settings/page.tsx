@@ -697,7 +697,7 @@ export default function SettingsPage() {
                             </div>
                             <div>
                                 <h2>WhatsApp Automation &amp; Reminders</h2>
-                                <p>Customers ko automatic payment reminders bhejein — 100% Free!</p>
+                                <p>{t.autoReminderSub || 'Send automatic payment reminders to customers — 100% Free!'}</p>
                             </div>
                         </div>
 
@@ -707,10 +707,10 @@ export default function SettingsPage() {
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <span style={{ background: formData.autoRemindersEnabled ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.08)', width: '26px', height: '26px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: formData.autoRemindersEnabled ? '#a5b4fc' : '#94a3b8', flexShrink: 0 }}>1</span>
-                                        🔔 Auto Payment Reminder ON Karo
+                                        {t.autoReminderOn || '🔔 Auto Payment Reminder ON Karo'}
                                     </div>
                                     <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '0 0 0 34px', lineHeight: 1.5 }}>
-                                        Pending customers ko <strong style={{ color: '#c4b5fd' }}>BillGST Support Bot (+7498571873)</strong> se automatic reminder jayega — aapke behalf par.
+                                        {t.autoReminderDesc || 'Pending customers will automatically receive reminders on your behalf via the BillGST Support Bot (+7498571873).'}
                                     </p>
                                 </div>
                                 <label className="bs-switch" style={{ flexShrink: 0, marginTop: '2px' }}>
@@ -725,14 +725,14 @@ export default function SettingsPage() {
 
                             {/* Message Preview */}
                             <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', marginBottom: formData.autoRemindersEnabled ? '16px' : '0', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                <div style={{ fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>📱 Aisa Message Jayega Customer Ko (BillGST System Se)</div>
+                                <div style={{ fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.autoReminderPreviewTitle || '📱 This is how the message will look to your customers'}</div>
                                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: 1.7 }}>
                                     Dear, <strong style={{ color: '#4ade80' }}>[Customer Name]</strong><br/>
-                                    Your payment of <strong style={{ color: '#fbbf24' }}>*₹15,938*</strong> is pending with <strong style={{ color: '#60a5fa' }}>*{formData.name || 'Aapki Dukan'}*</strong><br/><br/>
+                                    Your payment of <strong style={{ color: '#fbbf24' }}>*₹15,938*</strong> is pending with <strong style={{ color: '#60a5fa' }}>*{formData.name || t.yourBusinessName || 'Your Business Name'}*</strong><br/><br/>
                                     If you have already made the payment, kindly ignore this message.<br/><br/>
                                     Thank You<br/>
-                                    <strong style={{ color: '#60a5fa' }}>{formData.name || 'Aapki Dukan'}</strong><br/>
-                                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>- Sent automatically via BillGST App</span>
+                                    <strong style={{ color: '#60a5fa' }}>{formData.name || t.yourBusinessName || 'Your Business Name'}</strong><br/>
+                                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>{t.sentAutoViaBillGST || '- Sent automatically via BillGST App'}</span>
                                 </div>
                             </div>
 
@@ -741,35 +741,35 @@ export default function SettingsPage() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                         <div className="field" style={{ margin: 0 }}>
-                                            <label>📅 Kitne din baad reminder?</label>
+                                            <label>{t.reminderDaysLabel || '📅 Send reminder after how many days?'}</label>
                                             <select
                                                 value={formData.reminderFrequency ?? 3}
                                                 onChange={e => setFormData({ ...formData, reminderFrequency: parseInt(e.target.value) })}
                                                 style={{ width: '100%', background: 'var(--field)', border: '1px solid var(--field-border)', borderRadius: '10px', padding: '10px 12px', color: 'var(--text)', fontSize: '13px' }}
                                             >
-                                                <option value={1}>1 din baad</option>
-                                                <option value={2}>2 din baad</option>
-                                                <option value={3}>3 din baad</option>
-                                                <option value={5}>5 din baad</option>
-                                                <option value={7}>7 din baad (1 hafta)</option>
-                                                <option value={14}>14 din baad</option>
-                                                <option value={30}>30 din baad</option>
+                                                <option value={1}>{t.days1 || 'After 1 day'}</option>
+                                                <option value={2}>{t.days2 || 'After 2 days'}</option>
+                                                <option value={3}>{t.days3 || 'After 3 days'}</option>
+                                                <option value={5}>{t.days5 || 'After 5 days'}</option>
+                                                <option value={7}>{t.days7 || 'After 7 days (1 week)'}</option>
+                                                <option value={14}>{t.days14 || 'After 14 days'}</option>
+                                                <option value={30}>{t.days30 || 'After 30 days'}</option>
                                             </select>
-                                            <div className="hint">Invoice ke baad kitne din pending rahe tab reminder bheje</div>
+                                            <div className="hint">{t.reminderDaysHint || 'Send reminder if invoice is pending for these many days after creation'}</div>
                                         </div>
                                         <div className="field" style={{ margin: 0 }}>
-                                            <label>⏰ Kaunse waqt bheja jaye?</label>
+                                            <label>{t.reminderTimeLabel || '⏰ At what time should we send it?'}</label>
                                             <input
                                                 type="time"
                                                 value={formData.reminderTime || '10:00'}
                                                 onChange={e => setFormData({ ...formData, reminderTime: e.target.value })}
                                                 style={{ width: '100%', background: 'var(--field)', border: '1px solid var(--field-border)', borderRadius: '10px', padding: '10px 12px', color: 'var(--text)', fontSize: '13px' }}
                                             />
-                                            <div className="hint">Is waqt automatically reminder jayega</div>
+                                            <div className="hint">{t.reminderTimeHint || 'Reminders will be automatically sent at this time'}</div>
                                         </div>
                                     </div>
                                     <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '10px', padding: '12px', fontSize: '12.5px', color: '#86efac', lineHeight: 1.5 }}>
-                                        ✅ <strong>Sab ready hai!</strong> Settings save karo — kal se har roz <strong>{formData.reminderTime || '10:00'}</strong> baje pending customers ko aapke behalf par automatic reminder jayega.
+                                        {t.reminderSuccessMsg1 || '✅ All set! Save settings — starting tomorrow, automatic reminders will be sent to pending customers every day at'} <strong>{formData.reminderTime || '10:00'}</strong> {t.reminderSuccessMsg2 || 'on your behalf.'}
                                     </div>
                                 </div>
                             )}
