@@ -669,8 +669,7 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
             const intensity = total === 0 ? 0 : Math.ceil((total / maxDay) * 3);
             const bg = [T.fieldBg, "#312e81", "#4338ca", T.amber][intensity];
             const fg = intensity === 3 ? "#171100" : T.text;
-            return (
-              const dayDateStr = `${thisMonth}-${pad(day)}`;
+            const dayDateStr = `${thisMonth}-${pad(day)}`;
             return (
               <div 
                 key={day} 
@@ -680,7 +679,6 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
               >
                 {day}
               </div>
-            );
             );
           })}
         </div>
