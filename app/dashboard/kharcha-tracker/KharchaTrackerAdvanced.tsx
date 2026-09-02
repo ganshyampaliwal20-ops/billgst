@@ -667,13 +667,13 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
             const intensity = total === 0 ? 0 : Math.ceil((total / maxDay) * 3);
             const bg = [T.fieldBg, "#312e81", "#4338ca", T.amber][intensity];
             const fg = intensity === 3 ? "#171100" : T.text;
-            const dayDateStr = `${thisMonth}-${pad(day)}`;
+            const dayDateStr = `${thisMonth}-${String(day).padStart(2, "0")}`;
             return (
               <div 
                 key={day} 
                 onClick={() => setSelectedHeatmapDate(selectedHeatmapDate === dayDateStr ? null : dayDateStr)}
                 title={formatINR(total)} 
-                style={{ aspectRatio: "1", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, background: selectedHeatmapDate === dayDateStr ? T.gold : bg, color: selectedHeatmapDate === dayDateStr ? "#000" : fg, cursor: "pointer", border: selectedHeatmapDate === dayDateStr ? "2px solid #fff" : "none" }}
+                style={{ aspectRatio: "1", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, background: selectedHeatmapDate === dayDateStr ? T.amber : bg, color: selectedHeatmapDate === dayDateStr ? "#000" : fg, cursor: "pointer", border: selectedHeatmapDate === dayDateStr ? "2px solid #fff" : "none" }}
               >
                 {day}
               </div>
