@@ -188,12 +188,10 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   );
   const [incomeSource, setIncomeSource] = useState("");
   const [incomeDate, setIncomeDate] = useState(new Date().toISOString().slice(0, 10));
-  const filteredIncomes = useMemo(() => {
-    return incomes.filter(i => i.date >= startDate && i.date <= endDate);
-  }, [incomes, startDate, endDate]);
-  const income = filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
+  const income = incomes.reduce((s, i) => s + Number(i.amount || 0), 0);
   const [incomeInput, setIncomeInput] = useState("");
   const [expenses, setExpenses] = useState<any[]>(initialData.expenses ?? []);
+  const filteredExpenses = useMemo(() => expenses.filter((e: any) => e.date >= startDate && e.date <= endDate), [expenses, startDate, endDate]);
   const [fixedExpenses, setFixedExpenses] = useState<any[]>(initialData.fixedExpenses ?? []);
   const [budgets, setBudgets] = useState<Record<string, number>>(initialData.budgets ?? {});
   const [savingGoal, setSavingGoal] = useState(initialData.savingGoal ?? 0);
