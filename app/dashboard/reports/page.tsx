@@ -24,6 +24,8 @@ function ReportsContent() {
     const fetchExpenses = useStore((state: any) => state.fetchExpenses);
     const expenses = useStore((state: any) => state.expenses);
     const businessProfile = useStore((state: any) => state.businessProfile);
+    const fetchProducts = useStore((state: any) => state.fetchProducts);
+    const products = useStore((state: any) => state.products);
     const [isClient, setIsClient] = useState(false);
     const [period, setPeriod] = useState('This Month');
     const t = getTranslations(settings?.language || 'en');
@@ -36,7 +38,8 @@ function ReportsContent() {
         setIsClient(true);
         fetchInvoices();
         fetchExpenses();
-    }, [fetchInvoices, fetchExpenses]);
+        if (fetchProducts) fetchProducts();
+    }, [fetchInvoices, fetchExpenses, fetchProducts]);
 
     useEffect(() => {
         if (!isClient) return;
@@ -45,13 +48,40 @@ function ReportsContent() {
         const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
         const weeklySales = [0, 0, 0, 0];
         const weeklyExpenses = [0, 0, 0, 0];
+        const weeklyCost = [0, 0, 0, 0];
+
+        const currentYear = today.getFullYear();
+        const monthlySales = Array(12).fill(0);
+        const monthlyExpenses = Array(12).fill(0);
+        const monthlyCost = Array(12).fill(0);
 
         (invoices || []).forEach((inv: any) => {
-            if (!inv.invoice_date) return;
+            if (!inv.invoice_date || inv.status === 'CANCELLED') return;
             const d = new Date(inv.invoice_date);
             const diffWeeks = Math.floor((today.getTime() - d.getTime()) / MS_PER_WEEK);
-            if (diffWeeks >= 0 && diffWeeks < 4 && inv.status !== 'CANCELLED') {
+            
+            let invCost = 0;
+            if (inv.items && Array.isArray(inv.items)) {
+                inv.items.forEach((item: any) => {
+                    const product = (products || []).find((p: any) => p.id === item.product_id || p.name === item.product_name);
+                    const quantity = parseFloat(item.quantity) || 0;
+                    if (product && product.purchase_price > 0) {
+                        invCost += (parseFloat(product.purchase_price) * quantity);
+                    } else {
+                        const unitPrice = parseFloat(item.unit_price) || 0;
+                        invCost += (unitPrice * 0.8) * quantity;
+                    }
+                });
+            }
+
+            if (diffWeeks >= 0 && diffWeeks < 4) {
                 weeklySales[3 - diffWeeks] += parseFloat(inv.total_amount) || 0;
+                weeklyCost[3 - diffWeeks] += invCost;
+            }
+
+            if (d.getFullYear() === currentYear) {
+                monthlySales[d.getMonth()] += parseFloat(inv.total_amount) || 0;
+                monthlyCost[d.getMonth()] += invCost;
             }
         });
 
@@ -62,31 +92,13 @@ function ReportsContent() {
             if (diffWeeks >= 0 && diffWeeks < 4) {
                 weeklyExpenses[3 - diffWeeks] += parseFloat(exp.amount) || 0;
             }
-        });
-
-        const weeklyProfit = weeklySales.map((s, i) => s - weeklyExpenses[i]);
-
-        const currentYear = today.getFullYear();
-        const monthlySales = Array(12).fill(0);
-        const monthlyExpenses = Array(12).fill(0);
-
-        (invoices || []).forEach((inv: any) => {
-            if (!inv.invoice_date) return;
-            const d = new Date(inv.invoice_date);
-            if (d.getFullYear() === currentYear && inv.status !== 'CANCELLED') {
-                monthlySales[d.getMonth()] += parseFloat(inv.total_amount) || 0;
-            }
-        });
-
-        (expenses || []).forEach((exp: any) => {
-            if (!exp.expense_date) return;
-            const d = new Date(exp.expense_date);
             if (d.getFullYear() === currentYear) {
                 monthlyExpenses[d.getMonth()] += parseFloat(exp.amount) || 0;
             }
         });
 
-        const monthlyProfit = monthlySales.map((s, i) => s - monthlyExpenses[i]);
+        const weeklyProfit = weeklySales.map((s, i) => s - weeklyCost[i] - weeklyExpenses[i]);
+        const monthlyProfit = monthlySales.map((s, i) => s - monthlyCost[i] - monthlyExpenses[i]);
         const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         const currentMonthIndex = today.getMonth();
@@ -220,7 +232,24 @@ function ReportsContent() {
 
     const totalRevenue = filteredInvoices.filter((i: any) => i.status !== 'CANCELLED').reduce((a: any, b: any) => a + parseFloat(b.total_amount || 0), 0) || 0;
     const totalExpenses = filteredExpenses.reduce((a: any, b: any) => a + parseFloat(b.amount || 0), 0) || 0;
-    const totalProfit = totalRevenue - totalExpenses;
+    
+    let totalCostOfGoods = 0;
+    filteredInvoices.filter((i: any) => i.status !== 'CANCELLED').forEach((inv: any) => {
+        if (inv.items && Array.isArray(inv.items)) {
+            inv.items.forEach((item: any) => {
+                const product = (products || []).find((p: any) => p.id === item.product_id || p.name === item.product_name);
+                const quantity = parseFloat(item.quantity) || 0;
+                if (product && product.purchase_price > 0) {
+                    totalCostOfGoods += (parseFloat(product.purchase_price) * quantity);
+                } else {
+                    const unitPrice = parseFloat(item.unit_price) || 0;
+                    totalCostOfGoods += (unitPrice * 0.8) * quantity;
+                }
+            });
+        }
+    });
+
+    const totalProfit = totalRevenue - totalCostOfGoods - totalExpenses;
     const invoiceCount = filteredInvoices.length;
     const totalSales = totalRevenue;
 
