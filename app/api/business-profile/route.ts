@@ -30,7 +30,7 @@ export async function GET() {
                    auto_reminders_enabled, reminder_frequency, reminder_time,
                    whatsapp_bot_enabled, whatsapp_sender_number, whatsapp_api_key, whatsapp_api_url,
                    business_terms_and_conditions, store_banner, business_modules,
-                   expense_delete_pin
+                   expense_delete_pin, nic_username, nic_password
             FROM users WHERE id = $1`;
 
         try {
@@ -159,7 +159,9 @@ export async function POST(request: Request) {
                 business_modules = $29,
                 invoice_pdf_size = $30,
                 expense_delete_pin = $31,
-                language = $32
+                language = $32,
+                nic_username = $33,
+                nic_password = $34
             WHERE id = $15
             RETURNING *`;
 
@@ -193,9 +195,11 @@ export async function POST(request: Request) {
             data.terms_and_conditions || data.business_terms_and_conditions || '',
             data.store_banner || null,
             data.modules ? (typeof data.modules === 'string' ? data.modules : JSON.stringify(data.modules)) : JSON.stringify({ invoicing: true, accounting: true, staff: true, inventory: true }),
-            data.pdf_size || data.invoice_pdf_size || 'A4',
+            data.invoice_pdf_size || 'A4',
             data.expense_delete_pin || null,
-            data.language || 'en'
+            data.language || 'en',
+            data.nic_username || data.business_nic_username || null,
+            data.nic_password || data.business_nic_password || null
         ];
 
         try {
@@ -293,6 +297,8 @@ function normalizeProfile(dbRow: any, userId: string) {
         pdf_size: dbRow.invoice_pdf_size || 'A4',
         has_expense_pin: !!dbRow.expense_delete_pin,
         language: dbRow.language || 'en',
+        nic_username: dbRow.nic_username || '',
+        nic_password: dbRow.nic_password || '',
         id: userId
     };
 }
@@ -331,7 +337,9 @@ async function runMigration(client: any) {
         ADD COLUMN IF NOT EXISTS store_banner TEXT,
         ADD COLUMN IF NOT EXISTS business_modules JSONB DEFAULT '{"invoicing": true, "accounting": true, "staff": true, "inventory": true}'::jsonb,
         ADD COLUMN IF NOT EXISTS invoice_pdf_size VARCHAR(20) DEFAULT 'A4',
-        ADD COLUMN IF NOT EXISTS expense_delete_pin VARCHAR(4);
+        ADD COLUMN IF NOT EXISTS expense_delete_pin VARCHAR(4),
+        ADD COLUMN IF NOT EXISTS nic_username VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS nic_password VARCHAR(255);
     `);
 }
 

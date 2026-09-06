@@ -126,8 +126,12 @@ function NewInvoiceContent() {
         distance: '',
         transporterName: '',
         transporterId: '',
-        vehicleNo: ''
+        vehicleNo: '',
+        deliveryPlace: '',
+        deliveryPincode: ''
     });
+    const [showEwayBill, setShowEwayBill] = useState(false);
+    const [isGeneratingEWB, setIsGeneratingEWB] = useState(false);
     const [eInvoice, setEInvoice] = useState({
         qrCode: ''
     });
@@ -758,6 +762,42 @@ function NewInvoiceContent() {
         }
     };
 
+    const handleGenerateEwayBill = async () => {
+        setIsGeneratingEWB(true);
+        try {
+            const customer = customers.find(c => c.id === customerId) || { name: quickSearch, id: '' };
+            const payload = {
+                items: selectedItems,
+                customer,
+                business_name: profileData?.business_name,
+                business_gstin: profileData?.business_gstin,
+                business_address: profileData?.business_address,
+                business_city: profileData?.business_city,
+                invoice_number: invoiceNumber,
+                invoice_date: invoiceDate,
+                totals: { subtotal: calculateSubTotal(), gst: calculateGSTAmount(), total: calculateTotal() },
+                ewayBill: ewayBill
+            };
+
+            const res = await fetch('/api/eway-bill/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success && data.ewayBillNo) {
+                setEwayBill({ ...ewayBill, no: data.ewayBillNo, date: data.ewayBillDate || ewayBill.date });
+                toast.success('E-Way Bill generated! ✅');
+            } else {
+                throw new Error(data.error || data.message || 'Generation failed');
+            }
+        } catch (err: any) {
+            toast.error(err.message || 'Error connecting to govt portal');
+        } finally {
+            setIsGeneratingEWB(false);
+        }
+    };
+
     const handleAddCustomer = async () => {
         if (!newCustName || newCustName.length < 2) {
             return toast.error('Sahi Naam zaroori hai');
@@ -859,7 +899,14 @@ function NewInvoiceContent() {
                 payment_mode: paymentMode,
                 discount_pct: discountPct,
                 extra_charges: extraCharge,
-                shipping_charges: shippingCharge
+                shipping_charges: shippingCharge,
+                eway_bill_no: ewayBill.no || null,
+                eway_bill_date: ewayBill.date || null,
+                transport_mode: ewayBill.mode || null,
+                distance: ewayBill.distance || null,
+                transporter_name: ewayBill.transporterName || null,
+                transporter_id: ewayBill.transporterId || null,
+                vehicle_no: ewayBill.vehicleNo || null
             };
 
             const result = await addInvoice(invoice);
@@ -1196,7 +1243,7 @@ function NewInvoiceContent() {
                 </div>
             </header>
 
-            <form onSubmit={handleSubmit} className="form-outer">
+            <form onSubmit={handleSubmit} onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault(); }} className="form-outer">
                 {/* Left Column */}
                 <div className="left-col">
                     {/* Document Type */}
@@ -1825,6 +1872,83 @@ function NewInvoiceContent() {
                         <div className="c-title"><div className="c-icon" style={{ background: '#f1f5f9', color: '#64748b' }}><FaReceipt /></div> {t.termsNotes}</div>
                         <textarea className="fi min-h-[100px] bg-slate-50 border-dashed text-slate-900" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Terms & conditions or personal message..."></textarea>
                     </div>
+                    {/* E-Way Bill Section */}
+                    <div className="card border border-indigo-100 shadow-md">
+                        <div className="c-title flex justify-between items-center cursor-pointer mb-0 pb-0 border-b-0" onClick={() => setShowEwayBill(!showEwayBill)}>
+                            <div className="flex items-center"><div className="c-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FaTruck /></div> E-Way Bill Details</div>
+                            <div>
+                                <label className="oswitch pointer-events-none" style={{ margin: 0 }}>
+                                    <input type="checkbox" checked={showEwayBill} readOnly />
+                                    <span className="oslider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        {showEwayBill && (
+                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                <div className="flex justify-between items-center bg-indigo-50/50 p-3 rounded-lg mb-4 border border-indigo-100 border-dashed">
+                                    <div>
+                                        <h4 className="text-sm font-bold text-indigo-900 mb-0.5">Auto Generate from Govt Portal</h4>
+                                        <p className="text-xs text-indigo-700/70 m-0">Ensure vehicle number and distance are filled before generating.</p>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={handleGenerateEwayBill}
+                                        disabled={isGeneratingEWB}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-xs shadow-sm transition-all ${isGeneratingEWB ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'}`}
+                                    >
+                                        {isGeneratingEWB ? (
+                                            <><span className="animate-spin inline-block w-3 h-3 border-2 border-slate-500 border-t-transparent rounded-full"></span> Generating...</>
+                                        ) : (
+                                            <><FaTruck className="w-3 h-3" /> Auto Generate EWB</>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="col-span-2 lg:col-span-1">
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">E-Way Bill Number</label>
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="12 Digit EWB No" value={ewayBill.no} onChange={e => setEwayBill({...ewayBill, no: e.target.value})} />
+                                </div>
+                                <div className="col-span-2 lg:col-span-1">
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">E-Way Bill Date</label>
+                                    <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={ewayBill.date} onChange={e => setEwayBill({...ewayBill, date: e.target.value})} />
+                                </div>
+                                <div className="col-span-2 lg:col-span-1">
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Vehicle Number</label>
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="e.g. RJ01AB1234" value={ewayBill.vehicleNo} onChange={e => setEwayBill({...ewayBill, vehicleNo: e.target.value.toUpperCase()})} />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Transporter Name</label>
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Name" value={ewayBill.transporterName} onChange={e => setEwayBill({...ewayBill, transporterName: e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Transporter ID (GSTIN)</label>
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="GSTIN" value={ewayBill.transporterId} onChange={e => setEwayBill({...ewayBill, transporterId: e.target.value.toUpperCase()})} />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Distance (Km)</label>
+                                    <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0" value={ewayBill.distance} onChange={e => setEwayBill({...ewayBill, distance: e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Transport Mode</label>
+                                    <select className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={ewayBill.mode} onChange={e => setEwayBill({...ewayBill, mode: e.target.value})}>
+                                        <option value="Road">Road</option>
+                                        <option value="Rail">Rail</option>
+                                        <option value="Air">Air</option>
+                                        <option value="Ship">Ship</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Place of Delivery</label>
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="City / Place" value={ewayBill.deliveryPlace} onChange={e => setEwayBill({...ewayBill, deliveryPlace: e.target.value})} />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Delivery Pincode</label>
+                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="6 Digit PIN" maxLength={6} value={ewayBill.deliveryPincode} onChange={e => setEwayBill({...ewayBill, deliveryPincode: e.target.value.replace(/\D/g, '')})} />
+                                </div>
+                            </div>
+                        </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Right Column */}
@@ -1998,6 +2122,8 @@ function NewInvoiceContent() {
                         </div>
                         )}
                     </div>
+
+
                     {/* Advanced Options */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>⚙️</div> Options</div>

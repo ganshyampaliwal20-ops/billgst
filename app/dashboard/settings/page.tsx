@@ -529,6 +529,7 @@ export default function SettingsPage() {
                     {[
                         { id: 'profile', label: t.businessProfile },
                         { id: 'tax', label: t.taxSettings },
+                        { id: 'ewaybill', label: 'E-Way Bill API' },
                         { id: 'bank', label: t.bankDetails },
                         { id: 'payments', label: t.payments },
                         { id: 'whatsapp-automation', label: 'WhatsApp' },
@@ -647,6 +648,25 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    {/* E-Way Bill API Settings */}
+                    <div className="card" id="ewaybill">
+                        <div className="card-head">
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                            <div><h2>E-Way Bill NIC Credentials</h2><p>Used to auto-generate E-Way bills directly from the app</p></div>
+                        </div>
+                        <div className="row2">
+                            <div className="field">
+                                <label>NIC E-Way Bill Username</label>
+                                <input type="text" value={formData.nic_username || ''} onChange={(e) => setFormData({...formData, nic_username: e.target.value})} placeholder="e.g. AB123456" />
+                            </div>
+                            <div className="field">
+                                <label>NIC E-Way Bill Password</label>
+                                <input type="password" value={formData.nic_password || ''} onChange={(e) => setFormData({...formData, nic_password: e.target.value})} placeholder="••••••••" />
+                            </div>
+                        </div>
+                        <div className="hint">These are your GSP credentials from the Govt E-Way bill portal (Not your regular login password). They are stored securely and used only for API.</div>
                     </div>
 
                     {/* Bank Details */}
