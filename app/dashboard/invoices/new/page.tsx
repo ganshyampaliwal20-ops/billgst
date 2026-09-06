@@ -765,7 +765,7 @@ function NewInvoiceContent() {
     const handleGenerateEwayBill = async () => {
         setIsGeneratingEWB(true);
         try {
-            const customer = customers.find(c => c.id === customerId) || { name: quickSearch, id: '' };
+            const customer = customers.find((c: any) => c.id === customerId) || { name: quickSearch, id: '' };
             const payload = {
                 items: selectedItems,
                 customer,
