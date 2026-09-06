@@ -775,7 +775,7 @@ function NewInvoiceContent() {
                 business_city: businessProfile?.city,
                 invoice_number: invoiceNumber,
                 invoice_date: invoiceDate,
-                totals: { subtotal: calculateSubTotal(), gst: calculateGSTAmount(), total: calculateTotal() },
+                totals: { subtotal: totals.subtotal, gst: totals.gst, total: totals.grandTotal },
                 ewayBill: ewayBill
             };
 
