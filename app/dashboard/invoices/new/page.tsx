@@ -1243,7 +1243,7 @@ function NewInvoiceContent() {
                 </div>
             </header>
 
-            <form onSubmit={handleSubmit} onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault(); }} className="form-outer">
+            <form onSubmit={handleSubmit} onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') e.preventDefault(); }} className="form-outer">
                 {/* Left Column */}
                 <div className="left-col">
                     {/* Document Type */}
