@@ -395,7 +395,7 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
     <div style={S.page}>
       {/* Income */}
       <Card title="This month's income / salary">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 16, textAlign: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "clamp(4px, 2vw, 16px)", marginBottom: 16, textAlign: "center" }}>
           <Stat label="Income" value={formatINR(income)} color={T.amber} />
           <Stat label="Kharcha" value={formatINR(totalSpent)} color={T.rose} />
           <Stat label="Bachat" value={formatINR(saved)} color={T.emerald} />
@@ -756,8 +756,8 @@ function Card({ title, subtitle, children }: any) {
 }
 function Stat({ label, value, color }: any) {
   return (
-    <div>
-      <p style={{ margin: 0, fontSize: 24, fontWeight: 700, color }}>{value}</p>
+    <div style={{ minWidth: 0, overflow: "hidden" }}>
+      <p style={{ margin: 0, fontSize: "clamp(16px, 4.5vw, 24px)", fontWeight: 700, color, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "-0.5px" }} title={value}>{value}</p>
       <p style={{ margin: "4px 0 0 0", fontSize: 12, color: T.textDim }}>{label}</p>
     </div>
   );
