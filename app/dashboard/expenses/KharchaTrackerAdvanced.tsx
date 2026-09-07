@@ -370,12 +370,15 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   const exportPDF = useCallback(() => {
     const rows = filteredExpenses.map((e) => `<tr><td>${e.category}</td><td>${formatINR(e.amount)}</td><td>${e.date}</td></tr>`).join("");
     const html = `<html><head><title>Kharcha Tracker</title><style>
-      body{font-family:Arial,sans-serif;padding:24px;color:#111}
-      .summary span{display:inline-block;margin-right:24px;font-size:14px}
-      table{width:100%;border-collapse:collapse}
-      th,td{border:1px solid #ccc;padding:8px;font-size:13px;text-align:left}
-      th{background:#f2f2f2}</style></head><body>
-      <h1>Kharcha Tracker — ${monthLabel(thisMonth)}</h1>
+      :root { color-scheme: light; }
+      html, body { background-color: #ffffff !important; color: #000000 !important; font-family: Arial, sans-serif; padding: 24px; margin: 0; }
+      .summary { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+      .summary span { display: inline-block; margin-right: 24px; font-size: 14px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #ccc; padding: 12px 8px; font-size: 13px; text-align: left; color: #000000 !important; background-color: #ffffff !important; }
+      th { background-color: #f2f2f2 !important; font-weight: bold; }
+    </style></head><body>
+      <h1 style="color: #000000 !important;">Kharcha Tracker — ${monthLabel(thisMonth)}</h1>
       <div class="summary">
         <span><b>Income:</b> ${formatINR(income)}</span>
         <span><b>Spent:</b> ${formatINR(totalSpent)}</span>
