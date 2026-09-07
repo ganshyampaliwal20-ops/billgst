@@ -395,20 +395,42 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
     <div style={S.page}>
       {/* Income */}
       <Card title="This month's income / salary">
-        <div style={S.row}>
-          <input type="number" value={incomeInput} onChange={(e) => setIncomeInput(e.target.value)} placeholder="₹ Enter amount" style={{ ...S.input, flex: 1 }} />
-          <button onClick={handleAddIncome} style={S.goldBtn}>Add</button>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginTop: 20, textAlign: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 16, textAlign: "center" }}>
           <Stat label="Income" value={formatINR(income)} color={T.amber} />
           <Stat label="Kharcha" value={formatINR(totalSpent)} color={T.rose} />
           <Stat label="Bachat" value={formatINR(saved)} color={T.emerald} />
         </div>
-        <SegmentedBar segments={sortedCategories.map(([cat, val]) => ({ value: val as number, color: colorFor(cat, categories) }))} total={income || totalSpent || 1} />
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: T.textDim, marginTop: 4 }}>
-          <span>{spentPct}% kharch hua</span>
-          <span>{100 - spentPct}% bacha</span>
+        <div style={{ marginBottom: 24 }}>
+          <SegmentedBar segments={sortedCategories.map(([cat, val]) => ({ value: val as number, color: colorFor(cat, categories) }))} total={income || totalSpent || 1} />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: T.textDim, marginTop: 4 }}>
+            <span>{spentPct}% kharch hua</span>
+            <span>{100 - spentPct}% bacha</span>
+          </div>
         </div>
+
+        <div style={S.col}>
+          <input value={incomeSource} onChange={(e) => setIncomeSource(e.target.value)} placeholder="Note / Source (e.g. Salary, Rent)" style={S.input} />
+          <input type="number" value={incomeInput} onChange={(e) => setIncomeInput(e.target.value)} placeholder="₹ Enter amount" style={S.input} />
+          <input type="date" value={incomeDate} onChange={(e) => setIncomeDate(e.target.value)} style={S.input} />
+          <button onClick={handleAddIncome} style={S.gradientBtn}>+ Add Income</button>
+        </div>
+        
+        {incomes.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16, borderTop: `1px solid ${T.cardBorder}`, paddingTop: 16 }}>
+            {incomes.map((i: any) => (
+              <div key={i.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: T.fieldBg, borderRadius: 12, padding: "10px 16px", fontSize: 14 }}>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 500 }}>{i.source}</p>
+                  <p style={{ margin: 0, fontSize: 12, color: T.textFaint }}>{i.date}</p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ color: T.emerald }}>+{formatINR(i.amount)}</span>
+                  <button onClick={() => handleRemoveIncome(i.id)} style={S.smallDelete}>{t('delete')}</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Add expense */}

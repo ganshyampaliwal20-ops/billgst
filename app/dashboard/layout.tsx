@@ -177,7 +177,7 @@ export default function DashboardLayout({
     }
 
     if (canSeeAccounting) {
-        menuItems.push({ icon: FaWallet, label: 'Kharcha Tracker (New)', href: '/dashboard/kharcha-tracker' });
+        // removed kharcha tracker link
     }
 
     if (canSeeStaff) {

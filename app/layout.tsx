@@ -94,9 +94,9 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css"
-          media="print"
-          // @ts-ignore
-          onLoad="this.media='all'"
+          
+          
+          
         />
         <noscript>
           <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.10.0/tabler-icons.min.css"/>
