@@ -369,7 +369,7 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
 
   const exportPDF = useCallback(() => {
     const rows = filteredExpenses.map((e) => `<tr><td>${e.category}</td><td>${formatINR(e.amount)}</td><td>${e.date}</td></tr>`).join("");
-    const html = `<html><head><title>Kharcha Tracker</title><style>
+    const html = `<html><head><title>Personal Expenses</title><style>
       :root { color-scheme: light; }
       html, body { background-color: #ffffff !important; color: #000000 !important; font-family: Arial, sans-serif; padding: 24px; margin: 0; }
       .summary { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
@@ -377,8 +377,13 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
       table { width: 100%; border-collapse: collapse; }
       th, td { border: 1px solid #ccc; padding: 12px 8px; font-size: 13px; text-align: left; color: #000000 !important; background-color: #ffffff !important; }
       th { background-color: #f2f2f2 !important; font-weight: bold; }
+      .back-btn { background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+      @media print { .no-print { display: none !important; } }
     </style></head><body>
-      <h1 style="color: #000000 !important;">Kharcha Tracker — ${monthLabel(thisMonth)}</h1>
+      <div class="no-print">
+        <button class="back-btn" onclick="window.close()">⬅ Go Back / Close</button>
+      </div>
+      <h1 style="color: #000000 !important;">Personal Expenses — ${monthLabel(thisMonth)}</h1>
       <div class="summary">
         <span><b>Income:</b> ${formatINR(income)}</span>
         <span><b>Spent:</b> ${formatINR(totalSpent)}</span>
@@ -391,6 +396,7 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
     win.document.write(html);
     win.document.close();
     win.focus();
+    win.onafterprint = () => win.close();
     win.print();
   }, [expenses, income, totalSpent, saved, thisMonth]);
 
