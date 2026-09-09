@@ -53,6 +53,8 @@ body {
   font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
 
   /* Native App Feel & Instant Touch */
   -webkit-touch-callout: none; /* Disable long press context menu */
@@ -61,6 +63,11 @@ body {
   -webkit-tap-highlight-color: transparent; /* Remove blue tap highlight */
   overscroll-behavior-y: none; /* Disable pull-to-refresh bounce */
   touch-action: manipulation; /* Eliminate 300ms mobile tap delay */
+}
+
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Instant tap response on all interactive elements */

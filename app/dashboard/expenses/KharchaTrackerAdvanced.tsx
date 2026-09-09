@@ -183,6 +183,11 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   const [endDate, setEndDate] = useState(today.toISOString().slice(0, 10));
   const [showCustomDate, setShowCustomDate] = useState(false);
   
+  const [chartFilter, setChartFilter] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
+  
+  const [showAllIncomes, setShowAllIncomes] = useState(false);
+  const [showAllExpenses, setShowAllExpenses] = useState(false);
+  
   const [incomes, setIncomes] = useState<any[]>(
     initialData.incomes ?? (initialData.income && initialData.income > 0 ? [{ id: uid(), source: "Initial Balance", amount: initialData.income, date: todayDate.toISOString().slice(0, 10) }] : [])
   );
@@ -226,6 +231,36 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
 
   const sortedCategories = useMemo(() => Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]), [categoryTotals]);
 
+  const groupedIncomes = useMemo(() => {
+    const map: Record<string, any> = {};
+    [...incomes].reverse().forEach(i => {
+      const key = i.source.trim().toLowerCase();
+      if (map[key]) {
+        map[key].amount += Number(i.amount);
+        map[key].count++;
+      } else {
+        map[key] = { ...i, count: 1 };
+      }
+    });
+    return Object.values(map);
+  }, [incomes]);
+  const displayedIncomes = showAllIncomes ? [...incomes].reverse() : groupedIncomes.slice(0, 3);
+
+  const groupedExpenses = useMemo(() => {
+    const map: Record<string, any> = {};
+    [...filteredExpenses].reverse().forEach(e => {
+      const key = e.category.trim().toLowerCase();
+      if (map[key]) {
+        map[key].amount += Number(e.amount);
+        map[key].count++;
+      } else {
+        map[key] = { ...e, count: 1 };
+      }
+    });
+    return Object.values(map);
+  }, [filteredExpenses]);
+  const displayedExpenses = showAllExpenses ? [...filteredExpenses].reverse() : groupedExpenses.slice(0, 3);
+
   const savingGoalPct = savingGoal > 0 ? Math.min(Math.round((saved / savingGoal) * 100), 100) : 0;
   const diffFromLastMonth = lastMonthExpense > 0 ? lastMonthExpense - totalSpent : null;
 
@@ -254,6 +289,42 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   }, [expenses, thisMonth]);
   const maxDay = Math.max(...dayWise.map((d) => d.total), 1);
 
+  const candleChartData = useMemo(() => {
+    const map: Record<string, { label: string; spent: number; income: number }> = {};
+    const getKey = (dateStr: string) => {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return null;
+      if (chartFilter === 'daily') return { key: dateStr, label: d.toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) };
+      if (chartFilter === 'weekly') {
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const startOfWeek = new Date(d.setDate(diff));
+        return { key: startOfWeek.toISOString().slice(0, 10), label: startOfWeek.toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) };
+      }
+      if (chartFilter === 'monthly') return { key: dateStr.slice(0, 7), label: d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" }) };
+      if (chartFilter === 'yearly') return { key: dateStr.slice(0, 4), label: dateStr.slice(0, 4) };
+      return null;
+    };
+    expenses.forEach((e: any) => {
+      const res = getKey(e.date);
+      if (!res) return;
+      if (!map[res.key]) map[res.key] = { label: res.label, spent: 0, income: 0 };
+      map[res.key].spent += Number(e.amount || 0);
+    });
+    incomes.forEach((i: any) => {
+      const res = getKey(i.date);
+      if (!res) return;
+      if (!map[res.key]) map[res.key] = { label: res.label, spent: 0, income: 0 };
+      map[res.key].income += Number(i.amount || 0);
+    });
+    const sorted = Object.entries(map).sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => v);
+    if (chartFilter === 'daily') return sorted.slice(-14);
+    if (chartFilter === 'weekly') return sorted.slice(-12);
+    if (chartFilter === 'monthly') return sorted.slice(-12);
+    return sorted.slice(-5);
+  }, [expenses, incomes, chartFilter]);
+
   const achievements = useMemo(
     () => [
       { key: "first", label: "Pehli Entry", icon: "🌱", unlocked: expenses.length >= 1 },
@@ -281,6 +352,15 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   const handleRemoveIncome = (id: string) => {
     setIncomes((prev: any[]) => prev.filter(i => i.id !== id));
   };
+  const handleRemoveGroupedIncome = (item: any) => {
+    if (item.count === 1) {
+      handleRemoveIncome(item.id);
+    } else {
+      if (window.confirm(`Kya aap sach me "${item.source}" ki saari (${item.count}) entries delete karna chahte hain?`)) {
+        setIncomes((prev) => prev.filter((i) => i.source.trim().toLowerCase() !== item.source.trim().toLowerCase()));
+      }
+    }
+  };
 
   const checkBudget = (category: string, spentInCategory: number) => {
     const limit = budgets[category];
@@ -303,6 +383,16 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   };
 
   const handleDeleteExpense = (id: string) => setExpenses((prev) => prev.filter((e) => e.id !== id));
+  
+  const handleDeleteGroupedExpense = (item: any) => {
+    if (item.count === 1) {
+      handleDeleteExpense(item.id);
+    } else {
+      if (window.confirm(`Kya aap sach me "${item.category}" ki saari (${item.count}) entries delete karna chahte hain?`)) {
+        setExpenses((prev) => prev.filter((e) => e.category.trim().toLowerCase() !== item.category.trim().toLowerCase()));
+      }
+    }
+  };
 
   const handleAddFixed = () => {
     const amount = Number(fixedAmount);
@@ -419,25 +509,32 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
 
         <div style={S.col}>
           <input value={incomeSource} onChange={(e) => setIncomeSource(e.target.value)} placeholder="Note / Source (e.g. Salary, Rent)" style={S.input} />
-          <input type="number" value={incomeInput} onChange={(e) => setIncomeInput(e.target.value)} placeholder="₹ Enter amount" style={S.input} />
-          <input type="date" value={incomeDate} onChange={(e) => setIncomeDate(e.target.value)} style={S.input} />
+          <div style={S.row}>
+            <input type="number" value={incomeInput} onChange={(e) => setIncomeInput(e.target.value)} placeholder="₹ Enter amount" style={{...S.input, flex: 1}} />
+            <input type="date" value={incomeDate} onChange={(e) => setIncomeDate(e.target.value)} style={{...S.input, flex: 1}} />
+          </div>
           <button onClick={handleAddIncome} style={S.gradientBtn}>+ Add Income</button>
         </div>
         
         {incomes.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16, borderTop: `1px solid ${T.cardBorder}`, paddingTop: 16 }}>
-            {incomes.map((i: any) => (
+            {displayedIncomes.map((i: any) => (
               <div key={i.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: T.fieldBg, borderRadius: 12, padding: "10px 16px", fontSize: 14 }}>
                 <div>
-                  <p style={{ margin: 0, fontWeight: 500 }}>{i.source}</p>
-                  <p style={{ margin: 0, fontSize: 12, color: T.textFaint }}>{i.date}</p>
+                  <p style={{ margin: 0, fontWeight: 500 }}>{i.source} {i.count > 1 && !showAllIncomes ? `(${i.count})` : ""}</p>
+                  <p style={{ margin: 0, fontSize: 12, color: T.textFaint }}>{showAllIncomes ? i.date : "Grouped"}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ color: T.emerald }}>+{formatINR(i.amount)}</span>
-                  <button onClick={() => handleRemoveIncome(i.id)} style={S.smallDelete}>{t('delete')}</button>
+                  <button onClick={() => showAllIncomes ? handleRemoveIncome(i.id) : handleRemoveGroupedIncome(i)} style={S.smallDelete}>{t('delete')}</button>
                 </div>
               </div>
             ))}
+            {(groupedIncomes.length > 3 || showAllIncomes || incomes.length !== groupedIncomes.length) && (
+              <button onClick={() => setShowAllIncomes(!showAllIncomes)} style={{...S.outlineBtn, marginTop: 8}}>
+                {showAllIncomes ? "Show Less" : "More (View All)"}
+              </button>
+            )}
           </div>
         )}
       </Card>
@@ -446,8 +543,10 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
       <Card title={t('addExpenseTitle')}>
         <div style={S.col}>
           <input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Type or select category" style={S.input} />
-          <input type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} placeholder="₹ Amount" style={S.input} />
-          <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} style={S.input} />
+          <div style={S.row}>
+            <input type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} placeholder="₹ Amount" style={{...S.input, flex: 1}} />
+            <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} style={{...S.input, flex: 1}} />
+          </div>
           <button onClick={handleAddExpense} style={S.gradientBtn}>+ Add Kharcha</button>
         </div>
       </Card>
@@ -457,18 +556,23 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
           <p style={{ fontSize: 14, color: T.textDim, margin: 0 }}>Abhi koi kharcha add nahi hua.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {filteredExpenses.map((e) => (
+            {displayedExpenses.map((e: any) => (
               <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: T.fieldBg, borderRadius: 12, padding: "10px 16px", fontSize: 14 }}>
                 <div>
-                  <p style={{ margin: 0, fontWeight: 500 }}>{e.category}</p>
-                  <p style={{ margin: 0, fontSize: 12, color: T.textFaint }}>{e.date}</p>
+                  <p style={{ margin: 0, fontWeight: 500 }}>{e.category} {e.count > 1 && !showAllExpenses ? `(${e.count})` : ""}</p>
+                  <p style={{ margin: 0, fontSize: 12, color: T.textFaint }}>{showAllExpenses ? e.date : "Grouped"}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span>{formatINR(e.amount)}</span>
-                  <button onClick={() => handleDeleteExpense(e.id)} style={S.smallDelete}>{t('delete')}</button>
+                  <button onClick={() => showAllExpenses ? handleDeleteExpense(e.id) : handleDeleteGroupedExpense(e)} style={S.smallDelete}>{t('delete')}</button>
                 </div>
               </div>
             ))}
+            {(groupedExpenses.length > 3 || showAllExpenses || filteredExpenses.length !== groupedExpenses.length) && (
+              <button onClick={() => setShowAllExpenses(!showAllExpenses)} style={{...S.outlineBtn, marginTop: 8}}>
+                {showAllExpenses ? "Show Less" : "More (View All)"}
+              </button>
+            )}
           </div>
         )}
       </Card>
@@ -623,11 +727,35 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
       </Card>
 
       {/* Spending trend chart */}
-      <Card title={t('chartTitle')} subtitle="Pichle mahino ke mukable is mahine ka kharcha">
-        <MonthlyBarChart data={[...monthlyHistory, { month: thisMonth, income, spent: totalSpent }]} />
-        <div style={{ display: "flex", gap: 16, marginTop: 12, fontSize: 12, color: T.textDim }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: "#ec4899" }} /> Kharcha</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: "#22d3ee" }} /> Income</span>
+      <Card title={t('chartTitle')} subtitle="Aapka kharcha aur bachat (Savings) candle chart mein">
+        {/* Filter Toggle */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "rgba(255,255,255,0.05)", padding: 4, borderRadius: 12 }}>
+          {['daily', 'weekly', 'monthly', 'yearly'].map((f) => (
+            <button
+              key={f}
+              onClick={() => setChartFilter(f as any)}
+              style={{
+                flex: 1,
+                padding: "8px 0",
+                background: chartFilter === f ? "linear-gradient(135deg, #6d3ff2, #9b4dff)" : "transparent",
+                color: chartFilter === f ? "#fff" : T.textDim,
+                border: "none",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: chartFilter === f ? 600 : 400,
+                cursor: "pointer",
+                textTransform: "capitalize",
+                transition: "all 0.2s"
+              }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+        <CandleChart data={candleChartData} />
+        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 16, fontSize: 13, color: T.textDim }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#fb7185" }} /> Kharcha (Expense)</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#34d399" }} /> Bachat (Savings)</span>
         </div>
       </Card>
 
@@ -728,7 +856,10 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
                 {expenses.filter((e: any) => e.date === selectedHeatmapDate).map((e: any) => (
                   <div key={e.id} style={{ display: "flex", justifyContent: "space-between", background: "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: 8, fontSize: 13 }}>
                     <span>{e.category}</span>
-                    <span style={{ color: T.rose }}>{formatINR(e.amount)}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ color: T.rose }}>{formatINR(e.amount)}</span>
+                      <button onClick={(ev) => { ev.stopPropagation(); handleDeleteExpense(e.id); }} style={S.smallDelete}>{t('delete')}</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -804,50 +935,81 @@ function Donut({ segments, total, centerLabel, centerSub }: any) {
     </div>
   );
 }
-function MonthlyBarChart({ data }: any) {
+function CandleChart({ data }: any) {
   const [activeChartPop, setActiveChartPop] = React.useState<number | null>(null);
-  const width = 320;
-  const height = 180;
-  const padding = { top: 10, right: 10, bottom: 24, left: 36 };
+  if (!data || data.length === 0) return <div style={{ color: T.textDim, fontSize: 13, textAlign: 'center', padding: 20 }}>No data for selected filter</div>;
+
+  const width = Math.max(340, data.length * 45);
+  const height = 220;
+  const padding = { top: 20, right: 10, bottom: 30, left: 40 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
-  const maxVal = Math.max(...data.flatMap((d: any) => [d.spent, d.income]), 1);
-  const groupW = chartW / data.length;
-  const barW = Math.min(groupW / 3, 18);
+  
+  const maxVal = Math.max(...data.flatMap((d: any) => [d.spent, Math.max(d.income - d.spent, 0)]), 100);
+  const groupW = chartW / Math.max(data.length, 1);
+  const barW = Math.min(groupW * 0.35, 18);
+  const wickW = Math.max(Math.min(barW * 0.15, 3), 1);
   const yTicks = 4;
 
   return (
-    <div style={{ width: "100%", overflowX: "auto" }}>
-      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", minWidth: Math.max(width, data.length * 70), background: T.fieldBg, borderRadius: 12 }}>
+    <div style={{ width: "100%", overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none" }}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", minWidth: width, background: T.fieldBg, borderRadius: 12 }}>
+        <defs>
+          <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#34d399" />
+            <stop offset="100%" stopColor="#059669" />
+          </linearGradient>
+          <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fb7185" />
+            <stop offset="100%" stopColor="#be123c" />
+          </linearGradient>
+        </defs>
+
+        {/* Grid lines */}
         {Array.from({ length: yTicks + 1 }, (_, i) => {
           const y = padding.top + (chartH / yTicks) * i;
-          const val = Math.round(maxVal - (maxVal / yTicks) * i);
+          const val = Math.max(0, Math.round(maxVal - (maxVal / yTicks) * i));
           return (
-            <g key={i}>
-              <line x1={padding.left} x2={width - padding.right} y1={y} y2={y} stroke="rgba(255,255,255,0.08)" />
-              <text x={padding.left - 6} y={y + 3} textAnchor="end" fontSize="8" fill="rgba(255,255,255,0.45)">
-                {val >= 1000 ? `${Math.round(val / 1000)}k` : val}
+            <g key={`grid-${i}`}>
+              <line x1={padding.left} x2={width - padding.right} y1={y} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
+              <text x={padding.left - 8} y={y + 3} textAnchor="end" fontSize="9" fill="rgba(255,255,255,0.4)">
+                {val >= 1000 ? `${(val / 1000).toFixed(1).replace('.0','')}k` : val}
               </text>
             </g>
           );
         })}
+        
+        {/* Candlesticks */}
         {data.map((d: any, i: number) => {
           const groupX = padding.left + i * groupW;
-          const spentH = (d.spent / maxVal) * chartH;
-          const incomeH = (d.income / maxVal) * chartH;
-          const label = /^\d{4}-\d{2}$/.test(d.month) ? monthLabel(d.month) : d.month;
+          const centerX = groupX + groupW / 2;
+          
+          const spent = d.spent;
+          const saved = Math.max(d.income - d.spent, 0);
+          
+          const spentH = (spent / maxVal) * chartH;
+          const savedH = (saved / maxVal) * chartH;
+          
           return (
-            <g key={i} onClick={() => setActiveChartPop(activeChartPop === i ? null : i)} style={{ cursor: "pointer" }}>
-              <rect x={groupX + groupW / 2 - barW - 2} y={padding.top + chartH - spentH} width={barW} height={Math.max(spentH, 0)} rx="3" fill="#ec4899" />
-              <rect x={groupX + groupW / 2 + 2} y={padding.top + chartH - incomeH} width={barW} height={Math.max(incomeH, 0)} rx="3" fill="#22d3ee" />
-              <text x={groupX + groupW / 2} y={height - 6} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.5)">
-                {label}
+            <g key={`candle-${i}`} onClick={() => setActiveChartPop(activeChartPop === i ? null : i)} style={{ cursor: "pointer" }}>
+              {/* SAVINGS CANDLE (Green) */}
+              <rect x={centerX - 3 - barW/2 - wickW/2} y={padding.top + chartH - savedH} width={wickW} height={Math.max(savedH, 0)} fill="#10b981" opacity={0.5} />
+              <rect x={centerX - 3 - barW} y={padding.top + chartH - savedH * 0.75} width={barW} height={Math.max(savedH * 0.75, 0)} rx="3" fill="url(#greenGrad)" />
+              
+              {/* EXPENSE CANDLE (Red) */}
+              <rect x={centerX + 3 + barW/2 - wickW/2} y={padding.top + chartH - spentH} width={wickW} height={Math.max(spentH, 0)} fill="#e11d48" opacity={0.5} />
+              <rect x={centerX + 3} y={padding.top + chartH - spentH * 0.75} width={barW} height={Math.max(spentH * 0.75, 0)} rx="3" fill="url(#redGrad)" />
+              
+              <text x={centerX} y={height - 10} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.6)">
+                {d.label}
               </text>
+              
+              {/* Tooltip */}
               {activeChartPop === i && (
                 <g>
-                  <rect x={groupX + groupW / 2 - 40} y={height - 70} width={80} height={40} rx={4} fill="#1e293b" stroke="#334155" />
-                  <text x={groupX + groupW / 2} y={height - 54} textAnchor="middle" fontSize="10" fill="#ec4899">Kharcha: {formatINR(d.spent)}</text>
-                  <text x={groupX + groupW / 2} y={height - 40} textAnchor="middle" fontSize="10" fill="#22d3ee">Income: {formatINR(d.income)}</text>
+                  <rect x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100))} y={padding.top - 15} width={100} height={44} rx={6} fill="#1e293b" stroke="#334155" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.3))" />
+                  <text x={Math.max(padding.left + 50, Math.min(centerX, width - padding.right - 50))} y={padding.top} textAnchor="middle" fontSize="11" fill="#fb7185" fontWeight="600">Kharcha: {formatINR(spent)}</text>
+                  <text x={Math.max(padding.left + 50, Math.min(centerX, width - padding.right - 50))} y={padding.top + 16} textAnchor="middle" fontSize="11" fill="#34d399" fontWeight="600">Bachat: {formatINR(saved)}</text>
                 </g>
               )}
             </g>
