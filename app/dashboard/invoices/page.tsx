@@ -728,7 +728,7 @@ export default function InvoicesPage() {
                     .topbar-name { font-size: 14px; }
                     .topbar-tag { display: none; }
 
-                    .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+                    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
                     .stat-card { padding: 8px 4px; border-radius: 8px; }
                     .stat-icon { width: 24px; height: 24px; margin: 0 auto 4px; border-radius: 6px; }
                     .stat-icon svg { width: 14px; height: 14px; }

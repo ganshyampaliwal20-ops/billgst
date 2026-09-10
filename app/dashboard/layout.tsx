@@ -479,7 +479,7 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto scroll-smooth relative">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth relative">
                     <div className="max-w-[1600px] mx-auto w-full animate-fadeIn pb-12">
                         {children}
                     </div>
