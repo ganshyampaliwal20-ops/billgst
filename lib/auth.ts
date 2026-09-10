@@ -46,7 +46,7 @@ export const authOptions: AuthOptions = {
                 try {
                     console.log('Querying Database for user:', loginId);
                     const result = await pool.query(
-                        'SELECT * FROM users WHERE email = $1 OR phone = $1 OR name = $1',
+                        'SELECT * FROM users WHERE LOWER(email) = LOWER($1) OR phone = $1 OR name = $1',
                         [loginId]
                     );
 
