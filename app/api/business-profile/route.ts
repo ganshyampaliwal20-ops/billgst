@@ -30,7 +30,7 @@ export async function GET() {
                    auto_reminders_enabled, reminder_frequency, reminder_time,
                    whatsapp_bot_enabled, whatsapp_sender_number, whatsapp_api_key, whatsapp_api_url,
                    business_terms_and_conditions, store_banner, business_modules,
-                   expense_delete_pin, nic_username, nic_password
+                   expense_delete_pin, nic_username, nic_password, created_at
             FROM users WHERE id = $1`;
 
         try {
@@ -248,6 +248,15 @@ export async function POST(request: Request) {
 // Helper to normalize DB row to frontend profile object
 function normalizeProfile(dbRow: any, userId: string) {
     const rawGst = dbRow.business_gstin || '';
+    
+    let planType = dbRow.plan_type || 'FREE';
+    if (dbRow.created_at) {
+        const createdDate = new Date(dbRow.created_at);
+        if (new Date() <= new Date(createdDate.getTime() + 30 * 24 * 60 * 60 * 1000)) {
+            planType = 'LIFETIME';
+        }
+    }
+
     return {
         name: dbRow.business_name || 'My Business',
         business_name: dbRow.business_name || 'My Business',
@@ -277,7 +286,7 @@ function normalizeProfile(dbRow: any, userId: string) {
         account_holder: dbRow.business_account_holder || '',
         business_account_holder: dbRow.business_account_holder || '',
         show_bank_details: dbRow.business_show_bank_details ?? true,
-        plan_type: dbRow.plan_type || 'FREE',
+        plan_type: planType,
         invoice_template: dbRow.invoice_template || 'TEMPLATE_1',
         invoice_table_format: dbRow.invoice_table_format || 'FORMAT_1',
         signature: dbRow.business_signature || null,
