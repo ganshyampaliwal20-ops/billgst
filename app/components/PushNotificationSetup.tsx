@@ -23,10 +23,10 @@ export default function PushNotificationSetup() {
                             body: JSON.stringify({ token: token.value })
                         });
                         if (!res.ok) {
-                            toast.error('Failed to save Push Token on Server');
+                            console.error('Failed to save Push Token on Server');
                         }
                     } catch (e) {
-                        toast.error('Network Error saving FCM token');
+                        console.error('Network Error saving FCM token', e);
                     }
                 });
 
