@@ -922,7 +922,18 @@ function NewInvoiceContent() {
                         try {
                             const updatedProfileForPdf = { ...businessProfile, pdf_size: selectedPdfSize };
                             const { generateInvoicePDF } = await import('@/lib/pdf-generator');
-                            const doc = await generateInvoicePDF(invoice, updatedProfileForPdf, false);
+                            
+                            // Calculate previous balance for PDF
+                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
+                            let prevBal = 0;
+                            custInvoices.forEach((i: any) => {
+                                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
+                                    prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
+                                }
+                            });
+                            const invForPdf = { ...invoice, previous_balance: prevBal };
+                            
+                            const doc = await generateInvoicePDF(invForPdf, updatedProfileForPdf, false);
                             if (doc) {
                                 const pdfBlob = doc.output('blob');
 
@@ -995,9 +1006,9 @@ function NewInvoiceContent() {
                     --indigo:#5b5ef4; --indigo2:#4340d4; --iglow:rgba(91,94,244,.15);
                     --violet:#8b5cf6; --green:#0fba81; --red:#f04e5e; --amber:#f5a623; --teal:#06b6d4;
                     --sh:0 4px 20px rgba(13,15,28,.08),0 1px 4px rgba(13,15,28,.04);
-                    --sh-lg:0 12px 40px rgba(13,15,28,.13),0 2px 8px rgba(13,15,28,.06);
                 }
-                .new-invoice-page { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; overflow-x: hidden; width: 100%; }
+                .new-invoice-page { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+                .new-invoice-page * { box-sizing: border-box; }
                 .page-hdr { background: linear-gradient(135deg,#0b0f1e,#1c2340,#1e3a5f); padding: 30px 40px; border-bottom: 1px solid rgba(255,255,255,.05); margin-bottom: 2rem; color: white; margin-top: 10px; border-radius: 12px; }
                 @media (max-width: 768px) {
                     .page-hdr { padding: 20px 15px; margin-top: 0; border-radius: 0; }
@@ -2600,6 +2611,37 @@ function NewInvoiceContent() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 0', color: '#0f172a', fontSize: '20px', fontWeight: 900 }}>
                                         <span>Total:</span>
                                         <span style={{ color: '#3b82f6' }}>₹{totals.grandTotal.toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#10b981', fontSize: '14px' }}>
+                                        <span>Received ({paymentMode}):</span>
+                                        <span style={{ fontWeight: 600 }}>- ₹{Number(paidAmount || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
+                                        <span>Previous Balance:</span>
+                                        <span style={{ fontWeight: 600 }}>₹{(() => {
+                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
+                                            let pBal = 0;
+                                            custInvoices.forEach((i: any) => {
+                                                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
+                                                    pBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
+                                                }
+                                            });
+                                            return pBal;
+                                        })().toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', color: '#0f172a', fontSize: '16px', fontWeight: 800 }}>
+                                        <span>Current Balance:</span>
+                                        <span>₹{(() => {
+                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
+                                            let pBal = 0;
+                                            custInvoices.forEach((i: any) => {
+                                                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
+                                                    pBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
+                                                }
+                                            });
+                                            const currentInvoiceBal = Math.max(totals.grandTotal - Number(paidAmount || 0), 0);
+                                            return (pBal + currentInvoiceBal).toFixed(2);
+                                        })()}</span>
                                     </div>
                                 </div>
                             </div>

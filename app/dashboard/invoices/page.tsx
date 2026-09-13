@@ -170,11 +170,23 @@ export default function InvoicesPage() {
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
 
+    const injectPreviousBalance = (inv: any) => {
+        if (!inv.customer?.id) return { ...inv, previous_balance: 0 };
+        const custInvoices = safeInvoices.filter((i: any) => i.customer?.id === inv.customer.id && new Date(i.created_at).getTime() < new Date(inv.created_at).getTime());
+        let prevBal = 0;
+        custInvoices.forEach((i: any) => {
+            if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
+                prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
+            }
+        });
+        return { ...inv, previous_balance: prevBal };
+    };
+
     const handleViewPdf = async (invoice: any) => {
         const toastId = toast.loading('Opening PDF...');
         try {
             const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
-            await generateInvoicePDF(invoice, businessProfile, true, 'view', toastId as any);
+            await generateInvoicePDF(injectPreviousBalance(invoice), businessProfile, true, 'view', toastId as any);
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
@@ -183,7 +195,7 @@ export default function InvoicesPage() {
         const toastId = toast.loading('Downloading PDF...');
         try {
             const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
-            await generateInvoicePDF(invoice, businessProfile, true, 'download', toastId as any);
+            await generateInvoicePDF(injectPreviousBalance(invoice), businessProfile, true, 'download', toastId as any);
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
@@ -192,7 +204,7 @@ export default function InvoicesPage() {
         const toastId = toast.loading('Generating PDF for Share...');
         try {
             const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
-            await generateInvoicePDF(invoice, businessProfile, true, 'share', toastId as any);
+            await generateInvoicePDF(injectPreviousBalance(invoice), businessProfile, true, 'share', toastId as any);
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
     };
@@ -201,7 +213,7 @@ export default function InvoicesPage() {
         const toastId = toast.loading('Preparing print...');
         try {
             const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
-            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+            const doc = await generateInvoicePDF(injectPreviousBalance(invoice), businessProfile, false);
             if (doc) {
                 toast.dismiss(toastId);
                 doc.autoPrint();
@@ -223,7 +235,7 @@ export default function InvoicesPage() {
         const toastId = toast.loading('WhatsApp ke liye PDF ban raha hai...');
         try {
             const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
-            const doc = await generateInvoicePDF(invoice, businessProfile, false);
+            const doc = await generateInvoicePDF(injectPreviousBalance(invoice), businessProfile, false);
             if (!doc) {
                 toast.error('PDF Generate fail!', { id: toastId });
                 return;
