@@ -19,7 +19,7 @@ import { useSession } from 'next-auth/react';
 import { calculateInvoiceTotal } from '@/lib/gst-calculator';
 import { DOC_TYPES, DOC_LABELS } from '@/lib/constants';
 import Tesseract from 'tesseract.js';
-import { generateInvoicePDF } from '@/lib/pdf-generator';
+// pdf-generator imported dynamically below
 import { getVisitingCardText } from '@/lib/whatsapp-utils';
 
 // Proper UUID v4 generator
@@ -921,6 +921,7 @@ function NewInvoiceContent() {
                         toast.loading('Sharing PDF on WhatsApp...');
                         try {
                             const updatedProfileForPdf = { ...businessProfile, pdf_size: selectedPdfSize };
+                            const { generateInvoicePDF } = await import('@/lib/pdf-generator');
                             const doc = await generateInvoicePDF(invoice, updatedProfileForPdf, false);
                             if (doc) {
                                 const pdfBlob = doc.output('blob');

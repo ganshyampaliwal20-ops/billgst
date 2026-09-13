@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './hisaab.css';
-import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';
+// pdf-generator imported dynamically below
 import { downloadAndShareFile } from '../../../lib/utils';
 import RoleGuard from '@/app/components/RoleGuard';
 import { useSession } from 'next-auth/react';
@@ -926,6 +926,7 @@ export default function BusinessExpensesPage() {
                 (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
                 const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
                 
+                const { generateHisaabPDF } = await import('../../../lib/pdf-generator');
                 const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
                 if (!doc) continue;
                 const pdfBlob = doc.output('blob');
@@ -1008,6 +1009,7 @@ export default function BusinessExpensesPage() {
         }
         showToast(t.generatingPDF || '⏳ Generating PDF...');
         try {
+            const { generateHisaabPDF } = await import('../../../lib/pdf-generator');
             const doc = await generateHisaabPDF(currentCust, businessProfile || { name: 'BillGST Pro' }, custStats, false);
             if (doc) {
                 const base64Data = doc.output('datauristring').split(',')[1];

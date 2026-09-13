@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useStore } from '../../../lib/store';
 import { getTranslations } from '../../../lib/translations';
-import { generateInvoicePDF } from '../../../lib/pdf-generator';
+// pdf-generator imported dynamically below
 import { downloadAndShareFile } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../../lib/utils';
@@ -163,6 +163,7 @@ export default function InvoicesPage() {
     const handleDownload = async (invoice: any) => {
         const toastId = toast.loading('Downloading PDF...');
         try {
+            const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
             await generateInvoicePDF(invoice, businessProfile, true, 'download', toastId as any);
             toast.dismiss(toastId);
             toast.success('PDF saved to Documents folder!', { duration: 4000, icon: '✅' });
@@ -172,6 +173,7 @@ export default function InvoicesPage() {
     const handleViewPdf = async (invoice: any) => {
         const toastId = toast.loading('Opening PDF...');
         try {
+            const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
             await generateInvoicePDF(invoice, businessProfile, true, 'view', toastId as any);
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
@@ -180,6 +182,7 @@ export default function InvoicesPage() {
     const handleDownloadPdf = async (invoice: any) => {
         const toastId = toast.loading('Downloading PDF...');
         try {
+            const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
             await generateInvoicePDF(invoice, businessProfile, true, 'download', toastId as any);
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
@@ -188,6 +191,7 @@ export default function InvoicesPage() {
     const handleSharePdf = async (invoice: any) => {
         const toastId = toast.loading('Generating PDF for Share...');
         try {
+            const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
             await generateInvoicePDF(invoice, businessProfile, true, 'share', toastId as any);
             toast.dismiss(toastId);
         } catch (error) { toast.error('PDF Error', { id: toastId }); }
@@ -196,6 +200,7 @@ export default function InvoicesPage() {
     const handlePrint = async (invoice: any) => {
         const toastId = toast.loading('Preparing print...');
         try {
+            const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
             const doc = await generateInvoicePDF(invoice, businessProfile, false);
             if (doc) {
                 toast.dismiss(toastId);
@@ -217,6 +222,7 @@ export default function InvoicesPage() {
 
         const toastId = toast.loading('WhatsApp ke liye PDF ban raha hai...');
         try {
+            const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
             const doc = await generateInvoicePDF(invoice, businessProfile, false);
             if (!doc) {
                 toast.error('PDF Generate fail!', { id: toastId });

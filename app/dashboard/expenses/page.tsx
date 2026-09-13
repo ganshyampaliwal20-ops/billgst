@@ -1,8 +1,14 @@
 "use client";
 import React, { useState } from 'react';
-import BusinessExpensesPage from './BusinessExpenses';
-import PersonalExpenses from './PersonalExpenses';
-import { FaMoneyBillWave, FaWallet } from 'react-icons/fa';
+import dynamic from 'next/dynamic';
+
+const BusinessExpensesPage = dynamic(() => import('./BusinessExpenses'), {
+  loading: () => <div className="p-8 text-center text-gray-400">Loading Business Expenses...</div>
+});
+
+const PersonalExpenses = dynamic(() => import('./PersonalExpenses'), {
+  loading: () => <div className="p-8 text-center text-gray-400">Loading Personal Expenses...</div>
+});
 
 export default function ExpensesWrapper() {
   const [tab, setTab] = useState<'business' | 'personal'>('business');
