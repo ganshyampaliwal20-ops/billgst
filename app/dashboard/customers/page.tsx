@@ -680,7 +680,7 @@ export default function CustomersPage() {
                                         </div>
                                         <div className="card-bottom">
                                             <button className="action-btn" onClick={(e) => handleWhatsApp(c, e)}>💬 {t.whatsapp}</button>
-                                            <a className="action-btn" href={`tel:${c.phone}`} onClick={(e) => e.stopPropagation()}>📞 {t.call}</a>
+                                            <button className="action-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }}>📞 {t.call}</button>
                                             <button className="action-btn" onClick={(e) => handleDelete(c.id, c.name, e)} style={{ color: "var(--red)" }}>🗑️ {t.delete}</button>
                                             <span className="view-label">{t.view} →</span>                                  </div>
                                     </Link>
@@ -751,3 +751,4 @@ export default function CustomersPage() {
         </div>
     );
 }
+

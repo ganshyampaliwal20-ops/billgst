@@ -172,8 +172,9 @@ export default function InvoicesPage() {
 
     const injectPreviousBalance = (inv: any) => {
         if (!inv.customer?.id) return { ...inv, previous_balance: 0 };
-        const custInvoices = safeInvoices.filter((i: any) => i.customer?.id === inv.customer.id && new Date(i.created_at).getTime() < new Date(inv.created_at).getTime());
-        let prevBal = 0;
+        const cust = (useStore.getState().customers || []).find((c: any) => c.id === inv.customer.id);
+        const custInvoices = safeInvoices.filter((i: any) => i.customer?.id === inv.customer.id && i.id !== inv.id);
+        let prevBal = Number(cust?.opening_balance || 0);
         custInvoices.forEach((i: any) => {
             if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
                 prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
@@ -1113,3 +1114,5 @@ export default function InvoicesPage() {
         </div>
     );
 }
+
+

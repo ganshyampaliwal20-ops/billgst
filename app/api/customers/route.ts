@@ -45,10 +45,10 @@ export async function POST(request: Request) {
 
         try {
             const result = await client.query(
-                `INSERT INTO customers (id, name, email, phone, gstin, address, promise_date, created_by, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
+                `INSERT INTO customers (id, name, email, phone, gstin, address, promise_date, opening_balance, created_by, created_at) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) 
            RETURNING *`,
-                [data.id, data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, userId]
+                [data.id, data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.opening_balance || 0, userId]
             );
             client.release();
             return NextResponse.json(result.rows[0]);
@@ -57,12 +57,13 @@ export async function POST(request: Request) {
                 await client.query(`
                     ALTER TABLE customers ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users(id);
                     ALTER TABLE customers ADD COLUMN IF NOT EXISTS promise_date DATE;
+                    ALTER TABLE customers ADD COLUMN IF NOT EXISTS opening_balance DECIMAL(10,2) DEFAULT 0;
                 `);
                 const result = await client.query(
-                    `INSERT INTO customers (id, name, email, phone, gstin, address, promise_date, created_by, created_at) 
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
+                    `INSERT INTO customers (id, name, email, phone, gstin, address, promise_date, opening_balance, created_by, created_at) 
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) 
                RETURNING *`,
-                    [data.id, data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, userId]
+                    [data.id, data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.opening_balance || 0, userId]
                 );
                 client.release();
                 return NextResponse.json(result.rows[0]);
@@ -89,22 +90,25 @@ export async function PUT(request: Request) {
         try {
             const result = await client.query(
                 `UPDATE customers 
-                 SET name = $1, email = $2, phone = $3, gstin = $4, address = $5, promise_date = $6
+                 SET name = $1, email = $2, phone = $3, gstin = $4, address = $5, promise_date = $6, opening_balance = $9
                  WHERE id = $7 AND created_by = $8
                  RETURNING *`,
-                [data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.id, session.user.id]
+                [data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.id, session.user.id, data.opening_balance || 0]
             );
             client.release();
             return NextResponse.json({ success: true, data: result.rows[0] });
         } catch (dbError: any) {
             if (dbError?.code === '42703') {
-                await client.query(`ALTER TABLE customers ADD COLUMN IF NOT EXISTS promise_date DATE;`);
+                await client.query(`
+                    ALTER TABLE customers ADD COLUMN IF NOT EXISTS promise_date DATE;
+                    ALTER TABLE customers ADD COLUMN IF NOT EXISTS opening_balance DECIMAL(10,2) DEFAULT 0;
+                `);
                 const result = await client.query(
                     `UPDATE customers 
-                     SET name = $1, email = $2, phone = $3, gstin = $4, address = $5, promise_date = $6
+                     SET name = $1, email = $2, phone = $3, gstin = $4, address = $5, promise_date = $6, opening_balance = $9
                      WHERE id = $7 AND created_by = $8
                      RETURNING *`,
-                    [data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.id, session.user.id]
+                    [data.name, data.email || null, data.phone || null, data.gstin || null, data.address || null, data.promise_date || null, data.id, session.user.id, data.opening_balance || 0]
                 );
                 client.release();
                 return NextResponse.json({ success: true, data: result.rows[0] });
