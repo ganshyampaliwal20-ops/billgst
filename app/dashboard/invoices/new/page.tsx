@@ -2694,7 +2694,7 @@ function NewInvoiceContent() {
                                                 return Number(newCustOb || 0);
                                             }
                                             const cust = safeCustomers.find((c: any) => c.id === customerId);
-                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId && i.id !== invoice.id);
+                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
                                             let pBal = Number(cust?.opening_balance || 0);
                                             custInvoices.forEach((i: any) => {
                                                 if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
@@ -2707,8 +2707,9 @@ function NewInvoiceContent() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', color: '#0f172a', fontSize: '16px', fontWeight: 800 }}>
                                         <span>Current Balance:</span>
                                         <span>₹{(() => {
-                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId && i.id !== invoice.id);
-                                            let pBal = 0;
+                                            const cust = safeCustomers.find((c: any) => c.id === customerId);
+                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
+                                            let pBal = Number(cust?.opening_balance || 0);
                                             custInvoices.forEach((i: any) => {
                                                 if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
                                                     pBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
