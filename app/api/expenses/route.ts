@@ -20,28 +20,13 @@ export async function GET(request: Request) {
         const userId = session.user.id;
         const client = await pool.connect();
 
-        const adminEmails = ['billgstapp@gmail.com', 'ganshyampaliwal20@gmail.com'];
-        const isSuperAdmin = session.user.email && adminEmails.includes(session.user.email);
-
-        let query: string;
-        let params: any[] = [];
-        if (isSuperAdmin) {
-            query = `
-                SELECT * FROM expenses
-                WHERE is_deleted = FALSE
-                ORDER BY expense_date DESC, created_at DESC
-                LIMIT $1 OFFSET $2
-            `;
-            params = [limit, offset];
-        } else {
-            query = `
-                SELECT * FROM expenses
-                WHERE created_by = $1 AND is_deleted = FALSE
-                ORDER BY expense_date DESC, created_at DESC
-                LIMIT $2 OFFSET $3
-            `;
-            params = [userId, limit, offset];
-        }
+        const query = `
+            SELECT * FROM expenses
+            WHERE created_by = $1 AND is_deleted = FALSE
+            ORDER BY expense_date DESC, created_at DESC
+            LIMIT $2 OFFSET $3
+        `;
+        const params = [userId, limit, offset];
 
         let result;
         try {
