@@ -887,10 +887,6 @@ function NewInvoiceContent() {
                 due_date: dueDate,
                 pdf_size: selectedPdfSize,
                 items: selectedItems,
-                subtotal: totals.subtotal,
-                cgst_amount: breakdown.cgst_amount,
-                sgst_amount: breakdown.sgst_amount,
-                igst_amount: breakdown.igst_amount,
                 subtotal: Number(totals.subtotal) || 0,
                 cgst_amount: Number(breakdown.cgst_amount) || 0,
                 sgst_amount: Number(breakdown.sgst_amount) || 0,
@@ -2583,19 +2579,19 @@ function NewInvoiceContent() {
                                             <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{totals.gst.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    {discountPct > 0 && (
+                                    {Number(discountPct) > 0 && (
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#ef4444', fontSize: '14px' }}>
                                             <span>Discount ({discountPct}%):</span>
                                             <span style={{ fontWeight: 600 }}>- ₹{totals.discountAmt.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    {extraCharge > 0 && (
+                                    {Number(extraCharge) > 0 && (
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
                                             <span>Extra Charges:</span>
                                             <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{Number(extraCharge).toFixed(2)}</span>
                                         </div>
                                     )}
-                                    {shippingCharge > 0 && (
+                                    {Number(shippingCharge) > 0 && (
                                         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '14px' }}>
                                             <span>Shipping:</span>
                                             <span style={{ fontWeight: 600, color: '#0f172a' }}>+ ₹{Number(shippingCharge).toFixed(2)}</span>
