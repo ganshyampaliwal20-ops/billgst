@@ -227,7 +227,7 @@ export default function InventoryPage() {
     const handleDelete = async (e: any, id: string, name: string) => {
         e.stopPropagation();
         if (confirm(`Delete "${name}"?`)) {
-            await deleteProduct(id);
+            await deleteProduct(id, { silent: true });
             toast.success(`🗑 ${name} deleted!`);
         }
     };
@@ -252,10 +252,10 @@ export default function InventoryPage() {
 
         try {
             if (editingId) {
-                await updateProduct(editingId, data);
+                await updateProduct(editingId, data, { silent: true });
                 toast.success(`✅ ${data.name} updated!`);
             } else {
-                await addProduct({ id: crypto.randomUUID(), ...data, created_at: new Date().toISOString() });
+                await addProduct({ id: crypto.randomUUID(), ...data, created_at: new Date().toISOString() }, { silent: true });
                 toast.success(`✅ ${data.name} added to inventory!`);
             }
             setShowAddModal(false);
