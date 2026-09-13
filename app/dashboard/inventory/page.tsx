@@ -32,6 +32,8 @@ export default function InventoryPage() {
 
     // State
     const [searchTerm, setSearchTerm] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+    const [scannedCode, setScannedCode] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [activeTab, setActiveTab] = useState("all");
     const [currentView, setCurrentView] = useState("list");
@@ -231,11 +233,13 @@ export default function InventoryPage() {
     };
 
     const saveProduct = async () => {
+        if (isSaving) return;
         if (!formData.name || !formData.price || isNaN(parseFloat(formData.price))) {
             toast.error("⚠ Name aur price zaroori hai!");
             return;
         }
 
+        setIsSaving(true);
         const data = {
             ...formData,
             price: parseFloat(formData.price),
@@ -259,6 +263,8 @@ export default function InventoryPage() {
         } catch (err) {
             console.error("Failed to save product", err);
             // toast.error is already handled in the store
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -1266,7 +1272,9 @@ export default function InventoryPage() {
                         </div>
                         <div className="modal-footer">
                             <button className="mf-btn mf-cancel" onClick={() => setShowAddModal(false)}>Cancel</button>
-                            <button className="mf-btn mf-save" onClick={saveProduct}>Save Product</button>
+                            <button className="mf-btn mf-save" onClick={saveProduct} disabled={isSaving} style={{ opacity: isSaving ? 0.7 : 1 }}>
+                                {isSaving ? 'Saving...' : 'Save Product'}
+                            </button>
                         </div>
                     </div>
                 </div>

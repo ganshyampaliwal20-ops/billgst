@@ -473,7 +473,7 @@ export default function DashboardLayout({
                                 {/* Mobile Menu Button */}
                                 <button
                                     onClick={() => setIsSidebarOpen(true)}
-                                    className="md:hidden flex items-center justify-center w-10 h-10 text-white hover:bg-white/20 rounded-lg transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                                    className="md:hidden flex items-center justify-center w-10 h-10 text-white hover:bg-white/20 rounded-lg transition-all border border-white/30 shadow-sm active:scale-95 backdrop-blur-md mr-3" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
                                     aria-label="Open Menu"
                                 >
                                     <FaBars size={18} />

@@ -18,7 +18,7 @@ export default function ExpensesWrapper() {
       <style dangerouslySetInnerHTML={{__html: `
         .expense-toggle-wrap {
           width: 100%;
-          max-width: 640px;
+          max-width: 400px;
           margin: 0 auto;
         }
         .expense-toggle {
@@ -27,19 +27,19 @@ export default function ExpensesWrapper() {
           grid-template-columns: 1fr 1fr;
           background: linear-gradient(180deg, #1e1a45, #161235);
           border: 1px solid rgba(155,77,255,0.25);
-          border-radius: 16px;
-          padding: 6px;
-          box-shadow: inset 0 1px 2px rgba(255,255,255,0.04), 0 8px 24px rgba(10,6,35,0.55);
+          border-radius: 12px;
+          padding: 4px;
+          box-shadow: inset 0 1px 2px rgba(255,255,255,0.04), 0 4px 12px rgba(10,6,35,0.3);
         }
         .expense-toggle .thumb {
           position: absolute;
-          top: 6px;
-          bottom: 6px;
-          left: 6px;
-          width: calc(50% - 6px);
-          border-radius: 11px;
+          top: 4px;
+          bottom: 4px;
+          left: 4px;
+          width: calc(50% - 4px);
+          border-radius: 8px;
           background: linear-gradient(135deg, #6d3ff2, #9b4dff);
-          box-shadow: 0 4px 14px rgba(109,63,242,0.55), inset 0 0 0 1px rgba(255,255,255,0.06);
+          box-shadow: 0 2px 8px rgba(109,63,242,0.4), inset 0 0 0 1px rgba(255,255,255,0.06);
           transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 0;
         }
@@ -52,29 +52,30 @@ export default function ExpensesWrapper() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 12px 10px;
+          gap: 6px;
+          padding: 8px 10px;
           background: transparent;
           border: none;
           cursor: pointer;
-          font-size: 15px;
-          font-weight: 600;
-          letter-spacing: 0.2px;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: 0.3px;
           color: #a9a3d1;
-          border-radius: 11px;
+          border-radius: 8px;
           transition: color 0.3s ease;
           font-family: inherit;
         }
         .expense-toggle button.active {
           color: #ffffff;
+          font-weight: 600;
         }
         .expense-toggle button:focus-visible {
           outline: 2px solid #f0b429;
           outline-offset: 2px;
         }
         .expense-toggle button .icon {
-          width: 18px;
-          height: 18px;
+          width: 16px;
+          height: 16px;
           flex: none;
           display: flex;
           align-items: center;
@@ -86,8 +87,8 @@ export default function ExpensesWrapper() {
         }
         @media (min-width: 480px) {
           .expense-toggle button {
-            font-size: 16px;
-            padding: 14px 12px;
+            font-size: 14px;
+            padding: 10px 12px;
           }
         }
       `}} />
