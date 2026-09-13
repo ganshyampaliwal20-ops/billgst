@@ -2,7 +2,7 @@
 import { Pool } from 'pg';
 
 // Fix for SSL errors in some environments
-// Removed global NODE_TLS_REJECT_UNAUTHORIZED=0 to prevent warnings; pool ssl config handles this.
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
