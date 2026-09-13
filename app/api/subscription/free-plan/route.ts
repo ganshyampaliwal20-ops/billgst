@@ -23,9 +23,13 @@ export async function GET() {
                     if (u.rows.length > 0) userId = u.rows[0].id;
                 }
 
-                const userRes = await client.query("SELECT has_claimed_free_plan FROM users WHERE id = $1", [userId]);
-                if (userRes.rows.length > 0) {
-                    userClaimed = !!userRes.rows[0].has_claimed_free_plan;
+                if (uuidRegex.test(userId)) {
+                    const userRes = await client.query("SELECT has_claimed_free_plan FROM users WHERE id = $1", [userId]);
+                    if (userRes.rows.length > 0) {
+                        userClaimed = !!userRes.rows[0].has_claimed_free_plan;
+                    }
+                } else {
+                    console.log('Skipping user check because userId is not a valid UUID:', userId);
                 }
             }
 
@@ -34,6 +38,12 @@ export async function GET() {
                 userClaimed,
                 limit: 100,
                 remaining: Math.max(0, 100 - totalClaimed)
+            }, {
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
             });
         } finally {
             client.release();
@@ -71,6 +81,10 @@ export async function POST(request: Request) {
                     const u = await client.query("SELECT id FROM users WHERE email = $1", [session.user.email]);
                     if (u.rows.length > 0) userId = u.rows[0].id;
                 }
+            }
+
+            if (!uuidRegex.test(userId)) {
+                return NextResponse.json({ error: 'Invalid User ID format. Please log out and log in again.' }, { status: 400 });
             }
 
             // 2. check if user already claimed

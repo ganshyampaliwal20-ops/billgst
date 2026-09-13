@@ -21,7 +21,7 @@ export default function FreePlanPopup() {
 
         const checkStatus = async () => {
             try {
-                const res = await fetch('/api/subscription/free-plan');
+                const res = await fetch('/api/subscription/free-plan', { cache: 'no-store' });
                 const data = await res.json();
                 
                 if (data.userClaimed || data.remaining <= 0) {
