@@ -752,7 +752,7 @@ export default function DashboardPage() {
                                 const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
                                 const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
                                 return (
-                                    <Link href="/dashboard/invoices" className="inv-row" key={inv.id} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
+                                    <Link href="/dashboard/invoices" className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
                                         <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
                                         <div className="inv-info">
                                             <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
@@ -792,7 +792,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="coll-grid">
                                 {pendingCustomersList.slice(0, 4).map((c: any, i: number) => (
-                                    <Link href={'/dashboard/customers/' + c.id} className="coll-card" key={c.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                                    <Link href={'/dashboard/customers/' + c.id} className="coll-card" key={'cust-' + c.id + '-' + i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                                         <div className="coll-top">
                                             <div className="coll-num">{i + 1}</div>
                                             <div className="coll-bills">{c.invoiceCount} {t.bills}</div>
