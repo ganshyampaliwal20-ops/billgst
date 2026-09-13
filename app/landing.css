@@ -104,7 +104,37 @@ html{scroll-behavior:smooth;}
 .live-chip strong{color:var(--gr);font-weight:600;}
 .page h1{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;line-height:1.1;letter-spacing:-0.8px;color:var(--t1);}
 h1 .ac{background:linear-gradient(135deg,#9E95FF,var(--v));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+
+.hero-free-badge {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: inline-block;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #b91c1c;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 1.3rem;
+    border: 2px solid #f87171;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+    letter-spacing: 0.5px;
+}
+
 .hero-sub{font-size:14px;line-height:1.65;color:var(--t2);margin:13px auto 0;max-width:310px;}
+
+@media (max-width: 480px) {
+    .hero { padding-top: 15px; } /* Reduce top space */
+    .live-chip { margin-bottom: 14px; }
+    .page h1 { font-size: 26px; line-height: 1.25; }
+    .hero-free-badge {
+        font-size: 1rem;
+        padding: 8px 16px;
+        margin-top: 14px;
+        margin-bottom: 6px;
+    }
+    .hero-sub { font-size: 12px; margin-top: 8px; line-height: 1.5; }
+    .auth-card { margin-top: 20px; }
+}
 
 /* ── AUTH CARD ── */
 .auth-card{margin:28px 20px 0;background:var(--bg2);border:1px solid var(--b2);border-radius:22px;overflow:hidden;box-shadow:0 24px 60px -16px rgba(0,0,0,0.6),0 0 0 1px rgba(107,95,255,0.08);}

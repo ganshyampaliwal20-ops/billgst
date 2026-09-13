@@ -181,7 +181,7 @@ export default function LandingPage() {
                     )}
                 </h1>
                 
-                <div style={{ marginTop: '20px', marginBottom: '10px', display: 'inline-block', background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#b91c1c', padding: '10px 24px', borderRadius: '50px', fontWeight: 800, fontSize: '1.3rem', border: '2px solid #f87171', boxShadow: '0 6px 20px rgba(239, 68, 68, 0.3)', letterSpacing: '0.5px' }}>
+                <div className="hero-free-badge">
                     ✨ {isEnglish ? 'All Features Always Free — Forever' : 'सभी फीचर्स हमेशा के लिए मुफ्त'} ✨
                 </div>
                 <p className="hero-sub">
