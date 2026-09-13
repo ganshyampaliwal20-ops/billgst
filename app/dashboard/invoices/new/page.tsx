@@ -1037,7 +1037,7 @@ function NewInvoiceContent() {
                 .c-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
                 
                 .c-details { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
-                .cd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                .cd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
                 
                 .fg { margin-bottom: 20px; }
                 .fl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
@@ -1109,8 +1109,8 @@ function NewInvoiceContent() {
 
                 /* Mobile Responsiveness Fixes */
                 @media (max-width: 992px) {
-                  .form-outer { grid-template-columns: 1fr; padding: 0 16px 100px; gap: 10px; }
-                  .page-hdr { padding: 15px 16px; margin-bottom: 0.5rem; }
+                  .form-outer { grid-template-columns: 1fr; padding: 0 12px 100px; gap: 10px; }
+                  .page-hdr { padding: 15px 12px; margin-bottom: 0.5rem; }
                   .ph-title { font-size: 18px; }
                   .ph-sub { font-size: 10px; }
                   .stepper { overflow-x: auto; padding-bottom: 10px; margin-top: 10px; justify-content: flex-start; padding: 0 15px 10px; }
@@ -1119,8 +1119,8 @@ function NewInvoiceContent() {
                   .c-title { margin-bottom: 12px; }
                   .bottom-bar { padding: 10px 15px calc(10px + env(safe-area-inset-bottom, 15px)); height: auto; flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; }
                   .bb-save { justify-content: center; padding: 10px 20px; font-size: 13px; }
-                  .doc-tabs { grid-template-columns: repeat(5, 1fr); gap: 5px; }
-                  .dtab { padding: 8px 4px; }
+                  .doc-tabs { grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: hidden; }
+                  .dtab { padding: 10px 4px; min-width: 0; }
                   .dt-icon { font-size: 14px; }
                   .dt-label { font-size: 8px; }
                   .item-card { padding: 10px; }
@@ -1131,10 +1131,18 @@ function NewInvoiceContent() {
                   .fg { margin-bottom: 12px; }
                   .pay-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
                   .p-mode { padding: 8px 4px; font-size: 10px; }
+                  /* Ensure nothing clips the right border */
+                  .new-invoice-page, .form-outer, .card, .doc-tabs, .dtab,
+                  .c-details, .cd-row, .fi, .fs, .inv-pill, .bottom-bar {
+                      max-width: 100%;
+                  }
+                  /* Customer search + add button row */
+                  .cust-search-row { display: flex; gap: 8px; align-items: center; width: 100%; }
+                  .cust-search-row .fi { flex: 1; min-width: 0; }
                 }
 
                 @media (max-width: 480px) {
-                  .doc-tabs { grid-template-columns: repeat(5, 1fr); }
+                  .doc-tabs { grid-template-columns: repeat(3, 1fr); gap: 6px; }
                   .pay-grid { grid-template-columns: repeat(4, 1fr); }
                   .inv-pill { padding: 10px; }
                   .ip-num { font-size: 11px; }
@@ -1272,16 +1280,17 @@ function NewInvoiceContent() {
                     {/* Customer & Invoice Info */}
                     <div className={`card transition-all duration-500 ${aiHighlight === 'customer' ? 'ring-4 ring-indigo-500 shadow-[0_0_35px_rgba(99,102,241,0.5)] scale-[1.01] bg-indigo-50/20' : ''}`}>
                         <div className="c-title"><div className="c-icon" style={{ background: '#e0f2fe', color: '#0ea5e9' }}><FaUserPlus /></div> Customer & Details</div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" style={{ overflow: 'hidden' }}>
                             <div className="inv-pill" onClick={() => toast('Auto-generated number')}>
                                 <div><span className="text-[10px] font-black uppercase text-slate-400 block tracking-widest">Invoice #</span><span className="ip-num">{invoiceNumber}</span></div>
                                 <FaCogs className="text-slate-300" />
                             </div>
-                            <div>
+                            <div style={{ minWidth: 0, overflow: 'hidden' }}>
                                 <label className="fl">{t.customer} *</label>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2" style={{ overflow: 'hidden' }}>
                                     <input
                                         className={`fi text-slate-900 flex-1 transition-all ${aiHighlight === 'customer' ? 'border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)] bg-white font-bold' : ''}`}
+                                        style={{ minWidth: 0 }}
                                         list="customer-list"
                                         placeholder="Enter or select customer"
                                         value={customers.find((c: any) => c.id === customerId)?.name || newCustName}
@@ -1299,7 +1308,7 @@ function NewInvoiceContent() {
                                     <datalist id="customer-list">
                                         {safeCustomers.map(c => <option key={c.id} value={c.name} />)}
                                     </datalist>
-                                    <button type="button" onClick={() => setShowCustomerModal(true)} className="new-btn flex-shrink-0 flex items-center justify-center w-[52px] h-[52px]"><FaPlus /></button>
+                                    <button type="button" onClick={() => setShowCustomerModal(true)} className="new-btn flex-shrink-0 flex items-center justify-center w-[44px] h-[44px]"><FaPlus /></button>
                                 </div>
                             </div>
                         </div>
