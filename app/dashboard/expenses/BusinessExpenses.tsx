@@ -1905,11 +1905,11 @@ export default function BusinessExpensesPage() {
 
                 <div className="kpi-strip">
                     <div className="kpi-item">
-                        <div className="kpi-val" style={{ color: 'var(--green)' }}>{fmt(totalStats.received)}</div>
+                        <div className="kpi-val" style={{ color: 'var(--red)' }}>{fmt(totalStats.received)}</div>
                         <div className="kpi-lbl">{t.totalToReceive || 'Total To Receive'}</div>
                     </div>
                     <div className="kpi-item">
-                        <div className="kpi-val" style={{ color: 'var(--red)' }}>{fmt(totalStats.given)}</div>
+                        <div className="kpi-val" style={{ color: 'var(--green)' }}>{fmt(totalStats.given)}</div>
                         <div className="kpi-lbl">{t.totalToPay || 'Total To Pay'}</div>
                     </div>
                     <div className="kpi-item">
@@ -2043,8 +2043,8 @@ export default function BusinessExpensesPage() {
                                                 </div>
                                             </div>
                                             <div className="cust-right">
-                                                <div className="cust-amt" style={{ color: isNeg ? 'var(--red)' : 'var(--green)' }}>{fmtBal}</div>
-                                                <div className={`cust-status ${isNeg ? 'status-dena' : 'status-lena'}`}>{isNeg ? (t.advanceToPay || 'Advance (To Pay)') : (t.dueToReceive || 'Due (To Receive)')}</div>
+                                                <div className="cust-amt" style={{ color: isNeg ? 'var(--green)' : 'var(--red)' }}>{fmtBal}</div>
+                                                <div className={`cust-status ${isNeg ? 'status-lena' : 'status-dena'}`}>{isNeg ? (t.advanceToPay || 'Advance (To Pay)') : (t.dueToReceive || 'Due (To Receive)')}</div>
                                             </div>
                                         </div>
                                     );
@@ -2109,7 +2109,7 @@ export default function BusinessExpensesPage() {
                     <div className="detail-content-inner">
                         <div className="balance-banner" ref={bannerRef}>
                             <div className="balance-label">{t.totalBalanceDue || 'Total Balance Due'}</div>
-                            <div className={`balance-amount ${custStats.isNeg ? '' : 'positive'}`}>
+                            <div className={`balance-amount ${custStats.isNeg ? 'positive' : ''}`}>
                                 ₹{new Intl.NumberFormat('en-IN').format(Math.abs(custStats.net))}
                             </div>
                             <div className={`balance-status ${custStats.isNeg ? 'positive' : ''}`}>
