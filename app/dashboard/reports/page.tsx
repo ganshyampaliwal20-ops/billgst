@@ -9,9 +9,7 @@ import { toast } from 'react-hot-toast';
 import { generateTallyXML, downloadFile } from '@/lib/tally-exporter';
 
 // Dynamic import used for Chart.js
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { drawFreeBranding } from '../../../lib/pdf-generator';
+// jsPDF and autoTable dynamically imported below
 
 function ReportsContent() {
     const searchParams = useSearchParams();
@@ -337,6 +335,8 @@ function ReportsContent() {
                 toast.error(t.noDataToExport);
                 return;
             }
+            const { default: jsPDF } = await import('jspdf');
+            const { default: autoTable } = await import('jspdf-autotable');
             const doc = new jsPDF();
             doc.text(`Business Report - ${period}`, 14, 15);
 
@@ -365,6 +365,7 @@ function ReportsContent() {
             const pageHeight = doc.internal.pageSize.getHeight();
             const pageWidth = doc.internal.pageSize.getWidth();
             if (!isPremium) {
+                const { drawFreeBranding } = await import('../../../lib/pdf-generator');
                 await drawFreeBranding(doc, false, pageWidth, pageHeight, pageHeight - 20);
             } else {
                 const footerText = 'Generated securely via BillGST.in';

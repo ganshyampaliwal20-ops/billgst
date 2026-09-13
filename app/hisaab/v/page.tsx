@@ -2,7 +2,7 @@
 
 import { useSearchParams, useParams } from 'next/navigation';
 import React, { useEffect, useState, Suspense } from 'react';
-import { generateHisaabPDF, preloadPDFGenerator } from '../../../lib/pdf-generator';
+// pdf-generator dynamically imported
 import { downloadAndShareFile } from '../../../lib/utils';
 
 function formatCurrency(amount: number) {
@@ -143,6 +143,7 @@ function HisaabViewerContent() {
             const businessDetails = b ? { name: b.business_name, phone: b.business_phone, email: b.business_email, logo: b.logo } : { name: 'Business Statement' };
             const custStats = { credit: s.r, debit: s.g, net: s.net, isNeg: s.neg };
             
+            const { generateHisaabPDF } = await import('../../../lib/pdf-generator');
             const doc = await generateHisaabPDF(rawData, businessDetails, custStats, false);
             if (!doc) throw new Error('Failed to generate');
             

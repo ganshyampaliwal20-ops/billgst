@@ -5,7 +5,7 @@ import { useStore } from '@/lib/store';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 // Dynamic import used for Chart.js
-import { generateHisaabPDF } from '@/lib/pdf-generator';
+// pdf-generator dynamically imported
 import { getVisitingCardText, openWhatsAppChat, sendViaGreenAPI } from '@/lib/whatsapp-utils';
 import { getTranslations } from '@/lib/translations';
 

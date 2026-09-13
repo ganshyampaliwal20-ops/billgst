@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { preloadPDFGenerator } from '../../lib/pdf-generator';
+
 import { useRouter, usePathname } from 'next/navigation';
 import { App } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -13,7 +13,7 @@ export default function CapacitorHandler() {
     const pathname = usePathname();
 
     useEffect(() => {
-        preloadPDFGenerator();
+
         // We only attempt to register the Capacitor native back button listener
         // if this app is actually running inside the Capacitor Android Webview.
         const setupCapacitor = async () => {

@@ -7,7 +7,7 @@ import { getTranslations } from "@/lib/translations";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { generateCatalogPDF } from "@/lib/pdf-generator";
+// pdf-generator dynamically imported
 import { Html5Qrcode } from "html5-qrcode";
 import { useDebounce } from "@/lib/useDebounce";
 
@@ -318,6 +318,7 @@ export default function InventoryPage() {
         }
         const loadToast = toast.loading("PDF catalog generate ho raha hai...");
         try {
+            const { generateCatalogPDF } = await import('@/lib/pdf-generator');
             await generateCatalogPDF(products, businessProfile);
             toast.dismiss(loadToast);
             toast.success("✅ Product Catalog download ho gaya!");

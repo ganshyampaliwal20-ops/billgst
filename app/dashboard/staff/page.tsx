@@ -6,9 +6,7 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { normalizeRole, isOwnerRole } from '@/lib/role-utils';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { drawFreeBranding } from '../../../lib/pdf-generator';
+// jsPDF and autoTable dynamically imported below
 import { downloadAndShareFile } from '@/lib/utils';
 
 export default function SmartAttendance() {
@@ -366,6 +364,9 @@ export default function SmartAttendance() {
     };
 
     const generateMasterReportPDF = async (action: 'view' | 'share' | 'download' = 'view') => {
+        const { default: jsPDF } = await import('jspdf');
+        const { default: autoTable } = await import('jspdf-autotable');
+        const { drawFreeBranding } = await import('../../../lib/pdf-generator');
         const doc = new jsPDF();
         // PDF Gen logic same as original...
         const margin = 8;
@@ -446,6 +447,9 @@ export default function SmartAttendance() {
 
     const generateSalarySlipPDF = async (action: 'view' | 'share' | 'download' = 'view') => {
         if (!selectedStaff) return;
+        const { default: jsPDF } = await import('jspdf');
+        const { default: autoTable } = await import('jspdf-autotable');
+        const { drawFreeBranding } = await import('../../../lib/pdf-generator');
         const doc = new jsPDF();
         const margin = 8;
         const pageWidth = doc.internal.pageSize.width;
