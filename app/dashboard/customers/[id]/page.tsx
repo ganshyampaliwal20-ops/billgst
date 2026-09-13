@@ -28,6 +28,8 @@ export default function CustomerDetailPage() {
     const [paymentAmount, setPaymentAmount] = useState('');
     const [paymentMode, setPaymentMode] = useState('UPI / GPay');
     const [paymentNote, setPaymentNote] = useState('');
+    const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0]);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (!isClient) return;
@@ -173,12 +175,14 @@ export default function CustomerDetailPage() {
     };
 
     const handlePayment = async () => {
+        if (isSaving) return;
         const amount = parseFloat(paymentAmount);
         if (!amount || amount <= 0) {
             toast.error('⚠ Valid amount daalo!');
             return;
         }
 
+        setIsSaving(true);
         try {
             const unpaidInvoices = customerInvoices
                 .filter((inv: any) => (parseFloat(inv.total_amount) - parseFloat(inv.paid_amount || 0)) > 0.1)
@@ -216,7 +220,8 @@ export default function CustomerDetailPage() {
                         customer_id: id,
                         amount: amount,
                         payment_mode: paymentMode,
-                        payment_note: paymentNote
+                        payment_note: paymentNote,
+                        payment_date: paymentDate
                     })
                 });
 
@@ -235,8 +240,11 @@ export default function CustomerDetailPage() {
             await fetchInvoices(true);
             setShowPaymentModal(false);
             setPaymentAmount('');
+            setPaymentDate(new Date().toISOString().split('T')[0]);
         } catch (error) {
             toast.error('An error occurred');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -516,11 +524,11 @@ export default function CustomerDetailPage() {
 
 .body{padding:14px 20px 0}
 
-.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.qa-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;background:var(--white);border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.quick-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.qa-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 2px;background:var(--white);border-radius:12px;border:1px solid var(--border);cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
 .qa-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:#cbd5e1}
-.qa-icon{font-size:20px}
-.qa-label{font-size:9.5px;font-weight:700;color:var(--slate);text-align:center;line-height:1.2}
+.qa-icon{font-size:18px}
+.qa-label{font-size:8.5px;font-weight:700;color:var(--slate);text-align:center;line-height:1.2}
 
 .card{background:var(--white);border-radius:12px;padding:12px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;animation:fadeUp .4s ease both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -565,7 +573,7 @@ canvas{max-height:140px; width: 100%;}
 .tag.new{background:#f0fdf4;color:#059669;border-color:#bbf7d0}
 
 .bottom-bar{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  position:fixed;bottom:35px;left:50%;transform:translateX(-50%);
   width:calc(100% - 40px);max-width:960px;
   border-radius:18px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
@@ -581,7 +589,7 @@ canvas{max-height:140px; width: 100%;}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(11,15,30,0.6);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--white);border-radius:18px 18px 0 0;width:100%;max-width:440px;padding:14px 16px 24px;transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.modal{background:var(--white);border-radius:18px 18px 0 0;width:100%;max-width:440px;padding:14px 16px calc(24px + env(safe-area-inset-bottom, 20px));transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1)}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-handle{width:28px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px}
 .modal-title{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:12px}
@@ -591,6 +599,7 @@ canvas{max-height:140px; width: 100%;}
 .modal-btn{flex:1;padding:10px;border-radius:9px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;}
 .modal-btn.cancel{background:var(--faint);color:var(--slate);border:1px solid var(--border)}
 .modal-btn.confirm{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;}
+.modal-btn:disabled{opacity:0.6;cursor:not-allowed}
 
 @media (min-width: 768px) {
   .body {
@@ -614,23 +623,13 @@ canvas{max-height:140px; width: 100%;}
             ` }} />
 
             <div className="shell">
-                <div className="appbar">
-                    <div className="appbar-brand">
-                        <div className="app-icon">💼</div>
-                        <div className="app-name">Business</div>
-                    </div>
-                    <div className="date-chip" suppressHydrationWarning><div className="date-dot"></div>{currentDate}</div>
-                </div>
-
                 <div className="cust-header">
                     <div className="ch-top">
-                        <div className="back-btn" onClick={() => router.back()}>‹</div>
                         <div className="cust-avatar">{initials}</div>
                         <div className="cust-meta">
                             <div className="cust-name">{customer.name}</div>
                             <div className="cust-sub">Customer History &amp; Summary</div>
                         </div>
-                        <div className="edit-btn" onClick={() => toast('Edit mode open!')}>✏️</div>
                     </div>
                     <div className="stats-bar">
                         <div className="stat-cell">
@@ -711,7 +710,7 @@ canvas{max-height:140px; width: 100%;}
                     <div className="card" style={{ animationDelay: ".2s" }}>
                         <div className="card-title">
                             Payment Trend
-                            <span className="see-all" onClick={() => toast('Full chart view open!')}>6 months →</span>
+                            <span style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 500 }}>Last 6 months</span>
                         </div>
                         <div style={{ position: 'relative', height: '180px', width: '100%' }}>
                             <canvas ref={chartRef}></canvas>
@@ -774,15 +773,28 @@ canvas{max-height:140px; width: 100%;}
                     <div className="modal-title">💳 Receive Payment</div>
                     <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Amount (₹)</div>
                     <input className="modal-input" type="number" placeholder="Enter amount" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)} />
-                    <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Payment Mode</div>
-                    <select className="modal-input" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
-                        <option>Cash</option><option>UPI / GPay</option><option>Bank Transfer</option><option>Cheque</option>
-                    </select>
+                    
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                        <div>
+                            <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Date</div>
+                            <input className="modal-input" type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Mode</div>
+                            <select className="modal-input" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+                                <option>Cash</option><option>UPI / GPay</option><option>Bank Transfer</option><option>Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".7px", color: "var(--muted)", marginBottom: "7px" }}>Note (Optional)</div>
                     <input className="modal-input" type="text" placeholder="Add a note…" value={paymentNote} onChange={(e) => setPaymentNote(e.target.value)} />
+                    
                     <div className="modal-actions">
-                        <button className="modal-btn cancel" onClick={() => setShowPaymentModal(false)}>Cancel</button>
-                        <button className="modal-btn confirm" onClick={handlePayment}>✓ Confirm</button>
+                        <button className="modal-btn cancel" onClick={() => setShowPaymentModal(false)} disabled={isSaving}>Cancel</button>
+                        <button className="modal-btn confirm" onClick={handlePayment} disabled={isSaving}>
+                            {isSaving ? 'Saving...' : '✓ Confirm'}
+                        </button>
                     </div>
                 </div>
             </div>

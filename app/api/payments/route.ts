@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         const result = await client.query(`
             INSERT INTO customer_payments (
                 id, customer_id, amount, payment_mode, payment_note, payment_date, created_by, created_at
-            ) VALUES ($1, $2, $3, $4, $5, NOW(), $6, NOW())
+            ) VALUES ($1, $2, $3, $4, $5, COALESCE($6, NOW()), $7, NOW())
             RETURNING *
         `, [
             data.id,
@@ -84,6 +84,7 @@ export async function POST(request: Request) {
             data.amount,
             data.payment_mode || 'Cash',
             data.payment_note || '',
+            data.payment_date ? new Date(data.payment_date) : null,
             userId
         ]);
 

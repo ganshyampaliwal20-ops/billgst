@@ -74,9 +74,9 @@ function NewInvoiceContent() {
     const [notes, setNotes] = useState('');
     const [docType, setDocType] = useState<string>(DOC_TYPES.TAX_INVOICE);
     const [paymentMode, setPaymentMode] = useState('Cash');
-    const [discountPct, setDiscountPct] = useState(0);
-    const [extraCharge, setExtraCharge] = useState(0);
-    const [shippingCharge, setShippingCharge] = useState(0);
+    const [discountPct, setDiscountPct] = useState<number | string>('');
+    const [extraCharge, setExtraCharge] = useState<number | string>('');
+    const [shippingCharge, setShippingCharge] = useState<number | string>('');
 
     // Dynamic Options State
     const [options, setOptions] = useState({
@@ -434,7 +434,7 @@ function NewInvoiceContent() {
         const isInclusive = settings.taxType === 'INCLUSIVE';
         const breakdown = calculateInvoiceTotal(selectedItems, isInterState, isInclusive);
         const subtotal = breakdown.subtotal;
-        const discountAmt = subtotal * (discountPct / 100);
+        const discountAmt = subtotal * (Number(discountPct) / 100);
         const grandTotal = breakdown.total_amount - discountAmt + Number(extraCharge) + Number(shippingCharge);
 
         return { subtotal, gst: breakdown.cgst_amount + breakdown.sgst_amount + breakdown.igst_amount, discountAmt, grandTotal, breakdown };
@@ -891,19 +891,23 @@ function NewInvoiceContent() {
                 cgst_amount: breakdown.cgst_amount,
                 sgst_amount: breakdown.sgst_amount,
                 igst_amount: breakdown.igst_amount,
-                total_amount: totals.grandTotal,
-                paid_amount: parseFloat(paidAmount) || 0,
-                status: parseFloat(paidAmount) >= totals.grandTotal ? 'PAID' : (parseFloat(paidAmount) > 0 ? 'PARTIAL' : 'UNPAID'),
+                subtotal: Number(totals.subtotal) || 0,
+                cgst_amount: Number(breakdown.cgst_amount) || 0,
+                sgst_amount: Number(breakdown.sgst_amount) || 0,
+                igst_amount: Number(breakdown.igst_amount) || 0,
+                total_amount: Number(totals.grandTotal) || 0,
+                paid_amount: Number(paidAmount) || 0,
+                status: Number(paidAmount) >= Number(totals.grandTotal) ? 'PAID' : (Number(paidAmount) > 0 ? 'PARTIAL' : 'UNPAID'),
                 notes,
                 type: docType,
                 payment_mode: paymentMode,
-                discount_pct: discountPct,
-                extra_charges: extraCharge,
-                shipping_charges: shippingCharge,
+                discount_pct: Number(discountPct) || 0,
+                extra_charges: Number(extraCharge) || 0,
+                shipping_charges: Number(shippingCharge) || 0,
                 eway_bill_no: ewayBill.no || null,
                 eway_bill_date: ewayBill.date || null,
                 transport_mode: ewayBill.mode || null,
-                distance: ewayBill.distance || null,
+                distance: ewayBill.distance ? Number(ewayBill.distance) : null,
                 transporter_name: ewayBill.transporterName || null,
                 transporter_id: ewayBill.transporterId || null,
                 vehicle_no: ewayBill.vehicleNo || null
@@ -997,7 +1001,7 @@ function NewInvoiceContent() {
                     --sh:0 4px 20px rgba(13,15,28,.08),0 1px 4px rgba(13,15,28,.04);
                     --sh-lg:0 12px 40px rgba(13,15,28,.13),0 2px 8px rgba(13,15,28,.06);
                 }
-                .new-invoice-page { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+                .new-invoice-page { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; overflow-x: hidden; width: 100%; }
                 .page-hdr { background: linear-gradient(135deg,#0b0f1e,#1c2340,#1e3a5f); padding: 30px 40px; border-bottom: 1px solid rgba(255,255,255,.05); margin-bottom: 2rem; color: white; margin-top: 10px; border-radius: 12px; }
                 @media (max-width: 768px) {
                     .page-hdr { padding: 20px 15px; margin-top: 0; border-radius: 0; }
@@ -1025,10 +1029,8 @@ function NewInvoiceContent() {
                 .c-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
                 .c-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
                 
-                .doc-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-                .dtab { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--faint); cursor: pointer; transition: 0.2s; }
-                .dtab.active { background: #eef2ff; border-color: var(--indigo); color: var(--indigo); font-weight: 700; }
-                .dt-label { font-size: 10px; text-transform: uppercase; text-align: center; color: var(--ink); }
+                .c-details { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+                .cd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
                 
                 .fg { margin-bottom: 20px; }
                 .fl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
@@ -1100,8 +1102,8 @@ function NewInvoiceContent() {
 
                 /* Mobile Responsiveness Fixes */
                 @media (max-width: 992px) {
-                  .form-outer { grid-template-columns: 1fr; padding: 0 10px 100px; gap: 10px; }
-                  .page-hdr { padding: 15px 10px; margin-bottom: 0.5rem; }
+                  .form-outer { grid-template-columns: 1fr; padding: 0 16px 100px; gap: 10px; }
+                  .page-hdr { padding: 15px 16px; margin-bottom: 0.5rem; }
                   .ph-title { font-size: 18px; }
                   .ph-sub { font-size: 10px; }
                   .stepper { overflow-x: auto; padding-bottom: 10px; margin-top: 10px; justify-content: flex-start; padding: 0 15px 10px; }
@@ -1250,7 +1252,7 @@ function NewInvoiceContent() {
                     {/* Document Type */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#ede9fe', color: '#6d28d9' }}><FaFileInvoice /></div> Document Type</div>
-                        <div className="doc-tabs" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+                        <div className="doc-tabs">
                             <div className={`dtab ${docType === DOC_TYPES.TAX_INVOICE ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.TAX_INVOICE)}><span className="dt-icon">🧾</span><span className="dt-label">Tax Invoice</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.BILL_OF_SUPPLY ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.BILL_OF_SUPPLY)}><span className="dt-icon">📋</span><span className="dt-label">Bill Supply</span></div>
                             <div className={`dtab ${docType === DOC_TYPES.DELIVERY_CHALLAN ? 'active' : ''}`} onClick={() => setDocType(DOC_TYPES.DELIVERY_CHALLAN)}><span className="dt-icon">🚚</span><span className="dt-label">Del. Challan</span></div>
@@ -1367,6 +1369,43 @@ function NewInvoiceContent() {
                           .field-input:focus { border-color:var(--indigo); background:#fff; box-shadow:0 0 0 3px rgba(79,70,229,.07); }
                           .field-select { background:var(--bg); border:1.5px solid var(--border2); border-radius:var(--rsm); padding:10px 12px; font-family:'Outfit',sans-serif; font-size:14px; font-weight:600; color:var(--ink); width:100%; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8adcc' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; transition:all .15s; }
                           .field-select:focus { border-color:var(--indigo); background:#fff; }
+                          .doc-tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+                          .dtab { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--faint); cursor: pointer; transition: 0.2s; }
+                          .dtab.active { background: #eef2ff; border-color: var(--indigo); color: var(--indigo); font-weight: 700; }
+                          .dt-icon { font-size: 24px; }
+                          .dt-label { font-size: 11px; font-weight: 600; color: var(--ink3); line-height: 1.2; text-transform: uppercase; letter-spacing: 0.3px; }
+                          .dtab.active .dt-label { color: var(--indigo); }
+                          
+                          .c-details { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+                          .cd-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                          
+                          .items-list { margin-top: 20px; display: flex; flex-direction: column; gap: 16px; }
+                          .item-card { background: #fff; border: 1.5px solid var(--border2); border-radius: var(--rlg); overflow: visible; position: relative; transition: all 0.2s; }
+                          .item-card:focus-within { border-color: var(--indigo); box-shadow: 0 4px 15px rgba(79,70,229,0.08); z-index: 10; }
+                          .ic-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg); border-bottom: 1.5px solid var(--border2); cursor: pointer; border-radius: var(--rlg) var(--rlg) 0 0; }
+                          .ic-title { display: flex; align-items: center; gap: 10px; }
+                          .ic-idx { width: 28px; height: 28px; border-radius: 8px; background: var(--indigo); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+                          .ic-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+                          
+                          .ic-body { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+                          .ic-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                          .fg { display: flex; flex-direction: column; gap: 6px; }
+                          .fl { font-size: 11px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.5px; }
+                          .fi { background: #f8fafc; border: 1.5px solid var(--border2); border-radius: var(--rsm); padding: 10px 12px; font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 600; color: var(--ink); width: 100%; outline: none; transition: all 0.2s; }
+                          .fi:focus { border-color: var(--indigo); background: #fff; }
+                          .fs { background: #f8fafc; border: 1.5px solid var(--border2); border-radius: var(--rsm); padding: 10px 12px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: var(--ink); width: 100%; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8adcc' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+                          
+                          @media (max-width: 600px) {
+                            .cd-row { grid-template-columns: 1fr; }
+                            .doc-tabs { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+                            .dtab { padding: 10px 4px; }
+                            .dt-icon { font-size: 20px; }
+                            .dt-label { font-size: 10px; }
+                          }
+                          
+                          @media (min-width: 601px) and (max-width: 900px) {
+                            .doc-tabs { grid-template-columns: repeat(3, 1fr); }
+                          }
                           .amount-strip { display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg,rgba(79,70,229,.06),rgba(79,70,229,.02)); border:1px solid rgba(79,70,229,.15); border-radius:var(--rsm); padding:10px 14px; margin-top:12px; cursor:pointer; }
                           .amount-label { font-size:11px; font-weight:700; color:var(--indigo); text-transform:uppercase; letter-spacing:.5px; }
                           .amount-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:600; color:var(--indigo); letter-spacing:-.5px; }
@@ -1694,7 +1733,7 @@ function NewInvoiceContent() {
                                                                     <div className="ac-meta">{p.unit || 'PCS'} · GST {p.gst_rate || 0}%</div>
                                                                 </div>
                                                                 <div className="ac-price">₹{p.price}</div>
-                                                                <button className="ac-add" aria-label="Add" onClick={(e) => {
+                                                                <button type="button" className="ac-add" aria-label="Add" onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     updateItem(idx, 'product_id', p.id);
                                                                     updateItem(idx, 'product_name', p.name);
@@ -1845,10 +1884,10 @@ function NewInvoiceContent() {
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> {t.discountShippingTitle || 'Discount & Shipping'}</div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div><label className="fl">{t.discountPercentage || 'Discount (%)'}</label><input type="number" className="fi text-slate-900" value={discountPct} onChange={e => setDiscountPct(Number(e.target.value))} /></div>
-                            <div><label className="fl">{t.extraFee || 'Extra Fee (₹)'}</label><input type="number" className="fi text-slate-900" value={extraCharge} onChange={e => setExtraCharge(Number(e.target.value))} /></div>
+                            <div><label className="fl">{t.discountPercentage || 'Discount (%)'}</label><input type="number" className="fi text-slate-900" value={discountPct} onChange={e => setDiscountPct(e.target.value)} /></div>
+                            <div><label className="fl">{t.extraFee || 'Extra Fee (₹)'}</label><input type="number" className="fi text-slate-900" value={extraCharge} onChange={e => setExtraCharge(e.target.value)} /></div>
                         </div>
-                        <div><label className="fl">{t.shippingCharge || 'Shipping (₹)'}</label><input type="number" className="fi text-slate-900" value={shippingCharge} onChange={e => setShippingCharge(Number(e.target.value))} /></div>
+                        <div><label className="fl">{t.shippingCharge || 'Shipping (₹)'}</label><input type="number" className="fi text-slate-900" value={shippingCharge} onChange={e => setShippingCharge(e.target.value)} /></div>
                     </div>
 
                     {/* Payment Info */}
@@ -2216,7 +2255,7 @@ function NewInvoiceContent() {
                                                 <span className={`gst-badge ${p.gst_rate === 0 ? 'zero' : ''}`}>GST {p.gst_rate || 0}%</span>
                                             </div>
                                         </div>
-                                        <button className="prod-add" aria-label="Add" onClick={(e) => { e.stopPropagation(); quickAddProduct(p.name, quickQty); setShowQuickAdd(false); }}>
+                                        <button type="button" className="prod-add" aria-label="Add" onClick={(e) => { e.stopPropagation(); quickAddProduct(p.name, quickQty); setShowQuickAdd(false); }}>
                                             <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14"/></svg>
                                         </button>
                                     </div>
@@ -2227,7 +2266,7 @@ function NewInvoiceContent() {
                         </div>
 
                         <div className="sheet-footer">
-                            <button className="btn-primary" onClick={() => { if(quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}>
+                            <button type="button" className="btn-primary" onClick={() => { if(quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}>
                                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3"><path d="M20 6 9 17l-5-5"/></svg>Add product
                             </button>
                         </div>

@@ -943,7 +943,18 @@ export default function InvoicesPage() {
                                     <div className="cust-left">
                                         <div className={`avatar ${avatarClass}`}>{firstChar}</div>
                                         <div>
-                                            <div className="cust-name">{group.customer?.name || 'Local Sale'}</div>
+                                            <div 
+                                                className="cust-name" 
+                                                style={{ cursor: 'pointer', color: '#4f46e5', textDecoration: 'underline' }}
+                                                onClick={(e) => {
+                                                    if (group.customer?.id) {
+                                                        e.stopPropagation();
+                                                        router.push(`/dashboard/customers/${group.customer.id}`);
+                                                    }
+                                                }}
+                                            >
+                                                {group.customer?.name || 'Local Sale'}
+                                            </div>
                                             <div className="cust-phone" style={{ color: !group.customer?.phone ? '#9ca3af' : '' }}>
                                                 {group.customer?.phone ? `📞 ${group.customer.phone}` : 'No phone'} &middot; {group.invoices.length} invoices
                                             </div>
