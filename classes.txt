@@ -1,0 +1,127 @@
+766:             <div className="report-wrapper">
+767:                 <div className="topbar">
+768:                     <div className="topbar-left">
+774:                     <div className="topbar-right">
+775:                         <select className="period-select" value={period} onChange={(e) => { setPeriod(e.target.value); toast(`${t.periodChanged || 'Period Changed'}: ${e.target.value}`); }}>
+782:                         <button className="export-btn btn-tally" onClick={handleTallyXML}>≡ƒôè {t.tallyXml || 'Tally XML'}</button>
+783:                         <button className="export-btn btn-excel" onClick={handleDownloadExcel}>≡ƒôù {t.excel || 'Excel'}</button>
+787:                 <div className="advisory">
+788:                     <div className="advisory-left">
+789:                         <span className="advisory-icon">≡ƒÆí</span>
+790:                         <div className="advisory-text">
+795:                     <div className="advisory-badge" onClick={() => toast(t.itcMaximizeToast || 'Claim ITC efficiently')}>{t.maximizeItc || 'Maximize ITC'}</div>
+798:                 <div className="page-content-box" style={{ paddingBottom: '80px' }}>
+800:                     <div className="kpi-grid">
+802:                         <div className="kpi-card indigo" onClick={() => router.push('/dashboard/invoices')} title="View all invoices">
+803:                             <div className="kpi-top">
+804:                                 <div className="kpi-icon indigo">≡ƒôê</div>
+805:                                 <div className="kpi-trend up">Γåæ 12.4%</div>
+807:                             <div className="kpi-value">{formatLakhs(totalSales)}</div>
+808:                             <div className="kpi-label">{t.totalRevenue || 'Total Revenue'}</div>
+812:                         <div className="kpi-card green" style={{ animationDelay: ".1s" }} onClick={handleDownloadExcel} title="Download profit report">
+813:                             <div className="kpi-top">
+814:                                 <div className="kpi-icon green">≡ƒÆ░</div>
+815:                                 <div className="kpi-trend up">Γåæ 8.1%</div>
+817:                             <div className="kpi-value">{formatLakhs(totalProfit)}</div>
+818:                             <div className="kpi-label">{t.netProfit || 'Net Profit'}</div>
+822:                         <div className="kpi-card teal" style={{ animationDelay: ".15s" }} onClick={() => router.push('/dashboard/invoices')} title="View all invoices">
+823:                             <div className="kpi-top">
+824:                                 <div className="kpi-icon teal">≡ƒº╛</div>
+825:                                 <div className="kpi-trend down">Γåô 3.2%</div>
+827:                             <div className="kpi-value">{invoiceCount}</div>
+828:                             <div className="kpi-label">{t.totalInvoices || 'Total Invoices'}</div>
+832:                         <div className="kpi-card amber" style={{ animationDelay: ".2s" }} onClick={() => toast(`Average Order Value: ${formatLakhs(avgOrderValue)} | Total Orders: ${invoiceCount}`, { duration: 4000 })} title="Average order info">
+833:                             <div className="kpi-top">
+834:                                 <div className="kpi-icon amber">≡ƒ¢Æ</div>
+835:                                 <div className="kpi-trend up">Γåæ 5.6%</div>
+837:                             <div className="kpi-value">{formatLakhs(avgOrderValue)}</div>
+838:                             <div className="kpi-label">{t.avgOrderValue || 'Avg Order Value'}</div>
+842:                         <div className="kpi-card red" style={{ animationDelay: ".25s" }} onClick={() => router.push('/dashboard/invoices?status=PENDING')} title="View pending payments">
+843:                             <div className="kpi-top">
+844:                                 <div className="kpi-icon red">ΓÜá∩╕Å</div>
+845:                                 <div className="kpi-trend down">Γåô 2.1%</div>
+847:                             <div className="kpi-value">{formatLakhs(paymentPending)}</div>
+848:                             <div className="kpi-label">{t.paymentPending || 'Payment Pending'}</div>
+852:                         <div className="kpi-card purple" style={{ animationDelay: ".3s" }} onClick={() => router.push('/dashboard/customers')} title="View all customers">
+853:                             <div className="kpi-top">
+854:                                 <div className="kpi-icon purple">≡ƒæÑ</div>
+855:                                 <div className="kpi-trend up">Γåæ 18%</div>
+857:                             <div className="kpi-value">{activeCustomers}</div>
+858:                             <div className="kpi-label">{t.activeCustomers || 'Active Customers'}</div>
+862:                         <div className="kpi-card teal" style={{ animationDelay: ".35s" }} onClick={handleDownloadExcel} title="Download sales report">
+863:                             <div className="kpi-top">
+864:                                 <div className="kpi-icon teal">≡ƒÆ╕</div>
+865:                                 <div className="kpi-trend up">Γåæ 4.3%</div>
+867:                             <div className="kpi-value">{formatLakhs(totalSales)}</div>
+868:                             <div className="kpi-label">{t.totalSales || 'Total Sales'}</div>
+872:                         <div className="kpi-card green" style={{ animationDelay: ".4s" }} onClick={() => router.push('/dashboard/inventory')} title="View inventory">
+873:                             <div className="kpi-top">
+874:                                 <div className="kpi-icon green">≡ƒôª</div>
+875:                                 <div className="kpi-trend up">Γåæ 9.7%</div>
+877:                             <div className="kpi-value">{itemsSold}</div>
+878:                             <div className="kpi-label">{t.itemsSold || 'Items Sold'}</div>
+882:                     <div className="charts-grid">
+883:                         <div className="chart-card" style={{ animationDelay: ".2s" }}>
+884:                             <div className="chart-header">
+886:                                     <div className="chart-title">{t.revenueTrend || 'Revenue Trend'}</div>
+887:                                     <div className="chart-sub">{t.weeklyBreakdown || 'Weekly breakdown'}</div>
+889:                                 <div className="chart-legend">
+890:                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#4f46e5" }} />Revenue</div>
+898:                         <div className="chart-card" style={{ animationDelay: ".25s" }}>
+899:                             <div className="chart-header">
+901:                                     <div className="chart-title">Profit vs Sales</div>
+902:                                     <div className="chart-sub">Weekly comparison</div>
+904:                                 <div className="chart-legend">
+905:                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#4f46e5" }} />Sales</div>
+906:                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#10b981" }} />Profit</div>
+914:                         <div className="chart-card wide" style={{ animationDelay: ".3s" }}>
+915:                             <div className="chart-header">
+917:                                     <div className="chart-title">Monthly Sales Overview</div>
+918:                                     <div className="chart-sub">January ΓÇô December {new Date().getFullYear()}</div>
+920:                                 <div className="chart-legend">
+921:                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#0ea5e9" }} />Sales</div>
+922:                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#f59e0b" }} />Expenses</div>
+923:                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#10b981" }} />Profit</div>
+932:                     <div className="download-section" style={{ animation: "fadeUp .5s .35s ease both" }}>
+933:                         <div className="section-title">{t.downloadReports || 'Download Reports'}</div>
+934:                         <div className="download-grid">
+935:                             <div className="dl-btn tally" onClick={handleTallyXML}>
+936:                                 <span className="dl-icon">≡ƒôè</span>
+937:                                 <span className="dl-name">{t.tallyXml || 'Tally XML'}</span>
+938:                                 <span className="dl-desc">{t.forTallySoftware || 'For Tally ERP / Prime'}</span>
+940:                             <div className="dl-btn excel" onClick={handleDownloadExcel}>
+941:                                 <span className="dl-icon">≡ƒôù</span>
+942:                                 <span className="dl-name">{t.excel || 'Excel'}</span>
+943:                                 <span className="dl-desc">{t.spreadsheetFormat || 'Spreadsheet format'}</span>
+945:                             <div className="dl-btn pdf" onClick={handlePDF}>
+946:                                 <span className="dl-icon">≡ƒôä</span>
+947:                                 <span className="dl-name">{t.pdfReport || 'PDF Report'}</span>
+948:                                 <span className="dl-desc">{t.printReadyFormat || 'Print ready format'}</span>
+950:                             <div className="dl-btn csv" onClick={handleCSV}>
+951:                                 <span className="dl-icon">≡ƒùé∩╕Å</span>
+952:                                 <span className="dl-name">CSV Export</span>
+953:                                 <span className="dl-desc">Raw data format</span>
+958:                     <div className="bottom-grid">
+959:                         <div className="table-section" style={{ animation: "fadeUp .5s .4s ease both" }}>
+960:                             <div className="chart-header">
+962:                                     <div className="chart-title">Top Customers</div>
+963:                                     <div className="chart-sub">By transaction value</div>
+974:                                     <div className="table-row" key={i} onClick={() => c.id ? router.push('/dashboard/customers/' + c.id) : null} style={{ cursor: c.id ? 'pointer' : 'default' }}>
+975:                                         <div className="row-num">{i + 1}</div>
+976:                                         <div className="row-avatar" style={{ background: colors[i % colors.length] }}>{(c.name || 'U').charAt(0).toUpperCase()}</div>
+977:                                         <div className="row-info">
+978:                                             <div className="row-name">{c.name}</div>
+979:                                             <div className="row-txn">≡ƒô₧ {c.phone}</div>
+981:                                         <div className="row-amt">{formatLakhs(c.total)}</div>
+987:                         <div className="gst-card" style={{ animation: "fadeUp .5s .45s ease both" }}>
+988:                             <div className="chart-header">
+990:                                     <div className="chart-title">GST Summary</div>
+991:                                     <div className="chart-sub">Current month</div>
+995:                             <div className="gst-row"><span className="gst-key">Taxable Amount</span><span className="gst-val">{formatLakhs(totalTaxable)}</span></div>
+996:                             <div className="gst-row"><span className="gst-key">CGST (9%)</span><span className="gst-val">{formatLakhs(totalCGST)}</span></div>
+997:                             <div className="gst-row"><span className="gst-key">SGST (9%)</span><span className="gst-val">{formatLakhs(totalSGST)}</span></div>
+998:                             <div className="gst-row"><span className="gst-key">IGST</span><span className="gst-val">{formatLakhs(totalIGST)}</span></div>
+999:                             <div className="gst-row"><span className="gst-key" style={{ color: "var(--ink)" }}>Total Tax</span><span className="gst-val" style={{ color: "var(--indigo)" }}>{formatLakhs(totalTax)}</span></div>
+1001:                             <div className="gst-compliance">
+1002:                                 <div className="compliance-top">
+1006:                                 <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${hsnCompliance}%` }} /></div>

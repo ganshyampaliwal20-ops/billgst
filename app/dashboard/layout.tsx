@@ -223,11 +223,16 @@ export default function DashboardLayout({
         menuItems.push({ icon: FaShieldAlt, label: t.adminPanel || 'Admin Panel', href: '/dashboard/admin' });
     }
 
-    const handleLogout = () => {
-        document.cookie = 'billgst_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'billgst_workspace_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        resetStore();
-        signOut({ callbackUrl: '/login' });
+    const handleLogout = async () => {
+        try {
+            document.cookie = 'billgst_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            document.cookie = 'billgst_workspace_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            await resetStore();
+        } catch (e) {
+            console.error('Logout cleanup failed:', e);
+        } finally {
+            signOut({ callbackUrl: '/' });
+        }
     };
 
     return (
@@ -409,7 +414,7 @@ export default function DashboardLayout({
                             onClick={handleLogout}
                             className="flex items-center justify-center gap-2 w-full p-2.5 rounded-[9px] bg-[#FCEBEB] border-[0.5px] border-[#F7C1C1] text-[#791F1F] text-[14px] font-medium transition-colors hover:bg-[#F7C1C1]"
                         >
-                            <FaSignOutAlt /> Logout Safe
+                            <FaSignOutAlt /> Logout
                         </button>
                         <p className="text-xs text-slate-500 text-center mt-2 leading-relaxed">
                             BillGST ek private app hai, government entity nahi.<br />
