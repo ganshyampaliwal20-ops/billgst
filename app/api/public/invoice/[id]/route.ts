@@ -23,6 +23,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                          )
                      ELSE json_build_object('name', 'Cash Sale', 'phone', null)
                      END as customer,
+                     (
+                         SELECT COALESCE(c.opening_balance, 0) + COALESCE(SUM(GREATEST(other_i.total_amount - other_i.paid_amount, 0)), 0)
+                         FROM invoices other_i
+                         WHERE other_i.customer_id = i.customer_id 
+                         AND other_i.id != i.id
+                         AND other_i.type NOT IN ('QUOTATION', 'DELIVERY_CHALLAN', 'PROFORMA_INVOICE', 'E_WAY_BILL')
+                     ) as previous_balance,
                      (SELECT json_agg(items) FROM invoice_items items WHERE items.invoice_id = i.id) as items,
                      json_build_object(
                          'business_name', b.business_name,
@@ -60,3 +67,4 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }
+

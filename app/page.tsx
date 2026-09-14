@@ -22,6 +22,11 @@ export default function LandingPage() {
     const [signupData, setSignupData] = useState({ name: '', shopName: '', email: '', password: '', refCode: '' });
     const [showShopName, setShowShopName] = useState(false);
 
+    // OTP States
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpValue, setOtpValue] = useState('');
+    const [otpCooldown, setOtpCooldown] = useState(0);
+
     useEffect(() => {
         if (status === 'authenticated') {
             router.replace('/dashboard');
@@ -64,6 +69,50 @@ export default function LandingPage() {
         return () => observer?.disconnect();
     }, [status, router]);
 
+    // OTP cooldown timer
+    useEffect(() => {
+        if (otpCooldown <= 0) return;
+        const timer = setTimeout(() => setOtpCooldown(otpCooldown - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [otpCooldown]);
+
+    // Send OTP function
+    const sendOtp = async () => {
+        if (!signupData.name) {
+            toast.error(isEnglish ? 'Please enter your name' : 'कृपया अपना नाम दर्ज करें');
+            return;
+        }
+        if (!signupData.email || !signupData.email.includes('@')) {
+            toast.error(isEnglish ? 'Please enter a valid email address' : 'कृपया सही ईमेल दर्ज करें');
+            return;
+        }
+        if (!signupData.password || signupData.password.length < 6) {
+            toast.error(isEnglish ? 'Password must be at least 6 characters' : 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: signupData.email })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setOtpSent(true);
+                setOtpCooldown(60);
+                toast.success(isEnglish ? 'OTP sent to your email!' : 'OTP आपके ईमेल पर भेजा गया!');
+            } else {
+                toast.error(data.error || (isEnglish ? 'Failed to send OTP' : 'OTP भेजने में विफल'));
+            }
+        } catch (error) {
+            toast.error(isEnglish ? 'Something went wrong' : 'कुछ गलत हो गया');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const doLogin = async () => {
         if (!loginData.email || !loginData.email.includes('@')) {
             toast.error(isEnglish ? 'Please enter a valid email address' : 'कृपया सही ईमेल दर्ज करें');
@@ -103,6 +152,10 @@ export default function LandingPage() {
             toast.error(isEnglish ? 'Password must be at least 6 characters' : 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए');
             return;
         }
+        if (!otpValue || otpValue.length !== 6) {
+            toast.error(isEnglish ? 'Please enter the 6-digit OTP' : 'कृपया 6 अंकों का OTP दर्ज करें');
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -113,12 +166,15 @@ export default function LandingPage() {
                     name: signupData.name || signupData.shopName || 'User',
                     email: signupData.email,
                     password: signupData.password,
-                    refCode: signupData.refCode
+                    refCode: signupData.refCode,
+                    otp: otpValue
                 })
             });
             const data = await res.json();
             if (res.ok) {
                 toast.success(isEnglish ? 'Account created! Logging in...' : 'अकाउंट बन गया! लॉगिन कर रहे हैं...');
+                setOtpSent(false);
+                setOtpValue('');
                 await signIn('credentials', {
                     redirect: false,
                     email: signupData.email,
@@ -316,14 +372,39 @@ export default function LandingPage() {
                                 <div className="pwd-bar" style={{ background: pStrength >= 4 ? pColors[pStrength-1] : 'var(--b2)' }}></div>
                             </div>
                         </div>
-                        <button className="btn-full" onClick={doSignup} disabled={isLoading}>
-                            {isLoading ? (isEnglish ? 'Creating...' : 'बन रहा है...') : (
-                                <>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" /></svg>
-                                    {isEnglish ? 'Register Free Account' : 'मुफ्त रजिस्टर करें'}
-                                </>
-                            )}
-                        </button>
+                        {!otpSent ? (
+                            <button className="btn-full" onClick={sendOtp} disabled={isLoading}>
+                                {isLoading ? (isEnglish ? 'Sending OTP...' : 'OTP भेज रहे हैं...') : (
+                                    <>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                        {isEnglish ? 'Send OTP' : 'OTP भेजें'}
+                                    </>
+                                )}
+                            </button>
+                        ) : (
+                            <div className="otp-section" style={{ background: 'var(--b2)', padding: '16px', borderRadius: '12px', marginTop: '16px', border: '1px solid var(--b3)' }}>
+                                <label style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                    <span style={{ color: 'var(--gr)', fontWeight: 600 }}>{isEnglish ? 'Enter OTP sent to email' : 'ईमेल पर भेजा गया OTP डालें'}</span>
+                                    {otpCooldown > 0 ? (
+                                        <span style={{ fontSize: '12px', color: '#A0ABC0' }}>{isEnglish ? `Resend in ${otpCooldown}s` : `${otpCooldown}s में दोबारा भेजें`}</span>
+                                    ) : (
+                                        <span onClick={sendOtp} style={{ fontSize: '12px', color: 'var(--bl)', cursor: 'pointer', fontWeight: 600 }}>{isEnglish ? 'Resend OTP' : 'फिर से भेजें'}</span>
+                                    )}
+                                </label>
+                                <div className="fi" style={{ marginBottom: '16px' }}>
+                                    <span className="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#484F66" strokeWidth="1.8" /><path d="M7 11V7a5 5 0 0110 0v4" stroke="#484F66" strokeWidth="1.8" /></svg></span>
+                                    <input type="text" placeholder="123456" maxLength={6} value={otpValue} onChange={e => setOtpValue(e.target.value.replace(/\D/g, ''))} style={{ letterSpacing: '4px', fontSize: '16px', fontWeight: 'bold' }} />
+                                </div>
+                                <button className="btn-full" onClick={doSignup} disabled={isLoading || otpValue.length !== 6}>
+                                    {isLoading ? (isEnglish ? 'Creating...' : 'बन रहा है...') : (
+                                        <>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" /></svg>
+                                            {isEnglish ? 'Verify & Register' : 'वेरिफाई और रजिस्टर करें'}
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
 
                         <p className="form-note">{isEnglish ? 'By signing up you agree to our' : 'साइन अप करके आप हमारी'} <a href="#">{isEnglish ? 'Terms' : 'शर्तों'}</a> &amp; <a href="#">{isEnglish ? 'Privacy Policy' : 'प्राइवेसी पॉलिसी'}</a> {isEnglish ? '' : 'से सहमत होते हैं'}</p>
                     </div>

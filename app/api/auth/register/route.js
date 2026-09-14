@@ -4,7 +4,7 @@ import pool from '@/lib/db';
 
 export async function POST(request) {
     try {
-        const { name, email, password, refCode } = await request.json();
+        const { name, email, password, refCode, otp } = await request.json();
         console.log('Reg Debug: Registering', email, 'Ref:', refCode);
 
         // Validate input
@@ -22,6 +22,31 @@ export async function POST(request) {
                 { status: 400 }
             );
         }
+
+        // Verify OTP
+        if (!otp) {
+            return NextResponse.json(
+                { error: 'OTP is required' },
+                { status: 400 }
+            );
+        }
+
+        const otpRes = await pool.query(
+            'SELECT * FROM otp_verifications WHERE LOWER(email) = LOWER($1) AND otp = $2 AND verified = false AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+            [email, otp]
+        );
+
+        if (otpRes.rows.length === 0) {
+            return NextResponse.json(
+                { error: 'Invalid or expired OTP' },
+                { status: 400 }
+            );
+        }
+
+        await pool.query(
+            'UPDATE otp_verifications SET verified = true WHERE id = $1',
+            [otpRes.rows[0].id]
+        );
 
         // Check if user already exists
         const existingUser = await pool.query(
