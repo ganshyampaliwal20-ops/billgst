@@ -1325,7 +1325,7 @@ function NewInvoiceContent() {
 
             <form onSubmit={handleSubmit} onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') e.preventDefault(); }} className="form-outer">
                 {/* Left Column */}
-                <div className="left-col">
+                <div className="left-col pb-28">
                     {/* Document Type */}
                     <div className="card">
                         <div className="c-title"><div className="c-icon" style={{ background: '#ede9fe', color: '#6d28d9' }}><FaFileInvoice /></div> Document Type</div>
@@ -1959,7 +1959,7 @@ function NewInvoiceContent() {
                     </div>
 
                     {/* Extra Charges */}
-                    <div className="card">
+                    <div className="card mb-6">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fff7ed', color: '#c2410c' }}><FaTruck /></div> {t.discountShippingTitle || 'Discount & Shipping'}</div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div><label className="fl">{t.discountPercentage || 'Discount (%)'}</label><input type="number" className="fi text-slate-900" value={discountPct} onChange={e => setDiscountPct(e.target.value)} /></div>
@@ -1969,7 +1969,7 @@ function NewInvoiceContent() {
                     </div>
 
                     {/* Payment Info */}
-                    <div className="card">
+                    <div className="card mb-6">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fef9c3', color: '#854d0e' }}><FaReceipt /></div> {t.paymentDetails || 'Payment Details'}</div>
                         <div className="pay-grid mb-6">
                             {['Cash', 'UPI', 'Bank', 'Credit'].map(m => (
@@ -1986,12 +1986,12 @@ function NewInvoiceContent() {
                     </div>
 
                     {/* Notes & Terms */}
-                    <div className="card">
+                    <div className="card mb-6">
                         <div className="c-title"><div className="c-icon" style={{ background: '#f1f5f9', color: '#64748b' }}><FaReceipt /></div> {t.termsNotes}</div>
                         <textarea className="fi min-h-[100px] bg-slate-50 border-dashed text-slate-900" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Terms & conditions or personal message..."></textarea>
                     </div>
                     {/* E-Way Bill Section */}
-                    <div className="card border border-indigo-100 shadow-md">
+                    <div className="card border border-indigo-100 shadow-md mb-6">
                         <div className="c-title flex justify-between items-center cursor-pointer mb-0 pb-0 border-b-0" onClick={() => setShowEwayBill(!showEwayBill)}>
                             <div className="flex items-center"><div className="c-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FaTruck /></div> E-Way Bill Details</div>
                             <div>
@@ -2070,9 +2070,9 @@ function NewInvoiceContent() {
                 </div>
 
                 {/* Right Column */}
-                <div className="right-col">
+                <div className="right-col pb-24">
                     {/* PDF Size Preview */}
-                    <div className="card">
+                    <div className="card mb-6">
                         <div 
                             className="flex justify-between items-center cursor-pointer pb-1" 
                             onClick={() => {
@@ -2243,7 +2243,7 @@ function NewInvoiceContent() {
 
 
                     {/* Advanced Options */}
-                    <div className="card">
+                    <div className="card mb-6">
                         <div className="c-title"><div className="c-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>⚙️</div> Options</div>
 
                         <div className="opt-row">
