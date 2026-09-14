@@ -831,25 +831,26 @@ export default function InventoryPage() {
                             <div className="hero-title" style={{ marginBottom: '4px' }}>⚡ {t.smartInventory}</div>
                             <div className="hero-sub" style={{ marginBottom: 0 }}>{t.manageProductsStock}</div>
                         </div>
-                        <Link 
+                        <Link
                             href="/dashboard/inventory/smart-add"
                             style={{
-                                background: 'linear-gradient(135deg, #4f46e5, #8b5cf6)',
+                                background: '#10b981',
+                                border: '1px solid #059669',
+                                borderRadius: '8px',
+                                padding: '8px 14px',
                                 color: '#fff',
+                                fontSize: '13px',
+                                fontWeight: '700',
                                 textDecoration: 'none',
-                                borderRadius: '10px',
-                                padding: '8px 12px',
-                                fontSize: '11px',
-                                fontWeight: '800',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
-                                cursor: 'pointer',
-                                boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
                                 whiteSpace: 'nowrap'
                             }}
                         >
-                            ✨ AI Scanner
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                            Auto-add via Bill
                         </Link>
                     </div>
 
@@ -1036,24 +1037,31 @@ export default function InventoryPage() {
                 <Link 
                     href="/dashboard/inventory/smart-add"
                     style={{
-                        width: '100%',
-                        padding: '14px',
-                        background: 'linear-gradient(135deg, #4f46e5, #8b5cf6)',
-                        color: '#fff',
-                        textDecoration: 'none',
-                        borderRadius: '12px',
-                        fontWeight: '800',
-                        fontSize: '14px',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)',
-                        cursor: 'pointer'
+                        justifyContent: 'space-between',
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                        color: '#fff',
+                        textDecoration: 'none',
+                        borderRadius: '16px',
+                        boxShadow: '0 8px 25px -5px rgba(99, 102, 241, 0.4)',
+                        cursor: 'pointer',
+                        border: '1px solid rgba(255,255,255,0.1)'
                     }}
                 >
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
-                    ✨ Smart Add via AI Scanner
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.2)', padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontWeight: 800, fontSize: '15px', letterSpacing: '0.2px', textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>✨ AI Bill Scanner</span>
+                            <span style={{ fontSize: '11px', opacity: 0.9, lineHeight: 1.3, maxWidth: '180px' }}>Upload purchase bill to auto-add items in stock instantly</span>
+                        </div>
+                    </div>
+                    <div style={{ background: '#fff', color: '#4f46e5', padding: '8px 14px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                        Try Now
+                    </div>
                 </Link>
             </div>
 

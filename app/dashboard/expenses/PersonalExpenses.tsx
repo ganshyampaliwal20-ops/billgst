@@ -26,7 +26,9 @@ export default function KharchaTrackerPage() {
           const serverCount = (serverData.expenses?.length || 0) + (serverData.incomes?.length || 0);
 
           let preferServer = false;
-          if (serverCount > 0 && localCount === 0) {
+          if (!saved || Object.keys(localData).length === 0) {
+            preferServer = true;
+          } else if (serverCount > 0 && localCount === 0) {
             preferServer = true;
           } else if (serverTime > localTime) {
             preferServer = true;

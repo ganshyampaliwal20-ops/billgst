@@ -603,6 +603,39 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
         </div>
       </Card>
 
+      {/* Spending trend chart */}
+      <Card title={t('chartTitle')} subtitle="Aapka kharcha aur bachat (Savings) candle chart mein">
+        {/* Filter Toggle */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "rgba(255,255,255,0.05)", padding: 4, borderRadius: 12 }}>
+          {['daily', 'weekly', 'monthly', 'yearly'].map((f) => (
+            <button
+              key={f}
+              onClick={() => setChartFilter(f as any)}
+              style={{
+                flex: 1,
+                padding: "8px 0",
+                background: chartFilter === f ? "linear-gradient(135deg, #6d3ff2, #9b4dff)" : "transparent",
+                color: chartFilter === f ? "#fff" : T.textDim,
+                border: "none",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: chartFilter === f ? 600 : 400,
+                cursor: "pointer",
+                textTransform: "capitalize",
+                transition: "all 0.2s"
+              }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+        <CandleChart data={candleChartData} />
+        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 16, fontSize: 13, color: T.textDim }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#fb7185" }} /> Kharcha (Expense)</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#34d399" }} /> Bachat (Savings)</span>
+        </div>
+      </Card>
+
       {/* Donut breakdown */}
       {sortedCategories.length > 0 && (
         <Card title="Where is the money going">
@@ -724,39 +757,6 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
               : `⚠️ Is mahine aapne pichle mahine se ${formatINR(Math.abs(diffFromLastMonth))} zyada kharcha kiya.`}
           </div>
         )}
-      </Card>
-
-      {/* Spending trend chart */}
-      <Card title={t('chartTitle')} subtitle="Aapka kharcha aur bachat (Savings) candle chart mein">
-        {/* Filter Toggle */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "rgba(255,255,255,0.05)", padding: 4, borderRadius: 12 }}>
-          {['daily', 'weekly', 'monthly', 'yearly'].map((f) => (
-            <button
-              key={f}
-              onClick={() => setChartFilter(f as any)}
-              style={{
-                flex: 1,
-                padding: "8px 0",
-                background: chartFilter === f ? "linear-gradient(135deg, #6d3ff2, #9b4dff)" : "transparent",
-                color: chartFilter === f ? "#fff" : T.textDim,
-                border: "none",
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: chartFilter === f ? 600 : 400,
-                cursor: "pointer",
-                textTransform: "capitalize",
-                transition: "all 0.2s"
-              }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-        <CandleChart data={candleChartData} />
-        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 16, fontSize: 13, color: T.textDim }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#fb7185" }} /> Kharcha (Expense)</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: "#34d399" }} /> Bachat (Savings)</span>
-        </div>
       </Card>
 
       {/* WhatsApp share */}

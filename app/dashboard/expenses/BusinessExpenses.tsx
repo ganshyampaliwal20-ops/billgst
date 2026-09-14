@@ -1817,6 +1817,11 @@ export default function BusinessExpensesPage() {
     return (
         <div className="hisaab-root">
             <style>{`
+                @keyframes heroScan {
+                    0% { transform: translateY(0); }
+                    50% { transform: translateY(140px); }
+                    100% { transform: translateY(0); }
+                }
                 .lightbox {
                     position: fixed;
                     top: 0; left: 0; right: 0; bottom: 0;
@@ -2339,7 +2344,7 @@ export default function BusinessExpensesPage() {
                     )}
 
                     {isExpenseScanning && (
-                        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                             <div style={{ position: 'relative', width: '112px', height: '144px', background: '#1e293b', borderRadius: '12px', marginBottom: '32px', overflow: 'hidden', border: '1px solid #334155' }}>
                                 <div style={{ position: 'absolute', inset: 0, height: '4px', background: '#34d399', boxShadow: '0 0 15px 3px rgba(52,211,153,0.5)', zIndex: 10, animation: 'heroScan 2.5s linear infinite' }} />
                                 <div style={{ position: 'absolute', inset: '24px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>

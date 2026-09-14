@@ -292,7 +292,7 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Menu Items Container */}
-                    <nav className="flex-1 overflow-y-auto custom-scrollbar px-3 pt-2 pb-6 flex flex-col gap-[8px]">
+                    <nav className="flex-1 overflow-y-auto custom-scrollbar pt-2 pb-6 flex flex-col gap-[8px]" style={{ paddingLeft: '24px', paddingRight: '16px' }}>
                         {/* Removed 'Menu' text */}
                         
                         {menuItems.filter(item => !item.isAuth).map((item) => {

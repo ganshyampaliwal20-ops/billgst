@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
 import { useStore } from '@/lib/store';
 import { getTranslations } from '../../../lib/translations';
 import { downloadAndShareFile } from '@/lib/utils';
@@ -30,7 +30,6 @@ function ReportsContent() {
 
     const revenueChartRef = useRef<HTMLCanvasElement>(null);
     const profitChartRef = useRef<HTMLCanvasElement>(null);
-    const monthlyChartRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         setIsClient(true);
@@ -39,8 +38,8 @@ function ReportsContent() {
         if (fetchProducts) fetchProducts();
     }, [fetchInvoices, fetchExpenses, fetchProducts]);
 
-    useEffect(() => {
-        if (!isClient) return;
+    const chartData = useMemo(() => {
+        if (!isClient) return null;
 
         const today = new Date();
         const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -100,10 +99,27 @@ function ReportsContent() {
         const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         const currentMonthIndex = today.getMonth();
-        const displayMonthLabels = monthLabels.slice(0, currentMonthIndex + 1);
-        const displayMonthlySales = monthlySales.slice(0, currentMonthIndex + 1);
-        const displayMonthlyExpenses = monthlyExpenses.slice(0, currentMonthIndex + 1);
-        const displayMonthlyProfit = monthlyProfit.slice(0, currentMonthIndex + 1);
+        
+        const candleData = [];
+        for (let i = 0; i <= currentMonthIndex; i++) {
+            candleData.push({
+                label: monthLabels[i],
+                income: monthlySales[i],
+                spent: monthlyExpenses[i],
+                profit: monthlyProfit[i]
+            });
+        }
+
+        return {
+            weeklySales,
+            weeklyProfit,
+            candleData
+        };
+    }, [isClient, invoices, expenses, products]);
+
+    useEffect(() => {
+        if (!chartData) return;
+        const { weeklySales, weeklyProfit } = chartData;
 
         const formatTooltip = (val: number) => {
             if (val >= 100000) return '₹' + (val / 100000).toFixed(2) + ' L';
@@ -119,7 +135,6 @@ function ReportsContent() {
 
         let revenueChart: any;
         let profitChart: any;
-        let monthlyChart: any;
 
         const initCharts = async () => {
             const { default: Chart } = await import('chart.js/auto');
@@ -171,34 +186,13 @@ function ReportsContent() {
             });
         }
 
-        if (monthlyChartRef.current) {
-            monthlyChart = new Chart(monthlyChartRef.current, {
-                type: 'bar',
-                data: {
-                    labels: displayMonthLabels,
-                    datasets: [
-                        { label: 'Sales', data: displayMonthlySales, backgroundColor: 'rgba(14,165,233,0.8)', borderRadius: 8, borderSkipped: false },
-                        { label: 'Expenses', data: displayMonthlyExpenses, backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 8, borderSkipped: false },
-                        { label: 'Profit', data: displayMonthlyProfit, backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 8, borderSkipped: false }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatTooltip(ctx.raw as number) } } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 12 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
-                    }
-                }
-            });
-        }
+
         };
         initCharts();
 
         return () => {
             if (revenueChart) revenueChart.destroy();
             if (profitChart) profitChart.destroy();
-            if (monthlyChart) monthlyChart.destroy();
         }
     }, [isClient, invoices, expenses]);
 
@@ -682,6 +676,7 @@ function ReportsContent() {
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
   animation: fadeUp 0.5s ease both;
+  overflow: hidden;
 }
 .chart-card.wide { grid-column: span 2; }
 @media(max-width:768px){ .chart-card.wide{grid-column:span 1} }
@@ -954,9 +949,7 @@ function ReportsContent() {
                                     <div className="legend-item"><div className="legend-dot" style={{ background: "#10b981" }} />Profit</div>
                                 </div>
                             </div>
-                            <div style={{ position: 'relative', height: '180px', width: '100%' }}>
-                                <canvas ref={monthlyChartRef} />
-                            </div>
+                            {chartData && <MonthlyCandleChart data={chartData.candleData} />}
                         </div>
                     </div>
 
@@ -1052,3 +1045,85 @@ export default function ReportsPage() {
         </Suspense>
     );
 }
+
+function MonthlyCandleChart({ data }: { data: any[] }) {
+    const [activeChartPop, setActiveChartPop] = useState<number | null>(null);
+    if (!data || data.length === 0) return <div style={{ color: "#8890B5", fontSize: 13, textAlign: "center", padding: 20 }}>No data available</div>;
+  
+    const width = Math.max(340, data.length * 45);
+    const height = 220;
+    const padding = { top: 20, right: 10, bottom: 25, left: 40 };
+    const chartW = width - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
+    
+    const maxVal = Math.max(...data.flatMap((d: any) => [d.spent, Math.max(d.profit, 0)]), 100);
+    const groupW = chartW / Math.max(data.length, 1);
+    const barW = Math.min(groupW * 0.35, 18);
+    const wickW = Math.max(Math.min(barW * 0.15, 3), 1);
+    const yTicks = 4;
+  
+    return (
+      <div style={{ width: "100%", position: "relative", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+        <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", minWidth: width, background: '#fff', borderRadius: 12 }}>
+          <defs>
+            <linearGradient id="profitGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+            <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fb7185" />
+              <stop offset="100%" stopColor="#be123c" />
+            </linearGradient>
+          </defs>
+  
+          {Array.from({ length: yTicks + 1 }, (_, i) => {
+            const y = padding.top + (chartH / yTicks) * i;
+            const val = Math.max(0, Math.round(maxVal - (maxVal / yTicks) * i));
+            return (
+              <g key={`grid-${i}`}>
+                <line x1={padding.left} x2={width - padding.right} y1={y} y2={y} stroke="#f0f2f8" strokeDasharray="4 4" />
+                <text x={padding.left - 8} y={y + 3} textAnchor="end" fontSize="9" fill="#7c88a6">
+                  {val >= 1000 ? `${(val / 1000).toFixed(1).replace(".0","")}k` : val}
+                </text>
+              </g>
+            );
+          })}
+          
+          {data.map((d: any, i: number) => {
+            const groupX = padding.left + i * groupW;
+            const centerX = groupX + groupW / 2;
+            
+            const spent = d.spent;
+            const saved = Math.max(d.profit, 0);
+            
+            const spentH = (spent / maxVal) * chartH;
+            const savedH = (saved / maxVal) * chartH;
+            
+            return (
+              <g key={`candle-${i}`} onClick={() => setActiveChartPop(activeChartPop === i ? null : i)} style={{ cursor: "pointer" }}>
+                <rect x={centerX - 3 - barW/2 - wickW/2} y={padding.top + chartH - savedH} width={wickW} height={Math.max(savedH, 0)} fill="#10b981" opacity={0.5} />
+                <rect x={centerX - 3 - barW} y={padding.top + chartH - savedH * 0.75} width={barW} height={Math.max(savedH * 0.75, 0)} rx="3" fill="url(#profitGrad)" />
+                
+                <rect x={centerX + 3 + barW/2 - wickW/2} y={padding.top + chartH - spentH} width={wickW} height={Math.max(spentH, 0)} fill="#e11d48" opacity={0.5} />
+                <rect x={centerX + 3} y={padding.top + chartH - spentH * 0.75} width={barW} height={Math.max(spentH * 0.75, 0)} rx="3" fill="url(#expGrad)" />
+                
+                <text x={centerX} y={height - 5} textAnchor="middle" fontSize="10" fill="#7c88a6">
+                  {d.label}
+                </text>
+                
+                {activeChartPop === i && (
+                  <g>
+                    <rect x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100))} y={padding.top - 15} width={100} height={44} rx={6} fill="#1e293b" />
+                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top} textAnchor="middle" fontSize="10" fill="#fff" fontWeight="bold">{d.label}</text>
+                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top + 14} textAnchor="middle" fontSize="9" fill="#10b981">Profit: ?{saved.toFixed(0)}</text>
+                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top + 26} textAnchor="middle" fontSize="9" fill="#fb7185">Exp: ?{spent.toFixed(0)}</text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    );
+}
+
