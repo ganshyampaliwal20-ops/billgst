@@ -56,7 +56,7 @@ function ReportsContent() {
             if (!inv.invoice_date || inv.status === 'CANCELLED') return;
             const d = new Date(inv.invoice_date);
             const diffWeeks = Math.floor((today.getTime() - d.getTime()) / MS_PER_WEEK);
-            
+
             let invCost = 0;
             if (inv.items && Array.isArray(inv.items)) {
                 inv.items.forEach((item: any) => {
@@ -99,7 +99,7 @@ function ReportsContent() {
         const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         const currentMonthIndex = today.getMonth();
-        
+
         const candleData = [];
         for (let i = 0; i <= currentMonthIndex; i++) {
             candleData.push({
@@ -138,53 +138,53 @@ function ReportsContent() {
 
         const initCharts = async () => {
             const { default: Chart } = await import('chart.js/auto');
-        if (revenueChartRef.current) {
-            revenueChart = new Chart(revenueChartRef.current, {
-                type: 'line',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                    datasets: [{
-                        label: 'Revenue',
-                        data: weeklySales,
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79,70,229,0.08)',
-                        borderWidth: 2.5,
-                        pointBackgroundColor: '#4f46e5',
-                        pointRadius: 4, pointHoverRadius: 6,
-                        fill: true, tension: 0.45
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatTooltip(ctx.raw as number) } } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
+            if (revenueChartRef.current) {
+                revenueChart = new Chart(revenueChartRef.current, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: weeklySales,
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79,70,229,0.08)',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#4f46e5',
+                            pointRadius: 4, pointHoverRadius: 6,
+                            fill: true, tension: 0.45
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatTooltip(ctx.raw as number) } } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
+                            y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        if (profitChartRef.current) {
-            profitChart = new Chart(profitChartRef.current, {
-                type: 'bar',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                    datasets: [
-                        { label: 'Sales', data: weeklySales, backgroundColor: 'rgba(79,70,229,0.8)', borderRadius: 6, borderSkipped: false },
-                        { label: 'Profit', data: weeklyProfit, backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 6, borderSkipped: false }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatTooltip(ctx.raw as number) } } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
-                        y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
+            if (profitChartRef.current) {
+                profitChart = new Chart(profitChartRef.current, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [
+                            { label: 'Sales', data: weeklySales, backgroundColor: 'rgba(79,70,229,0.8)', borderRadius: 6, borderSkipped: false },
+                            { label: 'Profit', data: weeklyProfit, backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 6, borderSkipped: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatTooltip(ctx.raw as number) } } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 11 }, color: '#7c88a6' } },
+                            y: { grid: { color: '#f0f2f8' }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#7c88a6', callback: v => formatAxis(v as number) } }
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
 
         };
@@ -215,7 +215,7 @@ function ReportsContent() {
             } else if (period === 'This Year' || period === t.periodThisYear) {
                 return d.getFullYear() === now.getFullYear();
             }
-            return true; 
+            return true;
         });
     };
 
@@ -224,7 +224,7 @@ function ReportsContent() {
 
     const totalRevenue = filteredInvoices.filter((i: any) => i.status !== 'CANCELLED').reduce((a: any, b: any) => a + parseFloat(b.total_amount || 0), 0) || 0;
     const totalExpenses = filteredExpenses.reduce((a: any, b: any) => a + parseFloat(b.amount || 0), 0) || 0;
-    
+
     let totalCostOfGoods = 0;
     filteredInvoices.filter((i: any) => i.status !== 'CANCELLED').forEach((inv: any) => {
         if (inv.items && Array.isArray(inv.items)) {
@@ -288,7 +288,7 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
             const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-            
+
             await downloadAndShareFile(b64, `Business_Report_${period}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'view');
             toast.success(t.excelDownloaded, { duration: 5000 });
         } catch (error) {
@@ -315,7 +315,7 @@ function ReportsContent() {
             const ws = XLSX.utils.json_to_sheet(excelData);
             const csv = XLSX.utils.sheet_to_csv(ws);
             const b64 = btoa(unescape(encodeURIComponent(csv)));
-            
+
             await downloadAndShareFile(b64, `Business_Report_${period}.csv`, 'text/csv', 'view');
             toast.success('CSV downloaded/opened!', { duration: 5000 });
         } catch (error) {
@@ -369,9 +369,9 @@ function ReportsContent() {
             }
 
             const base64Data = doc.output('datauristring').split(',')[1];
-            
-            await downloadAndShareFile(base64Data, `Business_Report_${period}_${Date.now()}.pdf`, 'application/pdf', 'view');
-            toast.success('PDF Opened Successfully', { duration: 5000 });
+
+            await downloadAndShareFile(base64Data, `Business_Report_${period}_${Date.now()}.pdf`, 'application/pdf', 'download');
+            toast.success('PDF Downloaded Successfully', { duration: 5000 });
         } catch (error) {
             toast.error(t.failedDownloadPdf);
         }
@@ -402,7 +402,7 @@ function ReportsContent() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "GST Summary");
             const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-            
+
             await downloadAndShareFile(b64, `GST_Report_${period}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'view');
             toast.success(t.gstReportDownloaded, { duration: 5000 });
         } catch (error) {
@@ -417,7 +417,7 @@ function ReportsContent() {
         }
         const xml = generateTallyXML(invoices, 'Business');
         const b64 = btoa(unescape(encodeURIComponent(xml)));
-        
+
         await downloadAndShareFile(b64, `Tally_Sales_${period}.xml`, 'application/xml', 'view');
         toast.success(t.tallyXmlDownloaded, { duration: 5000 });
     };
@@ -1049,81 +1049,81 @@ export default function ReportsPage() {
 function MonthlyCandleChart({ data }: { data: any[] }) {
     const [activeChartPop, setActiveChartPop] = useState<number | null>(null);
     if (!data || data.length === 0) return <div style={{ color: "#8890B5", fontSize: 13, textAlign: "center", padding: 20 }}>No data available</div>;
-  
+
     const width = Math.max(340, data.length * 45);
     const height = 220;
     const padding = { top: 20, right: 10, bottom: 25, left: 40 };
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
-    
+
     const maxVal = Math.max(...data.flatMap((d: any) => [d.spent, Math.max(d.profit, 0)]), 100);
     const groupW = chartW / Math.max(data.length, 1);
     const barW = Math.min(groupW * 0.35, 18);
     const wickW = Math.max(Math.min(barW * 0.15, 3), 1);
     const yTicks = 4;
-  
+
     return (
-      <div style={{ width: "100%", position: "relative", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
-        <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", minWidth: width, background: '#fff', borderRadius: 12 }}>
-          <defs>
-            <linearGradient id="profitGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#34d399" />
-              <stop offset="100%" stopColor="#059669" />
-            </linearGradient>
-            <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fb7185" />
-              <stop offset="100%" stopColor="#be123c" />
-            </linearGradient>
-          </defs>
-  
-          {Array.from({ length: yTicks + 1 }, (_, i) => {
-            const y = padding.top + (chartH / yTicks) * i;
-            const val = Math.max(0, Math.round(maxVal - (maxVal / yTicks) * i));
-            return (
-              <g key={`grid-${i}`}>
-                <line x1={padding.left} x2={width - padding.right} y1={y} y2={y} stroke="#f0f2f8" strokeDasharray="4 4" />
-                <text x={padding.left - 8} y={y + 3} textAnchor="end" fontSize="9" fill="#7c88a6">
-                  {val >= 1000 ? `${(val / 1000).toFixed(1).replace(".0","")}k` : val}
-                </text>
-              </g>
-            );
-          })}
-          
-          {data.map((d: any, i: number) => {
-            const groupX = padding.left + i * groupW;
-            const centerX = groupX + groupW / 2;
-            
-            const spent = d.spent;
-            const saved = Math.max(d.profit, 0);
-            
-            const spentH = (spent / maxVal) * chartH;
-            const savedH = (saved / maxVal) * chartH;
-            
-            return (
-              <g key={`candle-${i}`} onClick={() => setActiveChartPop(activeChartPop === i ? null : i)} style={{ cursor: "pointer" }}>
-                <rect x={centerX - 3 - barW/2 - wickW/2} y={padding.top + chartH - savedH} width={wickW} height={Math.max(savedH, 0)} fill="#10b981" opacity={0.5} />
-                <rect x={centerX - 3 - barW} y={padding.top + chartH - savedH * 0.75} width={barW} height={Math.max(savedH * 0.75, 0)} rx="3" fill="url(#profitGrad)" />
-                
-                <rect x={centerX + 3 + barW/2 - wickW/2} y={padding.top + chartH - spentH} width={wickW} height={Math.max(spentH, 0)} fill="#e11d48" opacity={0.5} />
-                <rect x={centerX + 3} y={padding.top + chartH - spentH * 0.75} width={barW} height={Math.max(spentH * 0.75, 0)} rx="3" fill="url(#expGrad)" />
-                
-                <text x={centerX} y={height - 5} textAnchor="middle" fontSize="10" fill="#7c88a6">
-                  {d.label}
-                </text>
-                
-                {activeChartPop === i && (
-                  <g>
-                    <rect x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100))} y={padding.top - 15} width={100} height={44} rx={6} fill="#1e293b" />
-                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top} textAnchor="middle" fontSize="10" fill="#fff" fontWeight="bold">{d.label}</text>
-                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top + 14} textAnchor="middle" fontSize="9" fill="#10b981">Profit: ?{saved.toFixed(0)}</text>
-                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top + 26} textAnchor="middle" fontSize="9" fill="#fb7185">Exp: ?{spent.toFixed(0)}</text>
-                  </g>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+        <div style={{ width: "100%", position: "relative", overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+            <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", minWidth: width, background: '#fff', borderRadius: 12 }}>
+                <defs>
+                    <linearGradient id="profitGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#34d399" />
+                        <stop offset="100%" stopColor="#059669" />
+                    </linearGradient>
+                    <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#fb7185" />
+                        <stop offset="100%" stopColor="#be123c" />
+                    </linearGradient>
+                </defs>
+
+                {Array.from({ length: yTicks + 1 }, (_, i) => {
+                    const y = padding.top + (chartH / yTicks) * i;
+                    const val = Math.max(0, Math.round(maxVal - (maxVal / yTicks) * i));
+                    return (
+                        <g key={`grid-${i}`}>
+                            <line x1={padding.left} x2={width - padding.right} y1={y} y2={y} stroke="#f0f2f8" strokeDasharray="4 4" />
+                            <text x={padding.left - 8} y={y + 3} textAnchor="end" fontSize="9" fill="#7c88a6">
+                                {val >= 1000 ? `${(val / 1000).toFixed(1).replace(".0", "")}k` : val}
+                            </text>
+                        </g>
+                    );
+                })}
+
+                {data.map((d: any, i: number) => {
+                    const groupX = padding.left + i * groupW;
+                    const centerX = groupX + groupW / 2;
+
+                    const spent = d.spent;
+                    const saved = Math.max(d.profit, 0);
+
+                    const spentH = (spent / maxVal) * chartH;
+                    const savedH = (saved / maxVal) * chartH;
+
+                    return (
+                        <g key={`candle-${i}`} onClick={() => setActiveChartPop(activeChartPop === i ? null : i)} style={{ cursor: "pointer" }}>
+                            <rect x={centerX - 3 - barW / 2 - wickW / 2} y={padding.top + chartH - savedH} width={wickW} height={Math.max(savedH, 0)} fill="#10b981" opacity={0.5} />
+                            <rect x={centerX - 3 - barW} y={padding.top + chartH - savedH * 0.75} width={barW} height={Math.max(savedH * 0.75, 0)} rx="3" fill="url(#profitGrad)" />
+
+                            <rect x={centerX + 3 + barW / 2 - wickW / 2} y={padding.top + chartH - spentH} width={wickW} height={Math.max(spentH, 0)} fill="#e11d48" opacity={0.5} />
+                            <rect x={centerX + 3} y={padding.top + chartH - spentH * 0.75} width={barW} height={Math.max(spentH * 0.75, 0)} rx="3" fill="url(#expGrad)" />
+
+                            <text x={centerX} y={height - 5} textAnchor="middle" fontSize="10" fill="#7c88a6">
+                                {d.label}
+                            </text>
+
+                            {activeChartPop === i && (
+                                <g>
+                                    <rect x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100))} y={padding.top - 15} width={100} height={44} rx={6} fill="#1e293b" />
+                                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top} textAnchor="middle" fontSize="10" fill="#fff" fontWeight="bold">{d.label}</text>
+                                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top + 14} textAnchor="middle" fontSize="9" fill="#10b981">Profit: ?{saved.toFixed(0)}</text>
+                                    <text x={Math.max(padding.left, Math.min(centerX - 50, width - padding.right - 100)) + 50} y={padding.top + 26} textAnchor="middle" fontSize="9" fill="#fb7185">Exp: ?{spent.toFixed(0)}</text>
+                                </g>
+                            )}
+                        </g>
+                    );
+                })}
+            </svg>
+        </div>
     );
 }
 
