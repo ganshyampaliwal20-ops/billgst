@@ -1200,9 +1200,11 @@ function NewInvoiceContent() {
                 @media (min-width:900px) {
                   .form-outer { grid-template-columns:1.6fr 1fr; align-items:start; }
                   .left-col { display:flex; flex-direction:column; gap:16px; }
-                  .right-col { position:sticky; top:24px; display:flex; flex-direction:column; gap:16px; }
+                  .right-col { position:sticky; top:24px; display:flex; flex-direction:column; gap:16px; padding-bottom:30px; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: thin; }
                   .bottom-bar { display:none; }
+                  .desktop-save-btn { display:flex !important; }
                 }
+                .desktop-save-btn { display:none; }
                 @media (max-width:480px) {
                   .doc-tabs { gap:6px; }
                   .cd-row { grid-template-columns:1fr; }
@@ -2074,6 +2076,7 @@ function NewInvoiceContent() {
 
                 {/* Right Column */}
                 <div className="right-col pb-24">
+
                     {/* PDF Size Preview */}
                     <div className="card mb-6">
                         <div 
@@ -2274,6 +2277,11 @@ function NewInvoiceContent() {
                             <label className="oswitch"><input type="checkbox" checked={options.recurring} onChange={e => setOptions({ ...options, recurring: e.target.checked })} /><span className="oslider"></span></label>
                         </div>
                     </div>
+
+                    <button type="button" className={`desktop-save-btn bb-save w-full justify-center transition-all duration-500 mt-2 ${aiHighlight === 'totals' ? 'animate-bounce shadow-[0_0_25px_rgba(16,185,129,0.8)]' : ''}`} onClick={handleSubmit} disabled={isSubmitting} style={{ padding: '16px', fontSize: '16px' }}>
+                        {isSubmitting ? <span className="animate-spin h-5 w-5 border-2 border-white rounded-full mr-2"></span> : <FaSave className="text-xl" />}
+                        {isSubmitting ? 'Saving...' : 'Save Invoice'}
+                    </button>
 
                 </div>
             </form>

@@ -377,7 +377,10 @@ export default function SmartAttendance() {
         doc.rect(margin, margin, pageWidth - (margin * 2), pageHeight - (margin * 2));
 
         if (businessProfile?.logo) {
-            try { doc.addImage(businessProfile.logo, 'PNG', 170, 10, 24, 24); } catch (e) { }
+            try { 
+                const logoFormat = businessProfile.logo.includes('image/png') ? 'PNG' : 'JPEG';
+                doc.addImage(businessProfile.logo, logoFormat, 170, 10, 24, 24); 
+            } catch (e) { }
         }
 
         doc.setFontSize(22); doc.setTextColor(91, 61, 245);
@@ -459,7 +462,10 @@ export default function SmartAttendance() {
         doc.rect(margin, margin, pageWidth - (margin * 2), pageHeight - (margin * 2));
 
         if (businessProfile?.logo) {
-            try { doc.addImage(businessProfile.logo, 'PNG', 170, 10, 24, 24); } catch (e) {}
+            try { 
+                const logoFormat = businessProfile.logo.includes('image/png') ? 'PNG' : 'JPEG';
+                doc.addImage(businessProfile.logo, logoFormat, 170, 10, 24, 24); 
+            } catch (e) {}
         }
         
         doc.setFontSize(22); doc.setTextColor(91, 61, 245);

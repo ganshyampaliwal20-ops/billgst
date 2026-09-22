@@ -3,6 +3,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useStore } from "@/lib/store";
+import { LOGO_B64 } from "@/lib/logo-b64";
 
 const LOCAL_TRANS: any = {
   en: {
@@ -182,6 +183,35 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   const [startDate, setStartDate] = useState(startOfMonth.toISOString().slice(0, 10));
   const [endDate, setEndDate] = useState(today.toISOString().slice(0, 10));
   const [showCustomDate, setShowCustomDate] = useState(false);
+  const [activePreset, setActivePreset] = useState("This Month");
+
+  const handlePresetDate = (preset: string) => {
+    setActivePreset(preset);
+    const t = new Date();
+    if (preset === 'Today') {
+      setShowCustomDate(false);
+      const d = t.toISOString().slice(0, 10);
+      setStartDate(d); setEndDate(d);
+    } else if (preset === 'This Week') {
+      setShowCustomDate(false);
+      const first = t.getDate() - t.getDay();
+      const firstDay = new Date(t.setDate(first));
+      const lastDay = new Date(t.setDate(first + 6));
+      setStartDate(firstDay.toISOString().slice(0, 10));
+      setEndDate(lastDay.toISOString().slice(0, 10));
+    } else if (preset === 'This Month') {
+      setShowCustomDate(false);
+      setStartDate(new Date(t.getFullYear(), t.getMonth(), 1).toISOString().slice(0, 10));
+      setEndDate(new Date(t.getFullYear(), t.getMonth() + 1, 0).toISOString().slice(0, 10));
+    } else if (preset === 'This Year') {
+      setShowCustomDate(false);
+      setStartDate(new Date(t.getFullYear(), 0, 1).toISOString().slice(0, 10));
+      setEndDate(new Date(t.getFullYear(), 11, 31).toISOString().slice(0, 10));
+    } else if (preset === 'Custom') {
+      setShowCustomDate(true);
+    }
+  };
+
   
   const [chartFilter, setChartFilter] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
   
@@ -191,12 +221,20 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   const [incomes, setIncomes] = useState<any[]>(
     initialData.incomes ?? (initialData.income && initialData.income > 0 ? [{ id: uid(), source: "Initial Balance", amount: initialData.income, date: todayDate.toISOString().slice(0, 10) }] : [])
   );
+  const filteredIncomes = useMemo(() => incomes.filter((i: any) => {
+    if (!i.date) return true;
+    return i.date >= startDate && i.date <= endDate;
+  }), [incomes, startDate, endDate]);
+
   const [incomeSource, setIncomeSource] = useState("");
   const [incomeDate, setIncomeDate] = useState(new Date().toISOString().slice(0, 10));
-  const income = incomes.reduce((s, i) => s + Number(i.amount || 0), 0);
+  const income = filteredIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
   const [incomeInput, setIncomeInput] = useState("");
   const [expenses, setExpenses] = useState<any[]>(initialData.expenses ?? []);
-  const filteredExpenses = useMemo(() => expenses.filter((e: any) => e.date >= startDate && e.date <= endDate), [expenses, startDate, endDate]);
+  const filteredExpenses = useMemo(() => expenses.filter((e: any) => {
+    if (!e.date) return true;
+    return e.date >= startDate && e.date <= endDate;
+  }), [expenses, startDate, endDate]);
   const [fixedExpenses, setFixedExpenses] = useState<any[]>(initialData.fixedExpenses ?? []);
   const [budgets, setBudgets] = useState<Record<string, number>>(initialData.budgets ?? {});
   const [savingGoal, setSavingGoal] = useState(initialData.savingGoal ?? 0);
@@ -214,26 +252,26 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetWarning, setBudgetWarning] = useState<any>(null);
 
-  const totalSpent = useMemo(() => expenses.reduce((s, e) => s + Number(e.amount || 0), 0), [expenses]);
+  const totalSpent = useMemo(() => filteredExpenses.reduce((s, e) => s + Number(e.amount || 0), 0), [filteredExpenses]);
   const saved = Math.max(income - totalSpent, 0);
   const spentPct = income > 0 ? Math.min(Math.round((totalSpent / income) * 100), 100) : 0;
 
   const categories = useMemo(() => {
     const set = new Set([...Object.keys(budgets), ...filteredExpenses.map((e) => e.category)]);
     return Array.from(set);
-  }, [budgets, expenses]);
+  }, [budgets, filteredExpenses]);
 
   const categoryTotals = useMemo(() => {
     const map: Record<string, number> = {};
     filteredExpenses.forEach((e) => (map[e.category] = (map[e.category] || 0) + Number(e.amount || 0)));
     return map;
-  }, [expenses]);
+  }, [filteredExpenses]);
 
   const sortedCategories = useMemo(() => Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]), [categoryTotals]);
 
   const groupedIncomes = useMemo(() => {
     const map: Record<string, any> = {};
-    [...incomes].reverse().forEach(i => {
+    [...filteredIncomes].reverse().forEach(i => {
       const key = i.source.trim().toLowerCase();
       if (map[key]) {
         map[key].amount += Number(i.amount);
@@ -243,8 +281,8 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
       }
     });
     return Object.values(map);
-  }, [incomes]);
-  const displayedIncomes = showAllIncomes ? [...incomes].reverse() : groupedIncomes.slice(0, 3);
+  }, [filteredIncomes]);
+  const displayedIncomes = showAllIncomes ? [...filteredIncomes].reverse() : groupedIncomes.slice(0, 3);
 
   const groupedExpenses = useMemo(() => {
     const map: Record<string, any> = {};
@@ -286,7 +324,7 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
       }
     });
     return map;
-  }, [expenses, thisMonth]);
+  }, [filteredExpenses, thisMonth]);
   const maxDay = Math.max(...dayWise.map((d) => d.total), 1);
 
   const candleChartData = useMemo(() => {
@@ -455,7 +493,7 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
     filteredExpenses.forEach((e) => rows.push([e.category, e.amount, e.date]));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Expenses");
     XLSX.writeFile(wb, `kharcha-tracker-${thisMonth}.xlsx`);
-  }, [income, totalSpent, saved, savingGoal, yearlyProjection, expenses, thisMonth]);
+  }, [income, totalSpent, saved, savingGoal, yearlyProjection, filteredExpenses, thisMonth]);
 
   const exportPDF = useCallback(() => {
     const rows = filteredExpenses.map((e) => `<tr><td>${e.category}</td><td>${formatINR(e.amount)}</td><td>${e.date}</td></tr>`).join("");
@@ -473,14 +511,19 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
       <div class="no-print">
         <button class="back-btn" onclick="window.close()">⬅ Go Back / Close</button>
       </div>
-      <h1 style="color: #000000 !important;">Personal Expenses — ${monthLabel(thisMonth)}</h1>
+      <h1 style="color: #000000 !important;">Personal Expenses</h1>
       <div class="summary">
         <span><b>Income:</b> ${formatINR(income)}</span>
         <span><b>Spent:</b> ${formatINR(totalSpent)}</span>
         <span><b>Saved:</b> ${formatINR(saved)}</span>
       </div>
       <table><thead><tr><th>Category</th><th>Amount</th><th>Date</th></tr></thead>
-      <tbody>${rows}</tbody></table></body></html>`;
+      <tbody>${rows}</tbody></table>
+      <div style="position: fixed; bottom: 10px; left: 0; width: 100%; text-align: center; color: #666; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 40px;">
+        <img src="${LOGO_B64}" alt="BillGST Logo" style="height: 16px; width: 16px; object-fit: contain;" />
+        <span>Created for free using <b>BillGST.in</b></span>
+      </div>
+      </body></html>`;
     const win = window.open("", "_blank");
     if (!win) return;
     win.document.write(html);
@@ -488,10 +531,43 @@ export default function KharchaTrackerAdvanced({ initialData = {} as any, onChan
     win.focus();
     win.onafterprint = () => win.close();
     win.print();
-  }, [expenses, income, totalSpent, saved, thisMonth]);
+  }, [filteredExpenses, income, totalSpent, saved, thisMonth]);
 
   return (
     <div style={S.page}>
+      {/* Date Filter */}
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 8, marginBottom: 8, scrollbarWidth: 'none' }}>
+        {['Today', 'This Week', 'This Month', 'This Year', 'Custom'].map(period => (
+          <button 
+            key={period}
+            onClick={() => handlePresetDate(period)}
+            style={{
+              padding: "6px 12px", 
+              borderRadius: 20, 
+              border: "none", 
+              background: showCustomDate && period === 'Custom' || !showCustomDate && period === activePreset ? T.gradFrom : T.fieldBg,
+              color: "#fff",
+              fontSize: 12,
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+              transition: "0.2s"
+            }}
+          >{period}</button>
+        ))}
+      </div>
+      {showCustomDate && (
+        <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 11, color: T.textDim }}>Start Date</label>
+            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={S.input} />
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 11, color: T.textDim }}>End Date</label>
+            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={S.input} />
+          </div>
+        </div>
+      )}
+
       {/* Income */}
       <Card title="This month's income / salary">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "clamp(4px, 2vw, 16px)", marginBottom: 16, textAlign: "center" }}>
