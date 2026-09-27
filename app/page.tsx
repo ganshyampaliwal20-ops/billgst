@@ -315,7 +315,7 @@ export default function LandingPage() {
         <div id="landing-page">
             <nav>
               <div className="nav-row">
-                <div className="brand"><div className="logo">🧾</div>Bill<span style={{ color: 'var(--primary-2)' }}>GST</span></div>
+                <div className="brand"><img src="/logo.png" alt="BillGST Logo" style={{ height: '36px', width: 'auto' }} /></div>
                 <div className="nav-links">
                   <a href="#features">{t("nl1", "फीचर्स")}</a>
                   <a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a>
@@ -500,7 +500,7 @@ export default function LandingPage() {
             <footer>
               <div className="wrap">
                 <div className="foot-grid">
-                  <div><div className="brand" style={{ marginBottom: '10px' }}><div className="logo">🧾</div>BillGST</div><p style={{ color: 'var(--ink-soft)', fontSize: '.86rem', lineHeight: 1.6 }}>{t("fdesc", "भारत के दुकानदारों के लिए बना स्मार्ट बिलिंग और इन्वेंट्री सॉफ्टवेयर। हिंदी और अंग्रेज़ी दोनों उपलब्ध।")}</p><a href="https://wa.me/917498571873" style={{ color: 'var(--accent)' }}>WhatsApp: +91 74985 71873</a></div>
+                  <div><div className="brand" style={{ marginBottom: '10px' }}><img src="/logo.png" alt="BillGST Logo" style={{ height: '36px', width: 'auto' }} /></div><p style={{ color: 'var(--ink-soft)', fontSize: '.86rem', lineHeight: 1.6 }}>{t("fdesc", "भारत के दुकानदारों के लिए बना स्मार्ट बिलिंग और इन्वेंट्री सॉफ्टवेयर। हिंदी और अंग्रेज़ी दोनों उपलब्ध।")}</p><a href="https://wa.me/917498571873" style={{ color: 'var(--accent)' }}>WhatsApp: +91 74985 71873</a></div>
                   <div><h4>{t("fp", "प्रोडक्ट")}</h4><a href="#features">{t("nl1", "फीचर्स")}</a><a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a><a href="#">{t("fvai", "वॉइस बिलिंग एआई")}</a></div>
                   <div><h4>{t("fc", "कंपनी")}</h4><a href="#">{t("fabout", "हमारे बारे में")}</a><a href="#">{t("fcontact", "संपर्क करें")}</a><a href="#">{t("fpriv", "प्राइवेसी पॉलिसी")}</a></div>
                 </div>
