@@ -89,6 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: "if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let r of registrations) { r.unregister(); } }); }" }} />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
         <link
@@ -231,6 +232,19 @@ export default function RootLayout({
               iconTheme: { primary: '#f87171', secondary: '#2a0f0f' },
               duration: 5000,
             },
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for(let registration of registrations) {
+                    registration.unregister();
+                  }
+                });
+              }
+            `,
           }}
         />
       </body>

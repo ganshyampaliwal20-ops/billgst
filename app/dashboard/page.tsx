@@ -10,6 +10,7 @@ import { formatCurrency, formatCompactNumber } from '@/lib/utils';
 import { openWhatsAppChat } from '@/lib/whatsapp-utils';
 import FreePlanPopup from './FreePlanPopup';
 import RegistrationPopup from './RegistrationPopup';
+import CollectionCenter from './CollectionCenter';
 // Dynamic import used for Chart.js
 import { useRouter } from 'next/navigation';
 
@@ -34,8 +35,6 @@ export default function DashboardPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
     const [showAllCollection, setShowAllCollection] = useState(false);
-    const [autoReminders, setAutoReminders] = useState<any[]>([]);
-    const [isRefreshingReminders, setIsRefreshingReminders] = useState(false);
     const [collectionSearch, setCollectionSearch] = useState('');
     const [showAllTopProducts, setShowAllTopProducts] = useState(false);
     const [invVideoIndex, setInvVideoIndex] = useState(0);
@@ -46,7 +45,14 @@ export default function DashboardPage() {
     useEffect(() => {
         if (businessProfile?.plan_type === 'FREE' || !businessProfile?.plan_type) {
             fetch('/api/referrals')
-                .then(res => res.json())
+                .then(async res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    const contentType = res.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return res.json();
+                    }
+                    throw new Error('Not a JSON response');
+                })
                 .then(data => {
                     if (data && data.balance !== undefined) {
                         setReferralData(data);
@@ -123,23 +129,6 @@ export default function DashboardPage() {
         });
     };
 
-    const fetchAutoReminders = async () => {
-        if (!businessProfile.id) return;
-        setIsRefreshingReminders(true);
-        try {
-            const res = await fetch(`/api/public/whatsapp/reminders?secret=${process.env.NEXT_PUBLIC_WHATSAPP_CRON_SECRET || ''}`);
-            const data = await res.json();
-            if (data.success) {
-                const myReminders = data.reminders.filter((r: any) => r.business_id === businessProfile.id);
-                setAutoReminders(myReminders);
-            }
-        } catch (error) {
-            console.error('Failed to fetch auto-reminders:', error);
-        } finally {
-            setIsRefreshingReminders(false);
-        }
-    };
-
     useEffect(() => {
         setIsClient(true);
         try {
@@ -151,14 +140,11 @@ export default function DashboardPage() {
         fetchProducts();
         fetchInvoices();
         fetchBusinessProfile();
-        fetchAutoReminders();
         // clearInterval removed
     }, []);
 
     useEffect(() => {
-        if (businessProfile.id) {
-            fetchAutoReminders();
-        }
+        // empty body if only fetchAutoReminders was here
     }, [businessProfile.id]);
 
     useEffect(() => {
@@ -522,7 +508,7 @@ export default function DashboardPage() {
                                                 className="flex flex-col items-center gap-2 text-white"
                                                 onClick={() => setPlayingVideo(null)}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0 }} />
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.6, position: 'absolute', inset: 0 }} />
                                                 <div style={{ position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }}>
                                                     <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{ marginLeft: '3px' }}>
                                                         <path d="M8 5v14l11-7z" />
@@ -540,7 +526,7 @@ export default function DashboardPage() {
                                                     }}
                                                     onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
                                                 >
-                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85, position: 'absolute' }} />
+                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.85, position: 'absolute' }} />
                                                     <div style={{ position: 'relative', zIndex: 10,
                                                         width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
@@ -598,7 +584,7 @@ export default function DashboardPage() {
                                                 onClick={() => setPlayingVideo(null)}
                                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0}} />
+                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'contain', opacity: 0.6, position: 'absolute', inset: 0}} />
                                                 <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
                                                     <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{marginLeft: '3px'}}>
                                                         <path d="M8 5v14l11-7z" />
@@ -616,7 +602,7 @@ export default function DashboardPage() {
                                                 }}
                                                 onClick={() => setPlayingVideo('DZHTY54IR_l')}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85, position: 'absolute' }} />
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.85, position: 'absolute' }} />
                                                 <div style={{ position: 'relative', zIndex: 10,
                                                     width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
@@ -650,7 +636,7 @@ export default function DashboardPage() {
                                                 onClick={() => setPlayingVideo(null)}
                                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, position: 'absolute', inset: 0}} />
+                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'contain', opacity: 0.6, position: 'absolute', inset: 0}} />
                                                 <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
                                                     <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{marginLeft: '3px'}}>
                                                         <path d="M8 5v14l11-7z" />
@@ -668,7 +654,7 @@ export default function DashboardPage() {
                                                 }}
                                                 onClick={() => setPlayingVideo('DZARRuCI0rT')}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85, position: 'absolute' }} />
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.85, position: 'absolute' }} />
                                                 <div style={{ position: 'relative', zIndex: 10,
                                                     width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
                                                     borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
@@ -739,7 +725,7 @@ export default function DashboardPage() {
 
                 {businessProfile?.modules?.invoicing !== false && (
                 <div className="main-grid">
-                    <div className="card" style={{ animationDelay: ".2s" }}>
+                    <div key="recent-invoices-panel" className="card" style={{ animationDelay: ".2s" }}>
                         <div className="card-hdr">
                             <div>
                                 <div className="card-title">{t.recentInvoices}</div>
@@ -748,26 +734,27 @@ export default function DashboardPage() {
                             <Link href="/dashboard/invoices" className="see-all" style={{ textDecoration: "none" }}>{t.viewAll} →</Link>
                         </div>
                         <div>
-                            {recentInvoices.map((inv: any, idx: number) => {
-                                const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
-                                const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
-                                return (
-                                    <Link href="/dashboard/invoices" className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
-                                        <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
-                                        <div className="inv-info">
-                                            <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
-                                            <div className="inv-meta">{inv.invoice_number} · {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
-                                        </div>
-                                        <div className="inv-right">
-                                            <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
-                                            <div className={`inv-status ${sClass}`}>{inv.status}</div>
-                                        </div>
-
-                                        <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
-                                    </Link>
-                                );
-                            })}
-                            {recentInvoices.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold">{t.noInvoices}</div>}
+                            {recentInvoices.length === 0
+                                ? <div className="text-center text-xs p-4 text-slate-400 font-bold">{t.noInvoices}</div>
+                                : recentInvoices.map((inv: any, idx: number) => {
+                                    const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
+                                    const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
+                                    return (
+                                        <Link href="/dashboard/invoices" className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
+                                            <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
+                                            <div className="inv-info">
+                                                <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
+                                                <div className="inv-meta">{inv.invoice_number} · {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
+                                            </div>
+                                            <div className="inv-right">
+                                                <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
+                                                <div className={`inv-status ${sClass}`}>{inv.status}</div>
+                                            </div>
+                                            <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
+                                        </Link>
+                                    );
+                                })
+                            }
                         </div>
                         <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--faint)" }}>
                             <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>{t.revenueThisWeek || 'Revenue This Week'}</div>
@@ -775,48 +762,18 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                        <div className="card" style={{ animationDelay: ".25s" }}>
-                            <div className="card-hdr">
-                                <div>
-                                    <div className="card-title">💚 {t.collectionCenter || 'Collection Center'}</div>
-                                    <div className="card-sub">{t.managePendingPayments || 'Manage pending payments'}</div>
-                                </div>
-                                <Link href="/dashboard/customers" className="see-all" style={{ textDecoration: "none" }}>{pendingCustomersList.length} →</Link>
-                            </div>
-                            <div style={{ marginBottom: "10px" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--faint)", border: "1.5px solid var(--border)", borderRadius: "10px", padding: "9px 12px" }}>
-                                    <span style={{ color: "var(--muted)" }}>🔍</span>
-                                    <input type="text" placeholder={t.searchParty} value={collectionSearch} onChange={(e) => setCollectionSearch(e.target.value)} style={{ border: "none", outline: "none", fontFamily: "'Sora',sans-serif", fontSize: "13px", background: "transparent", flex: 1, color: "var(--ink)" }} />
-                                </div>
-                            </div>
-                            <div className="coll-grid">
-                                {pendingCustomersList.slice(0, 4).map((c: any, i: number) => (
-                                    <Link href={'/dashboard/customers/' + c.id} className="coll-card" key={'cust-' + c.id + '-' + i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                                        <div className="coll-top">
-                                            <div className="coll-num">{i + 1}</div>
-                                            <div className="coll-bills">{c.invoiceCount} {t.bills}</div>
-                                        </div>
-                                        <div className="coll-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-                                        <div className="coll-last">{t.lastInvoice}: {new Date(c.lastInvoiceDate).toLocaleDateString()}</div>
-                                        <div className="coll-amt">{formatCompactNumber(c.totalPending)}</div>
-                                        <div className="coll-bottom">
-                                            <button className="wa-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(c); }}>💬</button>
-                                            <input type="checkbox" className="select-box" checked={selectedCustomers.includes(c.id)} onChange={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedCustomers(prev => e.target.checked ? [...prev, c.id] : prev.filter(id => id !== c.id));
-                                            }} onClick={(e) => e.stopPropagation()} />
-                                        </div>
-                                    </Link>
-                                ))}
-                                {pendingCustomersList.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noPendingCollections}</div>}
-                            </div>
-                            <div className="action-bar">
-                                <button className="action-bar-btn btn-remind" onClick={() => handleBulkReminder(pendingCustomersList)}>💬 {t.remindAll}</button>
-                                <button className="action-bar-btn btn-due" onClick={() => toast.success(`${t.totalDueLabel}: ` + formatLakhs(totalOverallPending))}>₹ {t.totalDueLabel}</button>
-                            </div>
-                        </div>
-                    </div>
+                    <CollectionCenter
+                        t={t}
+                        pendingCustomersList={pendingCustomersList}
+                        collectionSearch={collectionSearch}
+                        setCollectionSearch={setCollectionSearch}
+                        selectedCustomers={selectedCustomers}
+                        setSelectedCustomers={setSelectedCustomers}
+                        handleSendReminder={handleSendReminder}
+                        handleBulkReminder={handleBulkReminder}
+                        totalOverallPending={totalOverallPending}
+                        formatLakhs={formatLakhs}
+                    />
                 </div>
                 )}
 
@@ -830,21 +787,23 @@ export default function DashboardPage() {
                         <Link href="/dashboard/inventory" className="see-all" style={{ textDecoration: "none" }}>{t.viewAllProducts} {topProducts.length} →</Link>
                     </div>
                     <div className="prod-grid">
-                        {topProducts.slice(0, 6).map((p: any, i: number) => {
-                            const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-                            const badge = i === 0 ? t.bestSeller : t.topProduct;
-                            const bc = i === 0 ? 'badge-best' : 'badge-top';
-                            return (
-                                <Link href="/dashboard/inventory" className="prod-card" key={i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                                    <div className={`prod-rank ${rankClass}`}>{i + 1}</div>
-                                    <span className={`prod-badge ${bc}`}>{badge}</span>
-                                    <div className="prod-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                                    <div className="prod-sold">{Math.round(p.quantity)} SOLD</div>
-                                    <div className="prod-amt">{formatLakhs(p.sales)}</div>
-                                </Link>
-                            );
-                        })}
-                        {topProducts.length === 0 && <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>}
+                        {topProducts.length === 0
+                            ? <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>
+                            : topProducts.slice(0, 6).map((p: any, i: number) => {
+                                const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+                                const badge = i === 0 ? t.bestSeller : t.topProduct;
+                                const bc = i === 0 ? 'badge-best' : 'badge-top';
+                                return (
+                                    <Link href="/dashboard/inventory" className="prod-card" key={'prod-' + (p.id || p.name) + '-' + i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                                        <div className={`prod-rank ${rankClass}`}>{i + 1}</div>
+                                        <span className={`prod-badge ${bc}`}>{badge}</span>
+                                        <div className="prod-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                                        <div className="prod-sold">{Math.round(p.quantity)} SOLD</div>
+                                        <div className="prod-amt">{formatLakhs(p.sales)}</div>
+                                    </Link>
+                                );
+                            })
+                        }
                     </div>
                 </div>
                 )}
