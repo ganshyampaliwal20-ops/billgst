@@ -150,7 +150,7 @@ function NewInvoiceContent() {
         if (fetchProducts) fetchProducts();
         if (fetchCustomers) fetchCustomers();
         if (fetchInvoices) fetchInvoices();
-        
+
         const d = new Date();
         const localTodayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         setInvoiceDate(localTodayStr);
@@ -160,7 +160,7 @@ function NewInvoiceContent() {
         due.setDate(due.getDate() + 30);
         const localDueStr = `${due.getFullYear()}-${String(due.getMonth() + 1).padStart(2, '0')}-${String(due.getDate()).padStart(2, '0')}`;
         setDueDate(localDueStr);
-        
+
         // Add 1 empty row if none
         if (selectedItems.length === 0) addItem();
     }, []); // Run only once on mount
@@ -261,7 +261,7 @@ function NewInvoiceContent() {
         // --- AI Draft Data Logic with Step-by-Step Live Copilot Animation ---
         if (aiDraftData && aiDraftData.type === 'INVOICE') {
             const { customerName, amount, items } = aiDraftData;
-            
+
             if (customerName) {
                 const storeCustomers = useStore.getState().customers || [];
                 const foundCust = storeCustomers.find((c: any) => c.name.toLowerCase().includes(customerName.toLowerCase()));
@@ -382,15 +382,15 @@ function NewInvoiceContent() {
     const processBarcode = (code: string) => {
         if (!safeProducts) return;
         const cleanCode = String(code).trim().toLowerCase();
-        const prod = safeProducts.find((p: any) => 
-            String(p.barcode || '').trim().toLowerCase() === cleanCode || 
-            String(p.hsn_code || '').trim().toLowerCase() === cleanCode || 
+        const prod = safeProducts.find((p: any) =>
+            String(p.barcode || '').trim().toLowerCase() === cleanCode ||
+            String(p.hsn_code || '').trim().toLowerCase() === cleanCode ||
             String(p.item_code || '').trim().toLowerCase() === cleanCode
         );
         if (prod) {
             const price = parseFloat(prod.price) || parseFloat(prod.sale_price) || parseFloat(prod.unit_price) || 0;
             const gst = parseFloat(prod.gst_rate) || 18;
-            
+
             setSelectedItems(prev => {
                 const existingIdx = prev.findIndex(it => it.product_id === prod.id);
                 if (existingIdx >= 0) {
@@ -476,7 +476,11 @@ function NewInvoiceContent() {
         if (!custId) return 0;
         const cust = safeCustomers.find(c => c.id === custId);
         if (!cust) return 0;
-        
+
+        if (cust.balance !== undefined) {
+            return Number(cust.balance);
+        }
+
         let due = Number(cust.opening_balance) || 0;
         const custInvs = invoices.filter((inv: any) => (inv.customer?.id === custId || inv.customer_id === custId) && inv.status !== 'PAID');
         due += custInvs.reduce((sum: number, inv: any) => sum + ((Number(inv.total_amount) || 0) - (Number(inv.paid_amount) || 0)), 0);
@@ -496,10 +500,10 @@ function NewInvoiceContent() {
                     if (hasPerm.speechRecognition !== 'granted') {
                         await SpeechRecognition.requestPermissions();
                     }
-                    
+
                     setIsListening(true);
                     toast.loading('🎙️ Listening... Bolye', { id: 'voice-toast' });
-                    
+
                     try {
                         const result = await SpeechRecognition.start({
                             language: 'en-IN',
@@ -508,7 +512,7 @@ function NewInvoiceContent() {
                             partialResults: false,
                             popup: false,
                         });
-                        
+
                         setIsListening(false);
                         toast.dismiss('voice-toast');
                         if (result.matches && result.matches.length > 0) {
@@ -517,7 +521,7 @@ function NewInvoiceContent() {
                         } else {
                             toast.error('Awaaz samajh nahi aayi.');
                         }
-                    } catch(e: any) {
+                    } catch (e: any) {
                         setIsListening(false);
                         toast.dismiss('voice-toast');
                         toast.error('Voice error: ' + (e.message || 'Could not recognize speech'));
@@ -525,7 +529,7 @@ function NewInvoiceContent() {
                     return;
                 }
             }
-        } catch(e) { /* console.log('Capacitor speech not available', e); */ }
+        } catch (e) { /* console.log('Capacitor speech not available', e); */ }
 
         const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognitionClass) {
@@ -580,7 +584,7 @@ function NewInvoiceContent() {
     const processVoiceTranscripts = async (transcripts: string[]) => {
         const storeProducts = (useStore.getState() as any).products || [];
         const liveProducts = storeProducts.filter((p: any) => p?.id && p?.name && p?.status !== 'INACTIVE');
-        
+
         if (liveProducts.length === 0) return toast.error('Inventory khali hai. Pehle products add karein.');
 
         const heard = transcripts[0];
@@ -594,7 +598,7 @@ function NewInvoiceContent() {
             const res = await fetch('/api/ai/voice-billing', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     transcript: heard,
                     products: liveProducts.map((p: any) => ({ id: p.id, name: p.name }))
                 })
@@ -615,7 +619,7 @@ function NewInvoiceContent() {
             // OFFLINE SMART FALLBACK: If API Key is missing or quota exceeded
             usedAI = false;
             // console.log("Using Offline Smart Fallback matching...");
-            
+
             // Clean text and handle common hindi/english numbers
             const text = heard.toLowerCase()
                 .replace(/ek/g, '1').replace(/do/g, '2').replace(/teen/g, '3')
@@ -624,7 +628,7 @@ function NewInvoiceContent() {
 
             // Split by "and" to handle multiple items like "1 maggi and 2 soap"
             const segments = text.split(' and ');
-            
+
             segments.forEach(segment => {
                 let qty = 1;
                 const numMatch = segment.match(/d+/);
@@ -642,7 +646,7 @@ function NewInvoiceContent() {
                 liveProducts.forEach((p: any) => {
                     const pName = p.name.toLowerCase();
                     let score = 0;
-                    
+
                     if (pName === cleanWord) score = 100;
                     else if (pName.startsWith(cleanWord) || cleanWord.startsWith(pName)) score = 80;
                     else if (pName.includes(cleanWord) || cleanWord.includes(pName)) score = 60;
@@ -672,14 +676,14 @@ function NewInvoiceContent() {
             let addedCount = 0;
             setSelectedItems((prev) => {
                 const next = [...prev];
-                
+
                 parsedItems.forEach((aiItem: any) => {
                     const p = liveProducts.find((p: any) => p.id === aiItem.id);
                     if (p) {
                         addedCount++;
                         const qty = Number(aiItem.quantity) || 1;
                         const price = p.price || p.sale_price || p.unit_price || 0;
-                        
+
                         const idx = next.findIndex(item => item.product_id === p.id);
                         if (idx > -1) {
                             next[idx].quantity = (Number(next[idx].quantity) || 0) + qty;
@@ -694,7 +698,7 @@ function NewInvoiceContent() {
                                 hsn_code: p.hsn_code || '',
                                 unit: p.unit || 'PCS'
                             };
-                            
+
                             if (emptyIdx > -1 && addedCount === 1) {
                                 next[emptyIdx] = newItem;
                             } else {
@@ -703,10 +707,10 @@ function NewInvoiceContent() {
                         }
                     }
                 });
-                
+
                 return next;
             });
-            
+
             toast.dismiss('voice-parsing');
             toast.success(`✅ ${addedCount} Product(s) Add Ho Gaye! ${usedAI ? '' : '(Offline Mode)'}`);
         } else {
@@ -716,7 +720,7 @@ function NewInvoiceContent() {
     };
 
     const handleMagicScan = () => fileInputRef.current?.click();
-    
+
     const quickAddProduct = (name: string, qty: number) => {
         const prod = safeProducts.find((p: any) => p.name === name);
         if (prod) {
@@ -861,10 +865,10 @@ function NewInvoiceContent() {
                 const pastDue = storeInvs
                     .filter((i: any) => (i.customer?.id === customer.id || i.customer_id === customer.id) && i.status !== 'PAID')
                     .reduce((sum: number, inv: any) => sum + (Number(inv.total_amount) - Number(inv.paid_amount)), 0);
-                
+
                 const newDue = totals.grandTotal - (parseFloat(paidAmount) || 0);
                 const projectedBalance = pastDue + newDue + (Number(customer.opening_balance) || 0);
-                
+
                 if (projectedBalance > customer.credit_limit) {
                     if (!window.confirm(`⚠️ ALERT: ${customer.name} ki credit limit (₹${customer.credit_limit}) cross ho rahi hai!nnUnka total udhaar (Pichla baki + abhi ka) ₹${projectedBalance} ho jayega.nnKya aap phir bhi ye invoice save karna chahte hain?`)) {
                         setIsSubmitting(false);
@@ -922,17 +926,11 @@ function NewInvoiceContent() {
                         try {
                             const updatedProfileForPdf = { ...businessProfile, pdf_size: selectedPdfSize };
                             const { generateInvoicePDF } = await import('@/lib/pdf-generator');
-                            
+
                             // Calculate previous balance for PDF
-                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId && i.id !== invoice.id);
-                            let prevBal = Number(customer?.opening_balance || 0);
-                            custInvoices.forEach((i: any) => {
-                                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
-                                    prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
-                                }
-                            });
+                            const prevBal = getCustomerBalance(customerId);
                             const invForPdf = { ...invoice, previous_balance: prevBal };
-                            
+
                             const doc = await generateInvoicePDF(invForPdf, updatedProfileForPdf, false);
                             if (doc) {
                                 const pdfBlob = doc.output('blob');
@@ -1423,7 +1421,8 @@ function NewInvoiceContent() {
 
                     {/* Items Section */}
                     <div className={`scroll-body transition-all duration-500 ${aiHighlight === 'items' ? 'ring-4 ring-purple-500 shadow-[0_0_35px_rgba(168,85,247,0.5)] rounded-2xl bg-purple-50/20 p-2' : ''}`}>
-                        <style dangerouslySetInnerHTML={{ __html: `
+                        <style dangerouslySetInnerHTML={{
+                            __html: `
                           :root {
                             --bg: #f2f4fb; --white: #fff; --ink: #0d0f1c; --ink2: #2e3250; --ink3: #6b6f90; --ink4: #a8adcc;
                             --border: #e0e4f4; --border2: #ccd0e8; --indigo: #4f46e5; --indigo-lt: #eef0ff; --indigo-dk: #3730a3;
@@ -1750,7 +1749,7 @@ function NewInvoiceContent() {
                                     cursor:pointer;
                                 }
                                 .invoice-theme-wrapper .btn-primary svg{width:17px;height:17px; stroke:#fff;}
-                            `} } />
+                            `}} />
 
                         {selectedItems.map((item, idx) => {
                             const qty = Number(item.quantity) || 1;
@@ -1763,145 +1762,145 @@ function NewInvoiceContent() {
                             const afterDisc = base - discAmt;
                             const gstAmt = afterDisc * (gstPct / 100);
                             const total = afterDisc + gstAmt;
-                            
+
                             const isExpanded = expandedItemIndex === idx;
 
                             return (
-                            <div key={idx} className="item-card">
-                                <div className="card-header-new" onClick={() => setExpandedItemIndex(isExpanded ? null : idx)}>
-                                    <div className="item-num">
-                                        <div className="num-badge">{idx + 1}</div>
-                                        <span className="item-label">{item.product_name || (t.productName || 'Product / Service')}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                                    </div>
-                                </div>
-
-                                <div className="card-body-new invoice-theme-wrapper">
-                                    <div className="field-label">{t.productName || 'Product / service'}</div>
-                                    <div className="field-box">
-                                        <svg className="box-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                                        <input 
-                                            className="flex-1 bg-transparent border-none outline-none text-[14.5px] text-[var(--text-primary)] min-w-0 font-['Inter',sans-serif]"
-                                            type="text" 
-                                            placeholder={(t.productName || 'Product or service name') + "..."} 
-                                            value={item.product_name || ''}
-                                            onFocus={() => setExpandedItemIndex(idx)}
-                                            onChange={e => updateItem(idx, 'product_name', e.target.value)}
-                                        />
-                                        <div className="mic-btn" onClick={startVoiceBilling}>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                                <div key={idx} className="item-card">
+                                    <div className="card-header-new" onClick={() => setExpandedItemIndex(isExpanded ? null : idx)}>
+                                        <div className="item-num">
+                                            <div className="num-badge">{idx + 1}</div>
+                                            <span className="item-label">{item.product_name || (t.productName || 'Product / Service')}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                                         </div>
                                     </div>
 
-                                    {isExpanded && item.product_name && (
-                                        <div className="autocomplete">
-                                            {(() => {
-                                                const matches = safeProducts.filter(p => p.name.toLowerCase().includes(item.product_name.toLowerCase())).slice(0, 4);
-                                                return (
-                                                    <>
-                                                        {matches.length > 0 && <div className="ac-hint">{matches.length} matches for "{item.product_name}"</div>}
-                                                        {matches.map(p => (
-                                                            <div key={p.id} className="ac-row" onClick={() => {
-                                                                updateItem(idx, 'product_id', p.id);
-                                                                updateItem(idx, 'product_name', p.name);
-                                                                updateItem(idx, 'unit_price', p.price);
-                                                                if (p.unit) updateItem(idx, 'unit', p.unit);
-                                                                updateItem(idx, 'gst_rate', p.gst_rate);
-                                                            }}>
-                                                                <div className="ac-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20.5 12H4M4 12l6-6M4 12l6 6"/></svg></div>
-                                                                <div className="ac-main">
-                                                                    <div className="ac-name">{p.name}</div>
-                                                                    <div className="ac-meta">{p.unit || 'PCS'} · GST {p.gst_rate || 0}%</div>
-                                                                </div>
-                                                                <div className="ac-price">₹{p.price}</div>
-                                                                <button type="button" className="ac-add" aria-label="Add" onClick={(e) => {
-                                                                    e.stopPropagation();
+                                    <div className="card-body-new invoice-theme-wrapper">
+                                        <div className="field-label">{t.productName || 'Product / service'}</div>
+                                        <div className="field-box">
+                                            <svg className="box-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                                            <input
+                                                className="flex-1 bg-transparent border-none outline-none text-[14.5px] text-[var(--text-primary)] min-w-0 font-['Inter',sans-serif]"
+                                                type="text"
+                                                placeholder={(t.productName || 'Product or service name') + "..."}
+                                                value={item.product_name || ''}
+                                                onFocus={() => setExpandedItemIndex(idx)}
+                                                onChange={e => updateItem(idx, 'product_name', e.target.value)}
+                                            />
+                                            <div className="mic-btn" onClick={startVoiceBilling}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /></svg>
+                                            </div>
+                                        </div>
+
+                                        {isExpanded && item.product_name && (
+                                            <div className="autocomplete">
+                                                {(() => {
+                                                    const matches = safeProducts.filter(p => p.name.toLowerCase().includes(item.product_name.toLowerCase())).slice(0, 4);
+                                                    return (
+                                                        <>
+                                                            {matches.length > 0 && <div className="ac-hint">{matches.length} matches for "{item.product_name}"</div>}
+                                                            {matches.map(p => (
+                                                                <div key={p.id} className="ac-row" onClick={() => {
                                                                     updateItem(idx, 'product_id', p.id);
                                                                     updateItem(idx, 'product_name', p.name);
                                                                     updateItem(idx, 'unit_price', p.price);
                                                                     if (p.unit) updateItem(idx, 'unit', p.unit);
                                                                     updateItem(idx, 'gst_rate', p.gst_rate);
-                                                                }}><svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
-                                                            </div>
-                                                        ))}
-                                                        {matches.length === 0 && (
-                                                            <div className="ac-footer" onClick={() => setExpandedItemIndex(idx)}>
-                                                                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2"><path d="M12 5v14M5 12h14"/></svg>
-                                                                Naya product "{item.product_name}" banayein
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                );
-                                            })()}
-                                        </div>
-                                    )}
+                                                                }}>
+                                                                    <div className="ac-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M20.5 12H4M4 12l6-6M4 12l6 6" /></svg></div>
+                                                                    <div className="ac-main">
+                                                                        <div className="ac-name">{p.name}</div>
+                                                                        <div className="ac-meta">{p.unit || 'PCS'} · GST {p.gst_rate || 0}%</div>
+                                                                    </div>
+                                                                    <div className="ac-price">₹{p.price}</div>
+                                                                    <button type="button" className="ac-add" aria-label="Add" onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        updateItem(idx, 'product_id', p.id);
+                                                                        updateItem(idx, 'product_name', p.name);
+                                                                        updateItem(idx, 'unit_price', p.price);
+                                                                        if (p.unit) updateItem(idx, 'unit', p.unit);
+                                                                        updateItem(idx, 'gst_rate', p.gst_rate);
+                                                                    }}><svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14" /></svg></button>
+                                                                </div>
+                                                            ))}
+                                                            {matches.length === 0 && (
+                                                                <div className="ac-footer" onClick={() => setExpandedItemIndex(idx)}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2"><path d="M12 5v14M5 12h14" /></svg>
+                                                                    Naya product "{item.product_name}" banayein
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
+                                        )}
 
-                                    <div className={`details-dropdown ${isExpanded ? 'expanded' : ''}`}>
-                                        <div className="details-dropdown-inner">
-                                            <div className="fields-grid">
-                                                <div className="field">
-                                                    <div className="field-label">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-                                                        {t.qty || 'Qty'}
+                                        <div className={`details-dropdown ${isExpanded ? 'expanded' : ''}`}>
+                                            <div className="details-dropdown-inner">
+                                                <div className="fields-grid">
+                                                    <div className="field">
+                                                        <div className="field-label">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /></svg>
+                                                            {t.qty || 'Qty'}
+                                                        </div>
+                                                        <input className="field-input" type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
                                                     </div>
-                                                    <input className="field-input" type="number" min="1" value={item.quantity} onChange={e => updateItem(idx, 'quantity', e.target.value)} />
+                                                    <div className="field">
+                                                        <div className="field-label">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /></svg>
+                                                            {t.unit || 'Unit'}
+                                                        </div>
+                                                        <select className="field-select" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value.toUpperCase())}>
+                                                            {['PCS', 'NOS', 'KG', 'GM', 'LTR', 'ML', 'MTR', 'CM', 'MM', 'BOX', 'BAG', 'PKT', 'ROLL', 'PAIR', 'FEET', 'SQM', 'TABLETS', 'BOTTLES', 'CANS', 'DOZEN'].map(u => <option key={u} value={u}>{u}</option>)}
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div className="field">
-                                                    <div className="field-label">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
-                                                        {t.unit || 'Unit'}
+
+                                                <div className="fields-grid">
+                                                    <div className="field">
+                                                        <div className="field-label">
+                                                            {t.price || 'Price'} (₹)
+                                                        </div>
+                                                        <input className="field-input" type="number" min="0" value={item.unit_price || 0} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
                                                     </div>
-                                                    <select className="field-select" value={item.unit} onChange={e => updateItem(idx, 'unit', e.target.value.toUpperCase())}>
-                                                        {['PCS', 'NOS', 'KG', 'GM', 'LTR', 'ML', 'MTR', 'CM', 'MM', 'BOX', 'BAG', 'PKT', 'ROLL', 'PAIR', 'FEET', 'SQM', 'TABLETS', 'BOTTLES', 'CANS', 'DOZEN'].map(u => <option key={u} value={u}>{u}</option>)}
-                                                    </select>
+                                                    <div className="field">
+                                                        <div className="field-label">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" /><path d="M1 10h22" /></svg>
+                                                            {t.gst || 'GST'} %
+                                                        </div>
+                                                        <select className="field-select" value={item.gst_rate} onChange={e => updateItem(idx, 'gst_rate', e.target.value)}>
+                                                            {[0, 5, 12, 18, 28].map(r => <option key={r} value={r}>{r}% GST</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-end mt-4">
+                                                    <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(idx); }} className="text-red-500 text-[11px] font-bold flex items-center gap-1 opacity-80 hover:opacity-100 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
+                                                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" /></svg>
+                                                        Remove Item
+                                                    </button>
                                                 </div>
                                             </div>
-
-                                            <div className="fields-grid">
-                                                <div className="field">
-                                                    <div className="field-label">
-                                                        {t.price || 'Price'} (₹)
-                                                    </div>
-                                                    <input className="field-input" type="number" min="0" value={item.unit_price || 0} onChange={e => updateItem(idx, 'unit_price', e.target.value)} />
-                                                </div>
-                                                <div className="field">
-                                                    <div className="field-label">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
-                                                        {t.gst || 'GST'} %
-                                                    </div>
-                                                    <select className="field-select" value={item.gst_rate} onChange={e => updateItem(idx, 'gst_rate', e.target.value)}>
-                                                        {[0, 5, 12, 18, 28].map(r => <option key={r} value={r}>{r}% GST</option>)}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="flex justify-end mt-4">
-                                                <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(idx); }} className="text-red-500 text-[11px] font-bold flex items-center gap-1 opacity-80 hover:opacity-100 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
-                                                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                                                    Remove Item
-                                                </button>
-                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="amount-strip" onClick={() => setExpandedItemIndex(isExpanded ? null : idx)}>
-                                        <div>
-                                            <div className="amount-label">{t.itemAmount || 'Item Amount'} (Incl. GST)</div>
-                                            <div className="gst-note">GST: ₹{gstAmt.toFixed(2)} · Base: ₹{afterDisc.toFixed(2)}</div>
+                                        <div className="amount-strip" onClick={() => setExpandedItemIndex(isExpanded ? null : idx)}>
+                                            <div>
+                                                <div className="amount-label">{t.itemAmount || 'Item Amount'} (Incl. GST)</div>
+                                                <div className="gst-note">GST: ₹{gstAmt.toFixed(2)} · Base: ₹{afterDisc.toFixed(2)}</div>
+                                            </div>
+                                            <div className="amount-val">₹{total.toFixed(2)}</div>
                                         </div>
-                                        <div className="amount-val">₹{total.toFixed(2)}</div>
                                     </div>
                                 </div>
-                            </div>
                             );
                         })}
 
                         {/* Standalone Add New Item Button */}
                         <div className="flex justify-center mt-3 mb-1">
                             <button type="button" onClick={() => { addItem(); setExpandedItemIndex(selectedItems.length); }} className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-6 py-2.5 rounded-full font-bold text-sm border border-indigo-100 shadow-sm active:scale-95 transition-transform">
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
                                 {t.addNewItem || 'Add New Item'}
                             </button>
                         </div>
@@ -1916,7 +1915,7 @@ function NewInvoiceContent() {
                                     <div className="qa-card scanner" onClick={() => scannerInputRef.current?.focus()}>
                                         <div className="qa-icon qi-cyan">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="7" y2="12.01"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="13" y1="9" x2="13" y2="14"/><line x1="16" y1="11" x2="16" y2="14"/>
+                                                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" /><line x1="7" y1="12" x2="7" y2="12.01" /><line x1="10" y1="10" x2="10" y2="14" /><line x1="13" y1="9" x2="13" y2="14" /><line x1="16" y1="11" x2="16" y2="14" />
                                             </svg>
                                         </div>
                                         <div className="qa-title">{t.usbScanner || 'USB Scanner'}</div>
@@ -1925,14 +1924,14 @@ function NewInvoiceContent() {
 
                                     <div className="qa-card camera" onClick={() => setShowCameraScanner(true)}>
                                         <div className="qa-icon qi-purple">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
                                         </div>
                                         <div className="qa-title">{t.camera || 'Camera'}</div>
                                     </div>
 
                                     <div className="qa-card inventory" onClick={() => setShowQuickAdd(true)}>
                                         <div className="qa-icon qi-amber">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/><path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" /><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" /><path d="M12 12v5M9.5 14.5l2.5-2.5 2.5 2.5" /></svg>
                                         </div>
                                         <div className="qa-title">{t.inventory || 'Inventory'}</div>
                                     </div>
@@ -2013,8 +2012,8 @@ function NewInvoiceContent() {
                                         <h4 className="text-sm font-bold text-indigo-900 mb-0.5">Auto Generate from Govt Portal</h4>
                                         <p className="text-xs text-indigo-700/70 m-0">Ensure vehicle number and distance are filled before generating.</p>
                                     </div>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={handleGenerateEwayBill}
                                         disabled={isGeneratingEWB}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-xs shadow-sm transition-all ${isGeneratingEWB ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'}`}
@@ -2027,49 +2026,49 @@ function NewInvoiceContent() {
                                     </button>
                                 </div>
                                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div className="col-span-2 lg:col-span-1">
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">E-Way Bill Number</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="12 Digit EWB No" value={ewayBill.no} onChange={e => setEwayBill({...ewayBill, no: e.target.value})} />
-                                </div>
-                                <div className="col-span-2 lg:col-span-1">
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">E-Way Bill Date</label>
-                                    <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={ewayBill.date} onChange={e => setEwayBill({...ewayBill, date: e.target.value})} />
-                                </div>
-                                <div className="col-span-2 lg:col-span-1">
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Vehicle Number</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="e.g. RJ01AB1234" value={ewayBill.vehicleNo} onChange={e => setEwayBill({...ewayBill, vehicleNo: e.target.value.toUpperCase()})} />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Transporter Name</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Name" value={ewayBill.transporterName} onChange={e => setEwayBill({...ewayBill, transporterName: e.target.value})} />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Transporter ID (GSTIN)</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="GSTIN" value={ewayBill.transporterId} onChange={e => setEwayBill({...ewayBill, transporterId: e.target.value.toUpperCase()})} />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Distance (Km)</label>
-                                    <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0" value={ewayBill.distance} onChange={e => setEwayBill({...ewayBill, distance: e.target.value})} />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Transport Mode</label>
-                                    <select className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={ewayBill.mode} onChange={e => setEwayBill({...ewayBill, mode: e.target.value})}>
-                                        <option value="Road">Road</option>
-                                        <option value="Rail">Rail</option>
-                                        <option value="Air">Air</option>
-                                        <option value="Ship">Ship</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Place of Delivery</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="City / Place" value={ewayBill.deliveryPlace} onChange={e => setEwayBill({...ewayBill, deliveryPlace: e.target.value})} />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Delivery Pincode</label>
-                                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="6 Digit PIN" maxLength={6} value={ewayBill.deliveryPincode} onChange={e => setEwayBill({...ewayBill, deliveryPincode: e.target.value.replace(/\D/g, '')})} />
+                                    <div className="col-span-2 lg:col-span-1">
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">E-Way Bill Number</label>
+                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="12 Digit EWB No" value={ewayBill.no} onChange={e => setEwayBill({ ...ewayBill, no: e.target.value })} />
+                                    </div>
+                                    <div className="col-span-2 lg:col-span-1">
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">E-Way Bill Date</label>
+                                        <input type="date" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={ewayBill.date} onChange={e => setEwayBill({ ...ewayBill, date: e.target.value })} />
+                                    </div>
+                                    <div className="col-span-2 lg:col-span-1">
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Vehicle Number</label>
+                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="e.g. RJ01AB1234" value={ewayBill.vehicleNo} onChange={e => setEwayBill({ ...ewayBill, vehicleNo: e.target.value.toUpperCase() })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Transporter Name</label>
+                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Name" value={ewayBill.transporterName} onChange={e => setEwayBill({ ...ewayBill, transporterName: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Transporter ID (GSTIN)</label>
+                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="GSTIN" value={ewayBill.transporterId} onChange={e => setEwayBill({ ...ewayBill, transporterId: e.target.value.toUpperCase() })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Distance (Km)</label>
+                                        <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0" value={ewayBill.distance} onChange={e => setEwayBill({ ...ewayBill, distance: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Transport Mode</label>
+                                        <select className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={ewayBill.mode} onChange={e => setEwayBill({ ...ewayBill, mode: e.target.value })}>
+                                            <option value="Road">Road</option>
+                                            <option value="Rail">Rail</option>
+                                            <option value="Air">Air</option>
+                                            <option value="Ship">Ship</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Place of Delivery</label>
+                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="City / Place" value={ewayBill.deliveryPlace} onChange={e => setEwayBill({ ...ewayBill, deliveryPlace: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-semibold text-slate-600 mb-1 block">Delivery Pincode</label>
+                                        <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="6 Digit PIN" maxLength={6} value={ewayBill.deliveryPincode} onChange={e => setEwayBill({ ...ewayBill, deliveryPincode: e.target.value.replace(/\D/g, '') })} />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         )}
                     </div>
                 </div>
@@ -2079,8 +2078,8 @@ function NewInvoiceContent() {
 
                     {/* PDF Size Preview */}
                     <div className="card mb-6">
-                        <div 
-                            className="flex justify-between items-center cursor-pointer pb-1" 
+                        <div
+                            className="flex justify-between items-center cursor-pointer pb-1"
                             onClick={() => {
                                 setShowPrintFormat(!showPrintFormat);
                                 if (!showPrintFormat) {
@@ -2091,7 +2090,7 @@ function NewInvoiceContent() {
                             }}
                         >
                             <div className="c-title mb-0" style={{ borderBottom: 'none', paddingBottom: 0 }}>
-                                <div className="c-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FaFileInvoice /></div> 
+                                <div className="c-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FaFileInvoice /></div>
                                 Print Format
                                 <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">{selectedPdfSize}</span>
                             </div>
@@ -2102,148 +2101,148 @@ function NewInvoiceContent() {
 
                         {showPrintFormat && (
                             <div className="animate-in slide-in-from-top-2 duration-200 border-t border-slate-100 pt-3 mt-2">
-                        <div className="grid grid-cols-3 gap-2 mb-2">
-                            {[
-                                { id: 'A4', name: 'A4', icon: '📄' },
-                                { id: 'A5', name: 'A5', icon: '📝' },
-                                { id: 'THERMAL', name: 'Receipt', icon: '🖨️' },
-                            ].map((size) => (
-                                <button
-                                    key={size.id}
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedPdfSize(size.id);
-                                        setTimeout(() => {
-                                            document.getElementById('pdf-live-demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        }, 100);
-                                    }}
-                                    className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl border-2 transition-all ${selectedPdfSize === size.id
-                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
-                                        : 'border-slate-100 text-slate-500 hover:border-slate-200 hover:bg-slate-50'
-                                        }`}
-                                >
-                                    <span className="text-xl">{size.icon}</span>
-                                    <span className="text-[10px] font-bold uppercase">{size.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                        
-                        {/* Live Demo Graphic */}
-                        <div id="pdf-live-demo" className="mt-4 p-4 bg-slate-100 rounded-xl border border-slate-300 flex justify-center items-center overflow-hidden relative shadow-inner" style={{ minHeight: '220px' }}>
-                            {selectedPdfSize === 'A4' && (
-                                <div className="bg-white shadow-lg border border-slate-200 flex flex-col relative" style={{ width: '140px', height: '198px', padding: '10px' }}>
-                                    {/* Header */}
-                                    <div className="flex justify-between items-start mb-2 border-b border-slate-100 pb-2">
-                                        <div>
-                                            <div className="text-[6px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
-                                            <div className="text-[4px] text-slate-500">{businessProfile?.phone || 'Phone Number'}</div>
-                                        </div>
-                                        <div className="text-[5px] font-bold text-indigo-600 border border-indigo-200 px-1 rounded">{docType === 'QUOTATION' ? 'ESTIMATE' : 'TAX INVOICE'}</div>
-                                    </div>
-                                    {/* Bill To */}
-                                    <div className="mb-2">
-                                        <div className="text-[4px] text-slate-400">BILL TO</div>
-                                        <div className="text-[5px] font-bold text-slate-700">{selectedCustomer?.name || newCustName || 'Customer Name'}</div>
-                                    </div>
-                                    {/* Table */}
-                                    <div className="border border-slate-200 rounded-sm overflow-hidden mb-2">
-                                        <div className="bg-slate-100 flex text-[4px] font-bold p-1 text-slate-700">
-                                            <div className="flex-1">Item</div>
-                                            <div className="w-4 text-center">Qty</div>
-                                            <div className="w-8 text-right">Amt</div>
-                                        </div>
-                                        {(selectedItems.length ? selectedItems.slice(0,2) : [{product_name: 'Sample Item', quantity: 1, unit_price: 100}]).map((it, i) => (
-                                            <div key={i} className="flex text-[4.5px] p-1 border-t border-slate-100 text-slate-600">
-                                                <div className="flex-1 truncate">{it.product_name || 'Item Name'}</div>
-                                                <div className="w-4 text-center">{it.quantity}</div>
-                                                <div className="w-8 text-right">{(Number(it.quantity || 1)*Number(it.unit_price || 0)).toFixed(0)}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {/* Footer */}
-                                    <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-2">
-                                        <div className="h-6 w-6 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">UPI QR</div>
-                                        <div className="text-right">
-                                            <div className="text-[4px] text-slate-400">Total Amount</div>
-                                            <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
-                                        </div>
-                                    </div>
+                                <div className="grid grid-cols-3 gap-2 mb-2">
+                                    {[
+                                        { id: 'A4', name: 'A4', icon: '📄' },
+                                        { id: 'A5', name: 'A5', icon: '📝' },
+                                        { id: 'THERMAL', name: 'Receipt', icon: '🖨️' },
+                                    ].map((size) => (
+                                        <button
+                                            key={size.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedPdfSize(size.id);
+                                                setTimeout(() => {
+                                                    document.getElementById('pdf-live-demo')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                }, 100);
+                                            }}
+                                            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl border-2 transition-all ${selectedPdfSize === size.id
+                                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
+                                                : 'border-slate-100 text-slate-500 hover:border-slate-200 hover:bg-slate-50'
+                                                }`}
+                                        >
+                                            <span className="text-xl">{size.icon}</span>
+                                            <span className="text-[10px] font-bold uppercase">{size.name}</span>
+                                        </button>
+                                    ))}
                                 </div>
-                            )}
 
-                            {selectedPdfSize === 'A5' && (
-                                <div className="bg-white shadow-lg border border-slate-200 flex flex-col relative" style={{ width: '140px', height: '99px', padding: '8px' }}>
-                                    {/* Header */}
-                                    <div className="flex justify-between items-center mb-1">
-                                        <div className="text-[5.5px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
-                                        <div className="text-[4px] font-bold text-indigo-600">{docType === 'QUOTATION' ? 'ESTIMATE' : 'INVOICE'}</div>
-                                    </div>
-                                    {/* Bill To */}
-                                    <div className="mb-1">
-                                        <div className="text-[4.5px] font-bold text-slate-700">To: {selectedCustomer?.name || newCustName || 'Customer'}</div>
-                                    </div>
-                                    {/* Table */}
-                                    <div className="border border-slate-200 rounded-sm overflow-hidden mb-1">
-                                        <div className="bg-slate-100 flex text-[3.5px] font-bold px-1 py-0.5 text-slate-700">
-                                            <div className="flex-1">Item Name</div>
-                                            <div className="w-6 text-right">Amt</div>
-                                        </div>
-                                        {(selectedItems.length ? selectedItems.slice(0,1) : [{product_name: 'Sample Item', quantity: 1, unit_price: 100}]).map((it, i) => (
-                                            <div key={i} className="flex text-[4px] px-1 py-0.5 border-t border-slate-100 text-slate-600">
-                                                <div className="flex-1 truncate">{it.product_name || 'Item Name'} x{it.quantity}</div>
-                                                <div className="w-6 text-right">{(Number(it.quantity || 1)*Number(it.unit_price || 0)).toFixed(0)}</div>
+                                {/* Live Demo Graphic */}
+                                <div id="pdf-live-demo" className="mt-4 p-4 bg-slate-100 rounded-xl border border-slate-300 flex justify-center items-center overflow-hidden relative shadow-inner" style={{ minHeight: '220px' }}>
+                                    {selectedPdfSize === 'A4' && (
+                                        <div className="bg-white shadow-lg border border-slate-200 flex flex-col relative" style={{ width: '140px', height: '198px', padding: '10px' }}>
+                                            {/* Header */}
+                                            <div className="flex justify-between items-start mb-2 border-b border-slate-100 pb-2">
+                                                <div>
+                                                    <div className="text-[6px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
+                                                    <div className="text-[4px] text-slate-500">{businessProfile?.phone || 'Phone Number'}</div>
+                                                </div>
+                                                <div className="text-[5px] font-bold text-indigo-600 border border-indigo-200 px-1 rounded">{docType === 'QUOTATION' ? 'ESTIMATE' : 'TAX INVOICE'}</div>
                                             </div>
-                                        ))}
-                                    </div>
-                                    {/* Footer */}
-                                    <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-1">
-                                        <div className="h-5 w-5 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">QR</div>
-                                        <div className="text-right">
-                                            <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                            {/* Bill To */}
+                                            <div className="mb-2">
+                                                <div className="text-[4px] text-slate-400">BILL TO</div>
+                                                <div className="text-[5px] font-bold text-slate-700">{selectedCustomer?.name || newCustName || 'Customer Name'}</div>
+                                            </div>
+                                            {/* Table */}
+                                            <div className="border border-slate-200 rounded-sm overflow-hidden mb-2">
+                                                <div className="bg-slate-100 flex text-[4px] font-bold p-1 text-slate-700">
+                                                    <div className="flex-1">Item</div>
+                                                    <div className="w-4 text-center">Qty</div>
+                                                    <div className="w-8 text-right">Amt</div>
+                                                </div>
+                                                {(selectedItems.length ? selectedItems.slice(0, 2) : [{ product_name: 'Sample Item', quantity: 1, unit_price: 100 }]).map((it, i) => (
+                                                    <div key={i} className="flex text-[4.5px] p-1 border-t border-slate-100 text-slate-600">
+                                                        <div className="flex-1 truncate">{it.product_name || 'Item Name'}</div>
+                                                        <div className="w-4 text-center">{it.quantity}</div>
+                                                        <div className="w-8 text-right">{(Number(it.quantity || 1) * Number(it.unit_price || 0)).toFixed(0)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* Footer */}
+                                            <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-2">
+                                                <div className="h-6 w-6 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">UPI QR</div>
+                                                <div className="text-right">
+                                                    <div className="text-[4px] text-slate-400">Total Amount</div>
+                                                    <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            )}
+                                    )}
 
-                            {selectedPdfSize === 'THERMAL' && (
-                                <div className="bg-white shadow-sm border border-slate-300 flex flex-col relative" style={{ width: '80px', minHeight: '160px', padding: '10px 6px', borderBottom: '2px dashed #cbd5e1' }}>
-                                    {/* Header */}
-                                    <div className="text-center mb-1">
-                                        <div className="text-[6px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
-                                        <div className="text-[4px] text-slate-500">Ph: {businessProfile?.phone || 'Phone'}</div>
-                                    </div>
-                                    <div className="text-center text-[5px] font-bold border-y border-dashed border-slate-300 py-1 mb-1 text-slate-700">
-                                        {docType === 'QUOTATION' ? 'ESTIMATE' : 'TAX INVOICE'}
-                                    </div>
-                                    <div className="text-[4px] mb-1 font-bold text-slate-600">To: {selectedCustomer?.name || newCustName || 'Customer'}</div>
-                                    {/* Items */}
-                                    <div className="border-b border-dashed border-slate-300 pb-1 mb-1">
-                                        <div className="flex justify-between text-[4px] font-bold text-slate-700 mb-0.5"><span>Item</span><span>Amt</span></div>
-                                        {(selectedItems.length ? selectedItems.slice(0,3) : [{product_name: 'Sample Item', quantity: 1, unit_price: 100}]).map((it, i) => (
-                                            <div key={i} className="flex justify-between text-[4px] mt-0.5 text-slate-600">
-                                                <span className="truncate w-10">{it.product_name || 'Item Name'} x{it.quantity}</span>
-                                                <span>{(Number(it.quantity || 1)*Number(it.unit_price || 0)).toFixed(0)}</span>
+                                    {selectedPdfSize === 'A5' && (
+                                        <div className="bg-white shadow-lg border border-slate-200 flex flex-col relative" style={{ width: '140px', height: '99px', padding: '8px' }}>
+                                            {/* Header */}
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="text-[5.5px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
+                                                <div className="text-[4px] font-bold text-indigo-600">{docType === 'QUOTATION' ? 'ESTIMATE' : 'INVOICE'}</div>
                                             </div>
-                                        ))}
-                                    </div>
-                                    {/* Total */}
-                                    <div className="flex justify-between text-[5px] font-black mb-2 text-slate-800">
-                                        <span>TOTAL</span>
-                                        <span>₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</span>
-                                    </div>
-                                    <div className="mt-auto text-center">
-                                        <div className="h-8 w-8 border border-slate-200 bg-slate-50 mx-auto flex items-center justify-center text-[4px] text-slate-400 mb-1">UPI QR</div>
-                                        <div className="text-[4px] text-slate-500">Thank You!</div>
-                                    </div>
+                                            {/* Bill To */}
+                                            <div className="mb-1">
+                                                <div className="text-[4.5px] font-bold text-slate-700">To: {selectedCustomer?.name || newCustName || 'Customer'}</div>
+                                            </div>
+                                            {/* Table */}
+                                            <div className="border border-slate-200 rounded-sm overflow-hidden mb-1">
+                                                <div className="bg-slate-100 flex text-[3.5px] font-bold px-1 py-0.5 text-slate-700">
+                                                    <div className="flex-1">Item Name</div>
+                                                    <div className="w-6 text-right">Amt</div>
+                                                </div>
+                                                {(selectedItems.length ? selectedItems.slice(0, 1) : [{ product_name: 'Sample Item', quantity: 1, unit_price: 100 }]).map((it, i) => (
+                                                    <div key={i} className="flex text-[4px] px-1 py-0.5 border-t border-slate-100 text-slate-600">
+                                                        <div className="flex-1 truncate">{it.product_name || 'Item Name'} x{it.quantity}</div>
+                                                        <div className="w-6 text-right">{(Number(it.quantity || 1) * Number(it.unit_price || 0)).toFixed(0)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* Footer */}
+                                            <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-1">
+                                                <div className="h-5 w-5 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">QR</div>
+                                                <div className="text-right">
+                                                    <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {selectedPdfSize === 'THERMAL' && (
+                                        <div className="bg-white shadow-sm border border-slate-300 flex flex-col relative" style={{ width: '80px', minHeight: '160px', padding: '10px 6px', borderBottom: '2px dashed #cbd5e1' }}>
+                                            {/* Header */}
+                                            <div className="text-center mb-1">
+                                                <div className="text-[6px] font-black text-slate-800">{businessProfile?.name || 'Your Business'}</div>
+                                                <div className="text-[4px] text-slate-500">Ph: {businessProfile?.phone || 'Phone'}</div>
+                                            </div>
+                                            <div className="text-center text-[5px] font-bold border-y border-dashed border-slate-300 py-1 mb-1 text-slate-700">
+                                                {docType === 'QUOTATION' ? 'ESTIMATE' : 'TAX INVOICE'}
+                                            </div>
+                                            <div className="text-[4px] mb-1 font-bold text-slate-600">To: {selectedCustomer?.name || newCustName || 'Customer'}</div>
+                                            {/* Items */}
+                                            <div className="border-b border-dashed border-slate-300 pb-1 mb-1">
+                                                <div className="flex justify-between text-[4px] font-bold text-slate-700 mb-0.5"><span>Item</span><span>Amt</span></div>
+                                                {(selectedItems.length ? selectedItems.slice(0, 3) : [{ product_name: 'Sample Item', quantity: 1, unit_price: 100 }]).map((it, i) => (
+                                                    <div key={i} className="flex justify-between text-[4px] mt-0.5 text-slate-600">
+                                                        <span className="truncate w-10">{it.product_name || 'Item Name'} x{it.quantity}</span>
+                                                        <span>{(Number(it.quantity || 1) * Number(it.unit_price || 0)).toFixed(0)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* Total */}
+                                            <div className="flex justify-between text-[5px] font-black mb-2 text-slate-800">
+                                                <span>TOTAL</span>
+                                                <span>₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</span>
+                                            </div>
+                                            <div className="mt-auto text-center">
+                                                <div className="h-8 w-8 border border-slate-200 bg-slate-50 mx-auto flex items-center justify-center text-[4px] text-slate-400 mb-1">UPI QR</div>
+                                                <div className="text-[4px] text-slate-500">Thank You!</div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                        <div className="text-center mt-2 text-[10px] text-slate-400 font-medium">
-                            {selectedPdfSize === 'A4' && 'Standard Print (210 x 297mm)'}
-                            {selectedPdfSize === 'A5' && 'Half-Size Print (148 x 210mm)'}
-                            {selectedPdfSize === 'THERMAL' && 'Receipt Printer (80mm width)'}
-                        </div>
-                        </div>
+                                <div className="text-center mt-2 text-[10px] text-slate-400 font-medium">
+                                    {selectedPdfSize === 'A4' && 'Standard Print (210 x 297mm)'}
+                                    {selectedPdfSize === 'A5' && 'Half-Size Print (148 x 210mm)'}
+                                    {selectedPdfSize === 'THERMAL' && 'Receipt Printer (80mm width)'}
+                                </div>
+                            </div>
                         )}
                     </div>
 
@@ -2304,27 +2303,27 @@ function NewInvoiceContent() {
                     <div className="sheet relative z-10 w-full md:max-w-lg md:mx-auto animate-in slide-in-from-bottom">
                         <div className="sheet-handle"></div>
                         <div className="sheet-head">
-                            <div className="sheet-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+                            <div className="sheet-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" /></svg></div>
                             <div>
                                 <div className="sheet-title">Quick add product</div>
                                 <div className="sheet-sub">{isListening ? '🎙️ Listening...' : 'Type karein ya voice se add karein'}</div>
                             </div>
-                            <div className="sheet-close" onClick={() => setShowQuickAdd(false)}><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+                            <div className="sheet-close" onClick={() => setShowQuickAdd(false)}><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg></div>
                         </div>
 
                         <div className="sheet-search">
-                            <svg className="search-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                            <input 
+                            <svg className="search-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                            <input
                                 autoFocus
-                                type="text" 
-                                value={quickSearch} 
-                                onChange={e => setQuickSearch(e.target.value)} 
+                                type="text"
+                                value={quickSearch}
+                                onChange={e => setQuickSearch(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter' && quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}
-                                placeholder="Product ka naam likhein" 
+                                placeholder="Product ka naam likhein"
                             />
                             <div className="qty-chip">
                                 <input type="number" min="1" value={quickQty} onChange={e => setQuickQty(Number(e.target.value) || 1)} className="w-8 bg-transparent border-none outline-none text-center p-0 m-0 text-inherit" />
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4" /></svg>
                             </div>
                         </div>
 
@@ -2345,7 +2344,7 @@ function NewInvoiceContent() {
                                             </div>
                                         </div>
                                         <button type="button" className="prod-add" aria-label="Add" onClick={(e) => { e.stopPropagation(); quickAddProduct(p.name, quickQty); setShowQuickAdd(false); }}>
-                                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4"><path d="M12 5v14M5 12h14" /></svg>
                                         </button>
                                     </div>
                                 ))}
@@ -2355,8 +2354,8 @@ function NewInvoiceContent() {
                         </div>
 
                         <div className="sheet-footer">
-                            <button type="button" className="btn-primary" onClick={() => { if(quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}>
-                                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3"><path d="M20 6 9 17l-5-5"/></svg>Add product
+                            <button type="button" className="btn-primary" onClick={() => { if (quickSearch.trim()) { quickAddProduct(quickSearch.trim(), quickQty); setShowQuickAdd(false); } }}>
+                                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3"><path d="M20 6 9 17l-5-5" /></svg>Add product
                             </button>
                         </div>
                     </div>
@@ -2605,7 +2604,7 @@ function NewInvoiceContent() {
                         <span style={{ fontWeight: 800, fontSize: '16px' }}>Invoice Preview</span>
                         <button onClick={() => setShowPreviewModal(false)} style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)', padding: '8px 16px', borderRadius: '8px', color: '#f87171', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>✕ Close</button>
                     </div>
-                    
+
                     <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
                         <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', maxWidth: '800px', margin: '0 auto', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', fontFamily: 'Arial, sans-serif' }}>
                             <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '20px' }}>
@@ -2614,7 +2613,7 @@ function NewInvoiceContent() {
                                 {businessProfile?.phone && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px' }}>Phone: {businessProfile.phone}</p>}
                                 {businessProfile?.gstin && <p style={{ margin: '5px 0 0 0', color: '#475569', fontSize: '14px', fontWeight: 'bold' }}>GSTIN: {businessProfile.gstin}</p>}
                             </div>
-                            
+
                             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '20px', marginBottom: '30px' }}>
                                 <div style={{ flex: '1 1 200px' }}>
                                     <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 10px 0', fontWeight: 800 }}>Billed To:</h3>
@@ -2704,35 +2703,20 @@ function NewInvoiceContent() {
                                             if (!customerId && newCustName) {
                                                 return Number(newCustOb || 0);
                                             }
-                                            const cust = safeCustomers.find((c: any) => c.id === customerId);
-                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
-                                            let pBal = Number(cust?.opening_balance || 0);
-                                            custInvoices.forEach((i: any) => {
-                                                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
-                                                    pBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
-                                                }
-                                            });
-                                            return pBal;
+                                            return getCustomerBalance(customerId);
                                         })().toFixed(2)}</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', color: '#0f172a', fontSize: '16px', fontWeight: 800 }}>
                                         <span>Current Balance:</span>
                                         <span>₹{(() => {
-                                            const cust = safeCustomers.find((c: any) => c.id === customerId);
-                                            const custInvoices = (useStore.getState().invoices || []).filter((i: any) => i.customer?.id === customerId);
-                                            let pBal = Number(cust?.opening_balance || 0);
-                                            custInvoices.forEach((i: any) => {
-                                                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
-                                                    pBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
-                                                }
-                                            });
+                                            const pBal = !customerId && newCustName ? Number(newCustOb || 0) : getCustomerBalance(customerId);
                                             const currentInvoiceBal = Math.max(totals.grandTotal - Number(paidAmount || 0), 0);
                                             return (pBal + currentInvoiceBal).toFixed(2);
                                         })()}</span>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {notes && (
                                 <div style={{ marginTop: '30px', padding: '15px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                                     <h4 style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Notes / Terms</h4>
@@ -2760,7 +2744,7 @@ function NewInvoiceContent() {
                                     <p className="qap-sub">Scan Barcode or QR Code</p>
                                 </div>
                                 <button className="qap-close" onClick={() => setShowCameraScanner(false)}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
                                 </button>
                             </div>
                         </div>
@@ -2769,8 +2753,8 @@ function NewInvoiceContent() {
                             <p style={{ textAlign: 'center', fontSize: '12px', color: '#8892b0', marginTop: '16px', fontWeight: 'bold' }}>
                                 Position the barcode inside the box to scan
                             </p>
-                            <button 
-                                onClick={() => setShowCameraScanner(false)} 
+                            <button
+                                onClick={() => setShowCameraScanner(false)}
                                 style={{ width: '100%', marginTop: '20px', background: '#f0f2f8', color: '#7b7fa0', padding: '14px', borderRadius: '14px', fontWeight: '800', border: '1.5px solid #e0e3f0', cursor: 'pointer' }}
                             >
                                 Cancel / Close

@@ -27,7 +27,7 @@ export default function InvoicesPage() {
     const fetchInvoices = useStore((state: any) => state.fetchInvoices);
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
-    
+
     // Local State
     const [isClient, setIsClient] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,11 +37,11 @@ export default function InvoicesPage() {
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [expandedCustomers, setExpandedCustomers] = useState<Record<string, boolean>>({});
     const [isScrolled, setIsScrolled] = useState(false);
-    
+
     // Pagination State
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    
+
     // Payment Recording State
     const [paymentAmount, setPaymentAmount] = useState('');
     const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
@@ -58,14 +58,14 @@ export default function InvoicesPage() {
             }
         };
         window.addEventListener('scroll', handleScroll);
-        
 
 
-    return () => window.removeEventListener('scroll', handleScroll);
+
+        return () => window.removeEventListener('scroll', handleScroll);
     }, [fetchInvoices]);
 
     const safeInvoices = useMemo(() => Array.isArray(invoices) ? invoices.filter(i => i && typeof i === 'object') : [], [invoices]);
-    
+
     // Filtering & Sorting Logic
     const filteredInvoices = useMemo(() => {
         return safeInvoices.filter((inv: any) => {
@@ -108,19 +108,19 @@ export default function InvoicesPage() {
                 acc[key].totalAmount += Number(inv.total_amount || 0);
                 const pAmount = Number(inv.paid_amount || 0);
                 acc[key].dueAmount += (Number(inv.total_amount || 0) - pAmount);
-                
+
                 const st = (inv.status || 'UNPAID').toLowerCase();
                 if (st === 'paid') acc[key].statusCount.paid++;
                 else if (st === 'partial') acc[key].statusCount.partial++;
                 else acc[key].statusCount.unpaid++;
-                
+
                 return acc;
             }, {})
         );
     }, [filteredInvoices]);
 
     const toggleCustomer = (key: string) => {
-        setExpandedCustomers(prev => ({...prev, [key]: !prev[key]}));
+        setExpandedCustomers(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     // KPI Counters
@@ -154,7 +154,7 @@ export default function InvoicesPage() {
         try {
             await fetchInvoices(true, nextPage);
             setPage(nextPage);
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
         setIsLoadingMore(false);
@@ -173,13 +173,20 @@ export default function InvoicesPage() {
     const injectPreviousBalance = (inv: any) => {
         if (!inv.customer?.id) return { ...inv, previous_balance: 0 };
         const cust = (useStore.getState().customers || []).find((c: any) => c.id === inv.customer.id);
-        const custInvoices = safeInvoices.filter((i: any) => i.customer?.id === inv.customer.id && i.id !== inv.id);
-        let prevBal = Number(cust?.opening_balance || 0);
-        custInvoices.forEach((i: any) => {
-            if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
-                prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
-            }
-        });
+
+        let prevBal = 0;
+        if (cust?.balance !== undefined) {
+            const currentDue = Math.max(Number(inv.total_amount || 0) - Number(inv.paid_amount || 0), 0);
+            prevBal = Number(cust.balance) - currentDue;
+        } else {
+            const custInvoices = safeInvoices.filter((i: any) => i.customer?.id === inv.customer.id && i.id !== inv.id);
+            prevBal = Number(cust?.opening_balance || 0);
+            custInvoices.forEach((i: any) => {
+                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
+                    prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
+                }
+            });
+        }
         return { ...inv, previous_balance: prevBal };
     };
 
@@ -226,7 +233,7 @@ export default function InvoicesPage() {
     };
 
     const handleWhatsApp = async (invoice: any, e: any) => {
-        if(e) e.stopPropagation();
+        if (e) e.stopPropagation();
         const phone = (invoice.customer?.phone || '').replace(/\D/g, '');
         if (!phone) {
             toast.error('Pahle customer ka mobile number add karein.', { icon: '📱' });
@@ -245,7 +252,7 @@ export default function InvoicesPage() {
             const pdfBlob = doc.output('blob');
             const fileName = `Invoice_${invoice.invoice_number || '001'}.pdf`;
             const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-            
+
             const invoiceLink = `${window.location.origin}/i/${invoice.id}`;
             let bal = Math.max(Number(invoice.total_amount || 0) - Number(invoice.paid_amount || 0), 0);
             let text = `${invoice.type === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${Number(invoice.total_amount || 0).toFixed(2)}\nBalance: ${bal.toFixed(2)}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.business_name || businessProfile?.name || 'Business'}`;
@@ -267,7 +274,7 @@ export default function InvoicesPage() {
                             data: base64Data,
                             directory: 'DOCUMENTS',
                         });
-                        
+
                         await Share.share({
                             title: fileName,
                             text: text,
@@ -277,7 +284,7 @@ export default function InvoicesPage() {
                         toast.success('WhatsApp par share open ho gaya!', { id: toastId });
                         return;
                     }
-                } catch(err) {
+                } catch (err) {
                     console.error('Native share error', err);
                     toast.dismiss(toastId);
                     return;
@@ -318,19 +325,19 @@ export default function InvoicesPage() {
     };
 
     const handleRecordPayment = async () => {
-        if(!paymentAmount || isNaN(Number(paymentAmount))) return;
+        if (!paymentAmount || isNaN(Number(paymentAmount))) return;
         const amountToAdd = Number(paymentAmount);
-        if(amountToAdd <= 0) return;
-        
+        if (amountToAdd <= 0) return;
+
         setIsSubmittingPayment(true);
         const currentPaid = Number(selectedInvoice.paid_amount || 0);
         const totalAmount = Number(selectedInvoice.total_amount);
         let newPaid = currentPaid + amountToAdd;
-        if(newPaid > totalAmount) newPaid = totalAmount;
-        
+        if (newPaid > totalAmount) newPaid = totalAmount;
+
         let newStatus = 'PARTIAL';
-        if(newPaid >= totalAmount) newStatus = 'PAID';
-        
+        if (newPaid >= totalAmount) newStatus = 'PAID';
+
         const toastId = toast.loading('Recording payment...');
         try {
             const payload = {
@@ -343,40 +350,40 @@ export default function InvoicesPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if(res.ok) {
+            if (res.ok) {
                 toast.success('Payment recorded successfully', { id: toastId });
-                if(fetchInvoices) fetchInvoices(true);
+                if (fetchInvoices) fetchInvoices(true);
                 setSelectedInvoice(null);
                 setPaymentAmount('');
             } else {
                 toast.error('Failed to record payment', { id: toastId });
             }
-        } catch(e) {
+        } catch (e) {
             toast.error('Error recording payment', { id: toastId });
         }
         setIsSubmittingPayment(false);
     };
 
     const handleBulkReminder = async () => {
-        const dueInvoices = filteredInvoices.filter((i:any) => ['unpaid', 'partial'].includes((i.status || 'unpaid').toLowerCase()));
-        
-        if(dueInvoices.length === 0) {
+        const dueInvoices = filteredInvoices.filter((i: any) => ['unpaid', 'partial'].includes((i.status || 'unpaid').toLowerCase()));
+
+        if (dueInvoices.length === 0) {
             toast.error('Koi pending invoice nahi hai!');
             return;
         }
-        
+
         const toastId = toast.loading('Sending bulk reminders...');
-        
+
         // Group by customer to send only ONE message per customer
         const customerDues: Record<string, { name: string, phone: string, invoices: string[], totalDue: number }> = {};
-        
+
         for (const inv of dueInvoices) {
             const phone = (inv.customer?.phone || '').replace(/\D/g, '');
             if (!phone || phone.length < 10) continue;
-            
+
             const dueAmount = Number(inv.total_amount) - Number(inv.paid_amount || 0);
             if (dueAmount <= 0) continue;
-            
+
             if (!customerDues[phone]) {
                 customerDues[phone] = {
                     name: inv.customer?.name || 'Customer',
@@ -388,7 +395,7 @@ export default function InvoicesPage() {
             customerDues[phone].invoices.push(inv.invoice_number);
             customerDues[phone].totalDue += dueAmount;
         }
-        
+
         const customersToRemind = Object.values(customerDues);
         if (customersToRemind.length === 0) {
             toast.dismiss(toastId);
@@ -400,20 +407,20 @@ export default function InvoicesPage() {
         for (const cust of customersToRemind) {
             const invList = cust.invoices.join(', #');
             const text = `Namaste ${cust.name},\n\nAapke Invoices (#${invList}) ka total balance *${formatCurrency(cust.totalDue)}* due hai. Kripya samay par pay karein.\n\nRegards,\n${businessProfile?.name || 'BillGST'}`;
-            
+
             const formData = new FormData();
             formData.append('phone', cust.phone);
             formData.append('message', text);
-            
+
             try {
                 const res = await fetch('/api/whatsapp/send-media', {
                     method: 'POST',
                     body: formData
                 });
-                if(res.ok) success++;
-            } catch(e) { }
+                if (res.ok) success++;
+            } catch (e) { }
         }
-        
+
         toast.success(`${success} customers ko reminder bhej diya!`, { id: toastId });
     };
 
@@ -431,17 +438,17 @@ export default function InvoicesPage() {
                 'Balance Due (Rs)': Number(inv.total_amount) - Number(inv.paid_amount || 0),
                 'Status': inv.status || 'UNPAID'
             }));
-            
+
             const worksheet = XLSX.utils.json_to_sheet(data);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Invoices");
-            
+
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' });
             const fileName = "Invoices_Export.xlsx";
-            
-            
+
+
             await downloadAndShareFile(excelBuffer, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            
+
             toast.success("Excel file downloaded!", { id: toastId });
         } catch (error) {
             console.error(error);
@@ -452,7 +459,7 @@ export default function InvoicesPage() {
     const handleDownloadEwayJSON = async (invoice: any) => {
         try {
             const isInterState = invoice.igst_amount > 0;
-            
+
             const totalValue = Number(invoice.total_amount || 0);
             const cgstValue = Number(invoice.cgst_amount || 0);
             const sgstValue = Number(invoice.sgst_amount || 0);
@@ -531,10 +538,10 @@ export default function InvoicesPage() {
             const jsonString = JSON.stringify(jsonBody, null, 2);
             const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
             const fileName = `EWayBill_${invoice.invoice_number}.json`;
-            
-            
+
+
             await downloadAndShareFile(base64Data, fileName, 'application/json', 'download');
-            
+
             toast.success("E-Way Bill JSON Downloaded to Documents!");
         } catch (error) {
             console.error("Error generating E-Way JSON:", error);
@@ -542,7 +549,7 @@ export default function InvoicesPage() {
         }
     };
 
-        // Hardware back button modal close
+    // Hardware back button modal close
     useEffect(() => {
         const handlePopState = () => {
             if (selectedInvoice) {
@@ -569,7 +576,8 @@ export default function InvoicesPage() {
 
     return (
         <div className="new-invoice-page">
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
                 
                 .new-invoice-page {
@@ -866,26 +874,26 @@ export default function InvoicesPage() {
 
                 {/* STATS */}
                 <div className="stats-grid">
-                    <div className={`stat-card ${activeTab === 'all' ? 'active-card' : ''}`} onClick={() => setActiveTab('all')} style={{cursor: 'pointer'}}>
-                        <div className="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                    <div className={`stat-card ${activeTab === 'all' ? 'active-card' : ''}`} onClick={() => setActiveTab('all')} style={{ cursor: 'pointer' }}>
+                        <div className="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg></div>
                         <div className="stat-label">{t.totalInvoices || 'Total Invoices'}</div>
                         <div className="stat-val blue">{kpiData.total}</div>
                         <div className="stat-footer">{t.thisMonth || 'This month'}</div>
                     </div>
-                    <div className={`stat-card ${activeTab === 'd' ? 'active-card' : ''}`} onClick={() => setActiveTab('d')} style={{cursor: 'pointer'}}>
-                        <div className="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div className={`stat-card ${activeTab === 'd' ? 'active-card' : ''}`} onClick={() => setActiveTab('d')} style={{ cursor: 'pointer' }}>
+                        <div className="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg></div>
                         <div className="stat-label">{t.amountReceived || 'Paid Full'}</div>
                         <div className="stat-val green">{kpiData.paid}</div>
                         <div className="stat-footer">{formatCurrency(kpiData.totalBilled - kpiData.receivable)} {t.collected || 'Collected'}</div>
                     </div>
-                    <div className={`stat-card ${activeTab === 'u' ? 'active-card' : ''}`} onClick={() => setActiveTab('u')} style={{cursor: 'pointer'}}>
-                        <div className="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+                    <div className={`stat-card ${activeTab === 'u' ? 'active-card' : ''}`} onClick={() => setActiveTab('u')} style={{ cursor: 'pointer' }}>
+                        <div className="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg></div>
                         <div className="stat-label">{t.due || 'Unpaid'}</div>
                         <div className="stat-val red">{kpiData.unpaid}</div>
                         <div className="stat-footer">{t.followUp || 'Follow up'}</div>
                     </div>
-                    <div className={`stat-card ${activeTab === 'p' ? 'active-card' : ''}`} onClick={() => setActiveTab('p')} style={{cursor: 'pointer'}}>
-                        <div className="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                    <div className={`stat-card ${activeTab === 'p' ? 'active-card' : ''}`} onClick={() => setActiveTab('p')} style={{ cursor: 'pointer' }}>
+                        <div className="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></div>
                         <div className="stat-label">{t.partial || 'Partial'}</div>
                         <div className="stat-val amber">{kpiData.partial}</div>
                         <div className="stat-footer">{t.balanceAmount || 'Balance baaki'}</div>
@@ -919,9 +927,9 @@ export default function InvoicesPage() {
                 <div className="toolbar">
                     <div className="search-sort-row">
                         <div className="search-wrap">
-                            <input 
-                                type="text" 
-                                placeholder={t.searchCustomerInvoice || 'Search customer or invoice...'} 
+                            <input
+                                type="text"
+                                placeholder={t.searchCustomerInvoice || 'Search customer or invoice...'}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -949,15 +957,15 @@ export default function InvoicesPage() {
                         const isExpanded = expandedCustomers[key];
                         const avatarClass = `av-${(idx % 5) + 1}`;
                         const firstChar = group.customer?.name ? group.customer.name.charAt(0).toUpperCase() : '#';
-                        
+
                         return (
                             <div key={key} className="customer-group">
                                 <div className="customer-row" onClick={() => toggleCustomer(key)}>
                                     <div className="cust-left">
                                         <div className={`avatar ${avatarClass}`}>{firstChar}</div>
                                         <div>
-                                            <div 
-                                                className="cust-name" 
+                                            <div
+                                                className="cust-name"
                                                 style={{ cursor: 'pointer', color: '#4f46e5', textDecoration: 'underline' }}
                                                 onClick={(e) => {
                                                     if (group.customer?.id) {
@@ -981,11 +989,11 @@ export default function InvoicesPage() {
                                             </div>
                                         </div>
                                         <div style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#6b7280' }}>
-                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {isExpanded && (
                                     <div className="invoices-container">
                                         <div className="table-header">
@@ -1000,7 +1008,7 @@ export default function InvoicesPage() {
                                             let statusText = t.due || 'Unpaid';
                                             if (status === 'paid') { badgeClass = 'badge-paid'; statusText = t.amountReceived || 'Paid'; }
                                             if (status === 'partial') { badgeClass = 'badge-partial'; statusText = t.partialTab || 'Partial'; }
-                                            
+
                                             return (
                                                 <div className="invoice-row" key={inv.id} onClick={() => setSelectedInvoice(inv)}>
                                                     <div className="inv-count">#{inv.invoice_number}</div>
@@ -1010,10 +1018,10 @@ export default function InvoicesPage() {
                                                     <div><span className={`badge ${badgeClass}`}>{statusText}</span></div>
                                                     <div className="row-actions" onClick={e => e.stopPropagation()}>
                                                         <button className="act-btn wa" title="WhatsApp reminder" onClick={(e) => handleWhatsApp(inv, e)}>
-                                                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                                                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" /></svg>
                                                         </button>
                                                         <button className="act-btn" title="View invoice" onClick={(e) => { e.stopPropagation(); setSelectedInvoice(inv); }}>
-                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -1035,11 +1043,11 @@ export default function InvoicesPage() {
                         <span>{filteredInvoices.length} invoices &middot; {formatCurrency(kpiData.receivable)} total pending</span>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                             <button className="reminder-btn" onClick={handleBulkReminder} style={{ padding: '5px 12px', fontSize: '12px' }}>
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" /></svg>
                                 Bulk Reminder
                             </button>
                             <button className="export-btn" onClick={handleExportExcel}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18M9 3v18" /></svg>
                                 Excel Export
                             </button>
                         </div>
@@ -1049,12 +1057,12 @@ export default function InvoicesPage() {
                 {/* Centered Load More Button */}
                 {safeInvoices.length >= 20 && safeInvoices.length % 20 === 0 && (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                        <button 
+                        <button
                             onClick={handleLoadMore}
                             disabled={isLoadingMore}
-                            style={{ 
-                                padding: '10px 24px', fontSize: '14px', fontWeight: 600, 
-                                borderRadius: '8px', background: '#eef2ff', color: '#4338ca', 
+                            style={{
+                                padding: '10px 24px', fontSize: '14px', fontWeight: 600,
+                                borderRadius: '8px', background: '#eef2ff', color: '#4338ca',
                                 border: '1px solid rgba(67,56,202,0.2)', cursor: isLoadingMore ? 'not-allowed' : 'pointer', transition: 'background 0.2s'
                             }}
                         >
@@ -1065,27 +1073,27 @@ export default function InvoicesPage() {
 
                 {/* Centered New Invoice Button below Table Footer */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', paddingBottom: '20px' }}>
-                    <Link 
-                        href="/dashboard/invoices/new" 
-                        style={{ 
-                            display: 'flex', alignItems: 'center', gap: '8px', 
-                            padding: '16px 36px', fontSize: '16px', fontWeight: 600, 
-                            borderRadius: '30px', background: '#4338ca', color: '#fff', 
-                            textDecoration: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(67,56,202,0.3)' 
+                    <Link
+                        href="/dashboard/invoices/new"
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            padding: '16px 36px', fontSize: '16px', fontWeight: 600,
+                            borderRadius: '30px', background: '#4338ca', color: '#fff',
+                            textDecoration: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(67,56,202,0.3)'
                         }}
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
                         </svg>
                         {t.newInvoice || 'Create New Invoice'}
                     </Link>
                 </div>
             </div>
 
-            
-            
-            
+
+
+
             {selectedInvoice && (
                 <InvoiceActionModal
                     invoice={selectedInvoice}
@@ -1106,8 +1114,8 @@ export default function InvoicesPage() {
             {/* Animated Bottom FAB */}
             <Link href="/dashboard/invoices/new" className={`fab-animated ${isScrolled ? 'show' : ''}`} style={{ textDecoration: 'none' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
                 {t.newInvoice || 'New Invoice'}
             </Link>

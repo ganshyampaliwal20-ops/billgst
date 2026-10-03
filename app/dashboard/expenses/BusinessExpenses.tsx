@@ -138,7 +138,7 @@ export default function BusinessExpensesPage() {
     const { data: session, status } = useSession();
     const settings = useStore((state: any) => state.settings) || { language: 'en' };
     const t = getTranslations(settings?.language || 'en');
-        const businessProfile = useStore((state: any) => state.businessProfile);
+    const businessProfile = useStore((state: any) => state.businessProfile);
     const aiDraftData = useStore((state: any) => state.aiDraftData);
     const setAiDraftData = useStore((state: any) => state.setAiDraftData);
     const updateAiCopilotStep = useStore((state: any) => state.updateAiCopilotStep);
@@ -169,7 +169,7 @@ export default function BusinessExpensesPage() {
     const expenseFileInputGalleryRef = useRef<HTMLInputElement>(null);
     const [isExpenseScanning, setIsExpenseScanning] = useState(false);
     const [isAiScanMenuOpen, setIsAiScanMenuOpen] = useState(false);
-    const [attachMenuType, setAttachMenuType] = useState<'normal'|'ai'|null>(null);
+    const [attachMenuType, setAttachMenuType] = useState<'normal' | 'ai' | null>(null);
 
     // Expand toggle state per transaction ID
     const [expandedTxns, setExpandedTxns] = useState<Record<number, boolean>>({});
@@ -258,7 +258,7 @@ export default function BusinessExpensesPage() {
                     });
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         try {
             const rawCusts = localStorage.getItem('deleted_hisaab_custs');
@@ -268,7 +268,7 @@ export default function BusinessExpensesPage() {
                     arr.forEach((id: any) => deletedCustIds.current.add(String(id)));
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         try {
             const rawTxns = localStorage.getItem('deleted_hisaab_txns');
@@ -278,7 +278,7 @@ export default function BusinessExpensesPage() {
                     arr.forEach((id: any) => deletedTxnIds.current.add(String(id)));
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
     }, []);
 
     useEffect(() => {
@@ -381,8 +381,8 @@ export default function BusinessExpensesPage() {
                 try {
                     const fastData = await idb.get(userStorageKey);
                     if (fastData) mergeIntoMap(fastData, true);
-                } catch(e) {}
-                
+                } catch (e) { }
+
                 // Hide loading spinner IMMEDIATELY if we have some data
                 if (mergedCustomers.size > 0) {
                     setIsLoadingData(false);
@@ -393,7 +393,7 @@ export default function BusinessExpensesPage() {
                     try {
                         await idb.remove('hisaab_pro_data');
                         localStorage.removeItem('hisaab_pro_data');
-                    } catch(e) {}
+                    } catch (e) { }
                 }
 
                 if (mergedCustomers.size > 0 && isLoadingData) {
@@ -469,7 +469,7 @@ export default function BusinessExpensesPage() {
                                     const mergedTxnIds = new Set<string>([...localTxnIds, ...serverTxns.map((t: any) => String(t.id))]);
 
                                     // Filter out any pending transaction that is already in txns OR was dismissed locally
-                                    const validServerPTxns = (sCust.pending_txns || []).filter((p: any) => 
+                                    const validServerPTxns = (sCust.pending_txns || []).filter((p: any) =>
                                         !isDismissedOrHandled(p.id, mergedTxnIds)
                                     );
 
@@ -506,7 +506,7 @@ export default function BusinessExpensesPage() {
                                         const mergedTxns = [...localTxns, ...newTxns].sort((a: any, b: any) =>
                                             new Date(b.date).getTime() - new Date(a.date).getTime()
                                         );
-                                        
+
                                         let debitSum = 0, creditSum = 0;
                                         mergedTxns.forEach((t: any) => {
                                             if (t.type === 'credit') creditSum += Number(t.amt) || 0;
@@ -668,9 +668,11 @@ export default function BusinessExpensesPage() {
                     } else {
                         if (amt > 0) {
                             createdOrFoundId = fallbackNewId;
-                            const nc = { id: fallbackNewId, name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
-                                id: fallbackNewId + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
-                            }] };
+                            const nc = {
+                                id: fallbackNewId, name: searchName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                                    id: fallbackNewId + 1, type: 'debit', amt, name: 'Opening Balance (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                                }]
+                            };
                             setCanSave(true);
                             showToast(`✅ Naya account ${searchName} ban gaya aur ₹${amt} add ho gaye!`);
                             return [{ ...nc }, ...prevCustomers];
@@ -684,9 +686,11 @@ export default function BusinessExpensesPage() {
                     if (amt > 0) {
                         createdOrFoundId = fallbackNewId;
                         const partyName = searchName || 'General Expense';
-                        const nc = { id: fallbackNewId, name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
-                            id: fallbackNewId + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
-                        }] };
+                        const nc = {
+                            id: fallbackNewId, name: partyName, phone: '', type: 'customer', limit: 0, balance: amt, txns: [{
+                                id: fallbackNewId + 1, type: 'debit', amt, name: 'Expense (AI)', note: '', date: new Date().toISOString(), category: 'General', photos: []
+                            }]
+                        };
                         setCanSave(true);
                         showToast(`✅ ${partyName} me ₹${amt} add ho gaye!`);
                         return [{ ...nc }, ...prevCustomers];
@@ -850,38 +854,33 @@ export default function BusinessExpensesPage() {
         const netAmt = Math.abs(amount);
         const isNeg = amount < 0; // Business owes Customer (Advance)
         const bizName = businessProfile?.business_name || 'Business';
-        
+
         let msg = `${t.namaste || 'Namaste'} ${cust.name || 'Customer'} 🙏\n\n`;
         msg += isReminder ? `${t.paymentPendingMsg || 'Aapka payment pending hai, kripya apna hisaab clear karein.'}\n\n` : `${t.statementReadyMsg || 'Aapka Hisaab Statement ready hai.'}\n\n`;
         msg += `💰 *${t.totalAmount || 'Total Amount'}:* ₹${new Intl.NumberFormat('en-IN').format(netAmt)}\n`;
         msg += `👉 *${t.status || 'Status'}:* ${isNeg ? (t.advanceJamaHai || 'Aapka Advance Jama Hai') : (t.outstanding || 'Aapko Dena Hai (Outstanding)')}\n\n`;
         msg += `📊 *${t.statementLinkMsg || 'Poora Hisaab Dekhne & PDF Download karne ke liye link par click karein:'}*\n${shareUrl}\n\n`;
         msg += `${t.thankYou || 'Dhanyawad'},\n*${bizName}*`;
-        
+
         return msg;
     };
 
     const sendWhatsAppRemind = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
+            alert('⚠️ Pahle User/Party ka Mobile Number add karein! (Account Edit mein ja kar)');
             showToast(t.addPhoneFirst || '📱 Pahle customer ka mobile number add karein.');
             return;
         }
-        
+
         showToast(t.generatingLink || '⏳ Generating Link...');
         try {
             if (session?.user?.id) {
-                try { await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }); } catch (e) {}
+                // Fire and forget, don't await to keep UI fast
+                fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }).catch(e => { });
             }
 
             let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
-            try {
-                if (session?.user?.id) {
-                    const res = await fetch('/api/hisaab/link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ custId: cust.id }) });
-                    const json = await res.json();
-                    if (json.shortId) shareId = json.shortId;
-                }
-            } catch(e) {}
             const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
@@ -898,7 +897,7 @@ export default function BusinessExpensesPage() {
             showToast(t.noCustomerSelected || '⚠️ Koi customer select nahi kiya!');
             return;
         }
-        
+
         showToast(`${t.sendingReminders || '⏳ Sending'} ${targetIds.length} ${t.reminders || 'reminders'}...`);
         setIsBulkMode(false);
         setBulkSelected(new Set());
@@ -917,7 +916,7 @@ export default function BusinessExpensesPage() {
                     const json = await resLink.json();
                     if (json.shortId) shareId = json.shortId;
                 }
-            } catch(e) {}
+            } catch (e) { }
             const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
@@ -925,13 +924,13 @@ export default function BusinessExpensesPage() {
                 let c = 0, d = 0;
                 (cust.txns || []).forEach((t: any) => { if (t.type === 'credit') c += t.amt; else d += t.amt; });
                 const stats = { credit: c, debit: d, net: Math.abs(cust.balance), entries: cust.txns?.length || 0, isNeg: cust.balance < 0 };
-                
+
                 const { generateHisaabPDF } = await import('../../../lib/pdf-generator');
                 const doc = await generateHisaabPDF(cust, { name: 'BillGST Pro' }, stats, false);
                 if (!doc) continue;
                 const pdfBlob = doc.output('blob');
                 const file = new File([pdfBlob], `Reminder_${cust.name}.pdf`, { type: 'application/pdf' });
-                
+
                 const formData = new FormData();
                 formData.append('phone', phone);
                 formData.append('message', textMsg);
@@ -939,7 +938,7 @@ export default function BusinessExpensesPage() {
 
                 const res = await fetch('/api/whatsapp/send-media', { method: 'POST', body: formData });
                 if (res.ok) successCount++;
-                
+
                 if (targetIds.length === 1) {
                     openWhatsAppChat(phone, textMsg);
                 }
@@ -965,21 +964,21 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
+            alert('⚠️ Pahle User/Party ka Mobile Number add karein! (Account Edit mein ja kar)');
             showToast(t.addPhoneWhatsApp || '📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
             return;
         }
-        
+
         showToast(t.generatingLink || '⏳ Generating Link...');
         try {
             if (session?.user?.id) {
                 // Fire and forget sync to speed up
-                fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }).catch(e => {});
+                fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }).catch(e => { });
             }
 
             const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, false);
-
 
             openWhatsAppChat(phone, textMsg);
             showToast(t.openingWhatsApp || '✅ Opening WhatsApp...');
@@ -992,7 +991,8 @@ export default function BusinessExpensesPage() {
         if (!currentCust?.id) return;
         showToast(t.openingStatement || '⏳ Opening Statement...');
         try {
-            await fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(currentCust)) }).catch(e => {});
+            // Fire and forget to make statement open instantly
+            fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(currentCust)) }).catch(e => { });
             const shareId = session?.user?.id ? `${session.user.id}_${currentCust.id}` : currentCust.id;
             window.location.href = `/h/${shareId}`;
         } catch (error) {
@@ -1073,15 +1073,15 @@ export default function BusinessExpensesPage() {
                 }
                 try {
                     const compressedBase64 = await compressImage(base64, 800, 0.7);
-                    
+
                     const res = await fetch('/api/vision-expense', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ imageBase64: compressedBase64 })
                     });
-                    
+
                     const data = await res.json();
-                    
+
                     if (res.ok && data && (data.totalAmount !== undefined || data.amount !== undefined)) {
                         const amtVal = data.totalAmount ?? data.amount;
                         if (amtVal !== undefined && amtVal !== null && amtVal !== '') {
@@ -1198,7 +1198,7 @@ export default function BusinessExpensesPage() {
                 arr.push(idStr);
                 localStorage.setItem('dismissed_ptxns', JSON.stringify(arr));
             }
-        } catch (e) {}
+        } catch (e) { }
 
         let updatedCust: any = null;
         let nextList: any[] = [];
@@ -1214,11 +1214,11 @@ export default function BusinessExpensesPage() {
                         updatedCust = { ...c, pending_txns: newPending };
                         return updatedCust;
                     }
-                    
+
                     const newTxns = [...(c.txns || []), txn].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
                     const isDebit = txn.type !== 'credit';
                     const balChange = isDebit ? txn.amt : -txn.amt;
-                    
+
                     updatedCust = {
                         ...c,
                         txns: newTxns,
@@ -1239,7 +1239,7 @@ export default function BusinessExpensesPage() {
             const { idb } = await import('../../../lib/idb');
             const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
             if (nextList.length > 0) await idb.set(storageKey, nextList);
-        } catch (e) {}
+        } catch (e) { }
 
         if (updatedCust && session?.user?.id) {
             try {
@@ -1269,7 +1269,7 @@ export default function BusinessExpensesPage() {
                 arr.push(idStr);
                 localStorage.setItem('dismissed_ptxns', JSON.stringify(arr));
             }
-        } catch (e) {}
+        } catch (e) { }
 
         let updatedCust: any = null;
         let nextList: any[] = [];
@@ -1296,7 +1296,7 @@ export default function BusinessExpensesPage() {
             const { idb } = await import('../../../lib/idb');
             const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
             if (nextList.length > 0) await idb.set(storageKey, nextList);
-        } catch (e) {}
+        } catch (e) { }
 
         if (updatedCust && session?.user?.id) {
             try {
@@ -1316,7 +1316,7 @@ export default function BusinessExpensesPage() {
         if (businessProfile?.has_expense_pin) {
             const rawPin = window.prompt("Security Check:\nPlease enter your 4-digit Expense Deletion PIN:");
             if (rawPin === null) return false;
-            
+
             const pin = rawPin.trim();
             if (!pin) {
                 showToast('⚠️ PIN is required!');
@@ -1330,18 +1330,18 @@ export default function BusinessExpensesPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pin })
                 });
-                
+
                 if (!res.ok) {
                     showToast('❌ Server error checking PIN: ' + res.status);
                     return false;
                 }
-                
+
                 const data = await res.json();
                 if (!data.success) {
                     showToast('❌ ' + (data.error || 'Incorrect PIN'));
                     return false;
                 }
-                
+
                 // Do not show "PIN Verified" as it overrides the success toast of deletion
                 return true;
             } catch (e: any) {
@@ -1366,10 +1366,10 @@ export default function BusinessExpensesPage() {
                 if (arr.length > 1000) arr.shift();
                 localStorage.setItem('deleted_hisaab_txns', JSON.stringify(arr));
             }
-        } catch (e) {}
+        } catch (e) { }
 
         let updatedCustObj: any = null;
-        
+
         // 1. Calculate the new state synchronously
         const nextCustomers = customers.map(c => {
             if (String(c.id) === String(curCid)) {
@@ -1395,7 +1395,7 @@ export default function BusinessExpensesPage() {
             const { idb } = await import('../../../lib/idb');
             const storageKey = session?.user?.id ? `hisaab_pro_data_${session.user.id}` : 'hisaab_pro_data';
             await idb.set(storageKey, nextCustomers);
-            
+
             if (updatedCustObj && session?.user?.id) {
                 fetch('/api/hisaab/sync', {
                     method: 'POST',
@@ -1492,11 +1492,11 @@ export default function BusinessExpensesPage() {
                 const action = isDebit ? 'Given (Debit)' : 'Received (Credit)';
                 const bizName = businessProfile?.business_name || businessProfile?.name || 'BillGST';
                 const balType = newBalance < 0 ? 'Advance' : 'Due';
-                
+
                 let txt = `*${bizName} - Account Statement*\n\nHello ${currentCustomer.name},\n\nYour account has been updated with *₹${amt}* (${action}).\n\n*Current Balance:* ₹${Math.abs(newBalance)} (${balType})\n\nThank you,\n*${bizName}*`;
                 const custShareId = session?.user?.id ? `${session.user.id}_${currentCustomer.id}` : currentCustomer.id;
                 txt += getVisitingCardText(businessProfile, newBalance > 0 ? newBalance : undefined, custShareId, currentCustomer.name);
-                
+
                 // Direct WhatsApp intent on user device for 100% FREE & instant delivery
                 try {
                     openWhatsAppChat(currentCustomer.phone, txt);
@@ -1512,17 +1512,17 @@ export default function BusinessExpensesPage() {
     const importContact = async () => {
         try {
             const { isNativeApp } = await import('@/lib/utils');
-            
+
             if (isNativeApp()) {
                 try {
                     const { registerPlugin } = await import('@capacitor/core');
                     const NativeContactPicker = registerPlugin('NativeContactPicker') as any;
-                    
+
                     if (NativeContactPicker) {
                         const result = await NativeContactPicker.pickPhoneContact();
                         if (result && result.name && result.phone) {
                             setAcName(result.name);
-                            
+
                             let foundNum = '';
                             const numStr = result.phone;
                             if (numStr) {
@@ -1534,7 +1534,7 @@ export default function BusinessExpensesPage() {
                                     foundNum = num;
                                 }
                             }
-                            
+
                             if (foundNum) {
                                 setAcPhone(foundNum);
                                 showToast(t.contactImported || '✅ Contact imported successfully!');
@@ -1563,7 +1563,7 @@ export default function BusinessExpensesPage() {
                     if (contacts && contacts.length > 0) {
                         const contact = contacts[0];
                         if (contact.name && contact.name[0]) setAcName(contact.name[0]);
-                        
+
                         let foundNum = '';
                         if (contact.tel && contact.tel.length > 0) {
                             for (const t of contact.tel) {
@@ -1587,7 +1587,7 @@ export default function BusinessExpensesPage() {
                             showToast(t.noValidPhoneFound || '⚠️ Contact selected, but no valid phone number found.');
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     showToast(t.pickerFailed || '⚠️ Web contact picker failed or cancelled.');
                 }
             } else {
@@ -1656,7 +1656,7 @@ export default function BusinessExpensesPage() {
                 if (arr.length > 1000) arr.shift();
                 localStorage.setItem('deleted_hisaab_custs', JSON.stringify(arr));
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // 2. Immediately update local state
         const remainingCusts = customers.filter(c => String(c.id) !== targetIdStr);
@@ -1712,8 +1712,8 @@ export default function BusinessExpensesPage() {
             });
             const fileName = `All_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
             const base64Data = btoa(unescape(encodeURIComponent(csv)));
-            
-            
+
+
             await downloadAndShareFile(base64Data, fileName, 'text/csv');
             showToast(t.excelDownloaded || '✅ Excel Downloaded/Shared!');
         } catch (e: any) {
@@ -1738,8 +1738,8 @@ export default function BusinessExpensesPage() {
 
             const fileName = `${currentCust.name}_Hisaab_${new Date().toISOString().split('T')[0]}.csv`;
             const base64Data = btoa(unescape(encodeURIComponent(csv)));
-            
-            
+
+
             await downloadAndShareFile(base64Data, fileName, 'text/csv');
             showToast(t.excelDownloaded || '✅ Excel Downloaded/Shared!');
         } catch (e: any) {
@@ -1979,8 +1979,8 @@ export default function BusinessExpensesPage() {
                             </button>
                         )}
                     </div>
-                    <button 
-                        className="filter-btn-okc" 
+                    <button
+                        className="filter-btn-okc"
                         onClick={() => {
                             setTempSort(selectedSort);
                             setTempReminder(selectedReminder);
@@ -2001,7 +2001,7 @@ export default function BusinessExpensesPage() {
                             position: 'relative'
                         }}
                     >
-                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M7 12h10M10 18h4"/></svg>
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M7 12h10M10 18h4" /></svg>
                         {(selectedSort !== 'default' || selectedReminder !== 'all') && <div style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#ef4444', borderRadius: '50%', border: '1.5px solid #fff' }}></div>}
                     </button>
                 </div>
@@ -2055,7 +2055,7 @@ export default function BusinessExpensesPage() {
                                     );
                                 })}
                                 {visibleCount < filtered.length && (
-                                    <div 
+                                    <div
                                         ref={(el) => {
                                             if (!el) return;
                                             const observer = new IntersectionObserver(([entry]) => {
@@ -2073,10 +2073,10 @@ export default function BusinessExpensesPage() {
                         );
                     })()}
                 </div>
-                
+
                 {isBulkMode ? (
                     bulkSelected.size > 0 && (
-                        <button 
+                        <button
                             onClick={handleBulkRemind}
                             className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[240px] h-[55px] rounded-[20px] bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center shadow-[0_10px_25px_rgba(16,185,129,.5)] text-white font-bold text-lg z-[150] cursor-pointer transition-all duration-300 hover:scale-105"
                         >
@@ -2084,7 +2084,7 @@ export default function BusinessExpensesPage() {
                         </button>
                     )
                 ) : (
-                    <button 
+                    <button
                         onClick={() => { setEditCustId(null); setAcName(''); setAcPhone(''); setAcLimit(''); setAcOpening(''); setIsAddCustOpen(true); }}
                         className="fixed bottom-8 right-6 sm:right-[calc(50%-230px)] w-[60px] h-[60px] rounded-[20px] bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-[0_10px_25px_rgba(79,70,229,.5)] text-white z-[150] cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-1"
                     >
@@ -2236,7 +2236,7 @@ export default function BusinessExpensesPage() {
                                             </div>
                                             {dayTxns.map((t: any, i: number) => {
                                                 const isCr = t.type === 'credit';
-                                                const typeClass = isCr ? 'received' : 'given'; 
+                                                const typeClass = isCr ? 'received' : 'given';
                                                 const hasPhotos = t.photos && t.photos.length > 0;
 
                                                 return (
@@ -2247,7 +2247,7 @@ export default function BusinessExpensesPage() {
                                                                 <span className="chat-amount">₹{new Intl.NumberFormat('en-IN').format(t.amt)}</span>
                                                                 <span className="chat-time">
                                                                     {formatTime(t.date)}
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{width: '10px', height: '10px'}}><path d="M20 6L9 17l-5-5"/></svg>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '10px', height: '10px' }}><path d="M20 6L9 17l-5-5" /></svg>
                                                                 </span>
                                                             </div>
                                                             <div className="chat-note">
@@ -2264,7 +2264,7 @@ export default function BusinessExpensesPage() {
                                                                     <img src={t.photos[0]} onClick={() => setLightboxImg(t.photos[0])} alt="Bill" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', cursor: 'pointer', border: '1px solid var(--border)' }} />
                                                                 </div>
                                                             )}
-                                                            
+
                                                             <div className="chat-bubble-actions">
                                                                 <button className="chat-action-icon edit" onClick={() => openEditEntry(t)} title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
                                                                 <button className="chat-action-icon delete" onClick={() => deleteTxn(t.id, t.amt, t.type)} title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"></path></svg></button>
@@ -2289,7 +2289,7 @@ export default function BusinessExpensesPage() {
 
 
                             <div className="spacer" style={{ height: '100px' }}></div>
-                            
+
                             {/* Floating Balance Indicator above bottom bar */}
                             {isDetailScrolled && !isAddEntryOpen && (
                                 <div className="fixed left-0 w-full flex justify-center z-[110] animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none" style={{ bottom: 'calc(100px + env(safe-area-inset-bottom))' }}>
@@ -2312,7 +2312,7 @@ export default function BusinessExpensesPage() {
                     </div>
 
                     <div className="spacer"></div>
-                    
+
                     <input type="file" accept="image/*" capture="environment" className="hidden" ref={expenseFileInputCameraRef} onChange={handleExpenseAiScan} />
                     <input type="file" accept="image/*" className="hidden" ref={expenseFileInputGalleryRef} onChange={handleExpenseAiScan} />
 
@@ -2377,9 +2377,9 @@ export default function BusinessExpensesPage() {
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
                             </button>
                             <div className={`kb-title ${entryType === 'debit' ? 'red' : entryType === 'credit' ? 'green' : 'blue'}`} style={{ flex: 1, textAlign: 'center', margin: '0 8px', fontSize: '15px' }}>
-                                {entryType === 'debit' ? `You gave ₹ ${amtInp || '0'} to ${currentCust?.name || ''}` : 
-                                 entryType === 'credit' ? `You got ₹ ${amtInp || '0'} from ${currentCust?.name || ''}` : 
-                                 `Advance ₹ ${amtInp || '0'} to ${currentCust?.name || ''}`}
+                                {entryType === 'debit' ? `You gave ₹ ${amtInp || '0'} to ${currentCust?.name || ''}` :
+                                    entryType === 'credit' ? `You got ₹ ${amtInp || '0'} from ${currentCust?.name || ''}` :
+                                        `Advance ₹ ${amtInp || '0'} to ${currentCust?.name || ''}`}
                             </div>
                             <div style={{ width: '24px' }}></div>
                         </div>
@@ -2395,8 +2395,8 @@ export default function BusinessExpensesPage() {
                     <div className="kb-entry-body">
                         <div className="kb-card">
                             <span className={`kb-currency ${entryType === 'debit' ? 'red' : 'green'}`}>₹</span>
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 inputMode="decimal"
                                 value={amtInp}
                                 onChange={(e) => {
@@ -2413,11 +2413,11 @@ export default function BusinessExpensesPage() {
                         </div>
 
                         <div className="kb-card kb-no-pad" style={{ display: 'flex', alignItems: 'center' }}>
-                            <input 
-                                type="text" 
-                                placeholder="Enter details (Items, bill no., quantity)" 
-                                value={entryNote} 
-                                onChange={e => setEntryNote(e.target.value)} 
+                            <input
+                                type="text"
+                                placeholder="Enter details (Items, bill no., quantity)"
+                                value={entryNote}
+                                onChange={e => setEntryNote(e.target.value)}
                                 className="kb-note-input"
                                 style={{ flex: 1 }}
                             />
@@ -2425,19 +2425,19 @@ export default function BusinessExpensesPage() {
                                 <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '13px', color: '#475569', fontWeight: 600, maxWidth: '110px' }} />
                             </div>
                         </div>
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-                                <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
-                                
-                                <button onClick={() => setAttachMenuType('normal')} className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                                    <span style={{ fontSize: '20px' }}>📎</span>
-                                    <span style={{ fontSize: '13px', fontWeight: 600 }}>Attach Bill</span>
-                                </button>
-                                <button onClick={() => setAttachMenuType('ai')} className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', border: 'none', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                                    <span style={{ fontSize: '13px', fontWeight: 600 }}>AI Auto-Fill</span>
-                                </button>
-                            </div>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                            <input type="file" id="billFileCameraNew" accept="image/*" capture="environment" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+                            <input type="file" id="billFileGalleryNew" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoUpload} />
+
+                            <button onClick={() => setAttachMenuType('normal')} className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '20px' }}>📎</span>
+                                <span style={{ fontSize: '13px', fontWeight: 600 }}>Attach Bill</span>
+                            </button>
+                            <button onClick={() => setAttachMenuType('ai')} className="kb-card kb-attach-card" style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #10b981 100%)', border: 'none', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+                                <span style={{ fontSize: '13px', fontWeight: 600 }}>AI Auto-Fill</span>
+                            </button>
+                        </div>
 
                         {pendingPhotos.length > 0 && (
                             <div className="kb-photos-preview">
@@ -2455,7 +2455,7 @@ export default function BusinessExpensesPage() {
                         {currentCust?.phone && (
                             <div className="kb-whatsapp-toggle" onClick={() => setAutoWhatsApp(!autoWhatsApp)}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <svg viewBox="0 0 24 24" fill="#25D366" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="#25D366" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
                                     <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Share on WhatsApp</span>
                                 </div>
                                 <div className={`kb-toggle ${autoWhatsApp ? 'on' : 'off'}`}>
@@ -2468,9 +2468,9 @@ export default function BusinessExpensesPage() {
                                 SAVE
                             </button>
                             {editTxnId ? (
-                                <button className="kb-cancel-btn" style={{ color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }} onClick={() => { 
-                                    const txn = currentCust?.txns?.find((t:any) => t.id === editTxnId);
-                                    if(txn) {
+                                <button className="kb-cancel-btn" style={{ color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }} onClick={() => {
+                                    const txn = currentCust?.txns?.find((t: any) => t.id === editTxnId);
+                                    if (txn) {
                                         deleteTxn(txn.id, txn.amt, txn.type);
                                         closeNumpad();
                                     }
@@ -2564,28 +2564,28 @@ export default function BusinessExpensesPage() {
             {isFilterOpen && (
                 <div className="filter-modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 10000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' }}>
                     <div className="filter-modal-content" style={{ background: 'var(--bg2, #fff)', width: '100%', maxWidth: '500px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', display: 'flex', flexDirection: 'column', maxHeight: '80vh', overflow: 'hidden', transform: 'translateY(0)', transition: 'transform 0.3s ease-out' }}>
-                        
+
                         <div className="filter-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--border, #e2e8f0)' }}>
                             <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink, #0f172a)' }}>Filter</div>
                             <button onClick={() => setIsFilterOpen(false)} style={{ background: 'none', border: 'none', fontSize: '20px', color: 'var(--ink3, #64748b)', cursor: 'pointer' }}>✕</button>
                         </div>
-                        
+
                         <div className="filter-modal-body" style={{ display: 'flex', flex: 1, minHeight: '300px' }}>
                             <div className="filter-tabs" style={{ width: '140px', background: 'var(--bg, #f8fafc)', borderRight: '1px solid var(--border, #e2e8f0)' }}>
-                                <div 
+                                <div
                                     onClick={() => setActiveFilterTab('sort')}
                                     style={{ padding: '16px', fontSize: '14px', fontWeight: activeFilterTab === 'sort' ? 600 : 500, color: activeFilterTab === 'sort' ? 'var(--primary)' : 'var(--ink2, #334155)', background: activeFilterTab === 'sort' ? 'var(--bg2, #fff)' : 'transparent', borderLeft: activeFilterTab === 'sort' ? '3px solid var(--primary)' : '3px solid transparent', cursor: 'pointer' }}
                                 >
                                     Sort By
                                 </div>
-                                <div 
+                                <div
                                     onClick={() => setActiveFilterTab('reminder')}
                                     style={{ padding: '16px', fontSize: '14px', fontWeight: activeFilterTab === 'reminder' ? 600 : 500, color: activeFilterTab === 'reminder' ? 'var(--primary)' : 'var(--ink2, #334155)', background: activeFilterTab === 'reminder' ? 'var(--bg2, #fff)' : 'transparent', borderLeft: activeFilterTab === 'reminder' ? '3px solid var(--primary)' : '3px solid transparent', cursor: 'pointer' }}
                                 >
                                     Reminder Date
                                 </div>
                             </div>
-                            
+
                             <div className="filter-options" style={{ flex: 1, overflowY: 'auto', padding: '16px 0', background: 'var(--bg2, #fff)' }}>
                                 {activeFilterTab === 'sort' && (
                                     <>
@@ -2596,8 +2596,8 @@ export default function BusinessExpensesPage() {
                                             { id: 'due_amount', label: 'Due Amount' },
                                             { id: 'name', label: 'Name' }
                                         ].map(opt => (
-                                            <div 
-                                                key={opt.id} 
+                                            <div
+                                                key={opt.id}
                                                 onClick={() => setTempSort(opt.id)}
                                                 style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
                                             >
@@ -2616,8 +2616,8 @@ export default function BusinessExpensesPage() {
                                             { id: 'overdue', label: 'Overdue Payments' },
                                             { id: 'pending', label: 'Pending Payments' }
                                         ].map(opt => (
-                                            <div 
-                                                key={opt.id} 
+                                            <div
+                                                key={opt.id}
                                                 onClick={() => setTempReminder(opt.id)}
                                                 style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
                                             >
@@ -2633,7 +2633,7 @@ export default function BusinessExpensesPage() {
                         </div>
 
                         <div className="filter-modal-footer" style={{ padding: '16px', borderTop: '1px solid var(--border, #e2e8f0)', display: 'flex', gap: '12px', background: 'var(--bg2, #fff)' }}>
-                            <button 
+                            <button
                                 onClick={() => {
                                     setTempSort('default');
                                     setSelectedSort('default');
@@ -2645,7 +2645,7 @@ export default function BusinessExpensesPage() {
                             >
                                 Clear
                             </button>
-                            <button 
+                            <button
                                 onClick={() => {
                                     setSelectedSort(tempSort);
                                     setSelectedReminder(tempReminder);
