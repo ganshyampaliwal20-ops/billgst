@@ -868,7 +868,6 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppRemind = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
-            alert('⚠️ Pahle User/Party ka Mobile Number add karein! (Account Edit mein ja kar)');
             showToast(t.addPhoneFirst || '📱 Pahle customer ka mobile number add karein.');
             return;
         }
@@ -880,7 +879,7 @@ export default function BusinessExpensesPage() {
                 fetch('/api/hisaab/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getCleanPayload(cust)) }).catch(e => { });
             }
 
-            let shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
+            const shareId = session?.user?.id ? `${session.user.id}_${cust.id}` : cust.id;
             const shareUrl = `${window.location.origin}/h/${shareId}?lang=${settings?.language || 'en'}`;
             const textMsg = generateHisaabWhatsAppText(cust, cust.balance, shareUrl, true);
 
@@ -964,7 +963,6 @@ export default function BusinessExpensesPage() {
     const sendWhatsAppStatement = async (cust: any, amount: number) => {
         const phone = cust.phone?.replace(/\D/g, '') || '';
         if (!phone) {
-            alert('⚠️ Pahle User/Party ka Mobile Number add karein! (Account Edit mein ja kar)');
             showToast(t.addPhoneWhatsApp || '📱 Pahle customer ka mobile number add karein, uske baad WhatsApp par share hoga.');
             return;
         }
