@@ -1945,7 +1945,7 @@ export default function BusinessExpensesPage() {
                     </div>
                 )}
 
-                <div className="search-row" style={{ display: 'flex', gap: '8px', padding: '0 16px', marginBottom: '16px', marginTop: '16px' }}>
+                <div className="search-row sticky top-[56px] md:top-[64px]" style={{ display: 'flex', gap: '8px', padding: '10px 16px', marginBottom: '16px', marginTop: '16px', zIndex: 50, backgroundColor: 'var(--bg)' }}>
                     <div className="search-box" style={{ flex: 1, margin: 0 }}>
                         <span style={{ fontSize: '16px', color: 'var(--text3)' }}>🔍</span>
                         <input
