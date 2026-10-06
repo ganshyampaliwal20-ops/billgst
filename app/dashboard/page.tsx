@@ -15,7 +15,7 @@ import CollectionCenter from './CollectionCenter';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
-        const invoices = useStore((state: any) => state.invoices);
+    const invoices = useStore((state: any) => state.invoices);
     const customers = useStore((state: any) => state.customers);
     const products = useStore((state: any) => state.products);
     const businessProfile = useStore((state: any) => state.businessProfile);
@@ -149,35 +149,35 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (!isClient || !miniChartRef.current) return;
-        
+
         let chartInstance: any;
 
         const initChart = async () => {
             const { default: Chart } = await import('chart.js/auto');
             if (!miniChartRef.current) return;
             chartInstance = new Chart(miniChartRef.current, {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    data: [0, 0, 0, 0, 0, 0, 0],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79,70,229,0.06)',
-                    borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4f46e5',
-                    fill: true, tension: .45
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: true,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + ((ctx.raw as number) / 1000).toFixed(0) + 'K' } } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#7c88a6' } },
-                    y: { display: true, ticks: { callback: (val: any) => "₹" + (Number(val) / 1000).toFixed(0) + "K" } }
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79,70,229,0.06)',
+                        borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4f46e5',
+                        fill: true, tension: .45
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + ((ctx.raw as number) / 1000).toFixed(0) + 'K' } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#7c88a6' } },
+                        y: { display: true, ticks: { callback: (val: any) => "₹" + (Number(val) / 1000).toFixed(0) + "K" } }
+                    }
                 }
-            }
-        });
+            });
         };
-        
+
         initChart();
         return () => {
             if (chartInstance) chartInstance.destroy();
@@ -494,55 +494,59 @@ export default function DashboardPage() {
                 {(businessProfile?.modules?.inventory !== false || businessProfile?.modules?.invoicing !== false || businessProfile?.modules?.accounting !== false || businessProfile?.modules?.staff !== false) && (
                     <div className="w-full mt-4 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
                         <div className="flex gap-4 md:gap-8 px-4 w-max md:w-full justify-start xl:justify-center mx-auto snap-x snap-mandatory">
-                            
+
                             {/* Invoicing / Inventory Video */}
                             {(businessProfile?.modules?.inventory !== false || businessProfile?.modules?.invoicing !== false) && (
                                 <div className="shrink-0 snap-center flex flex-col items-center group" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full transition-opacity duration-500" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === inventoryVideos[invVideoIndex] ? (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black">
-                                            <a 
-                                                href={`https://www.instagram.com/reel/${inventoryVideos[invVideoIndex]}/`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex flex-col items-center gap-2 text-white"
-                                                onClick={() => setPlayingVideo(null)}
-                                            >
-                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.6, position: 'absolute', inset: 0 }} />
-                                                <div style={{ position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }}>
-                                                    <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{ marginLeft: '3px' }}>
-                                                        <path d="M8 5v14l11-7z" />
-                                                    </svg>
-                                                </div>
-                                                <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>Instagram par dekhein</span>
-                                            </a>
-                                        </div>
-                                        ) : (
-                                                <div 
-                                                    style={{ 
-                                                        width: '100%', height: '100%', 
-                                                        backgroundColor: '#0f172a',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
-                                                    }}
-                                                    onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
+                                            <div className="absolute inset-0 flex items-center justify-center bg-white overflow-hidden">
+                                                <a
+                                                    href={`https://www.instagram.com/reel/${inventoryVideos[invVideoIndex]}/`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex flex-col items-center gap-2 text-white w-full h-full justify-center relative"
+                                                    onClick={() => setPlayingVideo(null)}
                                                 >
-                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.85, position: 'absolute' }} />
-                                                    <div style={{ position: 'relative', zIndex: 10,
-                                                        width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
-                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(12px)', opacity: 0.8, position: 'absolute', inset: 0, transform: 'scale(1.1)' }} />
+                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, zIndex: 1 }} />
+                                                    <div style={{ position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }}>
+                                                        <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{ marginLeft: '3px' }}>
+                                                            <path d="M8 5v14l11-7z" />
+                                                        </svg>
+                                                    </div>
+                                                    <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', color: 'white', marginTop: '8px' }}>Instagram par dekhein</span>
+                                                </a>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    width: '100%', height: '100%',
+                                                    backgroundColor: 'white',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5,
+                                                    overflow: 'hidden'
+                                                }}
+                                                onClick={() => setPlayingVideo(inventoryVideos[invVideoIndex])}
+                                            >
+                                                <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(12px)', opacity: 0.6, position: 'absolute', inset: 0, transform: 'scale(1.1)' }} />
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, zIndex: 1 }} />
+                                                <div style={{
+                                                    position: 'relative', zIndex: 10,
+                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)',
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
                                                     <svg viewBox="0 0 24 24" fill="#dc2743" width="14" height="14" style={{ marginLeft: '4px' }}>
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>
-                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>Click to Play</div>
+                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', zIndex: 10, textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>Click to Play</div>
                                             </div>
                                         )}
 
                                         {/* Prev Button */}
                                         {inventoryVideos.length > 1 && (
-                                            <button 
+                                            <button
                                                 onClick={() => setInvVideoIndex(prev => prev === 0 ? inventoryVideos.length - 1 : prev - 1)}
                                                 className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100 z-10"
                                             >
@@ -551,7 +555,7 @@ export default function DashboardPage() {
                                         )}
                                         {/* Next Button */}
                                         {inventoryVideos.length > 1 && (
-                                            <button 
+                                            <button
                                                 onClick={() => setInvVideoIndex(prev => (prev + 1) % inventoryVideos.length)}
                                                 className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100 z-10"
                                             >
@@ -575,44 +579,48 @@ export default function DashboardPage() {
                                 <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === 'DZHTY54IR_l' ? (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black">
-                                            <a 
-                                                href="https://www.instagram.com/reel/DZHTY54IR_l/"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex flex-col items-center gap-2 text-white w-full h-full"
-                                                onClick={() => setPlayingVideo(null)}
-                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
-                                            >
-                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'contain', opacity: 0.6, position: 'absolute', inset: 0}} />
-                                                <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
-                                                    <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{marginLeft: '3px'}}>
-                                                        <path d="M8 5v14l11-7z" />
-                                                    </svg>
-                                                </div>
-                                                <span style={{position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', marginTop: '8px'}}>Instagram par dekhein</span>
-                                            </a>
-                                        </div>
+                                            <div className="absolute inset-0 flex items-center justify-center bg-white overflow-hidden">
+                                                <a
+                                                    href="https://www.instagram.com/reel/DZHTY54IR_l/"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex flex-col items-center gap-2 text-white w-full h-full justify-center relative"
+                                                    onClick={() => setPlayingVideo(null)}
+                                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
+                                                >
+                                                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(12px)', opacity: 0.8, position: 'absolute', inset: 0, transform: 'scale(1.1)' }} />
+                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, zIndex: 1 }} />
+                                                    <div style={{ position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }}>
+                                                        <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{ marginLeft: '3px' }}>
+                                                            <path d="M8 5v14l11-7z" />
+                                                        </svg>
+                                                    </div>
+                                                    <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', marginTop: '8px', color: 'white' }}>Instagram par dekhein</span>
+                                                </a>
+                                            </div>
                                         ) : (
-                                            <div 
-                                                style={{ 
-                                                    width: '100%', height: '100%', 
-                                                    backgroundColor: '#0f172a',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
+                                            <div
+                                                style={{
+                                                    width: '100%', height: '100%',
+                                                    backgroundColor: 'white',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5,
+                                                    overflow: 'hidden'
                                                 }}
                                                 onClick={() => setPlayingVideo('DZHTY54IR_l')}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.85, position: 'absolute' }} />
-                                                <div style={{ position: 'relative', zIndex: 10,
-                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
-                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(12px)', opacity: 0.6, position: 'absolute', inset: 0, transform: 'scale(1.1)' }} />
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, zIndex: 1 }} />
+                                                <div style={{
+                                                    position: 'relative', zIndex: 10,
+                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)',
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
                                                     <svg viewBox="0 0 24 24" fill="#dc2743" width="14" height="14" style={{ marginLeft: '4px' }}>
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>
-                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>Click to Play</div>
+                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', zIndex: 10, textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>Click to Play</div>
                                             </div>
                                         )}
                                     </div>
@@ -627,44 +635,48 @@ export default function DashboardPage() {
                                 <div className="shrink-0 snap-center flex flex-col items-center" style={{ width: '75vw', maxWidth: '280px' }}>
                                     <div className="relative overflow-hidden rounded-xl shadow-md border-[4px] border-white bg-black pointer-events-auto w-full" style={{ aspectRatio: '16/9' }}>
                                         {playingVideo === 'DZARRuCI0rT' ? (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black">
-                                            <a 
-                                                href="https://www.instagram.com/reel/DZARRuCI0rT/"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex flex-col items-center gap-2 text-white w-full h-full"
-                                                onClick={() => setPlayingVideo(null)}
-                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
-                                            >
-                                                <img src="/logo.png" alt="BillGST" style={{width: '100%', height: '100%', objectFit: 'contain', opacity: 0.6, position: 'absolute', inset: 0}} />
-                                                <div style={{position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)'}}>
-                                                    <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{marginLeft: '3px'}}>
-                                                        <path d="M8 5v14l11-7z" />
-                                                    </svg>
-                                                </div>
-                                                <span style={{position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', marginTop: '8px'}}>Instagram par dekhein</span>
-                                            </a>
-                                        </div>
+                                            <div className="absolute inset-0 flex items-center justify-center bg-white overflow-hidden">
+                                                <a
+                                                    href="https://www.instagram.com/reel/DZARRuCI0rT/"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex flex-col items-center gap-2 text-white w-full h-full justify-center relative"
+                                                    onClick={() => setPlayingVideo(null)}
+                                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
+                                                >
+                                                    <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(12px)', opacity: 0.8, position: 'absolute', inset: 0, transform: 'scale(1.1)' }} />
+                                                    <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, zIndex: 1 }} />
+                                                    <div style={{ position: 'relative', zIndex: 10, width: '48px', height: '48px', background: 'rgba(220, 39, 67, 0.95)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.4)' }}>
+                                                        <svg viewBox="0 0 24 24" fill="white" width="20" height="20" style={{ marginLeft: '3px' }}>
+                                                            <path d="M8 5v14l11-7z" />
+                                                        </svg>
+                                                    </div>
+                                                    <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 700, textShadow: '0 1px 4px rgba(0,0,0,0.7)', marginTop: '8px', color: 'white' }}>Instagram par dekhein</span>
+                                                </a>
+                                            </div>
                                         ) : (
-                                            <div 
-                                                style={{ 
-                                                    width: '100%', height: '100%', 
-                                                    backgroundColor: '#0f172a',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5
+                                            <div
+                                                style={{
+                                                    width: '100%', height: '100%',
+                                                    backgroundColor: 'white',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'absolute', top: 0, left: 0, zIndex: 5,
+                                                    overflow: 'hidden'
                                                 }}
                                                 onClick={() => setPlayingVideo('DZARRuCI0rT')}
                                             >
-                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.85, position: 'absolute' }} />
-                                                <div style={{ position: 'relative', zIndex: 10,
-                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)', 
-                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                <img src="/logo.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(12px)', opacity: 0.6, position: 'absolute', inset: 0, transform: 'scale(1.1)' }} />
+                                                <img src="/logo.png" alt="BillGST" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, zIndex: 1 }} />
+                                                <div style={{
+                                                    position: 'relative', zIndex: 10,
+                                                    width: '40px', height: '40px', background: 'rgba(255, 255, 255, 0.95)',
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
                                                 }}>
                                                     <svg viewBox="0 0 24 24" fill="#dc2743" width="14" height="14" style={{ marginLeft: '4px' }}>
                                                         <path d="M8 5v14l11-7z" />
                                                     </svg>
                                                 </div>
-                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>Click to Play</div>
+                                                <div style={{ position: 'absolute', bottom: '10px', color: 'white', fontWeight: 'bold', fontSize: '12px', zIndex: 10, textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>Click to Play</div>
                                             </div>
                                         )}
                                     </div>
@@ -679,19 +691,19 @@ export default function DashboardPage() {
                 )}
 
                 {businessProfile?.modules?.invoicing !== false && (
-                <div className="period-row">
-                    <div>
-                        <div className="section-title">{t.businessOverview}</div>
-                        <div className="section-sub">{t.realTimePerformance}</div>
+                    <div className="period-row">
+                        <div>
+                            <div className="section-title">{t.businessOverview}</div>
+                            <div className="section-sub">{t.realTimePerformance}</div>
+                        </div>
+                        <div className="period-tabs">
+                            <div className={`ptab ${period === 'daily' ? 'active' : ''}`} onClick={() => setPeriod('daily')}>{t.daily}</div>
+                            <div className={`ptab ${period === 'weekly' ? 'active' : ''}`} onClick={() => setPeriod('weekly')}>{t.weekly}</div>
+                            <div className={`ptab ${period === 'monthly' ? 'active' : ''}`} onClick={() => setPeriod('monthly')}>{t.monthly}</div>
+                            <div className={`ptab ${period === 'yearly' ? 'active' : ''}`} onClick={() => setPeriod('yearly')}>{t.yearly}</div>
+                            <div className={`ptab ${period === 'custom' ? 'active' : ''}`} onClick={() => setPeriod('custom')}>{t.custom}</div>
+                        </div>
                     </div>
-                    <div className="period-tabs">
-                        <div className={`ptab ${period === 'daily' ? 'active' : ''}`} onClick={() => setPeriod('daily')}>{t.daily}</div>
-                        <div className={`ptab ${period === 'weekly' ? 'active' : ''}`} onClick={() => setPeriod('weekly')}>{t.weekly}</div>
-                        <div className={`ptab ${period === 'monthly' ? 'active' : ''}`} onClick={() => setPeriod('monthly')}>{t.monthly}</div>
-                        <div className={`ptab ${period === 'yearly' ? 'active' : ''}`} onClick={() => setPeriod('yearly')}>{t.yearly}</div>
-                        <div className={`ptab ${period === 'custom' ? 'active' : ''}`} onClick={() => setPeriod('custom')}>{t.custom}</div>
-                    </div>
-                </div>
                 )}
 
                 <div className="kpi-strip">
@@ -724,120 +736,120 @@ export default function DashboardPage() {
                 </div>
 
                 {businessProfile?.modules?.invoicing !== false && (
-                <div className="main-grid">
-                    <div key="recent-invoices-panel" className="card" style={{ animationDelay: ".2s" }}>
+                    <div className="main-grid">
+                        <div key="recent-invoices-panel" className="card" style={{ animationDelay: ".2s" }}>
+                            <div className="card-hdr">
+                                <div>
+                                    <div className="card-title">{t.recentInvoices}</div>
+                                    <div className="card-sub">{t.latestBillingActivity || 'Latest billing activity'}</div>
+                                </div>
+                                <Link href="/dashboard/invoices" className="see-all" style={{ textDecoration: "none" }}>{t.viewAll} →</Link>
+                            </div>
+                            <div>
+                                {recentInvoices.length === 0
+                                    ? <div className="text-center text-xs p-4 text-slate-400 font-bold">{t.noInvoices}</div>
+                                    : recentInvoices.map((inv: any, idx: number) => {
+                                        const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
+                                        const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
+                                        return (
+                                            <Link href="/dashboard/invoices" className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
+                                                <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
+                                                <div className="inv-info">
+                                                    <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
+                                                    <div className="inv-meta">{inv.invoice_number} · {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
+                                                </div>
+                                                <div className="inv-right">
+                                                    <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
+                                                    <div className={`inv-status ${sClass}`}>{inv.status}</div>
+                                                </div>
+                                                <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
+                                            </Link>
+                                        );
+                                    })
+                                }
+                            </div>
+                            <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--faint)" }}>
+                                <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>{t.revenueThisWeek || 'Revenue This Week'}</div>
+                                <canvas ref={miniChartRef} style={{ maxHeight: "90px" }}></canvas>
+                            </div>
+                        </div>
+
+                        <CollectionCenter
+                            t={t}
+                            pendingCustomersList={pendingCustomersList}
+                            collectionSearch={collectionSearch}
+                            setCollectionSearch={setCollectionSearch}
+                            selectedCustomers={selectedCustomers}
+                            setSelectedCustomers={setSelectedCustomers}
+                            handleSendReminder={handleSendReminder}
+                            handleBulkReminder={handleBulkReminder}
+                            totalOverallPending={totalOverallPending}
+                            formatLakhs={formatLakhs}
+                        />
+                    </div>
+                )}
+
+                {businessProfile?.modules?.inventory !== false && (
+                    <div className="card" style={{ animationDelay: ".3s", marginBottom: "0", marginTop: businessProfile?.modules?.invoicing !== false ? "0" : "20px" }}>
                         <div className="card-hdr">
                             <div>
-                                <div className="card-title">{t.recentInvoices}</div>
-                                <div className="card-sub">{t.latestBillingActivity || 'Latest billing activity'}</div>
+                                <div className="card-title">🏆 {t.topSellingProducts}</div>
+                                <div className="card-sub">{t.bestSellersThisMonth || 'Your best sellers this month'}</div>
                             </div>
-                            <Link href="/dashboard/invoices" className="see-all" style={{ textDecoration: "none" }}>{t.viewAll} →</Link>
+                            <Link href="/dashboard/inventory" className="see-all" style={{ textDecoration: "none" }}>{t.viewAllProducts} {topProducts.length} →</Link>
                         </div>
-                        <div>
-                            {recentInvoices.length === 0
-                                ? <div className="text-center text-xs p-4 text-slate-400 font-bold">{t.noInvoices}</div>
-                                : recentInvoices.map((inv: any, idx: number) => {
-                                    const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
-                                    const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
+                        <div className="prod-grid">
+                            {topProducts.length === 0
+                                ? <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>
+                                : topProducts.slice(0, 6).map((p: any, i: number) => {
+                                    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+                                    const badge = i === 0 ? t.bestSeller : t.topProduct;
+                                    const bc = i === 0 ? 'badge-best' : 'badge-top';
                                     return (
-                                        <Link href="/dashboard/invoices" className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
-                                            <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
-                                            <div className="inv-info">
-                                                <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
-                                                <div className="inv-meta">{inv.invoice_number} · {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
-                                            </div>
-                                            <div className="inv-right">
-                                                <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
-                                                <div className={`inv-status ${sClass}`}>{inv.status}</div>
-                                            </div>
-                                            <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
+                                        <Link href="/dashboard/inventory" className="prod-card" key={'prod-' + (p.id || p.name) + '-' + i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                                            <div className={`prod-rank ${rankClass}`}>{i + 1}</div>
+                                            <span className={`prod-badge ${bc}`}>{badge}</span>
+                                            <div className="prod-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                                            <div className="prod-sold">{Math.round(p.quantity)} SOLD</div>
+                                            <div className="prod-amt">{formatLakhs(p.sales)}</div>
                                         </Link>
                                     );
                                 })
                             }
                         </div>
-                        <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--faint)" }}>
-                            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>{t.revenueThisWeek || 'Revenue This Week'}</div>
-                            <canvas ref={miniChartRef} style={{ maxHeight: "90px" }}></canvas>
-                        </div>
                     </div>
-
-                    <CollectionCenter
-                        t={t}
-                        pendingCustomersList={pendingCustomersList}
-                        collectionSearch={collectionSearch}
-                        setCollectionSearch={setCollectionSearch}
-                        selectedCustomers={selectedCustomers}
-                        setSelectedCustomers={setSelectedCustomers}
-                        handleSendReminder={handleSendReminder}
-                        handleBulkReminder={handleBulkReminder}
-                        totalOverallPending={totalOverallPending}
-                        formatLakhs={formatLakhs}
-                    />
-                </div>
-                )}
-
-                {businessProfile?.modules?.inventory !== false && (
-                <div className="card" style={{ animationDelay: ".3s", marginBottom: "0", marginTop: businessProfile?.modules?.invoicing !== false ? "0" : "20px" }}>
-                    <div className="card-hdr">
-                        <div>
-                            <div className="card-title">🏆 {t.topSellingProducts}</div>
-                            <div className="card-sub">{t.bestSellersThisMonth || 'Your best sellers this month'}</div>
-                        </div>
-                        <Link href="/dashboard/inventory" className="see-all" style={{ textDecoration: "none" }}>{t.viewAllProducts} {topProducts.length} →</Link>
-                    </div>
-                    <div className="prod-grid">
-                        {topProducts.length === 0
-                            ? <div className="text-center text-xs p-4 text-slate-400 font-bold" style={{ gridColumn: '1 / -1' }}>{t.noProductsSold || 'No Products Sold'}</div>
-                            : topProducts.slice(0, 6).map((p: any, i: number) => {
-                                const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-                                const badge = i === 0 ? t.bestSeller : t.topProduct;
-                                const bc = i === 0 ? 'badge-best' : 'badge-top';
-                                return (
-                                    <Link href="/dashboard/inventory" className="prod-card" key={'prod-' + (p.id || p.name) + '-' + i} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-                                        <div className={`prod-rank ${rankClass}`}>{i + 1}</div>
-                                        <span className={`prod-badge ${bc}`}>{badge}</span>
-                                        <div className="prod-name" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                                        <div className="prod-sold">{Math.round(p.quantity)} SOLD</div>
-                                        <div className="prod-amt">{formatLakhs(p.sales)}</div>
-                                    </Link>
-                                );
-                            })
-                        }
-                    </div>
-                </div>
                 )}
 
                 {businessProfile?.modules?.invoicing !== false && (
-                <div className="bottom-grid">
-                    <Link href="/dashboard/store" style={{ animation: "fadeUp .5s .35s ease both", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
-                        <div className="store-card">
-                            <div className="store-icon">🌐</div>
-                            <div className="store-info" style={{ flex: 1 }}>
-                                <div className="store-title">{t.yourOnlineStore}</div>
-                                <div className="store-sub">{t.manageAndShareOnlineStore}</div>
-                                <div className="store-btns">
-                                    <button className="store-btn btn-open" onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ {t.manage}</button>
-                                    <button className="store-btn btn-share" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleShareStore() }}>📤 {t.share}</button>
+                    <div className="bottom-grid">
+                        <Link href="/dashboard/store" style={{ animation: "fadeUp .5s .35s ease both", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
+                            <div className="store-card">
+                                <div className="store-icon">🌐</div>
+                                <div className="store-info" style={{ flex: 1 }}>
+                                    <div className="store-title">{t.yourOnlineStore}</div>
+                                    <div className="store-sub">{t.manageAndShareOnlineStore}</div>
+                                    <div className="store-btns">
+                                        <button className="store-btn btn-open" onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push('/dashboard/store') }}>⚙️ {t.manage}</button>
+                                        <button className="store-btn btn-share" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleShareStore() }}>📤 {t.share}</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
 
-                    <div className="gst-quick" style={{ animation: "fadeUp .5s .4s ease both" }}>
-                        <div className="card-hdr">
-                            <div>
-                                <div className="card-title">🏛️ {t.gstQuickSummary}</div>
-                                <div className="card-sub">{t.currentPeriod}</div>
+                        <div className="gst-quick" style={{ animation: "fadeUp .5s .4s ease both" }}>
+                            <div className="card-hdr">
+                                <div>
+                                    <div className="card-title">🏛️ {t.gstQuickSummary}</div>
+                                    <div className="card-sub">{t.currentPeriod}</div>
+                                </div>
+                                <Link href="/dashboard/gst-returns" className="see-all" style={{ textDecoration: "none" }}>{t.file} →</Link>
                             </div>
-                            <Link href="/dashboard/gst-returns" className="see-all" style={{ textDecoration: "none" }}>{t.file} →</Link>
+                            <div className="gst-row"><span className="gst-key">{t.taxableAmount}</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
+                            <div className="gst-row"><span className="gst-key">{t.totalTax}</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
+                            <div className="gst-row"><span className="gst-key">{t.dueDateLabel}</span><span className="gst-val" style={{ color: "var(--red)" }}>{new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
+                            <div className="gst-row"><span className="gst-key">{t.status}</span><span className="gst-val" style={{ color: "var(--amber)" }}>{t.pendingStatus}</span></div>
                         </div>
-                        <div className="gst-row"><span className="gst-key">{t.taxableAmount}</span><span className="gst-val">{formatLakhs(totalSales - (totalSales * 0.18))}</span></div>
-                        <div className="gst-row"><span className="gst-key">{t.totalTax}</span><span className="gst-val">{formatLakhs(totalSales * 0.18)}</span></div>
-                        <div className="gst-row"><span className="gst-key">{t.dueDateLabel}</span><span className="gst-val" style={{ color: "var(--red)" }}>{new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
-                        <div className="gst-row"><span className="gst-key">{t.status}</span><span className="gst-val" style={{ color: "var(--amber)" }}>{t.pendingStatus}</span></div>
                     </div>
-                </div>
                 )}
 
                 <div style={{ marginTop: "20px" }}>
@@ -859,16 +871,16 @@ export default function DashboardPage() {
                     </div>
                     <div className="social-dark-row">
                         <a className="social-dark-btn" href="https://www.instagram.com/billgst_app?utm_source=qr&igsh=bzJrMGphemNpa2dm" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                            <svg viewBox="0 0 24 24"><path d="M12 2c2.7 0 3 .01 4.1.06 1.1.05 1.8.22 2.4.46.66.26 1.2.6 1.75 1.14.5.5.85 1.08 1.14 1.75.24.6.4 1.3.46 2.4.05 1.1.06 1.4.06 4.1s-.01 3-.06 4.1c-.05 1.1-.22 1.8-.46 2.4-.26.66-.6 1.2-1.14 1.75-.5.5-1.08.85-1.75 1.14-.6.24-1.3.4-2.4.46-1.1.05-1.4.06-4.1.06s-3-.01-4.1-.06c-1.1-.05-1.8-.22-2.4-.46a4.9 4.9 0 0 1-1.75-1.14 4.9 4.9 0 0 1-1.14-1.75c-.24-.6-.4-1.3-.46-2.4C2.01 15 2 14.7 2 12s.01-3 .06-4.1c.05-1.1.22-1.8.46-2.4.26-.66.6-1.2 1.14-1.75A4.9 4.9 0 0 1 5.4 2.6c.6-.24 1.3-.4 2.4-.46C8.9 2.06 9.2 2.05 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.2-2.7a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2c2.7 0 3 .01 4.1.06 1.1.05 1.8.22 2.4.46.66.26 1.2.6 1.75 1.14.5.5.85 1.08 1.14 1.75.24.6.4 1.3.46 2.4.05 1.1.06 1.4.06 4.1s-.01 3-.06 4.1c-.05 1.1-.22 1.8-.46 2.4-.26.66-.6 1.2-1.14 1.75-.5.5-1.08.85-1.75 1.14-.6.24-1.3.4-2.4.46-1.1.05-1.4.06-4.1.06s-3-.01-4.1-.06c-1.1-.05-1.8-.22-2.4-.46a4.9 4.9 0 0 1-1.75-1.14 4.9 4.9 0 0 1-1.14-1.75c-.24-.6-.4-1.3-.46-2.4C2.01 15 2 14.7 2 12s.01-3 .06-4.1c.05-1.1.22-1.8.46-2.4.26-.66.6-1.2 1.14-1.75A4.9 4.9 0 0 1 5.4 2.6c.6-.24 1.3-.4 2.4-.46C8.9 2.06 9.2 2.05 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5.2-2.7a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z" /></svg>
                         </a>
                         <a className="social-dark-btn" href="https://www.youtube.com/@billgstapp" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                            <svg viewBox="0 0 24 24"><path d="M23 12s0-3.4-.44-5c-.24-.9-1-1.6-1.9-1.84C18.9 4.7 12 4.7 12 4.7s-6.9 0-8.66.46c-.9.24-1.66.95-1.9 1.84C1 8.6 1 12 1 12s0 3.4.44 5c.24.9 1 1.6 1.9 1.84C5.1 19.3 12 19.3 12 19.3s6.9 0 8.66-.46c.9-.24 1.66-.95 1.9-1.84.44-1.6.44-5 .44-5ZM9.8 15.3V8.7L15.8 12l-6 3.3Z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M23 12s0-3.4-.44-5c-.24-.9-1-1.6-1.9-1.84C18.9 4.7 12 4.7 12 4.7s-6.9 0-8.66.46c-.9.24-1.66.95-1.9 1.84C1 8.6 1 12 1 12s0 3.4.44 5c.24.9 1 1.6 1.9 1.84C5.1 19.3 12 19.3 12 19.3s6.9 0 8.66-.46c.9-.24 1.66-.95 1.9-1.84.44-1.6.44-5 .44-5ZM9.8 15.3V8.7L15.8 12l-6 3.3Z" /></svg>
                         </a>
                         <a className="social-dark-btn" href="https://www.facebook.com/share/1GrM77Pp4c/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                            <svg viewBox="0 0 24 24"><path d="M13.5 21v-7.6h2.55l.38-2.96h-2.93V8.56c0-.86.24-1.44 1.47-1.44h1.57V4.48C16.24 4.4 15.32 4.32 14.25 4.32c-2.24 0-3.77 1.37-3.77 3.87v2.24H7.9v2.96h2.58V21h3.02Z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M13.5 21v-7.6h2.55l.38-2.96h-2.93V8.56c0-.86.24-1.44 1.47-1.44h1.57V4.48C16.24 4.4 15.32 4.32 14.25 4.32c-2.24 0-3.77 1.37-3.77 3.87v2.24H7.9v2.96h2.58V21h3.02Z" /></svg>
                         </a>
                         <a className="social-dark-btn" href="https://wa.me/917498571873" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-                            <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.15-1.75-.86-2-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.93 1.16-.17.2-.34.22-.63.07-.3-.15-1.24-.46-2.37-1.46-.87-.78-1.47-1.74-1.64-2.04-.17-.3-.02-.46.13-.6.13-.13.3-.34.44-.5.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.6-.9-2.18-.24-.58-.48-.5-.66-.5h-.56c-.2 0-.5.07-.77.37-.26.3-1 1-1 2.4s1.03 2.78 1.17 2.98c.15.2 2.02 3.1 4.9 4.34.68.3 1.22.47 1.63.6.68.22 1.3.19 1.8.12.55-.08 1.75-.72 2-1.4.24-.7.24-1.3.17-1.42-.07-.13-.27-.2-.57-.36ZM12.02 2C6.5 2 2 6.5 2 12c0 1.85.5 3.58 1.4 5.06L2 22l5.1-1.34A9.94 9.94 0 0 0 12.02 22C17.5 22 22 17.5 22 12S17.5 2 12.02 2Zm0 18.1a8.06 8.06 0 0 1-4.13-1.13l-.3-.18-3.03.8.8-2.95-.2-.3A8.07 8.07 0 1 1 12.02 20.1Z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.15-1.75-.86-2-.96-.27-.1-.47-.15-.66.15-.2.3-.76.96-.93 1.16-.17.2-.34.22-.63.07-.3-.15-1.24-.46-2.37-1.46-.87-.78-1.47-1.74-1.64-2.04-.17-.3-.02-.46.13-.6.13-.13.3-.34.44-.5.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.6-.9-2.18-.24-.58-.48-.5-.66-.5h-.56c-.2 0-.5.07-.77.37-.26.3-1 1-1 2.4s1.03 2.78 1.17 2.98c.15.2 2.02 3.1 4.9 4.34.68.3 1.22.47 1.63.6.68.22 1.3.19 1.8.12.55-.08 1.75-.72 2-1.4.24-.7.24-1.3.17-1.42-.07-.13-.27-.2-.57-.36ZM12.02 2C6.5 2 2 6.5 2 12c0 1.85.5 3.58 1.4 5.06L2 22l5.1-1.34A9.94 9.94 0 0 0 12.02 22C17.5 22 22 17.5 22 12S17.5 2 12.02 2Zm0 18.1a8.06 8.06 0 0 1-4.13-1.13l-.3-.18-3.03.8.8-2.95-.2-.3A8.07 8.07 0 1 1 12.02 20.1Z" /></svg>
                         </a>
                     </div>
                 </div>
