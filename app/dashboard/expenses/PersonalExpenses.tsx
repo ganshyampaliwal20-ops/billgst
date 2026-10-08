@@ -1,16 +1,23 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import KharchaTrackerAdvanced from './KharchaTrackerAdvanced';
 
 export default function KharchaTrackerPage() {
+  const { data: session, status } = useSession();
   const [initialData, setInitialData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('kharcha_tracker_data');
+    if (status === 'loading') return;
+
+    // Safety check - use a distinct local storage key for each user
+    const userId = session?.user?.id || 'guest';
+    const storageKey = `kharcha_tracker_data_${userId}`;
+    const saved = localStorage.getItem(storageKey);
     let localData: any = {};
     if (saved) {
-      try { localData = JSON.parse(saved); } catch (e) {}
+      try { localData = JSON.parse(saved); } catch (e) { }
     }
 
     // Sync from server
@@ -21,7 +28,7 @@ export default function KharchaTrackerPage() {
         if (serverData) {
           const localTime = localData.last_updated || 0;
           const serverTime = serverData.last_updated || 0;
-          
+
           const localCount = (localData.expenses?.length || 0) + (localData.incomes?.length || 0);
           const serverCount = (serverData.expenses?.length || 0) + (serverData.incomes?.length || 0);
 
@@ -35,11 +42,11 @@ export default function KharchaTrackerPage() {
           } else if (!localData.last_updated && serverCount > localCount) {
             preferServer = true;
           }
-          
+
           // Use server data if it's explicitly newer or more populated
           if (preferServer) {
             setInitialData(serverData);
-            localStorage.setItem('kharcha_tracker_data', JSON.stringify(serverData));
+            localStorage.setItem(storageKey, JSON.stringify(serverData));
           } else {
             setInitialData(localData);
           }
@@ -54,12 +61,14 @@ export default function KharchaTrackerPage() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [session, status]);
 
   const handleChange = (data: any) => {
+    const userId = session?.user?.id || 'guest';
+    const storageKey = `kharcha_tracker_data_${userId}`;
     const dataWithTime = { ...data, last_updated: Date.now() };
-    localStorage.setItem('kharcha_tracker_data', JSON.stringify(dataWithTime));
-    
+    localStorage.setItem(storageKey, JSON.stringify(dataWithTime));
+
     // Sync to server
     fetch('/api/hisaab/personal', {
       method: 'POST',
@@ -68,7 +77,7 @@ export default function KharchaTrackerPage() {
     }).catch(err => console.error('Failed to save personal expenses to server', err));
   };
 
-  if (isLoading || !initialData) {
+  if (status === 'loading' || isLoading || !initialData) {
     return (
       <div className="w-full h-screen bg-[#0b1224] flex items-center justify-center">
         <div className="text-white opacity-50">Loading data...</div>
