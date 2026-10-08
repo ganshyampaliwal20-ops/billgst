@@ -39,6 +39,7 @@
     "framer-motion": "^12.29.0",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
+    "jimp": "^1.6.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "next": "16.0.7",
