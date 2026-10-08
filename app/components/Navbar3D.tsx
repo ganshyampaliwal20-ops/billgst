@@ -71,12 +71,12 @@ export default function Navbar3D() {
                                 <span className="text-sm font-bold">←</span>
                             </button>
                             <Link href="/" className="flex items-center gap-2 group">
-                                <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-md border border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
+                                <div className="relative w-[56px] h-[48px] rounded-lg overflow-hidden shadow-md border border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white p-1">
                                     <Image
                                         src="/logo.png"
                                         alt="BillGST Logo"
-                                        width={32}
-                                        height={32}
+                                        width={56}
+                                        height={48}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>

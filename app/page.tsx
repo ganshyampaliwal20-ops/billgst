@@ -139,374 +139,374 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
 };
 
 export default function LandingPage() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-    // UI States
-    const [lang, setLang] = useState('hi');
-    const [activeTab, setActiveTab] = useState<'login'|'register'>('login');
-    const [isLoading, setIsLoading] = useState(false);
+  // UI States
+  const [lang, setLang] = useState('hi');
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [isLoading, setIsLoading] = useState(false);
 
-    // Form States
-    const [loginData, setLoginData] = useState({ email: '', password: '' });
-    const [signupData, setSignupData] = useState({ name: '', email: '', password: '', refCode: '' });
+  // Form States
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [signupData, setSignupData] = useState({ name: '', email: '', password: '', refCode: '' });
 
-    // OTP States
-    const [otpSent, setOtpSent] = useState(false);
-    const [otpValue, setOtpValue] = useState('');
-    const [otpCooldown, setOtpCooldown] = useState(0);
+  // OTP States
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [otpCooldown, setOtpCooldown] = useState(0);
 
-    const t = (key: string, defaultText: string) => {
-        if (lang === 'hi') return defaultText;
-        return TRANSLATIONS[lang]?.[key] || defaultText;
-    };
+  const t = (key: string, defaultText: string) => {
+    if (lang === 'hi') return defaultText;
+    return TRANSLATIONS[lang]?.[key] || defaultText;
+  };
 
-    useEffect(() => {
-        if (status === 'authenticated') {
-            router.replace('/dashboard');
-        }
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace('/dashboard');
+    }
 
-        if (typeof window !== 'undefined' && window.location.search) {
-            const searchParams = new URLSearchParams(window.location.search);
-            if (searchParams.get('login') === 'true') {
-                setActiveTab('login');
-                document.getElementById('auth')?.scrollIntoView({behavior:'smooth'});
-            } else if (searchParams.get('signup') === 'true') {
-                setActiveTab('register');
-                document.getElementById('auth')?.scrollIntoView({behavior:'smooth'});
-            }
-            const ref = searchParams.get('ref');
-            if (ref) {
-                setSignupData(prev => ({ ...prev, refCode: ref }));
-                setActiveTab('register');
-                document.getElementById('auth')?.scrollIntoView({behavior:'smooth'});
-            }
-        }
-    }, [status, router]);
-
-    // OTP cooldown timer
-    useEffect(() => {
-        if (otpCooldown <= 0) return;
-        const timer = setTimeout(() => setOtpCooldown(otpCooldown - 1), 1000);
-        return () => clearTimeout(timer);
-    }, [otpCooldown]);
-
-    // Send OTP function
-    const sendOtp = async () => {
-        if (!signupData.name) {
-            toast.error('Please enter your name');
-            return;
-        }
-        if (!signupData.email || !signupData.email.includes('@')) {
-            toast.error('Please enter a valid email address');
-            return;
-        }
-        if (!signupData.password || signupData.password.length < 6) {
-            toast.error('Password must be at least 6 characters');
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const res = await fetch('/api/auth/send-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: signupData.email })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setOtpSent(true);
-                setOtpCooldown(60);
-                toast.success('OTP sent to your email!');
-            } else {
-                toast.error(data.error || 'Failed to send OTP');
-            }
-        } catch (error) {
-            toast.error('Something went wrong');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const doLogin = async () => {
-        if (!loginData.email || !loginData.email.includes('@')) {
-            toast.error('Please enter a valid email address');
-            return;
-        }
-        if (!loginData.password || loginData.password.length < 6) {
-            toast.error('Please enter your password');
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const result = await signIn('credentials', {
-                redirect: false,
-                email: loginData.email,
-                password: loginData.password
-            });
-            if (result?.error) {
-                toast.error('Invalid email or password');
-            } else {
-                toast.success('Welcome back!');
-                router.push('/dashboard');
-            }
-        } catch (error) {
-            toast.error('Something went wrong');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const doSignup = async () => {
-        if (!signupData.email || !signupData.email.includes('@')) {
-            toast.error('Please enter a valid email address');
-            return;
-        }
-        if (!signupData.password || signupData.password.length < 6) {
-            toast.error('Password must be at least 6 characters');
-            return;
-        }
-        if (!otpValue || otpValue.length !== 6) {
-            toast.error('Please enter the 6-digit OTP');
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const res = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: signupData.name || 'User',
-                    email: signupData.email,
-                    password: signupData.password,
-                    refCode: signupData.refCode,
-                    otp: otpValue
-                })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                toast.success('Account created! Logging in...');
-                setOtpSent(false);
-                setOtpValue('');
-                await signIn('credentials', {
-                    redirect: false,
-                    email: signupData.email,
-                    password: signupData.password
-                });
-                router.push('/dashboard');
-            } else {
-                toast.error(data.error || 'Registration failed');
-            }
-        } catch (error) {
-            toast.error('Registration failed. Try again.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const scrollToAuth = (tab: 'login' | 'register') => {
-        setActiveTab(tab);
+    if (typeof window !== 'undefined' && window.location.search) {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get('login') === 'true') {
+        setActiveTab('login');
         document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' });
-    };
+      } else if (searchParams.get('signup') === 'true') {
+        setActiveTab('register');
+        document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' });
+      }
+      const ref = searchParams.get('ref');
+      if (ref) {
+        setSignupData(prev => ({ ...prev, refCode: ref }));
+        setActiveTab('register');
+        document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [status, router]);
 
-    return (
-        <div id="landing-page">
-            <nav>
-              <div className="nav-row">
-                <div className="brand"><img src="/logo.png" alt="BillGST Logo" style={{ height: '36px', width: 'auto' }} /></div>
-                <div className="nav-links">
-                  <a href="#features">{t("nl1", "फीचर्स")}</a>
-                  <a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a>
-                  <a href="#reviews">{t("nl3", "रिव्यू")}</a>
-                  <a href="#faq">{t("nl4", "FAQ")}</a>
-                </div>
-                <div className="nav-actions">
-                  <select className="lang-btn" id="langSel" value={lang} onChange={e => setLang(e.target.value)}>
-                    <option value="hi">🌐 हिंदी</option>
-                    <option value="en">🌐 English</option>
-                    <option value="mr">🌐 मराठी</option>
-                    <option value="gu">🌐 ગુજરાતી</option>
-                  </select>
-                  <button className="btn btn-ghost" onClick={() => scrollToAuth('login')}>{t("nav_login", "लॉगिन")}</button>
-                  <button className="btn btn-solid" onClick={() => scrollToAuth('register')}>{t("nav_register", "मुफ्त रजिस्टर करें")}</button>
-                </div>
-              </div>
-            </nav>
+  // OTP cooldown timer
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const timer = setTimeout(() => setOtpCooldown(otpCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [otpCooldown]);
 
-            <section className="hero">
-              <div className="wrap">
-                <div className="badge"><b>मुफ्त</b><span> {t("badge", "दुकान और घर दोनों के लिए")}</span></div>
-                <h1 dangerouslySetInnerHTML={{ __html: t("h1", "फ्री बिलिंग, खर्चे का हिसाब<br>और <span class=\"hl\">ऑनलाइन दुकान</span> ऐप") }} />
-                <p className="sub">{t("sub", "घर का रोज़ का खर्चा लिखें, स्टॉक मैनेज करें, ऑनलाइन दुकान बनाएं और हाजिरी लगाएं — मुफ्त में शुरू करें, स्मार्ट AI फीचर्स के साथ आगे बढ़ें।")}</p>
-                <div className="hero-cta">
-                  <button className="btn btn-solid btn-lg" onClick={() => scrollToAuth('register')}>{t("cta_main", "मुफ्त रजिस्टर करें →")}</button>
-                  <a href="#features" className="btn btn-ghost btn-lg">{t("cta_sec", "फीचर्स देखें")}</a>
-                </div>
-                <p style={{ color: 'var(--ink-soft)', fontSize: '.82rem', marginBottom: '30px' }}>{t("trust", "🔒 कोई क्रेडिट कार्ड नहीं · 60 सेकंड में सेटअप · 1000+ दुकानदारों का भरोसा")}</p>
-                <div className="icon-strip">
-                  <div className="ichip">🧾 <span>{t("i1", "जीएसटी बिलिंग")}</span></div>
-                  <div className="ichip">🎙️ <span>{t("i2", "वॉइस एआई")}</span></div>
-                  <div className="ichip">💬 <span>{t("i3", "व्हाट्सएप पीडीएफ")}</span></div>
-                  <div className="ichip">📸 <span>{t("i4", "कैमरा → स्टॉक")}</span></div>
-                  <div className="ichip">🔔 <span>{t("i5", "लो स्टॉक अलर्ट")}</span></div>
-                  <div className="ichip">⏰ <span>{t("i6", "एक्सपायरी अलर्ट")}</span></div>
-                  <div className="ichip">🕐 <span>{t("i7", "हाजिरी")}</span></div>
-                  <div className="ichip">💰 <span>{t("i8", "खर्चे")}</span></div>
-                  <div className="ichip">🏪 <span>{t("i9", "ऑनलाइन दुकान")}</span></div>
-                </div>
-              </div>
-            </section>
+  // Send OTP function
+  const sendOtp = async () => {
+    if (!signupData.name) {
+      toast.error('Please enter your name');
+      return;
+    }
+    if (!signupData.email || !signupData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!signupData.password || signupData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
 
-            <section id="features">
-              <div className="wrap center"><div className="eyebrow">{t("e1", "मुख्य फीचर्स")}</div><h2>{t("ft1", "आपकी दुकान की हर जरूरत")}</h2><p className="section-sub">{t("ft1s", "हर फीचर आपका समय बचाने के लिए बनाया गया है।")}</p></div>
-              <div className="wrap"><div className="grid3">
-                <div className="card"><div className="ic">💬</div><h3>{t("m1h", "व्हाट्सएप पर पीडीएफ बिल भेजें")}</h3><p>{t("m1p", "कोई भी बिल बनाएं और सीधे ग्राहक के व्हाट्सएप पर भेजें — बिना डाउनलोड या ईमेल के, सिर्फ एक टैप में।")}</p><span className="tagchip">{t("m1t", "तुरंत डिलीवरी")}</span></div>
-                <div className="card"><div className="ic">📸</div><h3>{t("m2h", "फोटो खींचें → AI स्टॉक अपडेट करेगा")}</h3><p>{t("m2p", "किसी भी प्रोडक्ट या बारकोड की फोटो लें। हमारा AI उसे पढ़कर खुद स्टॉक अपडेट कर देगा।")}</p><span className="tagchip">{t("m2t", "एआई पावर्ड · नया")}</span> <span className="tagchip" style={{ background: 'rgba(245,178,60,.15)', color: 'var(--gold)', marginLeft: '6px' }}>{t("protag", "स्मार्ट फीचर")}</span></div>
-                <div className="card"><div className="ic">🧾</div><h3>{t("m3h", "जीएसटी रिटर्न — GSTR-1, 3B और 4")}</h3><p>{t("m3p", "आपका सारा बिलिंग डेटा खुद-ब-खुद जीएसटी रिटर्न फॉर्मेट में आ जाता है। पोर्टल के लिए तैयार रिपोर्ट डाउनलोड करें।")}</p><span className="tagchip">{t("m3t", "सीए-रेडी रिपोर्ट्स")}</span></div>
-              </div></div>
-            </section>
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: signupData.email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setOtpSent(true);
+        setOtpCooldown(60);
+        toast.success('OTP sent to your email!');
+      } else {
+        toast.error(data.error || 'Failed to send OTP');
+      }
+    } catch (error) {
+      toast.error('Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            <section style={{ background: 'var(--bg-2)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
-              <div className="wrap center"><div className="eyebrow">{t("e2", "सिर्फ बिलिंग नहीं")}</div><h2>{t("ft2", "पूरी दुकान यहीं से मैनेज करें")}</h2><p className="section-sub">{t("ft2s", "स्टॉक से लेकर स्टाफ और रोज के खर्चे तक — सब मुफ्त में हैंडल करता है।")}</p></div>
-              <div className="wrap"><div className="grid4">
-                <div className="card"><div className="ic">🏪</div><h3>{t("s1h", "मुफ्त ऑनलाइन दुकान")}</h3><p>{t("s1p", "स्टॉक को 1 क्लिक में कैटलॉग बनाएं। व्हाट्सएप पर लिंक शेयर करें और ऑर्डर पाएं।")}</p></div>
-                <div className="card"><div className="ic">📦</div><h3>{t("s2h", "स्मार्ट इन्वेंट्री")}</h3><p>{t("s2p", "हर सेल पर खुद स्टॉक अपडेट, लो-स्टॉक अलर्ट और एक्सपायरी ट्रैकिंग।")}</p></div>
-                <div className="card"><div className="ic">💸</div><h3>{t("s3h", "रोज का खर्चा ट्रैकर")}</h3><p>{t("s3p", "दुकान और घर दोनों के लिए! किराया, राशन, बिजली — सब ट्रैक करें।")}</p></div>
-                <div className="card"><div className="ic">👥</div><h3>{t("s4h", "स्टाफ हाजिरी और सैलरी")}</h3><p>{t("s4p", "रोज की हाजिरी लगाएं, एडवांस ट्रैक करें, सैलरी खुद-ब-खुद निकले।")}</p></div>
-              </div></div>
-            </section>
+  const doLogin = async () => {
+    if (!loginData.email || !loginData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!loginData.password || loginData.password.length < 6) {
+      toast.error('Please enter your password');
+      return;
+    }
 
-            <section>
-              <div className="wrap center"><div className="eyebrow">{t("e3", "सभी फीचर्स")}</div><h2>{t("ft3", "एक ऐप, पूरा कंट्रोल")}</h2></div>
-              <div className="wrap"><div className="grid4">
-                <div className="card"><div className="ic">🧾</div><h3>{t("a1", "सभी तरह के बिल")}</h3><p>{t("a1p", "टैक्स इनवॉइस, प्रोफार्मा, क्रेडिट नोट, डिलीवरी चालान।")}</p></div>
-                <div className="card"><div className="ic">🔔</div><h3>{t("a2", "लो स्टॉक अलर्ट")}</h3><p>{t("a2p", "सामान कम होते ही तुरंत अलर्ट पाएं।")}</p></div>
-                <div className="card"><div className="ic">⏰</div><h3>{t("a3", "एक्सपायरी अलर्ट")}</h3><p>{t("a3p", "एक्सपायरी ट्रैक करें, खराब होने से पहले अलर्ट।")}</p></div>
-                <div className="card"><div className="ic">🕐</div><h3>{t("a4", "स्टाफ हाजिरी")}</h3><p>{t("a4p", "रोज की हाजिरी, मंथली रिपोर्ट, सैलरी कैलकुलेशन।")}</p></div>
-                <div className="card"><div className="ic">💰</div><h3>{t("a5", "खर्चे ट्रैक करें")}</h3><p>{t("a5p", "किराया, बिजली, खरीदारी — एक जगह लिखें।")}</p></div>
-                <div className="card"><div className="ic">🏪</div><h3>{t("a6", "ऑनलाइन दुकान")}</h3><p>{t("a6p", "सेकंडों में स्टोर बनाएं, शेयर करें, ऑर्डर लें।")}</p></div>
-                <div className="card"><div className="ic">📒</div><h3>{t("a7", "कस्टमर हिसाब")}</h3><p>{t("a7p", "उधारी का हिसाब रखें, रिमाइंडर भेजें।")}</p></div>
-                <div className="card"><div className="ic">🎙️</div><h3>{t("a8", "वॉइस बिलिंग एआई")}</h3><p>{t("a8p", "सामान बोलें — बिल तैयार। हिंदी और अंग्रेज़ी दोनों में।")}</p><span className="tagchip" style={{ background: 'rgba(245,178,60,.15)', color: 'var(--gold)' }}>{t("protag", "स्मार्ट फीचर")}</span></div>
-              </div></div>
-            </section>
+    setIsLoading(true);
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: loginData.email,
+        password: loginData.password
+      });
+      if (result?.error) {
+        toast.error('Invalid email or password');
+      } else {
+        toast.success('Welcome back!');
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      toast.error('Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            <section id="gst" className="gst">
-              <div className="wrap center">
-                <div className="eyebrow">{t("e4", "जीएसटी फाइलिंग")}</div>
-                <h2>{t("g_title", "जीएसटी रिटर्न, अब आसान")}</h2>
-                <p className="section-sub">{t("g_sub", "आपके डेटा से सभी मुख्य जीएसटी रिटर्न बनते हैं। डाउनलोड करें और पोर्टल पर अपलोड करें।")}</p>
-                <div className="gst-row">
-                  <div className="gst-chip"><b>GSTR-1</b><span>{t("g1", "आउटवर्ड सप्लाई रिटर्न")}</span></div>
-                  <div className="gst-chip"><b>GSTR-3B</b><span>{t("g2", "मासिक समरी रिटर्न")}</span></div>
-                  <div className="gst-chip"><b>GSTR-4</b><span>{t("g3", "कम्पोजीशन स्कीम रिटर्न")}</span></div>
-                </div>
-                <p className="ca-ready"><b>{t("ca1", "CA Ready")}</b> — <span>{t("ca2", "सीधे अपने CA के साथ रिपोर्ट शेयर करें")}</span></p>
-              </div>
-            </section>
+  const doSignup = async () => {
+    if (!signupData.email || !signupData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!signupData.password || signupData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    if (!otpValue || otpValue.length !== 6) {
+      toast.error('Please enter the 6-digit OTP');
+      return;
+    }
 
-            <section>
-              <div className="wrap center"><div className="eyebrow">{t("e5", "यह कैसे काम करता है")}</div><h2>{t("hw_title", "3 आसान स्टेप्स में शुरू करें")}</h2></div>
-              <div className="wrap"><div className="steps">
-                <div className="step"><div className="num">1</div><h3>{t("st1h", "मुफ्त रजिस्टर करें")}</h3><p>{t("st1p", "एक मिनट से कम में साइन अप करें। ना डॉक्यूमेंट, ना क्रेडिट कार्ड।")}</p></div>
-                <div className="step"><div className="num">2</div><h3>{t("st2h", "अपना सामान जोड़ें")}</h3><p>{t("st2p", "टाइप करें या कैमरा इस्तेमाल करें — AI स्कैन करके खुद जोड़ देगा।")}</p></div>
-                <div className="step"><div className="num">3</div><h3>{t("st3h", "बिल बनाएं, शेयर करें")}</h3><p>{t("st3p", "बोलकर या टैप करके बिल बनाएं, व्हाट्सएप पर भेजें, डैशबोर्ड से ट्रैक करें।")}</p></div>
-              </div></div>
-            </section>
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: signupData.name || 'User',
+          email: signupData.email,
+          password: signupData.password,
+          refCode: signupData.refCode,
+          otp: otpValue
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success('Account created! Logging in...');
+        setOtpSent(false);
+        setOtpValue('');
+        await signIn('credentials', {
+          redirect: false,
+          email: signupData.email,
+          password: signupData.password
+        });
+        router.push('/dashboard');
+      } else {
+        toast.error(data.error || 'Registration failed');
+      }
+    } catch (error) {
+      toast.error('Registration failed. Try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            <section id="reviews">
-              <div className="wrap center"><div className="eyebrow">{t("e6", "दुकानदार क्या कहते हैं")}</div><h2>{t("r_title", "पूरे भारत का भरोसा")}</h2></div>
-              <div className="wrap"><div className="grid3">
-                <div className="rcard"><div className="stars">★★★★★</div><p>{t("r1", "\"जीएसटी बिलिंग में घंटों लगते थे। अब 5 मिनट में रिटर्न रिपोर्ट तैयार हो जाती है।\"")}</p><div className="who"><div className="avatar">RG</div><div><b>Rajesh Gupta</b><span>{t("r1l", "Kirana Store, Patna")}</span></div></div></div>
-                <div className="rcard"><div className="stars">★★★★★</div><p>{t("r2", "\"व्हाट्सएप पीडीएफ फीचर बहुत बढ़िया है। दुकान ज्यादा प्रोफेशनल लगती है।\"")}</p><div className="who"><div className="avatar">SV</div><div><b>Sunita Verma</b><span>{t("r2l", "Beauty Parlour, Indore")}</span></div></div></div>
-                <div className="rcard"><div className="stars">★★★★★</div><p>{t("r3", "\"कैमरा स्टॉक अपडेट तो जादू है। रोज मेरे 30 मिनट बचते हैं।\"")}</p><div className="who"><div className="avatar">MJ</div><div><b>Mohit Jain</b><span>{t("r3l", "Medical Store, Jaipur")}</span></div></div></div>
-              </div></div>
-            </section>
+  const scrollToAuth = (tab: 'login' | 'register') => {
+    setActiveTab(tab);
+    document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-            <section id="auth">
-              <div className="wrap">
-                <div className="auth-box">
-                  <div className="tabs">
-                    <div className={`tab ${activeTab === 'login' ? 'active' : ''}`} onClick={() => setActiveTab('login')}>{t("nav_login", "लॉगिन")}</div>
-                    <div className={`tab ${activeTab === 'register' ? 'active' : ''}`} onClick={() => setActiveTab('register')}>{t("nav_register", "रजिस्टर करें")}</div>
-                  </div>
-                  <div className="tab-body">
-                    {activeTab === 'login' && (
-                        <div className="panel active">
-                          <h3>{t("wb", "वापसी पर स्वागत है 👋")}</h3><p>{t("wbs", "अपने BillGST अकाउंट में लॉगिन करें")}</p>
-                          <label>{t("le", "ईमेल एड्रेस")}</label>
-                          <input type="email" placeholder="you@example.com" value={loginData.email} onChange={e => setLoginData({...loginData, email: e.target.value})} />
-                          <label>{t("lp", "पासवर्ड")}</label>
-                          <input type="password" value={loginData.password} onChange={e => setLoginData({...loginData, password: e.target.value})} />
-                          <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center' }} onClick={doLogin} disabled={isLoading}>
-                             {isLoading ? "..." : t("bl", "लॉगिन करें")}
-                          </button>
-                        </div>
-                    )}
-                    {activeTab === 'register' && (
-                        <div className="panel active">
-                          <h3>{t("rh", "60 सेकंड में सेटअप करें 🏪")}</h3><p>{t("rhs", "कोई क्रेडिट कार्ड नहीं चाहिए")}</p>
-                          {!otpSent ? (
-                              <div>
-                                <label>{t("ln", "पूरा नाम")}</label>
-                                <input type="text" value={signupData.name} onChange={e => setSignupData({...signupData, name: e.target.value})} />
-                                <label>{t("le", "ईमेल एड्रेस")}</label>
-                                <input type="email" placeholder="you@example.com" value={signupData.email} onChange={e => setSignupData({...signupData, email: e.target.value})} />
-                                <label>{t("lp", "पासवर्ड")}</label>
-                                <input type="password" value={signupData.password} onChange={e => setSignupData({...signupData, password: e.target.value})} />
-                                <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center', border: 'none', fontFamily: 'inherit', fontSize: '.92rem', cursor: 'pointer' }} onClick={sendOtp} disabled={isLoading}>
-                                    {isLoading ? "..." : t("br", "OTP भेजें")}
-                                </button>
-                              </div>
-                          ) : (
-                              <div>
-                                <p style={{ fontSize: '.86rem', color: 'var(--ink-soft)', marginBottom: '14px' }}>{t("otpsent", "OTP आपके ईमेल पर भेज दिया गया है ✅")}</p>
-                                <label>{t("lotp", "OTP डालें")}</label>
-                                <input type="text" maxLength={6} placeholder="6-digit OTP" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
-                                <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center', border: 'none', fontFamily: 'inherit', fontSize: '.92rem', cursor: 'pointer' }} onClick={doSignup} disabled={isLoading || otpValue.length !== 6}>
-                                    {isLoading ? "..." : t("bv", "वेरिफाई करें और अकाउंट बनाएं")}
-                                </button>
-                                <p style={{ fontSize: '.8rem', color: 'var(--ink-soft)', marginTop: '12px', textAlign: 'center' }}>
-                                    {otpCooldown > 0 ? (
-                                        <span style={{ color: 'var(--ink-soft)' }}>{otpCooldown}s</span>
-                                    ) : (
-                                        <a href="#" onClick={(e) => { e.preventDefault(); sendOtp(); }} style={{ color: 'var(--primary-2)' }}>{t("resend", "OTP दोबारा भेजें")}</a>
-                                    )}
-                                </p>
-                              </div>
-                          )}
-                        </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="faq">
-              <div className="wrap center"><div className="eyebrow">{t("e7", "FAQ")}</div><h2>{t("q_title", "आम सवाल")}</h2></div>
-              <div className="faq">
-                <details open><summary>{t("q1", "क्या BillGST सच में मुफ्त है?")}</summary><p>{t("a1f", "मुख्य बिलिंग, स्टॉक और हाजिरी फीचर्स इस्तेमाल करने के लिए हमेशा मुफ्त हैं। कुछ एडवांस्ड AI फीचर्स (जैसे वॉइस बिलिंग, फोटो स्टॉक अपडेट) आगे चलकर सीमित/प्रीमियम हो सकते हैं।")}</p></details>
-                <details><summary>{t("q2", "मैं कौन से जीएसटी रिटर्न बना सकता हूँ?")}</summary><p>{t("a2f", "GSTR-1, GSTR-3B और GSTR-4 — डाउनलोड करके पोर्टल पर अपलोड करें या CA को भेजें।")}</p></details>
-                <details><summary>{t("q3", "कैमरा स्टॉक अपडेट कैसे काम करता है?")}</summary><p>{t("a3f", "सामान या बारकोड की फोटो लें, AI उसे पहचान कर स्टॉक अपडेट कर देगा।")}</p></details>
-                <details><summary>{t("q4", "क्या मैं व्हाट्सएप पर बिल भेज सकता हूँ?")}</summary><p>{t("a4f", "हाँ, हर बिल सीधे ग्राहक के व्हाट्सएप पर पीडीएफ के रूप में भेजा जा सकता है।")}</p></details>
-                <details><summary>{t("q5", "मैं किस तरह के बिल बना सकता हूँ?")}</summary><p>{t("a5f", "टैक्स इनवॉइस, प्रोफार्मा, क्रेडिट नोट, डिलीवरी चालान — सभी उपलब्ध हैं।")}</p></details>
-                <details><summary>{t("q6", "मेरा डेटा कितना सुरक्षित है?")}</summary><p>{t("a6f", "सारा डेटा AES-256 के साथ एन्क्रिप्टेड है — सिर्फ आप ही अपना डेटा देख सकते हैं।")}</p></details>
-              </div>
-            </section>
-
-            <section><div className="wrap"><div className="cta-final"><h2>{t("cf1", "आज ही अपनी दुकान को डिजिटल बनाएं")}</h2><p>{t("cf2", "मुफ्त अकाउंट, 60 सेकंड में तैयार। कोई क्रेडिट कार्ड नहीं चाहिए।")}</p><button className="btn btn-solid btn-lg" onClick={() => scrollToAuth('register')}>{t("cta_main", "मुफ्त रजिस्टर करें →")}</button></div></div></section>
-
-            <footer>
-              <div className="wrap">
-                <div className="foot-grid">
-                  <div><div className="brand" style={{ marginBottom: '10px' }}><img src="/logo.png" alt="BillGST Logo" style={{ height: '36px', width: 'auto' }} /></div><p style={{ color: 'var(--ink-soft)', fontSize: '.86rem', lineHeight: 1.6 }}>{t("fdesc", "भारत के दुकानदारों के लिए बना स्मार्ट बिलिंग और इन्वेंट्री सॉफ्टवेयर। हिंदी और अंग्रेज़ी दोनों उपलब्ध।")}</p><a href="https://wa.me/917498571873" style={{ color: 'var(--accent)' }}>WhatsApp: +91 74985 71873</a></div>
-                  <div><h4>{t("fp", "प्रोडक्ट")}</h4><a href="#features">{t("nl1", "फीचर्स")}</a><a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a><a href="#">{t("fvai", "वॉइस बिलिंग एआई")}</a></div>
-                  <div><h4>{t("fc", "कंपनी")}</h4><a href="#">{t("fabout", "हमारे बारे में")}</a><a href="#">{t("fcontact", "संपर्क करें")}</a><a href="#">{t("fpriv", "प्राइवेसी पॉलिसी")}</a></div>
-                </div>
-                <div className="foot-bottom"><span>© 2026 Ayana Enterprises</span><span>{t("fmade", "Made in 🇮🇳 India")}</span></div>
-              </div>
-            </footer>
+  return (
+    <div id="landing-page">
+      <nav>
+        <div className="nav-row">
+          <div className="brand"><img src="/logo.png" alt="BillGST Logo" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} /></div>
+          <div className="nav-links">
+            <a href="#features">{t("nl1", "फीचर्स")}</a>
+            <a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a>
+            <a href="#reviews">{t("nl3", "रिव्यू")}</a>
+            <a href="#faq">{t("nl4", "FAQ")}</a>
+          </div>
+          <div className="nav-actions">
+            <select className="lang-btn" id="langSel" value={lang} onChange={e => setLang(e.target.value)}>
+              <option value="hi">🌐 हिंदी</option>
+              <option value="en">🌐 English</option>
+              <option value="mr">🌐 मराठी</option>
+              <option value="gu">🌐 ગુજરાતી</option>
+            </select>
+            <button className="btn btn-ghost" onClick={() => scrollToAuth('login')}>{t("nav_login", "लॉगिन")}</button>
+            <button className="btn btn-solid" onClick={() => scrollToAuth('register')}>{t("nav_register", "मुफ्त रजिस्टर करें")}</button>
+          </div>
         </div>
-    );
+      </nav>
+
+      <section className="hero">
+        <div className="wrap">
+          <div className="badge"><b>मुफ्त</b><span> {t("badge", "दुकान और घर दोनों के लिए")}</span></div>
+          <h1 dangerouslySetInnerHTML={{ __html: t("h1", "फ्री बिलिंग, खर्चे का हिसाब<br>और <span class=\"hl\">ऑनलाइन दुकान</span> ऐप") }} />
+          <p className="sub">{t("sub", "घर का रोज़ का खर्चा लिखें, स्टॉक मैनेज करें, ऑनलाइन दुकान बनाएं और हाजिरी लगाएं — मुफ्त में शुरू करें, स्मार्ट AI फीचर्स के साथ आगे बढ़ें।")}</p>
+          <div className="hero-cta">
+            <button className="btn btn-solid btn-lg" onClick={() => scrollToAuth('register')}>{t("cta_main", "मुफ्त रजिस्टर करें →")}</button>
+            <a href="#features" className="btn btn-ghost btn-lg">{t("cta_sec", "फीचर्स देखें")}</a>
+          </div>
+          <p style={{ color: 'var(--ink-soft)', fontSize: '.82rem', marginBottom: '30px' }}>{t("trust", "🔒 कोई क्रेडिट कार्ड नहीं · 60 सेकंड में सेटअप · 1000+ दुकानदारों का भरोसा")}</p>
+          <div className="icon-strip">
+            <div className="ichip">🧾 <span>{t("i1", "जीएसटी बिलिंग")}</span></div>
+            <div className="ichip">🎙️ <span>{t("i2", "वॉइस एआई")}</span></div>
+            <div className="ichip">💬 <span>{t("i3", "व्हाट्सएप पीडीएफ")}</span></div>
+            <div className="ichip">📸 <span>{t("i4", "कैमरा → स्टॉक")}</span></div>
+            <div className="ichip">🔔 <span>{t("i5", "लो स्टॉक अलर्ट")}</span></div>
+            <div className="ichip">⏰ <span>{t("i6", "एक्सपायरी अलर्ट")}</span></div>
+            <div className="ichip">🕐 <span>{t("i7", "हाजिरी")}</span></div>
+            <div className="ichip">💰 <span>{t("i8", "खर्चे")}</span></div>
+            <div className="ichip">🏪 <span>{t("i9", "ऑनलाइन दुकान")}</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div className="wrap center"><div className="eyebrow">{t("e1", "मुख्य फीचर्स")}</div><h2>{t("ft1", "आपकी दुकान की हर जरूरत")}</h2><p className="section-sub">{t("ft1s", "हर फीचर आपका समय बचाने के लिए बनाया गया है।")}</p></div>
+        <div className="wrap"><div className="grid3">
+          <div className="card"><div className="ic">💬</div><h3>{t("m1h", "व्हाट्सएप पर पीडीएफ बिल भेजें")}</h3><p>{t("m1p", "कोई भी बिल बनाएं और सीधे ग्राहक के व्हाट्सएप पर भेजें — बिना डाउनलोड या ईमेल के, सिर्फ एक टैप में।")}</p><span className="tagchip">{t("m1t", "तुरंत डिलीवरी")}</span></div>
+          <div className="card"><div className="ic">📸</div><h3>{t("m2h", "फोटो खींचें → AI स्टॉक अपडेट करेगा")}</h3><p>{t("m2p", "किसी भी प्रोडक्ट या बारकोड की फोटो लें। हमारा AI उसे पढ़कर खुद स्टॉक अपडेट कर देगा।")}</p><span className="tagchip">{t("m2t", "एआई पावर्ड · नया")}</span> <span className="tagchip" style={{ background: 'rgba(245,178,60,.15)', color: 'var(--gold)', marginLeft: '6px' }}>{t("protag", "स्मार्ट फीचर")}</span></div>
+          <div className="card"><div className="ic">🧾</div><h3>{t("m3h", "जीएसटी रिटर्न — GSTR-1, 3B और 4")}</h3><p>{t("m3p", "आपका सारा बिलिंग डेटा खुद-ब-खुद जीएसटी रिटर्न फॉर्मेट में आ जाता है। पोर्टल के लिए तैयार रिपोर्ट डाउनलोड करें।")}</p><span className="tagchip">{t("m3t", "सीए-रेडी रिपोर्ट्स")}</span></div>
+        </div></div>
+      </section>
+
+      <section style={{ background: 'var(--bg-2)', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
+        <div className="wrap center"><div className="eyebrow">{t("e2", "सिर्फ बिलिंग नहीं")}</div><h2>{t("ft2", "पूरी दुकान यहीं से मैनेज करें")}</h2><p className="section-sub">{t("ft2s", "स्टॉक से लेकर स्टाफ और रोज के खर्चे तक — सब मुफ्त में हैंडल करता है।")}</p></div>
+        <div className="wrap"><div className="grid4">
+          <div className="card"><div className="ic">🏪</div><h3>{t("s1h", "मुफ्त ऑनलाइन दुकान")}</h3><p>{t("s1p", "स्टॉक को 1 क्लिक में कैटलॉग बनाएं। व्हाट्सएप पर लिंक शेयर करें और ऑर्डर पाएं।")}</p></div>
+          <div className="card"><div className="ic">📦</div><h3>{t("s2h", "स्मार्ट इन्वेंट्री")}</h3><p>{t("s2p", "हर सेल पर खुद स्टॉक अपडेट, लो-स्टॉक अलर्ट और एक्सपायरी ट्रैकिंग।")}</p></div>
+          <div className="card"><div className="ic">💸</div><h3>{t("s3h", "रोज का खर्चा ट्रैकर")}</h3><p>{t("s3p", "दुकान और घर दोनों के लिए! किराया, राशन, बिजली — सब ट्रैक करें।")}</p></div>
+          <div className="card"><div className="ic">👥</div><h3>{t("s4h", "स्टाफ हाजिरी और सैलरी")}</h3><p>{t("s4p", "रोज की हाजिरी लगाएं, एडवांस ट्रैक करें, सैलरी खुद-ब-खुद निकले।")}</p></div>
+        </div></div>
+      </section>
+
+      <section>
+        <div className="wrap center"><div className="eyebrow">{t("e3", "सभी फीचर्स")}</div><h2>{t("ft3", "एक ऐप, पूरा कंट्रोल")}</h2></div>
+        <div className="wrap"><div className="grid4">
+          <div className="card"><div className="ic">🧾</div><h3>{t("a1", "सभी तरह के बिल")}</h3><p>{t("a1p", "टैक्स इनवॉइस, प्रोफार्मा, क्रेडिट नोट, डिलीवरी चालान।")}</p></div>
+          <div className="card"><div className="ic">🔔</div><h3>{t("a2", "लो स्टॉक अलर्ट")}</h3><p>{t("a2p", "सामान कम होते ही तुरंत अलर्ट पाएं।")}</p></div>
+          <div className="card"><div className="ic">⏰</div><h3>{t("a3", "एक्सपायरी अलर्ट")}</h3><p>{t("a3p", "एक्सपायरी ट्रैक करें, खराब होने से पहले अलर्ट।")}</p></div>
+          <div className="card"><div className="ic">🕐</div><h3>{t("a4", "स्टाफ हाजिरी")}</h3><p>{t("a4p", "रोज की हाजिरी, मंथली रिपोर्ट, सैलरी कैलकुलेशन।")}</p></div>
+          <div className="card"><div className="ic">💰</div><h3>{t("a5", "खर्चे ट्रैक करें")}</h3><p>{t("a5p", "किराया, बिजली, खरीदारी — एक जगह लिखें।")}</p></div>
+          <div className="card"><div className="ic">🏪</div><h3>{t("a6", "ऑनलाइन दुकान")}</h3><p>{t("a6p", "सेकंडों में स्टोर बनाएं, शेयर करें, ऑर्डर लें।")}</p></div>
+          <div className="card"><div className="ic">📒</div><h3>{t("a7", "कस्टमर हिसाब")}</h3><p>{t("a7p", "उधारी का हिसाब रखें, रिमाइंडर भेजें।")}</p></div>
+          <div className="card"><div className="ic">🎙️</div><h3>{t("a8", "वॉइस बिलिंग एआई")}</h3><p>{t("a8p", "सामान बोलें — बिल तैयार। हिंदी और अंग्रेज़ी दोनों में।")}</p><span className="tagchip" style={{ background: 'rgba(245,178,60,.15)', color: 'var(--gold)' }}>{t("protag", "स्मार्ट फीचर")}</span></div>
+        </div></div>
+      </section>
+
+      <section id="gst" className="gst">
+        <div className="wrap center">
+          <div className="eyebrow">{t("e4", "जीएसटी फाइलिंग")}</div>
+          <h2>{t("g_title", "जीएसटी रिटर्न, अब आसान")}</h2>
+          <p className="section-sub">{t("g_sub", "आपके डेटा से सभी मुख्य जीएसटी रिटर्न बनते हैं। डाउनलोड करें और पोर्टल पर अपलोड करें।")}</p>
+          <div className="gst-row">
+            <div className="gst-chip"><b>GSTR-1</b><span>{t("g1", "आउटवर्ड सप्लाई रिटर्न")}</span></div>
+            <div className="gst-chip"><b>GSTR-3B</b><span>{t("g2", "मासिक समरी रिटर्न")}</span></div>
+            <div className="gst-chip"><b>GSTR-4</b><span>{t("g3", "कम्पोजीशन स्कीम रिटर्न")}</span></div>
+          </div>
+          <p className="ca-ready"><b>{t("ca1", "CA Ready")}</b> — <span>{t("ca2", "सीधे अपने CA के साथ रिपोर्ट शेयर करें")}</span></p>
+        </div>
+      </section>
+
+      <section>
+        <div className="wrap center"><div className="eyebrow">{t("e5", "यह कैसे काम करता है")}</div><h2>{t("hw_title", "3 आसान स्टेप्स में शुरू करें")}</h2></div>
+        <div className="wrap"><div className="steps">
+          <div className="step"><div className="num">1</div><h3>{t("st1h", "मुफ्त रजिस्टर करें")}</h3><p>{t("st1p", "एक मिनट से कम में साइन अप करें। ना डॉक्यूमेंट, ना क्रेडिट कार्ड।")}</p></div>
+          <div className="step"><div className="num">2</div><h3>{t("st2h", "अपना सामान जोड़ें")}</h3><p>{t("st2p", "टाइप करें या कैमरा इस्तेमाल करें — AI स्कैन करके खुद जोड़ देगा।")}</p></div>
+          <div className="step"><div className="num">3</div><h3>{t("st3h", "बिल बनाएं, शेयर करें")}</h3><p>{t("st3p", "बोलकर या टैप करके बिल बनाएं, व्हाट्सएप पर भेजें, डैशबोर्ड से ट्रैक करें।")}</p></div>
+        </div></div>
+      </section>
+
+      <section id="reviews">
+        <div className="wrap center"><div className="eyebrow">{t("e6", "दुकानदार क्या कहते हैं")}</div><h2>{t("r_title", "पूरे भारत का भरोसा")}</h2></div>
+        <div className="wrap"><div className="grid3">
+          <div className="rcard"><div className="stars">★★★★★</div><p>{t("r1", "\"जीएसटी बिलिंग में घंटों लगते थे। अब 5 मिनट में रिटर्न रिपोर्ट तैयार हो जाती है।\"")}</p><div className="who"><div className="avatar">RG</div><div><b>Rajesh Gupta</b><span>{t("r1l", "Kirana Store, Patna")}</span></div></div></div>
+          <div className="rcard"><div className="stars">★★★★★</div><p>{t("r2", "\"व्हाट्सएप पीडीएफ फीचर बहुत बढ़िया है। दुकान ज्यादा प्रोफेशनल लगती है।\"")}</p><div className="who"><div className="avatar">SV</div><div><b>Sunita Verma</b><span>{t("r2l", "Beauty Parlour, Indore")}</span></div></div></div>
+          <div className="rcard"><div className="stars">★★★★★</div><p>{t("r3", "\"कैमरा स्टॉक अपडेट तो जादू है। रोज मेरे 30 मिनट बचते हैं।\"")}</p><div className="who"><div className="avatar">MJ</div><div><b>Mohit Jain</b><span>{t("r3l", "Medical Store, Jaipur")}</span></div></div></div>
+        </div></div>
+      </section>
+
+      <section id="auth">
+        <div className="wrap">
+          <div className="auth-box">
+            <div className="tabs">
+              <div className={`tab ${activeTab === 'login' ? 'active' : ''}`} onClick={() => setActiveTab('login')}>{t("nav_login", "लॉगिन")}</div>
+              <div className={`tab ${activeTab === 'register' ? 'active' : ''}`} onClick={() => setActiveTab('register')}>{t("nav_register", "रजिस्टर करें")}</div>
+            </div>
+            <div className="tab-body">
+              {activeTab === 'login' && (
+                <div className="panel active">
+                  <h3>{t("wb", "वापसी पर स्वागत है 👋")}</h3><p>{t("wbs", "अपने BillGST अकाउंट में लॉगिन करें")}</p>
+                  <label>{t("le", "ईमेल एड्रेस")}</label>
+                  <input type="email" placeholder="you@example.com" value={loginData.email} onChange={e => setLoginData({ ...loginData, email: e.target.value })} />
+                  <label>{t("lp", "पासवर्ड")}</label>
+                  <input type="password" value={loginData.password} onChange={e => setLoginData({ ...loginData, password: e.target.value })} />
+                  <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center' }} onClick={doLogin} disabled={isLoading}>
+                    {isLoading ? "..." : t("bl", "लॉगिन करें")}
+                  </button>
+                </div>
+              )}
+              {activeTab === 'register' && (
+                <div className="panel active">
+                  <h3>{t("rh", "60 सेकंड में सेटअप करें 🏪")}</h3><p>{t("rhs", "कोई क्रेडिट कार्ड नहीं चाहिए")}</p>
+                  {!otpSent ? (
+                    <div>
+                      <label>{t("ln", "पूरा नाम")}</label>
+                      <input type="text" value={signupData.name} onChange={e => setSignupData({ ...signupData, name: e.target.value })} />
+                      <label>{t("le", "ईमेल एड्रेस")}</label>
+                      <input type="email" placeholder="you@example.com" value={signupData.email} onChange={e => setSignupData({ ...signupData, email: e.target.value })} />
+                      <label>{t("lp", "पासवर्ड")}</label>
+                      <input type="password" value={signupData.password} onChange={e => setSignupData({ ...signupData, password: e.target.value })} />
+                      <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center', border: 'none', fontFamily: 'inherit', fontSize: '.92rem', cursor: 'pointer' }} onClick={sendOtp} disabled={isLoading}>
+                        {isLoading ? "..." : t("br", "OTP भेजें")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <p style={{ fontSize: '.86rem', color: 'var(--ink-soft)', marginBottom: '14px' }}>{t("otpsent", "OTP आपके ईमेल पर भेज दिया गया है ✅")}</p>
+                      <label>{t("lotp", "OTP डालें")}</label>
+                      <input type="text" maxLength={6} placeholder="6-digit OTP" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
+                      <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center', border: 'none', fontFamily: 'inherit', fontSize: '.92rem', cursor: 'pointer' }} onClick={doSignup} disabled={isLoading || otpValue.length !== 6}>
+                        {isLoading ? "..." : t("bv", "वेरिफाई करें और अकाउंट बनाएं")}
+                      </button>
+                      <p style={{ fontSize: '.8rem', color: 'var(--ink-soft)', marginTop: '12px', textAlign: 'center' }}>
+                        {otpCooldown > 0 ? (
+                          <span style={{ color: 'var(--ink-soft)' }}>{otpCooldown}s</span>
+                        ) : (
+                          <a href="#" onClick={(e) => { e.preventDefault(); sendOtp(); }} style={{ color: 'var(--primary-2)' }}>{t("resend", "OTP दोबारा भेजें")}</a>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div className="wrap center"><div className="eyebrow">{t("e7", "FAQ")}</div><h2>{t("q_title", "आम सवाल")}</h2></div>
+        <div className="faq">
+          <details open><summary>{t("q1", "क्या BillGST सच में मुफ्त है?")}</summary><p>{t("a1f", "मुख्य बिलिंग, स्टॉक और हाजिरी फीचर्स इस्तेमाल करने के लिए हमेशा मुफ्त हैं। कुछ एडवांस्ड AI फीचर्स (जैसे वॉइस बिलिंग, फोटो स्टॉक अपडेट) आगे चलकर सीमित/प्रीमियम हो सकते हैं।")}</p></details>
+          <details><summary>{t("q2", "मैं कौन से जीएसटी रिटर्न बना सकता हूँ?")}</summary><p>{t("a2f", "GSTR-1, GSTR-3B और GSTR-4 — डाउनलोड करके पोर्टल पर अपलोड करें या CA को भेजें।")}</p></details>
+          <details><summary>{t("q3", "कैमरा स्टॉक अपडेट कैसे काम करता है?")}</summary><p>{t("a3f", "सामान या बारकोड की फोटो लें, AI उसे पहचान कर स्टॉक अपडेट कर देगा।")}</p></details>
+          <details><summary>{t("q4", "क्या मैं व्हाट्सएप पर बिल भेज सकता हूँ?")}</summary><p>{t("a4f", "हाँ, हर बिल सीधे ग्राहक के व्हाट्सएप पर पीडीएफ के रूप में भेजा जा सकता है।")}</p></details>
+          <details><summary>{t("q5", "मैं किस तरह के बिल बना सकता हूँ?")}</summary><p>{t("a5f", "टैक्स इनवॉइस, प्रोफार्मा, क्रेडिट नोट, डिलीवरी चालान — सभी उपलब्ध हैं।")}</p></details>
+          <details><summary>{t("q6", "मेरा डेटा कितना सुरक्षित है?")}</summary><p>{t("a6f", "सारा डेटा AES-256 के साथ एन्क्रिप्टेड है — सिर्फ आप ही अपना डेटा देख सकते हैं।")}</p></details>
+        </div>
+      </section>
+
+      <section><div className="wrap"><div className="cta-final"><h2>{t("cf1", "आज ही अपनी दुकान को डिजिटल बनाएं")}</h2><p>{t("cf2", "मुफ्त अकाउंट, 60 सेकंड में तैयार। कोई क्रेडिट कार्ड नहीं चाहिए।")}</p><button className="btn btn-solid btn-lg" onClick={() => scrollToAuth('register')}>{t("cta_main", "मुफ्त रजिस्टर करें →")}</button></div></div></section>
+
+      <footer>
+        <div className="wrap">
+          <div className="foot-grid">
+            <div><div className="brand" style={{ marginBottom: '10px' }}><img src="/logo.png" alt="BillGST Logo" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} /></div><p style={{ color: 'var(--ink-soft)', fontSize: '.86rem', lineHeight: 1.6 }}>{t("fdesc", "भारत के दुकानदारों के लिए बना स्मार्ट बिलिंग और इन्वेंट्री सॉफ्टवेयर। हिंदी और अंग्रेज़ी दोनों उपलब्ध।")}</p><a href="https://wa.me/917498571873" style={{ color: 'var(--accent)' }}>WhatsApp: +91 74985 71873</a></div>
+            <div><h4>{t("fp", "प्रोडक्ट")}</h4><a href="#features">{t("nl1", "फीचर्स")}</a><a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a><a href="#">{t("fvai", "वॉइस बिलिंग एआई")}</a></div>
+            <div><h4>{t("fc", "कंपनी")}</h4><a href="#">{t("fabout", "हमारे बारे में")}</a><a href="#">{t("fcontact", "संपर्क करें")}</a><a href="#">{t("fpriv", "प्राइवेसी पॉलिसी")}</a></div>
+          </div>
+          <div className="foot-bottom"><span>© 2026 Ayana Enterprises</span><span>{t("fmade", "Made in 🇮🇳 India")}</span></div>
+        </div>
+      </footer>
+    </div>
+  );
 }
