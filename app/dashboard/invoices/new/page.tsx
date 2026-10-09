@@ -482,7 +482,12 @@ function NewInvoiceContent() {
         }
 
         let due = Number(cust.opening_balance) || 0;
-        const custInvs = invoices.filter((inv: any) => (inv.customer?.id === custId || inv.customer_id === custId) && inv.status !== 'PAID');
+        const custInvs = invoices.filter((inv: any) => {
+            const isTargetCustomer = inv.customer?.id === custId || inv.customer_id === custId;
+            const isUnpaid = inv.status !== 'PAID';
+            const isNotEstimate = !['QUOTATION', 'DELIVERY_CHALLAN', 'PROFORMA_INVOICE', 'E_WAY_BILL'].includes(inv.type);
+            return isTargetCustomer && isUnpaid && isNotEstimate;
+        });
         due += custInvs.reduce((sum: number, inv: any) => sum + ((Number(inv.total_amount) || 0) - (Number(inv.paid_amount) || 0)), 0);
         return due;
     };
@@ -2160,11 +2165,12 @@ function NewInvoiceContent() {
                                                 ))}
                                             </div>
                                             {/* Footer */}
-                                            <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-2">
+                                            <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-1">
                                                 <div className="h-6 w-6 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">UPI QR</div>
                                                 <div className="text-right">
-                                                    <div className="text-[4px] text-slate-400">Total Amount</div>
-                                                    <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                                    <div className="flex justify-between gap-2 text-[3.5px] text-slate-400"><span className="text-right">Total:</span> <span>₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</span></div>
+                                                    <div className="flex justify-between gap-2 text-[3.5px] text-slate-500"><span className="text-right">Prev Bal:</span> <span>₹{(() => { const pBal = (!customerId && newCustName) ? Number(newCustOb || 0) : getCustomerBalance(customerId); return pBal.toFixed(0); })()}</span></div>
+                                                    <div className="flex justify-between gap-2 text-[4.5px] font-black text-slate-800 mt-0.5 border-t border-slate-100 pt-0.5"><span className="text-right">Net Bal:</span> <span>₹{(() => { const pBal = (!customerId && newCustName) ? Number(newCustOb || 0) : getCustomerBalance(customerId); const cBal = Math.max(totals.grandTotal - Number(paidAmount || 0), 0); return (pBal + cBal).toFixed(0); })()}</span></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2198,7 +2204,9 @@ function NewInvoiceContent() {
                                             <div className="mt-auto flex justify-between items-end border-t border-slate-100 pt-1">
                                                 <div className="h-5 w-5 border border-slate-200 bg-slate-50 flex items-center justify-center text-[3px] text-slate-400">QR</div>
                                                 <div className="text-right">
-                                                    <div className="text-[6px] font-black text-slate-800">₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</div>
+                                                    <div className="flex justify-between gap-1 text-[3.5px] text-slate-500"><span className="text-right">Total:</span> <span>₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</span></div>
+                                                    <div className="flex justify-between gap-1 text-[3.5px] text-slate-500"><span className="text-right">Prev:</span> <span>₹{(() => { const pBal = (!customerId && newCustName) ? Number(newCustOb || 0) : getCustomerBalance(customerId); return pBal.toFixed(0); })()}</span></div>
+                                                    <div className="text-[5.5px] font-black text-slate-800 mt-0.5 border-t border-slate-100 pt-0.5">₹{(() => { const pBal = (!customerId && newCustName) ? Number(newCustOb || 0) : getCustomerBalance(customerId); const cBal = Math.max(totals.grandTotal - Number(paidAmount || 0), 0); return (pBal + cBal).toFixed(0); })()}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2226,9 +2234,17 @@ function NewInvoiceContent() {
                                                 ))}
                                             </div>
                                             {/* Total */}
-                                            <div className="flex justify-between text-[5px] font-black mb-2 text-slate-800">
+                                            <div className="flex justify-between text-[4px] font-bold text-slate-700">
                                                 <span>TOTAL</span>
                                                 <span>₹{totals.grandTotal > 0 ? totals.grandTotal.toFixed(0) : '100'}</span>
+                                            </div>
+                                            <div className="flex justify-between text-[4px] text-slate-500">
+                                                <span>PREV</span>
+                                                <span>₹{(() => { const pBal = (!customerId && newCustName) ? Number(newCustOb || 0) : getCustomerBalance(customerId); return pBal.toFixed(0); })()}</span>
+                                            </div>
+                                            <div className="flex justify-between text-[5px] font-black border-t border-dashed border-slate-300 pt-0.5 mt-0.5 mb-2 text-slate-800">
+                                                <span>NET</span>
+                                                <span>₹{(() => { const pBal = (!customerId && newCustName) ? Number(newCustOb || 0) : getCustomerBalance(customerId); const cBal = Math.max(totals.grandTotal - Number(paidAmount || 0), 0); return (pBal + cBal).toFixed(0); })()}</span>
                                             </div>
                                             <div className="mt-auto text-center">
                                                 <div className="h-8 w-8 border border-slate-200 bg-slate-50 mx-auto flex items-center justify-center text-[4px] text-slate-400 mb-1">UPI QR</div>
