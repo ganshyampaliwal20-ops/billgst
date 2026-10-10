@@ -80,6 +80,28 @@ export async function GET(request: Request, context: any) {
             customerId = shareData.id;
         }
 
+        // If the shareData is basically empty (e.g. created by link generation when sync failed), fetch invoice sum
+        if (userId && customerId && (!shareData.txns || typeof shareData.balance === 'undefined')) {
+            try {
+                const custResult = await client.query('SELECT * FROM customers WHERE id = $1', [customerId]);
+                if (custResult.rows.length > 0) {
+                    const customer = custResult.rows[0];
+                    let computedBal = customer.balance || 0;
+
+                    const invResult = await client.query(`SELECT total_amount, paid_amount, type FROM invoices WHERE customer_id = $1`, [customerId]);
+                    invResult.rows.forEach(inv => {
+                        if (inv.type !== 'QUOTATION' && inv.type !== 'DELIVERY_CHALLAN' && inv.type !== 'PROFORMA' && inv.type !== 'EWAY_BILL') {
+                            computedBal += ((parseFloat(inv.total_amount) || 0) - (parseFloat(inv.paid_amount) || 0));
+                        }
+                    });
+
+                    shareData = { ...customer, txns: [], balance: computedBal, _recovered: true };
+                }
+            } catch (e) {
+                console.error('Failed to compute fallback for empty shareData:', e);
+            }
+        }
+
         if (userId && customerId) {
             try {
                 // Fetch customer details to ensure they are up to date
@@ -88,6 +110,7 @@ export async function GET(request: Request, context: any) {
                     const customer = custResult.rows[0];
                     shareData = { ...shareData, ...customer }; // Merge to preserve any extra fields
                 }
+
 
                 // No longer overwriting with invoices table.
                 // The source of truth for the Hisaab Statement is ALWAYS the hisaab_shares JSON payload.
