@@ -27,11 +27,16 @@ export async function POST(req: Request) {
             // Generate a 8 char random short id
             const shortId = Math.random().toString(36).substring(2, 6) + Math.random().toString(36).substring(2, 6);
 
-            await client.query(`
-                INSERT INTO hisaab_shares (id, user_id, data, updated_at, short_id)
-                VALUES ($1, $2, '{}', NOW(), $3)
-                ON CONFLICT (id) DO UPDATE SET short_id = COALESCE(hisaab_shares.short_id, EXCLUDED.short_id)
-            `, [globalId, session.user.id, shortId]);
+            try {
+                await client.query(`
+                    INSERT INTO hisaab_shares (id, user_id, data, updated_at, short_id)
+                    VALUES ($1, $2, '{}', NOW(), $3)
+                    ON CONFLICT (id) DO UPDATE SET short_id = COALESCE(hisaab_shares.short_id, EXCLUDED.short_id)
+                `, [globalId, session.user.id, shortId]);
+            } catch (e: any) {
+                if (e.code === '42703') { return NextResponse.json({ shortId: null }); }
+                else throw e;
+            }
 
             // fetch it back in case of conflict resolving to existing
             result = await client.query('SELECT short_id FROM hisaab_shares WHERE id = $1', [globalId]);
