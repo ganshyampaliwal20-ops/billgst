@@ -243,7 +243,8 @@ export default function InvoicesPage() {
         const toastId = toast.loading('WhatsApp ke liye PDF ban raha hai...');
         try {
             const { generateInvoicePDF } = await import('../../../lib/pdf-generator');
-            const doc = await generateInvoicePDF(injectPreviousBalance(invoice), businessProfile, false);
+            const invWithBal = injectPreviousBalance(invoice);
+            const doc = await generateInvoicePDF(invWithBal, businessProfile, false);
             if (!doc) {
                 toast.error('PDF Generate fail!', { id: toastId });
                 return;
@@ -255,7 +256,11 @@ export default function InvoicesPage() {
 
             const invoiceLink = `${window.location.origin}/i/${invoice.id}`;
             let bal = Math.max(Number(invoice.total_amount || 0) - Number(invoice.paid_amount || 0), 0);
-            let text = `${invoice.type === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${Number(invoice.total_amount || 0).toFixed(2)}\nBalance: ${bal.toFixed(2)}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.business_name || businessProfile?.name || 'Business'}`;
+            let prevBal = Number(invWithBal.previous_balance || 0);
+            let currentBal = prevBal + bal;
+            let paidText = Number(invoice.paid_amount || 0) > 0 ? `\nReceived: ${Number(invoice.paid_amount || 0).toFixed(2)}` : '';
+            let prevBalText = prevBal > 0 ? `\nPrevious Balance: ${prevBal.toFixed(2)}\nCurrent Balance: ${currentBal.toFixed(2)}` : `\nBalance: ${bal.toFixed(2)}`;
+            let text = `${invoice.type === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${Number(invoice.total_amount || 0).toFixed(2)}${paidText}${prevBalText}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.business_name || businessProfile?.name || 'Business'}`;
             if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
                 try {
                     let Filesystem;

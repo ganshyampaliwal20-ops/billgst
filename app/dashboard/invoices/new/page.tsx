@@ -943,8 +943,11 @@ function NewInvoiceContent() {
                                 const formData = new FormData();
                                 formData.append('file', pdfBlob, `Invoice-${invoiceNumber}.pdf`);
                                 formData.append('phone', customer.phone);
-                                let msgText = `Namaste ${customer?.name}, aapka bill #${invoiceNumber} ready hai. Please find the attached PDF.`;
-                                msgText += getVisitingCardText(businessProfile);
+                                const bal = Math.max(totals.grandTotal - Number(paidAmount || 0), 0);
+                                const currentBal = prevBal + bal;
+                                let paidText = Number(paidAmount || 0) > 0 ? `\nReceived: ${Number(paidAmount || 0).toFixed(2)}` : '';
+                                let prevBalText = prevBal > 0 ? `\nPrevious Balance: ${prevBal.toFixed(2)}\nCurrent Balance: ${currentBal.toFixed(2)}` : `\nBalance: ${bal.toFixed(2)}`;
+                                let msgText = `${docType === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${totals.grandTotal.toFixed(2)}${paidText}${prevBalText}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.name || 'Business'}`;
                                 formData.append('message', msgText);
 
                                 const sendRes = await fetch('/api/whatsapp/send-media', {
@@ -1510,11 +1513,13 @@ function NewInvoiceContent() {
                               overflow: hidden;
                           }
 
-                          .quick-actions { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom: 20px; }
+                          .quick-actions { display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; margin-bottom: 20px; }
+                          @media(min-width: 768px) { .quick-actions { grid-template-columns:repeat(3, 1fr); } }
                           .qa-card { border-radius:12px; padding:12px 6px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; cursor:pointer; border:1.5px solid transparent; transition:all .18s; }
                           .qa-card:hover { transform:translateY(-2px); }
                           .qa-card:active { transform:scale(.98); }
-                          .qa-card.scanner { background:linear-gradient(135deg,#e0f2fe,#f0f9ff); border-color:rgba(6,182,212,.25); }
+                          .qa-card.scanner { display:none; background:linear-gradient(135deg,#e0f2fe,#f0f9ff); border-color:rgba(6,182,212,.25); }
+                          @media(min-width: 768px) { .qa-card.scanner { display:flex; } }
                           .qa-card.scanner:hover { box-shadow:0 6px 15px rgba(6,182,212,.15); }
                           .qa-card.camera { background:linear-gradient(135deg,#f5f3ff,#ede9fe); border-color:rgba(139,92,246,.25); }
                           .qa-card.camera:hover { box-shadow:0 6px 15px rgba(139,92,246,.15); }
@@ -1931,7 +1936,7 @@ function NewInvoiceContent() {
                                         <div className="qa-icon qi-purple">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
                                         </div>
-                                        <div className="qa-title">{t.camera || 'Camera'}</div>
+                                        <div className="qa-title">Barcode Scanner</div>
                                     </div>
 
                                     <div className="qa-card inventory" onClick={() => setShowQuickAdd(true)}>
