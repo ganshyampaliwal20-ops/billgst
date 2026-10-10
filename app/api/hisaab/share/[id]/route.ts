@@ -37,7 +37,7 @@ export async function GET(request: Request, context: any) {
                 const custResult = await client.query('SELECT * FROM customers WHERE id = $1', [customerId]);
                 if (custResult.rows.length > 0) {
                     const customer = custResult.rows[0];
-                    const userResult = await client.query('SELECT business_name, business_phone, business_email, business_upi_id, logo FROM users WHERE id = $1', [customer.user_id]);
+                    const userResult = await client.query('SELECT business_name, business_phone, business_email, business_upi_id FROM users WHERE id = $1', [customer.user_id]);
                     client.release();
                     return NextResponse.json({
                         ...customer,
