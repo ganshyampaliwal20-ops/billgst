@@ -34,20 +34,20 @@ function HisaabViewerContent() {
             if (idStr) {
                 try {
                     const res = await fetch(`/api/hisaab/share/${idStr}?t=${Date.now()}`, { cache: 'no-store' });
-                    if(!res.ok) throw new Error('Not found');
+                    if (!res.ok) throw new Error('Not found');
                     const json = await res.json();
-                    
+
                     setRawData(json);
 
                     let c = 0, d = 0;
                     const txns = json.txns || [];
                     txns.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-                    txns.forEach((t: any) => { if(t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
+                    txns.forEach((t: any) => { if (t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
                     const computedBalance = d - c;
                     const balance = json.balance !== undefined ? json.balance : computedBalance;
                     const isNeg = balance < 0;
                     const net = Math.abs(balance);
-                    
+
                     const shapedData = {
                         c: { n: json.name || json.customer?.name || 'Customer', p: json.phone || json.customer?.phone || '', t: json.type || 'Customer' },
                         s: { net, neg: isNeg, r: c, g: d, entries: txns.length },
@@ -71,16 +71,16 @@ function HisaabViewerContent() {
                     const decodedURIComponent = decodeURIComponent(escape(decoded));
                     const json = JSON.parse(decodedURIComponent);
                     setRawData(json);
-                    
+
                     let c = 0, d = 0;
                     const txns = json.txns || [];
                     txns.sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-                    txns.forEach((t: any) => { if(t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
+                    txns.forEach((t: any) => { if (t.type === 'credit' || t.y === 'c') c += Number(t.amt || t.a || 0); else d += Number(t.amt || t.a || 0); });
                     const computedBalance = d - c;
                     const balance = json.balance !== undefined ? json.balance : computedBalance;
                     const isNeg = balance < 0;
                     const net = Math.abs(balance);
-                    
+
                     const shapedData = {
                         c: { n: json.name || json.customer?.name || 'Customer', p: json.phone || json.customer?.phone || '', t: json.type || 'Customer' },
                         s: { net, neg: isNeg, r: c, g: d, entries: txns.length },
@@ -131,7 +131,7 @@ function HisaabViewerContent() {
 
     const handleGeneratePDF = async (action: 'view' | 'download' | 'share') => {
         if (!rawData) return;
-        
+
         let newWindow = null;
         if (action === 'view') {
             const isNative = typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform();
@@ -142,11 +142,11 @@ function HisaabViewerContent() {
         try {
             const businessDetails = b ? { name: b.business_name, phone: b.business_phone, email: b.business_email, logo: b.logo } : { name: 'Business Statement' };
             const custStats = { credit: s.r, debit: s.g, net: s.net, isNeg: s.neg };
-            
+
             const { generateHisaabPDF } = await import('../../../lib/pdf-generator');
             const doc = await generateHisaabPDF(rawData, businessDetails, custStats, false);
             if (!doc) throw new Error('Failed to generate');
-            
+
             const base64Data = doc.output('datauristring').split(',')[1];
             const fileName = `Hisaab_${c.n || 'Customer'}.pdf`;
             await downloadAndShareFile(base64Data, fileName, 'application/pdf', action, newWindow as any);
@@ -208,7 +208,8 @@ function HisaabViewerContent() {
 
     return (
         <div style={{ background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '2rem 1rem', fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
-            <style dangerouslySetInnerHTML={{__html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
                 
@@ -331,7 +332,7 @@ function HisaabViewerContent() {
                         </div>
 
                         <p className="inv-subtitle">
-                            Aapka hisaab ready hai. 
+                            Aapka hisaab ready hai.
                             {s.neg ? ' Kripya neeche diye gaye UPI se payment karein.' : ' Neeche se PDF download karein.'}
                         </p>
 
@@ -385,9 +386,9 @@ function HisaabViewerContent() {
 
                         <div className="inv-btn-row">
                             {!s.neg && b?.business_upi_id && s.net > 0 ? (
-                                <a 
+                                <a
                                     href={`/pay?pa=${encodeURIComponent(b.business_upi_id)}&pn=${encodeURIComponent(b.business_name || b.name || 'Merchant')}&am=${Math.round(s.net)}&sid=${encodeURIComponent(searchParams?.get('id') || (params?.id as string) || '')}&cname=${encodeURIComponent(c.n || '')}`}
-                                    className="inv-pay-btn" 
+                                    className="inv-pay-btn"
                                     style={{ textDecoration: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
                                 >
                                     <i className="ti ti-device-mobile-payment" style={{ fontSize: '17px' }}></i>
@@ -405,7 +406,7 @@ function HisaabViewerContent() {
                                 </div>
                             )}
                             <button className="inv-pdf-btn" onClick={() => setIsModalOpen(true)}>
-                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: \'#fff\' }}></i>
+                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: '#fff' }}></i>
                                 PDF Dekho
                             </button>
                         </div>
@@ -484,7 +485,7 @@ function HisaabViewerContent() {
                             <div className="pdf-size">{b?.business_name || 'Business'}</div>
                         </div>
                         <div className="pdf-detail-row"><span>Customer</span><span>{c.n || 'Customer'}</span></div>
-                        <div className="pdf-detail-row"><span>Total Given</span><span style={{ color: \'#fff\' }}>{formatCurrency(s.g)}</span></div>
+                        <div className="pdf-detail-row"><span>Total Given</span><span style={{ color: '#fff' }}>{formatCurrency(s.g)}</span></div>
                         <div className="pdf-detail-row"><span>Total Rcvd</span><span style={{ color: '#1B5E3B' }}>{formatCurrency(s.r)}</span></div>
                         <div className="pdf-detail-row"><span>Net Balance</span><span style={{ color: s.neg ? '#C0392B' : '#1B5E3B', fontWeight: 700 }}>{formatCurrency(s.net)}</span></div>
                         <div className="pdf-action-row">
@@ -506,7 +507,7 @@ function HisaabViewerContent() {
                         <div>{paymentStep === 'select' ? 'Aap kis app se pay karenge?' : 'Payment Confirmation'}</div>
                         {!isProcessingPayment && <button className="pdf-modal-close" onClick={() => { setIsPaymentModalOpen(false); setPaymentStep('select'); }}>✕</button>}
                     </div>
-                    
+
                     {paymentStep === 'select' ? (
                         <div className="pdf-modal-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             <div style={{ textAlign: 'center', marginBottom: '10px', color: '#555', fontSize: '13px' }}>
@@ -543,7 +544,7 @@ function HisaabViewerContent() {
                 </div>
             </div>
 
-        </div>
+        </div >
     );
 }
 

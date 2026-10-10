@@ -12,7 +12,7 @@ function formatCurrency(amount: number) {
 export default function InvoiceViewer() {
     const params = useParams();
     const id = params?.id as string;
-    
+
     const [invoice, setInvoice] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -43,11 +43,11 @@ export default function InvoiceViewer() {
             const { downloadAndShareFile } = await import('../../../lib/utils');
             const doc = await generateInvoicePDF(invoice, invoice.business_profile, false);
             if (!doc) throw new Error('Failed to generate');
-            
+
             const base64Data = doc.output('datauristring').split(',')[1];
             const fileName = `Invoice_${invoice.invoice_number || '001'}.pdf`;
             await downloadAndShareFile(base64Data, fileName, 'application/pdf', action);
-        } catch(e) {
+        } catch (e) {
             console.error('PDF error', e);
             alert('Failed to generate PDF. Please try again later.');
         } finally {
@@ -81,7 +81,8 @@ export default function InvoiceViewer() {
 
     return (
         <div style={{ background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '2rem 1rem', fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
-            <style dangerouslySetInnerHTML={{__html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
                 
@@ -240,7 +241,7 @@ export default function InvoiceViewer() {
                                 </div>
                             )}
                             <button className="inv-pdf-btn" onClick={() => setIsModalOpen(true)}>
-                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: \'#fff\' }}></i>
+                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: '#fff' }}></i>
                                 Invoice
                             </button>
                         </div>
