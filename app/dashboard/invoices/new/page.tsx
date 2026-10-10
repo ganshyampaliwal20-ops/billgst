@@ -477,10 +477,6 @@ function NewInvoiceContent() {
         const cust = safeCustomers.find(c => c.id === custId);
         if (!cust) return 0;
 
-        if (cust.balance !== undefined) {
-            return Number(cust.balance);
-        }
-
         let due = Number(cust.opening_balance) || 0;
         const custInvs = invoices.filter((inv: any) => {
             const isTargetCustomer = inv.customer?.id === custId || inv.customer_id === custId;

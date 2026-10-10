@@ -280,6 +280,13 @@ export default function InvoicesPage() {
                             directory: 'DOCUMENTS',
                         });
 
+                        try {
+                            if (navigator.clipboard) {
+                                await navigator.clipboard.writeText(text);
+                                toast.success('Message copied! Paste it in WhatsApp.', { duration: 3000 });
+                            }
+                        } catch (cliperr) { console.warn(cliperr); }
+
                         await Share.share({
                             title: fileName,
                             text: text,
