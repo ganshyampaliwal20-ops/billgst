@@ -38,11 +38,20 @@ export async function GET(request: Request, context: any) {
                 if (custResult.rows.length > 0) {
                     const customer = custResult.rows[0];
                     const userResult = await client.query('SELECT business_name, business_phone, business_email, business_upi_id FROM users WHERE id = $1', [customer.user_id]);
+
+                    let computedBal = customer.balance || 0;
+                    const invResult = await client.query(`SELECT total_amount, paid_amount, type FROM invoices WHERE customer_id = $1`, [customerId]);
+                    invResult.rows.forEach(inv => {
+                        if (inv.type !== 'QUOTATION' && inv.type !== 'DELIVERY_CHALLAN' && inv.type !== 'PROFORMA' && inv.type !== 'EWAY_BILL') {
+                            computedBal += ((parseFloat(inv.total_amount) || 0) - (parseFloat(inv.paid_amount) || 0));
+                        }
+                    });
+
                     client.release();
                     return NextResponse.json({
                         ...customer,
                         txns: [],
-                        balance: customer.balance || 0,
+                        balance: computedBal,
                         businessProfile: userResult.rows[0],
                         _fallback: true
                     }, { headers: { 'Cache-Control': 'no-store' } });
