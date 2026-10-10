@@ -59,16 +59,21 @@ export async function POST(request: Request) {
         try {
             // Handle bulk sync if data is an array
             const customers = Array.isArray(data) ? data : [data];
-            
+
+            // Defensively ensure short_id column exists
+            try {
+                await client.query(`ALTER TABLE hisaab_shares ADD COLUMN IF NOT EXISTS short_id VARCHAR(10)`);
+            } catch (ignore) { }
+
             await client.query('BEGIN');
-            
+
             for (const cust of customers) {
                 if (!cust || !cust.id) continue;
-                
+
                 const customerId = cust.id.toString();
                 const globalId = `${userId}_${customerId}`;
                 const shortId = Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
-                
+
                 await client.query(`
                     INSERT INTO hisaab_shares (id, user_id, data, updated_at, short_id)
                     VALUES ($1, $2, $3, NOW(), $4)
@@ -81,7 +86,7 @@ export async function POST(request: Request) {
                     shortId
                 ]);
             }
-            
+
             await client.query('COMMIT');
         } catch (err) {
             await client.query('ROLLBACK');
