@@ -10,7 +10,7 @@ export async function GET(request: Request, context: any) {
         if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
 
         const client = await pool.connect();
-        
+
         // We allow both long IDs and short IDs.
         // Additionally, for users using old bookmarked links (which only had customerId without the userId_ prefix),
         // we search for id LIKE '%_customerId' and take the most recently updated row.
@@ -22,8 +22,24 @@ export async function GET(request: Request, context: any) {
                OR id LIKE $2
             ORDER BY updated_at DESC LIMIT 1
         `, [id, `%_${id}`]);
-        
+
         if (result.rows.length === 0) {
+            const customerId = id.includes('_') ? id.split('_')[1] : id;
+            if (customerId && customerId.length > 5) {
+                const custResult = await client.query('SELECT * FROM customers WHERE id = $1', [customerId]);
+                if (custResult.rows.length > 0) {
+                    const customer = custResult.rows[0];
+                    const userResult = await client.query('SELECT business_name, business_phone, business_email, business_upi_id, logo FROM users WHERE id = $1', [customer.user_id]);
+                    client.release();
+                    return NextResponse.json({
+                        ...customer,
+                        txns: [],
+                        balance: customer.balance || 0,
+                        businessProfile: userResult.rows[0],
+                        _fallback: true
+                    }, { headers: { 'Cache-Control': 'no-store' } });
+                }
+            }
             client.release();
             return NextResponse.json({ error: 'Not found' }, { status: 404 });
         }
