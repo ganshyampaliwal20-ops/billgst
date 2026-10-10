@@ -260,7 +260,7 @@ export default function InvoicesPage() {
             let currentBal = prevBal + bal;
             let paidText = Number(invoice.paid_amount || 0) > 0 ? `\nReceived: ${Number(invoice.paid_amount || 0).toFixed(2)}` : '';
             let prevBalText = prevBal > 0 ? `\nPrevious Balance: ${prevBal.toFixed(2)}\nCurrent Balance: ${currentBal.toFixed(2)}` : `\nBalance: ${bal.toFixed(2)}`;
-            let text = `${invoice.type === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${Number(invoice.total_amount || 0).toFixed(2)}${paidText}${prevBalText}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.business_name || businessProfile?.name || 'Business'}`;
+            let text = `${invoice.type === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${Number(invoice.total_amount || 0).toFixed(2)}${paidText}${prevBalText}\n\n🧾 *Invoice PDF Dekhne ke liye yaha click karein:*\n${invoiceLink}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.business_name || businessProfile?.name || 'Business'}`;
             if (typeof window !== 'undefined' && (window as any).Capacitor && (window as any).Capacitor.isNativePlatform && (window as any).Capacitor.isNativePlatform()) {
                 try {
                     let Filesystem;

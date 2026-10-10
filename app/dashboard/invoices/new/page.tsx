@@ -943,7 +943,8 @@ function NewInvoiceContent() {
                                 const currentBal = prevBal + bal;
                                 let paidText = Number(paidAmount || 0) > 0 ? `\nReceived: ${Number(paidAmount || 0).toFixed(2)}` : '';
                                 let prevBalText = prevBal > 0 ? `\nPrevious Balance: ${prevBal.toFixed(2)}\nCurrent Balance: ${currentBal.toFixed(2)}` : `\nBalance: ${bal.toFixed(2)}`;
-                                let msgText = `${docType === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${totals.grandTotal.toFixed(2)}${paidText}${prevBalText}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.name || 'Business'}`;
+                                const invoiceLink = `${window.location.origin}/i/${result?.id || 'new'}`;
+                                let msgText = `${docType === 'QUOTATION' ? 'Quotation' : 'Sale Invoice'} :\nInvoice Amount: ${totals.grandTotal.toFixed(2)}${paidText}${prevBalText}\n\n🧾 *Invoice PDF Dekhne ke liye yaha click karein:*\n${invoiceLink}\n\nThanks for doing business with us.\nRegards,\n${businessProfile?.name || 'Business'}`;
                                 formData.append('message', msgText);
 
                                 const sendRes = await fetch('/api/whatsapp/send-media', {

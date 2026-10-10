@@ -240,7 +240,7 @@ export default function InvoiceViewer() {
                                 </div>
                             )}
                             <button className="inv-pdf-btn" onClick={() => setIsModalOpen(true)}>
-                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: '#C0392B' }}></i>
+                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: \'#fff\' }}></i>
                                 Invoice
                             </button>
                         </div>

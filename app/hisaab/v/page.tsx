@@ -405,7 +405,7 @@ function HisaabViewerContent() {
                                 </div>
                             )}
                             <button className="inv-pdf-btn" onClick={() => setIsModalOpen(true)}>
-                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: '#C0392B' }}></i>
+                                <i className="ti ti-file-type-pdf" style={{ fontSize: '18px', color: \'#fff\' }}></i>
                                 PDF Dekho
                             </button>
                         </div>
@@ -484,7 +484,7 @@ function HisaabViewerContent() {
                             <div className="pdf-size">{b?.business_name || 'Business'}</div>
                         </div>
                         <div className="pdf-detail-row"><span>Customer</span><span>{c.n || 'Customer'}</span></div>
-                        <div className="pdf-detail-row"><span>Total Given</span><span style={{ color: '#C0392B' }}>{formatCurrency(s.g)}</span></div>
+                        <div className="pdf-detail-row"><span>Total Given</span><span style={{ color: \'#fff\' }}>{formatCurrency(s.g)}</span></div>
                         <div className="pdf-detail-row"><span>Total Rcvd</span><span style={{ color: '#1B5E3B' }}>{formatCurrency(s.r)}</span></div>
                         <div className="pdf-detail-row"><span>Net Balance</span><span style={{ color: s.neg ? '#C0392B' : '#1B5E3B', fontWeight: 700 }}>{formatCurrency(s.net)}</span></div>
                         <div className="pdf-action-row">
