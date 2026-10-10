@@ -21,8 +21,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing phone number' }, { status: 400 });
         }
 
-        const ROOT = process.cwd();
-        const TMP = path.join(ROOT, 'tmp');
+        const os = require('os');
+        const TMP = path.join(os.tmpdir(), 'billgst-whatsapp');
         const MEDIA_DIR = path.join(TMP, 'media-requests');
         const UPLOADS_DIR = path.join(TMP, 'uploads');
 

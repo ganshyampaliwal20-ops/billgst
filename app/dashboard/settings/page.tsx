@@ -46,12 +46,12 @@ export default function SettingsPage() {
     const [localSettings, setLocalSettings] = useState<any>({});
     const t: any = translations[(settings.language || 'en') as keyof typeof translations] || translations.en;
     const [isClient, setIsClient] = useState(false);
-    
+
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('profile');
     const [featuresOpen, setFeaturesOpen] = useState(false);
     const [designOpen, setDesignOpen] = useState(false);
-    
+
     // GST Verification State
     const [gstStatus, setGstStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
     const [gstName, setGstName] = useState('');
@@ -162,7 +162,7 @@ export default function SettingsPage() {
     }, [isClient]);
 
     const handleSubmit = async (e?: React.FormEvent) => {
-        if(e) e.preventDefault();
+        if (e) e.preventDefault();
         const gstinVal = (formData.gst || formData.gstin || formData.business_gstin || '').trim().toUpperCase();
         const payloadProfile = {
             ...formData,
@@ -172,7 +172,7 @@ export default function SettingsPage() {
         };
         updateProfile(payloadProfile);
         updateSettings(localSettings);
-        
+
         const toastId = toast.loading('Saving your settings...');
         try {
             await saveBusinessProfile({ ...payloadProfile, ...localSettings });
@@ -218,9 +218,9 @@ export default function SettingsPage() {
             setGstStatus('invalid');
             return;
         }
-        
+
         setGstStatus('loading');
-        
+
         setTimeout(() => {
             setGstStatus('valid');
             const pan = gstin.substring(2, 12);
@@ -548,7 +548,7 @@ export default function SettingsPage() {
                 </nav>
 
                 <div className="main-col">
-                    
+
                     {/* Completeness logic based on missing fields */}
                     <div className="completeness" style={{ '--ring-deg': (!formData.signature || !formData.logo) ? '288deg' : '360deg' } as any}>
                         <div className="ring" data-pct={(!formData.signature || !formData.logo) ? "80%" : "100%"}></div>
@@ -561,35 +561,35 @@ export default function SettingsPage() {
                     {/* Profile */}
                     <div className="card" id="profile">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><path d="M9 22V12h6v10" /></svg></div>
                             <div><h2>{t.businessProfile}</h2><p>Basic details about your business</p></div>
                         </div>
                         <div className="field">
                             <label>Business Name</label>
-                            <input type="text" value={formData.name || ''} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="e.g. Acme Enterprises" />
+                            <input type="text" value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Acme Enterprises" />
                         </div>
                         <div className="row2">
                             <div className="field">
                                 <label>Mobile Number</label>
-                                <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="Mobile Number" />
+                                <input type="tel" value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="Mobile Number" />
                             </div>
                             <div className="field">
                                 <label>Email Address <span className="opt">(Optional)</span></label>
-                                <input type="email" value={formData.email || ''} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Email ID" />
+                                <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="Email ID" />
                             </div>
                         </div>
                         <div className="field">
                             <label>Business Address</label>
-                            <textarea value={formData.address || ''} onChange={(e) => setFormData({...formData, address: e.target.value})} placeholder="Building, street, area, landmark"></textarea>
+                            <textarea value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Building, street, area, landmark"></textarea>
                         </div>
                         <div className="row3">
                             <div className="field">
                                 <label>City</label>
-                                <input type="text" value={formData.city || ''} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="City" />
+                                <input type="text" value={formData.city || ''} onChange={(e) => setFormData({ ...formData, city: e.target.value })} placeholder="City" />
                             </div>
                             <div className="field">
                                 <label>State</label>
-                                <select value={formData.state || ''} onChange={(e) => setFormData({...formData, state: e.target.value})}>
+                                <select value={formData.state || ''} onChange={(e) => setFormData({ ...formData, state: e.target.value })}>
                                     <option value="">Select State</option>
                                     <option value="Rajasthan">Rajasthan</option>
                                     <option value="Maharashtra">Maharashtra</option>
@@ -611,35 +611,35 @@ export default function SettingsPage() {
                     <div className="card" id="tax">
                         <div className="card-head with-toggle">
                             <div className="card-head-left">
-                                <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                                <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg></div>
                                 <div><h2>{t.taxSettings}</h2><p>GST configuration applied on invoices</p></div>
                             </div>
                         </div>
                         <div className="toggle-row">
                             <div><b>I have a GSTIN Number</b><span>When disabled, non-GST invoices will be generated</span></div>
                             <label className="switch">
-                                <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({...localSettings, nonGstMode: !e.target.checked})} />
+                                <input type="checkbox" checked={!localSettings.nonGstMode} onChange={(e) => setLocalSettings({ ...localSettings, nonGstMode: !e.target.checked })} />
                                 <span className="slider"></span>
                             </label>
                         </div>
-                        
+
                         {!localSettings.nonGstMode && (
                             <div id="gstSection">
                                 <div className="divider"></div>
                                 <div className="field">
                                     <label>GSTIN</label>
                                     <div className="gst-input-wrap">
-                                        <input type="text" 
-                                            className={gstStatus === 'valid' ? 'valid' : gstStatus === 'invalid' ? 'invalid' : ''} 
-                                            value={formData.gst || ''} 
-                                            maxLength={15} 
-                                            onChange={handleGstInput} 
-                                            placeholder="22AAAAA0000A1Z5" 
+                                        <input type="text"
+                                            className={gstStatus === 'valid' ? 'valid' : gstStatus === 'invalid' ? 'invalid' : ''}
+                                            value={formData.gst || ''}
+                                            maxLength={15}
+                                            onChange={handleGstInput}
+                                            placeholder="22AAAAA0000A1Z5"
                                         />
-                                        
+
                                         {gstStatus !== 'idle' && (
                                             <div className={`verify-badge ${gstStatus === 'valid' ? 'valid' : gstStatus === 'loading' ? 'loading' : 'pending'}`}>
-                                                {gstStatus === 'valid' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6L9 17l-5-5"/></svg>}
+                                                {gstStatus === 'valid' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6L9 17l-5-5" /></svg>}
                                                 {gstStatus === 'loading' ? 'Checking...' : gstStatus === 'invalid' ? 'Invalid GST' : 'Verified'}
                                             </div>
                                         )}
@@ -653,17 +653,17 @@ export default function SettingsPage() {
                     {/* E-Way Bill API Settings */}
                     <div className="card" id="ewaybill">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg></div>
                             <div><h2>E-Way Bill NIC Credentials</h2><p>Used to auto-generate E-Way bills directly from the app</p></div>
                         </div>
                         <div className="row2">
                             <div className="field">
                                 <label>NIC E-Way Bill Username</label>
-                                <input type="text" value={formData.nic_username || ''} onChange={(e) => setFormData({...formData, nic_username: e.target.value})} placeholder="e.g. AB123456" />
+                                <input type="text" value={formData.nic_username || ''} onChange={(e) => setFormData({ ...formData, nic_username: e.target.value })} placeholder="e.g. AB123456" />
                             </div>
                             <div className="field">
                                 <label>NIC E-Way Bill Password</label>
-                                <input type="password" value={formData.nic_password || ''} onChange={(e) => setFormData({...formData, nic_password: e.target.value})} placeholder="••••••••" />
+                                <input type="password" value={formData.nic_password || ''} onChange={(e) => setFormData({ ...formData, nic_password: e.target.value })} placeholder="••••••••" />
                             </div>
                         </div>
                         <div className="hint">These are your GSP credentials from the Govt E-Way bill portal (Not your regular login password). They are stored securely and used only for API.</div>
@@ -672,27 +672,27 @@ export default function SettingsPage() {
                     {/* Bank Details */}
                     <div className="card" id="bank">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg></div>
                             <div><h2>{t.bankDetails}</h2><p>Payment information printed on invoice footer</p></div>
                         </div>
                         <div className="row2">
                             <div className="field">
                                 <label>Bank Name</label>
-                                <input type="text" value={formData.bank_name || ''} onChange={(e) => setFormData({...formData, bank_name: e.target.value})} placeholder="e.g. HDFC Bank, SBI" />
+                                <input type="text" value={formData.bank_name || ''} onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })} placeholder="e.g. HDFC Bank, SBI" />
                             </div>
                             <div className="field">
                                 <label>Account Holder Name</label>
-                                <input type="text" value={formData.account_holder || ''} onChange={(e) => setFormData({...formData, account_holder: e.target.value})} placeholder="Account Holder Name" />
+                                <input type="text" value={formData.account_holder || ''} onChange={(e) => setFormData({ ...formData, account_holder: e.target.value })} placeholder="Account Holder Name" />
                             </div>
                         </div>
                         <div className="row2">
                             <div className="field">
                                 <label>Account Number</label>
-                                <input type="text" value={formData.account_no || ''} onChange={(e) => setFormData({...formData, account_no: e.target.value})} placeholder="00000000000000" />
+                                <input type="text" value={formData.account_no || ''} onChange={(e) => setFormData({ ...formData, account_no: e.target.value })} placeholder="00000000000000" />
                             </div>
                             <div className="field">
                                 <label>IFSC Code</label>
-                                <input type="text" value={formData.ifsc_code || ''} onChange={(e) => setFormData({...formData, ifsc_code: e.target.value.toUpperCase()})} placeholder="HDFC0001234" maxLength={11} />
+                                <input type="text" value={formData.ifsc_code || ''} onChange={(e) => setFormData({ ...formData, ifsc_code: e.target.value.toUpperCase() })} placeholder="HDFC0001234" maxLength={11} />
                             </div>
                         </div>
                     </div>
@@ -700,12 +700,12 @@ export default function SettingsPage() {
                     {/* Payments */}
                     <div className="card" id="payments">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg></div>
                             <div><h2>UPI &amp; Online Payments</h2><p>QR Code automatically generated on invoices for instant payment</p></div>
                         </div>
                         <div className="field">
                             <label>UPI ID (VPA)</label>
-                            <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({...formData, upi_id: e.target.value})} placeholder="businessname@okhdfcbank" />
+                            <input type="text" value={formData.upi_id || ''} onChange={(e) => setFormData({ ...formData, upi_id: e.target.value })} placeholder="businessname@okhdfcbank" />
                             <div className="hint">Customers can scan the Dynamic QR code on your bills to pay directly to this UPI ID</div>
                         </div>
                     </div>
@@ -713,7 +713,7 @@ export default function SettingsPage() {
                     <div className="card" id="whatsapp-automation">
                         <div className="card-head">
                             <div className="card-icon" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e' }}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
                             </div>
                             <div>
                                 <h2>WhatsApp Automation &amp; Reminders</h2>
@@ -747,11 +747,11 @@ export default function SettingsPage() {
                             <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', marginBottom: formData.autoRemindersEnabled ? '16px' : '0', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 <div style={{ fontSize: '11px', color: '#475569', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.autoReminderPreviewTitle || '📱 This is how the message will look to your customers'}</div>
                                 <div style={{ fontSize: '13px', color: '#e2e8f0', lineHeight: 1.7 }}>
-                                    Dear, <strong style={{ color: '#4ade80' }}>[Customer Name]</strong><br/>
-                                    Your payment of <strong style={{ color: '#fbbf24' }}>*₹15,938*</strong> is pending with <strong style={{ color: '#60a5fa' }}>*{formData.name || t.yourBusinessName || 'Your Business Name'}*</strong><br/><br/>
-                                    If you have already made the payment, kindly ignore this message.<br/><br/>
-                                    Thank You<br/>
-                                    <strong style={{ color: '#60a5fa' }}>{formData.name || t.yourBusinessName || 'Your Business Name'}</strong><br/>
+                                    Dear, <strong style={{ color: '#4ade80' }}>[Customer Name]</strong><br />
+                                    Your payment of <strong style={{ color: '#fbbf24' }}>*₹15,938*</strong> is pending with <strong style={{ color: '#60a5fa' }}>*{formData.name || t.yourBusinessName || 'Your Business Name'}*</strong><br /><br />
+                                    If you have already made the payment, kindly ignore this message.<br /><br />
+                                    Thank You<br />
+                                    <strong style={{ color: '#60a5fa' }}>{formData.name || t.yourBusinessName || 'Your Business Name'}</strong><br />
                                     <span style={{ fontSize: '11px', color: '#94a3b8' }}>{t.sentAutoViaBillGST || '- Sent automatically via BillGST App'}</span>
                                 </div>
                             </div>
@@ -793,61 +793,87 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             )}
+                            {/* WhatsApp Scanner */}
+                            <div style={{ marginTop: '20px', borderTop: '1px solid var(--card-border)', paddingTop: '20px' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)', marginBottom: '6px' }}>Personal WhatsApp Connection (For PDF Invoices & Bot Reminders)</div>
+                                <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '16px' }}>Scan the QR code below via WhatsApp "Linked Devices" to allow the system to send PDFs directly from your own number.</p>
+
+                                {waStatus === 'DISCONNECTED' || waStatus === 'ERROR' ? (
+                                    <button onClick={handleConnectWhatsApp} disabled={waLoading} className="upload-btn" style={{ background: 'var(--grad)', color: '#fff', border: 'none', padding: '10px 16px' }}>
+                                        {waLoading ? 'Starting Bot Engine...' : 'Connect Your WhatsApp'}
+                                    </button>
+                                ) : waStatus === 'STARTING_SERVICE' || waStatus === 'STARTING' ? (
+                                    <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', display: 'inline-block' }}>
+                                        {waQr ? <QRCodeSVG value={waQr} size={200} /> : <div style={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#000' }}>⏳ Generating QR...</span></div>}
+                                        <p style={{ color: '#000', fontSize: '12px', fontWeight: 600, marginTop: '12px', textAlign: 'center' }}>Scan via WhatsApp Linked Devices</p>
+                                    </div>
+                                ) : (
+                                    <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid var(--green)', padding: '16px', borderRadius: '12px', display: 'inline-block' }}>
+                                        <div style={{ color: 'var(--green)', fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                            WhatsApp is Connected & Active
+                                        </div>
+                                        <button onClick={handleDisconnectWhatsApp} disabled={waLoading} className="upload-btn" style={{ marginTop: '12px', color: 'var(--red)', borderColor: 'rgba(248,113,113,0.3)', background: 'rgba(248,113,113,0.1)' }}>
+                                            {waLoading ? 'Disconnecting...' : 'Disconnect WhatsApp'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
                     {/* Branding & Signatory */}
                     <div className="card" id="branding">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /></svg></div>
                             <div><h2>Branding &amp; Signature</h2><p>Your logo and authorized signature printed on invoices</p></div>
                         </div>
-                        <div className="row2" style={{alignItems: 'flex-start'}}>
+                        <div className="row2" style={{ alignItems: 'flex-start' }}>
                             {/* Logo Left */}
                             <div>
-                                <label style={{display:'block', fontSize:'12.5px', fontWeight:600, color:'#A8B0D6', marginBottom:'12px'}}>Business Logo</label>
-                                <div className="upload-row" style={{marginTop:0}}>
+                                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#A8B0D6', marginBottom: '12px' }}>Business Logo</label>
+                                <div className="upload-row" style={{ marginTop: 0 }}>
                                     <label className="upload-box">
                                         {formData.logo ? (
                                             <>
                                                 <img src={formData.logo} alt="Logo" />
-                                                <div className="verified-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg></div>
+                                                <div className="verified-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5" /></svg></div>
                                             </>
                                         ) : (
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
                                         )}
-                                        <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
+                                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoChange} />
                                     </label>
                                     <div>
-                                        <label className="upload-btn" style={{marginBottom:'6px', padding:'7px 12px', fontSize:'12px'}}>
+                                        <label className="upload-btn" style={{ marginBottom: '6px', padding: '7px 12px', fontSize: '12px' }}>
                                             Upload Logo
-                                            <input type="file" accept="image/*" style={{display:'none'}} onChange={handleLogoChange} />
+                                            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoChange} />
                                         </label>
-                                        <div className="hint" style={{margin:0}}>Square PNG/JPG max 2MB</div>
+                                        <div className="hint" style={{ margin: 0 }}>Square PNG/JPG max 2MB</div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Signature Right */}
                             <div>
-                                <label style={{display:'block', fontSize:'12.5px', fontWeight:600, color:'#A8B0D6', marginBottom:'12px'}}>Authorized Signature</label>
-                                <div className="field" style={{marginBottom:'8px'}}>
-                                    <input type="text" value={formData.owner_name || ''} onChange={e => setFormData({...formData, owner_name: e.target.value})} placeholder="Signatory Name (e.g. John Doe)" style={{padding:'8px 12px', fontSize:'13px'}} />
+                                <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#A8B0D6', marginBottom: '12px' }}>Authorized Signature</label>
+                                <div className="field" style={{ marginBottom: '8px' }}>
+                                    <input type="text" value={formData.owner_name || ''} onChange={e => setFormData({ ...formData, owner_name: e.target.value })} placeholder="Signatory Name (e.g. John Doe)" style={{ padding: '8px 12px', fontSize: '13px' }} />
                                 </div>
-                                <div className="signature-pad" onClick={() => setIsSignatureModalOpen(true)} style={{cursor: 'pointer', height:'60px', maxWidth:'100%', marginBottom:'8px', border:'1px solid var(--field-border)'}}>
+                                <div className="signature-pad" onClick={() => setIsSignatureModalOpen(true)} style={{ cursor: 'pointer', height: '60px', maxWidth: '100%', marginBottom: '8px', border: '1px solid var(--field-border)' }}>
                                     {formData.signature ? (
                                         <img src={formData.signature} alt="Signature" />
                                     ) : (
-                                        <span style={{fontSize:'20px', color:'var(--text-faint)'}}>{formData.owner_name || 'Draw Signature'}</span>
+                                        <span style={{ fontSize: '20px', color: 'var(--text-faint)' }}>{formData.owner_name || 'Draw Signature'}</span>
                                     )}
                                 </div>
-                                <div style={{display:'flex', gap:'8px'}}>
-                                    <button type="button" className="upload-btn" onClick={() => setIsSignatureModalOpen(true)} style={{padding:'6px 10px', fontSize:'12px', flex:1, justifyContent:'center'}}>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button type="button" className="upload-btn" onClick={() => setIsSignatureModalOpen(true)} style={{ padding: '6px 10px', fontSize: '12px', flex: 1, justifyContent: 'center' }}>
                                         Draw
                                     </button>
-                                    <label className="upload-btn" style={{padding:'6px 10px', fontSize:'12px', flex:1, justifyContent:'center'}}>
+                                    <label className="upload-btn" style={{ padding: '6px 10px', fontSize: '12px', flex: 1, justifyContent: 'center' }}>
                                         Upload
-                                        <input type="file" accept="image/*" style={{display:'none'}} onChange={handleSignatureChange} />
+                                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleSignatureChange} />
                                     </label>
                                 </div>
                             </div>
@@ -857,16 +883,16 @@ export default function SettingsPage() {
                     {/* Terms */}
                     <div className="card" id="terms">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg></div>
                             <div><h2>Default Terms &amp; Conditions</h2><p>Printed automatically on every new invoice</p></div>
                         </div>
                         <div className="field">
                             <label>Terms <span className="opt">(will appear on every new invoice)</span></label>
                             <div className="terms-box">
-                                <textarea 
-                                    maxLength={500} 
-                                    value={formData.terms_and_conditions || ''} 
-                                    onChange={e => setFormData({...formData, terms_and_conditions: e.target.value})}
+                                <textarea
+                                    maxLength={500}
+                                    value={formData.terms_and_conditions || ''}
+                                    onChange={e => setFormData({ ...formData, terms_and_conditions: e.target.value })}
                                     placeholder="1. Goods once sold will not be taken back."
                                 />
                             </div>
@@ -932,7 +958,7 @@ export default function SettingsPage() {
                                             <div className="bs-theme-label">
                                                 {t.name}
                                                 {formData.invoice_template === id && (
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
                                                 )}
                                             </div>
                                         </button>
@@ -961,9 +987,9 @@ export default function SettingsPage() {
                                     ].map(a => (
                                         <button key={a.id} type="button" className={`bs-align-card ${formData.logo_position === a.id ? 'active' : ''}`} onClick={() => setFormData({ ...formData, logo_position: a.id })}>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                {a.id === 'LEFT' && <><line x1="3" y1="12" x2="21" y2="12"/><polyline points="3 6 9 12 3 18"/></>}
-                                                {a.id === 'CENTER' && <><polyline points="6 9 12 3 18 9"/><line x1="12" y1="3" x2="12" y2="21"/></>}
-                                                {a.id === 'RIGHT' && <><line x1="3" y1="12" x2="21" y2="12"/><polyline points="15 6 21 12 15 18"/></>}
+                                                {a.id === 'LEFT' && <><line x1="3" y1="12" x2="21" y2="12" /><polyline points="3 6 9 12 3 18" /></>}
+                                                {a.id === 'CENTER' && <><polyline points="6 9 12 3 18 9" /><line x1="12" y1="3" x2="12" y2="21" /></>}
+                                                {a.id === 'RIGHT' && <><line x1="3" y1="12" x2="21" y2="12" /><polyline points="15 6 21 12 15 18" /></>}
                                             </svg>
                                             <span>{a.name}</span>
                                         </button>
@@ -1032,12 +1058,12 @@ export default function SettingsPage() {
                     {/* Preferences */}
                     <div className="card" id="prefs">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z" /></svg></div>
                             <div><h2>{t.preferences}</h2><p>{t.selectDisplayLanguage}</p></div>
                         </div>
                         <div className="field">
                             <label>{t.language}</label>
-                            <select value={localSettings.language || 'en'} onChange={e => setLocalSettings({...localSettings, language: e.target.value})}>
+                            <select value={localSettings.language || 'en'} onChange={e => setLocalSettings({ ...localSettings, language: e.target.value })}>
                                 {languages.map(lang => (
                                     <option key={lang.code} value={lang.code}>
                                         {lang.nativeName} ({lang.name})
@@ -1050,25 +1076,25 @@ export default function SettingsPage() {
                     {/* Account Security */}
                     <div className="card" id="security">
                         <div className="card-head">
-                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                            <div className="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></div>
                             <div><h2>{t.accountSecurity}</h2><p>Manage how you sign in and keep your account safe</p></div>
                         </div>
                         <div className="field">
                             <label>Expense Deletion PIN (4 digits)</label>
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 inputMode="numeric"
                                 maxLength={4}
-                                placeholder={formData.has_expense_pin ? '**** (PIN is set)' : 'Enter 4-digit PIN'} 
-                                value={formData.expense_delete_pin || ''} 
+                                placeholder={formData.has_expense_pin ? '**** (PIN is set)' : 'Enter 4-digit PIN'}
+                                value={formData.expense_delete_pin || ''}
                                 onChange={e => {
                                     const val = e.target.value.replace(/D/g, '');
                                     setFormData({ ...formData, expense_delete_pin: val });
-                                }} 
+                                }}
                             />
                             <div className="hint">
-                                {formData.has_expense_pin 
-                                    ? 'A PIN is currently active. Enter a new PIN to change it, or leave blank and save to remove it.' 
+                                {formData.has_expense_pin
+                                    ? 'A PIN is currently active. Enter a new PIN to change it, or leave blank and save to remove it.'
                                     : 'Set a 4-digit PIN to restrict who can delete expenses.'}
                             </div>
                         </div>
@@ -1079,11 +1105,11 @@ export default function SettingsPage() {
 
             <div className="save-bar">
                 <button className="save-btn" onClick={handleSubmit}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><path d="M17 21v-8H7v8M7 3v5h8" /></svg>
                     {t.saveAllSettings}
                 </button>
             </div>
-            
+
             <SignatureModal
                 isOpen={isSignatureModalOpen}
                 onClose={() => setIsSignatureModalOpen(false)}
