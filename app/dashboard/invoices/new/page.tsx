@@ -921,7 +921,7 @@ function NewInvoiceContent() {
                 // Handle WhatsApp Auto-share PDF Background
                 if (options.whatsappShare) {
                     if (!customer?.phone) {
-                        toast.error('Customer ka phone number missing hai, PDF auto-share cancel hua.');
+                        toast.error('WhatsApp auto-share cancel hua: Customer ka phone number nahi hai.', { icon: '⚠️' });
                     } else {
                         toast.loading('Sharing PDF on WhatsApp...');
                         try {
