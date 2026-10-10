@@ -11,17 +11,25 @@ export async function GET(request: Request, context: any) {
 
         const client = await pool.connect();
 
-        // We allow both long IDs and short IDs.
-        // Additionally, for users using old bookmarked links (which only had customerId without the userId_ prefix),
-        // we search for id LIKE '%_customerId' and take the most recently updated row.
-        // This ensures they always see the LIVE auto-synced data even from their old links!
-        const result = await client.query(`
-            SELECT id, data, user_id FROM hisaab_shares 
-            WHERE id = $1 
-               OR short_id = $1 
-               OR id LIKE $2
-            ORDER BY updated_at DESC LIMIT 1
-        `, [id, `%_${id}`]);
+        let result;
+        try {
+            result = await client.query(`
+                SELECT id, data, user_id FROM hisaab_shares 
+                WHERE id = $1 
+                OR short_id = $1 
+                OR id LIKE $2
+                ORDER BY updated_at DESC LIMIT 1
+            `, [id, `%_${id}`]);
+        } catch (e: any) {
+            if (e.code === '42703') { // undefined_column
+                result = await client.query(`
+                    SELECT id, data, user_id FROM hisaab_shares 
+                    WHERE id = $1 
+                    OR id LIKE $2
+                    ORDER BY updated_at DESC LIMIT 1
+                `, [id, `%_${id}`]);
+            } else { throw e; }
+        }
 
         if (result.rows.length === 0) {
             const customerId = id.includes('_') ? id.split('_')[1] : id;
@@ -104,6 +112,6 @@ export async function GET(request: Request, context: any) {
         });
     } catch (error) {
         console.error('Hisaab Share Fetch Error:', error);
-        return NextResponse.json({ error: 'Fetch failed' }, { status: 500 });
+        return NextResponse.json({ error: String(error) }, { status: 500 });
     }
 }
