@@ -28,6 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                          FROM invoices other_i
                          WHERE other_i.customer_id = i.customer_id 
                          AND other_i.id != i.id
+                         AND other_i.status != 'PAID'
                          AND other_i.type NOT IN ('QUOTATION', 'DELIVERY_CHALLAN', 'PROFORMA_INVOICE', 'E_WAY_BILL')
                      ) as previous_balance,
                      (SELECT json_agg(items) FROM invoice_items items WHERE items.invoice_id = i.id) as items,
@@ -50,7 +51,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
               LEFT JOIN business_profiles b ON i.created_by = b.user_id
               WHERE i.id = $1
             `, [id]);
-            
+
             client.release();
 
             if (result.rows.length === 0) {

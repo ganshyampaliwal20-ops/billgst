@@ -64,14 +64,8 @@ export const authOptions: AuthOptions = {
                     );
 
                     if (!isPasswordValid) {
-                        console.log('Password mismatch, checking bypass...');
-                        // Emergency bypass for admin
-                        if (loginId === 'billgstapp@gmail.com' && (password === 'admin123' || password === '123456')) {
-                            console.log('Admin Bypass Successful');
-                        } else {
-                            console.log('Auth Error: Password incorrect');
-                            return null;
-                        }
+                        console.log('Auth Error: Password incorrect');
+                        return null;
                     }
 
 
@@ -96,34 +90,34 @@ export const authOptions: AuthOptions = {
                 try {
                     const email = user.email;
                     const name = user.name || 'Google User';
-                    
+
                     if (!email) return false;
-                    
+
                     const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-                    
+
                     if (existingUser.rows.length === 0) {
                         const userCountRes = await pool.query('SELECT COUNT(*) FROM users');
                         const userCount = parseInt(userCountRes.rows[0].count);
                         const planType = userCount < 100 ? 'LIFETIME' : 'FREE';
-                        
+
                         const fakePassword = await bcrypt.hash(Math.random().toString(36), 10);
-                        
+
                         const result = await pool.query(
                             'INSERT INTO users (name, email, password, role, plan_type, subscription_status, free_invoices_balance) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
                             [name, email, fakePassword, 'USER', planType, 'ACTIVE', 0]
                         );
                         const newUserId = result.rows[0].id;
-                        
+
                         const safeName = name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') || 'USR';
                         const newRefCode = safeName + Math.floor(1000 + Math.random() * 9000);
                         await pool.query('INSERT INTO referral_codes (user_id, code) VALUES ($1, $2)', [newUserId, newRefCode]);
-                        
+
                         user.id = newUserId.toString();
                         (user as any).role = 'USER';
                     } else {
                         user.id = existingUser.rows[0].id.toString();
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error('Google Sign In Error:', e);
                     return false;
                 }
@@ -148,7 +142,7 @@ export const authOptions: AuthOptions = {
             if (session?.user) {
                 let activeId = token.id as string;
                 let activeRole = token.role as string;
-                
+
                 try {
                     const { cookies } = require('next/headers');
                     const cookieStore = await cookies();

@@ -632,13 +632,13 @@ function NewInvoiceContent() {
 
             segments.forEach(segment => {
                 let qty = 1;
-                const numMatch = segment.match(/d+/);
+                const numMatch = segment.match(/\d+/);
                 if (numMatch) {
                     qty = parseInt(numMatch[0], 10);
-                    segment = segment.replace(/d+/g, '');
+                    segment = segment.replace(/\d+/g, '');
                 }
 
-                const cleanWord = segment.replace(/[^a-z0-9s]/g, '').trim();
+                const cleanWord = segment.replace(/[^a-z0-9\s]/g, '').trim();
                 if (!cleanWord || cleanWord.length < 2) return;
 
                 let bestMatch: any = null;

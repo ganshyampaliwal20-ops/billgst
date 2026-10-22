@@ -174,19 +174,19 @@ export default function InvoicesPage() {
         if (!inv.customer?.id) return { ...inv, previous_balance: 0 };
         const cust = (useStore.getState().customers || []).find((c: any) => c.id === inv.customer.id);
 
-        let prevBal = 0;
-        if (cust?.balance !== undefined) {
-            const currentDue = Math.max(Number(inv.total_amount || 0) - Number(inv.paid_amount || 0), 0);
-            prevBal = Number(cust.balance) - currentDue;
-        } else {
-            const custInvoices = safeInvoices.filter((i: any) => i.customer?.id === inv.customer.id && i.id !== inv.id);
-            prevBal = Number(cust?.opening_balance || 0);
-            custInvoices.forEach((i: any) => {
-                if (i.type !== 'QUOTATION' && i.type !== 'DELIVERY_CHALLAN' && i.type !== 'PROFORMA_INVOICE' && i.type !== 'E_WAY_BILL') {
-                    prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
-                }
-            });
-        }
+        let prevBal = Number(cust?.opening_balance || 0);
+        const custInvoices = safeInvoices.filter((i: any) =>
+            i.customer?.id === inv.customer.id &&
+            i.id !== inv.id &&
+            i.status !== 'PAID' &&
+            i.type !== 'QUOTATION' &&
+            i.type !== 'DELIVERY_CHALLAN' &&
+            i.type !== 'PROFORMA_INVOICE' &&
+            i.type !== 'E_WAY_BILL'
+        );
+        custInvoices.forEach((i: any) => {
+            prevBal += Math.max(Number(i.total_amount || 0) - Number(i.paid_amount || 0), 0);
+        });
         return { ...inv, previous_balance: prevBal };
     };
 
