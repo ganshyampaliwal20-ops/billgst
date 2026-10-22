@@ -73,7 +73,7 @@ export default function AdminPaymentsPage() {
     const handleSendNotification = async () => {
         if (!notifyTitle || !notifyBody) return;
         if (!window.confirm('Are you sure you want to send this notification to ALL app users?')) return;
-        
+
         setSendingNotify(true);
         try {
             const res = await fetch('/api/admin/send-notification', {
@@ -84,7 +84,8 @@ export default function AdminPaymentsPage() {
 
             if (res.ok) {
                 const data = await res.json();
-                toast.success(`Sent successfully to ${data.successCount} devices!`);
+                const cleaned = data.expiredTokensCleaned > 0 ? ` (${data.expiredTokensCleaned} expired tokens cleaned)` : '';
+                toast.success(`✅ ${data.successCount}/${data.totalDevices} devices ko msg gaya!${cleaned}`, { duration: 6000 });
                 setNotifyTitle('');
                 setNotifyBody('');
             } else {
@@ -101,12 +102,12 @@ export default function AdminPaymentsPage() {
     return (
         <div className="min-h-screen bg-slate-50/50 p-4">
             <div className="max-w-4xl mx-auto space-y-6">
-                
+
                 {/* Header Section */}
                 <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-violet-800 p-8 shadow-xl text-center flex flex-col items-center justify-center">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
                     <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
-                    
+
                     <div className="relative z-10 flex flex-col items-center justify-center gap-4 w-full">
                         <div className="flex flex-col items-center justify-center">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
@@ -148,7 +149,7 @@ export default function AdminPaymentsPage() {
                                         <h3 className="font-bold text-slate-800 text-lg">{user.name || 'Unknown'}</h3>
                                         <p className="text-sm text-slate-500">{user.email}</p>
                                     </div>
-                                    
+
                                     <div className="bg-white border border-slate-200 rounded-lg px-4 py-2 flex flex-col md:flex-row items-center gap-2 md:gap-4 shrink-0 w-full md:w-auto">
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Plan:</span>
@@ -185,26 +186,26 @@ export default function AdminPaymentsPage() {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-1">Notification Title</label>
-                            <input 
-                                type="text" 
-                                value={notifyTitle} 
-                                onChange={e => setNotifyTitle(e.target.value)} 
-                                placeholder="e.g. New Update Available!" 
+                            <input
+                                type="text"
+                                value={notifyTitle}
+                                onChange={e => setNotifyTitle(e.target.value)}
+                                placeholder="e.g. New Update Available!"
                                 className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-1">Message Body</label>
-                            <textarea 
-                                value={notifyBody} 
-                                onChange={e => setNotifyBody(e.target.value)} 
-                                placeholder="Write your message here..." 
+                            <textarea
+                                value={notifyBody}
+                                onChange={e => setNotifyBody(e.target.value)}
+                                placeholder="Write your message here..."
                                 rows={3}
                                 className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 custom-scrollbar"
                             ></textarea>
                         </div>
-                        <button 
-                            onClick={handleSendNotification} 
+                        <button
+                            onClick={handleSendNotification}
                             disabled={sendingNotify || !notifyTitle || !notifyBody}
                             className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                         >
@@ -213,8 +214,9 @@ export default function AdminPaymentsPage() {
                     </div>
                 </div>
             </div>
-            
-            <style dangerouslySetInnerHTML={{__html: `
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
