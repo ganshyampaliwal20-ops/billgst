@@ -269,8 +269,9 @@ export default function SettingsPage() {
                 }
                 .bs-wrapper h1,.bs-wrapper h2,.bs-wrapper h3 { font-family:'Baloo 2', sans-serif; }
 
-                .shell{ max-width: 1080px; margin: 0 auto; padding: 32px 20px 20px; display:grid; grid-template-columns: 220px 1fr; gap: 32px; align-items:start; }
-                @media (max-width: 880px){ .shell{ grid-template-columns: 1fr; } }
+                .shell{ max-width: 1080px; margin: 0 auto; padding: 32px 16px 20px; display:grid; grid-template-columns: 220px 1fr; gap: 32px; align-items:start; box-sizing: border-box; }
+                @media (max-width: 880px){ .shell{ grid-template-columns: 1fr; padding: 20px 12px 16px; gap: 16px; } }
+                @media (max-width: 480px){ .shell{ padding: 16px 10px 12px; gap: 12px; } }
 
                 .page-head{ grid-column: 1 / -1; text-align:center; margin-bottom: 8px; }
                 .page-head h1{ font-size: 30px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #fff, #C4B5FD); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; }
@@ -298,16 +299,17 @@ export default function SettingsPage() {
                 .completeness .info b{ font-size:14.5px; display:block; margin-bottom:2px; }
                 .completeness .info span{ font-size:12.5px; color: var(--text-muted); }
 
-                .card{ background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; scroll-margin-top: 24px; transition: border-color 0.2s; }
+                .card{ box-sizing: border-box; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 22px; scroll-margin-top: 24px; transition: border-color 0.2s; overflow: hidden; }
+                @media (max-width: 480px){ .card{ padding: 16px; border-radius: 14px; } }
                 .card:hover{ border-color: var(--card-border-hover); }
                 .card-head{ display:flex; align-items:flex-start; gap:12px; margin-bottom: 20px; flex-wrap: wrap; justify-content: space-between; }
                 .card-head.with-toggle{ justify-content:space-between; }
                 .card-head-left{ display:flex; align-items:flex-start; gap:12px; flex: 1; min-width: 0; }
-                .card-head-left > div { flex: 1; min-width: 0; }
+                .card-head-left > div { flex: 1; min-width: 0; overflow: hidden; }
                 .card-icon{ width: 40px; height:40px; border-radius: 11px; background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(79,70,229,0.25)); border: 1px solid rgba(139,92,246,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
                 .card-icon svg{ width:20px; height:20px; stroke: #C4B5FD; }
-                .card-head h2{ font-size:16.5px; font-weight:700; margin-bottom:2px; }
-                .card-head p{ font-size:12.5px; color: var(--text-muted); line-height: 1.4; }
+                .card-head h2{ font-size:16.5px; font-weight:700; margin-bottom:2px; word-break: break-word; }
+                .card-head p{ font-size:12.5px; color: var(--text-muted); line-height: 1.4; word-break: break-word; }
 
                 .field{ margin-bottom:16px; }
                 .field:last-child{ margin-bottom:0; }
@@ -318,11 +320,12 @@ export default function SettingsPage() {
                 .row3{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
                 @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
 
-                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 11px; padding: 12px 14px; color: var(--text); font-size: 14.5px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; }
+                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ box-sizing: border-box; width:100%; max-width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 11px; padding: 11px 13px; color: var(--text); font-size: 16px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; -webkit-appearance: none; appearance: none; }
                 .field input::placeholder, .field textarea::placeholder{ color: var(--text-faint); }
                 .field input:focus, .field textarea:focus, .field select:focus{ border-color: var(--violet); background: #1A2036; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
                 .field textarea{ resize: vertical; min-height: 64px; }
-                .field select{ appearance:none; -webkit-appearance:none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 14px center; padding-right: 34px; cursor:pointer; }
+                .field select{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 14px center; padding-right: 34px; cursor:pointer; }
+                @media (max-width: 480px){ .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ font-size: 16px; padding: 10px 12px; } }
                 
                 .hint{ font-size:11.5px; color: var(--text-faint); margin-top:6px; }
                 .hint.tax-hint{ color: var(--gold); }
@@ -341,9 +344,10 @@ export default function SettingsPage() {
                 .verified-name{ margin-top:8px; font-size:12.5px; color: var(--green); display:flex; align-items:center; gap:6px; animation: fadein 0.4s ease forwards; }
                 @keyframes fadein{ from{opacity:0} to{opacity:1} }
 
-                .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap: 16px; }
-                .toggle-row b{ font-size:14px; font-weight:600; display:block; margin-bottom:3px; }
-                .toggle-row span{ font-size:12px; color: var(--text-muted); }
+                .toggle-row{ display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: nowrap; }
+                .toggle-row > div { flex: 1; min-width: 0; overflow: hidden; }
+                .toggle-row b{ font-size:14px; font-weight:600; display:block; margin-bottom:3px; word-break: break-word; }
+                .toggle-row span{ font-size:12px; color: var(--text-muted); display: block; word-break: break-word; }
                 .switch{ position:relative; width:46px; height:26px; flex-shrink:0; }
                 .switch input{ opacity:0; width:0; height:0; }
                 .slider{ position:absolute; inset:0; background:#2A3252; border-radius:999px; cursor:pointer; transition:0.25s; }
