@@ -320,11 +320,13 @@ export default function SettingsPage() {
                 .row3{ display:grid; grid-template-columns: 1.3fr 1fr; gap:14px; }
                 @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
 
-                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ box-sizing: border-box; width:100%; max-width:100%; background: var(--field); border: 1.5px solid var(--field-border); border-radius: 11px; padding: 11px 13px; color: var(--text); font-size: 16px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; -webkit-appearance: none; appearance: none; }
-                .field input::placeholder, .field textarea::placeholder{ color: var(--text-faint); }
-                .field input:focus, .field textarea:focus, .field select:focus{ border-color: var(--violet); background: #1A2036; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+                .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ box-sizing: border-box; width:100%; max-width:100%; background: var(--field) !important; border: 1.5px solid var(--field-border); border-radius: 11px; padding: 11px 13px; color: #E8EAF6 !important; -webkit-text-fill-color: #E8EAF6 !important; font-size: 16px; font-family: inherit; outline: none; transition: border-color 0.15s, background 0.15s; -webkit-appearance: none; appearance: none; }
+                .field input::placeholder, .field textarea::placeholder{ color: var(--text-faint) !important; -webkit-text-fill-color: var(--text-faint) !important; }
+                .field input:focus, .field textarea:focus, .field select:focus{ border-color: var(--violet); background: #1A2036 !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); color: #E8EAF6 !important; -webkit-text-fill-color: #E8EAF6 !important; }
+                .field input:-webkit-autofill, .field input:-webkit-autofill:hover, .field input:-webkit-autofill:focus, .field textarea:-webkit-autofill, .field select:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px #171D31 inset !important; -webkit-text-fill-color: #E8EAF6 !important; color: #E8EAF6 !important; caret-color: #E8EAF6 !important; transition: background-color 5000s ease-in-out 0s; }
                 .field textarea{ resize: vertical; min-height: 64px; }
                 .field select{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B93B8'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position: right 14px center; padding-right: 34px; cursor:pointer; }
+                .field select option{ background: #171D31; color: #E8EAF6; }
                 @media (max-width: 480px){ .field input[type=text], .field input[type=email], .field input[type=tel], .field textarea, .field select{ font-size: 16px; padding: 10px 12px; } }
                 
                 .hint{ font-size:11.5px; color: var(--text-faint); margin-top:6px; }
