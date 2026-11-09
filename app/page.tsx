@@ -45,7 +45,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     q5: "What kind of bills can I create?", a5f: "Tax invoice, proforma invoice, credit note, delivery challan — all available.",
     q6: "How safe is my data?", a6f: "All data is encrypted with AES-256 — the same used by banks. Only you can see your data.",
     cf1: "Digitize your shop today", cf2: "Free account, ready in 60 seconds. No credit card needed.", trust: "🔒 No credit card · Set up in 60 seconds · Trusted by 1000+ shopkeepers",
-    otpsent: "OTP has been sent to your email ✅", lotp: "Enter OTP", bv: "Verify & Create Account", resend: "Resend OTP",
+    otpsent: "OTP has been sent to your email ✅", lotp: "Enter OTP", bv: "Verify & Create Account", resend: "Resend OTP", spam_title: "Didn't receive OTP?", spam_msg: "Please check your Spam / Junk folder. OTP sometimes lands there.",
     regdone: "Account created!", regdones: "You can now log in", fdesc: "Smart billing and inventory software built for Indian shopkeepers. Available in Hindi and English.",
     fp: "Product", fc: "Company", fvai: "Voice Billing AI", fabout: "About Us", fcontact: "Contact", fpriv: "Privacy Policy", fmade: "Made in 🇮🇳 India"
   },
@@ -81,7 +81,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     r3l: "Medical Store, Jaipur", wb: "पुन्हा स्वागत आहे 👋", wbs: "तुमच्या BillGST अकाउंटमध्ये लॉगिन करा",
     le: "ईमेल", lp: "पासवर्ड", bl: "लॉगिन करा", rh: "60 सेकंदात सेटअप करा 🏪", rhs: "क्रेडिट कार्ड लागत नाही",
     ln: "पूर्ण नाव", br: "OTP पाठवा", otpsent: "तुमच्या ईमेलवर OTP पाठवला आहे ✅", lotp: "OTP टाका",
-    bv: "वेरिफाय करा आणि अकाउंट बनवा", resend: "OTP पुन्हा पाठवा", regdone: "अकाउंट तयार झाले!",
+    bv: "वेरिफाय करा आणि अकाउंट बनवा", resend: "OTP पुन्हा पाठवा", spam_title: "OTP मिळाला नाही?", spam_msg: "तुमचा Spam / Junk फोल्डर तपासा. OTP तिथे गेलेला असू शकतो.", regdone: "अकाउंट तयार झाले!",
     regdones: "आता तुम्ही लॉगिन करू शकता", e7: "FAQ", q_title: "सामान्य प्रश्न", q1: "BillGST खरंच मोफत आहे का?",
     a1f: "मुख्य फीचर्स मोफत आहेत. कोणतेही छुपे चार्ज नाहीत.", q2: "मी कोणते जीएसटी रिटर्न बनवू शकतो?",
     a2f: "GSTR-1, GSTR-3B आणि GSTR-4 — डाउनलोड करून पोर्टलवर अपलोड करा.", q3: "कॅमेरा स्टॉक अपडेट कसे काम करते?",
@@ -124,7 +124,7 @@ const TRANSLATIONS: Record<string, Record<string, string>> = {
     r3l: "Medical Store, Jaipur", wb: "ફરી સ્વાગત છે 👋", wbs: "તમારા BillGST એકાઉન્ટમાં લોગિન કરો", le: "ઈમેલ",
     lp: "પાસવર્ડ", bl: "લોગિન કરો", rh: "60 સેકન્ડમાં સેટઅપ કરો 🏪", rhs: "ક્રેડિટ કાર્ડની જરૂર નથી", ln: "પૂરું નામ",
     br: "OTP મોકલો", otpsent: "તમારા ઈમેલ પર OTP મોકલવામાં આવ્યો છે ✅", lotp: "OTP દાખલ કરો",
-    bv: "વેરિફાય કરો અને એકાઉન્ટ બનાવો", resend: "OTP ફરી મોકલો", regdone: "એકાઉન્ટ બની ગયું!",
+    bv: "વેરિફાય કરો અને એકાઉન્ટ બનાવો", resend: "OTP ફરી મોકલો", spam_title: "OTP મળ્યો નહીં?", spam_msg: "તમારો Spam / Junk ફોલ્ડર ચેક કરો. OTP ક્યારેક ત્યાં જાય છે.", regdone: "એકાઉન્ટ બની ગયું!",
     regdones: "હવે તમે લોગિન કરી શકો છો", e7: "FAQ", q_title: "સામાન્ય પ્રશ્નો", q1: "શું BillGST ખરેખર મફત છે?",
     a1f: "મુખ્ય ફીચર્સ મફત છે. કોઈ છુપા ચાર્જ નથી.", q2: "હું કયા જીએસટી રિટર્ન બનાવી શકું?",
     a2f: "GSTR-1, GSTR-3B અને GSTR-4 — ડાઉનલોડ કરીને પોર્ટલ પર અપલોડ કરો.", q3: "કેમેરા સ્ટોક અપડેટ કેવી રીતે કામ કરે છે?",
@@ -143,7 +143,7 @@ export default function LandingPage() {
   const router = useRouter();
 
   // UI States
-  const [lang, setLang] = useState('hi');
+  const [lang, setLang] = useState('en');
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -156,7 +156,26 @@ export default function LandingPage() {
   const [otpValue, setOtpValue] = useState('');
   const [otpCooldown, setOtpCooldown] = useState(0);
 
+  // Load saved language from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('billgst_lang');
+      if (savedLang && ['en', 'hi', 'mr', 'gu'].includes(savedLang)) {
+        setLang(savedLang);
+      }
+    }
+  }, []);
+
+  // Save language to localStorage when user changes it
+  const handleLangChange = (newLang: string) => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('billgst_lang', newLang);
+    }
+  };
+
   const t = (key: string, defaultText: string) => {
+    if (lang === 'en') return TRANSLATIONS['en']?.[key] || defaultText;
     if (lang === 'hi') return defaultText;
     return TRANSLATIONS[lang]?.[key] || defaultText;
   };
@@ -315,7 +334,7 @@ export default function LandingPage() {
     <div id="landing-page">
       <nav>
         <div className="nav-row">
-          <div className="brand"><img src="/logo.png" alt="BillGST Logo" style={{ height: '54px', width: 'auto', objectFit: 'contain' }} /></div>
+          <div className="brand"><img src="/logo.png" alt="BillGST Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} /><span className="brand-name">BillGST</span></div>
           <div className="nav-links">
             <a href="#features">{t("nl1", "फीचर्स")}</a>
             <a href="#gst">{t("nl2", "जीएसटी रिटर्न")}</a>
@@ -323,9 +342,9 @@ export default function LandingPage() {
             <a href="#faq">{t("nl4", "FAQ")}</a>
           </div>
           <div className="nav-actions">
-            <select className="lang-btn" id="langSel" value={lang} onChange={e => setLang(e.target.value)}>
-              <option value="hi">🌐 हिंदी</option>
+            <select className="lang-btn" id="langSel" value={lang} onChange={e => handleLangChange(e.target.value)}>
               <option value="en">🌐 English</option>
+              <option value="hi">🌐 हिंदी</option>
               <option value="mr">🌐 मराठी</option>
               <option value="gu">🌐 ગુજરાતી</option>
             </select>
@@ -461,7 +480,30 @@ export default function LandingPage() {
                     </div>
                   ) : (
                     <div>
-                      <p style={{ fontSize: '.86rem', color: 'var(--ink-soft)', marginBottom: '14px' }}>{t("otpsent", "OTP आपके ईमेल पर भेज दिया गया है ✅")}</p>
+                      <p style={{ fontSize: '.86rem', color: 'var(--ink-soft)', marginBottom: '10px' }}>{t("otpsent", "OTP आपके ईमेल पर भेज दिया गया है ✅")}</p>
+
+                      {/* Spam folder warning */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(255,193,7,0.12), rgba(255,152,0,0.08))',
+                        border: '1px solid rgba(255,193,7,0.4)',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                        marginBottom: '14px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px'
+                      }}>
+                        <span style={{ fontSize: '1.1rem', marginTop: '1px', flexShrink: 0 }}>📩</span>
+                        <div>
+                          <p style={{ fontSize: '.82rem', color: '#b45309', margin: 0, fontWeight: 600, lineHeight: 1.4 }}>
+                            {t("spam_title", "OTP नहीं मिला?")}
+                          </p>
+                          <p style={{ fontSize: '.79rem', color: '#92400e', margin: '3px 0 0 0', lineHeight: 1.5 }}>
+                            {t("spam_msg", "अपना Spam / Junk folder जरूर चेक करें। कभी-कभी OTP वहाँ चला जाता है।")}
+                          </p>
+                        </div>
+                      </div>
+
                       <label>{t("lotp", "OTP डालें")}</label>
                       <input type="text" maxLength={6} placeholder="6-digit OTP" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
                       <button className="btn btn-solid" style={{ width: '100%', justifyContent: 'center', border: 'none', fontFamily: 'inherit', fontSize: '.92rem', cursor: 'pointer' }} onClick={doSignup} disabled={isLoading || otpValue.length !== 6}>
