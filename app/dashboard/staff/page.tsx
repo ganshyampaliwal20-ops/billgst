@@ -624,7 +624,7 @@ export default function SmartAttendance() {
                 .header{
                   background: #ffffff;
                   padding:14px 16px 20px; border-radius:0 0 28px 28px;
-                  color:var(--text); border-bottom:1.5px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; overflow:hidden;
+                  color:#0f172a; border-bottom:1.5px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; overflow:hidden;
                 }
                 .header::after{
                   display: none;
@@ -635,15 +635,15 @@ export default function SmartAttendance() {
                   width:38px; height:38px; border-radius:11px;
                   background:#f1f5f9; border:1px solid var(--border);
                   display:flex; align-items:center; justify-content:center;
-                  font-weight:700; font-size:16px; color:var(--text);
+                  font-weight:700; font-size:16px; color:#0f172a;
                 }
-                .brand-text .t1{font-weight:700; font-size:16px; line-height:1.1; color:var(--text);}
-                 .brand-text .t2{font-size:11px; color:var(--text-sub); letter-spacing:0.03em;}
+                .brand-text .t1{font-weight:700; font-size:16px; line-height:1.1; color:#0f172a;}
+                 .brand-text .t2{font-size:11px; color:#64748b; letter-spacing:0.03em;}
                  .header-report-btn{
-                   background: rgba(255, 255, 255, 0.2);
-                   border: 1px solid rgba(255, 255, 255, 0.35);
+                   background: #ffffff;
+                   border: 1.5px solid #cbd5e1;
                    backdrop-filter: blur(8px);
-                   color: #ffffff;
+                   color: #0f172a;
                    border-radius: 12px;
                    padding: 8px 14px;
                    font-size: 12px;
@@ -664,15 +664,15 @@ export default function SmartAttendance() {
                  .header-report-btn:active{transform: scale(0.96);}
                  .date-nav{
                    display:flex; align-items:center; gap:10px;
-                   background:rgba(255,255,255,0.14); border-radius:16px; padding:8px 10px;
+                   background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:16px; padding:8px 10px;
                  }
                  .date-nav button{
                    width:32px; height:32px; border-radius:10px; border:none;
-                   background:rgba(255,255,255,0.18); color:#fff; font-size:16px; cursor:pointer;
+                   background:#ffffff; color:#0f172a; font-size:16px; cursor:pointer; font-weight:700; border:1px solid #cbd5e1;
                    display:flex; align-items:center; justify-content:center;
                  }
-                 .date-center{flex:1; text-align:center; font-weight:600; font-size:15px; cursor:pointer;}
-                 .date-sub{font-size:10.5px; opacity:0.8; font-weight:400; margin-top:1px;}
+                 .date-center{flex:1; text-align:center; font-weight:700; font-size:15px; cursor:pointer; color:#0f172a;}
+                 .date-sub{font-size:10.5px; opacity:0.8; font-weight:500; margin-top:1px; color:#475569;}
                  
                  .body-pad{padding:12px 16px 0;}
                  .sticky-search-wrapper{

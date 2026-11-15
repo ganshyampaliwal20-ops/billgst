@@ -522,21 +522,21 @@ export default function InventoryPage() {
                   background-size:28px 28px;
                 }
                 .hero-inner{position:relative;z-index:1;}
-                .hero-eyebrow{
+                .hero-eyebrow{color:#64748b !important;
                   display:inline-flex;align-items:center;gap:6px;
                   font-size:10px;font-weight:700;color:var(--muted);
                   text-transform:uppercase;letter-spacing:1.5px;
                   margin-bottom:8px;
                 }
                 .hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:#10b981;}
-                .hero-title{
+                .hero-title{color:#0f172a !important;
                   font-family:'Clash Display',sans-serif;
                   font-size:28px;font-weight:700;color:var(--ink);
                   letter-spacing:-0.5px;line-height:1.1;
                   margin-bottom:4px;
                 }
                 .hero-title .accent{color:#10b981;}
-                .hero-sub{
+                .hero-sub{color:#475569 !important;
                   font-size:12px;color:var(--muted);
                   letter-spacing:1px;text-transform:uppercase;
                   margin-bottom:20px;font-weight:500;
@@ -563,7 +563,7 @@ export default function InventoryPage() {
                   font-size:18px;font-weight:800;line-height:1;
                   letter-spacing:-0.5px;
                 }
-                .stat-label{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.7px;margin-top:2px;}
+                .stat-label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.7px;margin-top:2px;}
 
                 /* ══ SEARCH & FILTER BAR ══ */
                 .controls{
@@ -858,28 +858,28 @@ export default function InventoryPage() {
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(79,70,229,0.2)" }}>📦</div>
                             <div>
-                                <div className="stat-num" style={{ color: "#fff" }}>{totalItems}</div>
+                                <div className="stat-num" style={{ color: "#0f172a" }}>{totalItems}</div>
                                 <div className="stat-label">{t.totalItems}</div>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(239,68,68,0.2)" }}>⚠️</div>
                             <div>
-                                <div className="stat-num" style={{ color: "#f87171" }}>{lowStockCount}</div>
+                                <div className="stat-num" style={{ color: "#dc2626" }}>{lowStockCount}</div>
                                 <div className="stat-label">{t.lowStock}</div>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(16,185,129,0.2)" }}>💰</div>
                             <div>
-                                <div className="stat-num" style={{ color: "#34d399", fontSize: "16px" }}>₹{(stockValue / 100000).toFixed(1)}L</div>
+                                <div className="stat-num" style={{ color: "#059669", fontSize: "16px" }}>₹{(stockValue / 100000).toFixed(1)}L</div>
                                 <div className="stat-label">{t.stockValue}</div>
                             </div>
                         </div>
                         <div className="stat-card">
                             <div className="stat-icon" style={{ background: "rgba(245,158,11,0.2)" }}>📈</div>
                             <div>
-                                <div className="stat-num" style={{ color: "#fbbf24" }}>{totalItems * 12}</div>
+                                <div className="stat-num" style={{ color: "#d97706" }}>{totalItems * 12}</div>
                                 <div className="stat-label">{t.unitsSold}</div>
                             </div>
                         </div>
