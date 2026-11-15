@@ -101,14 +101,14 @@ export default function DashboardLayout({
 
     if (!isMounted || status === 'loading') {
         return (
-            <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-4">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-[#0f172a] flex items-center justify-center shadow-xl shadow-slate-300 animate-pulse">
+            <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-4" suppressHydrationWarning>
+                <div className="flex flex-col items-center gap-4" suppressHydrationWarning>
+                    <div className="w-14 h-14 rounded-2xl bg-[#0f172a] flex items-center justify-center shadow-xl shadow-slate-300 animate-pulse" suppressHydrationWarning>
                         <span className="text-2xl font-black text-white tracking-wider">B</span>
                     </div>
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="h-4 w-28 bg-slate-200 rounded-full animate-pulse"></div>
-                        <div className="h-2.5 w-36 bg-slate-100 rounded-full animate-pulse"></div>
+                    <div className="flex flex-col items-center gap-2" suppressHydrationWarning>
+                        <div className="h-4 w-28 bg-slate-200 rounded-full animate-pulse" suppressHydrationWarning></div>
+                        <div className="h-2.5 w-36 bg-slate-100 rounded-full animate-pulse" suppressHydrationWarning></div>
                     </div>
                 </div>
             </div>
