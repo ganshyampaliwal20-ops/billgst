@@ -464,13 +464,14 @@ export default function DashboardLayout({
                                         <FaSignOutAlt />
                                     </button>
 
-                                    {/* Mobile Menu Button */}
+                                    {/* Mobile Menu Button - High Contrast Dark Badge */}
                                     <button
                                         onClick={() => setIsSidebarOpen(true)}
-                                        className="md:hidden flex items-center justify-center w-10 h-10 text-slate-800 hover:text-black hover:bg-slate-100 rounded-lg transition-all border border-slate-300 shadow-sm active:scale-95 mr-3 bg-white" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '0px' }}
+                                        className="md:hidden flex items-center justify-center w-10 h-10 text-white bg-[#0f172a] hover:bg-slate-800 rounded-xl transition-all shadow-md active:scale-95 border-2 border-slate-900"
+                                        style={{ padding: '0px', minWidth: '40px', minHeight: '40px' }}
                                         aria-label="Open Menu"
                                     >
-                                        <FaBars size={20} className="text-slate-900" />
+                                        <FaBars size={18} color="#ffffff" />
                                     </button>
                                 </div>
                             </div>
