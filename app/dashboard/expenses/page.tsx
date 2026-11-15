@@ -25,8 +25,8 @@ export default function ExpensesWrapper() {
           position: relative;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          background: linear-gradient(180deg, #1e1a45, #161235);
-          border: 1px solid rgba(155,77,255,0.25);
+          background: #ffffff;
+          border: 1.5px solid #e2e8f0;
           border-radius: 12px;
           padding: 4px;
           box-shadow: inset 0 1px 2px rgba(255,255,255,0.04), 0 4px 12px rgba(10,6,35,0.3);
@@ -38,7 +38,7 @@ export default function ExpensesWrapper() {
           left: 4px;
           width: calc(50% - 4px);
           border-radius: 8px;
-          background: linear-gradient(135deg, #6d3ff2, #9b4dff);
+          background: #0f172a;
           box-shadow: 0 2px 8px rgba(109,63,242,0.4), inset 0 0 0 1px rgba(255,255,255,0.06);
           transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 0;
@@ -94,7 +94,7 @@ export default function ExpensesWrapper() {
       `}} />
 
       {/* Tab Navigation (Exact User Design) */}
-      <div className="flex w-full justify-center items-center px-4 md:px-6 pt-6 pb-4 bg-[#0b1224]">
+      <div className="flex w-full justify-center items-center px-4 md:px-6 pt-6 pb-4 bg-transparent">
         <div className="expense-toggle-wrap">
           <div className={`expense-toggle ${tab === 'personal' ? 'personal' : 'business'}`}>
             <div className="thumb"></div>

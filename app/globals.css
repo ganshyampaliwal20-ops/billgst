@@ -198,6 +198,30 @@ input, textarea, [contenteditable="true"] {
 }
 
 /* Glassmorphism & Utilities */
+
+/* ---- Overrides for Black‑White Theme ---- */
+:root {
+  --background: #ffffff !important;   /* pure white */
+  --foreground: #000000 !important;   /* pure black */
+}
+
+.amount-pending { color: var(--error) !important; }
+.amount-advance { color: var(--success) !important; }
+
+/* Footer adjustments */
+.footer-dark {
+  background:#f9f9f9 !important;
+  border-radius:16px;
+  padding:24px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:20px;
+  margin-top:16px;
+}
+.footer-dark-text p.t{ color:#000; }
+.footer-dark-text p.s{ color:#555; }
 .glass {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);

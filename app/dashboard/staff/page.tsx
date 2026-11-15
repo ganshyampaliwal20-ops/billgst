@@ -603,7 +603,7 @@ export default function SmartAttendance() {
                 .att-wrapper *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
                 .att-wrapper {
                   font-family:'Inter',sans-serif;
-                  background: linear-gradient(180deg,#EDE9FB 0%, #F6F4FC 100%);
+                  background: #f1f5f9;
                   color:var(--ink);
                   display:flex; justify-content:center;
                   padding: 20px 0; min-height:100vh;
@@ -622,9 +622,9 @@ export default function SmartAttendance() {
                 .scroll::-webkit-scrollbar{display:none;}
                 
                 .header{
-                  background: linear-gradient(135deg, var(--primary) 0%, #7B5CFA 55%, #9B7CFF 100%);
+                  background: #ffffff;
                   padding:14px 16px 20px; border-radius:0 0 28px 28px;
-                  color:#fff; position:relative; overflow:hidden;
+                  color:var(--text); border-bottom:1.5px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.04); position:relative; overflow:hidden;
                 }
                 .header::after{
                   display: none;
@@ -633,12 +633,12 @@ export default function SmartAttendance() {
                 .brand{display:flex; align-items:center; gap:10px;}
                 .brand-mark{
                   width:38px; height:38px; border-radius:11px;
-                  background:rgba(255,255,255,0.18);
+                  background:#f1f5f9; border:1px solid var(--border);
                   display:flex; align-items:center; justify-content:center;
-                  font-weight:700; font-size:16px;
+                  font-weight:700; font-size:16px; color:var(--text);
                 }
-                .brand-text .t1{font-weight:700; font-size:16px; line-height:1.1;}
-                 .brand-text .t2{font-size:11px; opacity:0.8; letter-spacing:0.03em;}
+                .brand-text .t1{font-weight:700; font-size:16px; line-height:1.1; color:var(--text);}
+                 .brand-text .t2{font-size:11px; color:var(--text-sub); letter-spacing:0.03em;}
                  .header-report-btn{
                    background: rgba(255, 255, 255, 0.2);
                    border: 1px solid rgba(255, 255, 255, 0.35);
@@ -794,7 +794,7 @@ export default function SmartAttendance() {
                 
                 .fab{
                   position: fixed; right: 24px; bottom: 85px; width: 56px; height: 56px; border-radius: 50%;
-                  background: linear-gradient(135deg, var(--primary) 0%, #7B5CFA 100%);
+                  background: #0f172a;
                   display: flex; align-items: center; justify-content: center; color: #fff; border: 2px solid rgba(255,255,255,0.4);
                   box-shadow: 0 10px 25px rgba(91,61,245,0.45), 0 0 20px rgba(91,61,245,0.25);
                   cursor: pointer; font-size: 32px; font-weight: 300; line-height: 1; z-index: 999;
@@ -853,11 +853,11 @@ export default function SmartAttendance() {
                 }
                 .modal-actions{display:flex; gap:10px; margin-top:20px; margin-bottom:8px;}
                 .btn-secondary{flex:1; background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:12px; font-weight:600; font-size:13px; color:var(--ink-soft); cursor:pointer;}
-                .btn-primary{flex:1.4; background:linear-gradient(135deg,var(--primary),#8B6BFF); border:none; border-radius:14px; padding:12px; font-weight:600; font-size:13px; color:#fff; cursor:pointer;}
+                .btn-primary{flex:1.4; background:#0f172a; border:none; border-radius:14px; padding:12px; font-weight:600; font-size:13px; color:#fff; cursor:pointer;}
                 
                 /* Custom Time Boxes Styling */
                 .time-card-box {
-                  background: linear-gradient(145deg, #F8FAFC 0%, #EEF2FF 100%);
+                  background: #f8fafc;
                   border: 1.5px solid #C7D2FE;
                   border-radius: 16px;
                   padding: 14px 14px 16px;
@@ -1039,7 +1039,7 @@ export default function SmartAttendance() {
                                         <button 
                                             onClick={openAddModal}
                                             style={{
-                                                background: 'linear-gradient(135deg, var(--primary), #8B6BFF)',
+                                                background: '#0f172a',
                                                 color: '#fff',
                                                 border: 'none',
                                                 borderRadius: '12px',

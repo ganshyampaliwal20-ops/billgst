@@ -101,14 +101,14 @@ export default function DashboardLayout({
 
     if (!isMounted || status === 'loading') {
         return (
-            <div className="min-h-screen bg-[#050810] text-slate-100 flex flex-col items-center justify-center p-4">
+            <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-4">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center shadow-xl shadow-indigo-600/30 animate-pulse">
+                    <div className="w-14 h-14 rounded-2xl bg-[#0f172a] flex items-center justify-center shadow-xl shadow-slate-300 animate-pulse">
                         <span className="text-2xl font-black text-white tracking-wider">B</span>
                     </div>
                     <div className="flex flex-col items-center gap-2">
-                        <div className="h-4 w-28 bg-slate-800/80 rounded-full animate-pulse"></div>
-                        <div className="h-2.5 w-36 bg-slate-800/40 rounded-full animate-pulse"></div>
+                        <div className="h-4 w-28 bg-slate-200 rounded-full animate-pulse"></div>
+                        <div className="h-2.5 w-36 bg-slate-100 rounded-full animate-pulse"></div>
                     </div>
                 </div>
             </div>
@@ -237,9 +237,9 @@ export default function DashboardLayout({
     };
 
     return (
-        <div className="h-[100dvh] bg-slate-900 flex flex-col overflow-hidden">
+        <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
             {/* Global Safe Area Protector for Status Bar (Dark background makes white icons visible) */}
-            <div className="w-full bg-slate-900 shrink-0 md:hidden z-[100]" style={{ height: 'env(safe-area-inset-top, 0px)' }}></div>
+            <div className="w-full bg-white shrink-0 md:hidden z-[100]" style={{ height: 'env(safe-area-inset-top, 0px)' }}></div>
 
             {/* 2. Main Flex Container */}
             <div className="flex-1 flex overflow-hidden bg-[#f1f5f9] relative">
@@ -251,36 +251,29 @@ export default function DashboardLayout({
                         }`}
                 >
                     <div className="h-full flex flex-col">
-                        {/* Combined Header & Business Card - Professional Royal 3D Design */}
-                        <div className="relative mx-4 mt-6 mb-4 p-[2px] rounded-[20px] bg-gradient-to-b from-[#8E84F3] to-[#4235B8] shadow-[0_12px_28px_-6px_rgba(45,36,138,0.4)] group cursor-pointer" onClick={() => { router.push('/dashboard'); setIsSidebarOpen(false); }}>
-                            <div className="relative bg-gradient-to-br from-[#352B9C] to-[#1A1454] rounded-[18px] p-6 flex flex-col items-center text-center transition-all overflow-hidden border border-[#4A3DB5]/50">
-                                {/* Decorative background glow */}
-                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#8E84F3] rounded-full filter blur-[40px] opacity-20"></div>
-                                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#D1CFF8] rounded-full filter blur-[40px] opacity-10"></div>
-
-                                {/* 3D Logo Container */}
-                                <div className="w-[76px] h-[76px] rounded-[22px] bg-white flex items-center justify-center text-[#352B9C] text-[34px] overflow-hidden relative shadow-[0_8px_20px_rgba(0,0,0,0.3)] mb-4 border-[3px] border-[#8E84F3]/30 group-hover:scale-105 transition-transform duration-300 z-10">
+                        {/* Business Card - Clean White Design */}
+                        <div className="relative mx-4 mt-6 mb-4 rounded-[20px] bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all group cursor-pointer" onClick={() => { router.push('/dashboard'); setIsSidebarOpen(false); }}>
+                            <div className="relative bg-white rounded-[19px] p-6 flex flex-col items-center text-center transition-all overflow-hidden border border-slate-100">
+                                {/* Logo Container */}
+                                <div className="w-[76px] h-[76px] rounded-[22px] bg-slate-50 flex items-center justify-center text-slate-800 text-[34px] overflow-hidden relative shadow-sm mb-4 border border-slate-200 group-hover:scale-105 transition-transform duration-300 z-10">
                                     {businessProfile.logo ? (
                                         <Image src={businessProfile.logo} alt="Logo" fill className="object-contain" />
                                     ) : (
-                                        <FaReceipt />
+                                        <FaReceipt className="text-slate-700" />
                                     )}
                                 </div>
 
-                                {/* Business Name replacing BillGST */}
+                                {/* Business Name */}
                                 <div className="w-full relative z-10">
-                                    <h2 className="text-[20px] font-extrabold text-white leading-tight truncate tracking-tight px-1" style={{ textShadow: '0px 3px 0px #2D248A, 0px 4px 6px rgba(0,0,0,0.5)' }}>
+                                    <h2 className="text-[20px] font-extrabold text-slate-900 leading-tight truncate tracking-tight px-1">
                                         {businessProfile.name || 'Your Business'}
                                     </h2>
-                                    <div className="text-[13px] text-[#C4BFF0] mt-1.5 flex items-center justify-center gap-1.5 font-medium">
-                                        {/* Text removed as requested */}
-                                    </div>
                                 </div>
 
                                 {/* Mobile Close Button */}
                                 <button
                                     onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(false); }}
-                                    className="md:hidden absolute top-3 right-3 w-[32px] h-[32px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border border-white/10 z-20"
+                                    className="md:hidden absolute top-3 right-3 w-[32px] h-[32px] rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors border border-slate-200 z-20"
                                 >
                                     <FaTimes size={14} />
                                 </button>
@@ -428,13 +421,13 @@ export default function DashboardLayout({
                 {/* Right Side Content Area */}
                 <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                     {/* Header - Fixed inside the flex container, below safe area automatically */}
-                    <header className="z-50 shrink-0 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-500 shadow-lg border-b border-white/10 flex flex-col items-center w-full md:hidden">
+                    <header className="z-50 shrink-0 bg-white shadow-sm border-b border-slate-200 flex flex-col items-center w-full md:hidden">
                         <div className="w-full max-w-[1600px] flex items-center justify-between px-5 sm:px-8 md:px-12 h-[50px]">
                             <div className="flex items-center justify-between w-full h-full relative">
                                 {/* Left Side: Logo + Business Name */}
                                 <div className="flex items-center gap-3">
                                     <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group" style={{ paddingLeft: '11px', paddingRight: '11px', marginBottom: '0px' }}>
-                                        <div className="relative w-16 h-12 md:w-11 md:h-11 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-white/30 group-hover:border-white/60 transition-all flex-shrink-0 bg-white/10 backdrop-blur-sm">
+                                        <div className="relative w-16 h-12 md:w-11 md:h-11 rounded-lg md:rounded-xl overflow-hidden shadow-md border-2 border-slate-200 group-hover:border-slate-400 transition-all flex-shrink-0 bg-white">
                                             <Image
                                                 src={businessProfile?.logo || "/logo.png"}
                                                 alt="Business Logo"
@@ -446,7 +439,7 @@ export default function DashboardLayout({
                                             />
                                         </div>
                                         <div className="flex flex-col max-w-[120px] md:max-w-[200px]">
-                                            <h1 className="font-bold text-white text-sm md:text-base truncate tracking-tight">{businessProfile?.name || 'BillGST'}</h1>
+                                            <h1 className="font-bold text-slate-900 text-sm md:text-base truncate tracking-tight">{businessProfile?.name || 'BillGST'}</h1>
                                         </div>
                                     </Link>
                                 </div>
@@ -458,14 +451,14 @@ export default function DashboardLayout({
                                 <div className="flex items-center gap-2 md:gap-4 pr-5">
                                     <Link
                                         href="/dashboard/settings"
-                                        className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"
+                                        className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
                                         title="Business Settings"
                                     >
                                         <FaCog size={16} />
                                     </Link>
                                     <button
                                         onClick={handleLogout}
-                                        className="hidden md:flex items-center justify-center w-10 h-10 text-white/90 hover:text-white hover:bg-white/20 rounded-full transition-all"
+                                        className="hidden md:flex items-center justify-center w-10 h-10 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
                                         title="Logout"
                                     >
                                         <FaSignOutAlt />
@@ -515,7 +508,7 @@ export default function DashboardLayout({
             {pathname === '/dashboard' && (
                 <button
                     onClick={() => setIsDemoNLPOpen(true)}
-                    className="fixed bottom-6 md:bottom-8 right-6 md:right-8 z-[90] w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:shadow-[0_8px_30px_rgba(79,70,229,0.8)] transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
+                    className="fixed bottom-6 md:bottom-8 right-6 md:right-8 z-[90] w-14 h-14 bg-[#0f172a] text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.25)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all hover:scale-110 active:scale-95 border-2 border-slate-700"
                     title="Free AI Assistant"
                 >
                     <FaRobot size={24} className="animate-pulse" />

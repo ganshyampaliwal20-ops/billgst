@@ -482,6 +482,14 @@ export default function InvoiceActionModal({
                   </div>
                   <span>{t.eWayBill || 'E-Way JSON'}</span>
                 </div>
+                <Link href={invoice?.id ? `/dashboard/invoices/new?editId=${invoice.id}` : '#'} style={{textDecoration: 'none', display: 'contents'}}>
+                  <div className="tile">
+                    <div className="icon-wrap">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                    </div>
+                    <span>{t.editInvoice || 'Edit Invoice'}</span>
+                  </div>
+                </Link>
                 <Link href={invoice?.id ? `/dashboard/invoices/new?duplicateId=${invoice.id}` : '#'} style={{textDecoration: 'none', display: 'contents'}}>
                   <div className="tile">
                     <div className="icon-wrap">

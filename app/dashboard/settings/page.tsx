@@ -258,10 +258,10 @@ export default function SettingsPage() {
                     --gold: #F5B942;
                     --green: #34D399;
                     --red: #F87171;
-                    --grad: linear-gradient(135deg, #8B5CF6 0%, #4F46E5 100%);
+                    --grad: #0f172a;
                 }
                 .bs-wrapper {
-                    background: radial-gradient(ellipse 900px 500px at 15% -5%, rgba(124,58,237,0.16), transparent 60%), radial-gradient(ellipse 700px 500px at 100% 15%, rgba(79,70,229,0.10), transparent 55%), var(--bg);
+                    background: radial-gradient(ellipse 700px 500px at 100% 15%, rgba(79,70,229,0.10), transparent 55%), var(--bg);
                     color: var(--text);
                     font-family: 'Inter', sans-serif;
                     min-height: 100vh;
@@ -274,7 +274,7 @@ export default function SettingsPage() {
                 @media (max-width: 480px){ .shell{ padding: 16px 10px 12px; gap: 12px; } }
 
                 .page-head{ grid-column: 1 / -1; text-align:center; margin-bottom: 8px; }
-                .page-head h1{ font-size: 30px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #fff, #C4B5FD); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; }
+                .page-head h1{ font-size: 30px; font-weight: 800; letter-spacing: -0.02em; color: #0f172a; /* removed gradient text */ -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; }
                 .page-head p{ color: var(--text-muted); font-size: 14.5px; }
 
                 .side-nav{ position: sticky; top: 24px; display:flex; flex-direction:column; gap: 2px; background: var(--card); border:1px solid var(--card-border); border-radius:16px; padding: 10px; height: fit-content; }
@@ -294,7 +294,7 @@ export default function SettingsPage() {
                 .main-col{ display:flex; flex-direction:column; gap:18px; min-width:0; }
 
                 .completeness{ background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 18px; display:flex; align-items:center; gap:14px; }
-                .completeness .ring{ width:46px; height:46px; border-radius:50%; background: conic-gradient(var(--violet) 0deg, var(--indigo) var(--ring-deg,270deg), #232A45 var(--ring-deg,270deg)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+                .completeness .ring{ width:46px; height:46px; border-radius:50%; background: conic-gradient(#0f172a 0deg, #334155 var(--ring-deg,270deg), #232A45 var(--ring-deg,270deg)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
                 .completeness .ring::after{ content: attr(data-pct); width:36px; height:36px; border-radius:50%; background: var(--card); display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; color: var(--text); }
                 .completeness .info b{ font-size:14.5px; display:block; margin-bottom:2px; }
                 .completeness .info span{ font-size:12.5px; color: var(--text-muted); }
@@ -306,7 +306,7 @@ export default function SettingsPage() {
                 .card-head.with-toggle{ justify-content:space-between; }
                 .card-head-left{ display:flex; align-items:flex-start; gap:12px; flex: 1; min-width: 0; }
                 .card-head-left > div { flex: 1; min-width: 0; overflow: hidden; }
-                .card-icon{ width: 40px; height:40px; border-radius: 11px; background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(79,70,229,0.25)); border: 1px solid rgba(139,92,246,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+                .card-icon{ width: 40px; height:40px; border-radius: 11px; background: rgba(15,23,42,0.08); border: 1px solid rgba(139,92,246,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
                 .card-icon svg{ width:20px; height:20px; stroke: #C4B5FD; }
                 .card-head h2{ font-size:16.5px; font-weight:700; margin-bottom:2px; word-break: break-word; }
                 .card-head p{ font-size:12.5px; color: var(--text-muted); line-height: 1.4; word-break: break-word; }
@@ -390,14 +390,14 @@ export default function SettingsPage() {
                 }
 
                 .terms-box{ background: var(--field); border:1.5px solid var(--field-border); border-radius:11px; padding:14px; }
-                .save-bar{ position: fixed; bottom:0; left:0; right:0; background: linear-gradient(180deg, transparent, var(--bg) 35%); padding: 16px 20px calc(22px + env(safe-area-inset-bottom, 0px)); display:flex; justify-content:center; z-index:50; pointer-events:none; }
+                .save-bar{ position: fixed; bottom:0; left:0; right:0; background: linear-gradient(180deg, transparent, #fff 35%); padding: 16px 20px calc(22px + env(safe-area-inset-bottom, 0px)); display:flex; justify-content:center; z-index:50; pointer-events:none; }
                 .save-btn{ pointer-events:auto; width:100%; max-width: 680px; background: var(--grad); color:#fff; border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; box-shadow: 0 8px 24px rgba(124,58,237,0.35); transition: transform 0.12s, box-shadow 0.12s; }
                 .save-btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(124,58,237,0.45); }
                 .save-btn svg{ width:18px; height:18px; }
                 @media (max-width: 600px){
                     .save-bar {
                         padding: 12px 16px calc(38px + env(safe-area-inset-bottom, 0px));
-                        background: linear-gradient(180deg, transparent 0%, rgba(10, 13, 24, 0.95) 45%, #0A0D18 100%);
+                        background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.95) 45%, #fff 100%);
                     }
                 }
 
@@ -496,7 +496,7 @@ export default function SettingsPage() {
                 .section-header{ padding: 16px; display: flex; flex-direction: column; gap: 10px; }
                 .section-header-top{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }
                 .section-title-group{ display: flex; align-items: center; gap: 10px; min-width: 0; }
-                .section-icon{ width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; background: linear-gradient(135deg, var(--violet), #a06bff); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+                .section-icon{ width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; background: #0f172a; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
                 .section-icon svg { width: 18px; height: 18px; stroke: white; }
                 .section-title{ font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
                 .close-btn{ flex-shrink: 0; background: var(--field); border: 1px solid var(--field-border); color: var(--text); padding: 7px 14px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s; }
@@ -513,7 +513,7 @@ export default function SettingsPage() {
                 
                 .toggle-box{ width: 42px; height: 24px; border-radius: 20px; background: var(--field); position: relative; flex-shrink:0; border: 1px solid var(--field-border); transition: 0.2s; pointer-events: none; }
                 .toggle-box::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#7b84a8; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-                .toggle-box.active{ background: linear-gradient(135deg, var(--violet), #a06bff); border-color: transparent; }
+                .toggle-box.active{ background: #0f172a; border-color: transparent; }
                 .toggle-box.active::after{ transform: translateX(18px); background: #fff; }
             `}</style>
 

@@ -50,7 +50,7 @@ export default function ReferralPage() {
         <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", background: "#f0f2f5", minHeight: "100vh", display: "flex", justifyContent: "center", padding: "20px" }}>
             <div style={{ maxWidth: "680px", width: "100%", padding: "1rem 0" }}>
                 {/* Header */}
-                <div style={{ background: "linear-gradient(135deg, #1a1f6e, #4a55e8)", borderRadius: "12px", padding: "1.5rem", color: "#fff", marginBottom: "1rem" }}>
+                <div style={{ background: "#0f172a", borderRadius: "12px", padding: "1.5rem", color: "#fff", marginBottom: "1rem" }}>
                     <h1 style={{ fontSize: "20px", fontWeight: 600, marginBottom: "4px" }}>Refer karo, rewards pao</h1>
                     <p style={{ fontSize: "13px", opacity: 0.75 }}>Har successful referral par aapko aur aapke dost ko 20 free invoices milte hain</p>
                 </div>

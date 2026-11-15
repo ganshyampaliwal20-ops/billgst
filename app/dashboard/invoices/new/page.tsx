@@ -103,6 +103,7 @@ function NewInvoiceContent() {
     const scannerInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDuplicating, setIsDuplicating] = useState(false);
+    const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null);
     const [activeStep, setActiveStep] = useState(2); // Default to Items step as per design
     const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -173,14 +174,48 @@ function NewInvoiceContent() {
         }
     }, [businessProfile?.pdf_size, businessProfile?.terms_and_conditions]);
 
-    // Query param handling (duplicate / quotation / AI Navigation)
+    // Query param handling (edit / duplicate / quotation / AI Navigation)
     useEffect(() => {
         if (!isClient) return;
+        const editId = searchParams.get('editId');
         const duplicateId = searchParams.get('duplicateId');
         const quotationId = searchParams.get('quotationId');
         const typeParam = searchParams.get('type');
         const customerNameParam = searchParams.get('customerName');
         const amountParam = searchParams.get('amount');
+
+        if (editId && !editInvoiceId) {
+            const storeInvoices = useStore.getState().invoices || [];
+            const sourceInvoice = storeInvoices.find((inv: any) => inv.id === editId);
+            if (sourceInvoice) {
+                setEditInvoiceId(editId);
+                if (sourceInvoice.invoice_number) setInvoiceNumber(sourceInvoice.invoice_number);
+                if (sourceInvoice.invoice_date) setInvoiceDate(sourceInvoice.invoice_date.split('T')[0]);
+                if (sourceInvoice.due_date) setDueDate(sourceInvoice.due_date.split('T')[0]);
+                if (sourceInvoice.type) setDocType(sourceInvoice.type);
+                if (sourceInvoice.discount_pct) setDiscountPct(sourceInvoice.discount_pct.toString());
+                if (sourceInvoice.extra_charges) setExtraCharge(sourceInvoice.extra_charges.toString());
+                if (sourceInvoice.shipping_charges) setShippingCharge(sourceInvoice.shipping_charges.toString());
+                if (sourceInvoice.payment_mode) setPaymentMode(sourceInvoice.payment_mode);
+                if (sourceInvoice.pdf_size) setSelectedPdfSize(sourceInvoice.pdf_size);
+                setCustomerId(sourceInvoice.customer_id || sourceInvoice.customer?.id || '');
+                setPaidAmount(sourceInvoice.paid_amount?.toString() || '');
+                setNotes(sourceInvoice.notes || '');
+                if (sourceInvoice.items && sourceInvoice.items.length > 0) {
+                    setSelectedItems(sourceInvoice.items.map((item: any) => ({
+                        ...item,
+                        product_id: item.product_id || '',
+                        product_name: item.product_name || 'Unnamed Item',
+                        quantity: item.quantity || 1,
+                        unit_price: item.unit_price || 0,
+                        gst_rate: item.gst_rate ?? 18,
+                        hsn_code: item.hsn_code || '',
+                        unit: item.unit || 'PCS'
+                    })));
+                }
+                toast.success(`Editing Invoice #${sourceInvoice.invoice_number}`);
+            }
+        }
 
         if (typeParam && Object.values(DOC_TYPES).includes(typeParam as any)) {
             setDocType(typeParam);
@@ -914,6 +949,27 @@ function NewInvoiceContent() {
                 vehicle_no: ewayBill.vehicleNo || null
             };
 
+            if (editInvoiceId) {
+                const updatePayload = {
+                    ...invoice,
+                    id: editInvoiceId,
+                    customer: {
+                        id: customerId || 'CASH',
+                        name: customer?.name || newCustName || 'Cash Sale',
+                        gstin: customer?.gstin || '',
+                        phone: customer?.phone || '',
+                        address: customer?.address || ''
+                    }
+                };
+                const updateInvoiceFn = (useStore.getState() as any).updateInvoice;
+                const result = await updateInvoiceFn(editInvoiceId, updatePayload);
+                if (result?.success) {
+                    router.push('/dashboard/invoices');
+                }
+                setIsSubmitting(false);
+                return;
+            }
+
             const result = await addInvoice(invoice);
             if (result?.success || result?.id) {
                 toast.success('Invoice Saved!');
@@ -1033,22 +1089,22 @@ function NewInvoiceContent() {
                 .new-invoice-page * { box-sizing:border-box; }
 
                 /* Page header */
-                .page-hdr { background:linear-gradient(160deg, var(--navy-deep), var(--navy-mid)); padding:24px var(--gap-page) 24px; margin-bottom:0; }
-                .ph-title { color:#fff; font-family:'Baloo 2',sans-serif; font-size:clamp(22px,4vw,30px); font-weight:700; margin:0 0 4px; }
-                .ph-sub { color:#A9AFD1; font-size:13px; margin:0 0 20px; }
+                .page-hdr { background: #ffffff; border-bottom: 1.5px solid #e2e8f0; padding: 24px var(--gap-page); margin-bottom: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+                .ph-title { color: #0f172a !important; font-family: 'Baloo 2', sans-serif; font-size: clamp(22px, 4vw, 30px); font-weight: 700; margin: 0 0 4px; }
+                .ph-sub { color: #64748b; font-size: 13px; margin: 0 0 20px; }
 
                 /* Stepper */
                 .stepper { display:flex; align-items:center; justify-content:center; gap:0; margin-top:20px; overflow-x:auto; padding-bottom:4px; -ms-overflow-style:none; scrollbar-width:none; }
                 .stepper::-webkit-scrollbar { display:none; }
                 @media (max-width: 600px) { .stepper { justify-content:flex-start; margin-left:-12px; margin-right:-12px; padding-left:12px; padding-right:12px; } }
-                .step-item { display:flex; align-items:center; gap:8px; opacity:0.5; transition:0.3s; flex-shrink:0; }
+                .step-item { display:flex; align-items:center; gap:8px; opacity:0.6; transition:0.3s; flex-shrink:0; }
                 .step-item.active { opacity:1; }
                 .step-item.done { opacity:1; }
-                .s-dot { width:30px; height:30px; background:rgba(255,255,255,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0; }
-                .step-item.active .s-dot { background:transparent; border:2px solid var(--purple-2); color:#fff; }
-                .step-item.done .s-dot { background:var(--green); color:#fff; }
-                .s-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#fff; white-space:nowrap; }
-                .s-line { flex:1; height:2px; background:rgba(255,255,255,0.15); max-width:50px; min-width:30px; margin:0 6px; flex-shrink:0; }
+                .s-dot { width:30px; height:30px; background:#f1f5f9; border:2px solid #cbd5e1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#475569; flex-shrink:0; }
+                .step-item.active .s-dot { background:#0f172a; border-color:#0f172a; color:#fff; }
+                .step-item.done .s-dot { background:#0f172a; border-color:#0f172a; color:#fff; }
+                .s-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#475569; white-space:nowrap; }
+                .s-line { flex:1; height:2px; background:#e2e8f0; max-width:50px; min-width:30px; margin:0 6px; flex-shrink:0; }
 
                 /* Main layout */
                 .form-outer { padding:16px var(--gap-page) 110px; display:grid; grid-template-columns:1fr; gap:16px; max-width:1180px; margin:0 auto; }
@@ -1141,21 +1197,21 @@ function NewInvoiceContent() {
                 .bottom-bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--line); padding:12px var(--gap-page) calc(12px + var(--safe-b)); display:flex; align-items:center; justify-content:space-between; gap:16px; box-shadow:0 -6px 20px rgba(20,20,50,.06); z-index:100; }
                 .gt-label { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.06em; }
                 .gt-amt { font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:700; color:var(--ink); }
-                .bb-save { background:linear-gradient(115deg, var(--purple-1), var(--purple-2)); color:#fff; border:none; border-radius:14px; padding:14px 24px; font-size:15px; font-weight:700; display:flex; align-items:center; gap:10px; box-shadow:0 6px 18px rgba(108,76,224,.35); white-space:nowrap; cursor:pointer; }
-                .bb-save:hover { filter:brightness(1.05); }
+                .bb-save { background: #0f172a; color:#fff; border:none; border-radius:14px; padding:14px 24px; font-size:15px; font-weight:700; display:flex; align-items:center; gap:10px; box-shadow:0 4px 14px rgba(15,23,42,.25); white-space:nowrap; cursor:pointer; }
+                .bb-save:hover { filter:brightness(1.15); }
 
                 /* Summary dark card */
-                .summary-dark { background:linear-gradient(160deg, var(--navy-mid), var(--navy-deep)); border-radius:var(--radius-lg); padding:clamp(18px,3vw,26px); color:#fff; margin-bottom:16px; }
-                .sum-row { display:flex; justify-content:space-between; font-size:14px; color:#B7BBDE; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+                .summary-dark { background:#ffffff; border:1.5px solid #e2e8f0; border-radius:var(--radius-lg); padding:clamp(18px,3vw,26px); color:#0f172a; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+                .sum-row { display:flex; justify-content:space-between; font-size:14px; color:#64748b; padding:8px 0; border-bottom:1px solid #e2e8f0; }
                 .sum-row:last-of-type { border-bottom:none; }
-                .sum-row .val { font-weight:600; color:#fff; }
+                .sum-row .val { font-weight:600; color:#0f172a; }
                 .sum-total { margin-top:12px; }
-                .sum-total-lbl { font-size:11px; font-weight:700; letter-spacing:.08em; color:#A78BFA; margin-bottom:6px; }
-                .sum-total-amt { font-family:'Baloo 2',sans-serif; font-size:clamp(26px,4vw,32px); font-weight:700; }
+                .sum-total-lbl { font-size:11px; font-weight:700; letter-spacing:.08em; color:#64748b; margin-bottom:6px; }
+                .sum-total-amt { font-family:'Baloo 2',sans-serif; font-size:clamp(26px,4vw,32px); font-weight:700; color:#0f172a; }
                 /* Legacy aliases for totals-box used in existing JSX */
-                .totals-box { background:linear-gradient(160deg, var(--navy-mid), var(--navy-deep)); border-radius:var(--radius-lg); padding:clamp(18px,3vw,26px); color:#fff; margin-bottom:16px; }
-                .t-val { font-size:14px; font-weight:600; color:#B7BBDE; }
-                .grand-total { font-family:'Baloo 2',sans-serif; font-size:clamp(26px,4vw,32px); font-weight:700; color:#fff; display:block; margin-top:6px; }
+                .totals-box { background:#ffffff; border:1.5px solid #e2e8f0; border-radius:var(--radius-lg); padding:clamp(18px,3vw,26px); color:#0f172a; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+                .t-val { font-size:14px; font-weight:600; color:#0f172a; }
+                .grand-total { font-family:'Baloo 2',sans-serif; font-size:clamp(26px,4vw,32px); font-weight:700; color:#0f172a; display:block; margin-top:6px; }
 
                 /* Misc legacy */
                 .fbadge { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:12px; font-size:13px; font-weight:700; cursor:pointer; border:none; transition:all 0.2s; }
@@ -1316,8 +1372,8 @@ function NewInvoiceContent() {
             {/* Header Content */}
             <header className="page-hdr">
                 <div className="flex flex-col justify-center items-center text-center gap-1">
-                    <h1 className="ph-title text-white">{t.newInvoice}</h1>
-                    <p className="ph-sub">Generate a digital GST bill in seconds</p>
+                    <h1 className="ph-title text-slate-900">{editInvoiceId ? `Edit Invoice #${invoiceNumber}` : t.newInvoice}</h1>
+                    <p className="ph-sub">{editInvoiceId ? 'Update and save invoice changes' : 'Generate a digital GST bill in seconds'}</p>
                 </div>
 
                 <div className="stepper">
@@ -2297,7 +2353,7 @@ function NewInvoiceContent() {
 
                     <button type="button" className={`desktop-save-btn bb-save w-full justify-center transition-all duration-500 mt-2 ${aiHighlight === 'totals' ? 'animate-bounce shadow-[0_0_25px_rgba(16,185,129,0.8)]' : ''}`} onClick={handleSubmit} disabled={isSubmitting} style={{ padding: '16px', fontSize: '16px' }}>
                         {isSubmitting ? <span className="animate-spin h-5 w-5 border-2 border-white rounded-full mr-2"></span> : <FaSave className="text-xl" />}
-                        {isSubmitting ? 'Saving...' : 'Save Invoice'}
+                        {isSubmitting ? 'Saving...' : editInvoiceId ? 'Update Invoice' : 'Save Invoice'}
                     </button>
 
                 </div>
@@ -2310,7 +2366,7 @@ function NewInvoiceContent() {
                 </div>
                 <button type="button" className={`bb-save transition-all ${aiHighlight === 'totals' ? 'animate-bounce shadow-[0_0_25px_rgba(16,185,129,0.8)]' : ''}`} onClick={handleSubmit} disabled={isSubmitting}>
                     {isSubmitting ? <span className="animate-spin h-4 w-4 border-2 border-white rounded-full mr-2"></span> : <FaSave className="text-lg" />}
-                    {isSubmitting ? 'Saving...' : 'Save Invoice'}
+                    {isSubmitting ? 'Saving...' : editInvoiceId ? 'Update Invoice' : 'Save Invoice'}
                 </button>
             </div>
 

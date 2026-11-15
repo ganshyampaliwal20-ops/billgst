@@ -341,54 +341,94 @@ export async function PUT(request: Request) {
 
     try {
         const body = await request.json();
-        const { id, ...updateData } = body;
+        const { id, items, customer, ...updateData } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 });
         }
 
         const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
 
-        // Build dynamic query
-        const sets: string[] = [];
-        const values: any[] = [];
-        let paramIndex = 1;
-
-        // Allowed fields to update
-        const allowedFields = ['status', 'paid_amount', 'notes', 'due_date'];
-
-        Object.keys(updateData).forEach(key => {
-            if (allowedFields.includes(key)) {
-                sets.push(`${key} = $${paramIndex}`);
-                values.push(updateData[key]);
-                paramIndex++;
+            if (customer) {
+                const customerId = typeof customer === 'object' ? customer.id : customer;
+                updateData.customer_id = customerId === 'CASH' ? null : customerId;
             }
-        });
 
-        if (sets.length === 0) {
+            // Allowed fields to update
+            const allowedFields = [
+                'customer_id', 'invoice_number', 'invoice_date', 'due_date',
+                'subtotal', 'total_amount', 'igst_amount', 'cgst_amount', 'sgst_amount',
+                'status', 'notes', 'paid_amount', 'discount_pct', 'extra_charges',
+                'shipping_charges', 'payment_mode', 'pdf_size', 'type',
+                'eway_bill_no', 'eway_bill_date', 'transport_mode', 'distance',
+                'transporter_name', 'transporter_id', 'vehicle_no'
+            ];
+
+            const sets: string[] = [];
+            const values: any[] = [];
+            let paramIndex = 1;
+
+            Object.keys(updateData).forEach(key => {
+                if (allowedFields.includes(key)) {
+                    sets.push(`${key} = $${paramIndex}`);
+                    values.push(updateData[key]);
+                    paramIndex++;
+                }
+            });
+
+            if (sets.length > 0) {
+                values.push(id);
+                values.push(userId);
+
+                const query = `
+                    UPDATE invoices 
+                    SET ${sets.join(', ')} 
+                    WHERE id = $${paramIndex} AND created_by = $${paramIndex + 1}
+                    RETURNING *
+                `;
+
+                const result = await client.query(query, values);
+                if (result.rowCount === 0) {
+                    await client.query('ROLLBACK');
+                    client.release();
+                    return NextResponse.json({ error: 'Invoice not found or unauthorized' }, { status: 404 });
+                }
+            }
+
+            // Replace invoice items if provided
+            if (items && Array.isArray(items)) {
+                await client.query('DELETE FROM invoice_items WHERE invoice_id = $1', [id]);
+                for (const item of items) {
+                    const quantity = Number(item.quantity) || 1;
+                    const unitPrice = Number(item.unit_price) || 0;
+                    const gstRate = Number(item.gst_rate) || 0;
+                    await client.query(`
+                        INSERT INTO invoice_items (
+                            invoice_id, product_id, product_name, hsn_code, quantity, unit_price, gst_rate, total_amount
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    `, [
+                        id,
+                        item.product_id || null,
+                        item.product_name,
+                        item.hsn_code || null,
+                        quantity,
+                        unitPrice,
+                        gstRate,
+                        (quantity * unitPrice)
+                    ]);
+                }
+            }
+
+            await client.query('COMMIT');
             client.release();
-            return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+            return NextResponse.json({ success: true, message: 'Invoice updated successfully' });
+        } catch (err: any) {
+            await client.query('ROLLBACK');
+            client.release();
+            throw err;
         }
-
-        // Add ID and UserID to values for WHERE clause
-        values.push(id);
-        values.push(userId);
-
-        const query = `
-            UPDATE invoices 
-            SET ${sets.join(', ')} 
-            WHERE id = $${paramIndex} AND created_by = $${paramIndex + 1}
-            RETURNING *
-        `;
-
-        const result = await client.query(query, values);
-        client.release();
-
-        if (result.rowCount === 0) {
-            return NextResponse.json({ error: 'Invoice not found or unauthorized' }, { status: 404 });
-        }
-
-        return NextResponse.json({ success: true, data: result.rows[0] });
     } catch (error: any) {
         console.error('Invoice PUT Error:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });

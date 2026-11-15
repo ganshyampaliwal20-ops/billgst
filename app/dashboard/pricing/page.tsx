@@ -201,7 +201,7 @@ export default function PricingPage() {
                 }
                 .logo-chip-icon {
                   width: 28px; height: 28px;
-                  background: linear-gradient(135deg,#1a1f6e,#1a56ff);
+                  background: #0f172a;
                   border-radius: 8px;
                   display: flex; align-items: center; justify-content: center;
                 }
@@ -247,7 +247,7 @@ export default function PricingPage() {
                   position: absolute;
                   bottom: 2px; left: 0; right: 0;
                   height: 3px;
-                  background: linear-gradient(90deg, #1a56ff, #6c2ef7);
+                  background: #0f172a;
                   border-radius: 2px;
                   transform: scaleX(1);
                 }
@@ -316,7 +316,7 @@ export default function PricingPage() {
                 .discount-badge {
                   position: absolute;
                   top: -12px; right: 18px;
-                  background: linear-gradient(135deg, #ff3b3b, #ff6b35);
+                  background: #334155;
                   color: #fff;
                   font-family: 'Bricolage Grotesque', sans-serif;
                   font-size: 11px; font-weight: 700;
@@ -329,7 +329,7 @@ export default function PricingPage() {
                 .featured-badge {
                   position: absolute;
                   top: -14px; left: 50%; transform: translateX(-50%);
-                  background: linear-gradient(135deg,#1a56ff,#6c2ef7);
+                  background: #0f172a;
                   color: #fff;
                   font-family: 'Bricolage Grotesque', sans-serif;
                   font-size: 11px; font-weight: 700;
@@ -442,7 +442,7 @@ export default function PricingPage() {
                 .cta3:not(:disabled):active { transform: scale(0.98); }
 
                 .cta-blue {
-                  background: linear-gradient(135deg,#1a56ff,#3b6eff);
+                  background: #1e293b;
                   color: #fff;
                   box-shadow: 0 4px 20px rgba(26,86,255,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
                 }
@@ -456,7 +456,7 @@ export default function PricingPage() {
                 .cta-white:not(:disabled):hover { box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
 
                 .cta-green {
-                  background: linear-gradient(135deg,#00a86b,#00c47d);
+                  background: #334155;
                   color: #fff;
                   box-shadow: 0 4px 20px rgba(0,168,107,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
                 }
@@ -663,7 +663,7 @@ export default function PricingPage() {
                         {/* PREMIUM GROWTH */}
                         <div className="plan featured">
                             <div className="featured-badge">✦ Most Popular</div>
-                            <div className="discount-badge" style={{ background: 'linear-gradient(135deg,#a855f7,#7c3aed)', boxShadow: '0 4px 12px rgba(124,58,237,0.5)' }}>50% OFF</div>
+                            <div className="discount-badge" style={{ background: '#0f172a', boxShadow: '0 4px 12px rgba(124,58,237,0.5)' }}>50% OFF</div>
 
                             <div className="plan-header">
                                 <div className="plan-icon-wrap" style={{ background: 'rgba(255,255,255,0.08)' }}>
@@ -730,7 +730,7 @@ export default function PricingPage() {
 
                         {/* YEARLY PRO */}
                         <div className="plan">
-                            <div className="discount-badge" style={{ background: 'linear-gradient(135deg,#059669,#00c47d)', boxShadow: '0 4px 12px rgba(5,150,105,0.45)' }}>70% OFF</div>
+                            <div className="discount-badge" style={{ background: '#334155', boxShadow: '0 4px 12px rgba(5,150,105,0.45)' }}>70% OFF</div>
                             <div className="plan-header">
                                 <div className="plan-icon-wrap" style={{ background: '#e6f7f1' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="#00a86b" strokeWidth="1.8">
@@ -895,7 +895,7 @@ export default function PricingPage() {
                             disabled={loading || transactionId.length !== 12}
                             style={{
                                 width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: 'none', cursor: (loading || transactionId.length !== 12) ? 'not-allowed' : 'pointer',
-                                background: (loading || transactionId.length !== 12) ? '#f1f5f9' : 'linear-gradient(135deg, #10b981, #059669)',
+                                background: (loading || transactionId.length !== 12) ? '#f1f5f9' : '#0f172a',
                                 color: (loading || transactionId.length !== 12) ? '#94a3b8' : '#ffffff',
                                 boxShadow: (loading || transactionId.length !== 12) ? 'none' : '0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1)'
                             }}

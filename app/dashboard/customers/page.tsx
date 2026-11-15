@@ -344,7 +344,7 @@ export default function CustomersPage() {
 }
 
 .topbar {
-  background: linear-gradient(135deg, #0c0f1a 0%, #1a2040 100%);
+  background: #ffffff; border-bottom: 1.5px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   padding: 16px 16px 20px;
   position: sticky;
   top: 0;
@@ -360,12 +360,12 @@ export default function CustomersPage() {
 }
 .back-btn {
   width: 38px; height: 38px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: #f1f5f9;
+  border: 1px solid var(--border);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  color: #fff;
+  color: var(--ink);
   font-size: 20px;
   flex-shrink: 0;
   transition: all 0.2s;
@@ -380,11 +380,11 @@ export default function CustomersPage() {
   flex-direction: column;
 }
 .topbar-title h1 {
-  font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.3px; margin: 0;
+  font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; margin: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .topbar-title p  {
-  font-size: 11px; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; margin-bottom: 0;
+  font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; margin-bottom: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -412,7 +412,8 @@ export default function CustomersPage() {
 
 .tabs {
   display: flex;
-  background: rgba(255,255,255,0.06);
+  background: #f1f5f9;
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 4px;
   width: 100%;
@@ -424,15 +425,15 @@ export default function CustomersPage() {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  color: rgba(255,255,255,0.5);
+  color: var(--muted);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s;
 }
 .tab.active {
-  background: var(--teal);
+  background: var(--ink);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0,196,167,0.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .search-wrap { padding: 14px 16px 4px; }
@@ -565,7 +566,7 @@ export default function CustomersPage() {
 
 .fab {
   position: fixed; bottom: 28px; right: 28px;
-  width: 54px; height: 54px; background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  width: 54px; height: 54px; background: var(--ink); color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
   border-radius: 16px; display: flex; align-items: center; justify-content: center;
   font-size: 24px; cursor: pointer; box-shadow: 0 8px 28px rgba(0,196,167,0.5);
   transition: all 0.25s; z-index: 40; border: none; color: #fff;

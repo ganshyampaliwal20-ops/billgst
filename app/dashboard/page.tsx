@@ -147,6 +147,138 @@ export default function DashboardPage() {
         // empty body if only fetchAutoReminders was here
     }, [businessProfile.id]);
 
+    const getChartData = () => {
+        const validInvoices = (invoices || []).filter((inv: any) =>
+            !['QUOTATION', 'DELIVERY_CHALLAN', 'E_WAY_BILL', 'PROFORMA_INVOICE'].includes(inv.type || '') && inv.invoice_date
+        );
+
+        const now = new Date();
+
+        if (period === 'weekly') {
+            const currentDay = now.getDay();
+            const diffToMon = (currentDay === 0 ? -6 : 1) - currentDay;
+            const monday = new Date(now);
+            monday.setDate(now.getDate() + diffToMon);
+            monday.setHours(0, 0, 0, 0);
+
+            const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const data = [0, 0, 0, 0, 0, 0, 0];
+
+            let hasData = false;
+            validInvoices.forEach((inv: any) => {
+                const invDate = new Date(inv.invoice_date);
+                const dayDiff = Math.floor((invDate.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24));
+                if (dayDiff >= 0 && dayDiff < 7) {
+                    data[dayDiff] += (parseFloat(inv.total_amount) || parseFloat(inv.subtotal) || 0);
+                    hasData = true;
+                }
+            });
+
+            if (!hasData && validInvoices.length > 0) {
+                const sorted = [...validInvoices].sort((a, b) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime());
+                const latestDate = new Date(sorted[0].invoice_date);
+                const lDay = latestDate.getDay();
+                const lDiff = (lDay === 0 ? -6 : 1) - lDay;
+                const lMon = new Date(latestDate);
+                lMon.setDate(latestDate.getDate() + lDiff);
+                lMon.setHours(0, 0, 0, 0);
+
+                validInvoices.forEach((inv: any) => {
+                    const invDate = new Date(inv.invoice_date);
+                    const dayDiff = Math.floor((invDate.getTime() - lMon.getTime()) / (1000 * 60 * 60 * 24));
+                    if (dayDiff >= 0 && dayDiff < 7) {
+                        data[dayDiff] += (parseFloat(inv.total_amount) || parseFloat(inv.subtotal) || 0);
+                    }
+                });
+            }
+
+            return {
+                title: t.revenueThisWeek || 'Revenue This Week',
+                labels,
+                data,
+                total: data.reduce((a: number, b: number) => a + b, 0)
+            };
+        } else if (period === 'monthly') {
+            let targetYear = now.getFullYear();
+            let targetMonth = now.getMonth();
+
+            const thisMonthInvs = validInvoices.filter((inv: any) => {
+                const d = new Date(inv.invoice_date);
+                return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
+            });
+
+            if (thisMonthInvs.length === 0 && validInvoices.length > 0) {
+                const sorted = [...validInvoices].sort((a, b) => new Date(b.invoice_date).getTime() - new Date(a.invoice_date).getTime());
+                const latestDate = new Date(sorted[0].invoice_date);
+                targetYear = latestDate.getFullYear();
+                targetMonth = latestDate.getMonth();
+            }
+
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'];
+            const data = [0, 0, 0, 0, 0];
+
+            validInvoices.forEach((inv: any) => {
+                const d = new Date(inv.invoice_date);
+                if (d.getFullYear() === targetYear && d.getMonth() === targetMonth) {
+                    const day = d.getDate();
+                    const wIdx = day <= 7 ? 0 : day <= 14 ? 1 : day <= 21 ? 2 : day <= 28 ? 3 : 4;
+                    data[wIdx] += (parseFloat(inv.total_amount) || parseFloat(inv.subtotal) || 0);
+                }
+            });
+
+            return {
+                title: `${t.revenueThisMonth || 'Revenue This Month'} (${monthNames[targetMonth]})`,
+                labels,
+                data,
+                total: data.reduce((a: number, b: number) => a + b, 0)
+            };
+        } else if (period === 'yearly') {
+            const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const data = new Array(12).fill(0);
+            const targetYear = now.getFullYear();
+
+            validInvoices.forEach((inv: any) => {
+                const d = new Date(inv.invoice_date);
+                if (d.getFullYear() === targetYear) {
+                    data[d.getMonth()] += (parseFloat(inv.total_amount) || parseFloat(inv.subtotal) || 0);
+                }
+            });
+
+            return {
+                title: t.revenueThisYear || 'Revenue This Year',
+                labels,
+                data,
+                total: data.reduce((a: number, b: number) => a + b, 0)
+            };
+        } else {
+            const labels: string[] = [];
+            const data: number[] = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                const dayLabel = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' });
+                labels.push(dayLabel);
+
+                let daySum = 0;
+                validInvoices.forEach((inv: any) => {
+                    const invDate = new Date(inv.invoice_date);
+                    if (invDate.getFullYear() === d.getFullYear() && invDate.getMonth() === d.getMonth() && invDate.getDate() === d.getDate()) {
+                        daySum += (parseFloat(inv.total_amount) || parseFloat(inv.subtotal) || 0);
+                    }
+                });
+                data.push(daySum);
+            }
+
+            return {
+                title: t.dailyRevenue || 'Daily Revenue (Last 7 Days)',
+                labels,
+                data,
+                total: data.reduce((a: number, b: number) => a + b, 0)
+            };
+        }
+    };
+
     useEffect(() => {
         if (!isClient || !miniChartRef.current) return;
 
@@ -155,24 +287,55 @@ export default function DashboardPage() {
         const initChart = async () => {
             const { default: Chart } = await import('chart.js/auto');
             if (!miniChartRef.current) return;
+
+            const existingChart = Chart.getChart(miniChartRef.current);
+            if (existingChart) existingChart.destroy();
+
+            const chartData = getChartData();
+
             chartInstance = new Chart(miniChartRef.current, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: chartData.labels,
                     datasets: [{
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79,70,229,0.06)',
-                        borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4f46e5',
-                        fill: true, tension: .45
+                        data: chartData.data,
+                        borderColor: '#0f172a',
+                        backgroundColor: 'rgba(79,70,229,0.08)',
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#0f172a',
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: true,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '₹' + ((ctx.raw as number) / 1000).toFixed(0) + 'K' } } },
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => '₹' + Number(ctx.raw || 0).toLocaleString('en-IN')
+                            }
+                        }
+                    },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#7c88a6' } },
-                        y: { display: true, ticks: { callback: (val: any) => "₹" + (Number(val) / 1000).toFixed(0) + "K" } }
+                        y: {
+                            display: true,
+                            beginAtZero: true,
+                            ticks: {
+                                font: { family: 'Sora', size: 10 },
+                                color: '#7c88a6',
+                                callback: (val: any) => {
+                                    const num = Number(val);
+                                    if (num >= 100000) return '₹' + (num / 100000).toFixed(1) + 'L';
+                                    if (num >= 1000) return '₹' + (num / 1000).toFixed(0) + 'K';
+                                    return '₹' + num;
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -182,7 +345,7 @@ export default function DashboardPage() {
         return () => {
             if (chartInstance) chartInstance.destroy();
         };
-    }, [isClient]);
+    }, [isClient, invoices, period]);
 
     if (!isClient) return (
         <div className="flex h-screen w-full items-center justify-center bg-[#f0f2fa]">
@@ -275,7 +438,7 @@ export default function DashboardPage() {
 .content { padding: 24px 28px 40px; flex: 1; min-width: 0; }
 .greeting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
 .greeting-h1 { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.6px; margin: 0; display: flex; align-items: center; gap: 8px; }
-.greeting-h1 span { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.greeting-h1 span { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
 .greeting-right { display: flex; align-items: center; flex-shrink: 0; }
 .time-badge { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 8px 16px; box-shadow: var(--shadow); font-size: 12.5px; font-weight: 700; color: var(--slate); white-space: nowrap; }
 .time-badge .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 8px var(--green); }
@@ -289,33 +452,29 @@ export default function DashboardPage() {
 }
 
 .qa-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 24px; }
-.qa-card { flex: 1 1 100px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: none; text-decoration: none; animation: fadeUp .4s ease both; }
-.qa-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.qa-card { flex: 1 1 100px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 10px; border-radius: 16px; cursor: pointer; transition: all .25s; border: 1.5px solid var(--border); background: #ffffff; text-decoration: none; animation: fadeUp .4s ease both; box-shadow: var(--shadow); }
+.qa-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
 .qa-card .qa-icon { font-size: 26px; }
-.qa-card .qa-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #fff; text-align: center; line-height: 1.3; }
-.qa-card.c1 { background: linear-gradient(135deg, #4338ca, #4f46e5); box-shadow: 0 6px 20px rgba(79,70,229,0.35); }
-.qa-card.c2 { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
-.qa-card.c3 { background: linear-gradient(135deg, #7c3aed, #9333ea); box-shadow: 0 6px 20px rgba(147,51,234,0.35); }
-.qa-card.c4 { background: linear-gradient(135deg, #1d4ed8, #2563eb); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
-.qa-card.c5 { background: linear-gradient(135deg, #047857, #059669); box-shadow: 0 6px 20px rgba(5,150,105,0.35); }
-.qa-card.c6 { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 6px 20px rgba(109,40,217,0.35); }
+.qa-card .qa-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #0b0f1e; text-align: center; line-height: 1.3; }
+.qa-card.c1, .qa-card.c2, .qa-card.c3, .qa-card.c4, .qa-card.c5, .qa-card.c6 { background: #ffffff; box-shadow: var(--shadow); border: 1.5px solid var(--border); }
+.qa-card.c1:hover, .qa-card.c2:hover, .qa-card.c3:hover, .qa-card.c4:hover, .qa-card.c5:hover, .qa-card.c6:hover { box-shadow: var(--shadow-md); border-color: #cbd5e1; }
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
 .period-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
 .period-tabs { display: flex; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: 4px; gap: 2px; box-shadow: var(--shadow); overflow-x: auto;}
 .ptab { padding: 7px 18px; border-radius: 9px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all .2s; white-space: nowrap; }
-.ptab.active { background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; box-shadow: 0 3px 10px rgba(79,70,229,0.35); }
+.ptab.active { background: #0f172a; color: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
 .section-title { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
 .section-sub { font-size: 11px; color: var(--muted); font-weight: 400; }
 
 .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
 .kpi-card { background: var(--white); border-radius: 16px; padding: 18px 16px; box-shadow: var(--shadow); border: 1px solid var(--border); transition: all .25s; animation: fadeUp .4s ease both; position: relative; overflow: hidden; }
 .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
-.kpi-card.k1::before { background: linear-gradient(90deg, #4f46e5, #818cf8); }
-.kpi-card.k2::before { background: linear-gradient(90deg, #10b981, #34d399); }
-.kpi-card.k3::before { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-.kpi-card.k4::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.kpi-card.k1::before { background: #1e293b; }
+.kpi-card.k2::before { background: #334155; }
+.kpi-card.k3::before { background: #475569; }
+.kpi-card.k4::before { background: #64748b; }
 .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .kpi-ico { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; }
@@ -330,7 +489,7 @@ export default function DashboardPage() {
 .card-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
 .card-title { font-size: 14px; font-weight: 800; color: var(--ink); letter-spacing: -.2px; }
 .card-sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
-.see-all { font-size: 11.5px; font-weight: 700; color: var(--indigo); cursor: pointer; white-space: nowrap; }
+.see-all { font-size: 11.5px; font-weight: 700; color: #0f172a; cursor: pointer; white-space: nowrap; }
 .see-all:hover { text-decoration: underline; }
 
 .inv-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--faint); cursor: pointer; transition: all .15s; }
@@ -349,10 +508,10 @@ export default function DashboardPage() {
 
 .coll-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .coll-card { background: var(--faint); border: 1.5px solid var(--border); border-radius: 13px; padding: 16px; cursor: pointer; transition: all .2s; }
-.coll-card:hover { border-color: var(--indigo); background: #fff; transform: translateY(-1px); box-shadow: var(--shadow); }
+.coll-card:hover { border-color: #1e293b; background: #fff; transform: translateY(-1px); box-shadow: var(--shadow); }
 .coll-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .coll-num { width: 32px; height: 32px; background: var(--slate); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; }
-.coll-bills { font-size: 10.5px; font-weight: 700; color: var(--teal); }
+.coll-bills { font-size: 10.5px; font-weight: 700; color: #0f172a; }
 .coll-name { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
 .coll-last { font-size: 10.5px; color: var(--muted); font-weight: 400; }
 .coll-amt { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--red); margin-top: 4px; }
@@ -363,35 +522,36 @@ export default function DashboardPage() {
 
 .action-bar { display: flex; gap: 10px; margin-bottom: 16px; }
 .action-bar-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all .2s; }
-.btn-remind { background: linear-gradient(135deg, #1d4ed8, #4f46e5); color: #fff; box-shadow: 0 4px 14px rgba(79,70,229,0.35); }
-.btn-due { background: #fff; color: var(--indigo); border: 1.5px solid var(--indigo); box-shadow: none; }
+.btn-remind { background: #0f172a; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.btn-due { background: #fff; color: #0f172a; border: 1.5px solid #1e293b; box-shadow: none; }
 .action-bar-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
 .prod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .prod-card { background: var(--faint); border: 1.5px solid var(--border); border-radius: 13px; padding: 12px; position: relative; cursor: pointer; transition: all .2s; }
 .prod-card:hover { border-color: var(--amber); background: #fff; transform: translateY(-2px); box-shadow: var(--shadow); }
 .prod-rank { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-.rank-1 { background: linear-gradient(135deg, #f59e0b, #f97316); }
-.rank-2 { background: linear-gradient(135deg, #6b7280, #9ca3af); }
-.rank-3 { background: linear-gradient(135deg, #92400e, #b45309); }
+.rank-1 { background: #0f172a; }
+.rank-2 { background: #334155; }
+.rank-3 { background: #475569; }
 .rank-other { background: var(--slate); }
 .prod-badge { position: absolute; top: 10px; right: 10px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
 .badge-best { background: rgba(245,158,11,0.15); color: var(--amber); }
-.badge-top { background: rgba(14,165,233,0.12); color: var(--teal); }
+.badge-top { background: rgba(0,0,0,0.06); color: #334155; }
 .prod-name { font-size: 12.5px; font-weight: 800; color: var(--ink); margin-bottom: 2px; }
 .prod-sold { font-size: 10.5px; color: var(--muted); font-weight: 500; }
-.prod-amt { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--indigo); margin-top: 4px; }
+.prod-amt { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #0f172a; margin-top: 4px; }
 
 .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 20px; }
-.store-card { background: linear-gradient(135deg, #0f172a, #1e3a5f); border-radius: 18px; padding: 20px; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .2s; }
-.store-card:hover { transform: translateY(-2px); }
-.store-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
-.store-info .store-title { font-size: 15px; font-weight: 800; color: #fff; }
-.store-info .store-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+.store-card { background: var(--white); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); border: 1.5px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .2s; }
+.store-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
+.store-icon { width: 50px; height: 50px; background: #f1f5f9; border: 1.5px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.store-info .store-title { font-size: 15px; font-weight: 800; color: var(--ink); }
+.store-info .store-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .store-btns { display: flex; gap: 8px; margin-top: 12px; }
-.store-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; }
-.btn-open { background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; }
-.btn-share { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+.store-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; background: #ffffff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.store-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+.btn-open { color: #0f172a; }
+.btn-share { color: #334155; }
 
 .gst-quick { background: var(--white); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 .gst-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--faint); font-size: 13px; }
@@ -399,29 +559,32 @@ export default function DashboardPage() {
 .gst-key { color: var(--muted); font-weight: 500; }
 .gst-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
 
-.support-btn { width: fit-content; min-width: 280px; margin: 20px auto; margin-top: 20px; padding: 16px; background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(79,70,229,0.35); transition: all .2s; }
-.support-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(79,70,229,0.45); }
+.support-btn { width: fit-content; min-width: 280px; margin: 20px auto; margin-top: 20px; padding: 16px; background: #ffffff; color: var(--ink); border: 1.5px solid var(--border); border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--shadow); transition: all .2s; }
+.support-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #cbd5e1; background: #f8fafc; }
 
 .footer-dark{
-  background:#151a2e;
+  background: var(--white);
+  border: 1.5px solid var(--border);
   border-radius:16px;
   padding:24px 28px;
   display:flex;align-items:center;justify-content:space-between;
   flex-wrap:wrap;gap:20px;
   margin-top: 16px;
+  box-shadow: var(--shadow);
 }
-.footer-dark-text p.t{color:#fff;font-size:15px;font-weight:700;margin:0 0 3px;}
-.footer-dark-text p.s{color:#8b90a8;font-size:12.5px;margin:0;}
+.footer-dark-text p.t{color: var(--ink);font-size:15px;font-weight:700;margin:0 0 3px;}
+.footer-dark-text p.s{color: var(--muted);font-size:12.5px;margin:0;}
 .social-dark-row{display:flex;gap:10px;}
 .social-dark-btn{
   width:42px;height:42px;border-radius:10px;
-  background:#232945;
+  background:#f1f5f9;
+  border: 1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   text-decoration:none;transition:.18s;
 }
-.social-dark-btn svg{width:19px;height:19px;fill:#c7cadd;}
-.social-dark-btn:hover{background:#7c5cff;}
-.social-dark-btn:hover svg{fill:#fff;}
+.social-dark-btn svg{width:19px;height:19px;fill:#475569;}
+.social-dark-btn:hover{background:#e2e8f0;}
+.social-dark-btn:hover svg{fill:#0f172a;}
 
 @media(max-width:1024px) { 
   .qa-grid { gap: 8px; } 
@@ -472,21 +635,21 @@ export default function DashboardPage() {
                 <div className="qa-grid">
                     {businessProfile?.modules?.invoicing !== false && (
                         <>
-                            <Link href="/dashboard/invoices/new" className="qa-card c1" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">{t.newInvoice}</span></Link>
-                            <Link href="/dashboard/customers" className="qa-card c2" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">{t.addCustomer}</span></Link>
+                            <Link href="/dashboard/invoices/new" className="qa-card" style={{ animationDelay: ".05s" }}><span className="qa-icon">🧾</span><span className="qa-label">{t.newInvoice}</span></Link>
+                            <Link href="/dashboard/customers" className="qa-card" style={{ animationDelay: ".08s" }}><span className="qa-icon">👤</span><span className="qa-label">{t.addCustomer}</span></Link>
                         </>
                     )}
                     {businessProfile?.modules?.inventory !== false && (
-                        <Link href="/dashboard/inventory" className="qa-card c3" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">{t.addProduct}</span></Link>
+                        <Link href="/dashboard/inventory" className="qa-card" style={{ animationDelay: ".11s" }}><span className="qa-icon">📦</span><span className="qa-label">{t.addProduct}</span></Link>
                     )}
                     {(businessProfile?.modules?.invoicing !== false || businessProfile?.modules?.inventory !== false) && (
-                        <Link href="/dashboard/reports" className="qa-card c4" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">{t.viewReports}</span></Link>
+                        <Link href="/dashboard/reports" className="qa-card" style={{ animationDelay: ".14s" }}><span className="qa-icon">📊</span><span className="qa-label">{t.viewReports}</span></Link>
                     )}
                     {businessProfile?.modules?.staff !== false && (
-                        <Link href="/dashboard/staff" className="qa-card c5" style={{ animationDelay: ".17s" }}><span className="qa-icon">👥</span><span className="qa-label">{t.attendance || 'Attendance'}</span></Link>
+                        <Link href="/dashboard/staff" className="qa-card" style={{ animationDelay: ".17s" }}><span className="qa-icon">👥</span><span className="qa-label">{t.attendance || 'Attendance'}</span></Link>
                     )}
                     {businessProfile?.modules?.accounting !== false && (
-                        <Link href="/dashboard/expenses" className="qa-card c6" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
+                        <Link href="/dashboard/expenses" className="qa-card" style={{ animationDelay: ".2s" }}><span className="qa-icon">💸</span><span className="qa-label">{t.expenses}</span></Link>
                     )}
                 </div>
 
@@ -711,17 +874,17 @@ export default function DashboardPage() {
                         <>
                             <Link href="/dashboard/reports?period=daily" className="kpi-card k1" style={{ animationDelay: ".1s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                                 <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(79,70,229,0.1)" }}>💰</div><div className="kpi-trend trend-up">Now</div></div>
-                                <div className="kpi-val" style={{ color: "var(--indigo)" }}>{formatCompactNumber(todaySales)}</div>
+                                <div className="kpi-val" style={{ color: "#0f172a" }}>{formatCompactNumber(todaySales)}</div>
                                 <div className="kpi-lbl">{t.todaysSales}</div>
                             </Link>
                             <Link href="/dashboard/reports" className="kpi-card k2" style={{ animationDelay: ".14s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                                 <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(16,185,129,0.1)" }}>📈</div><div className="kpi-trend trend-up">Total</div></div>
-                                <div className="kpi-val" style={{ color: "var(--green)" }}>{formatCompactNumber(totalSales)}</div>
+                                <div className="kpi-val" style={{ color: "#0f172a" }}>{formatCompactNumber(totalSales)}</div>
                                 <div className="kpi-lbl">{t.totalRevenue}</div>
                             </Link>
                             <Link href="/dashboard/invoices" className="kpi-card k3" style={{ animationDelay: ".18s", cursor: "pointer", display: "block", textDecoration: "none", color: "inherit" }}>
                                 <div className="kpi-top"><div className="kpi-ico" style={{ background: "rgba(14,165,233,0.1)" }}>🧾</div><div className="kpi-trend trend-up">All</div></div>
-                                <div className="kpi-val" style={{ color: "var(--teal)" }}>{formatCompactNumber(invoiceCount)}</div>
+                                <div className="kpi-val" style={{ color: "#0f172a" }}>{formatCompactNumber(invoiceCount)}</div>
                                 <div className="kpi-lbl">{t.totalInvoices}</div>
                             </Link>
                         </>
@@ -752,24 +915,54 @@ export default function DashboardPage() {
                                         const statusColor = inv.status === 'PAID' ? 'var(--green)' : inv.status === 'PARTIAL' ? 'var(--amber)' : '#4f46e5';
                                         const sClass = inv.status === 'PAID' ? 's-paid' : inv.status === 'PARTIAL' ? 's-partial' : 's-unpaid';
                                         return (
-                                            <Link href="/dashboard/invoices" className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex" }}>
+                                            <div className="inv-row" key={'inv-' + inv.id + '-' + idx} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center" }}>
                                                 <div className="inv-av" style={{ background: statusColor }}>{(inv.customer?.name || 'U')[0]}</div>
-                                                <div className="inv-info">
+                                                <div className="inv-info" onClick={() => router.push('/dashboard/invoices')} style={{ cursor: "pointer" }}>
                                                     <div className="inv-name">{inv.customer?.name || 'Unknown'}</div>
                                                     <div className="inv-meta">{inv.invoice_number} · {new Date(inv.invoice_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
                                                 </div>
-                                                <div className="inv-right">
-                                                    <div className="inv-amt">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
+                                                <div className="inv-right" onClick={() => router.push('/dashboard/invoices')} style={{ cursor: "pointer" }}>
+                                                    <div className="inv-amt amount-pending">₹{parseFloat(inv.total_amount).toLocaleString('en-IN')}</div>
                                                     <div className={`inv-status ${sClass}`}>{inv.status}</div>
                                                 </div>
-                                                <span style={{ fontSize: "14px", cursor: "pointer", marginLeft: "6px" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
-                                            </Link>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '10px' }}>
+                                                    <Link
+                                                        href={`/dashboard/invoices/new?editId=${inv.id}`}
+                                                        title="Edit Invoice"
+                                                        style={{
+                                                            padding: '4px 8px',
+                                                            background: '#ffffff',
+                                                            borderRadius: '8px',
+                                                            fontSize: '11px',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                            textDecoration: 'none',
+                                                            color: '#1e293b',
+                                                            fontWeight: 800,
+                                                            border: '1.5px solid #cbd5e1',
+                                                            boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                                                        }}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        ✏️ Edit
+                                                    </Link>
+                                                    <span style={{ fontSize: "15px", cursor: "pointer", padding: "2px" }} title="WhatsApp Reminder" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSendReminder(inv.customer || inv); }}>💬</span>
+                                                </div>
+                                            </div>
                                         );
                                     })
                                 }
                             </div>
                             <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--faint)" }}>
-                                <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", marginBottom: "8px", textTransform: "uppercase", letterSpacing: ".7px" }}>{t.revenueThisWeek || 'Revenue This Week'}</div>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                                    <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".7px" }}>
+                                        {getChartData().title}
+                                    </div>
+                                    <div style={{ fontSize: "12px", fontWeight: 800, color: "var(--ink)", fontFamily: "'JetBrains Mono', monospace" }}>
+                                        ₹{getChartData().total.toLocaleString('en-IN')}
+                                    </div>
+                                </div>
                                 <canvas ref={miniChartRef} style={{ maxHeight: "90px" }}></canvas>
                             </div>
                         </div>
@@ -853,20 +1046,20 @@ export default function DashboardPage() {
                 )}
 
                 <div style={{ marginTop: "20px" }}>
-                    <Link href="/dashboard/referral" className="store-card" style={{ background: "linear-gradient(135deg, #10b981, #059669)", cursor: "pointer", animation: "fadeUp .5s .45s ease both", display: "flex", textDecoration: "none", color: "inherit" }}>
-                        <div className="store-icon" style={{ background: "rgba(255,255,255,0.2)" }}>🎁</div>
+                    <Link href="/dashboard/referral" className="store-card" style={{ background: "#ffffff", cursor: "pointer", animation: "fadeUp .5s .45s ease both", display: "flex", textDecoration: "none", color: "inherit" }}>
+                        <div className="store-icon" style={{ background: "#f1f5f9" }}>🎁</div>
                         <div className="store-info" style={{ flex: 1 }}>
-                            <div className="store-title">{t.referEarnTitle}</div>
-                            <div className="store-sub">{t.referEarnSubtitle}</div>
+                            <div className="store-title" style={{ color: "var(--ink)" }}>{t.referEarnTitle}</div>
+                            <div className="store-sub" style={{ color: "var(--muted)" }}>{t.referEarnSubtitle}</div>
                         </div>
-                        <span className="see-all" style={{ color: "#fff", background: "rgba(0,0,0,0.15)", padding: "8px 14px", borderRadius: "8px", textDecoration: "none" }}>{t.referNow}</span>
+                        <span style={{ color: "var(--ink)", background: "#ffffff", border: "1.5px solid var(--border)", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 800, textDecoration: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>{t.referNow} →</span>
                     </Link>
                 </div>
 
 
                 <div className="footer-dark">
                     <div className="footer-dark-text">
-                        <p className="t">billgst.in</p>
+                        <p className="t">BillGST</p>
                         <p className="s">{t.footerTagline || 'Invoice, hisaab, GST — sab kuch ek jagah'}</p>
                     </div>
                     <div className="social-dark-row">

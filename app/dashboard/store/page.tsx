@@ -178,7 +178,7 @@ export default function StoreManagerPage() {
             
             /* Top bar */
             .store-topbar{
-              background:linear-gradient(135deg,#0b0f1e 0%,#1c2340 60%,#312e81 100%);
+              background:#0f172a;
               padding:14px 24px;
               display:flex;align-items:center;justify-content:space-between;
               position:sticky;top:0;z-index:50;
@@ -193,7 +193,7 @@ export default function StoreManagerPage() {
             .tb-btn{padding:8px 16px;border-radius:10px;border:none;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
             .tb-btn.preview{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff}
             .tb-btn.preview:hover{background:rgba(255,255,255,.2)}
-            .tb-btn.publish{background:linear-gradient(135deg,var(--green),#059669);color:#fff;box-shadow:0 4px 14px rgba(16,185,129,.35)}
+            .tb-btn.publish{background:#0f172a;color:#fff;box-shadow:0 4px 14px rgba(16,185,129,.35)}
             .tb-btn.publish:hover{transform:translateY(-1px);filter:brightness(1.1)}
             
             @media(max-width: 600px) {
@@ -219,7 +219,7 @@ export default function StoreManagerPage() {
             
             /* Store Hero */
             .store-hero{
-              background:linear-gradient(135deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);
+              background:#0f172a;
               border-radius:18px;
               padding:0;
               overflow:hidden;
@@ -230,7 +230,7 @@ export default function StoreManagerPage() {
             }
             .hero-banner{
               height:120px;
-              background:linear-gradient(135deg,#6d28d9,#4f46e5,#0ea5e9);
+              background:#0f172a;
               position:relative;
               overflow:hidden;
               cursor:pointer;
@@ -243,7 +243,7 @@ export default function StoreManagerPage() {
             
             .hero-body{padding:0 20px 20px;position:relative}
             .logo-wrap{position:relative;display:inline-block;margin-top:-28px;margin-bottom:10px}
-            .store-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--amber),#f97316);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid var(--white);box-shadow:0 10px 28px rgba(0,0,0,.3);cursor:pointer}
+            .store-logo{width:60px;height:60px;background:#0f172a;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid var(--white);box-shadow:0 10px 28px rgba(0,0,0,.3);cursor:pointer}
             .logo-edit{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;background:var(--indigo);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;cursor:pointer;border:2px solid #fff}
             
             .store-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -301,7 +301,7 @@ export default function StoreManagerPage() {
             
             /* Products section */
             .prod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-            .add-prod-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;border:none;padding:9px 16px;border-radius:10px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 4px 14px rgba(79,70,229,.3)}
+            .add-prod-btn{background:#0f172a;color:#fff;border:none;padding:9px 16px;border-radius:10px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 4px 14px rgba(79,70,229,.3)}
             .add-prod-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
             
             .sprod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -376,7 +376,7 @@ export default function StoreManagerPage() {
             .qrmodal-actions{display:flex;gap:10px}
             .qrmodal-btn{flex:1;padding:12px;border-radius:12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
             .qrmodal-btn.cancel{background:var(--faint);color:var(--slate);border:1.5px solid var(--border)}
-            .qrmodal-btn.dl{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.35)}
+            .qrmodal-btn.dl{background:#0f172a;color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.35)}
             
             .schip{padding:6px 14px;border-radius:20px;font-size:11.5px;font-weight:700;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
             .schip:hover{border-color:var(--indigo);color:var(--indigo)}

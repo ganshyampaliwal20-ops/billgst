@@ -468,14 +468,15 @@ function ReportsContent() {
 .report-wrapper * { box-sizing: border-box; }
 
 .topbar {
-  background: linear-gradient(135deg, #0b0f1e 0%, #1c2340 60%, #2d3561 100%);
+  background: #ffffff;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 16px;
-  box-shadow: 0 4px 24px rgba(11,15,30,0.3);
+  border-bottom: 1.5px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   perspective: 1000px;
   animation: dropIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
@@ -488,14 +489,14 @@ function ReportsContent() {
   .topbar-right { justify-content: center; width: 100%; flex-wrap: wrap; }
 }
 .topbar-left { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.topbar h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.4px; margin: 0; }
-.topbar p  { font-size: 11.5px; color: rgba(255,255,255,0.45); font-weight: 400; margin-top: 1px; margin-bottom: 0;}
+.topbar h1 { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.4px; margin: 0; }
+.topbar p  { font-size: 11.5px; color: var(--muted); font-weight: 400; margin-top: 1px; margin-bottom: 0;}
 
 .topbar-right { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .period-select {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #fff;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  color: var(--ink);
   padding: 0 14px;
   height: 42px;
   border-radius: 10px;
@@ -506,7 +507,7 @@ function ReportsContent() {
   outline: none;
   -webkit-appearance: none;
 }
-.period-select option { background: #1c2340; color: #fff; }
+.period-select option { background: #ffffff; color: var(--ink); }
 
 .export-btn {
   display: flex; align-items: center; justify-content: center; gap: 7px;
@@ -520,8 +521,8 @@ function ReportsContent() {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
-.btn-tally { background: linear-gradient(135deg, #dc4a1a, #f97316); color: #fff; box-shadow: 0 4px 14px rgba(249,115,22,0.35); }
-.btn-excel { background: linear-gradient(135deg, #059669, #10b981); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+.btn-tally { background: #0f172a; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.btn-excel { background: #334155; color: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
 .export-btn:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.15); box-shadow: 0 10px 20px rgba(0,0,0,0.25); }
 @media(max-width: 500px) {
   .export-btn { padding: 8px 12px; font-size: 11px; gap: 4px; }
@@ -530,14 +531,15 @@ function ReportsContent() {
 
 .advisory {
   margin: 14px 16px 0;
-  background: linear-gradient(135deg, #312e81, #4338ca, #4f46e5);
+  background: #ffffff;
+  border: 1.5px solid var(--border);
   border-radius: 12px;
   padding: 8px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  box-shadow: 0 4px 20px rgba(79,70,229,0.3);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   animation: slideIn 0.5s ease both;
 }
 @media(max-width: 768px) {
@@ -547,8 +549,8 @@ function ReportsContent() {
 .advisory-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
 .advisory-icon { font-size: 18px; flex-shrink: 0; }
 .advisory-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-.advisory-text p { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.6); margin: 0; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
-.advisory-text h3 { font-size: 12px; font-weight: 500; color: #fff; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.advisory-text p { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin: 0; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+.advisory-text h3 { font-size: 12px; font-weight: 600; color: var(--ink); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media(max-width: 600px) {
   .advisory-icon { display: none; }
   .advisory-text h3 { font-size: 11px; }
@@ -608,12 +610,12 @@ function ReportsContent() {
   height: 3px;
   border-radius: 16px 16px 0 0;
 }
-.kpi-card.indigo::before { background: linear-gradient(90deg, #4f46e5, #818cf8); }
-.kpi-card.teal::before   { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-.kpi-card.green::before  { background: linear-gradient(90deg, #10b981, #34d399); }
-.kpi-card.amber::before  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.kpi-card.red::before    { background: linear-gradient(90deg, #ef4444, #f87171); }
-.kpi-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.kpi-card.indigo::before { background: #1e293b; }
+.kpi-card.teal::before   { background: #334155; }
+.kpi-card.green::before  { background: #475569; }
+.kpi-card.amber::before  { background: #64748b; }
+.kpi-card.red::before    { background: #94a3b8; }
+.kpi-card.purple::before { background: #cbd5e1; }
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
@@ -779,14 +781,14 @@ function ReportsContent() {
 .gst-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); }
 .gst-compliance {
   margin-top: 14px;
-  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  background: #f8fafc;
   border: 1px solid #bbf7d0;
   border-radius: 11px;
   padding: 12px 14px;
 }
 .compliance-top { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--green); margin-bottom: 7px; }
 .compliance-bar { height: 6px; background: #d1fae5; border-radius: 10px; overflow: hidden; }
-.compliance-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 10px; width: 92%; transition: width 1s ease; }
+.compliance-fill { height: 100%; background: #0f172a; border-radius: 10px; width: 92%; transition: width 1s ease; }
             ` }} />
 
             <div className="report-wrapper">

@@ -158,7 +158,7 @@ export default function NewQuotationPage() {
                 }
 
                 .quo-head {
-                    background: linear-gradient(135deg, #0f1235 0%, #1e2460 100%);
+                    background: #0f172a;
                     padding: 24px; color: white; display: flex; justify-content: center; align-items: center;
                 }
                 .quo-head h1 { font-size: 22px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 1.5px; }

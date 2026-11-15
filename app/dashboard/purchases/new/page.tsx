@@ -253,7 +253,7 @@ export default function NewPurchasePage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #e4e8f4', paddingBottom: '16px' }}>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1e2436' }}>New Purchase Bill</h1>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <label style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <label style={{ background: '#0f172a', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {isScanning ? 'Scanning...' : 'Scan Bill with AI 📷'}
                             <input type="file" accept="image/*" capture="environment" onChange={handleFileUpload} style={{ display: 'none' }} disabled={isScanning} />
                         </label>

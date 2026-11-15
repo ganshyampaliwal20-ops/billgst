@@ -504,7 +504,7 @@ export default function InventoryPage() {
 
                 /* ══ HERO SECTION ══ */
                 .hero {
-                  background:linear-gradient(160deg,#1a1d3a 0%,#2a2f6e 60%,#1e3a5f 100%);
+                  background:#ffffff; border:1.5px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,0.04);
                   padding:20px 18px 24px;
                   position:relative;overflow:hidden;
                   border-radius: 0 0 24px 24px;
@@ -524,20 +524,20 @@ export default function InventoryPage() {
                 .hero-inner{position:relative;z-index:1;}
                 .hero-eyebrow{
                   display:inline-flex;align-items:center;gap:6px;
-                  font-size:10px;font-weight:700;color:rgba(255,255,255,0.45);
+                  font-size:10px;font-weight:700;color:var(--muted);
                   text-transform:uppercase;letter-spacing:1.5px;
                   margin-bottom:8px;
                 }
                 .hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:#10b981;}
                 .hero-title{
                   font-family:'Clash Display',sans-serif;
-                  font-size:28px;font-weight:700;color:#fff;
+                  font-size:28px;font-weight:700;color:var(--ink);
                   letter-spacing:-0.5px;line-height:1.1;
                   margin-bottom:4px;
                 }
                 .hero-title .accent{color:#10b981;}
                 .hero-sub{
-                  font-size:12px;color:rgba(255,255,255,0.4);
+                  font-size:12px;color:var(--muted);
                   letter-spacing:1px;text-transform:uppercase;
                   margin-bottom:20px;font-weight:500;
                 }
@@ -547,8 +547,8 @@ export default function InventoryPage() {
                   display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:10px;
                 }
                 .stat-card{
-                  background:rgba(255,255,255,0.07);
-                  border:1px solid rgba(255,255,255,0.08);
+                  background:#f8fafc;
+                  border:1px solid var(--border);
                   border-radius:var(--radius-sm);
                   padding:10px 12px;
                   display:flex;align-items:center;gap:10px;
@@ -666,7 +666,7 @@ export default function InventoryPage() {
                   width:100%;height:100%;
                   display:flex;align-items:center;justify-content:center;
                   font-size:20px;
-                  background:linear-gradient(135deg,#f0f0f8,#e4e6f0);
+                  background:#f8fafc;
                 }
                 .stock-dot{
                   position:absolute;top:4px;right:4px;
@@ -756,8 +756,8 @@ export default function InventoryPage() {
                   transition:all .2s;
                 }
                 .hero-btn svg{width:16px;height:16px;}
-                .hero-btn.catalog{ background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; box-shadow:0 3px 8px rgba(139,92,246,0.15); }
-                .hero-btn.add{ background:linear-gradient(135deg,#10b981,#059669); color:#fff; box-shadow:0 3px 8px rgba(16,185,129,0.15); }
+                .hero-btn.catalog{ background:#ffffff; color:var(--ink); border:1.5px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+                .hero-btn.add{ background:#0f172a; color:#fff; border:1.5px solid #0f172a; box-shadow:0 3px 8px rgba(15,23,42,0.15); }
                 .hero-btn.whatsapp{ background:#25D366; color:#fff; box-shadow:0 3px 8px rgba(37,211,102,0.15); }
                 .hero-btn.scanner{ background:var(--ink); color:#fff; box-shadow:0 3px 8px rgba(13,15,26,0.15); }
                 .hero-btn:active{transform:scale(0.95);}
@@ -783,7 +783,7 @@ export default function InventoryPage() {
                 .fab{
                   position:fixed;bottom:20px;right:20px;
                   width:54px;height:54px;border-radius:16px;
-                  background:linear-gradient(135deg,#10b981,#059669);
+                  background:#0f172a;
                   border:none;cursor:pointer;
                   display:flex;align-items:center;justify-content:center;
                   box-shadow:0 6px 24px rgba(16,185,129,0.45);
@@ -794,7 +794,7 @@ export default function InventoryPage() {
                 /* Modals Styling */
                 .modal-overlay { position:fixed; inset:0; background:rgba(11,15,30,.65); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:flex-start; justify-content:center; padding:90px 12px 40px 12px; overflow-y:auto; }
                 .modal { margin: 0 auto; background:var(--white); border-radius:22px; width:100%; max-width:520px; display:flex; flex-direction:column; max-height:none; overflow:hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-                .modal-header { background:linear-gradient(135deg,#0b0f1e,#1c2340); padding:20px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+                .modal-header { background:#0f172a; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
                 .modal-header h3 { font-size:18px; font-weight:800; color:#fff; margin:0; letter-spacing: 0.5px; }
                 .modal-close { width:36px; height:36px; background:rgba(255,255,255,.1); border:none; border-radius:10px; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition: background 0.2s; }
                 .modal-close:hover { background:rgba(255,255,255,.2); }
@@ -806,12 +806,12 @@ export default function InventoryPage() {
                 .modal-footer { padding:16px 24px calc(20px + env(safe-area-inset-bottom, 20px)); display:flex; gap:10px; flex-shrink:0; border-top:1px solid var(--border); background:var(--white); }
                 .mf-btn { flex:1; padding:13px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; border:none; }
                 .mf-cancel { background:var(--bg); color:var(--ink2); border:1.5px solid var(--border); }
-                .mf-save { background:linear-gradient(135deg,var(--green),#059669); color:#fff; }
+                .mf-save { background:#0f172a; color:#fff; }
 
                 /* HTML5 QR Code Custom Styles */
                 #reader { border: none !important; }
                 #reader a { color: var(--indigo); text-decoration: none; font-weight: 800; font-size: 13px; display: inline-block; margin: 10px 0; }
-                #reader button { background: linear-gradient(135deg, var(--indigo), #6d28d9); color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-family: 'DM Sans', sans-serif; cursor: pointer; margin: 4px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); transition: transform 0.2s; }
+                #reader button { background: #0f172a; color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-family: 'DM Sans', sans-serif; cursor: pointer; margin: 4px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); transition: transform 0.2s; }
                 #reader button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.4); }
                 #reader select { padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); font-family: 'DM Sans', sans-serif; font-weight: 600; outline: none; background: var(--bg); color: var(--ink); margin: 6px; width: calc(100% - 12px); max-width: 100%; }
                 #reader select:focus { border-color: var(--indigo); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
@@ -1041,7 +1041,7 @@ export default function InventoryPage() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '16px',
-                        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                        background: '#0f172a',
                         color: '#fff',
                         textDecoration: 'none',
                         borderRadius: '16px',
@@ -1096,7 +1096,7 @@ export default function InventoryPage() {
                                     router.push('/dashboard/purchases/new');
                                 }}
                                 style={{
-                                    background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                                    background: '#0f172a',
                                     color: 'white',
                                     padding: '16px',
                                     borderRadius: '12px',
@@ -1183,7 +1183,7 @@ export default function InventoryPage() {
                                             </div>
                                             <input className="field-input" style={{ paddingLeft: '48px', paddingRight: '12px', fontSize: '16px', fontWeight: 'bold', height: '48px' }} type="text" placeholder="Scan with USB..." value={formData.barcode} onChange={e => setFormData({ ...formData, barcode: e.target.value })} />
                                         </div>
-                                        <button type="button" onClick={startScanner} style={{ background: 'linear-gradient(135deg, var(--indigo, #4f46e5), var(--purple, #8b5cf6))', border: 'none', color: '#fff', padding: '0 20px', height: '48px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'transform 0.2s, box-shadow 0.2s', whiteSpace: 'nowrap' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                        <button type="button" onClick={startScanner} style={{ background: '#0f172a', border: 'none', color: '#fff', padding: '0 20px', height: '48px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', transition: 'transform 0.2s, box-shadow 0.2s', whiteSpace: 'nowrap' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                                             Camera
                                         </button>

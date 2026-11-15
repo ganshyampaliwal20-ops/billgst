@@ -27,7 +27,7 @@ export default function HelpPage() {
         <div className="p-6 space-y-6">
             {/* Header */}
             <div className="text-center">
-                <div className="inline-flex p-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full mb-4">
+                <div className="inline-flex p-4 bg-[#0f172a] rounded-full mb-4">
                     <FaHeadset className="text-4xl text-white" />
                 </div>
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight">Help & Support</h1>
@@ -40,7 +40,7 @@ export default function HelpPage() {
                     href="https://wa.me/7498571873"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
+                    className="flex flex-col items-center justify-center bg-[#0f172a] rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaWhatsapp className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">WhatsApp</h3>
@@ -49,7 +49,7 @@ export default function HelpPage() {
 
                 <a
                     href="mailto:billgstapp@gmail.com"
-                    className="flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
+                    className="flex flex-col items-center justify-center bg-[#1e293b] rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaEnvelope className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">Email</h3>
@@ -58,7 +58,7 @@ export default function HelpPage() {
 
                 <a
                     href="tel:+917498571873"
-                    className="flex flex-col items-center justify-center bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
+                    className="flex flex-col items-center justify-center bg-[#334155] rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all text-center group"
                 >
                     <FaPhone className="text-4xl mx-auto mb-3 group-hover:scale-110 transition-transform" />
                     <h3 className="font-bold text-lg">Phone</h3>
@@ -103,7 +103,7 @@ export default function HelpPage() {
             </div>
 
             {/* Need More Help Banner */}
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 text-white text-center">
+            <div className="bg-[#0f172a] rounded-2xl p-8 text-white text-center">
                 <h3 className="text-2xl font-black mb-2">📞 Turant Help Chahiye?</h3>
                 <p className="mb-6 opacity-90">Hamare support team se seedha baat karein — bilkul free!</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">

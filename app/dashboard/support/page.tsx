@@ -179,11 +179,11 @@ export default function SupportAdminPage() {
     const getInitial = (email: string) => email ? email.charAt(0).toUpperCase() : 'U';
     const getColor = (email: string) => {
         const colors = [
-            'linear-gradient(135deg,#4f46e5,#7c3aed)',
-            'linear-gradient(135deg,#f59e0b,#d97706)',
-            'linear-gradient(135deg,#10b981,#059669)',
-            'linear-gradient(135deg,#3b82f6,#2563eb)',
-            'linear-gradient(135deg,#ec4899,#db2777)'
+            '#0f172a',
+            '#334155',
+            '#475569',
+            '#1e293b',
+            '#64748b'
         ];
         if(!email) return colors[0];
         let hash = 0;
@@ -245,7 +245,7 @@ export default function SupportAdminPage() {
 .s-view.active { display: flex; }
 
 /* INBOX VIEW */
-.inbox-topbar { background: linear-gradient(135deg,#1e1b4b,#312e81,#4f46e5); padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.inbox-topbar { background: #0f172a; padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .logo-box { width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .logo-box svg { width: 22px; height: 22px; color: #fff; }
 .tb-info { flex: 1; }
@@ -253,7 +253,7 @@ export default function SupportAdminPage() {
 .tb-sub { font-size: 10px; color: rgba(255,255,255,.5); font-weight: 500; margin-top: 1px; }
 
 .inbox-hero { background: var(--white); padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 13px; flex-shrink: 0; }
-.inbox-icon { width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(135deg,var(--indigo),var(--green)); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(79,70,229,.25); flex-shrink: 0; }
+.inbox-icon { width: 50px; height: 50px; border-radius: 16px; background: #0f172a; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(79,70,229,.25); flex-shrink: 0; }
 .inbox-icon svg { width: 24px; height: 24px; color: #fff; }
 .inbox-title { font-size: 20px; font-weight: 900; color: var(--ink); letter-spacing: -.4px; }
 .inbox-desc { font-size: 12px; color: var(--ink3); margin-top: 3px; font-weight: 500; }
@@ -310,7 +310,7 @@ export default function SupportAdminPage() {
 
 .bubble { padding: 10px 13px; border-radius: 18px; font-size: 13px; font-weight: 500; line-height: 1.5; position: relative; animation: bubbleIn .25s ease both; word-wrap: break-word; overflow-wrap: break-word; width: fit-content; }
 @keyframes bubbleIn { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
-.bubble.sent { background: linear-gradient(135deg,var(--indigo),#6366f1); color: #fff; border-bottom-right-radius: 5px; box-shadow: 0 2px 12px rgba(79,70,229,.25); }
+.bubble.sent { background: #0f172a; color: #fff; border-bottom-right-radius: 5px; box-shadow: 0 2px 12px rgba(79,70,229,.25); }
 .bubble.received { background: var(--white); color: var(--ink); border-bottom-left-radius: 5px; border: 1px solid var(--border); box-shadow: var(--sh); }
 .bubble-time { font-size: 10px; margin-top: 4px; font-weight: 500; display: flex; align-items: center; gap: 3px; }
 .bubble.sent .bubble-time { color: rgba(255,255,255,.55); justify-content: flex-end; }

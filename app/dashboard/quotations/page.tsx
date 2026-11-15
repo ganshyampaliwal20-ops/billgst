@@ -134,7 +134,7 @@ export default function QuotationsPage() {
                 }
 
                 .topbar {
-                    background: linear-gradient(135deg, #0f1235 0%, #1e2460 100%);
+                    background: #0f172a;
                     padding: 25px 15px 30px; position: sticky; top: 0; z-index: 200;
                     margin: 0 5px; border-radius: 0 0 15px 15px;
                     display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -264,7 +264,7 @@ export default function QuotationsPage() {
                 {customers.map((c: any) => (
                     <div key={c.name} className={`cust-card ${openCards.includes(c.name) ? 'open' : ''}`}>
                         <div className="cust-head" onClick={() => toggleCard(c.name)}>
-                            <div className="avatar" style={{ background: 'linear-gradient(135deg, #4338ca, #7c3aed)' }}>{c.name[0]}</div>
+                            <div className="avatar" style={{ background: '#0f172a' }}>{c.name[0]}</div>
                             <div className="cust-info">
                                 <div className="cust-name">{c.name}</div>
                                 <div style={{ fontSize: '11px', color: 'var(--ink3)' }}>{c.count} Quotation</div>
